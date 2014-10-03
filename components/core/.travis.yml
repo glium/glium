@@ -1,0 +1,13 @@
+language: rust
+
+env:
+  global:
+    - secure: X6FV49/Si3pe1oWY1bHacgR2nyrs7rrmYwWzwdHuZl0sGseTNChUK1e1hxDpKY79a+GPEMMqonepQT+ciM/0JmXH4Bf8NKEgSvz7uAoYoWg+Xb+VoyE2nLys/5CrqTM7tgTSco+aMOwtZPjobPjKzK7uU06cpTsHbRcJoGFL6WY=
+
+install:
+  - sudo apt-get install libXxf86vm-dev
+
+after_script:
+  - cargo doc
+  - cp -R target/doc doc
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh

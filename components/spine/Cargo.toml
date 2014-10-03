@@ -1,0 +1,17 @@
+[package]
+name = "glium_spine"
+version = "0.0.1"
+authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+
+[dependencies.spine]
+git = "https://github.com/tomaka/spine-rs"
+
+[dependencies.glium_sprite2d]
+path = "../sprite2d"
+
+[dev-dependencies.glium_image]
+path = "../image"
+
+[dependencies.resources_package]
+git = "https://github.com/tomaka/rust-package"
+

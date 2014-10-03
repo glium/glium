@@ -1,0 +1,11 @@
+[package]
+
+name = "glium_text"
+version = "0.0.1"
+authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+
+[dependencies.glium_core]
+path = "../core"
+
+[dependencies.freetype-rs]
+git = "https://github.com/PistonDevelopers/freetype-rs"

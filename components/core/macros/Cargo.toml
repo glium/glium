@@ -1,0 +1,9 @@
+[package]
+name = "glium_core_macros"
+version = "0.0.1"
+authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+
+[[lib]]
+name = "glium_core_macros"
+path = "src/lib.rs"
+plugin = true

@@ -1,0 +1,26 @@
+[package]
+name = "glium"
+version = "0.0.1"
+authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+
+[features]
+default = [ "glium_sprite2d", "glium_image", "glium_text" ]
+
+[dependencies.glium_core]
+path = "components/core"
+
+[dependencies.glium_image]
+path = "components/image"
+optional = true
+
+[dependencies.glium_sprite2d]
+path = "components/sprite2d"
+optional = true
+
+[dependencies.glium_spine]
+path = "components/spine"
+optional = true
+
+[dependencies.glium_text]
+path = "components/text"
+optional = true
