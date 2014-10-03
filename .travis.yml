@@ -1,5 +1,9 @@
 language: rust
 
+env:
+  global:
+    - secure: LUjAYllhwbT6xySYvyQ7mE4pTR3cOK8jn/DI9E6hfY0LyzPXc9iDq6ugT54cUWcKjB3y3p4qgypXh0X2QQInZaGWVBiP1pZMu0lZgjIehqiro28McTwXa92+CaKljGd6m4vGhhigh16B/zvYNsGYhZJCTvFoBl6wlTVNX39jbQU=
+
 install:
   - sudo apt-get install libXxf86vm-dev
 
