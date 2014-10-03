@@ -4,10 +4,14 @@ version = "0.0.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 
 [features]
-default = [ "glium_sprite2d", "glium_image", "glium_text" ]
+default = [ "glium_sprite2d", "glium_filter", "glium_image", "glium_text" ]
 
 [dependencies.glium_core]
 path = "components/core"
+
+[dependencies.glium_filter]
+path = "components/filter"
+optional = true
 
 [dependencies.glium_image]
 path = "components/image"
