@@ -1,0 +1,16 @@
+[package]
+name = "glium_core"
+version = "0.0.1"
+authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+
+[dependencies.compile_msg]
+git = "https://github.com/huonw/compile_msg"
+
+[dependencies.gl_generator]
+git = "http://github.com/bjz/gl-rs"
+
+[dependencies.glutin]
+git = "http://github.com/tomaka/gl-init-rs"
+
+[dependencies.glium_core_macros]
+path = "macros"
