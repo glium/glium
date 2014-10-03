@@ -1,0 +1,9 @@
+language: rust
+
+install:
+  - sudo apt-get install libXxf86vm-dev
+
+after_script:
+  - cargo doc
+  - cp -R target/doc doc
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
