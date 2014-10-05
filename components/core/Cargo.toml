@@ -14,3 +14,9 @@ git = "http://github.com/tomaka/glutin"
 
 [dependencies.glium_core_macros]
 path = "macros"
+
+[dependencies.cgmath]
+git = "https://github.com/bjz/cgmath-rs"
+
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"
