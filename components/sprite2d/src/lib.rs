@@ -70,8 +70,8 @@ impl<'d> Sprite2DSystem<'d> {
                 ]
             ),
 
-            index_buffer: glium_core::IndexBuffer::new(display, glium_core::TrianglesList,
-                &[ 0 as u16, 1, 2, 0, 2, 3 ]),
+            index_buffer: glium_core::IndexBuffer::new(display, glium_core::TriangleStrip,
+                &[ 1 as u16, 2, 0, 3 ]),
 
             program: Mutex::new(glium_core::Program::new(display, r"
                 #version 110
