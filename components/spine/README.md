@@ -1,8 +1,3 @@
-# simple-gl-spine
-
-Spine documents rendering for simple-gl.
-
-
 ## Example license
 
 The images used in the example are under copyright.
