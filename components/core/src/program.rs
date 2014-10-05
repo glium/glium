@@ -153,25 +153,20 @@ impl Program {
             })
         })
     }
-
-    /// Creates a new `ProgramUniforms` object.
-    ///
-    /// A `ProgramUniforms` object is a link between a program and its uniforms values.
-    pub fn build_uniforms(&self) -> ProgramUniforms {
-        ProgramUniforms {
-            display: self.program.display.clone(),
-            program: self.program.clone(),
-            textures: HashMap::new(),
-            values: HashMap::new(),
-            uniforms: self.program.uniforms.clone()
-        }
-    }
 }
 
 impl fmt::Show for Program {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
         (format!("Program #{}", self.program.id)).fmt(formatter)
     }
+}
+
+pub fn get_program_id(program: &Program) -> gl::types::GLuint {
+    program.program.id
+}
+
+pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>> {
+    program.program.uniforms.clone()
 }
 
 struct ProgramImpl {
@@ -193,88 +188,6 @@ impl Drop for ProgramImpl {
 
             gl.DeleteProgram(id);
         });
-    }
-}
-
-/// A program which stores values of uniforms.
-#[deriving(Clone)]
-pub struct ProgramUniforms {
-    display: Arc<DisplayImpl>,
-    program: Arc<ProgramImpl>,
-    textures: HashMap<gl::types::GLint, Arc<texture::TextureImpl>>,
-    values: HashMap<gl::types::GLint, (gl::types::GLenum, Vec<char>)>,
-    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // same as the program's variable
-}
-
-/// Function accessible from within glium_core but not the outside.
-pub fn get_program_id(uniforms: &ProgramUniforms) -> gl::types::GLuint {
-    uniforms.program.id
-}
-
-/// Function accessible from within glium_core but not the outside.
-pub fn unwrap_uniforms(uniforms: &ProgramUniforms) -> (&HashMap<gl::types::GLint, Arc<texture::TextureImpl>>, &HashMap<gl::types::GLint, (gl::types::GLenum, Vec<char>)>) {
-    (&uniforms.textures, &uniforms.values)
-}
-
-impl ProgramUniforms {
-    /// Modifies the value of a uniform of the program.
-    ///
-    /// `uniform_name` must be the name of a uniform in the program.
-    /// Nothing happens if the program doesn't contain a uniform with this name.
-    /// However the function will fail if the type of data doesn't match the type required
-    ///  by the shader source code.
-    pub fn set_value<T: data_types::UniformValue>(&mut self, uniform_name: &str, value: T) {
-        let &(location, gltype, _) = match self.uniforms.find(&uniform_name.to_string()) {
-            Some(a) => a,
-            None => return      // the uniform is not used, we ignore it
-        };
-
-        if gltype != data_types::UniformValue::get_gl_type(None::<T>) {
-            fail!("Type of data passed to set_value must match the type of data requested by the shader")
-        }
-
-        let mut data: Vec<char> = Vec::with_capacity(mem::size_of_val(&value));
-        unsafe { data.set_len(mem::size_of_val(&value)); }
-
-        let data_inside = data.as_mut_ptr() as *mut T;
-        unsafe { (*data_inside) = value; }
-
-        self.values.insert(location.clone(), (gltype, data));
-    }
-
-    /// Modifies the value of a texture uniform of the program.
-    ///
-    /// `uniform_name` must be the name of a uniform in the program.
-    /// Nothing happens if the program doesn't contain a uniform with this name.
-    /// However the function will fail if you call this function for a non-texture uniform.
-    pub fn set_texture(&mut self, uniform_name: &str, texture: &Texture) {
-        let &(location, gltype, _) = match self.uniforms.find(&uniform_name.to_string()) {
-            Some(a) => a,
-            None => return      // the uniform is not used, we ignore it
-        };
-
-        // TODO: fix the check for GLES
-        /*match gltype {
-            gl::SAMPLER_1D | gl::SAMPLER_2D | gl::SAMPLER_3D | gl::SAMPLER_CUBE |
-            gl::SAMPLER_1D_SHADOW | gl::SAMPLER_2D_SHADOW | gl::SAMPLER_1D_ARRAY |
-            gl::SAMPLER_2D_ARRAY | gl::SAMPLER_1D_ARRAY_SHADOW | gl::SAMPLER_2D_ARRAY_SHADOW |
-            gl::SAMPLER_2D_MULTISAMPLE | gl::SAMPLER_2D_MULTISAMPLE_ARRAY |
-            gl::SAMPLER_CUBE_SHADOW | gl::SAMPLER_BUFFER | gl::SAMPLER_2D_RECT |
-            gl::SAMPLER_2D_RECT_SHADOW | gl::INT_SAMPLER_1D | gl::INT_SAMPLER_2D |
-            gl::INT_SAMPLER_3D | gl::INT_SAMPLER_CUBE | gl::INT_SAMPLER_1D_ARRAY |
-            gl::INT_SAMPLER_2D_ARRAY | gl::INT_SAMPLER_2D_MULTISAMPLE |
-            gl::INT_SAMPLER_2D_MULTISAMPLE_ARRAY | gl::INT_SAMPLER_BUFFER |
-            gl::INT_SAMPLER_2D_RECT | gl::UNSIGNED_INT_SAMPLER_1D | gl::UNSIGNED_INT_SAMPLER_2D |
-            gl::UNSIGNED_INT_SAMPLER_3D | gl::UNSIGNED_INT_SAMPLER_CUBE |
-            gl::UNSIGNED_INT_SAMPLER_1D_ARRAY | gl::UNSIGNED_INT_SAMPLER_2D_ARRAY |
-            gl::UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE |
-            gl::UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY | gl::UNSIGNED_INT_SAMPLER_BUFFER |
-            gl::UNSIGNED_INT_SAMPLER_2D_RECT
-                => (),
-            _ => fail!("Trying to bind a texture to a non-texture uniform")
-        };*/
-
-        self.textures.insert(location.clone(), texture::get_impl(texture).clone());
     }
 }
 
