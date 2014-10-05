@@ -719,6 +719,16 @@ impl Display {
         }
     }
 
+    /// Releases the shader compiler, indicating that no new programs will be created for a while.
+    pub fn release_shader_compiler(&self) {
+        // TODO: requires elevating the GL version
+        //self.context.context.exec(proc(gl, _) {
+        //    if gl.ReleaseShaderCompiler.is_loaded() {
+        //        gl.ReleaseShaderCompiler();
+        //    }
+        //});
+    }
+
     /// See `VertexBuffer::new`
     #[deprecated = "Use VertexBuffer::new"]
     pub fn build_vertex_buffer<T: VertexFormat + 'static + Send>(&self, data: Vec<T>)
