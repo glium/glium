@@ -29,7 +29,7 @@ fn main() {
 
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
-        target.draw(glium_text::DrawCommand(&text, matrix, [1.0, 1.0, 0.0, 1.0]));
+        target.draw(glium_text::DrawCommand(&text, &system, matrix, [1.0, 1.0, 0.0, 1.0]));
         target.finish();
 
         timer::sleep(Duration::milliseconds(17));
