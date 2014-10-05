@@ -192,13 +192,14 @@ use std::sync::Arc;
 
 /// Contains everything related to uniforms.
 pub mod uniforms;
+/// Contains everything related to vertex buffers.
+pub mod vertex_buffer;
 
 mod context;
 mod data_types;
 mod index_buffer;
 mod program;
 mod texture;
-mod vertex_buffer;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
