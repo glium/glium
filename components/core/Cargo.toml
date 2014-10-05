@@ -10,7 +10,7 @@ git = "https://github.com/huonw/compile_msg"
 git = "http://github.com/bjz/gl-rs"
 
 [dependencies.glutin]
-git = "http://github.com/tomaka/gl-init-rs"
+git = "http://github.com/tomaka/glutin"
 
 [dependencies.glium_core_macros]
 path = "macros"
