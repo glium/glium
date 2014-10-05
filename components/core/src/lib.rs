@@ -1,9 +1,3 @@
-#![feature(phase)]
-#![feature(tuple_indexing)]
-#![feature(unsafe_destructor)]
-#![unstable]
-#![deny(missing_doc)]
-
 /*!
 Easy-to-use high-level OpenGL3+ wrapper.
 
@@ -153,6 +147,12 @@ target.finish();
 ```
 
 */
+
+#![feature(phase)]
+#![feature(tuple_indexing)]
+#![feature(unsafe_destructor)]
+#![unstable]
+#![deny(missing_doc)]
 
 #[phase(plugin)]
 extern crate compile_msg;
