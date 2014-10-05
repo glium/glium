@@ -109,21 +109,33 @@ let program = glium_core::Program::new(&display, VERTEX_SRC, FRAGMENT_SRC, None)
 The `attribute`s or `in` variables in the vertex shader must match the names of the elements
 of the `#[vertex_format]` structure.
 
-The `Result` returned by `build_program` will report any compilation or linking error.
+The `Result` returned by `Program::new` will report any compilation or linking error.
 
-The last step is to call `build_uniforms` on the program. Doing so does not consume the program,
-so you can call `build_uniforms` multiple times on the same program.
+## Uniforms
+
+The last step is to build the list of uniforms for the program.
 
 ```no_run
-# let program: glium_core::Program = unsafe { std::mem::uninitialized() };
-let mut uniforms = program.build_uniforms();
+# #![feature(phase)]
+# #[phase(plugin)]
+# extern crate glium_core_macros;
+# extern crate glium_core;
+# fn main() {
+#[uniforms]
+#[allow(non_snake_case)]
+struct Uniforms<'a> {
+    uTexture: &'a glium_core::Texture,
+    uMatrix: [[f32, ..4], ..4],
+}
 
-uniforms.set_value("uMatrix", [
-    [1.0, 0.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0, 0.0],
-    [0.0, 0.0, 1.0, 0.0],
-    [0.0, 0.0, 0.0, 1.0f32]
-]);
+# let display: glium_core::Display = unsafe { std::mem::uninitialized() };
+# let tex = unsafe { std::mem::uninitialized() };
+# let matrix = unsafe { std::mem::uninitialized() };
+let uniforms = Uniforms {
+    uTexture: tex,
+    uMatrix: matrix,
+};
+# }
 ```
 
 ## Drawing
@@ -139,10 +151,11 @@ Once you are done drawing, you can `target.finish()` or let it go out of the sco
 # let display: glium_core::Display = unsafe { std::mem::uninitialized() };
 # let vertex_buffer: glium_core::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
 # let index_buffer: glium_core::IndexBuffer = unsafe { std::mem::uninitialized() };
-# let uniforms: glium_core::ProgramUniforms = unsafe { std::mem::uninitialized() };
+# let program: glium_core::Program = unsafe { std::mem::uninitialized() };
+# let uniforms = glium_core::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);
-target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &uniforms));
+target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms));
 target.finish();
 ```
 
@@ -170,12 +183,15 @@ pub use data_types::GLDataTuple;
 
 pub use index_buffer::IndexBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
-pub use program::{Program, ProgramUniforms};
+pub use program::Program;
 pub use texture::Texture;
 
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::Arc;
+
+/// Contains everything related to uniforms.
+pub mod uniforms;
 
 mod context;
 mod data_types;
@@ -465,19 +481,18 @@ impl<'t> Target<'t> {
 }
 
 /// Basic draw command.
-pub struct BasicDraw<'a, 'b, 'c, V>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer, pub &'c ProgramUniforms);
+pub struct BasicDraw<'a, 'b, 'c, 'd, V, U: 'd>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer, pub &'c Program, pub &'d U);
 
-impl<'a, 'b, 'c, V> DrawCommand for BasicDraw<'a, 'b, 'c, V> {
+impl<'a, 'b, 'c, 'd, V, U: uniforms::Uniforms> DrawCommand for BasicDraw<'a, 'b, 'c, 'd, V, U> {
     fn draw(self, target: &mut Target) {
-        let BasicDraw(vertex_buffer, index_buffer, program) = self;
+        let BasicDraw(vertex_buffer, index_buffer, program, uniforms) = self;
 
         let fbo_id = target.framebuffer.as_ref().map(|f| f.id);
         let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
         let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) = index_buffer::get_clone(index_buffer);
         let program_id = program::get_program_id(program);
-        let (uniforms_textures, uniforms_values) = match program::unwrap_uniforms(program) {
-            (a, b) => (a.clone(), b.clone())
-        };
+        let uniforms = uniforms.to_binder();
+        let uniforms_locations = program::get_uniforms_locations(program);
 
         let (tx, rx) = channel();
 
@@ -496,27 +511,11 @@ impl<'a, 'b, 'c, V> DrawCommand for BasicDraw<'a, 'b, 'c, V> {
                 }
 
                 // binding program uniforms
-                {
-                    let mut active_texture: uint = 0;
-                    for (&location, ref texture) in uniforms_textures.iter() {
-                        gl.ActiveTexture(gl::TEXTURE0 + active_texture as u32);
-                        gl.BindTexture(texture.bind_point, texture.id);
-                        gl.Uniform1i(location, active_texture as i32);
-                        active_texture = active_texture + 1;
-                    }
-
-                    for (&location, &(ref datatype, ref data)) in uniforms_values.iter() {
-                        match *datatype {
-                            gl::FLOAT       => gl.Uniform1fv(location, 1, data.as_ptr() as *const f32),
-                            gl::FLOAT_VEC2  => gl.Uniform2fv(location, 1, data.as_ptr() as *const f32),
-                            gl::FLOAT_VEC3  => gl.Uniform3fv(location, 1, data.as_ptr() as *const f32),
-                            gl::FLOAT_VEC4  => gl.Uniform4fv(location, 1, data.as_ptr() as *const f32),
-                            gl::FLOAT_MAT4  => gl.UniformMatrix4fv(location, 1, 0, data.as_ptr() as *const f32),
-                            _ => fail!("Loading uniforms for this type not implemented")
-                        }
-                        //gl.Uniform1i(location, active_texture as i32);
-                    }
-                }
+                uniforms.0(gl, |name| {
+                    uniforms_locations
+                        .find_equiv(&name)
+                        .map(|val| val.0)
+                });
 
                 // binding vertex buffer
                 if state.array_buffer_binding != Some(vb_id) {
