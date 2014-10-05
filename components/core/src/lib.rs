@@ -173,8 +173,10 @@ extern crate compile_msg;
 #[phase(plugin)]
 extern crate gl_generator;
 
+extern crate cgmath;
 extern crate glutin;
 extern crate libc;
+extern crate nalgebra;
 extern crate native;
 extern crate time;
 

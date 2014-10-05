@@ -1,4 +1,6 @@
 use {gl, texture};
+use cgmath;
+use nalgebra;
 
 /// Represents a value that can be used as the value of a uniform.
 ///
@@ -141,12 +143,50 @@ impl UniformValue for [[f32, ..4], ..4] {
     }
 }
 
+impl UniformValue for (f32, f32) {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.clone();
+        UniformValueBinder(proc(gl, location, _) {
+            let my_value = [ my_value.0, my_value.1 ];
+            unsafe { gl.Uniform2fv(location, 1, my_value.as_ptr() as *const f32) }
+        })
+    }
+}
+
+impl UniformValue for (f32, f32, f32) {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.clone();
+        UniformValueBinder(proc(gl, location, _) {
+            let my_value = [ my_value.0, my_value.1, my_value.2 ];
+            unsafe { gl.Uniform3fv(location, 1, my_value.as_ptr() as *const f32) }
+        })
+    }
+}
+
 impl UniformValue for (f32, f32, f32, f32) {
     fn to_binder(&self) -> UniformValueBinder {
         let my_value = self.clone();
         UniformValueBinder(proc(gl, location, _) {
             let my_value = [ my_value.0, my_value.1, my_value.2, my_value.3 ];
             unsafe { gl.Uniform4fv(location, 1, my_value.as_ptr() as *const f32) }
+        })
+    }
+}
+
+impl UniformValue for [f32, ..2] {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = *self;
+        UniformValueBinder(proc(gl, location, _) {
+            unsafe { gl.Uniform2fv(location, 1, my_value.as_ptr() as *const f32) }
+        })
+    }
+}
+
+impl UniformValue for [f32, ..3] {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = *self;
+        UniformValueBinder(proc(gl, location, _) {
+            unsafe { gl.Uniform3fv(location, 1, my_value.as_ptr() as *const f32) }
         })
     }
 }
@@ -168,5 +208,110 @@ impl<'a> UniformValue for &'a texture::Texture {
             unsafe { gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint) };
             *active_texture += 1;
         })
+    }
+}
+
+// TODO: no method to get a slice?
+/*impl UniformValue for nalgebra::na::Vec1<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Vec2<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Vec3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Vec4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Mat1<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Mat2<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Mat3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::na::Mat4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}*/
+
+impl UniformValue for cgmath::Matrix2<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for cgmath::Matrix3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for cgmath::Matrix4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for cgmath::Vector2<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for cgmath::Vector3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for cgmath::Vector4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        my_value.to_binder()
     }
 }
