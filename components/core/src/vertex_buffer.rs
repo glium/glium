@@ -1,6 +1,7 @@
 use gl;
 use libc;
 use std::collections::HashMap;
+use std::c_vec::CVec;
 use std::fmt;
 use std::mem;
 use std::sync::Arc;
@@ -11,6 +12,7 @@ pub struct VertexBuffer<T> {
     id: gl::types::GLuint,
     elements_size: uint,
     bindings: VertexBindings,
+    elements_count: uint,
 }
 
 /// This public function is accessible from within `glium_core` but not for the user.
@@ -59,7 +61,8 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
         let bindings = VertexFormat::build_bindings(None::<T>);
 
         let elements_size = { use std::mem; mem::size_of::<T>() };
-        let buffer_size = data.len() * elements_size as uint;
+        let elements_count = data.len();
+        let buffer_size = elements_count * elements_size as uint;
 
         let usage = if dynamic { gl::DYNAMIC_DRAW } else { gl::STATIC_DRAW };
 
@@ -81,7 +84,30 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
             display: display.context.clone(),
             id: rx.recv(),
             elements_size: elements_size,
-            bindings: bindings
+            bindings: bindings,
+            elements_count: elements_count,
+        }
+    }
+
+    /// Maps the buffer to allow write access to it.
+    pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
+        let (tx, rx) = channel();
+        let id = self.id.clone();
+        let elements_count = self.elements_count.clone();
+
+        self.display.context.exec(proc(gl, state) {
+            if state.array_buffer_binding != Some(id) {
+                gl.BindBuffer(gl::ARRAY_BUFFER, id);
+                state.array_buffer_binding = Some(id);
+            }
+
+            let ptr = unsafe { gl.MapBuffer(gl::ARRAY_BUFFER, gl::READ_WRITE) };
+            tx.send(ptr as *mut T);
+        });
+
+        Mapping {
+            buffer: self,
+            data: unsafe { CVec::new(rx.recv(), elements_count) },
         }
     }
 }
@@ -119,4 +145,37 @@ pub type VertexBindings = HashMap<String, (gl::types::GLenum, gl::types::GLint, 
 #[doc(hidden)]
 pub trait VertexFormat: Copy {
     fn build_bindings(Option<Self>) -> VertexBindings;
+}
+
+/// A mapping of a buffer.
+pub struct Mapping<'b, T> {
+    buffer: &'b mut VertexBuffer<T>,
+    data: CVec<T>,
+}
+
+#[unsafe_destructor]
+impl<'a, T> Drop for Mapping<'a, T> {
+    fn drop(&mut self) {
+        let id = self.buffer.id.clone();
+        self.buffer.display.context.exec(proc(gl, state) {
+            if state.array_buffer_binding != Some(id) {
+                gl.BindBuffer(gl::ARRAY_BUFFER, id);
+                state.array_buffer_binding = Some(id);
+            }
+
+            unsafe { gl.UnmapBuffer(gl::ARRAY_BUFFER) };
+        });
+    }
+}
+
+impl<'a, T> Deref<[T]> for Mapping<'a, T> {
+    fn deref<'b>(&'b self) -> &'b [T] {
+        self.data.as_slice()
+    }
+}
+
+impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
+    fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
+        self.data.as_mut_slice()
+    }
 }
