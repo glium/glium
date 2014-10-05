@@ -9,6 +9,9 @@ default = [
     "glium_image",
     "glium_sprite2d",
     "glium_text",
+
+    # these should not be default, but it's necessary because of a problem with `cargo test -p`
+    "glium_spine",
 ]
 
 [dependencies.glium_core]
