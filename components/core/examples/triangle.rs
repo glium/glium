@@ -70,14 +70,11 @@ fn main() {
         None)
         .unwrap();
 
-    // creating an object that will allow us to set the uniforms of our shaders
-    let mut program = program.build_uniforms();
-    program.set_value("uMatrix", [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0f32]
-    ]);
+    // creating the uniforms structure
+    #[uniforms]
+    struct Uniforms {
+        uMatrix: [[f32, ..4], ..4],
+    }
     
     // the main loop
     // each cycle will draw once
@@ -85,9 +82,19 @@ fn main() {
         use std::io::timer;
         use std::time::Duration;
 
+        // building the uniforms
+        let uniforms = Uniforms {
+            uMatrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0f32]
+            ]
+        };
+
         // drawing a frame
         let mut target = display.draw();
-        target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program));
+        target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms));
         target.finish();
 
         // sleeping for some time in order not to use up too much CPU
