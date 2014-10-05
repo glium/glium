@@ -1,6 +1,7 @@
 use {gl, texture};
 use cgmath;
 use nalgebra;
+use std::sync::Arc;
 
 /// Represents a value that can be used as the value of a uniform.
 ///
@@ -51,6 +52,138 @@ impl Uniforms for EmptyUniforms {
 /// The content is however `pub` because we need to access it from `glium_core_macros`.
 #[doc(hidden)]
 pub struct UniformsBinder(pub proc(&gl::Gl, |&str| -> Option<gl::types::GLint>):Send);
+
+
+/// Function to use for out-of-bounds samples.
+///
+/// This is how GL must handle samples that are outside the texture.
+#[deriving(Show, Clone, Hash, PartialEq, Eq)]
+pub enum SamplerWrapFunction {
+    /// Samples at coord `x + 1` are mapped to coord `x`.
+    Repeat,
+
+    /// Samples at coord `x + 1` are mapped to coord `1 - x`.
+    Mirror,
+
+    /// Samples at coord `x + 1` are mapped to coord `1`.
+    Clamp
+}
+
+impl SamplerWrapFunction {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            Repeat => gl::REPEAT,
+            Mirror => gl::MIRRORED_REPEAT,
+            Clamp => gl::CLAMP_TO_EDGE,
+        }
+    }
+} 
+
+/// The function that the GPU will use when loading the value of a texel.
+#[deriving(Show, Clone, Hash, PartialEq, Eq)]
+pub enum SamplerFilter {
+    /// The nearest texel will be loaded.
+    Nearest,
+
+    /// All nearby texels will be loaded and their values will be merged.
+    Linear
+}
+
+impl SamplerFilter {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            Nearest => gl::NEAREST,
+            Linear => gl::LINEAR,
+        }
+    }
+}
+
+/// A sampler.
+pub struct Sampler<'t>(pub &'t texture::Texture, pub SamplerBehavior);
+
+impl<'t> UniformValue for Sampler<'t> {
+    fn to_binder(&self) -> UniformValueBinder {
+        // TODO: use the behavior too
+        self.0.to_binder()
+    }
+}
+
+/// Behavior of a sampler.
+// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
+#[deriving(Show, Clone, Hash, PartialEq, Eq)]
+pub struct SamplerBehavior {
+    /// Functions to use for the X, Y, and Z coordinates.
+    pub wrap_function: (SamplerWrapFunction, SamplerWrapFunction, SamplerWrapFunction),
+    /// Filter to use when mignifying the texture.
+    pub minify_filter: SamplerFilter,
+    /// Filter to use when magnifying the texture.
+    pub magnify_filter: SamplerFilter,
+}
+
+impl ::std::default::Default for SamplerBehavior {
+    fn default() -> SamplerBehavior {
+        SamplerBehavior {
+            wrap_function: (Mirror, Mirror, Mirror),
+            minify_filter: Linear,
+            magnify_filter: Linear,
+        }
+    }
+}
+
+/// An OpenGL sampler object.
+// TODO: cache parameters set in the sampler
+struct SamplerObject {
+    display: Arc<super::DisplayImpl>,
+    id: gl::types::GLuint,
+}
+
+impl SamplerObject {
+    pub fn new(display: &super::Display) -> SamplerObject {
+        let (tx, rx) = channel();
+
+        display.context.context.exec(proc(gl, _) {
+            let sampler = unsafe {
+                use std::mem;
+                let mut sampler: gl::types::GLuint = mem::uninitialized();
+                gl.GenSamplers(1, &mut sampler);
+                sampler
+            };
+
+            tx.send(sampler);
+        });
+
+        SamplerObject {
+            display: display.context.clone(),
+            id: rx.recv(),
+        }
+    }
+
+    pub fn bind(&self, gl: gl::Gl, sampler: SamplerBehavior) {
+        let id = self.id;
+        self.display.context.exec(proc(gl, _) {
+            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_S, sampler.wrap_function.0.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_T, sampler.wrap_function.1.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_R, sampler.wrap_function.2.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_MIN_FILTER, sampler.minify_filter.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_MAG_FILTER, sampler.magnify_filter.to_glenum() as gl::types::GLint);
+        });
+    }
+
+    pub fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+}
+
+impl Drop for SamplerObject {
+    fn drop(&mut self) {
+        let id = self.id;
+        self.display.context.exec(proc(gl, _) {
+            unsafe {
+                gl.DeleteSamplers(1, [id].as_ptr());
+            }
+        });
+    }
+}
 
 
 impl UniformValue for i8 {
