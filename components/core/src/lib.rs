@@ -298,29 +298,6 @@ pub enum BackfaceCullingMode {
     CullClockWise
 }
 
-/// Function to use for out-of-bounds samples.
-///
-/// This is how GL must handle samples that are outside the texture.
-pub enum SamplerWrapFunction {
-    /// Samples at coord `x + 1` are mapped to coord `x`.
-    Repeat,
-
-    /// Samples at coord `x + 1` are mapped to coord `1 - x`.
-    Mirror,
-
-    /// Samples at coord `x + 1` are mapped to coord `1`.
-    Clamp
-}
-
-/// The function that the GPU will use when loading the value of a texel.
-pub enum SamplerFilter {
-    /// The nearest texel will be loaded.
-    Nearest,
-
-    /// All nearby texels will be loaded and their values will be merged.
-    Linear
-}
-
 /// The function that the GPU will use to determine whether to write over an existing pixel
 ///  on the target.
 pub enum DepthFunction {
