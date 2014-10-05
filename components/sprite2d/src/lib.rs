@@ -36,10 +36,7 @@ target.finish();
 
 #[phase(plugin)]
 extern crate glium_core_macros;
-
 extern crate glium_core;
-
-use std::sync::Mutex;
 
 #[vertex_format]
 #[allow(non_snake_case)]
@@ -50,11 +47,18 @@ struct SpriteVertex {
     iTexCoords: [f32, ..2],
 }
 
+#[uniforms]
+#[allow(non_snake_case)]
+struct Uniforms<'a> {
+    uTexture: &'a glium_core::Texture,
+    uMatrix: [[f32, ..4], ..4],
+}
+
 /// Object that will allow you to draw 2D sprites with `glium_core`.
 pub struct Sprite2DSystem<'d> {
     vertex_buffer: glium_core::VertexBuffer<SpriteVertex>,
     index_buffer: glium_core::IndexBuffer,
-    program: Mutex<glium_core::ProgramUniforms>,
+    program: glium_core::Program,
 }
 
 impl<'d> Sprite2DSystem<'d> {
@@ -73,7 +77,7 @@ impl<'d> Sprite2DSystem<'d> {
             index_buffer: glium_core::IndexBuffer::new(display, glium_core::TriangleStrip,
                 &[ 1 as u16, 2, 0, 3 ]),
 
-            program: Mutex::new(glium_core::Program::new(display, r"
+            program: glium_core::Program::new(display, r"
                 #version 110
 
                 uniform mat4 uMatrix;
@@ -95,7 +99,7 @@ impl<'d> Sprite2DSystem<'d> {
                 void main() {
                     gl_FragColor = texture2D(uTexture, vTexCoords);
                 }
-            ", None).unwrap().build_uniforms())
+            ", None).unwrap()
         }
     }
 }
@@ -120,11 +124,11 @@ impl<'s, 'd, 't, 'm> glium_core::DrawCommand for SpriteDisplay<'s, 'd, 't, 'm> {
         let SpriteDisplay { ref sprite, ref texture, ref matrix } = self;
         let &&Sprite2DSystem { ref vertex_buffer, ref index_buffer, ref program, .. } = sprite;
 
-        let mut program = program.lock();
+        let uniforms = Uniforms {
+            uMatrix: **matrix,
+            uTexture: *texture
+        };
 
-        program.set_value("uMatrix", **matrix);
-        program.set_texture("uTexture", *texture);
-
-        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, program.deref()));
+        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, program, &uniforms));
     }
 }

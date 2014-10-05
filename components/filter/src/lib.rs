@@ -30,6 +30,12 @@ struct VertexFormat {
     iTexCoords: [f32, ..2],
 }
 
+#[uniforms]
+#[allow(non_snake_case)]
+struct Uniforms<'a> {
+    uTexture: &'a glium_core::Texture,
+}
+
 /// 
 pub struct Filter<'d> {
     display: &'d glium_core::Display,
@@ -107,10 +113,11 @@ impl<'f, 'd, 'c> glium_core::DrawCommand for WithFilter<'f, 'd, 'c> {
         self.1(&mut texture.as_mut().unwrap().draw());
 
         // building the uniforms
-        let mut uniforms = self.0.program.build_uniforms();
-        uniforms.set_texture("uTexture", texture.as_ref().unwrap());
+        let uniforms = Uniforms {
+            uTexture: texture.as_ref().unwrap()
+        };
 
-        glium_core::BasicDraw(&self.0.vertex_buffer, &self.0.index_buffer, &uniforms)
+        glium_core::BasicDraw(&self.0.vertex_buffer, &self.0.index_buffer, &self.0.program, &uniforms)
             .draw(target);
     }
 }

@@ -43,8 +43,6 @@ extern crate glium_core_macros;
 extern crate freetype;
 extern crate glium_core;
 
-use std::sync::Mutex;
-
 /// Texture which contains the characters of the font.
 pub struct FontTexture<'d> {
     texture: glium_core::Texture,
@@ -63,7 +61,6 @@ pub struct TextSystem<'d> {
 pub struct TextDisplay<'s, 'd, 't> {
     display: &'d glium_core::Display,
     texture: &'t FontTexture<'d>,
-    program: Mutex<glium_core::ProgramUniforms>,
     vertex_buffer: Option<glium_core::VertexBuffer<VertexFormat>>,
     index_buffer: Option<glium_core::IndexBuffer>,
     total_text_width: f32,
@@ -77,7 +74,7 @@ pub struct TextDisplay<'s, 'd, 't> {
 /// One unit in height corresponds to a line of text, but the text can go above or under.
 /// The bottom of the line is 0, the top is 1.
 /// You need to adapt your matrix by taking these into consideration.
-pub struct DrawCommand<'s:'td, 'd:'td, 't:'td, 'td>(pub &'td TextDisplay<'s, 'd, 't>, pub [[f32, ..4], ..4], pub [f32, ..4]);
+pub struct DrawCommand<'s:'td, 'd:'td, 't:'td, 'td, 'a, 'b: 'a>(pub &'td TextDisplay<'s, 'd, 't>, pub &'a TextSystem<'b>, pub [[f32, ..4], ..4], pub [f32, ..4]);
 
 // structure containing informations about a character of a font
 struct CharacterInfos {
@@ -102,6 +99,14 @@ struct VertexFormat {
     iPosition: [f32, ..2],
     #[allow(dead_code)]
     iTexCoords: [f32, ..2],
+}
+
+#[uniforms]
+#[allow(non_snake_case)]
+struct Uniforms<'a, 'b> {
+    uColor: [f32, ..4],
+    uMatrix: [[f32, ..4], ..4],
+    uTexture: &'a FontTexture<'b>,
 }
 
 impl<'d> FontTexture<'d> {
@@ -149,6 +154,13 @@ impl<'d> FontTexture<'d> {
     }
 }
 
+impl<'a, 'd> glium_core::uniforms::UniformValue for &'a FontTexture<'d> {
+    fn to_binder(&self) -> glium_core::uniforms::UniformValueBinder {
+        use glium_core::uniforms::UniformValue;
+        (&self.texture).to_binder()
+    }
+}
+
 impl<'d> TextSystem<'d> {
     /// Builds a new text system that must be used to build `TextDisplay` objects.
     pub fn new(display: &'d glium_core::Display) -> TextSystem<'d> {
@@ -187,14 +199,9 @@ impl<'d> TextSystem<'d> {
 impl<'s, 'd, 't> TextDisplay<'s, 'd, 't> {
     /// Builds a new text display that allows you to draw text.
     pub fn new(system: &'s TextSystem<'d>, texture: &'t FontTexture<'d>, text: &str) -> TextDisplay<'s, 'd, 't> {
-        let mut uniforms = system.program.build_uniforms();
-
-        uniforms.set_texture("uTexture", &texture.texture);
-
         let mut text_display = TextDisplay {
             display: system.display,
             texture: texture,
-            program: Mutex::new(uniforms),
             vertex_buffer: None,
             index_buffer: None,
             total_text_width: 0.0,
@@ -297,9 +304,9 @@ impl<'s, 'd, 't> TextDisplay<'s, 'd, 't> {
     }
 }
 
-impl<'s, 'd, 't, 'td> glium_core::DrawCommand for DrawCommand<'s, 'd, 't, 'td> {
+impl<'s, 'd, 't, 'td, 'a, 'b> glium_core::DrawCommand for DrawCommand<'s, 'd, 't, 'td, 'a, 'b> {
     fn draw(self, target: &mut glium_core::Target) {
-        let DrawCommand(&TextDisplay { ref program, ref vertex_buffer, ref index_buffer, is_empty, .. }, ref matrix, ref color) = self;
+        let DrawCommand(&TextDisplay { ref vertex_buffer, ref index_buffer, ref texture, is_empty, .. }, ref system, ref matrix, ref color) = self;
 
         // returning if nothing to draw
         if is_empty || vertex_buffer.is_none() || index_buffer.is_none() {
@@ -309,11 +316,13 @@ impl<'s, 'd, 't, 'td> glium_core::DrawCommand for DrawCommand<'s, 'd, 't, 'td> {
         let vertex_buffer = vertex_buffer.as_ref().unwrap();
         let index_buffer = index_buffer.as_ref().unwrap();
 
-        let mut program = program.lock();
-        program.set_value("uMatrix", *matrix);
-        program.set_value("uColor", *color);
+        let uniforms = Uniforms {
+            uMatrix: *matrix,
+            uColor: *color,
+            uTexture: *texture,
+        };
 
-        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, program.deref()));
+        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, &system.program, &uniforms));
     }
 }
 
