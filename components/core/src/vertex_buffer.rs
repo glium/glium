@@ -44,10 +44,24 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// ```
     /// 
     pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
+        VertexBuffer::new_impl(display, data, false)
+    }
+
+    /// Builds a new vertex buffer.
+    ///
+    /// This function will create a buffer that has better performances when the it is modified
+    ///  frequently.
+    pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
+        VertexBuffer::new_impl(display, data, true)
+    }
+
+    fn new_impl(display: &super::Display, data: Vec<T>, dynamic: bool) -> VertexBuffer<T> {
         let bindings = VertexFormat::build_bindings(None::<T>);
 
         let elements_size = { use std::mem; mem::size_of::<T>() };
         let buffer_size = data.len() * elements_size as uint;
+
+        let usage = if dynamic { gl::DYNAMIC_DRAW } else { gl::STATIC_DRAW };
 
         let (tx, rx) = channel();
 
@@ -58,7 +72,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
                 gl.BindBuffer(gl::ARRAY_BUFFER, id);
                 state.array_buffer_binding = Some(id);
                 gl.BufferData(gl::ARRAY_BUFFER, buffer_size as gl::types::GLsizeiptr,
-                    data.as_ptr() as *const libc::c_void, gl::STATIC_DRAW);
+                    data.as_ptr() as *const libc::c_void, usage);
                 tx.send(id);
             }
         });
