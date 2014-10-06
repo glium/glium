@@ -551,10 +551,6 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
             unsafe {
                 gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
 
-                gl.Disable(gl::DEPTH_TEST);
-                gl.Enable(gl::BLEND);
-                gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
-
                 // binding program
                 if state.program != program_id {
                     gl.UseProgram(program_id);
