@@ -379,13 +379,25 @@ impl DrawParameters {
     /// Synchronizes the parmaeters with the current state.
     fn sync(&self, gl: &gl::Gl, state: &mut context::GLState) {
         // depth function
-        if let Some(depth_function) = self.depth_function {
-            let depth_function = depth_function.to_glenum();
-
-            if state.depth_func != depth_function {
-                gl.DepthFunc(depth_function);
-                state.depth_func = depth_function;
-            }
+        match self.depth_function {
+            Some(Overwrite) => {
+                if state.enabled_depth_test {
+                    gl.Disable(gl::DEPTH_TEST);
+                    state.enabled_depth_test = false;
+                }
+            },
+            Some(depth_function) => {
+                let depth_function = depth_function.to_glenum();
+                if state.depth_func != depth_function {
+                    gl.DepthFunc(depth_function);
+                    state.depth_func = depth_function;
+                }
+                if !state.enabled_depth_test {
+                    gl.Enable(gl::DEPTH_TEST);
+                    state.enabled_depth_test = true;
+                }
+            },
+            _ => ()
         }
     }
 }
