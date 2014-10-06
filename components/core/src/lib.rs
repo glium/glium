@@ -369,7 +369,7 @@ impl DepthFunction {
 /// };
 /// ```
 ///
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Show, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     ///  on the target. 
@@ -381,6 +381,11 @@ pub struct DrawParameters {
     ///
     /// `None` means "don't care" (usually when you know that the alpha is always 1).
     pub blending_function: Option<BlendingFunction>,
+
+    /// Width in pixels of the lines to draw when drawing lines.
+    ///
+    /// `None` means "don't care". Use this when you don't draw lines.
+    pub line_width: Option<f32>,
 }
 
 impl std::default::Default for DrawParameters {
@@ -388,6 +393,7 @@ impl std::default::Default for DrawParameters {
         DrawParameters {
             depth_function: None,
             blending_function: Some(AlwaysReplace),
+            line_width: None,
         }
     }
 }
@@ -436,6 +442,14 @@ impl DrawParameters {
                 }
             },
             _ => ()
+        }
+
+        // line width
+        if let Some(line_width) = self.line_width {
+            if state.line_width != line_width {
+                gl.LineWidth(line_width);
+                state.line_width = line_width;
+            }
         }
     }
 }

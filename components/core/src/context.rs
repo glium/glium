@@ -77,6 +77,8 @@ pub struct GLState {
     /// The latest values passed to `glViewport`.
     pub viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei),
 
+    /// The latest value passed to `glLineWidth`.
+    pub line_width: gl::types::GLfloat,
 }
 
 impl Context {
@@ -129,6 +131,7 @@ impl Context {
                     depth_func: gl::ALWAYS,
                     blend_func: (0, 0),     // no default specified
                     viewport: viewport,
+                    line_width: 1.0,
                 }
             };
 
