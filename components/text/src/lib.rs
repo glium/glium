@@ -322,7 +322,7 @@ impl<'s, 'd, 't, 'td, 'a, 'b> glium_core::DrawCommand for DrawCommand<'s, 'd, 't
             uTexture: *texture,
         };
 
-        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, &system.program, &uniforms));
+        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, &system.program, &uniforms, &std::default::Default::default()));
     }
 }
 

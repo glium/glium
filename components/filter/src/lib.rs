@@ -117,7 +117,7 @@ impl<'f, 'd, 'c> glium_core::DrawCommand for WithFilter<'f, 'd, 'c> {
             uTexture: texture.as_ref().unwrap()
         };
 
-        glium_core::BasicDraw(&self.0.vertex_buffer, &self.0.index_buffer, &self.0.program, &uniforms)
+        glium_core::BasicDraw(&self.0.vertex_buffer, &self.0.index_buffer, &self.0.program, &uniforms, &std::default::Default::default())
             .draw(target);
     }
 }

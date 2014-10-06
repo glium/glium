@@ -155,12 +155,13 @@ Once you are done drawing, you can `target.finish()` or let it go out of the sco
 # let uniforms = glium_core::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);
-target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms));
+target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
 target.finish();
 ```
 
 */
 
+#![feature(if_let)]
 #![feature(phase)]
 #![feature(tuple_indexing)]
 #![feature(unsafe_destructor)]
@@ -273,6 +274,7 @@ impl PrimitiveType {
 }
 
 /// Function that the GPU will use for blending.
+#[deriving(Clone, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Always replace the destination pixel by the source.
     AlwaysReplace,
@@ -287,6 +289,7 @@ pub enum BlendingFunction {
 /// Culling mode.
 /// 
 /// Describes how triangles could be filtered before the fragment part.
+#[deriving(Clone, Show, PartialEq, Eq)]
 pub enum BackfaceCullingMode {
     /// All triangles are always drawn.
     CullingDisabled,
@@ -300,6 +303,7 @@ pub enum BackfaceCullingMode {
 
 /// The function that the GPU will use to determine whether to write over an existing pixel
 ///  on the target.
+#[deriving(Clone, Show, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
     /// 
@@ -346,8 +350,6 @@ impl DepthFunction {
 
 /// Represents the parameters to use when drawing.
 ///
-/// For each field, `None` means "don't care".
-///
 /// Example:
 /// 
 /// ```
@@ -357,9 +359,11 @@ impl DepthFunction {
 /// };
 /// ```
 ///
+#[deriving(Clone, Show, PartialEq, Eq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
-    ///  on the target.
+    ///  on the target. 
+    /// `None` means "don't care".
     pub depth_function: Option<DepthFunction>,
 }
 
@@ -374,9 +378,8 @@ impl std::default::Default for DrawParameters {
 impl DrawParameters {
     /// Synchronizes the parmaeters with the current state.
     fn sync(&self, gl: &gl::Gl, state: &mut context::GLState) {
-        // TODO: use if let
-        if self.depth_function.is_some() {
-            let depth_function = self.depth_function.unwrap();
+        // depth function
+        if let Some(depth_function) = self.depth_function {
             let depth_function = depth_function.to_glenum();
 
             if state.depth_func != depth_function {
@@ -461,11 +464,14 @@ impl<'t> Target<'t> {
 }
 
 /// Basic draw command.
-pub struct BasicDraw<'a, 'b, 'c, 'd, V, U: 'd>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer, pub &'c Program, pub &'d U);
+pub struct BasicDraw<'a, 'b, 'c, 'd, 'e, V, U: 'd>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer,
+    pub &'c Program, pub &'d U, pub &'e DrawParameters);
 
-impl<'a, 'b, 'c, 'd, V, U: uniforms::Uniforms> DrawCommand for BasicDraw<'a, 'b, 'c, 'd, V, U> {
+impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
+    DrawCommand for BasicDraw<'a, 'b, 'c, 'd, 'e, V, U>
+{
     fn draw(self, target: &mut Target) {
-        let BasicDraw(vertex_buffer, index_buffer, program, uniforms) = self;
+        let BasicDraw(vertex_buffer, index_buffer, program, uniforms, draw_parameters) = self;
 
         let fbo_id = target.framebuffer.as_ref().map(|f| f.id);
         let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
@@ -473,6 +479,7 @@ impl<'a, 'b, 'c, 'd, V, U: uniforms::Uniforms> DrawCommand for BasicDraw<'a, 'b,
         let program_id = program::get_program_id(program);
         let uniforms = uniforms.to_binder();
         let uniforms_locations = program::get_uniforms_locations(program);
+        let draw_parameters = draw_parameters.clone();
 
         let (tx, rx) = channel();
 
@@ -525,6 +532,9 @@ impl<'a, 'b, 'c, 'd, V, U: uniforms::Uniforms> DrawCommand for BasicDraw<'a, 'b,
                         gl.EnableVertexAttribArray(loc as u32);
                     }
                 }
+
+                // sync-ing parameters
+                draw_parameters.sync(gl, state);
                 
                 // drawing
                 gl.DrawElements(ib_primitives, ib_elemcounts as i32, ib_datatype, std::ptr::null());
