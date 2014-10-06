@@ -101,7 +101,11 @@ impl Texture {
                     gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0, data_format as u32, data_type, data_raw);
                 }
 
-                gl.GenerateMipmap(texture_type);
+                if gl.GenerateMipmap.is_loaded() {
+                    gl.GenerateMipmap(texture_type);
+                } else if gl.GenerateMipmapEXT.is_loaded() {
+                    gl.GenerateMipmapEXT(texture_type);
+                }
 
                 tx.send(id);
             }
