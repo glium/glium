@@ -68,6 +68,9 @@ pub struct GLState {
     /// The latest buffer bound to `GL_ELEMENT_ARRAY_BUFFER`.
     pub element_array_buffer_binding: Option<gl::types::GLuint>,
 
+    /// The latest values passed to `glBlendFunc`.
+    pub blend_func: (gl::types::GLenum, gl::types::GLenum),
+
     /// The latest value passed to `glDepthFunc`.
     pub depth_func: gl::types::GLenum,
 
@@ -124,6 +127,7 @@ impl Context {
                     array_buffer_binding: None,
                     element_array_buffer_binding: None,
                     depth_func: gl::ALWAYS,
+                    blend_func: (0, 0),     // no default specified
                     viewport: viewport,
                 }
             };
