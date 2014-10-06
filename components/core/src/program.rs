@@ -26,6 +26,19 @@ pub struct Program {
     program: Arc<ProgramImpl>
 }
 
+/// Error that can be triggered when creating a `Program`.
+#[deriving(Clone, Show)]
+pub enum ProgramCreationError {
+    /// Error while compiling one of the shaders.
+    CompilationError(String),
+
+    /// Error while linking the program.
+    LinkingError(String),
+
+    /// `glCreateProgram` failed.
+    ProgramCreationFailure,
+}
+
 impl Program {
     /// Builds a new program.
     ///
@@ -47,7 +60,7 @@ impl Program {
     /// 
     #[experimental = "The list of shaders and the result error will probably change"]
     pub fn new(display: &Display, vertex_shader: &str, fragment_shader: &str,
-               geometry_shader: Option<&str>) -> Result<Program, String>
+               geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
     {
         let mut shaders_store = Vec::new();
         shaders_store.push(try!(build_shader(display, gl::VERTEX_SHADER, vertex_shader)));
@@ -67,7 +80,7 @@ impl Program {
             unsafe {
                 let id = gl.CreateProgram();
                 if id == 0 {
-                    tx.send(Err(format!("glCreateProgram failed")));
+                    tx.send(Err(ProgramCreationFailure));
                     return;
                 }
 
@@ -84,15 +97,15 @@ impl Program {
                         match gl.GetError() {
                             gl::NO_ERROR => (),
                             gl::INVALID_VALUE => {
-                                tx.send(Err(format!("glLinkProgram triggered GL_INVALID_VALUE")));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered GL_INVALID_VALUE"))));
                                 return;
                             },
                             gl::INVALID_OPERATION => {
-                                tx.send(Err(format!("glLinkProgram triggered GL_INVALID_OPERATION")));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered GL_INVALID_OPERATION"))));
                                 return;
                             },
                             _ => {
-                                tx.send(Err(format!("glLinkProgram triggered an unknown error")));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered an unknown error"))));
                                 return;
                             }
                         };
@@ -105,7 +118,7 @@ impl Program {
                         error_log.set_len(error_log_size as uint);
 
                         let msg = String::from_utf8(error_log).unwrap();
-                        tx.send(Err(msg));
+                        tx.send(Err(LinkingError(msg)));
                         return;
                     }
                 }
@@ -193,7 +206,7 @@ impl Drop for ProgramImpl {
 
 /// Builds an individual shader.
 fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, source_code: S)
-    -> Result<Arc<ShaderImpl>, String>
+    -> Result<Arc<ShaderImpl>, ProgramCreationError>
 {
     let source_code = source_code.to_c_str();
 
@@ -222,7 +235,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
                 error_log.set_len(error_log_size as uint);
 
                 let msg = String::from_utf8(error_log).unwrap();
-                tx.send(Err(msg));
+                tx.send(Err(CompilationError(msg)));
                 return;
             }
 
@@ -240,14 +253,14 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<ShaderImpl>, String>
+    -> Result<Arc<ShaderImpl>, ProgramCreationError>
 {
     build_shader(display, gl::GEOMETRY_SHADER, source_code)
 }
 
 #[cfg(target_os = "android")]
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<ShaderImpl>, String>
+    -> Result<Arc<ShaderImpl>, ProgramCreationError>
 {
     Err(format!("Geometry shaders are not supported on this platform"))
 }
