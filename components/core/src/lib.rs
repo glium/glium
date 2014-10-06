@@ -186,7 +186,7 @@ pub use data_types::GLDataTuple;
 
 pub use index_buffer::IndexBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
-pub use program::Program;
+pub use program::{Program, ProgramCreationError};
 pub use texture::Texture;
 
 use std::collections::HashMap;
