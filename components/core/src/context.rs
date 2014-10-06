@@ -22,6 +22,33 @@ pub struct Context {
 /// Represents the current OpenGL state.
 /// The current state is passed to each function and can be freely updated.
 pub struct GLState {
+    /// Whether GL_BLEND is enabled
+    pub enabled_blend: bool,
+
+    /// Whether GL_CULL_FACE is enabled
+    pub enabled_cull_face: bool,
+
+    /// Whether GL_DEPTH_TEST is enabled
+    pub enabled_depth_test: bool,
+
+    /// Whether GL_DITHER is enabled
+    pub enabled_dither: bool,
+
+    /// Whether GL_POLYGON_OFFSET_FILL is enabled
+    pub enabled_polygon_offset_fill: bool,
+
+    /// Whether GL_SAMPLE_ALPHA_TO_COVERAGE is enabled
+    pub enabled_sample_alpha_to_coverage: bool,
+
+    /// Whether GL_SAMPLE_COVERAGE is enabled
+    pub enabled_sample_coverage: bool,
+
+    /// Whether GL_SCISSOR_TEST is enabled
+    pub enabled_scissor_test: bool,
+
+    /// Whether GL_STENCIL_TEST is enabled
+    pub enabled_stencil_test: bool,
+
     // The latest value passed to `glUseProgram`.
     pub program: gl::types::GLuint,
 
@@ -80,6 +107,16 @@ impl Context {
                 };
 
                 GLState {
+                    enabled_blend: false,
+                    enabled_cull_face: false,
+                    enabled_depth_test: false,
+                    enabled_dither: false,
+                    enabled_polygon_offset_fill: false,
+                    enabled_sample_alpha_to_coverage: false,
+                    enabled_sample_coverage: false,
+                    enabled_scissor_test: false,
+                    enabled_stencil_test: false,
+
                     program: 0,
                     clear_color: (0.0, 0.0, 0.0, 0.0),
                     clear_depth: 1.0,
