@@ -277,13 +277,21 @@ impl PrimitiveType {
 #[deriving(Clone, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Always replace the destination pixel by the source.
+    ///
+    /// The alpha channels are simply ignored. This is the default mode.
     AlwaysReplace,
 
     /// Linear interpolation of the source pixel by the source pixel's alpha.
+    ///
+    /// If the source's alpha is 0, the destination's color will stay the same. If the source's
+    ///  alpha is 1, the destination's color will be replaced by the source's. If the source's
+    ///  alpha is 0.5, the destination's color is the average between the source's and the
+    ///  destination's color.
+    ///
+    /// This is the mode that you usually use for transparency.
+    ///
+    /// Means `(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` in OpenGL.
     LerpBySourceAlpha,
-
-    /// Linear interpolation of the source pixel by the destination pixel's alpha.
-    LerpByDestinationAlpha
 }
 
 /// Culling mode.
@@ -311,6 +319,8 @@ pub enum DepthFunction {
     Ignore,
 
     /// Always replace the target pixel.
+    ///
+    /// This is the default mode.
     Overwrite,
 
     /// Replace if the z-value of the source is equal to the destination.
@@ -365,12 +375,19 @@ pub struct DrawParameters {
     ///  on the target. 
     /// `None` means "don't care".
     pub depth_function: Option<DepthFunction>,
+
+    /// The function that the GPU will use to merge the existing pixel with the pixel that is
+    /// being written.
+    ///
+    /// `None` means "don't care" (usually when you know that the alpha is always 1).
+    pub blending_function: Option<BlendingFunction>,
 }
 
 impl std::default::Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
             depth_function: None,
+            blending_function: Some(AlwaysReplace),
         }
     }
 }
@@ -395,6 +412,27 @@ impl DrawParameters {
                 if !state.enabled_depth_test {
                     gl.Enable(gl::DEPTH_TEST);
                     state.enabled_depth_test = true;
+                }
+            },
+            _ => ()
+        }
+
+        // blending function
+        match self.blending_function {
+            Some(AlwaysReplace) => {
+                if state.enabled_blend {
+                    gl.Disable(gl::BLEND);
+                    state.enabled_blend = false;
+                }
+            },
+            Some(LerpBySourceAlpha) => {
+                if state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
+                    gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+                    state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+                }
+                if !state.enabled_blend {
+                    gl.Enable(gl::BLEND);
+                    state.enabled_blend = true;
                 }
             },
             _ => ()
