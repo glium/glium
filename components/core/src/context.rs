@@ -101,9 +101,6 @@ impl Context {
 
             // building the GLState and modifying to GL state to match it
             let mut gl_state = {
-                gl.DepthFunc(gl::ALWAYS);
-                gl.Enable(gl::DEPTH_TEST);
-
                 let viewport = {
                     let dim = window.get_inner_size().unwrap();
                     dimensions.0.store(dim.0, Relaxed);
@@ -128,7 +125,7 @@ impl Context {
                     clear_stencil: 0,
                     array_buffer_binding: None,
                     element_array_buffer_binding: None,
-                    depth_func: gl::ALWAYS,
+                    depth_func: gl::LESS,
                     blend_func: (0, 0),     // no default specified
                     viewport: viewport,
                     line_width: 1.0,
