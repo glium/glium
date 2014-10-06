@@ -206,7 +206,7 @@ mod texture;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
-    generate_gl_bindings!("gl", "core", "3.3", "struct")
+    generate_gl_bindings!("gl", "core", "3.3", "struct", [ "GL_EXT_framebuffer_object" ])
 }
 
 #[cfg(target_os = "android")]
