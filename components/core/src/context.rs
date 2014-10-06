@@ -115,7 +115,7 @@ impl Context {
 
                             // TODO: this should not be here
                             if gl_state.viewport != (0, 0, dim.0 as gl::types::GLsizei,
-                                                     dim.0 as gl::types::GLsizei)
+                                                     dim.1 as gl::types::GLsizei)
                             {
                                 gl.Viewport(0, 0, *dim.ref0() as gl::types::GLsizei,
                                     *dim.ref1() as gl::types::GLsizei);
