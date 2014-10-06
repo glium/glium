@@ -129,6 +129,6 @@ impl<'s, 'd, 't, 'm> glium_core::DrawCommand for SpriteDisplay<'s, 'd, 't, 'm> {
             uTexture: *texture
         };
 
-        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, program, &uniforms));
+        target.draw(glium_core::BasicDraw(vertex_buffer, index_buffer, program, &uniforms, &std::default::Default::default()));
     }
 }
