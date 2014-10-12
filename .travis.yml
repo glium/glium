@@ -5,7 +5,17 @@ env:
     - secure: LUjAYllhwbT6xySYvyQ7mE4pTR3cOK8jn/DI9E6hfY0LyzPXc9iDq6ugT54cUWcKjB3y3p4qgypXh0X2QQInZaGWVBiP1pZMu0lZgjIehqiro28McTwXa92+CaKljGd6m4vGhhigh16B/zvYNsGYhZJCTvFoBl6wlTVNX39jbQU=
 
 install:
-  - sudo apt-get install libXxf86vm-dev
+  - sudo apt-get install libXxf86vm-dev libosmesa6-dev
+
+script:
+  - cargo build
+  - cargo test -p glium_core
+  - cargo test -p glium_filter
+  - cargo test -p glium_image
+  - cargo test -p glium_sprite2d
+  - cargo test -p glium_spine
+  - cargo test -p glium_text
+  - cargo test
 
 after_script:
   - cargo doc
