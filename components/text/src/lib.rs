@@ -21,7 +21,7 @@ let text = glium_text::TextDisplay::new(&system, &font, "Hello world!");
 
 // Finally, drawing the text is done with a `DrawCommand`.
 // This draw command contains the matrix and color to use for the text.
-display.draw().draw(glium_text::DrawCommand(&text,
+display.draw().draw(glium_text::DrawCommand(&text, &system,
     [
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
