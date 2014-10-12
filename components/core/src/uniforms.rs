@@ -99,9 +99,9 @@ impl SamplerFilter {
 }
 
 /// A sampler.
-pub struct Sampler<'t>(pub &'t texture::Texture, pub SamplerBehavior);
+pub struct Sampler<'t, 'd: 't>(pub &'t texture::Texture<'d>, pub SamplerBehavior);
 
-impl<'t> UniformValue for Sampler<'t> {
+impl<'t, 'd> UniformValue for Sampler<'t, 'd> {
     fn to_binder(&self) -> UniformValueBinder {
         // TODO: use the behavior too
         self.0.to_binder()
@@ -132,16 +132,16 @@ impl ::std::default::Default for SamplerBehavior {
 
 /// An OpenGL sampler object.
 // TODO: cache parameters set in the sampler
-struct SamplerObject {
-    display: Arc<super::DisplayImpl>,
+struct SamplerObject<'d> {
+    display: &'d super::Display,
     id: gl::types::GLuint,
 }
 
-impl SamplerObject {
-    pub fn new(display: &super::Display) -> SamplerObject {
+impl<'d> SamplerObject<'d> {
+    pub fn new(display: &'d super::Display) -> SamplerObject<'d> {
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, _) {
+        display.context.exec(proc(gl, _) {
             let sampler = unsafe {
                 use std::mem;
                 let mut sampler: gl::types::GLuint = mem::uninitialized();
@@ -153,7 +153,7 @@ impl SamplerObject {
         });
 
         SamplerObject {
-            display: display.context.clone(),
+            display: display,
             id: rx.recv(),
         }
     }
@@ -174,7 +174,8 @@ impl SamplerObject {
     }
 }
 
-impl Drop for SamplerObject {
+#[unsafe_destructor]
+impl<'d> Drop for SamplerObject<'d> {
     fn drop(&mut self) {
         let id = self.id;
         self.display.context.exec(proc(gl, _) {
@@ -333,9 +334,9 @@ impl UniformValue for [f32, ..4] {
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture {
+impl<'t, 'd> UniformValue for &'t texture::Texture<'d> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_id = texture::get_impl(*self).id.clone();
+        let my_id = texture::get_id(*self).clone();
         UniformValueBinder(proc(gl, location, active_texture) {
             gl.BindTexture(gl::TEXTURE_2D, my_id);      // FIXME: check bind point
             unsafe { gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint) };

@@ -123,8 +123,8 @@ The last step is to build the list of uniforms for the program.
 # fn main() {
 #[uniforms]
 #[allow(non_snake_case)]
-struct Uniforms<'a> {
-    uTexture: &'a glium_core::Texture,
+struct Uniforms<'a, 'b: 'a> {
+    uTexture: &'a glium_core::Texture<'b>,
     uMatrix: [[f32, ..4], ..4],
 }
 
@@ -456,11 +456,10 @@ impl DrawParameters {
 
 /// A target where things can be drawn.
 pub struct Target<'t> {
-    display: Arc<DisplayImpl>,
-    display_hold: Option<&'t Display>,
-    texture: Option<&'t mut Texture>,
-    framebuffer: Option<FrameBufferObject>,
-    execute_end: Option<proc(&DisplayImpl):Send>,
+    display: &'t Display,
+    texture: Option<&'t mut Texture<'t>>,
+    framebuffer: Option<FrameBufferObject<'t>>,
+    execute_end: Option<proc(&Display):Send>,
     dimensions: (uint, uint),
 }
 
@@ -528,11 +527,11 @@ impl<'t> Target<'t> {
 }
 
 /// Basic draw command.
-pub struct BasicDraw<'a, 'b, 'c, 'd, 'e, V, U: 'd>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer,
-    pub &'c Program, pub &'d U, pub &'e DrawParameters);
+pub struct BasicDraw<'a, 'b, 'c, 'd, 'e, 'f: 'a, 'g: 'b, 'h: 'c, V, U: 'd>(pub &'a VertexBuffer<'f, V>, pub &'b IndexBuffer<'g>,
+    pub &'c Program<'h>, pub &'d U, pub &'e DrawParameters);
 
-impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
-    DrawCommand for BasicDraw<'a, 'b, 'c, 'd, 'e, V, U>
+impl<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, V, U: uniforms::Uniforms>
+    DrawCommand for BasicDraw<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, V, U>
 {
     fn draw(self, target: &mut Target) {
         let BasicDraw(vertex_buffer, index_buffer, program, uniforms, draw_parameters) = self;
@@ -616,21 +615,21 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 impl<'t> Drop for Target<'t> {
     fn drop(&mut self) {
         match self.execute_end.take() {
-            Some(f) => f(&*self.display),
+            Some(f) => f(self.display),
             None => ()
         }
     }
 }
 
 /// Frame buffer.
-struct FrameBufferObject {
-    display: Arc<DisplayImpl>,
+struct FrameBufferObject<'d> {
+    display: &'d Display,
     id: gl::types::GLuint,
 }
 
-impl FrameBufferObject {
+impl<'d> FrameBufferObject<'d> {
     /// Builds a new FBO.
-    fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
+    fn new(display: &'d Display) -> FrameBufferObject<'d> {
         let (tx, rx) = channel();
 
         display.context.exec(proc(gl, _state) {
@@ -648,7 +647,8 @@ impl FrameBufferObject {
     }
 }
 
-impl Drop for FrameBufferObject {
+#[unsafe_destructor]
+impl<'d> Drop for FrameBufferObject<'d> {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state) {
@@ -659,14 +659,14 @@ impl Drop for FrameBufferObject {
 
 /// Render buffer.
 #[allow(dead_code)]     // TODO: remove
-struct RenderBuffer {
-    display: Arc<DisplayImpl>,
+struct RenderBuffer<'d> {
+    display: &'d Display,
     id: gl::types::GLuint,
 }
 
-impl RenderBuffer {
+impl<'d> RenderBuffer<'d> {
     /// Builds a new render buffer.
-    fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
+    fn new(display: &'d Display) -> RenderBuffer<'d> {
         let (tx, rx) = channel();
 
         display.context.exec(proc(gl, _state) {
@@ -684,7 +684,8 @@ impl RenderBuffer {
     }
 }
 
-impl Drop for RenderBuffer {
+#[unsafe_destructor]
+impl<'d> Drop for RenderBuffer<'d> {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state) {
@@ -725,20 +726,14 @@ impl DisplayBuild for glutin::WindowBuilder {
         };
 
         Ok(Display {
-            context: Arc::new(DisplayImpl {
-                context: context,
-                gl_version: gl_version,
-            }),
+            context: context,
+            gl_version: gl_version,
         })
     }
 }
 
 /// The main object of this library. Controls the whole display.
 pub struct Display {
-    context: Arc<DisplayImpl>
-}
-
-struct DisplayImpl {
     context: context::Context,
     gl_version: (gl::types::GLint, gl::types::GLint),
 }
@@ -746,23 +741,22 @@ struct DisplayImpl {
 impl Display {
     /// Reads all events received by the window.
     pub fn poll_events(&self) -> Vec<glutin::Event> {
-        self.context.context.recv()
+        self.context.recv()
     }
 
     /// Returns the dimensions of the main framebuffer.
     pub fn get_framebuffer_dimensions(&self) -> (uint, uint) {
-        self.context.context.get_framebuffer_dimensions()
+        self.context.get_framebuffer_dimensions()
     }
 
     /// 
     pub fn draw(&self) -> Target {
         Target {
-            display: self.context.clone(),
-            display_hold: Some(self),
+            display: self,
             dimensions: self.get_framebuffer_dimensions(),
             texture: None,
             framebuffer: None,
-            execute_end: Some(proc(context: &DisplayImpl) {
+            execute_end: Some(proc(context: &Display) {
                 context.context.swap_buffers();
             }),
         }
@@ -771,31 +765,10 @@ impl Display {
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     pub fn release_shader_compiler(&self) {
         // TODO: requires elevating the GL version
-        //self.context.context.exec(proc(gl, _) {
+        //self.context.exec(proc(gl, _) {
         //    if gl.ReleaseShaderCompiler.is_loaded() {
         //        gl.ReleaseShaderCompiler();
         //    }
         //});
-    }
-
-    /// See `VertexBuffer::new`
-    #[deprecated = "Use VertexBuffer::new"]
-    pub fn build_vertex_buffer<T: VertexFormat + 'static + Send>(&self, data: Vec<T>)
-        -> VertexBuffer<T>
-    {
-        VertexBuffer::new(self, data)
-    }
-
-    /// See `IndexBuffer::new`
-    #[deprecated = "Use IndexBuffer::new"]
-    pub fn build_index_buffer<T: data_types::GLDataType>(&self, prim: PrimitiveType, data: &[T]) -> IndexBuffer {
-        IndexBuffer::new(self, prim, data)
-    }
-
-    /// Builds a new texture.
-    pub fn build_texture<T: data_types::GLDataTuple>(&self, data: &[T], width: uint, height: uint, depth: uint, array_size: uint)
-        -> Texture
-    {
-        Texture::new(self, data, width, height, depth, array_size)
     }
 }

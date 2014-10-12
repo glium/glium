@@ -7,8 +7,8 @@ use std::sync::Arc;
 use PrimitiveType;
 
 /// A list of indices loaded in the graphics card's memory.
-pub struct IndexBuffer {
-    display: Arc<super::DisplayImpl>,
+pub struct IndexBuffer<'d> {
+    display: &'d super::Display,
     id: gl::types::GLuint,
     elements_count: uint,
     data_type: gl::types::GLenum,
@@ -20,7 +20,7 @@ pub fn get_clone(ib: &IndexBuffer) -> (gl::types::GLuint, uint, gl::types::GLenu
     (ib.id.clone(), ib.elements_count.clone(), ib.data_type.clone(), ib.primitives.clone())
 }
 
-impl IndexBuffer {
+impl<'d> IndexBuffer<'d> {
     /// Builds a new index buffer.
     ///
     /// # Example
@@ -31,14 +31,14 @@ impl IndexBuffer {
     ///     &[0u8, 1, 2, 1, 3, 4, 2, 4, 3]);
     /// ```
     /// 
-    pub fn new<T: data_types::GLDataType>(display: &super::Display, prim: PrimitiveType, data: &[T]) -> IndexBuffer {
+    pub fn new<T: data_types::GLDataType>(display: &'d super::Display, prim: PrimitiveType, data: &[T]) -> IndexBuffer<'d> {
         let elements_size = mem::size_of_val(&data[0]);
         let data_size = data.len() * elements_size;
         let data_ptr: *const libc::c_void = data.as_ptr() as *const libc::c_void;
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state) {
+        display.context.exec(proc(gl, state) {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, mem::transmute(&id));
@@ -50,7 +50,7 @@ impl IndexBuffer {
         });
 
         IndexBuffer {
-            display: display.context.clone(),
+            display: display,
             id: rx.recv(),
             elements_count: data.len(),
             data_type: data_types::GLDataType::get_gl_type(None::<T>),
@@ -59,13 +59,14 @@ impl IndexBuffer {
     }
 }
 
-impl fmt::Show for IndexBuffer {
+impl<'d> fmt::Show for IndexBuffer<'d> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
         (format!("IndexBuffer #{} (elements: {})", self.id, self.elements_count)).fmt(formatter)
     }
 }
 
-impl Drop for IndexBuffer {
+#[unsafe_destructor]
+impl<'d> Drop for IndexBuffer<'d> {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, state) {

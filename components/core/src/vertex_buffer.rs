@@ -7,8 +7,8 @@ use std::mem;
 use std::sync::Arc;
 
 /// A list of verices loaded in the graphics card's memory.
-pub struct VertexBuffer<T> {
-    display: Arc<super::DisplayImpl>,
+pub struct VertexBuffer<'d, T> {
+    display: &'d super::Display,
     id: gl::types::GLuint,
     elements_size: uint,
     bindings: VertexBindings,
@@ -20,7 +20,7 @@ pub fn get_clone<T>(vb: &VertexBuffer<T>) -> (gl::types::GLuint, uint, VertexBin
     (vb.id.clone(), vb.elements_size.clone(), vb.bindings.clone())
 }
 
-impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
+impl<'d, T: VertexFormat + 'static + Send> VertexBuffer<'d, T> {
     /// Builds a new vertex buffer.
     ///
     /// # Example
@@ -45,7 +45,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// # }
     /// ```
     /// 
-    pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
+    pub fn new(display: &'d super::Display, data: Vec<T>) -> VertexBuffer<'d, T> {
         VertexBuffer::new_impl(display, data, false)
     }
 
@@ -53,11 +53,11 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///
     /// This function will create a buffer that has better performances when the it is modified
     ///  frequently.
-    pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
+    pub fn new_dynamic(display: &'d super::Display, data: Vec<T>) -> VertexBuffer<'d, T> {
         VertexBuffer::new_impl(display, data, true)
     }
 
-    fn new_impl(display: &super::Display, data: Vec<T>, dynamic: bool) -> VertexBuffer<T> {
+    fn new_impl(display: &'d super::Display, data: Vec<T>, dynamic: bool) -> VertexBuffer<'d, T> {
         let bindings = VertexFormat::build_bindings(None::<T>);
 
         let elements_size = { use std::mem; mem::size_of::<T>() };
@@ -68,7 +68,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state) {
+        display.context.exec(proc(gl, state) {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, &mut id);
@@ -81,7 +81,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
         });
 
         VertexBuffer {
-            display: display.context.clone(),
+            display: display,
             id: rx.recv(),
             elements_size: elements_size,
             bindings: bindings,
@@ -90,7 +90,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     }
 
     /// Maps the buffer to allow write access to it.
-    pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
+    pub fn map<'a>(&'a mut self) -> Mapping<'a, 'd, T> {
         let (tx, rx) = channel();
         let id = self.id.clone();
         let elements_count = self.elements_count.clone();
@@ -112,14 +112,14 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     }
 }
 
-impl<T> fmt::Show for VertexBuffer<T> {
+impl<'d, T> fmt::Show for VertexBuffer<'d, T> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
         (format!("VertexBuffer #{}", self.id)).fmt(formatter)
     }
 }
 
 #[unsafe_destructor]
-impl<T> Drop for VertexBuffer<T> {
+impl<'d, T> Drop for VertexBuffer<'d, T> {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, state) {
@@ -148,13 +148,13 @@ pub trait VertexFormat: Copy {
 }
 
 /// A mapping of a buffer.
-pub struct Mapping<'b, T> {
-    buffer: &'b mut VertexBuffer<T>,
+pub struct Mapping<'a, 'b: 'a, T> {
+    buffer: &'a mut VertexBuffer<'b, T>,
     data: CVec<T>,
 }
 
 #[unsafe_destructor]
-impl<'a, T> Drop for Mapping<'a, T> {
+impl<'a, 'b, T> Drop for Mapping<'a, 'b, T> {
     fn drop(&mut self) {
         let id = self.buffer.id.clone();
         self.buffer.display.context.exec(proc(gl, state) {
@@ -168,14 +168,14 @@ impl<'a, T> Drop for Mapping<'a, T> {
     }
 }
 
-impl<'a, T> Deref<[T]> for Mapping<'a, T> {
-    fn deref<'b>(&'b self) -> &'b [T] {
+impl<'a, 'b, T> Deref<[T]> for Mapping<'a, 'b, T> {
+    fn deref<'z>(&'z self) -> &'z [T] {
         self.data.as_slice()
     }
 }
 
-impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
-    fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
+impl<'a, 'b, T> DerefMut<[T]> for Mapping<'a, 'b, T> {
+    fn deref_mut<'z>(&'z mut self) -> &'z mut [T] {
         self.data.as_mut_slice()
     }
 }

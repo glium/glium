@@ -5,14 +5,15 @@ use std::{fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::Arc;
 use texture;
-use {Display, DisplayImpl, Texture};
+use {Display, Texture};
 
-struct ShaderImpl {
-    display: Arc<DisplayImpl>,
+struct ShaderImpl<'d> {
+    display: &'d Display,
     id: gl::types::GLuint,
 }
 
-impl Drop for ShaderImpl {
+#[unsafe_destructor]
+impl<'d> Drop for ShaderImpl<'d> {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state) {
@@ -22,8 +23,12 @@ impl Drop for ShaderImpl {
 }
 
 /// A combinaison of shaders linked together.
-pub struct Program {
-    program: Arc<ProgramImpl>
+pub struct Program<'d> {
+    display: &'d Display,
+    #[allow(dead_code)]
+    shaders: Vec<ShaderImpl<'d>>,
+    id: gl::types::GLuint,
+    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
 }
 
 /// Error that can be triggered when creating a `Program`.
@@ -39,7 +44,7 @@ pub enum ProgramCreationError {
     ProgramCreationFailure,
 }
 
-impl Program {
+impl<'d> Program<'d> {
     /// Builds a new program.
     ///
     /// A program is a group of shaders linked together.
@@ -59,8 +64,8 @@ impl Program {
     /// ```
     /// 
     #[experimental = "The list of shaders and the result error will probably change"]
-    pub fn new(display: &Display, vertex_shader: &str, fragment_shader: &str,
-               geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
+    pub fn new(display: &'d Display, vertex_shader: &str, fragment_shader: &str,
+               geometry_shader: Option<&str>) -> Result<Program<'d>, ProgramCreationError>
     {
         let mut shaders_store = Vec::new();
         shaders_store.push(try!(build_shader(display, gl::VERTEX_SHADER, vertex_shader)));
@@ -76,7 +81,7 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.exec(proc(gl, _state) {
             unsafe {
                 let id = gl.CreateProgram();
                 if id == 0 {
@@ -130,7 +135,7 @@ impl Program {
         let id = try!(rx.recv());
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.exec(proc(gl, _state) {
             unsafe {
                 // reflecting program uniforms
                 let mut uniforms = HashMap::new();
@@ -158,39 +163,30 @@ impl Program {
         });
 
         Ok(Program {
-            program: Arc::new(ProgramImpl {
-                display: display.context.clone(),
-                shaders: shaders_store,
-                id: id,
-                uniforms: rx.recv(),
-            })
+            display: display,
+            shaders: shaders_store,
+            id: id,
+            uniforms: rx.recv(),
         })
     }
 }
 
-impl fmt::Show for Program {
+impl<'d> fmt::Show for Program<'d> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
-        (format!("Program #{}", self.program.id)).fmt(formatter)
+        (format!("Program #{}", self.id)).fmt(formatter)
     }
 }
 
 pub fn get_program_id(program: &Program) -> gl::types::GLuint {
-    program.program.id
+    program.id
 }
 
 pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>> {
-    program.program.uniforms.clone()
+    program.uniforms.clone()
 }
 
-struct ProgramImpl {
-    display: Arc<DisplayImpl>,
-    #[allow(dead_code)]
-    shaders: Vec<Arc<ShaderImpl>>,
-    id: gl::types::GLuint,
-    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
-}
-
-impl Drop for ProgramImpl {
+#[unsafe_destructor]
+impl<'d> Drop for Program<'d> {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, state) {
@@ -205,13 +201,13 @@ impl Drop for ProgramImpl {
 }
 
 /// Builds an individual shader.
-fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, source_code: S)
-    -> Result<Arc<ShaderImpl>, ProgramCreationError>
+fn build_shader<'d, S: ToCStr>(display: &'d Display, shader_type: gl::types::GLenum, source_code: S)
+    -> Result<ShaderImpl<'d>, ProgramCreationError>
 {
     let source_code = source_code.to_c_str();
 
     let (tx, rx) = channel();
-    display.context.context.exec(proc(gl, _state) {
+    display.context.exec(proc(gl, _state) {
         unsafe {
             let id = gl.CreateShader(shader_type);
 
@@ -244,23 +240,23 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     });
 
     rx.recv().map(|id| {
-        Arc::new(ShaderImpl {
-            display: display.context.clone(),
+        ShaderImpl {
+            display: display,
             id: id
-        })
+        }
     })
 }
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<ShaderImpl>, ProgramCreationError>
+fn build_geometry_shader<'d, S: ToCStr>(display: &'d Display, source_code: S)
+    -> Result<ShaderImpl<'d>, ProgramCreationError>
 {
     build_shader(display, gl::GEOMETRY_SHADER, source_code)
 }
 
 #[cfg(target_os = "android")]
-fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<ShaderImpl>, ProgramCreationError>
+fn build_geometry_shader<'d, S: ToCStr>(display: &'d Display, source_code: S)
+    -> Result<ShaderImpl<'d>, ProgramCreationError>
 {
     Err(format!("Geometry shaders are not supported on this platform"))
 }
