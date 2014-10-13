@@ -552,7 +552,11 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         target.display.context.exec(proc(gl, state) {
             unsafe {
-                gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
+                if gl.BindFramebuffer.is_loaded() {
+                    gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
+                } else {
+                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+                }
 
                 // binding program
                 if state.program != program_id {
