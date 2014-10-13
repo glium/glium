@@ -206,7 +206,10 @@ mod texture;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
-    generate_gl_bindings!("gl", "core", "3.3", "struct", [ "GL_EXT_framebuffer_object" ])
+    generate_gl_bindings!("gl", "core", "4.5", "struct", [
+        "GL_EXT_direct_state_access",
+        "GL_EXT_framebuffer_object"
+    ])
 }
 
 #[cfg(target_os = "android")]
@@ -549,7 +552,11 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         target.display.context.exec(proc(gl, state) {
             unsafe {
-                gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
+                if gl.BindFramebuffer.is_loaded() {
+                    gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
+                } else {
+                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+                }
 
                 // binding program
                 if state.program != program_id {
@@ -770,12 +777,11 @@ impl Display {
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     pub fn release_shader_compiler(&self) {
-        // TODO: requires elevating the GL version
-        //self.context.context.exec(proc(gl, _) {
-        //    if gl.ReleaseShaderCompiler.is_loaded() {
-        //        gl.ReleaseShaderCompiler();
-        //    }
-        //});
+        self.context.context.exec(proc(gl, _) {
+            if gl.ReleaseShaderCompiler.is_loaded() {
+                gl.ReleaseShaderCompiler();
+            }
+        });
     }
 
     /// See `VertexBuffer::new`

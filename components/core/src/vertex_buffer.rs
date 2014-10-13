@@ -72,10 +72,22 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, &mut id);
-                gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                state.array_buffer_binding = Some(id);
-                gl.BufferData(gl::ARRAY_BUFFER, buffer_size as gl::types::GLsizeiptr,
-                    data.as_ptr() as *const libc::c_void, usage);
+
+                if gl.NamedBufferData.is_loaded() {
+                    gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
+                        data.as_ptr() as *const libc::c_void, usage);
+                        
+                } else if gl.NamedBufferDataEXT.is_loaded() {
+                    gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr,
+                        data.as_ptr() as *const libc::c_void, usage);
+
+                } else {
+                    gl.BindBuffer(gl::ARRAY_BUFFER, id);
+                    state.array_buffer_binding = Some(id);
+                    gl.BufferData(gl::ARRAY_BUFFER, buffer_size as gl::types::GLsizeiptr,
+                        data.as_ptr() as *const libc::c_void, usage);
+                }
+
                 tx.send(id);
             }
         });
@@ -96,12 +108,19 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
         let elements_count = self.elements_count.clone();
 
         self.display.context.exec(proc(gl, state) {
-            if state.array_buffer_binding != Some(id) {
-                gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                state.array_buffer_binding = Some(id);
-            }
+            let ptr = unsafe {
+                if gl.MapNamedBuffer.is_loaded() {
+                    gl.MapNamedBuffer(id, gl::READ_WRITE)
+                } else {
+                    if state.array_buffer_binding != Some(id) {
+                        gl.BindBuffer(gl::ARRAY_BUFFER, id);
+                        state.array_buffer_binding = Some(id);
+                    }
 
-            let ptr = unsafe { gl.MapBuffer(gl::ARRAY_BUFFER, gl::READ_WRITE) };
+                    gl.MapBuffer(gl::ARRAY_BUFFER, gl::READ_WRITE)
+                }
+            };
+
             tx.send(ptr as *mut T);
         });
 
@@ -158,12 +177,17 @@ impl<'a, T> Drop for Mapping<'a, T> {
     fn drop(&mut self) {
         let id = self.buffer.id.clone();
         self.buffer.display.context.exec(proc(gl, state) {
-            if state.array_buffer_binding != Some(id) {
-                gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                state.array_buffer_binding = Some(id);
-            }
+            if gl.UnmapNamedBuffer.is_loaded() {
+                gl.UnmapNamedBuffer(id);
 
-            unsafe { gl.UnmapBuffer(gl::ARRAY_BUFFER) };
+            } else {
+                if state.array_buffer_binding != Some(id) {
+                    gl.BindBuffer(gl::ARRAY_BUFFER, id);
+                    state.array_buffer_binding = Some(id);
+                }
+
+                unsafe { gl.UnmapBuffer(gl::ARRAY_BUFFER) };
+            }
         });
     }
 }
