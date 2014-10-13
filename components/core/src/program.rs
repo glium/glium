@@ -37,6 +37,11 @@ pub enum ProgramCreationError {
 
     /// `glCreateProgram` failed.
     ProgramCreationFailure,
+
+    /// One of the request shader type is not supported by the backend.
+    ///
+    /// Usually the case of geometry shaders.
+    ShaderTypeNotSupported,
 }
 
 impl Program {
@@ -215,6 +220,11 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
         unsafe {
             let id = gl.CreateShader(shader_type);
 
+            if id == 0 {
+                tx.send(Err(ShaderTypeNotSupported));
+                return;
+            }
+
             gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
             gl.CompileShader(id);
 
@@ -262,5 +272,5 @@ fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
     -> Result<Arc<ShaderImpl>, ProgramCreationError>
 {
-    Err(format!("Geometry shaders are not supported on this platform"))
+    Err(ShaderTypeNotSupported)
 }
