@@ -7,12 +7,12 @@ use std::sync::Arc;
 use texture;
 use {Display, DisplayImpl, Texture};
 
-struct ShaderImpl {
+struct Shader {
     display: Arc<DisplayImpl>,
     id: gl::types::GLuint,
 }
 
-impl Drop for ShaderImpl {
+impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state) {
@@ -190,7 +190,7 @@ pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::typ
 struct ProgramImpl {
     display: Arc<DisplayImpl>,
     #[allow(dead_code)]
-    shaders: Vec<Arc<ShaderImpl>>,
+    shaders: Vec<Arc<Shader>>,
     id: gl::types::GLuint,
     uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
 }
@@ -211,7 +211,7 @@ impl Drop for ProgramImpl {
 
 /// Builds an individual shader.
 fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, source_code: S)
-    -> Result<Arc<ShaderImpl>, ProgramCreationError>
+    -> Result<Arc<Shader>, ProgramCreationError>
 {
     let source_code = source_code.to_c_str();
 
@@ -254,7 +254,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     });
 
     rx.recv().map(|id| {
-        Arc::new(ShaderImpl {
+        Arc::new(Shader {
             display: display.context.clone(),
             id: id
         })
@@ -263,14 +263,14 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<ShaderImpl>, ProgramCreationError>
+    -> Result<Arc<Shader>, ProgramCreationError>
 {
     build_shader(display, gl::GEOMETRY_SHADER, source_code)
 }
 
 #[cfg(target_os = "android")]
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<ShaderImpl>, ProgramCreationError>
+    -> Result<Arc<Shader>, ProgramCreationError>
 {
     Err(ShaderTypeNotSupported)
 }
