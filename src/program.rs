@@ -23,7 +23,11 @@ impl Drop for Shader {
 
 /// A combinaison of shaders linked together.
 pub struct Program {
-    program: Arc<ProgramImpl>
+    display: Arc<DisplayImpl>,
+    #[allow(dead_code)]
+    shaders: Vec<Arc<Shader>>,
+    id: gl::types::GLuint,
+    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
 }
 
 /// Error that can be triggered when creating a `Program`.
@@ -163,39 +167,29 @@ impl Program {
         });
 
         Ok(Program {
-            program: Arc::new(ProgramImpl {
-                display: display.context.clone(),
-                shaders: shaders_store,
-                id: id,
-                uniforms: rx.recv(),
-            })
+            display: display.context.clone(),
+            shaders: shaders_store,
+            id: id,
+            uniforms: rx.recv(),
         })
     }
 }
 
 impl fmt::Show for Program {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
-        (format!("Program #{}", self.program.id)).fmt(formatter)
+        (format!("Program #{}", self.id)).fmt(formatter)
     }
 }
 
 pub fn get_program_id(program: &Program) -> gl::types::GLuint {
-    program.program.id
+    program.id
 }
 
 pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>> {
-    program.program.uniforms.clone()
+    program.uniforms.clone()
 }
 
-struct ProgramImpl {
-    display: Arc<DisplayImpl>,
-    #[allow(dead_code)]
-    shaders: Vec<Arc<Shader>>,
-    id: gl::types::GLuint,
-    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
-}
-
-impl Drop for ProgramImpl {
+impl Drop for Program {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, state) {
