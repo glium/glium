@@ -3,36 +3,22 @@ name = "glium"
 version = "0.0.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 
-[features]
-default = [
-    "glium_filter",
-    "glium_image",
-    "glium_sprite2d",
-    "glium_text",
+[dependencies.compile_msg]
+git = "https://github.com/huonw/compile_msg"
 
-    # these should not be default, but it's necessary because of a problem with `cargo test -p`
-    "glium_spine",
-]
+[dependencies.gl_generator]
+git = "http://github.com/bjz/gl-rs"
 
-[dependencies.glium_core]
-path = "components/core"
+[dependencies.glutin]
+git = "http://github.com/tomaka/glutin"
+features = ["window", "headless"]
+default-features = false
 
-[dependencies.glium_filter]
-path = "components/filter"
-optional = true
+[dependencies.glium_macros]
+path = "macros"
 
-[dependencies.glium_image]
-path = "components/image"
-optional = true
+[dependencies.cgmath]
+git = "https://github.com/bjz/cgmath-rs"
 
-[dependencies.glium_sprite2d]
-path = "components/sprite2d"
-optional = true
-
-[dependencies.glium_spine]
-path = "components/spine"
-optional = true
-
-[dependencies.glium_text]
-path = "components/text"
-optional = true
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"

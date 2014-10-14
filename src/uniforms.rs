@@ -20,7 +20,7 @@ pub trait UniformValue {
 pub struct UniformValueBinder(proc(&gl::Gl, gl::types::GLint, &mut gl::types::GLenum):Send);
 
 impl UniformValueBinder {
-    /// This method exists because we need to access it from `glium_core_macros`.
+    /// This method exists because we need to access it from `glium_macros`.
     #[doc(hidden)]
     pub fn get_proc(self) -> proc(&gl::Gl, gl::types::GLint, &mut gl::types::GLenum):Send {
         self.0
@@ -49,7 +49,7 @@ impl Uniforms for EmptyUniforms {
 
 /// The actual content of this object is hidden outside of this library.
 ///
-/// The content is however `pub` because we need to access it from `glium_core_macros`.
+/// The content is however `pub` because we need to access it from `glium_macros`.
 #[doc(hidden)]
 pub struct UniformsBinder(pub proc(&gl::Gl, |&str| -> Option<gl::types::GLint>):Send);
 

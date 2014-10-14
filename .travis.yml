@@ -2,20 +2,10 @@ language: rust
 
 env:
   global:
-    - secure: LUjAYllhwbT6xySYvyQ7mE4pTR3cOK8jn/DI9E6hfY0LyzPXc9iDq6ugT54cUWcKjB3y3p4qgypXh0X2QQInZaGWVBiP1pZMu0lZgjIehqiro28McTwXa92+CaKljGd6m4vGhhigh16B/zvYNsGYhZJCTvFoBl6wlTVNX39jbQU=
+    - secure: X6FV49/Si3pe1oWY1bHacgR2nyrs7rrmYwWzwdHuZl0sGseTNChUK1e1hxDpKY79a+GPEMMqonepQT+ciM/0JmXH4Bf8NKEgSvz7uAoYoWg+Xb+VoyE2nLys/5CrqTM7tgTSco+aMOwtZPjobPjKzK7uU06cpTsHbRcJoGFL6WY=
 
 install:
-  - sudo apt-get install libXxf86vm-dev libosmesa6-dev
-
-script:
-  - cargo build
-  - cargo test -p glium_core
-  - cargo test -p glium_filter
-  - cargo test -p glium_image
-  - cargo test -p glium_sprite2d
-  - cargo test -p glium_spine
-  - cargo test -p glium_text
-  - cargo test
+  - sudo apt-get install libXxf86vm-dev
 
 after_script:
   - cargo doc

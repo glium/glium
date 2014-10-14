@@ -58,9 +58,9 @@ impl Program {
     /// # Example
     ///
     /// ```no_run
-    /// # let display: glium_core::Display = unsafe { std::mem::uninitialized() };
+    /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
     /// # let vertex_source = ""; let fragment_source = ""; let geometry_source = "";
-    /// let program = glium_core::Program::new(&display, vertex_source, fragment_source, Some(geometry_source));
+    /// let program = glium::Program::new(&display, vertex_source, fragment_source, Some(geometry_source));
     /// ```
     /// 
     #[experimental = "The list of shaders and the result error will probably change"]

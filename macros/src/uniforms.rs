@@ -17,7 +17,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
         span: span,
         attributes: Vec::new(),
         path: generic::ty::Path {
-            path: vec!["glium_core", "uniforms", "Uniforms"],
+            path: vec!["glium", "uniforms", "Uniforms"],
             lifetime: None,
             params: Vec::new(),
             global: true,
@@ -32,7 +32,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 args: vec![],
                 ret_ty: generic::ty::Literal(
                     generic::ty::Path::new(
-                        vec!["glium_core", "uniforms", "UniformsBinder"]
+                        vec!["glium", "uniforms", "UniformsBinder"]
                     ),
                 ),
                 attributes: vec![],
@@ -57,7 +57,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 let ident = match field.name {
                     Some(i) => i,
                     None => {
-                        ecx.span_err(span, "Unable to implement `glium_core::uniforms::Uniforms` \
+                        ecx.span_err(span, "Unable to implement `glium::uniforms::Uniforms` \
                                             on a structure with unnamed fields");
                         return ecx.expr_lit(span, ast::LitNil);
                     }
@@ -83,11 +83,11 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
             }
 
             quote_expr!(ecx, {
-                use glium_core::uniforms::UniformValue;
+                use glium::uniforms::UniformValue;
 
                 $declarations
 
-                ::glium_core::uniforms::UniformsBinder(proc(gl, loc_getter) {
+                ::glium::uniforms::UniformsBinder(proc(gl, loc_getter) {
                     let mut active_texture = 0x84C0; // gl::TEXTURE0
                     $linkers
                 })
@@ -95,7 +95,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         },
 
         _ => {
-            ecx.span_err(span, "Unable to implement `glium_core::uniforms::Uniforms` \
+            ecx.span_err(span, "Unable to implement `glium::uniforms::Uniforms` \
                                 on a non-structure");
             ecx.expr_lit(span, ast::LitNil)
         }

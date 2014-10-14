@@ -15,7 +15,7 @@ pub struct IndexBuffer {
     primitives: gl::types::GLenum
 }
 
-/// This public function is accessible from within `glium_core` but not for the user.
+/// This public function is accessible from within `glium` but not for the user.
 pub fn get_clone(ib: &IndexBuffer) -> (gl::types::GLuint, uint, gl::types::GLenum, gl::types::GLenum) {
     (ib.id.clone(), ib.elements_count.clone(), ib.data_type.clone(), ib.primitives.clone())
 }
@@ -26,8 +26,8 @@ impl IndexBuffer {
     /// # Example
     ///
     /// ```no_run
-    /// # let display: glium_core::Display = unsafe { std::mem::uninitialized() };
-    /// let index_buffer = glium_core::IndexBuffer::new(&display, glium_core::TrianglesList,
+    /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+    /// let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
     ///     &[0u8, 1, 2, 1, 3, 4, 2, 4, 3]);
     /// ```
     /// 

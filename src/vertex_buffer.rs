@@ -15,7 +15,7 @@ pub struct VertexBuffer<T> {
     elements_count: uint,
 }
 
-/// This public function is accessible from within `glium_core` but not for the user.
+/// This public function is accessible from within `glium` but not for the user.
 pub fn get_clone<T>(vb: &VertexBuffer<T>) -> (gl::types::GLuint, uint, VertexBindings) {
     (vb.id.clone(), vb.elements_size.clone(), vb.bindings.clone())
 }
@@ -28,8 +28,8 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// ```no_run
     /// # #![feature(phase)]
     /// # #[phase(plugin)]
-    /// # extern crate glium_core_macros;
-    /// # extern crate glium_core;
+    /// # extern crate glium_macros;
+    /// # extern crate glium;
     /// # fn main() {
     /// #[vertex_format]
     /// struct Vertex {
@@ -37,8 +37,8 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///     texcoords: [f32, ..2],
     /// }
     ///
-    /// # let display: glium_core::Display = unsafe { std::mem::uninitialized() };
-    /// let vertex_buffer = glium_core::VertexBuffer::new(&display, vec![
+    /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+    /// let vertex_buffer = glium::VertexBuffer::new(&display, vec![
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },
     /// ]);

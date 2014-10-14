@@ -1,17 +1,17 @@
 #![feature(phase)]
 
 #[phase(plugin)]
-extern crate glium_core_macros;
+extern crate glium_macros;
 
 extern crate glutin;
-extern crate glium_core;
+extern crate glium;
 
 fn main() {
-    use glium_core::DisplayBuild;
+    use glium::DisplayBuild;
 
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()
-        .build_glium_core()
+        .build_glium()
         .unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -24,7 +24,7 @@ fn main() {
             iColor: [f32, ..3],
         }
 
-        glium_core::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display, 
             vec![
                 Vertex { iPosition: [-0.5, -0.5], iColor: [0.0, 1.0, 0.0] },
                 Vertex { iPosition: [ 0.0,  0.5], iColor: [0.0, 0.0, 1.0] },
@@ -34,11 +34,11 @@ fn main() {
     };
 
     // building the index buffer
-    let index_buffer = display.build_index_buffer(glium_core::TrianglesList,
+    let index_buffer = display.build_index_buffer(glium::TrianglesList,
         &[ 0u16, 1, 2 ]);
 
     // compiling shaders and linking them together
-    let program = glium_core::Program::new(&display,
+    let program = glium::Program::new(&display,
         // vertex shader
         "
             #version 110
@@ -94,7 +94,7 @@ fn main() {
 
         // drawing a frame
         let mut target = display.draw();
-        target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
+        target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
         target.finish();
 
         // sleeping for some time in order not to use up too much CPU

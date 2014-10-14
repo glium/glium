@@ -6,19 +6,19 @@ Easy-to-use high-level OpenGL3+ wrapper.
 This library defines the `DisplayBuild` trait which is curently implemented only on
 `glutin::WindowBuilder`.
 
-Initialization is done by creating a `WindowBuilder` and calling `build_glium_core`.
+Initialization is done by creating a `WindowBuilder` and calling `build_glium`.
 
 ```no_run
 extern crate glutin;
-extern crate glium_core;
+extern crate glium;
 
 fn main() {
-    use glium_core::DisplayBuild;
+    use glium::DisplayBuild;
 
     let display = glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
         .with_title("Hello world".to_string())
-        .build_glium_core().unwrap();
+        .build_glium().unwrap();
 }
 ```
 
@@ -43,8 +43,8 @@ it. Then simply call `VertexBuffer::new` with a `Vec` of this type.
 ```no_run
 # #![feature(phase)]
 # #[phase(plugin)]
-# extern crate glium_core_macros;
-# extern crate glium_core;
+# extern crate glium_macros;
+# extern crate glium;
 # fn main() {
 #[vertex_format]
 #[allow(non_snake_case)]
@@ -53,8 +53,8 @@ struct Vertex {
     iTexCoords: [f32, ..2],
 }
 
-# let display: glium_core::Display = unsafe { std::mem::uninitialized() };
-let vertex_buffer = glium_core::VertexBuffer::new(&display, vec![
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+let vertex_buffer = glium::VertexBuffer::new(&display, vec![
     Vertex { iPosition: [-1.0, -1.0], iTexCoords: [0.0, 1.0] },
     Vertex { iPosition: [-1.0,  1.0], iTexCoords: [0.0, 0.0] },
     Vertex { iPosition: [ 1.0,  1.0], iTexCoords: [1.0, 0.0] },
@@ -69,8 +69,8 @@ Creating an index buffer is done by calling `build_index_buffer` with an array c
 the indices from the vertex buffer.
 
 ```no_run
-# let display: glium_core::Display = unsafe { std::mem::uninitialized() };
-let index_buffer = glium_core::IndexBuffer::new(&display, glium_core::TrianglesList,
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
     &[0u8, 1, 2, 0, 2, 3]);
 ```
 
@@ -102,8 +102,8 @@ static FRAGMENT_SRC: &'static str = "
     }
 ";
 
-# let display: glium_core::Display = unsafe { std::mem::uninitialized() };
-let program = glium_core::Program::new(&display, VERTEX_SRC, FRAGMENT_SRC, None).unwrap();
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+let program = glium::Program::new(&display, VERTEX_SRC, FRAGMENT_SRC, None).unwrap();
 ```
 
 The `attribute`s or `in` variables in the vertex shader must match the names of the elements
@@ -118,17 +118,17 @@ The last step is to build the list of uniforms for the program.
 ```no_run
 # #![feature(phase)]
 # #[phase(plugin)]
-# extern crate glium_core_macros;
-# extern crate glium_core;
+# extern crate glium_macros;
+# extern crate glium;
 # fn main() {
 #[uniforms]
 #[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: &'a glium_core::Texture,
+    uTexture: &'a glium::Texture,
     uMatrix: [[f32, ..4], ..4],
 }
 
-# let display: glium_core::Display = unsafe { std::mem::uninitialized() };
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let tex = unsafe { std::mem::uninitialized() };
 # let matrix = unsafe { std::mem::uninitialized() };
 let uniforms = Uniforms {
@@ -148,14 +148,14 @@ Buffers are automatically swapped when the `Target` is destroyed.
 Once you are done drawing, you can `target.finish()` or let it go out of the scope.
 
 ```no_run
-# let display: glium_core::Display = unsafe { std::mem::uninitialized() };
-# let vertex_buffer: glium_core::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
-# let index_buffer: glium_core::IndexBuffer = unsafe { std::mem::uninitialized() };
-# let program: glium_core::Program = unsafe { std::mem::uninitialized() };
-# let uniforms = glium_core::uniforms::EmptyUniforms;
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let vertex_buffer: glium::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
+# let index_buffer: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
+# let program: glium::Program = unsafe { std::mem::uninitialized() };
+# let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);
-target.draw(glium_core::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
+target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
 target.finish();
 ```
 
@@ -366,8 +366,8 @@ impl DepthFunction {
 /// Example:
 /// 
 /// ```
-/// let params = glium_core::DrawParameters {
-///     depth_function: Some(glium_core::IfLess),
+/// let params = glium::DrawParameters {
+///     depth_function: Some(glium::IfLess),
 ///     .. std::default::Default::default()
 /// };
 /// ```
@@ -703,11 +703,11 @@ impl Drop for RenderBuffer {
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
-    fn build_glium_core(self) -> Result<Display, ()>;
+    fn build_glium(self) -> Result<Display, ()>;
 }
 
 impl DisplayBuild for glutin::WindowBuilder {
-    fn build_glium_core(self) -> Result<Display, ()> {
+    fn build_glium(self) -> Result<Display, ()> {
         let window = try!(self.build().map_err(|_| ()));
         let context = context::Context::new(window);
 
