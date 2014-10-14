@@ -1,11 +1,8 @@
-use data_types;
 use gl;
-use libc;
 use std::{fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::Arc;
-use texture;
-use {Display, DisplayImpl, Texture};
+use {Display, DisplayImpl};
 
 struct Shader {
     display: Arc<DisplayImpl>,

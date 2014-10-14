@@ -108,7 +108,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
         let elements_count = self.elements_count.clone();
 
         self.display.context.exec(proc(gl, state) {
-            let ptr = unsafe {
+            let ptr = {
                 if gl.MapNamedBuffer.is_loaded() {
                     gl.MapNamedBuffer(id, gl::READ_WRITE)
                 } else {
@@ -186,7 +186,7 @@ impl<'a, T> Drop for Mapping<'a, T> {
                     state.array_buffer_binding = Some(id);
                 }
 
-                unsafe { gl.UnmapBuffer(gl::ARRAY_BUFFER) };
+                gl.UnmapBuffer(gl::ARRAY_BUFFER);
             }
         });
     }
