@@ -741,8 +741,13 @@ impl DisplayBuild for glutin::WindowBuilder {
 }
 
 /// The main object of this library. Controls the whole display.
+///
+/// This object contains a smart pointer to the real implementation.
+/// Cloning the display allows you to easily share the `Display` object throughout
+///  your program and between threads.
+#[deriving(Clone)]
 pub struct Display {
-    context: Arc<DisplayImpl>
+    context: Arc<DisplayImpl>,
 }
 
 struct DisplayImpl {
