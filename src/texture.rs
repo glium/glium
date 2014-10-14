@@ -7,11 +7,19 @@ use std::sync::Arc;
 
 /// A texture usable by OpenGL.
 pub struct Texture {
-    texture: Arc<TextureImpl>
+    display: Arc<super::DisplayImpl>,
+    id: gl::types::GLuint,
+    bind_point: gl::types::GLenum,
+    width: uint,
+    height: uint,
+    depth: uint,
+    array_size: uint
 }
 
-pub fn get_impl<'a>(texture: &'a Texture) -> &'a Arc<TextureImpl> {
-    &texture.texture
+/// This function is not 
+#[doc(hidden)]
+pub fn get_id(texture: &Texture) -> gl::types::GLuint {
+    texture.id
 }
 
 impl Texture {
@@ -112,15 +120,13 @@ impl Texture {
         });
 
         Texture {
-            texture: Arc::new(TextureImpl {
-                display: display.context.clone(),
-                id: rx.recv(),
-                bind_point: texture_type,
-                width: width,
-                height: height,
-                depth: depth,
-                array_size: array_size
-            })
+            display: display.context.clone(),
+            id: rx.recv(),
+            bind_point: texture_type,
+            width: width,
+            height: height,
+            depth: depth,
+            array_size: array_size,
         }
     }
 
@@ -172,49 +178,47 @@ impl Texture {
         }).get();
 
         Texture {
-            texture: Arc::new(TextureImpl {
-                display: display.context.clone(),
-                id: rx.recv(),
-                bind_point: gl::TEXTURE_2D,
-                width: width,
-                height: height,
-                depth: depth,
-                array_size: array_size
-            })
+            display: display.context.clone(),
+            id: rx.recv(),
+            bind_point: gl::TEXTURE_2D,
+            width: width,
+            height: height,
+            depth: depth,
+            array_size: array_size,
         }
     }
 
     /// Returns the width of the texture.
     pub fn get_width(&self) -> uint {
-        self.texture.width
+        self.width
     }
 
     /// Returns the height of the texture, or 1 if the texture is a 1D texture.
     pub fn get_height(&self) -> uint {
-        self.texture.height
+        self.height
     }
 
     /// Returns the depth of the texture, or 1 if the texture is a 1D or 2D texture.
     pub fn get_depth(&self) -> uint {
-        self.texture.depth
+        self.depth
     }
 
     /// Returns the number of elements in the texture array, or 1 if the texture is not an array.
     pub fn get_array_size(&self) -> uint {
-        self.texture.array_size
+        self.array_size
     }
 
     /// Start drawing on this texture.
     #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
     pub fn draw(&mut self) -> super::Target {
-        let display = self.texture.display.clone();
+        let display = self.display.clone();
         let fbo = super::FrameBufferObject::new(display.clone());
 
         // binding the texture to the FBO
         {
-            let my_id = self.texture.id.clone();
+            let my_id = self.id.clone();
             let fbo_id = fbo.id;
-            self.texture.display.context.exec(proc(gl, _state) {
+            self.display.context.exec(proc(gl, _state) {
                 gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
                 gl.FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
             });
@@ -234,14 +238,14 @@ impl Texture {
     /// Start drawing on this texture.
     #[cfg(target_os = "android")]
     pub fn draw(&mut self) -> super::Target {
-        let display = self.texture.display.clone();
+        let display = self.display.clone();
         let fbo = super::FrameBufferObject::new(display.clone());
 
         // binding the texture to the FBO
         {
-            let my_id = self.texture.id.clone();
+            let my_id = self.id.clone();
             let fbo_id = fbo.id;
-            self.texture.display.context.exec(proc(gl, _state) {
+            self.display.context.exec(proc(gl, _state) {
                 gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
                 gl.FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, my_id, 0);
             });
@@ -272,16 +276,16 @@ impl Texture {
     // TODO: draft ; must be checked and turned public
     fn read_mipmap(&self, level: uint) -> Vec<u8> {
         unimplemented!()
-        /*let bind_point = self.texture.bind_point;
-        let id = self.texture.id;
-        let buffer_size = self.texture.width * self.texture.height * self.texture.depth *
-            self.texture.array_size * 3;
+        /*let bind_point = self.bind_point;
+        let id = self.id;
+        let buffer_size = self.width * self.height * self.depth *
+            self.array_size * 3;
 
         if level != 0 {
             unimplemented!()
         }
 
-        self.texture.display.context.exec(proc(gl, _state) {
+        self.display.context.exec(proc(gl, _state) {
             let mut buffer = Vec::from_elem(buffer_size, 0u8);
 
             unsafe {
@@ -297,22 +301,12 @@ impl Texture {
 
 impl fmt::Show for Texture {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
-        (format!("Texture #{} (dimensions: {}x{}x{})", self.texture.id,
-            self.texture.width, self.texture.height, self.texture.depth)).fmt(formatter)
+        (format!("Texture #{} (dimensions: {}x{}x{})", self.id,
+            self.width, self.height, self.depth)).fmt(formatter)
     }
 }
 
-pub struct TextureImpl {
-    pub display: Arc<super::DisplayImpl>,
-    pub id: gl::types::GLuint,
-    pub bind_point: gl::types::GLenum,
-    pub width: uint,
-    pub height: uint,
-    pub depth: uint,
-    pub array_size: uint
-}
-
-impl Drop for TextureImpl {
+impl Drop for Texture {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state) {

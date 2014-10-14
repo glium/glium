@@ -335,7 +335,7 @@ impl UniformValue for [f32, ..4] {
 
 impl<'a> UniformValue for &'a texture::Texture {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_id = texture::get_impl(*self).id.clone();
+        let my_id = texture::get_id(*self);
         UniformValueBinder(proc(gl, location, active_texture) {
             gl.BindTexture(gl::TEXTURE_2D, my_id);      // FIXME: check bind point
             unsafe { gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint) };
