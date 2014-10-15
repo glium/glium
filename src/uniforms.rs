@@ -21,7 +21,7 @@ extern crate glium_macros;
 #[uniforms]
 #[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: &'a glium::Texture,
+    uTexture: &'a glium::Texture2D,
     uMatrix: [[f32, ..4], ..4],
 }
 
@@ -39,7 +39,7 @@ Each field must implement the `UniformValue` trait.
 
 ## Textures and samplers
 
-To use a texture, write a `&Texture` like a regular uniform value.
+To use a texture, write a `&Texture2D` like a regular uniform value.
 
 To use a texture with a sampler, write a `Sampler` object.
 
@@ -54,7 +54,7 @@ Example:
 #[uniforms]
 #[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: glium::uniforms::Sampler<'a>,
+    uTexture: glium::uniforms::Sampler<'a, glium::Texture2D>,
     uMatrix: [[f32, ..4], ..4],
 }
 
@@ -180,12 +180,12 @@ impl SamplerFilter {
 }
 
 /// A sampler.
-pub struct Sampler<'t>(pub &'t texture::Texture, pub SamplerBehavior);
+pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
 
-impl<'t> UniformValue for Sampler<'t> {
+impl<'t, T: texture::Texture + 't> UniformValue for Sampler<'t, T> {
     fn to_binder(&self) -> UniformValueBinder {
         // TODO: use the behavior too
-        self.0.to_binder()
+        self.0.get_implementation().to_binder()
     }
 }
 
@@ -414,7 +414,7 @@ impl UniformValue for [f32, ..4] {
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture {
+impl<'a> UniformValue for &'a texture::TextureImplementation {
     fn to_binder(&self) -> UniformValueBinder {
         let my_id = texture::get_id(*self);
         UniformValueBinder(proc(gl, location, active_texture) {
@@ -422,6 +422,41 @@ impl<'a> UniformValue for &'a texture::Texture {
             gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint);
             *active_texture += 1;
         })
+    }
+}
+
+impl<'a> UniformValue for &'a texture::Texture1D {
+    fn to_binder(&self) -> UniformValueBinder {
+        use texture::Texture;
+        self.get_implementation().to_binder()
+    }
+}
+
+impl<'a> UniformValue for &'a texture::Texture1DArray {
+    fn to_binder(&self) -> UniformValueBinder {
+        use texture::Texture;
+        self.get_implementation().to_binder()
+    }
+}
+
+impl<'a> UniformValue for &'a texture::Texture2D {
+    fn to_binder(&self) -> UniformValueBinder {
+        use texture::Texture;
+        self.get_implementation().to_binder()
+    }
+}
+
+impl<'a> UniformValue for &'a texture::Texture2DArray {
+    fn to_binder(&self) -> UniformValueBinder {
+        use texture::Texture;
+        self.get_implementation().to_binder()
+    }
+}
+
+impl<'a> UniformValue for &'a texture::Texture3D {
+    fn to_binder(&self) -> UniformValueBinder {
+        use texture::Texture;
+        self.get_implementation().to_binder()
     }
 }
 

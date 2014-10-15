@@ -5,39 +5,139 @@ use std::fmt;
 use std::mem;
 use std::sync::Arc;
 
-/// A texture usable by OpenGL.
-pub struct Texture {
+/// Trait that describes a texture.
+pub trait Texture {
+    /// Returns a reference to an opaque type necessary to make things work.
+    #[experimental = "May be changed to something totally different"]
+    fn get_implementation(&self) -> &TextureImplementation;
+
+    /// Returns the width in pixels of the texture.
+    fn get_width(&self) -> u32 {
+        self.get_implementation().width
+    }
+
+    /// Returns the height in pixels of the texture, or `None` for one dimension textures.
+    fn get_height(&self) -> Option<u32> {
+        self.get_implementation().height.clone()
+    }
+}
+
+/// A one-dimensional texture.
+pub struct Texture1D(TextureImplementation);
+
+impl Texture1D {
+    /// Creates a one-dimensional texture.
+    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T]) -> Texture1D {
+        Texture1D(TextureImplementation::new(display, data, data.len() as u32, None, None, None))
+    }
+}
+
+impl Texture for Texture1D {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
+    }
+}
+
+/// An array of one-dimensional textures.
+pub struct Texture1DArray(TextureImplementation);
+
+impl Texture1DArray {
+    /// Creates an array of one-dimensional textures.
+    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32, array_size: u32) -> Texture1DArray {
+        Texture1DArray(TextureImplementation::new(display, data, width, None, None, Some(array_size)))
+    }
+}
+
+impl Texture for Texture1DArray {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
+    }
+}
+
+/// A two-dimensional texture. This is usually the texture that you want to use.
+pub struct Texture2D(TextureImplementation);
+
+impl Texture2D {
+    /// Creates a two-dimensional texture.
+    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32,
+                                           height: u32) -> Texture2D
+    {
+        Texture2D(TextureImplementation::new(display, data, width, Some(height), None, None))
+    }
+}
+
+impl Texture for Texture2D {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
+    }
+}
+
+/// An array of two-dimensional textures.
+pub struct Texture2DArray(TextureImplementation);
+
+impl Texture2DArray {
+    /// Creates an array of two-dimensional textures.
+    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32, height: u32, array_size: u32) -> Texture2DArray {
+        Texture2DArray(TextureImplementation::new(display, data, width, Some(height), None, Some(array_size)))
+    }
+}
+
+impl Texture for Texture2DArray {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
+    }
+}
+
+/// A three-dimensional texture.
+pub struct Texture3D(TextureImplementation);
+
+impl Texture3D {
+    /// Creates a three-dimensional texture.
+    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32,
+                                           height: u32, depth: u32) -> Texture3D
+    {
+        Texture3D(TextureImplementation::new(display, data, width, Some(height), Some(depth), None))
+    }
+}
+
+impl Texture for Texture3D {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
+    }
+}
+
+/// Opaque type that is used to make things work.
+pub struct TextureImplementation {
     display: Arc<super::DisplayImpl>,
     id: gl::types::GLuint,
     bind_point: gl::types::GLenum,
-    width: uint,
-    height: uint,
-    depth: uint,
-    array_size: uint
+    width: u32,
+    height: Option<u32>,
+    depth: Option<u32>,
+    array_size: Option<u32>,
 }
 
-/// This function is not 
+/// This function is not visible outside of `glium`.
 #[doc(hidden)]
-pub fn get_id(texture: &Texture) -> gl::types::GLuint {
+pub fn get_id(texture: &TextureImplementation) -> gl::types::GLuint {
     texture.id
 }
 
-impl Texture {
+impl TextureImplementation {
     /// Builds a new texture.
-    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: uint, height: uint, depth: uint, array_size: uint)
-        -> Texture
+    fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32,
+        height: Option<u32>, depth: Option<u32>, array_size: Option<u32>) -> TextureImplementation
     {
         let element_components = data_types::GLDataTuple::get_num_elems(None::<T>);
 
-        if width * height * depth * array_size != data.len() {
+        if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint * array_size.unwrap_or(1) as uint != data.len() {
             fail!("Texture data has different size from width*height*depth*array_size*elemLen");
         }
 
-        let texture_type = if height == 1 && depth == 1 {
-            if array_size == 1 { gl::TEXTURE_1D } else { gl::TEXTURE_1D_ARRAY }
-        } else if depth == 1 {
-            if array_size == 1 { gl::TEXTURE_2D } else { gl::TEXTURE_2D_ARRAY }
+        let texture_type = if height.is_none() && depth.is_none() {
+            if array_size.is_none() { gl::TEXTURE_1D } else { gl::TEXTURE_1D_ARRAY }
+        } else if depth.is_none() {
+            if array_size.is_none() { gl::TEXTURE_2D } else { gl::TEXTURE_2D_ARRAY }
         } else {
             gl::TEXTURE_3D
         };
@@ -84,7 +184,7 @@ impl Texture {
         let (tx, rx) = channel();
         display.context.context.exec(proc(gl, _state) {
             unsafe {
-                gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 { 4 } else if height % 2 == 0 { 2 } else { 1 });
+                gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 { 4 } else if height.unwrap_or(1) % 2 == 0 { 2 } else { 1 });
 
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenTextures(1, mem::transmute(&id));
@@ -92,19 +192,19 @@ impl Texture {
                 gl.BindTexture(texture_type, id);
 
                 gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-                if height != 1 || depth != 1 || array_size != 1 {
+                if height.is_some() || depth.is_some() || array_size.is_some() {
                     gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
                 }
-                if depth != 1 || array_size != 1 {
+                if depth.is_some() || array_size.is_some() {
                     gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
                 }
                 gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
                 gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32);
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    gl.TexImage3D(texture_type, 0, internal_data_format as i32, width as i32, height as i32, if depth > 1 { depth } else { array_size } as i32, 0, data_format as u32, data_type, data_raw);
+                    gl.TexImage3D(texture_type, 0, internal_data_format as i32, width as i32, height.unwrap() as i32, if let Some(d) = depth { d } else { array_size.unwrap_or(1) } as i32, 0, data_format as u32, data_type, data_raw);
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    gl.TexImage2D(texture_type, 0, internal_data_format as i32, width as i32, height as i32, 0, data_format as u32, data_type, data_raw);
+                    gl.TexImage2D(texture_type, 0, internal_data_format as i32, width as i32, height.unwrap() as i32, 0, data_format as u32, data_type, data_raw);
                 } else {
                     gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0, data_format as u32, data_type, data_raw);
                 }
@@ -119,7 +219,7 @@ impl Texture {
             }
         });
 
-        Texture {
+        TextureImplementation {
             display: display.context.clone(),
             id: rx.recv(),
             bind_point: texture_type,
@@ -130,87 +230,8 @@ impl Texture {
         }
     }
 
-    /// Builds a new texture.
-    #[cfg(target_os = "android")]
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: uint, height: uint, depth: uint, array_size: uint)
-        -> Texture
-    {
-        let element_components = data_types::GLDataTuple::get_num_elems(None::<T>);
-
-        if depth != 1 || array_size != 1 {
-            fail!("GLES does not support 3D textures or texture arrays")
-        }
-
-        if width * height * depth * array_size != data.len() {
-            fail!("Texture data has different size from width*height*depth*array_size*elemLen");
-        }
-
-        let data_type = data_types::GLDataTuple::get_gl_type(None::<T>);
-        let data_raw: *const libc::c_void = unsafe { mem::transmute(data.as_ptr()) };
-
-        let (data_format, data_type) = match (element_components, data_type) {
-            (3, f) => (gl::RGB, f),
-            (4, f) => (gl::RGBA, f),
-            _ => fail!("unsupported texture type")
-        };
-
-        let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
-            unsafe {
-                gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 { 4 } else if height % 2 == 0 { 2 } else { 1 });
-
-                let id: gl::types::GLuint = mem::uninitialized();
-                gl.GenTextures(1, mem::transmute(&id));
-
-                gl.BindTexture(gl::TEXTURE_2D, id);
-
-                gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-                gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
-                gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-                gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32);
-
-                gl.TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as i32, width as i32, height as i32, 0, data_format as u32, data_type, data_raw);
-
-                gl.GenerateMipmap(gl::TEXTURE_2D);
-
-                tx.send(id);
-            }
-        }).get();
-
-        Texture {
-            display: display.context.clone(),
-            id: rx.recv(),
-            bind_point: gl::TEXTURE_2D,
-            width: width,
-            height: height,
-            depth: depth,
-            array_size: array_size,
-        }
-    }
-
-    /// Returns the width of the texture.
-    pub fn get_width(&self) -> uint {
-        self.width
-    }
-
-    /// Returns the height of the texture, or 1 if the texture is a 1D texture.
-    pub fn get_height(&self) -> uint {
-        self.height
-    }
-
-    /// Returns the depth of the texture, or 1 if the texture is a 1D or 2D texture.
-    pub fn get_depth(&self) -> uint {
-        self.depth
-    }
-
-    /// Returns the number of elements in the texture array, or 1 if the texture is not an array.
-    pub fn get_array_size(&self) -> uint {
-        self.array_size
-    }
-
     /// Start drawing on this texture.
-    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-    pub fn draw(&mut self) -> super::Target {
+    fn draw(&mut self) -> super::Target {
         let display = self.display.clone();
         let fbo = super::FrameBufferObject::new(display.clone());
 
@@ -228,33 +249,7 @@ impl Texture {
         super::Target {
             display: display,
             display_hold: None,
-            dimensions: (self.get_width(), self.get_height()),
-            texture: Some(self),
-            framebuffer: Some(fbo),
-            execute_end: None,
-        }
-    }
-
-    /// Start drawing on this texture.
-    #[cfg(target_os = "android")]
-    pub fn draw(&mut self) -> super::Target {
-        let display = self.display.clone();
-        let fbo = super::FrameBufferObject::new(display.clone());
-
-        // binding the texture to the FBO
-        {
-            let my_id = self.id.clone();
-            let fbo_id = fbo.id;
-            self.display.context.exec(proc(gl, _state) {
-                gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                gl.FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, my_id, 0);
-            });
-        }
-
-        // returning the target
-        super::Target {
-            display: display,
-            display_hold: None,
+            dimensions: (self.width as uint, self.height.unwrap_or(1) as uint),
             texture: Some(self),
             framebuffer: Some(fbo),
             execute_end: None,
@@ -299,14 +294,14 @@ impl Texture {
     }
 }
 
-impl fmt::Show for Texture {
+impl fmt::Show for TextureImplementation {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
         (format!("Texture #{} (dimensions: {}x{}x{})", self.id,
             self.width, self.height, self.depth)).fmt(formatter)
     }
 }
 
-impl Drop for Texture {
+impl Drop for TextureImplementation {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state) {

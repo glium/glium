@@ -124,7 +124,7 @@ The last step is to build the list of uniforms for the program.
 #[uniforms]
 #[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: &'a glium::Texture,
+    uTexture: &'a glium::Texture2D,
     uMatrix: [[f32, ..4], ..4],
 }
 
@@ -187,7 +187,7 @@ pub use data_types::GLDataTuple;
 pub use index_buffer::IndexBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
 pub use program::{Program, ProgramCreationError};
-pub use texture::Texture;
+pub use texture::{Texture, Texture2D};
 
 use std::collections::HashMap;
 use std::fmt;
@@ -196,12 +196,13 @@ use std::sync::Arc;
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
+/// Contains everything related to textures.
+pub mod texture;
 
 mod context;
 mod data_types;
 mod index_buffer;
 mod program;
-mod texture;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
@@ -460,7 +461,7 @@ impl DrawParameters {
 pub struct Target<'t> {
     display: Arc<DisplayImpl>,
     display_hold: Option<&'t Display>,
-    texture: Option<&'t mut Texture>,
+    texture: Option<&'t mut texture::TextureImplementation>,
     framebuffer: Option<FrameBufferObject>,
     execute_end: Option<proc(&DisplayImpl):Send>,
     dimensions: (uint, uint),
