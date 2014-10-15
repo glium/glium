@@ -52,7 +52,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
 
     /// Builds a new vertex buffer.
     ///
-    /// This function will create a buffer that has better performances when the it is modified
+    /// This function will create a buffer that has better performances when it is modified
     ///  frequently.
     pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         VertexBuffer::new_impl(display, data, true)
