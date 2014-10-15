@@ -147,27 +147,6 @@ impl Context {
                     }
                 });
 
-                // calling glViewport
-                {
-                    match window.get_inner_size() {
-                        Some(dim) => {
-                            dimensions.0.store(dim.0, Relaxed);
-                            dimensions.1.store(dim.1, Relaxed);
-
-                            // TODO: this should not be here
-                            if gl_state.viewport != (0, 0, dim.0 as gl::types::GLsizei,
-                                                     dim.1 as gl::types::GLsizei)
-                            {
-                                gl.Viewport(0, 0, *dim.ref0() as gl::types::GLsizei,
-                                    *dim.ref1() as gl::types::GLsizei);
-                                gl_state.viewport = (0, 0, dim.0 as gl::types::GLsizei,
-                                    dim.1 as gl::types::GLsizei);
-                            }
-                        },
-                        None => ()
-                    };
-                }
-
                 // processing commands
                 loop {
                     match rx_commands.recv_opt() {
@@ -182,6 +161,22 @@ impl Context {
 
                 // getting events
                 for event in window.poll_events() {
+                    // calling `glViewport` if the window has been resized
+                    if let &glutin::Resized(width, height) = &event {
+                        dimensions.0.store(width, Relaxed);
+                        dimensions.1.store(height, Relaxed);
+
+                        if gl_state.viewport != (0, 0, width as gl::types::GLsizei,
+                                                 height as gl::types::GLsizei)
+                        {
+                            gl.Viewport(0, 0, width as gl::types::GLsizei,
+                                height as gl::types::GLsizei);
+                            gl_state.viewport = (0, 0, width as gl::types::GLsizei,
+                                height as gl::types::GLsizei);
+                        }
+                    }
+
+                    // sending the event outside
                     if tx_events.send_opt(event.clone()).is_err() {
                         break 'main;
                     }
