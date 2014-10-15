@@ -193,7 +193,6 @@ use std::collections::HashMap;
 use std::fmt;
 use std::sync::Arc;
 
-/// Contains everything related to uniforms.
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
 pub mod vertex_buffer;

@@ -1,3 +1,84 @@
+/*!
+
+# Uniforms
+
+A uniform is a global variable in your program. In order to draw something, you will need to
+ tell `glium` what the values of all your uniforms are. Objects that implement the `Uniform`
+ trait are here to do that.
+
+The recommended way to is to create your own structure and put the `#[uniforms]` attribute
+ to it.
+
+For example:
+
+```no_run
+# #![feature(phase)]
+#[phase(plugin)]
+extern crate glium_macros;
+# extern crate glium;
+# fn main() {
+
+#[uniforms]
+#[allow(non_snake_case)]
+struct Uniforms<'a> {
+    uTexture: &'a glium::Texture,
+    uMatrix: [[f32, ..4], ..4],
+}
+
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let tex = unsafe { std::mem::uninitialized() };
+# let matrix = unsafe { std::mem::uninitialized() };
+let uniforms = Uniforms {
+    uTexture: tex,
+    uMatrix: matrix,
+};
+# }
+```
+
+Each field must implement the `UniformValue` trait.
+
+## Textures and samplers
+
+To use a texture, write a `&Texture` like a regular uniform value.
+
+To use a texture with a sampler, write a `Sampler` object.
+
+Example:
+
+```no_run
+# #![feature(phase)]
+# #[phase(plugin)]
+# extern crate glium_macros;
+# extern crate glium;
+# fn main() {
+#[uniforms]
+#[allow(non_snake_case)]
+struct Uniforms<'a> {
+    uTexture: glium::uniforms::Sampler<'a>,
+    uMatrix: [[f32, ..4], ..4],
+}
+
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let tex = unsafe { std::mem::uninitialized() };
+# let matrix = unsafe { std::mem::uninitialized() };
+let uniforms = Uniforms {
+    uTexture: glium::uniforms::Sampler(&tex, glium::uniforms::SamplerBehavior {
+        wrap_function: (
+            glium::uniforms::Repeat,
+            glium::uniforms::Repeat,
+            glium::uniforms::Repeat
+        ),
+        minify_filter: glium::uniforms::Linear,
+        .. std::default::Default::default()
+    }),
+    uMatrix: matrix,
+};
+# }
+```
+
+
+*/
+
 use {gl, texture};
 use cgmath;
 use nalgebra;
