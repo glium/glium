@@ -22,7 +22,7 @@ impl Drop for Shader {
 pub struct Program {
     display: Arc<DisplayImpl>,
     #[allow(dead_code)]
-    shaders: Vec<Arc<Shader>>,
+    shaders: Vec<Shader>,
     id: gl::types::GLuint,
     uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
 }
@@ -202,7 +202,7 @@ impl Drop for Program {
 
 /// Builds an individual shader.
 fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, source_code: S)
-    -> Result<Arc<Shader>, ProgramCreationError>
+    -> Result<Shader, ProgramCreationError>
 {
     let source_code = source_code.to_c_str();
 
@@ -245,23 +245,23 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     });
 
     rx.recv().map(|id| {
-        Arc::new(Shader {
+        Shader {
             display: display.context.clone(),
             id: id
-        })
+        }
     })
 }
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<Shader>, ProgramCreationError>
+    -> Result<Shader, ProgramCreationError>
 {
     build_shader(display, gl::GEOMETRY_SHADER, source_code)
 }
 
 #[cfg(target_os = "android")]
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Arc<Shader>, ProgramCreationError>
+    -> Result<Shader, ProgramCreationError>
 {
     Err(ShaderTypeNotSupported)
 }
