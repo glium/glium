@@ -34,7 +34,7 @@ fn main() {
     };
 
     // building the index buffer
-    let index_buffer = display.build_index_buffer(glium::TrianglesList,
+    let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
         &[ 0u16, 1, 2 ]);
 
     // compiling shaders and linking them together
