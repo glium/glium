@@ -16,6 +16,7 @@ pub struct VertexBuffer<T> {
 }
 
 /// This public function is accessible from within `glium` but not for the user.
+#[doc(hidden)]
 pub fn get_clone<T>(vb: &VertexBuffer<T>) -> (gl::types::GLuint, uint, VertexBindings) {
     (vb.id.clone(), vb.elements_size.clone(), vb.bindings.clone())
 }
