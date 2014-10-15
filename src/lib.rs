@@ -788,25 +788,4 @@ impl Display {
             }
         });
     }
-
-    /// See `VertexBuffer::new`
-    #[deprecated = "Use VertexBuffer::new"]
-    pub fn build_vertex_buffer<T: VertexFormat + 'static + Send>(&self, data: Vec<T>)
-        -> VertexBuffer<T>
-    {
-        VertexBuffer::new(self, data)
-    }
-
-    /// See `IndexBuffer::new`
-    #[deprecated = "Use IndexBuffer::new"]
-    pub fn build_index_buffer<T: data_types::GLDataType>(&self, prim: PrimitiveType, data: &[T]) -> IndexBuffer {
-        IndexBuffer::new(self, prim, data)
-    }
-
-    /// Builds a new texture.
-    pub fn build_texture<T: data_types::GLDataTuple>(&self, data: &[T], width: uint, height: uint, depth: uint, array_size: uint)
-        -> Texture
-    {
-        Texture::new(self, data, width, height, depth, array_size)
-    }
 }
