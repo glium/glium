@@ -163,6 +163,7 @@ target.finish();
 
 #![feature(if_let)]
 #![feature(phase)]
+#![feature(slicing_syntax)]
 #![feature(tuple_indexing)]
 #![feature(unsafe_destructor)]
 #![unstable]

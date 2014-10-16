@@ -22,13 +22,35 @@ pub trait Texture {
     }
 }
 
+/// A trait that must be implemented for any type that can represent the value of a pixel.
+#[experimental = "Will be rewritten after UFCS land"]
+pub trait PixelValue: Copy + Clone + Send {
+    /// Returns the `GLenum` corresponding to the type of this pixel.
+    fn get_gl_type(_: Option<Self>) -> gl::types::GLenum;
+    /// Returns the number of color components.
+    fn get_num_elems(_: Option<Self>) -> gl::types::GLint;
+}
+
+// note: this may be temporary
+impl<T: data_types::GLDataTuple + Copy + Clone + Send> PixelValue for T {
+    fn get_gl_type(x: Option<T>) -> gl::types::GLenum {
+        data_types::GLDataTuple::get_gl_type(x)
+    }
+
+    fn get_num_elems(x: Option<T>) -> gl::types::GLint {
+        data_types::GLDataTuple::get_num_elems(x)
+    }
+}
+
 /// A one-dimensional texture.
 pub struct Texture1D(TextureImplementation);
 
 impl Texture1D {
     /// Creates a one-dimensional texture.
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T]) -> Texture1D {
-        Texture1D(TextureImplementation::new(display, data, data.len() as u32, None, None, None))
+    pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: T) -> Texture1D {
+        let data = data.into_vec();
+        let width = data.len() as u32;
+        Texture1D(TextureImplementation::new(display, data, width, None, None, None))
     }
 }
 
@@ -38,13 +60,39 @@ impl Texture for Texture1D {
     }
 }
 
+/// Trait that describes data for a one-dimensional texture.
+#[experimental = "Will be rewritten to use an associated type"]
+pub trait Texture1DData<P> {
+    /// Returns a vec where each element is a pixel of the texture.
+    fn into_vec(self) -> Vec<P>;
+}
+
+impl<P: PixelValue> Texture1DData<P> for Vec<P> {
+    fn into_vec(self) -> Vec<P> {
+        self
+    }
+}
+
+impl<'a, P: PixelValue> Texture1DData<P> for &'a [P] {
+    fn into_vec(self) -> Vec<P> {
+        self.to_vec()
+    }
+}
+
 /// An array of one-dimensional textures.
 pub struct Texture1DArray(TextureImplementation);
 
 impl Texture1DArray {
     /// Creates an array of one-dimensional textures.
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32, array_size: u32) -> Texture1DArray {
-        Texture1DArray(TextureImplementation::new(display, data, width, None, None, Some(array_size)))
+    ///
+    /// # Panic
+    ///
+    /// Panics if all the elements don't have the same dimensions.
+    pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: Vec<T>) -> Texture1DArray {
+        let array_size = data.len();
+        let mut width = 0;
+        let data = data.into_iter().flat_map(|t| { let d = t.into_vec(); width = d.len(); d.into_iter() }).collect();
+        Texture1DArray(TextureImplementation::new(display, data, width as u32, None, None, Some(array_size as u32)))
     }
 }
 
@@ -59,10 +107,10 @@ pub struct Texture2D(TextureImplementation);
 
 impl Texture2D {
     /// Creates a two-dimensional texture.
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32,
-                                           height: u32) -> Texture2D
-    {
-        Texture2D(TextureImplementation::new(display, data, width, Some(height), None, None))
+    pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: T) -> Texture2D {
+        let dimensions = data.get_dimensions();
+        let data = data.into_vec();
+        Texture2D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), None, None))
     }
 }
 
@@ -72,13 +120,40 @@ impl Texture for Texture2D {
     }
 }
 
+/// Trait that describes data for a two-dimensional texture.
+#[experimental = "Will be rewritten to use an associated type"]
+pub trait Texture2DData<P> {
+    /// Returns the dimensions of the texture.
+    fn get_dimensions(&self) -> (u32, u32);
+
+    /// Returns a vec where each element is a pixel of the texture.
+    fn into_vec(self) -> Vec<P>;
+}
+
+impl<P: PixelValue> Texture2DData<P> for Vec<Vec<P>> {
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
+    }
+
+    fn into_vec(self) -> Vec<P> {
+        self.into_iter().flat_map(|e| e.into_iter()).collect()
+    }
+}
+
 /// An array of two-dimensional textures.
 pub struct Texture2DArray(TextureImplementation);
 
 impl Texture2DArray {
     /// Creates an array of two-dimensional textures.
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32, height: u32, array_size: u32) -> Texture2DArray {
-        Texture2DArray(TextureImplementation::new(display, data, width, Some(height), None, Some(array_size)))
+    ///
+    /// # Panic
+    ///
+    /// Panics if all the elements don't have the same dimensions.
+    pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: Vec<T>) -> Texture2DArray {
+        let array_size = data.len();
+        let mut dimensions = (0, 0);
+        let data = data.into_iter().flat_map(|t| { dimensions = t.get_dimensions(); t.into_vec().into_iter() }).collect();
+        Texture2DArray(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), None, Some(array_size as u32)))
     }
 }
 
@@ -93,16 +168,36 @@ pub struct Texture3D(TextureImplementation);
 
 impl Texture3D {
     /// Creates a three-dimensional texture.
-    pub fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32,
-                                           height: u32, depth: u32) -> Texture3D
-    {
-        Texture3D(TextureImplementation::new(display, data, width, Some(height), Some(depth), None))
+    pub fn new<P: PixelValue, T: Texture3DData<P>>(display: &super::Display, data: T) -> Texture3D {
+        let dimensions = data.get_dimensions();
+        let data = data.into_vec();
+        Texture3D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), Some(dimensions.2), None))
     }
 }
 
 impl Texture for Texture3D {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
+    }
+}
+
+/// Trait that describes data for a three-dimensional texture.
+#[experimental = "Will be rewritten to use an associated type"]
+pub trait Texture3DData<P> {
+    /// Returns the dimensions of the texture.
+    fn get_dimensions(&self) -> (u32, u32, u32);
+
+    /// Returns a vec where each element is a pixel of the texture.
+    fn into_vec(self) -> Vec<P>;
+}
+
+impl<P: PixelValue> Texture3DData<P> for Vec<Vec<Vec<P>>> {
+    fn get_dimensions(&self) -> (u32, u32, u32) {
+        (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32, self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
+    }
+
+    fn into_vec(self) -> Vec<P> {
+        self.into_iter().flat_map(|e| e.into_iter()).flat_map(|e| e.into_iter()).collect()
     }
 }
 
@@ -125,10 +220,10 @@ pub fn get_id(texture: &TextureImplementation) -> gl::types::GLuint {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    fn new<T: data_types::GLDataTuple>(display: &super::Display, data: &[T], width: u32,
+    fn new<P: PixelValue>(display: &super::Display, data: Vec<P>, width: u32,
         height: Option<u32>, depth: Option<u32>, array_size: Option<u32>) -> TextureImplementation
     {
-        let element_components = data_types::GLDataTuple::get_num_elems(None::<T>);
+        let element_components = PixelValue::get_num_elems(None::<P>);
 
         if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint * array_size.unwrap_or(1) as uint != data.len() {
             fail!("Texture data has different size from width*height*depth*array_size*elemLen");
@@ -142,8 +237,7 @@ impl TextureImplementation {
             gl::TEXTURE_3D
         };
 
-        let data_type = data_types::GLDataTuple::get_gl_type(None::<T>);
-        let data_raw: *const libc::c_void = unsafe { mem::transmute(data.as_ptr()) };
+        let data_type = PixelValue::get_gl_type(None::<P>);
 
         let (internal_data_format, data_format, data_type) = match (element_components, data_type) {
             (1, gl::BYTE)           => (gl::RED, gl::RED, gl::BYTE),
@@ -184,6 +278,9 @@ impl TextureImplementation {
         let (tx, rx) = channel();
         display.context.context.exec(proc(gl, _state) {
             unsafe {
+                let data = data;
+                let data_raw: *const libc::c_void = unsafe { mem::transmute(data.as_slice().as_ptr()) };
+
                 gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 { 4 } else if height.unwrap_or(1) % 2 == 0 { 2 } else { 1 });
 
                 let id: gl::types::GLuint = mem::uninitialized();
