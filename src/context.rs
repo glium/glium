@@ -79,6 +79,9 @@ pub struct GLState {
 
     /// The latest value passed to `glLineWidth`.
     pub line_width: gl::types::GLfloat,
+
+    /// The latest value passed to `glCullFace`.
+    pub cull_face: gl::types::GLenum,
 }
 
 impl Context {
@@ -129,6 +132,7 @@ impl Context {
                     blend_func: (0, 0),     // no default specified
                     viewport: viewport,
                     line_width: 1.0,
+                    cull_face: gl::BACK,
                 }
             };
 

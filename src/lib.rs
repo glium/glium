@@ -388,6 +388,12 @@ pub struct DrawParameters {
     ///
     /// `None` means "don't care". Use this when you don't draw lines.
     pub line_width: Option<f32>,
+
+    /// Whether or not the GPU should filter out some faces.
+    ///
+    /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
+    ///  the camera.
+    pub backface_culling: BackfaceCullingMode,
 }
 
 impl std::default::Default for DrawParameters {
@@ -396,6 +402,7 @@ impl std::default::Default for DrawParameters {
             depth_function: None,
             blending_function: Some(AlwaysReplace),
             line_width: None,
+            backface_culling: CullingDisabled,
         }
     }
 }
@@ -452,6 +459,38 @@ impl DrawParameters {
                 gl.LineWidth(line_width);
                 state.line_width = line_width;
             }
+        }
+
+        // back-face culling
+        // note: we never change the value of `glFrontFace`, whose default is GL_CCW
+        //  that's why `CullClockWise` uses `GL_BACK` for example
+        match self.backface_culling {
+            CullingDisabled => {
+                if state.enabled_cull_face {
+                    gl.Disable(gl::CULL_FACE);
+                    state.enabled_cull_face = false;
+                }
+            },
+            CullCounterClockWise => {
+                if !state.enabled_cull_face {
+                    gl.Enable(gl::CULL_FACE);
+                    state.enabled_cull_face = true;
+                }
+                if state.cull_face != gl::FRONT {
+                    gl.CullFace(gl::FRONT);
+                    state.cull_face = gl::FRONT;
+                }
+            },
+            CullClockWise => {
+                if !state.enabled_cull_face {
+                    gl.Enable(gl::CULL_FACE);
+                    state.enabled_cull_face = true;
+                }
+                if state.cull_face != gl::BACK {
+                    gl.CullFace(gl::BACK);
+                    state.cull_face = gl::BACK;
+                }
+            },
         }
     }
 }
