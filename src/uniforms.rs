@@ -1,7 +1,4 @@
 /*!
-
-# Uniforms
-
 A uniform is a global variable in your program. In order to draw something, you will need to
  tell `glium` what the values of all your uniforms are. Objects that implement the `Uniform`
  trait are here to do that.
