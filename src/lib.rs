@@ -197,7 +197,6 @@ use std::sync::Arc;
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
-/// Contains everything related to textures.
 pub mod texture;
 
 mod context;

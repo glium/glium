@@ -1,3 +1,18 @@
+/*!
+
+A texture is an image available for drawing.
+
+To create a texture, you must first create a struct that implements one of `Texture1DData`,
+ `Texture2DData` or `Texture3DData`. Then call the appropriate `new` function of the type of
+ texture that you desire.
+
+The most common type of texture is a `Texture2D` (the two dimensions being the width and height),
+ it is what you will use most of the time.
+
+**Note**: `TextureCube` does not yet exist.
+
+*/
+
 use data_types;
 use gl;
 use libc;
