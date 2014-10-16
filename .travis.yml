@@ -2,7 +2,7 @@ language: rust
 
 env:
   global:
-    - secure: VKiZFaVm2s94iC2ogZ7b/bXFOh2QprdyqVq9l1zuUjXxFnzaVHwDwvcu8bO7Z6GFlu3X39efxP04CtzaapNNIUoqKGl5v/j850ILsUBl7BhjVXMLbpWjySn0uSxxln0pnB0vtiQSksqrV6hG3vCqrc/8Rsi2RzQwjMf8W+0Y7p8=
+    - secure: elesZPs7qblQQpnkKAbFn7VZ50bkZLXXLWD5jdMIAIT4L4qeUZh176cSIJD5RsRnTQxLVO2BCLhH0xtw7D1Mw2m44r5jIczxtRon/r47wUD0Gqc+mdKEBjKHeOAQ6XyGWNy2+NZvcVSalzTJJME5YRB7OZywQ9WrE0YDfzCyQww=
 
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
