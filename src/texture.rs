@@ -35,6 +35,16 @@ pub trait Texture {
     fn get_height(&self) -> Option<u32> {
         self.get_implementation().height.clone()
     }
+
+    /// Returns the depth in pixels of the texture, or `None` for one or two dimension textures.
+    fn get_depth(&self) -> Option<u32> {
+        self.get_implementation().depth.clone()
+    }
+
+    /// Returns the number of textures in the array, or `None` for non-arrays.
+    fn get_array_size(&self) -> Option<u32> {
+        self.get_implementation().array_size.clone()
+    }
 }
 
 /// A trait that must be implemented for any type that can represent the value of a pixel.
@@ -126,6 +136,14 @@ impl Texture2D {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
         Texture2D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), None, None))
+    }
+
+    /// Starts drawing on the texture.
+    ///
+    /// This does not erase the existing content of the texture as long as you don't call
+    ///  `clear_colors` on the `Target`.
+    pub fn draw(&mut self) -> super::Target {
+        self.0.draw()
     }
 }
 
