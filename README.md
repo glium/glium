@@ -9,4 +9,4 @@ git = "https://github.com/tomaka/glium"
 
 ## [Link to the documentation](http://tomaka.github.io/glium-docs/glium/)
 
-All the informations you need are in the documentation.
+The documentation provides the information you need.
