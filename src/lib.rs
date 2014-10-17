@@ -771,12 +771,12 @@ impl Drop for RenderBuffer {
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
-    fn build_glium(self) -> Result<Display, ()>;
+    fn build_glium(self) -> Result<Display, String>;
 }
 
 impl DisplayBuild for glutin::WindowBuilder {
-    fn build_glium(self) -> Result<Display, ()> {
-        let window = try!(self.build().map_err(|_| ()));
+    fn build_glium(self) -> Result<Display, String> {
+        let window = try!(self.build());
         let context = context::Context::new(window);
 
         let gl_version = {
