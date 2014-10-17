@@ -27,123 +27,154 @@ The `display` object is the most important object of this library.
 The window where you are drawing on will produce events. They can be received by calling
 `display.poll_events()`.
 
-# Drawing
+# Fundamentals
 
-Drawing something requires three elements:
+In order to draw something on the window, you must first call `display.draw()`. This function
+call returns a `Target` object which you can manipulate to draw things. Once the object
+is destroyed, the result will be presented to the user by swapping the front and back buffers.
 
- - A vertex buffer, which contains the vertices of the shape that you wish to draw.
- - An index buffer, which contains the shapes which connect the vertices.
- - A program that the GPU will execute.
+You can easily fill the window with one color by calling `clear_colors` on the target. Drawing
+something more complex, however, requires two elements:
 
-## Vertex buffer
+ - A mesh, which describes the shape and the characteristics of the object that you want to draw,
+ and is composed of a `VertexBuffer` object and an `IndexBuffer` object.
+ - A program that is going to be executed by the GPU and is the result of compiling and linking
+ GLSL code, alongside with the values of its global variables which are called *uniforms*.
 
-To create a vertex buffer, you must create a struct and add the `#[vertex_format]` attribute to
-it. Then simply call `VertexBuffer::new` with a `Vec` of this type.
+## Complete example
+
+We start by creating the vertex buffer, which contains the list of all the points that are part
+of our mesh. The elements that we pass to `VertexBuffer::new` must implement the
+`glium::vertex_buffer::VertexFormat` trait. We can easily do this by creating a custom struct
+and adding the `#[vertex_format]` attribute to it.
+
+You can check the documentation of the `vertex_buffer` module for more informations.
 
 ```no_run
 # #![feature(phase)]
-# #[phase(plugin)]
-# extern crate glium_macros;
+#[phase(plugin)]
+extern crate glium_macros;
+
 # extern crate glium;
 # fn main() {
 #[vertex_format]
 struct Vertex {
     position: [f32, ..2],
-    tex_coords: [f32, ..2],
+    color: [f32, ..3],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 let vertex_buffer = glium::VertexBuffer::new(&display, vec![
-    Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 1.0] },
-    Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 0.0] },
-    Vertex { position: [ 1.0,  1.0], tex_coords: [1.0, 0.0] },
-    Vertex { position: [ 1.0, -1.0], tex_coords: [1.0, 1.0] }
+    Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5, -0.5], color: [1.0, 0.0, 0.0] },
 ]);
 # }
 ```
 
-## Index buffer
+Then we create the index buffer, which contains informations about the primitives (triangles,
+lines, etc.) that compose our mesh.
 
-Creating an index buffer is done by calling `build_index_buffer` with an array containing
-the indices from the vertex buffer.
+The last parameter is a list of indices that represent the positions of our points in the
+vertex buffer.
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
-    &[0u8, 1, 2, 0, 2, 3]);
+let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList, &[ 0u16, 1, 2 ]);
 ```
 
-## Program
+Then we create the program, which is composed of a *vertex shader*, a program executed once for
+each element in our vertex buffer, and a *fragment shader*, a program executed once for each
+pixel before it is written on the final image.
+
+The purpose of a program is to instruct the GPU how to process our mesh in order to obtain pixels.
 
 ```no_run
-static VERTEX_SRC: &'static str = "
-    #version 110
-
-    uniform mat4 uMatrix;
-
-    attribute vec2 iPosition;
-    attribute vec2 iTexCoords;
-
-    varying vec2 vTexCoords;
-
-    void main() {
-        gl_Position = vec4(iPosition, 0.0, 1.0) * uMatrix;
-        vTexCoords = iTexCoords;
-    }
-";
-
-static FRAGMENT_SRC: &'static str = "
-    #version 110
-    varying vec2 vTexCoords;
-
-    void main() {
-        gl_FragColor = vec4(vTexCoords.x, vTexCoords.y, 0.0, 1.0);
-    }
-";
-
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let program = glium::Program::new(&display, VERTEX_SRC, FRAGMENT_SRC, None).unwrap();
+let program = glium::Program::new(&display, 
+    // vertex shader
+    "   #version 110
+
+        uniform mat4 matrix;
+
+        attribute vec2 position;
+        attribute vec3 color;
+
+        varying vec3 v_color;
+
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0) * matrix;
+            v_color = color;
+        }
+    ",
+
+    // fragment shader
+    "   #version 110
+        varying vec3 v_color;
+
+        void main() {
+            gl_FragColor = vec4(v_color, 1.0);
+        }
+    ",
+
+    // optional geometry shader
+    None
+).unwrap();
 ```
 
-The `attribute`s or `in` variables in the vertex shader must match the names of the elements
-of the `#[vertex_format]` structure.
+*Note: Teaching you the GLSL language is not covered by this guide.*
 
-The `Result` returned by `Program::new` will report any compilation or linking error.
+You may notice that the `attribute` declarations in the vertex shader match the field names and
+types of the elements in the vertex buffer. This is required, or drawing will result in an error.
 
-## Uniforms
+In the example above, you may notice `uniform mat4 matrix;`. This is a *uniform*, in other words
+a global variable in our program. We will need to tell glium what the value of `matrix` is by
+creating an object that implements the `glium::uniforms::Uniforms` trait.
 
-The last step is to build the list of uniforms for the program.
+Similarly to the vertex buffer and vertex format, we can do so by creating a custom struct  and
+adding the `#[uniforms]` attribute to it.
 
 ```no_run
 # #![feature(phase)]
-# #[phase(plugin)]
-# extern crate glium_macros;
+#[phase(plugin)]
+extern crate glium_macros;
+
 # extern crate glium;
 # fn main() {
 #[uniforms]
-struct Uniforms<'a> {
-    texture: &'a glium::Texture2D,
+struct Uniforms {
     matrix: [[f32, ..4], ..4],
 }
 
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let tex = unsafe { std::mem::uninitialized() };
-# let matrix = unsafe { std::mem::uninitialized() };
 let uniforms = Uniforms {
-    texture: tex,
-    matrix: matrix,
+    matrix: [
+        [ 1.0, 0.0, 0.0, 0.0 ],
+        [ 0.0, 1.0, 0.0, 0.0 ],
+        [ 0.0, 0.0, 1.0, 0.0 ],
+        [ 0.0, 0.0, 0.0, 1.0 ]
+    ],
 };
 # }
 ```
 
-## Drawing
+Vertex buffers, index buffers and program should be stored between draws in order to avoid wasting
+time, but objects that implement the `glium::uniforms::Uniforms` trait are usually constructed
+every time you draw.
 
-Draw by calling `display.draw()`. This function call will return a `Target` object which can
-be used to draw things.
+Fields of our `Uniforms` object can be any object that implements `glium::uniforms::UniformValue`.
+This includes textures and samplers (not covered here). You can check the documentation of the
+`uniforms` module for more informations.
 
-Buffers are automatically swapped when the `Target` is destroyed.
+Now that everything is initialized, we can finally draw something. To do so, call `display.draw()`
+in order to obtain a `Target` object. Note that it is also possible to draw on a texture by
+calling `texture.draw()`, but this is not covered here.
 
-Once you are done drawing, you can `target.finish()` or let it go out of the scope.
+The `Target` object has a `draw` function which takes an object that implements the
+`glium::DrawCommand` trait. The only command provided by glium is `BasicDraw`.
+
+The arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
+`DrawParameters` which contains miscellaneous informations about how everything should be rendered
+(depth test, blending, backface culling, etc.).
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
@@ -152,7 +183,7 @@ Once you are done drawing, you can `target.finish()` or let it go out of the sco
 # let program: glium::Program = unsafe { std::mem::uninitialized() };
 # let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
-target.clear_color(0.0, 0.0, 0.0, 0.0);
+target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
 target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
 target.finish();
 ```
