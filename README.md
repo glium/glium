@@ -1,6 +1,6 @@
 # glium
 
-Graphics stack for Rust.
+High-level OpenGL wrapper for the Rust language.
 
 ```toml
 [dependencies.glium]
