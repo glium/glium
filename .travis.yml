@@ -1,13 +1,4 @@
 language: rust
 
-env:
-  global:
-    - secure: elesZPs7qblQQpnkKAbFn7VZ50bkZLXXLWD5jdMIAIT4L4qeUZh176cSIJD5RsRnTQxLVO2BCLhH0xtw7D1Mw2m44r5jIczxtRon/r47wUD0Gqc+mdKEBjKHeOAQ6XyGWNy2+NZvcVSalzTJJME5YRB7OZywQ9WrE0YDfzCyQww=
-
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
-
-after_script:
-  - cargo doc
-  - cp -R target/doc doc
-  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
