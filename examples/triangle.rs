@@ -40,7 +40,7 @@ fn main() {
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,
         // vertex shader
-        "
+        shader_check!("
             #version 110
 
             uniform mat4 uMatrix;
@@ -54,17 +54,17 @@ fn main() {
                 gl_Position = vec4(iPosition, 0.0, 1.0) * uMatrix;
                 vColor = iColor;
             }
-        ",
+        "),
 
         // fragment shader
-        "
+        shader_check!("
             #version 110
             varying vec3 vColor;
 
             void main() {
                 gl_FragColor = vec4(vColor, 1.0);
             }
-        ",
+        "),
 
         // geometry shader
         None)
