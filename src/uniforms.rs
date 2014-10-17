@@ -16,18 +16,17 @@ extern crate glium_macros;
 # fn main() {
 
 #[uniforms]
-#[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: &'a glium::Texture2D,
-    uMatrix: [[f32, ..4], ..4],
+    texture: &'a glium::Texture2D,
+    matrix: [[f32, ..4], ..4],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let tex = unsafe { std::mem::uninitialized() };
 # let matrix = unsafe { std::mem::uninitialized() };
 let uniforms = Uniforms {
-    uTexture: tex,
-    uMatrix: matrix,
+    texture: tex,
+    matrix: matrix,
 };
 # }
 ```
@@ -49,17 +48,16 @@ Example:
 # extern crate glium;
 # fn main() {
 #[uniforms]
-#[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: glium::uniforms::Sampler<'a, glium::Texture2D>,
-    uMatrix: [[f32, ..4], ..4],
+    texture: glium::uniforms::Sampler<'a, glium::Texture2D>,
+    matrix: [[f32, ..4], ..4],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let tex = unsafe { std::mem::uninitialized() };
 # let matrix = unsafe { std::mem::uninitialized() };
 let uniforms = Uniforms {
-    uTexture: glium::uniforms::Sampler(&tex, glium::uniforms::SamplerBehavior {
+    texture: glium::uniforms::Sampler(&tex, glium::uniforms::SamplerBehavior {
         wrap_function: (
             glium::uniforms::Repeat,
             glium::uniforms::Repeat,
@@ -68,7 +66,7 @@ let uniforms = Uniforms {
         minify_filter: glium::uniforms::Linear,
         .. std::default::Default::default()
     }),
-    uMatrix: matrix,
+    matrix: matrix,
 };
 # }
 ```

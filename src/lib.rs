@@ -47,18 +47,17 @@ it. Then simply call `VertexBuffer::new` with a `Vec` of this type.
 # extern crate glium;
 # fn main() {
 #[vertex_format]
-#[allow(non_snake_case)]
 struct Vertex {
-    iPosition: [f32, ..2],
-    iTexCoords: [f32, ..2],
+    position: [f32, ..2],
+    tex_coords: [f32, ..2],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 let vertex_buffer = glium::VertexBuffer::new(&display, vec![
-    Vertex { iPosition: [-1.0, -1.0], iTexCoords: [0.0, 1.0] },
-    Vertex { iPosition: [-1.0,  1.0], iTexCoords: [0.0, 0.0] },
-    Vertex { iPosition: [ 1.0,  1.0], iTexCoords: [1.0, 0.0] },
-    Vertex { iPosition: [ 1.0, -1.0], iTexCoords: [1.0, 1.0] }
+    Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 1.0] },
+    Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 0.0] },
+    Vertex { position: [ 1.0,  1.0], tex_coords: [1.0, 0.0] },
+    Vertex { position: [ 1.0, -1.0], tex_coords: [1.0, 1.0] }
 ]);
 # }
 ```
@@ -122,18 +121,17 @@ The last step is to build the list of uniforms for the program.
 # extern crate glium;
 # fn main() {
 #[uniforms]
-#[allow(non_snake_case)]
 struct Uniforms<'a> {
-    uTexture: &'a glium::Texture2D,
-    uMatrix: [[f32, ..4], ..4],
+    texture: &'a glium::Texture2D,
+    matrix: [[f32, ..4], ..4],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let tex = unsafe { std::mem::uninitialized() };
 # let matrix = unsafe { std::mem::uninitialized() };
 let uniforms = Uniforms {
-    uTexture: tex,
-    uMatrix: matrix,
+    texture: tex,
+    matrix: matrix,
 };
 # }
 ```
