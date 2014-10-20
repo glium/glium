@@ -84,8 +84,37 @@ pub struct GLState {
     pub cull_face: gl::types::GLenum,
 }
 
+impl GLState {
+    /// Builds the `GLState` corresponding to the default GL values.
+    fn new_defaults(viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei)) -> GLState {
+        GLState {
+            enabled_blend: false,
+            enabled_cull_face: false,
+            enabled_depth_test: false,
+            enabled_dither: false,
+            enabled_polygon_offset_fill: false,
+            enabled_sample_alpha_to_coverage: false,
+            enabled_sample_coverage: false,
+            enabled_scissor_test: false,
+            enabled_stencil_test: false,
+
+            program: 0,
+            clear_color: (0.0, 0.0, 0.0, 0.0),
+            clear_depth: 1.0,
+            clear_stencil: 0,
+            array_buffer_binding: None,
+            element_array_buffer_binding: None,
+            depth_func: gl::LESS,
+            blend_func: (0, 0),     // no default specified
+            viewport: viewport,
+            line_width: 1.0,
+            cull_face: gl::BACK,
+        }
+    }
+}
+
 impl Context {
-    pub fn new(window: glutin::Window) -> Context {
+    pub fn new_from_window(window: glutin::Window) -> Context {
         let (tx_events, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
@@ -111,29 +140,7 @@ impl Context {
                     (0, 0, dim.0 as gl::types::GLsizei, dim.1 as gl::types::GLsizei)
                 };
 
-                GLState {
-                    enabled_blend: false,
-                    enabled_cull_face: false,
-                    enabled_depth_test: false,
-                    enabled_dither: false,
-                    enabled_polygon_offset_fill: false,
-                    enabled_sample_alpha_to_coverage: false,
-                    enabled_sample_coverage: false,
-                    enabled_scissor_test: false,
-                    enabled_stencil_test: false,
-
-                    program: 0,
-                    clear_color: (0.0, 0.0, 0.0, 0.0),
-                    clear_depth: 1.0,
-                    clear_stencil: 0,
-                    array_buffer_binding: None,
-                    element_array_buffer_binding: None,
-                    depth_func: gl::LESS,
-                    blend_func: (0, 0),     // no default specified
-                    viewport: viewport,
-                    line_width: 1.0,
-                    cull_face: gl::BACK,
-                }
+                GLState::new_defaults(viewport)
             };
 
             let mut next_loop = time::precise_time_ns();
@@ -188,6 +195,39 @@ impl Context {
 
                 // finding time to next loop
                 next_loop += 16666667;
+            }
+        });
+
+        context
+    }
+
+    pub fn new_from_headless(window: glutin::HeadlessContext) -> Context {
+        let (tx_events, rx_events) = channel();
+        let (tx_commands, rx_commands) = channel();
+
+        // TODO: fixme
+        let dimensions = Arc::new((AtomicUint::new(800), AtomicUint::new(600)));
+
+        let context = Context {
+            commands: Mutex::new(tx_commands),
+            events: Mutex::new(rx_events),
+            dimensions: dimensions,
+        };
+
+        TaskBuilder::new().native().spawn(proc() {
+            unsafe { window.make_current(); }
+
+            let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
+
+            // building the GLState
+            let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME: 
+
+            loop {
+                match rx_commands.recv_opt() {
+                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state),
+                    Ok(EndFrame) => (),     // ignoring buffer swapping
+                    Err(_) => break
+                }
             }
         });
 
