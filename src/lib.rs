@@ -777,32 +777,26 @@ pub trait DisplayBuild {
 impl DisplayBuild for glutin::WindowBuilder {
     fn build_glium(self) -> Result<Display, String> {
         let window = try!(self.build());
-        let context = context::Context::new(window);
-
-        let gl_version = {
-            let (tx, rx) = channel();
-            context.exec(proc(gl, _state) {
-                // TODO: not supported by GLES
-                tx.send((0, 0));
-                /*unsafe {
-                    use std::mem;
-
-                    let mut major_version: gl::types::GLint = mem::uninitialized();
-                    let mut minor_version: gl::types::GLint = mem::uninitialized();
-
-                    gl.GetIntegerv(gl::MAJOR_VERSION, &mut major_version);
-                    gl.GetIntegerv(gl::MINOR_VERSION, &mut minor_version);
-
-                    (major_version, minor_version)
-                }*/
-            });
-            rx.recv()
-        };
+        let context = context::Context::new_from_window(window);
 
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
-                gl_version: gl_version,
+                gl_version: (0, 0),
+            }),
+        })
+    }
+}
+
+impl DisplayBuild for glutin::HeadlessRendererBuilder {
+    fn build_glium(self) -> Result<Display, String> {
+        let window = try!(self.build());
+        let context = context::Context::new_from_headless(window);
+
+        Ok(Display {
+            context: Arc::new(DisplayImpl {
+                context: context,
+                gl_version: (0, 0),
             }),
         })
     }
