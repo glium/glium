@@ -26,11 +26,13 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```
     /// # #![feature(phase)]
     /// # #[phase(plugin)]
     /// # extern crate glium_macros;
     /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # use glium::DisplayBuild;
     /// # fn main() {
     /// #[vertex_format]
     /// struct Vertex {
@@ -38,7 +40,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///     texcoords: [f32, ..2],
     /// }
     ///
-    /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap();
     /// let vertex_buffer = glium::VertexBuffer::new(&display, vec![
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },

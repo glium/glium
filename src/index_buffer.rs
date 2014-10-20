@@ -25,10 +25,15 @@ impl IndexBuffer {
     ///
     /// # Example
     ///
-    /// ```no_run
-    /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+    /// ```
+    /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # use glium::DisplayBuild;
+    /// # fn main() {
+    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap();
     /// let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
     ///     &[0u8, 1, 2, 1, 3, 4, 2, 4, 3]);
+    /// # }
     /// ```
     /// 
     pub fn new<T: data_types::GLDataType>(display: &super::Display, prim: PrimitiveType, data: &[T]) -> IndexBuffer {
