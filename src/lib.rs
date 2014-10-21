@@ -235,10 +235,15 @@ mod program;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
-    generate_gl_bindings!("gl", "core", "4.5", "struct", [
-        "GL_EXT_direct_state_access",
-        "GL_EXT_framebuffer_object"
-    ])
+    generate_gl_bindings! {
+        api: gl,
+        version: 4.5, 
+        generator: struct,
+        extensions: [
+            GL_EXT_direct_state_access,
+            GL_EXT_framebuffer_object
+        ]
+    }
 }
 
 #[cfg(target_os = "android")]
