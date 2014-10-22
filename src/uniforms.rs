@@ -76,7 +76,7 @@ let uniforms = Uniforms {
 
 use {gl, texture};
 use cgmath;
-use nalgebra;
+//use nalgebra;
 use std::sync::Arc;
 
 /// Represents a value that can be used as the value of a uniform.

@@ -207,7 +207,7 @@ extern crate gl_generator;
 extern crate cgmath;
 extern crate glutin;
 extern crate libc;
-extern crate nalgebra;
+//extern crate nalgebra;
 extern crate native;
 extern crate time;
 
@@ -235,16 +235,28 @@ mod program;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
-    generate_gl_bindings!("gl", "core", "4.5", "struct", [
-        "GL_EXT_direct_state_access",
-        "GL_EXT_framebuffer_object"
-    ])
+    generate_gl_bindings! {
+        api: "gl",
+        profile: "core",
+        version: "4.5",
+        generator: "struct",
+        extensions: [
+            "GL_EXT_direct_state_access",
+            "GL_EXT_framebuffer_object"
+        ]
+    }
 }
 
 #[cfg(target_os = "android")]
 mod gl {
     pub use self::Gles2 as Gl;
-    generate_gl_bindings!("gles2", "core", "2.0", "struct")
+    generate_gl_bindings! {
+        api: "gles2",
+        profile: "core",
+        version: "2.0",
+        generator: "struct",
+        extensions: []
+    }
 }
 
 #[cfg(all(not(target_os = "windows"), not(target_os = "linux"), not(target_os = "macos"), not(target_os = "android")))]
