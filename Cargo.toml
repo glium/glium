@@ -3,10 +3,6 @@ name = "glium"
 version = "0.0.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 
-[features]
-default = ["cocoa"]
-cocoa = ["glutin/cocoa"]
-
 [dependencies.compile_msg]
 git = "https://github.com/huonw/compile_msg"
 
