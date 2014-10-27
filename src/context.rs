@@ -143,21 +143,7 @@ impl Context {
                 GLState::new_defaults(viewport)
             };
 
-            let mut next_loop = time::precise_time_ns();
             'main: loop {
-                // sleeping until next frame must be drawn
-                use std::io::timer;
-                timer::sleep({ 
-                    use std::time::Duration;
-
-                    let now = time::precise_time_ns();
-                    if next_loop < now {
-                        Duration::nanoseconds(0)
-                    } else {
-                        Duration::nanoseconds((next_loop - now) as i64)
-                    }
-                });
-
                 // processing commands
                 loop {
                     match rx_commands.recv_opt() {
@@ -192,9 +178,6 @@ impl Context {
                         break 'main;
                     }
                 }
-
-                // finding time to next loop
-                next_loop += 16666667;
             }
         });
 
