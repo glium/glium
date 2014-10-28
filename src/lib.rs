@@ -219,8 +219,6 @@ pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use texture::{Texture, Texture2D};
 
-use std::collections::HashMap;
-use std::fmt;
 use std::sync::Arc;
 
 pub mod uniforms;
@@ -753,6 +751,7 @@ struct RenderBuffer {
     id: gl::types::GLuint,
 }
 
+#[allow(dead_code)]     // TODO: remove
 impl RenderBuffer {
     /// Builds a new render buffer.
     fn new(display: Arc<DisplayImpl>) -> RenderBuffer {

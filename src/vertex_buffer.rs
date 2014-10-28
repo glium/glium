@@ -1,6 +1,5 @@
 use gl;
 use libc;
-use std::collections::HashMap;
 use std::c_vec::CVec;
 use std::fmt;
 use std::mem;

@@ -4,7 +4,6 @@ use native::NativeTaskBuilder;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::task::TaskBuilder;
-use time;
 
 enum Message {
     EndFrame,
@@ -185,7 +184,7 @@ impl Context {
     }
 
     pub fn new_from_headless(window: glutin::HeadlessContext) -> Context {
-        let (tx_events, rx_events) = channel();
+        let (_, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
         // TODO: fixme
@@ -233,7 +232,7 @@ impl Context {
     }
 
     pub fn recv(&self) -> Vec<glutin::Event> {
-        let mut events = self.events.lock();
+        let events = self.events.lock();
 
         let mut result = Vec::new();
         loop {

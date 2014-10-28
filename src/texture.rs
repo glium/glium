@@ -312,7 +312,7 @@ impl TextureImplementation {
         display.context.context.exec(proc(gl, _state) {
             unsafe {
                 let data = data;
-                let data_raw: *const libc::c_void = unsafe { mem::transmute(data.as_slice().as_ptr()) };
+                let data_raw: *const libc::c_void = mem::transmute(data.as_slice().as_ptr());
 
                 gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 { 4 } else if height.unwrap_or(1) % 2 == 0 { 2 } else { 1 });
 
@@ -390,6 +390,7 @@ impl TextureImplementation {
     ///
     /// Same as `read_mipmap` with `level` as `0`.
     // TODO: draft ; must be checked and turned public
+    #[allow(dead_code)]     // remove
     fn read(&self) -> Vec<u8> {
         self.read_mipmap(0)
     }
@@ -399,7 +400,8 @@ impl TextureImplementation {
     /// Returns a 2D array of pixels.
     /// Each pixel has R, G and B components between 0 and 255.
     // TODO: draft ; must be checked and turned public
-    fn read_mipmap(&self, level: uint) -> Vec<u8> {
+    #[allow(dead_code)]     // remove
+    fn read_mipmap(&self, _level: uint) -> Vec<u8> {
         unimplemented!()
         /*let bind_point = self.bind_point;
         let id = self.id;
