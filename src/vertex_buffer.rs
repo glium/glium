@@ -158,14 +158,31 @@ impl<T> Drop for VertexBuffer<T> {
     }
 }
 
-/// For each binding, the data type, number of elements, and offset.
-/// Includes the total size.
-#[doc(hidden)]
-pub type VertexBindings = HashMap<String, (gl::types::GLenum, gl::types::GLint, uint)>;
+/// Describes the attribute of a vertex.
+///
+/// When you create a vertex buffer, you need to pass some sort of array of data. In order for
+/// OpenGL to use this data, we must tell it some informations about each field of each
+/// element. This structure describes one such field.
+#[deriving(Show, Clone)]
+pub struct VertexAttrib {
+    /// The offset, in bytes, between the start of each vertex and the attribute.
+    pub offset: uint,
+
+    /// Type of the field.
+    pub data_type: gl::types::GLenum,
+
+    /// Number of invidual elements in the attribute.
+    ///
+    /// For example if `data_type` is a f32 and `elements_count` is 2, then you have a `vec2`.
+    pub elements_count: u32,
+}
+
+/// Describes the layout of each vertex in a vertex buffer.
+pub type VertexBindings = Vec<(String, VertexAttrib)>;
 
 /// Trait for structures that represent a vertex.
-#[doc(hidden)]
 pub trait VertexFormat: Copy {
+    /// Builds the `VertexBindings` representing the layout of this element.
     fn build_bindings(Option<Self>) -> VertexBindings;
 }
 

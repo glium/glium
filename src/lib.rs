@@ -665,15 +665,17 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
                 // binding vertex buffer
                 let mut locations = Vec::new();
-                for (name, &(data_type, data_size, data_offset)) in vb_bindingsclone.iter() {
+                for &(ref name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
+                    in vb_bindingsclone.iter()
+                {
                     let loc = gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
                     locations.push(loc);
 
                     if loc != -1 {
                         match data_type {
                             gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT | gl::INT | gl::UNSIGNED_INT
-                                => fail!("Not supported"), // TODO: gl.VertexAttribIPointer(loc as u32, data_size, data_type, vb_elementssize as i32, data_offset as *const libc::c_void),
-                            _ => gl.VertexAttribPointer(loc as u32, data_size, data_type, 0, vb_elementssize as i32, data_offset as *const libc::c_void)
+                                => fail!("Not supported"), // TODO: gl.VertexAttribIPointer(loc as u32, elements_count, data_type, vb_elementssize as i32, offset as *const libc::c_void),
+                            _ => gl.VertexAttribPointer(loc as u32, elements_count as gl::types::GLint, data_type, 0, vb_elementssize as i32, offset as *const libc::c_void)
                         }
                         
                         gl.EnableVertexAttribArray(loc as u32);

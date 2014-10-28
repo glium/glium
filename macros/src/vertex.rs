@@ -69,11 +69,11 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     let ident_str = ident_str.get();
 
                     quote_expr!(ecx, {
-                        bindings.insert($ident_str.to_string(), (
-                            GLDataTuple::get_gl_type(None::<$elem_type>),
-                            GLDataTuple::get_num_elems(None::<$elem_type>),
-                            offset_sum
-                        ));
+                        bindings.push(($ident_str.to_string(), VertexAttrib {
+                            offset: offset_sum,     // TODO: wrong, doesn't use alignment
+                            data_type: GLDataTuple::get_gl_type(None::<$elem_type>),
+                            elements_count: GLDataTuple::get_num_elems(None::<$elem_type>) as u32,
+                        }));
 
                         offset_sum += mem::size_of::<$elem_type>();
                     })
@@ -81,10 +81,11 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 }).collect::<Vec<P<ast::Expr>>>();
 
             quote_expr!(ecx, {
+                use glium::vertex_buffer::VertexAttrib;
                 use glium::GLDataTuple;
                 use std::mem;
 
-                let mut bindings = { use std::collections::HashMap; HashMap::new() };
+                let mut bindings = Vec::new();
                 let mut offset_sum = 0;
                 $content;
                 bindings
