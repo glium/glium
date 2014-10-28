@@ -674,7 +674,7 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
                     if loc != -1 {
                         match data_type {
                             gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT | gl::INT | gl::UNSIGNED_INT
-                                => fail!("Not supported"), // TODO: gl.VertexAttribIPointer(loc as u32, elements_count, data_type, vb_elementssize as i32, offset as *const libc::c_void),
+                                => gl.VertexAttribIPointer(loc as u32, elements_count as gl::types::GLint, data_type, vb_elementssize as i32, offset as *const libc::c_void),
                             _ => gl.VertexAttribPointer(loc as u32, elements_count as gl::types::GLint, data_type, 0, vb_elementssize as i32, offset as *const libc::c_void)
                         }
                         
