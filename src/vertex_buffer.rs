@@ -70,7 +70,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state) {
+        display.context.context.exec(proc(gl, state, _, _) {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, &mut id);
@@ -110,7 +110,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
         let id = self.id.clone();
         let elements_count = self.elements_count.clone();
 
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             let ptr = {
                 if gl.MapNamedBuffer.is_loaded() {
                     gl.MapNamedBuffer(id, gl::READ_WRITE)
@@ -148,7 +148,7 @@ impl<T> fmt::Show for VertexBuffer<T> {
 impl<T> Drop for VertexBuffer<T> {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             if state.array_buffer_binding == Some(id) {
                 state.array_buffer_binding = None;
             }
@@ -200,7 +200,7 @@ pub struct Mapping<'b, T> {
 impl<'a, T> Drop for Mapping<'a, T> {
     fn drop(&mut self) {
         let id = self.buffer.id.clone();
-        self.buffer.display.context.exec(proc(gl, state) {
+        self.buffer.display.context.exec(proc(gl, state, _, _) {
             if gl.UnmapNamedBuffer.is_loaded() {
                 gl.UnmapNamedBuffer(id);
 

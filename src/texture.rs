@@ -352,7 +352,7 @@ impl TextureImplementation {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.context.exec(proc(gl, _state, _, _) {
             unsafe {
                 let data = data;
                 let data_raw: *const libc::c_void = mem::transmute(data.as_slice().as_ptr());
@@ -414,7 +414,7 @@ impl TextureImplementation {
         {
             let my_id = self.id.clone();
             let fbo_id = fbo.id;
-            self.display.context.exec(proc(gl, state) {
+            self.display.context.exec(proc(gl, state, _, _) {
                 if gl.NamedFramebufferTexture.is_loaded() {
                     gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
 
@@ -472,7 +472,7 @@ impl TextureImplementation {
             unimplemented!()
         }
 
-        self.display.context.exec(proc(gl, _state) {
+        self.display.context.exec(proc(gl, _state, _, _) {
             let mut buffer = Vec::from_elem(buffer_size, 0u8);
 
             unsafe {
@@ -496,7 +496,7 @@ impl fmt::Show for TextureImplementation {
 impl Drop for TextureImplementation {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
+        self.display.context.exec(proc(gl, _state, _, _) {
             unsafe { gl.DeleteTextures(1, [ id ].as_ptr()); }
         });
     }

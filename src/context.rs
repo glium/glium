@@ -1,13 +1,14 @@
 use gl;
 use glutin;
 use native::NativeTaskBuilder;
+use std::mem;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::task::TaskBuilder;
 
 enum Message {
     EndFrame,
-    Execute(proc(&gl::Gl, &mut GLState):Send),
+    Execute(proc(&gl::Gl, &mut GLState, (u8, u8), &[String]):Send),
 }
 
 pub struct Context {
@@ -150,12 +151,17 @@ impl Context {
                 GLState::new_defaults(viewport)
             };
 
+            // getting the GL version and extensions
+            let version = get_gl_version(&gl);
+            let extensions = get_extensions(&gl);
+
+            // main loop
             'main: loop {
                 // processing commands
                 loop {
                     match rx_commands.recv_opt() {
                         Ok(EndFrame) => break,
-                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state),
+                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, extensions.as_slice()),
                         Err(_) => break 'main
                     }
                 }
@@ -212,12 +218,14 @@ impl Context {
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
 
-            // building the GLState
+            // building the GLState, version, and extensions
             let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME: 
+            let version = get_gl_version(&gl);
+            let extensions = get_extensions(&gl);
 
             loop {
                 match rx_commands.recv_opt() {
-                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state),
+                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, extensions.as_slice()),
                     Ok(EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
                 }
@@ -234,7 +242,7 @@ impl Context {
         )
     }
 
-    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState): Send) {
+    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, (u8, u8), &[String]): Send) {
         self.commands.lock().send(Execute(f));
     }
 
@@ -253,5 +261,52 @@ impl Context {
             }
         }
         result
+    }
+}
+
+fn get_gl_version(gl: &gl::Gl) -> (u8, u8) {
+    use std::c_str::CString;
+
+    unsafe {
+        let version = gl.GetString(gl::VERSION);
+        let version = CString::new(version as *const i8, false);
+        let version = version.as_str().expect("OpenGL version contains non-utf8 characters");
+
+        let version = version.words().next().expect("glGetString(GL_VERSION) returned an empty \
+                                                     string");
+
+        let mut iter = version.split(|c: char| c == '.');
+        let major = iter.next().unwrap();
+        let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
+
+        (
+            from_str(major).expect("failed to parse GL major version"),
+            from_str(minor).expect("failed to parse GL minor version")
+        )
+    }
+}
+
+fn get_extensions(gl: &gl::Gl) -> Vec<String> {
+    use std::c_str::CString;
+
+    unsafe {
+        let list = gl.GetString(gl::EXTENSIONS);
+
+        if list.is_null() {
+            let mut num_extensions = 0;
+            gl.GetIntegerv(gl::NUM_EXTENSIONS, &mut num_extensions);
+
+            range(0, num_extensions).map(|num| {
+                let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
+                let ext = CString::new(ext as *const i8, false);
+                ext.as_str().expect("OpenGL extension contains non-utf8 characters").to_string()
+            }).collect()
+
+        } else {
+            let list = CString::new(list as *const i8, false);
+            let list = list.as_str()
+                .expect("List of OpenGL extensions contains non-utf8 characters");
+            list.words().map(|e| e.to_string()).collect()
+        }
     }
 }

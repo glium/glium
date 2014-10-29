@@ -217,7 +217,7 @@ impl SamplerObject {
     pub fn new(display: &super::Display) -> SamplerObject {
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, _) {
+        display.context.context.exec(proc(gl, _, _, _) {
             let sampler = unsafe {
                 use std::mem;
                 let mut sampler: gl::types::GLuint = mem::uninitialized();
@@ -236,7 +236,7 @@ impl SamplerObject {
 
     pub fn bind(&self, gl: gl::Gl, sampler: SamplerBehavior) {
         let id = self.id;
-        self.display.context.exec(proc(gl, _) {
+        self.display.context.exec(proc(gl, _, _, _) {
             gl.SamplerParameteri(id, gl::TEXTURE_WRAP_S, sampler.wrap_function.0.to_glenum() as gl::types::GLint);
             gl.SamplerParameteri(id, gl::TEXTURE_WRAP_T, sampler.wrap_function.1.to_glenum() as gl::types::GLint);
             gl.SamplerParameteri(id, gl::TEXTURE_WRAP_R, sampler.wrap_function.2.to_glenum() as gl::types::GLint);
@@ -253,7 +253,7 @@ impl SamplerObject {
 impl Drop for SamplerObject {
     fn drop(&mut self) {
         let id = self.id;
-        self.display.context.exec(proc(gl, _) {
+        self.display.context.exec(proc(gl, _, _, _) {
             unsafe {
                 gl.DeleteSamplers(1, [id].as_ptr());
             }

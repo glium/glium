@@ -555,7 +555,7 @@ impl<'t> Target<'t> {
             alpha as gl::types::GLclampf
         );
 
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             if state.clear_color != (red, green, blue, alpha) {
                 gl.ClearColor(red, green, blue, alpha);
                 state.clear_color = (red, green, blue, alpha);
@@ -569,7 +569,7 @@ impl<'t> Target<'t> {
     pub fn clear_depth(&mut self, value: f32) {
         let value = value as gl::types::GLclampf;
 
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             if state.clear_depth != value {
                 gl.ClearDepth(value as f64);        // TODO: find out why this needs "as"
                 state.clear_depth = value;
@@ -583,7 +583,7 @@ impl<'t> Target<'t> {
     pub fn clear_stencil(&mut self, value: int) {
         let value = value as gl::types::GLint;
 
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             if state.clear_stencil != value {
                 gl.ClearStencil(value);
                 state.clear_stencil = value;
@@ -628,7 +628,7 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         let (tx, rx) = channel();
 
-        target.display.context.exec(proc(gl, state) {
+        target.display.context.exec(proc(gl, state, _, _) {
             unsafe {
                 if state.draw_framebuffer != fbo_id {
                     if gl.BindFramebuffer.is_loaded() {
@@ -726,7 +726,7 @@ impl FrameBufferObject {
     fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
         let (tx, rx) = channel();
 
-        display.context.exec(proc(gl, _state) {
+        display.context.exec(proc(gl, _state, _, _) {
             unsafe {
                 let id: gl::types::GLuint = std::mem::uninitialized();
                 gl.GenFramebuffers(1, std::mem::transmute(&id));
@@ -745,7 +745,7 @@ impl FrameBufferObject {
 impl Drop for FrameBufferObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
+        self.display.context.exec(proc(gl, _state, _, _) {
             unsafe { gl.DeleteFramebuffers(1, [ id ].as_ptr()); }
         });
     }
@@ -764,7 +764,7 @@ impl RenderBuffer {
     fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
         let (tx, rx) = channel();
 
-        display.context.exec(proc(gl, _state) {
+        display.context.exec(proc(gl, _state, _, _) {
             unsafe {
                 let id: gl::types::GLuint = std::mem::uninitialized();
                 gl.GenRenderbuffers(1, std::mem::transmute(&id));
@@ -782,7 +782,7 @@ impl RenderBuffer {
 impl Drop for RenderBuffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
+        self.display.context.exec(proc(gl, _state, _, _) {
             unsafe { gl.DeleteRenderbuffers(1, [ id ].as_ptr()); }
         });
     }
@@ -802,7 +802,6 @@ impl DisplayBuild for glutin::WindowBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
-                gl_version: (0, 0),
             }),
         })
     }
@@ -816,7 +815,6 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
-                gl_version: (0, 0),
             }),
         })
     }
@@ -834,7 +832,6 @@ pub struct Display {
 
 struct DisplayImpl {
     context: context::Context,
-    gl_version: (gl::types::GLint, gl::types::GLint),
 }
 
 impl Display {
@@ -863,7 +860,7 @@ impl Display {
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(proc(gl, _) {
+        self.context.context.exec(proc(gl, _, _, _) {
             if gl.ReleaseShaderCompiler.is_loaded() {
                 gl.ReleaseShaderCompiler();
             }
@@ -904,7 +901,7 @@ impl Display {
         let gltype = texture::PixelValue::get_gl_type(None::<P>);
 
         let (tx, rx) = channel();
-        self.context.context.exec(proc(gl, state) {
+        self.context.context.exec(proc(gl, state, _, _) {
             unsafe {
                 // unbinding framebuffers
                 if state.read_framebuffer.is_some() {

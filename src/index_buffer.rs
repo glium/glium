@@ -43,7 +43,7 @@ impl IndexBuffer {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state) {
+        display.context.context.exec(proc(gl, state, _, _) {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, mem::transmute(&id));
@@ -82,7 +82,7 @@ impl fmt::Show for IndexBuffer {
 impl Drop for IndexBuffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             if state.array_buffer_binding == Some(id) {
                 state.array_buffer_binding = None;
             }
