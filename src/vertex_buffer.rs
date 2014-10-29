@@ -1,3 +1,4 @@
+use context::GlVersion;
 use gl;
 use libc;
 use std::c_vec::CVec;
@@ -70,21 +71,20 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state, _, _) {
+        display.context.context.exec(proc(gl, state, version, extensions) {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, &mut id);
 
-                // TODO: problem with gallium/mesa here
-                /*if gl.NamedBufferData.is_loaded() {
+                if version >= &GlVersion(4, 5) {
                     gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
                         data.as_ptr() as *const libc::c_void, usage);
                         
-                } else if gl.NamedBufferDataEXT.is_loaded() {
+                } else if extensions.gl_ext_direct_state_access {
                     gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr,
                         data.as_ptr() as *const libc::c_void, usage);
 
-                } else*/ {
+                } else {
                     gl.BindBuffer(gl::ARRAY_BUFFER, id);
                     state.array_buffer_binding = Some(id);
                     gl.BufferData(gl::ARRAY_BUFFER, buffer_size as gl::types::GLsizeiptr,
@@ -110,10 +110,11 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
         let id = self.id.clone();
         let elements_count = self.elements_count.clone();
 
-        self.display.context.exec(proc(gl, state, _, _) {
+        self.display.context.exec(proc(gl, state, version, _) {
             let ptr = {
-                if gl.MapNamedBuffer.is_loaded() {
+                if version >= &GlVersion(4, 5) {
                     gl.MapNamedBuffer(id, gl::READ_WRITE)
+
                 } else {
                     if state.array_buffer_binding != Some(id) {
                         gl.BindBuffer(gl::ARRAY_BUFFER, id);
@@ -200,8 +201,8 @@ pub struct Mapping<'b, T> {
 impl<'a, T> Drop for Mapping<'a, T> {
     fn drop(&mut self) {
         let id = self.buffer.id.clone();
-        self.buffer.display.context.exec(proc(gl, state, _, _) {
-            if gl.UnmapNamedBuffer.is_loaded() {
+        self.buffer.display.context.exec(proc(gl, state, version, _) {
+            if version >= &GlVersion(4, 5) {
                 gl.UnmapNamedBuffer(id);
 
             } else {

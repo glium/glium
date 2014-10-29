@@ -1,3 +1,4 @@
+use context::GlVersion;
 use data_types;
 use gl;
 use libc;
@@ -43,17 +44,16 @@ impl IndexBuffer {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state, _, _) {
+        display.context.context.exec(proc(gl, state, version, extensions) {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, mem::transmute(&id));
 
-                // TODO: problem with gallium/mesa here
-                /*if gl.NamedBufferData.is_loaded() {
+                if version >= &GlVersion(4, 5) {
                     gl.NamedBufferData(id, data_size as gl::types::GLsizei, data_ptr, gl::STATIC_DRAW);
-                } else if gl.NamedBufferDataEXT.is_loaded() {
+                } else if extensions.gl_ext_direct_state_access {
                     gl.NamedBufferDataEXT(id, data_size as gl::types::GLsizeiptr, data_ptr, gl::STATIC_DRAW);
-                } else*/ {
+                } else {
                     gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
                     state.element_array_buffer_binding = Some(id);
                     gl.BufferData(gl::ELEMENT_ARRAY_BUFFER, data_size as gl::types::GLsizeiptr, data_ptr, gl::STATIC_DRAW);
