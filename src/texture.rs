@@ -13,6 +13,7 @@ The most common type of texture is a `Texture2D` (the two dimensions being the w
 
 */
 
+use context::GlVersion;
 use data_types;
 use gl;
 use libc;
@@ -352,7 +353,7 @@ impl TextureImplementation {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state, _, _) {
+        display.context.context.exec(proc(gl, _state, version, _) {
             unsafe {
                 let data = data;
                 let data_raw: *const libc::c_void = mem::transmute(data.as_slice().as_ptr());
@@ -382,9 +383,9 @@ impl TextureImplementation {
                     gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0, data_format as u32, data_type, data_raw);
                 }
 
-                if gl.GenerateMipmap.is_loaded() {
+                if version >= &GlVersion(3, 0) {
                     gl.GenerateMipmap(texture_type);
-                } else if gl.GenerateMipmapEXT.is_loaded() {
+                } else {
                     gl.GenerateMipmapEXT(texture_type);
                 }
 
@@ -414,17 +415,25 @@ impl TextureImplementation {
         {
             let my_id = self.id.clone();
             let fbo_id = fbo.id;
-            self.display.context.exec(proc(gl, state, _, _) {
-                if gl.NamedFramebufferTexture.is_loaded() {
+            self.display.context.exec(proc(gl, state, version, extensions) {
+                if version >= &GlVersion(4, 5) {
                     gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
 
-                } else if gl.NamedFramebufferTextureEXT.is_loaded() {
+                } else if extensions.gl_ext_direct_state_access &&
+                          extensions.gl_ext_geometry_shader4
+                {
                     gl.NamedFramebufferTextureEXT(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
 
-                } else if gl.BindFramebuffer.is_loaded() && gl.FramebufferTexture.is_loaded() {
+                } else if version >= &GlVersion(3, 2) {
                     gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
                     state.draw_framebuffer = Some(fbo_id);
                     gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
+
+                } else if version >= &GlVersion(3, 0) {
+                    gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+                    state.draw_framebuffer = Some(fbo_id);
+                    gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0,
+                        gl::TEXTURE_2D, my_id, 0);
 
                 } else {
                     gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);

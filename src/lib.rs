@@ -628,10 +628,10 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         let (tx, rx) = channel();
 
-        target.display.context.exec(proc(gl, state, _, _) {
+        target.display.context.exec(proc(gl, state, version, _) {
             unsafe {
                 if state.draw_framebuffer != fbo_id {
-                    if gl.BindFramebuffer.is_loaded() {
+                    if version >= &context::GlVersion(3, 0) {
                         gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
                         state.draw_framebuffer = fbo_id.clone();
                     } else {
@@ -726,10 +726,14 @@ impl FrameBufferObject {
     fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
         let (tx, rx) = channel();
 
-        display.context.exec(proc(gl, _state, _, _) {
+        display.context.exec(proc(gl, _, version, _) {
             unsafe {
                 let id: gl::types::GLuint = std::mem::uninitialized();
-                gl.GenFramebuffers(1, std::mem::transmute(&id));
+                if version >= &context::GlVersion(3, 0) {
+                    gl.GenFramebuffers(1, std::mem::transmute(&id));
+                } else {
+                    gl.GenFramebuffersEXT(1, std::mem::transmute(&id));
+                }
                 tx.send(id);
             }
         });
@@ -745,8 +749,14 @@ impl FrameBufferObject {
 impl Drop for FrameBufferObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state, _, _) {
-            unsafe { gl.DeleteFramebuffers(1, [ id ].as_ptr()); }
+        self.display.context.exec(proc(gl, _, version, _) {
+            unsafe {
+                if version >= &context::GlVersion(3, 0) {
+                    gl.DeleteFramebuffers(1, [ id ].as_ptr());
+                } else {
+                    gl.DeleteFramebuffersEXT(1, [ id ].as_ptr());
+                }
+            }
         });
     }
 }
@@ -764,10 +774,15 @@ impl RenderBuffer {
     fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
         let (tx, rx) = channel();
 
-        display.context.exec(proc(gl, _state, _, _) {
+        display.context.exec(proc(gl, _, version, _) {
             unsafe {
                 let id: gl::types::GLuint = std::mem::uninitialized();
-                gl.GenRenderbuffers(1, std::mem::transmute(&id));
+                if version >= &context::GlVersion(3, 0) {
+                    gl.GenRenderbuffers(1, std::mem::transmute(&id));
+                } else {
+                    gl.GenRenderbuffersEXT(1, std::mem::transmute(&id));
+                }
+
                 tx.send(id);
             }
         });
@@ -782,8 +797,14 @@ impl RenderBuffer {
 impl Drop for RenderBuffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state, _, _) {
-            unsafe { gl.DeleteRenderbuffers(1, [ id ].as_ptr()); }
+        self.display.context.exec(proc(gl, _, version, _) {
+            unsafe {
+                if version >= &context::GlVersion(3, 0) {
+                    gl.DeleteRenderbuffers(1, [ id ].as_ptr());
+                } else {
+                    gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
+                }
+            }
         });
     }
 }
@@ -860,8 +881,8 @@ impl Display {
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(proc(gl, _, _, _) {
-            if gl.ReleaseShaderCompiler.is_loaded() {
+        self.context.context.exec(proc(gl, _, version, _) {
+            if version >= &context::GlVersion(4, 1) {
                 gl.ReleaseShaderCompiler();
             }
         });
@@ -901,11 +922,11 @@ impl Display {
         let gltype = texture::PixelValue::get_gl_type(None::<P>);
 
         let (tx, rx) = channel();
-        self.context.context.exec(proc(gl, state, _, _) {
+        self.context.context.exec(proc(gl, state, version, _) {
             unsafe {
                 // unbinding framebuffers
                 if state.read_framebuffer.is_some() {
-                    if gl.BindFramebuffer.is_loaded() {
+                    if version >= &context::GlVersion(3, 0) {
                         gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
                         state.read_framebuffer = None;
                     } else {
