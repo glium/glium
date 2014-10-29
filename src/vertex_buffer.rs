@@ -124,7 +124,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
             };
 
             if ptr.is_null() {
-                tx.send(Err(format!("glMapBuffer returned null\n{}", super::get_gl_error(gl))));
+                tx.send(Err(format!("glMapBuffer returned null ({})", super::get_gl_error(gl))));
             } else {
                 tx.send(Ok(ptr as *mut T));
             }
