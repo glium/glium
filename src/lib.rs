@@ -871,6 +871,20 @@ impl Display {
     }
 
     /// Reads the content of the front buffer.
+    ///
+    /// This function can return any type that implements `Texture2DData`.
+    ///
+    /// ## Example
+    ///
+    /// ```
+    /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # use glium::DisplayBuild;
+    /// # fn main() {
+    /// # let display = glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap();
+    /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    /// # }
+    /// ```
     pub fn read_front_buffer<P, T>(&self) -> T
         where P: texture::PixelValue + Clone + Send, T: texture::Texture2DData<P>    // TODO: remove Clone
     {
