@@ -57,6 +57,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         substr: &generic::Substructure) -> P<ast::Expr>
 {
     let ecx: &base::ExtCtxt = ecx;
+    let self_ty = &substr.type_ident;
 
     match substr.fields {
         &generic::StaticStruct(ref definition, generic::Named(ref fields)) => {
@@ -67,13 +68,18 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     let ident_str = ident_str.get();
 
                     quote_expr!(ecx, {
+                        let offset = {
+                            let dummy: &$self_ty = unsafe { mem::transmute(0u) };
+                            let dummy_field = &dummy.$ident;
+                            let dummy_field: uint = unsafe { mem::transmute(dummy_field) };
+                            dummy_field
+                        };
+
                         bindings.push(($ident_str.to_string(), VertexAttrib {
-                            offset: offset_sum,     // TODO: wrong, doesn't use alignment
+                            offset: offset,
                             data_type: GLDataTuple::get_gl_type(None::<$elem_type>),
                             elements_count: GLDataTuple::get_num_elems(None::<$elem_type>) as u32,
                         }));
-
-                        offset_sum += mem::size_of::<$elem_type>();
                     })
 
                 }).collect::<Vec<P<ast::Expr>>>();
@@ -84,7 +90,6 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 use std::mem;
 
                 let mut bindings = Vec::new();
-                let mut offset_sum = 0;
                 $content;
                 bindings
             })
