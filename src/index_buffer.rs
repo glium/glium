@@ -48,11 +48,12 @@ impl IndexBuffer {
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, mem::transmute(&id));
 
-                if gl.NamedBufferData.is_loaded() {
+                // TODO: problem with gallium/mesa here
+                /*if gl.NamedBufferData.is_loaded() {
                     gl.NamedBufferData(id, data_size as gl::types::GLsizei, data_ptr, gl::STATIC_DRAW);
                 } else if gl.NamedBufferDataEXT.is_loaded() {
                     gl.NamedBufferDataEXT(id, data_size as gl::types::GLsizeiptr, data_ptr, gl::STATIC_DRAW);
-                } else {
+                } else*/ {
                     gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
                     state.element_array_buffer_binding = Some(id);
                     gl.BufferData(gl::ELEMENT_ARRAY_BUFFER, data_size as gl::types::GLsizeiptr, data_ptr, gl::STATIC_DRAW);
