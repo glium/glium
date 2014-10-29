@@ -92,6 +92,7 @@ fn main() {
 
         // drawing a frame
         let mut target = display.draw();
+        target.clear_color(0.0, 0.0, 0.0, 0.0);
         target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
         target.finish();
 

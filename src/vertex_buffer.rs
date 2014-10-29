@@ -75,7 +75,8 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, &mut id);
 
-                if gl.NamedBufferData.is_loaded() {
+                // TODO: problem with gallium/mesa here
+                /*if gl.NamedBufferData.is_loaded() {
                     gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
                         data.as_ptr() as *const libc::c_void, usage);
                         
@@ -83,7 +84,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
                     gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr,
                         data.as_ptr() as *const libc::c_void, usage);
 
-                } else {
+                } else*/ {
                     gl.BindBuffer(gl::ARRAY_BUFFER, id);
                     state.array_buffer_binding = Some(id);
                     gl.BufferData(gl::ARRAY_BUFFER, buffer_size as gl::types::GLsizeiptr,
