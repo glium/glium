@@ -537,10 +537,9 @@ impl DrawParameters {
 }
 
 /// A target where things can be drawn.
-pub struct Target<'t> {
+pub struct Target<'a> {
     display: Arc<DisplayImpl>,
-    display_hold: Option<&'t Display>,
-    texture: Option<&'t mut texture::TextureImplementation>,
+    marker: std::kinds::marker::ContravariantLifetime<'a>,
     framebuffer: Option<FrameBufferObject>,
     execute_end: Option<proc(&DisplayImpl):Send>,
     dimensions: (uint, uint),
@@ -631,10 +630,15 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         target.display.context.exec(proc(gl, state) {
             unsafe {
-                if gl.BindFramebuffer.is_loaded() {
-                    gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
-                } else {
-                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+                if state.draw_framebuffer != fbo_id {
+                    if gl.BindFramebuffer.is_loaded() {
+                        gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
+                        state.draw_framebuffer = fbo_id.clone();
+                    } else {
+                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+                        state.draw_framebuffer = fbo_id.clone();
+                        state.read_framebuffer = fbo_id.clone();
+                    }
                 }
 
                 // binding program
@@ -714,6 +718,7 @@ impl<'t> Drop for Target<'t> {
 struct FrameBufferObject {
     display: Arc<DisplayImpl>,
     id: gl::types::GLuint,
+    current_read_buffer: gl::types::GLenum,
 }
 
 impl FrameBufferObject {
@@ -732,6 +737,7 @@ impl FrameBufferObject {
         FrameBufferObject {
             display: display,
             id: rx.recv(),
+            current_read_buffer: gl::BACK,
         }
     }
 }
@@ -846,9 +852,8 @@ impl Display {
     pub fn draw(&self) -> Target {
         Target {
             display: self.context.clone(),
-            display_hold: Some(self),
+            marker: std::kinds::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
-            texture: None,
             framebuffer: None,
             execute_end: Some(proc(context: &DisplayImpl) {
                 context.context.swap_buffers();
@@ -863,5 +868,51 @@ impl Display {
                 gl.ReleaseShaderCompiler();
             }
         });
+    }
+
+    /// Reads the content of the front buffer.
+    pub fn read_front_buffer<P, T>(&self) -> T
+        where P: texture::PixelValue + Clone + Send, T: texture::Texture2DData<P>    // TODO: remove Clone
+    {
+        let dimensions = self.get_framebuffer_dimensions();
+        let pixels_count = dimensions.0 * dimensions.1;
+
+        let format = match texture::PixelValue::get_num_elems(None::<P>) {
+            1 => gl::RED,
+            2 => gl::RG,
+            3 => gl::RGB,
+            4 => gl::RGBA,
+            _ => fail!("pixels with more than 4 components are not supported")
+        };
+
+        let gltype = texture::PixelValue::get_gl_type(None::<P>);
+
+        let (tx, rx) = channel();
+        self.context.context.exec(proc(gl, state) {
+            unsafe {
+                // unbinding framebuffers
+                if state.read_framebuffer.is_some() {
+                    if gl.BindFramebuffer.is_loaded() {
+                        gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                        state.read_framebuffer = None;
+                    } else {
+                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                        state.draw_framebuffer = None;
+                        state.read_framebuffer = None;
+                    }
+                }
+
+                // reading
+                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
+                gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
+                    dimensions.1 as gl::types::GLint, format, gltype,
+                    data.as_mut_ptr() as *mut libc::c_void);
+                data.set_len(pixels_count);
+                tx.send(data);
+            }
+        });
+
+        let data = rx.recv();
+        texture::Texture2DData::from_vec(data, dimensions.0 as u32)
     }
 }

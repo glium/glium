@@ -197,15 +197,22 @@ pub trait Texture2DData<P> {
 
     /// Returns a vec where each element is a pixel of the texture.
     fn into_vec(self) -> Vec<P>;
+
+    /// Builds a new object from raw data.
+    fn from_vec(Vec<P>, width: u32) -> Self;
 }
 
-impl<P: PixelValue> Texture2DData<P> for Vec<Vec<P>> {
+impl<P: PixelValue + Clone> Texture2DData<P> for Vec<Vec<P>> {      // TODO: remove Clone
     fn get_dimensions(&self) -> (u32, u32) {
         (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
     }
 
     fn into_vec(self) -> Vec<P> {
         self.into_iter().flat_map(|e| e.into_iter()).collect()
+    }
+
+    fn from_vec(data: Vec<P>, width: u32) -> Vec<Vec<P>> {
+        data.as_slice().chunks(width as uint).map(|e| e.to_vec()).collect()
     }
 }
 
@@ -398,6 +405,8 @@ impl TextureImplementation {
 
     /// Start drawing on this texture.
     fn draw(&mut self) -> super::Target {
+        use std::kinds::marker::ContravariantLifetime;
+
         let display = self.display.clone();
         let fbo = super::FrameBufferObject::new(display.clone());
 
@@ -405,18 +414,33 @@ impl TextureImplementation {
         {
             let my_id = self.id.clone();
             let fbo_id = fbo.id;
-            self.display.context.exec(proc(gl, _state) {
-                gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                gl.FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
+            self.display.context.exec(proc(gl, state) {
+                if gl.NamedFramebufferTexture.is_loaded() {
+                    gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
+
+                } else if gl.NamedFramebufferTextureEXT.is_loaded() {
+                    gl.NamedFramebufferTextureEXT(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
+
+                } else if gl.BindFramebuffer.is_loaded() && gl.FramebufferTexture.is_loaded() {
+                    gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+                    state.draw_framebuffer = Some(fbo_id);
+                    gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
+
+                } else {
+                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                    state.draw_framebuffer = Some(fbo_id);
+                    state.read_framebuffer = Some(fbo_id);
+                    gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT, gl::COLOR_ATTACHMENT0,
+                        gl::TEXTURE_2D, my_id, 0);
+                }
             });
         }
 
         // returning the target
         super::Target {
             display: display,
-            display_hold: None,
+            marker: ContravariantLifetime,
             dimensions: (self.width as uint, self.height.unwrap_or(1) as uint),
-            texture: Some(self),
             framebuffer: Some(fbo),
             execute_end: None,
         }
