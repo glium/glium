@@ -398,6 +398,8 @@ impl TextureImplementation {
 
     /// Start drawing on this texture.
     fn draw(&mut self) -> super::Target {
+        use std::kinds::marker::ContravariantLifetime;
+
         let display = self.display.clone();
         let fbo = super::FrameBufferObject::new(display.clone());
 
@@ -414,9 +416,8 @@ impl TextureImplementation {
         // returning the target
         super::Target {
             display: display,
-            display_hold: None,
+            marker: ContravariantLifetime,
             dimensions: (self.width as uint, self.height.unwrap_or(1) as uint),
-            texture: Some(self),
             framebuffer: Some(fbo),
             execute_end: None,
         }

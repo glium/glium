@@ -537,10 +537,9 @@ impl DrawParameters {
 }
 
 /// A target where things can be drawn.
-pub struct Target<'t> {
+pub struct Target<'a> {
     display: Arc<DisplayImpl>,
-    display_hold: Option<&'t Display>,
-    texture: Option<&'t mut texture::TextureImplementation>,
+    marker: std::kinds::marker::ContravariantLifetime<'a>,
     framebuffer: Option<FrameBufferObject>,
     execute_end: Option<proc(&DisplayImpl):Send>,
     dimensions: (uint, uint),
@@ -714,6 +713,7 @@ impl<'t> Drop for Target<'t> {
 struct FrameBufferObject {
     display: Arc<DisplayImpl>,
     id: gl::types::GLuint,
+    current_read_buffer: gl::types::GLenum,
 }
 
 impl FrameBufferObject {
@@ -732,6 +732,7 @@ impl FrameBufferObject {
         FrameBufferObject {
             display: display,
             id: rx.recv(),
+            current_read_buffer: gl::BACK,
         }
     }
 }
@@ -846,9 +847,8 @@ impl Display {
     pub fn draw(&self) -> Target {
         Target {
             display: self.context.clone(),
-            display_hold: Some(self),
+            marker: std::kinds::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
-            texture: None,
             framebuffer: None,
             execute_end: Some(proc(context: &DisplayImpl) {
                 context.context.swap_buffers();
