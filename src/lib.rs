@@ -930,7 +930,8 @@ fn get_gl_error(gl: &gl::Gl) -> &'static str {
         gl::INVALID_FRAMEBUFFER_OPERATION => "The framebuffer object is not complete. The \
             offending command is ignored and has no other side effect than to set the error flag.",
         gl::OUT_OF_MEMORY => "There is not enough memory left to execute the command. The state of \
-            the GL is undefined, except for the state of the error flags, after this error is recorded.",
+            the GL is undefined, except for the state of the error flags, after this error is \
+            recorded.",
         /*gl::STACK_UNDERFLOW => "An attempt has been made to perform an operation that would \
             cause an internal stack to underflow.",
         gl::STACK_OVERFLOW => "An attempt has been made to perform an operation that would cause \
