@@ -8,7 +8,7 @@ use std::task::TaskBuilder;
 
 enum Message {
     EndFrame,
-    Execute(proc(&gl::Gl, &mut GLState, (u8, u8), &ExtensionsList):Send),
+    Execute(proc(&gl::Gl, &mut GLState, &GlVersion, &ExtensionsList):Send),
 }
 
 pub struct Context {
@@ -121,6 +121,25 @@ impl GLState {
     }
 }
 
+/// Describes an OpenGL version.
+#[deriving(Show, Clone, PartialEq, Eq)]
+pub struct GlVersion(pub u8, pub u8);
+
+impl PartialOrd for GlVersion {
+    fn partial_cmp(&self, other: &GlVersion) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for GlVersion {
+    fn cmp(&self, other: &GlVersion) -> Ordering {
+        match self.0.cmp(&other.0) {
+            Equal => self.1.cmp(&other.1),
+            a => a
+        }
+    }
+}
+
 /// Contains data about the list of extensions
 pub struct ExtensionsList {
     /// GL_EXT_direct_state_access
@@ -169,7 +188,7 @@ impl Context {
                 loop {
                     match rx_commands.recv_opt() {
                         Ok(EndFrame) => break,
-                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, &extensions),
+                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
                         Err(_) => break 'main
                     }
                 }
@@ -233,7 +252,7 @@ impl Context {
 
             loop {
                 match rx_commands.recv_opt() {
-                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, &extensions),
+                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
                     Ok(EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
                 }
@@ -250,7 +269,7 @@ impl Context {
         )
     }
 
-    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, (u8, u8), &ExtensionsList): Send) {
+    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, &GlVersion, &ExtensionsList): Send) {
         self.commands.lock().send(Execute(f));
     }
 
@@ -272,7 +291,7 @@ impl Context {
     }
 }
 
-fn get_gl_version(gl: &gl::Gl) -> (u8, u8) {
+fn get_gl_version(gl: &gl::Gl) -> GlVersion {
     use std::c_str::CString;
 
     unsafe {
@@ -287,9 +306,9 @@ fn get_gl_version(gl: &gl::Gl) -> (u8, u8) {
         let major = iter.next().unwrap();
         let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 
-        (
+        GlVersion(
             from_str(major).expect("failed to parse GL major version"),
-            from_str(minor).expect("failed to parse GL minor version")
+            from_str(minor).expect("failed to parse GL minor version"),
         )
     }
 }
