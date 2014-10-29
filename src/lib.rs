@@ -872,6 +872,8 @@ impl Display {
 
     /// Reads the content of the front buffer.
     ///
+    /// You will only see the data that has finished being drawn.
+    ///
     /// This function can return any type that implements `Texture2DData`.
     ///
     /// ## Example
@@ -931,6 +933,7 @@ impl Display {
     }
 }
 
+#[allow(dead_code)]
 fn get_gl_error(gl: &gl::Gl) -> &'static str {
     match gl.GetError() {
         gl::NO_ERROR => "GL_NO_ERROR",
