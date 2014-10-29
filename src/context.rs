@@ -160,6 +160,9 @@ impl Context {
                     }
                 }
 
+                // this is necessary on Windows 8, or nothing is being displayed
+                gl.Flush();
+
                 // swapping
                 window.swap_buffers();
 
