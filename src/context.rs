@@ -8,7 +8,7 @@ use std::task::TaskBuilder;
 
 enum Message {
     EndFrame,
-    Execute(proc(&gl::Gl, &mut GLState, (u8, u8), &[String]):Send),
+    Execute(proc(&gl::Gl, &mut GLState, (u8, u8), &ExtensionsList):Send),
 }
 
 pub struct Context {
@@ -121,6 +121,14 @@ impl GLState {
     }
 }
 
+/// Contains data about the list of extensions
+pub struct ExtensionsList {
+    /// GL_EXT_direct_state_access
+    pub gl_ext_direct_state_access: bool,
+    /// GL_EXT_framebuffer_object
+    pub gl_ext_framebuffer_object: bool,
+}
+
 impl Context {
     pub fn new_from_window(window: glutin::Window) -> Context {
         let (tx_events, rx_events) = channel();
@@ -161,7 +169,7 @@ impl Context {
                 loop {
                     match rx_commands.recv_opt() {
                         Ok(EndFrame) => break,
-                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, extensions.as_slice()),
+                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, &extensions),
                         Err(_) => break 'main
                     }
                 }
@@ -225,7 +233,7 @@ impl Context {
 
             loop {
                 match rx_commands.recv_opt() {
-                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, extensions.as_slice()),
+                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, version, &extensions),
                     Ok(EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
                 }
@@ -242,7 +250,7 @@ impl Context {
         )
     }
 
-    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, (u8, u8), &[String]): Send) {
+    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, (u8, u8), &ExtensionsList): Send) {
         self.commands.lock().send(Execute(f));
     }
 
@@ -286,7 +294,7 @@ fn get_gl_version(gl: &gl::Gl) -> (u8, u8) {
     }
 }
 
-fn get_extensions(gl: &gl::Gl) -> Vec<String> {
+fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
     use std::c_str::CString;
 
     unsafe {
@@ -309,4 +317,23 @@ fn get_extensions(gl: &gl::Gl) -> Vec<String> {
             list.words().map(|e| e.to_string()).collect()
         }
     }
+}
+
+fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
+    let strings = get_extensions_strings(gl);
+
+    let mut extensions = ExtensionsList {
+        gl_ext_direct_state_access: false,
+        gl_ext_framebuffer_object: false,
+    };
+
+    for extension in strings.into_iter() {
+        match extension.as_slice() {
+            "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
+            "GL_EXT_framebuffer_object" => extensions.gl_ext_framebuffer_object = true,
+            _ => ()
+        }
+    }
+
+    extensions
 }
