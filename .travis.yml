@@ -1,4 +1,6 @@
 language: rust
 
+env: HEADLESS_TESTS=1
+
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
