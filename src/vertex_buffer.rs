@@ -123,12 +123,16 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
                 }
             };
 
-            tx.send(ptr as *mut T);
+            if ptr.is_null() {
+                tx.send(Err(super::get_gl_error(gl)));
+            } else {
+                tx.send(Ok(ptr as *mut T));
+            }
         });
 
         Mapping {
             buffer: self,
-            data: unsafe { CVec::new(rx.recv(), elements_count) },
+            data: unsafe { CVec::new(rx.recv().unwrap(), elements_count) },
         }
     }
 }
