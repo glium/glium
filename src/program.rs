@@ -12,7 +12,7 @@ struct Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
+        self.display.context.exec(proc(gl, _state, _, _) {
             gl.DeleteShader(id);
         });
     }
@@ -82,7 +82,7 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.context.exec(proc(gl, _state, _, _) {
             unsafe {
                 let id = gl.CreateProgram();
                 if id == 0 {
@@ -136,7 +136,7 @@ impl Program {
         let id = try!(rx.recv());
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.context.exec(proc(gl, _state, _, _) {
             unsafe {
                 // reflecting program uniforms
                 let mut uniforms = HashMap::new();
@@ -189,7 +189,7 @@ pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::typ
 impl Drop for Program {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, state) {
+        self.display.context.exec(proc(gl, state, _, _) {
             if state.program == id {
                 gl.UseProgram(0);
                 state.program = 0;
@@ -207,7 +207,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     let source_code = source_code.to_c_str();
 
     let (tx, rx) = channel();
-    display.context.context.exec(proc(gl, _state) {
+    display.context.context.exec(proc(gl, _state, _, _) {
         unsafe {
             let id = gl.CreateShader(shader_type);
 
