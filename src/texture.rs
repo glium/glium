@@ -407,9 +407,25 @@ impl TextureImplementation {
         {
             let my_id = self.id.clone();
             let fbo_id = fbo.id;
-            self.display.context.exec(proc(gl, _state) {
-                gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                gl.FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
+            self.display.context.exec(proc(gl, state) {
+                if gl.NamedFramebufferTexture.is_loaded() {
+                    gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
+
+                } else if gl.NamedFramebufferTextureEXT.is_loaded() {
+                    gl.NamedFramebufferTextureEXT(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
+
+                } else if gl.BindFramebuffer.is_loaded() && gl.FramebufferTexture.is_loaded() {
+                    gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+                    state.draw_framebuffer = Some(fbo_id);
+                    gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
+                    
+                } else {
+                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                    state.draw_framebuffer = Some(fbo_id);
+                    state.read_framebuffer = Some(fbo_id);
+                    gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT, gl::COLOR_ATTACHMENT0,
+                        gl::TEXTURE_2D, my_id, 0);
+                }
             });
         }
 

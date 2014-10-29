@@ -67,6 +67,12 @@ pub struct GLState {
     /// The latest buffer bound to `GL_ELEMENT_ARRAY_BUFFER`.
     pub element_array_buffer_binding: Option<gl::types::GLuint>,
 
+    /// The latest framebuffer bound to `GL_READ_FRAMEBUFFER`.
+    pub read_framebuffer: Option<gl::types::GLuint>,
+
+    /// The latest framebuffer bound to `GL_DRAW_FRAMEBUFFER`.
+    pub draw_framebuffer: Option<gl::types::GLuint>,
+
     /// The latest values passed to `glBlendFunc`.
     pub blend_func: (gl::types::GLenum, gl::types::GLenum),
 
@@ -103,6 +109,8 @@ impl GLState {
             clear_stencil: 0,
             array_buffer_binding: None,
             element_array_buffer_binding: None,
+            read_framebuffer: None,
+            draw_framebuffer: None,
             depth_func: gl::LESS,
             blend_func: (0, 0),     // no default specified
             viewport: viewport,

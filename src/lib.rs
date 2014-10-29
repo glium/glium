@@ -630,10 +630,15 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         target.display.context.exec(proc(gl, state) {
             unsafe {
-                if gl.BindFramebuffer.is_loaded() {
-                    gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
-                } else {
-                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+                if state.draw_framebuffer != fbo_id {
+                    if gl.BindFramebuffer.is_loaded() {
+                        gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
+                        state.draw_framebuffer = fbo_id.clone();
+                    } else {
+                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+                        state.draw_framebuffer = fbo_id.clone();
+                        state.read_framebuffer = fbo_id.clone();
+                    }
                 }
 
                 // binding program
