@@ -197,15 +197,22 @@ pub trait Texture2DData<P> {
 
     /// Returns a vec where each element is a pixel of the texture.
     fn into_vec(self) -> Vec<P>;
+
+    /// Builds a new object from raw data.
+    fn from_vec(Vec<P>, width: u32) -> Self;
 }
 
-impl<P: PixelValue> Texture2DData<P> for Vec<Vec<P>> {
+impl<P: PixelValue + Clone> Texture2DData<P> for Vec<Vec<P>> {      // TODO: remove Clone
     fn get_dimensions(&self) -> (u32, u32) {
         (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
     }
 
     fn into_vec(self) -> Vec<P> {
         self.into_iter().flat_map(|e| e.into_iter()).collect()
+    }
+
+    fn from_vec(data: Vec<P>, width: u32) -> Vec<Vec<P>> {
+        data.as_slice().chunks(width as uint).map(|e| e.to_vec()).collect()
     }
 }
 
@@ -418,7 +425,7 @@ impl TextureImplementation {
                     gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
                     state.draw_framebuffer = Some(fbo_id);
                     gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
-                    
+
                 } else {
                     gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
                     state.draw_framebuffer = Some(fbo_id);

@@ -869,4 +869,50 @@ impl Display {
             }
         });
     }
+
+    /// Reads the content of the front buffer.
+    pub fn read_front_buffer<P, T>(&self) -> T
+        where P: texture::PixelValue + Clone + Send, T: texture::Texture2DData<P>    // TODO: remove Clone
+    {
+        let dimensions = self.get_framebuffer_dimensions();
+        let pixels_count = dimensions.0 * dimensions.1;
+
+        let format = match texture::PixelValue::get_num_elems(None::<P>) {
+            1 => gl::RED,
+            2 => gl::RG,
+            3 => gl::RGB,
+            4 => gl::RGBA,
+            _ => fail!("pixels with more than 4 components are not supported")
+        };
+
+        let gltype = texture::PixelValue::get_gl_type(None::<P>);
+
+        let (tx, rx) = channel();
+        self.context.context.exec(proc(gl, state) {
+            unsafe {
+                // unbinding framebuffers
+                if state.read_framebuffer.is_some() {
+                    if gl.BindFramebuffer.is_loaded() {
+                        gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                        state.read_framebuffer = None;
+                    } else {
+                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                        state.draw_framebuffer = None;
+                        state.read_framebuffer = None;
+                    }
+                }
+
+                // reading
+                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
+                gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
+                    dimensions.1 as gl::types::GLint, format, gltype,
+                    data.as_mut_ptr() as *mut libc::c_void);
+                data.set_len(pixels_count);
+                tx.send(data);
+            }
+        });
+
+        let data = rx.recv();
+        texture::Texture2DData::from_vec(data, dimensions.0 as u32)
+    }
 }
