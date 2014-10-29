@@ -6,12 +6,11 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::DisplayBuild;
+mod support;
 
 #[test]
 fn program_creation() {
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     // compiling shaders and linking them together
     glium::Program::new(&display,
@@ -48,8 +47,7 @@ fn program_creation() {
 
 #[test]
 fn program_compilation_error() {
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,
@@ -81,8 +79,7 @@ the linking error (even though they are supposed to)
 
 #[test]
 fn program_linking_error() {
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,

@@ -6,12 +6,13 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::{DisplayBuild, Texture};
+use glium::Texture;
+
+mod support;
 
 #[test]
 fn texture_1d_creation() {
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     let texture = glium::texture::Texture1D::new(&display, vec![
         (0.0, 0.0, 0.0, 0.0),
@@ -27,8 +28,7 @@ fn texture_1d_creation() {
 
 #[test]
 fn texture_2d_creation() {
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     let texture = glium::texture::Texture2D::new(&display, vec![
         vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
@@ -44,8 +44,7 @@ fn texture_2d_creation() {
 
 #[test]
 fn texture_3d_creation() {
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     let texture = glium::texture::Texture3D::new(&display, vec![
         vec![

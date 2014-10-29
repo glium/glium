@@ -6,19 +6,18 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::DisplayBuild;
+mod support;
 
 #[test]
 fn vertex_buffer_creation() {
+    let display = support::build_display();
+
     #[vertex_format]
     #[allow(dead_code)]
     struct Vertex {
         field1: [f32, ..3],
         field2: [f32, ..3],
     }
-
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
 
     glium::VertexBuffer::new(&display, 
         vec![
@@ -31,14 +30,13 @@ fn vertex_buffer_creation() {
 
 #[test]
 fn vertex_buffer_mapping_read() {
+    let display = support::build_display();
+
     #[vertex_format]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
     }
-
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
 
     let mut vb = glium::VertexBuffer::new(&display, 
         vec![
@@ -54,14 +52,13 @@ fn vertex_buffer_mapping_read() {
 
 #[test]
 fn vertex_buffer_mapping_write() {
+    let display = support::build_display();
+    
     #[vertex_format]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
     }
-
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
 
     let mut vb = glium::VertexBuffer::new(&display, 
         vec![
