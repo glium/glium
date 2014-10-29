@@ -49,23 +49,59 @@ pub trait Texture {
 
 /// A trait that must be implemented for any type that can represent the value of a pixel.
 #[experimental = "Will be rewritten after UFCS land"]
-pub trait PixelValue: Copy + Clone + Send {
+pub trait PixelValue: Copy + Send {     // TODO: Clone, but [T, ..N] doesn't impl Clone
     /// Returns the `GLenum` corresponding to the type of this pixel.
     fn get_gl_type(_: Option<Self>) -> gl::types::GLenum;
     /// Returns the number of color components.
     fn get_num_elems(_: Option<Self>) -> gl::types::GLint;
 }
 
-// note: this may be temporary
-impl<T: data_types::GLDataTuple + Copy + Clone + Send> PixelValue for T {
-    fn get_gl_type(x: Option<T>) -> gl::types::GLenum {
-        data_types::GLDataTuple::get_gl_type(x)
-    }
-
-    fn get_num_elems(x: Option<T>) -> gl::types::GLint {
-        data_types::GLDataTuple::get_num_elems(x)
-    }
+// TODO: hacky
+impl PixelValue for i8 {
+    fn get_gl_type(_: Option<(i8)>) -> gl::types::GLenum { gl::BYTE }
+    fn get_num_elems(_: Option<(i8)>) -> gl::types::GLint { 1 }
 }
+
+impl PixelValue for u8 {
+    fn get_gl_type(_: Option<(u8)>) -> gl::types::GLenum { gl::UNSIGNED_BYTE }
+    fn get_num_elems(_: Option<(u8)>) -> gl::types::GLint { 1 }
+}
+
+impl PixelValue for f32 {
+    fn get_gl_type(_: Option<(f32)>) -> gl::types::GLenum { gl::FLOAT }
+    fn get_num_elems(_: Option<(f32)>) -> gl::types::GLint { 1 }
+}
+
+impl<T: PixelValue> PixelValue for (T, T) {
+    fn get_gl_type(_: Option<(T, T)>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
+    fn get_num_elems(_: Option<(T, T)>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 2 }
+}
+
+impl<T: PixelValue> PixelValue for (T, T, T) {
+    fn get_gl_type(_: Option<(T, T, T)>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
+    fn get_num_elems(_: Option<(T, T, T)>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 3 }
+}
+
+impl<T: PixelValue> PixelValue for (T, T, T, T) {
+    fn get_gl_type(_: Option<(T, T, T, T)>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
+    fn get_num_elems(_: Option<(T, T, T, T)>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 4 }
+}
+
+impl<T: PixelValue> PixelValue for [T, ..2] {
+    fn get_gl_type(_: Option<[T, ..2]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
+    fn get_num_elems(_: Option<[T, ..2]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 2 }
+}
+
+impl<T: PixelValue> PixelValue for [T, ..3] {
+    fn get_gl_type(_: Option<[T, ..3]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
+    fn get_num_elems(_: Option<[T, ..3]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 3 }
+}
+
+impl<T: PixelValue> PixelValue for [T, ..4] {
+    fn get_gl_type(_: Option<[T, ..4]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
+    fn get_num_elems(_: Option<[T, ..4]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 4 }
+}
+
 
 /// A one-dimensional texture.
 pub struct Texture1D(TextureImplementation);
@@ -98,7 +134,7 @@ impl<P: PixelValue> Texture1DData<P> for Vec<P> {
     }
 }
 
-impl<'a, P: PixelValue> Texture1DData<P> for &'a [P] {
+impl<'a, P: PixelValue + Clone> Texture1DData<P> for &'a [P] {
     fn into_vec(self) -> Vec<P> {
         self.to_vec()
     }
