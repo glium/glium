@@ -185,7 +185,8 @@ impl<'t, T: texture::Texture + 't> UniformValue for Sampler<'t, T> {
 }
 
 /// Behavior of a sampler.
-// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
+// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS,
+//       GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
 #[deriving(Show, Clone, Hash, PartialEq, Eq)]
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
@@ -237,11 +238,16 @@ impl SamplerObject {
     pub fn bind(&self, gl: gl::Gl, sampler: SamplerBehavior) {
         let id = self.id;
         self.display.context.exec(proc(gl, _, _, _) {
-            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_S, sampler.wrap_function.0.to_glenum() as gl::types::GLint);
-            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_T, sampler.wrap_function.1.to_glenum() as gl::types::GLint);
-            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_R, sampler.wrap_function.2.to_glenum() as gl::types::GLint);
-            gl.SamplerParameteri(id, gl::TEXTURE_MIN_FILTER, sampler.minify_filter.to_glenum() as gl::types::GLint);
-            gl.SamplerParameteri(id, gl::TEXTURE_MAG_FILTER, sampler.magnify_filter.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_S,
+                sampler.wrap_function.0.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_T,
+                sampler.wrap_function.1.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_WRAP_R,
+                sampler.wrap_function.2.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_MIN_FILTER,
+                sampler.minify_filter.to_glenum() as gl::types::GLint);
+            gl.SamplerParameteri(id, gl::TEXTURE_MAG_FILTER,
+                sampler.magnify_filter.to_glenum() as gl::types::GLint);
         });
     }
 

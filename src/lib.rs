@@ -184,7 +184,8 @@ The arguments are the vertex buffer, index buffer, program, uniforms, and an obj
 # let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
-target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
+target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms,
+    &std::default::Default::default()));
 target.finish();
 ```
 
@@ -258,7 +259,12 @@ mod gl {
     }
 }
 
-#[cfg(all(not(target_os = "windows"), not(target_os = "linux"), not(target_os = "macos"), not(target_os = "android")))]
+#[cfg(all(
+    not(target_os = "windows"),
+    not(target_os = "linux"),
+    not(target_os = "macos"),
+    not(target_os = "android")
+))]
 compile_error!("This platform is not supported")
 
 /// A command that asks to draw something.
@@ -620,7 +626,8 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         let fbo_id = target.framebuffer.as_ref().map(|f| f.id);
         let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
-        let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) = index_buffer::get_clone(index_buffer);
+        let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) =
+            index_buffer::get_clone(index_buffer);
         let program_id = program::get_program_id(program);
         let uniforms = uniforms.to_binder();
         let uniforms_locations = program::get_uniforms_locations(program);
@@ -676,9 +683,15 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
                     if loc != -1 {
                         match data_type {
-                            gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT | gl::INT | gl::UNSIGNED_INT
-                                => gl.VertexAttribIPointer(loc as u32, elements_count as gl::types::GLint, data_type, vb_elementssize as i32, offset as *const libc::c_void),
-                            _ => gl.VertexAttribPointer(loc as u32, elements_count as gl::types::GLint, data_type, 0, vb_elementssize as i32, offset as *const libc::c_void)
+                            gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
+                            gl::INT | gl::UNSIGNED_INT =>
+                                gl.VertexAttribIPointer(loc as u32,
+                                    elements_count as gl::types::GLint, data_type,
+                                    vb_elementssize as i32, offset as *const libc::c_void),
+
+                            _ => gl.VertexAttribPointer(loc as u32,
+                                    elements_count as gl::types::GLint, data_type, 0,
+                                    vb_elementssize as i32, offset as *const libc::c_void)
                         }
                         
                         gl.EnableVertexAttribArray(loc as u32);
@@ -905,8 +918,8 @@ impl Display {
     /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
     /// # }
     /// ```
-    pub fn read_front_buffer<P, T>(&self) -> T
-        where P: texture::PixelValue + Clone + Send, T: texture::Texture2DData<P>    // TODO: remove Clone
+    pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
+        where P: texture::PixelValue + Clone + Send, T: texture::Texture2DData<P>
     {
         let dimensions = self.get_framebuffer_dimensions();
         let pixels_count = dimensions.0 * dimensions.1;

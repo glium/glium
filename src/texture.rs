@@ -150,11 +150,17 @@ impl Texture1DArray {
     /// # Panic
     ///
     /// Panics if all the elements don't have the same dimensions.
-    pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: Vec<T>) -> Texture1DArray {
+    pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: Vec<T>)
+        -> Texture1DArray
+    {
         let array_size = data.len();
         let mut width = 0;
-        let data = data.into_iter().flat_map(|t| { let d = t.into_vec(); width = d.len(); d.into_iter() }).collect();
-        Texture1DArray(TextureImplementation::new(display, data, width as u32, None, None, Some(array_size as u32)))
+        let data = data.into_iter().flat_map(|t| {
+            let d = t.into_vec(); width = d.len(); d.into_iter()
+        }).collect();
+
+        Texture1DArray(TextureImplementation::new(display, data, width as u32, None, None,
+            Some(array_size as u32)))
     }
 }
 
@@ -172,7 +178,9 @@ impl Texture2D {
     pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: T) -> Texture2D {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
-        Texture2D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), None, None))
+
+        Texture2D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1),
+            None, None))
     }
 
     /// Starts drawing on the texture.
@@ -226,11 +234,17 @@ impl Texture2DArray {
     /// # Panic
     ///
     /// Panics if all the elements don't have the same dimensions.
-    pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: Vec<T>) -> Texture2DArray {
+    pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: Vec<T>)
+        -> Texture2DArray
+    {
         let array_size = data.len();
         let mut dimensions = (0, 0);
-        let data = data.into_iter().flat_map(|t| { dimensions = t.get_dimensions(); t.into_vec().into_iter() }).collect();
-        Texture2DArray(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), None, Some(array_size as u32)))
+        let data = data.into_iter().flat_map(|t| {
+            dimensions = t.get_dimensions(); t.into_vec().into_iter()
+        }).collect();
+
+        Texture2DArray(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1),
+            None, Some(array_size as u32)))
     }
 }
 
@@ -248,7 +262,8 @@ impl Texture3D {
     pub fn new<P: PixelValue, T: Texture3DData<P>>(display: &super::Display, data: T) -> Texture3D {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
-        Texture3D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1), Some(dimensions.2), None))
+        Texture3D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1),
+            Some(dimensions.2), None))
     }
 }
 
@@ -270,7 +285,8 @@ pub trait Texture3DData<P> {
 
 impl<P: PixelValue> Texture3DData<P> for Vec<Vec<Vec<P>>> {
     fn get_dimensions(&self) -> (u32, u32, u32) {
-        (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32, self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
+        (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32,
+            self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
     }
 
     fn into_vec(self) -> Vec<P> {
@@ -302,7 +318,9 @@ impl TextureImplementation {
     {
         let element_components = PixelValue::get_num_elems(None::<P>);
 
-        if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint * array_size.unwrap_or(1) as uint != data.len() {
+        if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
+            array_size.unwrap_or(1) as uint != data.len()
+        {
             panic!("Texture data has different size from width*height*depth*array_size*elemLen");
         }
 
@@ -358,7 +376,13 @@ impl TextureImplementation {
                 let data = data;
                 let data_raw: *const libc::c_void = mem::transmute(data.as_slice().as_ptr());
 
-                gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 { 4 } else if height.unwrap_or(1) % 2 == 0 { 2 } else { 1 });
+                gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 {
+                    4
+                } else if height.unwrap_or(1) % 2 == 0 {
+                    2
+                } else {
+                    1
+                });
 
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenTextures(1, mem::transmute(&id));
@@ -373,14 +397,21 @@ impl TextureImplementation {
                     gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
                 }
                 gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-                gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32);
+                gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+                    gl::LINEAR_MIPMAP_LINEAR as i32);
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    gl.TexImage3D(texture_type, 0, internal_data_format as i32, width as i32, height.unwrap() as i32, if let Some(d) = depth { d } else { array_size.unwrap_or(1) } as i32, 0, data_format as u32, data_type, data_raw);
+                    gl.TexImage3D(texture_type, 0, internal_data_format as i32, width as i32,
+                        height.unwrap() as i32,
+                        if let Some(d) = depth { d } else { array_size.unwrap_or(1) } as i32, 0,
+                        data_format as u32, data_type, data_raw);
+
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    gl.TexImage2D(texture_type, 0, internal_data_format as i32, width as i32, height.unwrap() as i32, 0, data_format as u32, data_type, data_raw);
+                    gl.TexImage2D(texture_type, 0, internal_data_format as i32, width as i32,
+                        height.unwrap() as i32, 0, data_format as u32, data_type, data_raw);
                 } else {
-                    gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0, data_format as u32, data_type, data_raw);
+                    gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0,
+                        data_format as u32, data_type, data_raw);
                 }
 
                 if version >= &GlVersion(3, 0) {
@@ -486,8 +517,8 @@ impl TextureImplementation {
 
             unsafe {
                 gl.BindTexture(bind_point, id);
-                gl.GetTexImage(bind_point, 0 as gl::types::GLint, gl::RGBA_INTEGER, gl::UNSIGNED_BYTE,
-                    buffer.as_mut_ptr() as *mut libc::c_void);
+                gl.GetTexImage(bind_point, 0 as gl::types::GLint, gl::RGBA_INTEGER,
+                    gl::UNSIGNED_BYTE, buffer.as_mut_ptr() as *mut libc::c_void);
             }
 
             buffer

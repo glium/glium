@@ -24,7 +24,9 @@ pub struct Program {
     #[allow(dead_code)]
     shaders: Vec<Shader>,
     id: gl::types::GLuint,
-    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
+
+    // location, type and size of each uniform, ordered by name
+    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>
 }
 
 /// Error that can be triggered when creating a `Program`.
@@ -61,7 +63,8 @@ impl Program {
     /// ```no_run
     /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
     /// # let vertex_source = ""; let fragment_source = ""; let geometry_source = "";
-    /// let program = glium::Program::new(&display, vertex_source, fragment_source, Some(geometry_source));
+    /// let program = glium::Program::new(&display, vertex_source, fragment_source,
+    ///     Some(geometry_source));
     /// ```
     /// 
     #[experimental = "The list of shaders and the result error will probably change"]
@@ -103,15 +106,18 @@ impl Program {
                         match gl.GetError() {
                             gl::NO_ERROR => (),
                             gl::INVALID_VALUE => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered GL_INVALID_VALUE"))));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered \
+                                                                  GL_INVALID_VALUE"))));
                                 return;
                             },
                             gl::INVALID_OPERATION => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered GL_INVALID_OPERATION"))));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered \
+                                                                  GL_INVALID_OPERATION"))));
                                 return;
                             },
                             _ => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered an unknown error"))));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered an \
+                                                                  unknown error"))));
                                 return;
                             }
                         };
@@ -120,7 +126,8 @@ impl Program {
                         gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
                         let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
-                        gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size, error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+                        gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
+                            error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                         error_log.set_len(error_log_size as uint);
 
                         let msg = String::from_utf8(error_log).unwrap();
@@ -150,7 +157,9 @@ impl Program {
 
                     let mut data_type: gl::types::GLenum = mem::uninitialized();
                     let mut data_size: gl::types::GLint = mem::uninitialized();
-                    gl.GetActiveUniform(id, uniform_id as gl::types::GLuint, uniform_name_tmp_len, &mut uniform_name_tmp_len, &mut data_size, &mut data_type, uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+                    gl.GetActiveUniform(id, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
+                        &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
+                        uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                     uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
 
                     let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
@@ -182,7 +191,9 @@ pub fn get_program_id(program: &Program) -> gl::types::GLuint {
     program.id
 }
 
-pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>> {
+pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint,
+    gl::types::GLenum, gl::types::GLint)>>
+{
     program.uniforms.clone()
 }
 
@@ -232,7 +243,8 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
                 gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
                 let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
-                gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size, error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+                gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
+                    error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                 error_log.set_len(error_log_size as uint);
 
                 let msg = String::from_utf8(error_log).unwrap();

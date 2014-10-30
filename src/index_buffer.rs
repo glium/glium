@@ -17,7 +17,9 @@ pub struct IndexBuffer {
 }
 
 /// This public function is accessible from within `glium` but not for the user.
-pub fn get_clone(ib: &IndexBuffer) -> (gl::types::GLuint, uint, gl::types::GLenum, gl::types::GLenum) {
+pub fn get_clone(ib: &IndexBuffer) -> (gl::types::GLuint, uint, gl::types::GLenum,
+    gl::types::GLenum)
+{
     (ib.id.clone(), ib.elements_count.clone(), ib.data_type.clone(), ib.primitives.clone())
 }
 
@@ -31,13 +33,16 @@ impl IndexBuffer {
     /// # extern crate glutin;
     /// # use glium::DisplayBuild;
     /// # fn main() {
-    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap();
+    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
+    /// #  .build_glium().unwrap();
     /// let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
     ///     &[0u8, 1, 2, 1, 3, 4, 2, 4, 3]);
     /// # }
     /// ```
     /// 
-    pub fn new<T: data_types::GLDataType>(display: &super::Display, prim: PrimitiveType, data: &[T]) -> IndexBuffer {
+    pub fn new<T: data_types::GLDataType>(display: &super::Display, prim: PrimitiveType,
+        data: &[T]) -> IndexBuffer
+    {
         let elements_size = mem::size_of_val(&data[0]);
         let data_size = data.len() * elements_size;
         let data_ptr: *const libc::c_void = data.as_ptr() as *const libc::c_void;
@@ -50,13 +55,18 @@ impl IndexBuffer {
                 gl.GenBuffers(1, mem::transmute(&id));
 
                 if version >= &GlVersion(4, 5) {
-                    gl.NamedBufferData(id, data_size as gl::types::GLsizei, data_ptr, gl::STATIC_DRAW);
+                    gl.NamedBufferData(id, data_size as gl::types::GLsizei, data_ptr,
+                        gl::STATIC_DRAW);
+                        
                 } else if extensions.gl_ext_direct_state_access {
-                    gl.NamedBufferDataEXT(id, data_size as gl::types::GLsizeiptr, data_ptr, gl::STATIC_DRAW);
+                    gl.NamedBufferDataEXT(id, data_size as gl::types::GLsizeiptr, data_ptr,
+                        gl::STATIC_DRAW);
+
                 } else {
                     gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
                     state.element_array_buffer_binding = Some(id);
-                    gl.BufferData(gl::ELEMENT_ARRAY_BUFFER, data_size as gl::types::GLsizeiptr, data_ptr, gl::STATIC_DRAW);
+                    gl.BufferData(gl::ELEMENT_ARRAY_BUFFER, data_size as gl::types::GLsizeiptr,
+                        data_ptr, gl::STATIC_DRAW);
                 }
 
                 tx.send(id);

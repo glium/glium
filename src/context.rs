@@ -92,7 +92,9 @@ pub struct GLState {
 
 impl GLState {
     /// Builds the `GLState` corresponding to the default GL values.
-    fn new_defaults(viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei)) -> GLState {
+    fn new_defaults(viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei,
+        gl::types::GLsizei)) -> GLState
+    {
         GLState {
             enabled_blend: false,
             enabled_cull_face: false,
