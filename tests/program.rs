@@ -69,7 +69,7 @@ fn program_compilation_error() {
 
     match program {
         Err(glium::CompilationError(_)) => (),
-        _ => fail!()
+        _ => panic!()
     };
 }
 
@@ -110,7 +110,7 @@ fn program_linking_error() {
 
     match program {
         Err(glium::LinkingError(_)) => (),
-        _ => fail!()
+        _ => panic!()
     };
 }
 */
