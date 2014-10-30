@@ -311,7 +311,7 @@ impl PrimitiveType {
             TrianglesList => gl::TRIANGLES,
             TriangleStrip => gl::TRIANGLE_STRIP,
             TriangleFan => gl::TRIANGLE_FAN,
-            _ => fail!("Not supported by GLES")
+            _ => panic!("Not supported by GLES")
         }
     }
 }
@@ -916,7 +916,7 @@ impl Display {
             2 => gl::RG,
             3 => gl::RGB,
             4 => gl::RGBA,
-            _ => fail!("pixels with more than 4 components are not supported")
+            _ => panic!("pixels with more than 4 components are not supported")
         };
 
         let gltype = texture::PixelValue::get_gl_type(None::<P>);

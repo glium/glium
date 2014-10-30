@@ -303,7 +303,7 @@ impl TextureImplementation {
         let element_components = PixelValue::get_num_elems(None::<P>);
 
         if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint * array_size.unwrap_or(1) as uint != data.len() {
-            fail!("Texture data has different size from width*height*depth*array_size*elemLen");
+            panic!("Texture data has different size from width*height*depth*array_size*elemLen");
         }
 
         let texture_type = if height.is_none() && depth.is_none() {
@@ -349,7 +349,7 @@ impl TextureImplementation {
             (4, gl::UNSIGNED_INT)   => (gl::RGBA, gl::RGBA, gl::UNSIGNED_INT),
             (4, gl::FLOAT)          => (gl::RGBA32F, gl::RGBA, gl::FLOAT),
 
-            _ => fail!("unsupported texture type")
+            _ => panic!("unsupported texture type")
         };
 
         let (tx, rx) = channel();
