@@ -34,10 +34,10 @@ fn main() {
         if rand::random::<f64>() <= 0.016666 {
             let (left, top, dimensions): (f32, f32, f32) = rand::random();
             let dest_rect = glium::blit::Rect {
-                left: (left * opengl_texture.get_width() as f32) as u32,
-                top: (top * opengl_texture.get_height().unwrap() as f32) as u32,
-                width: (dimensions * opengl_texture.get_width() as f32) as u32,
-                height: (dimensions * opengl_texture.get_height().unwrap() as f32) as u32,
+                left: (left * dest_texture.get_width() as f32) as u32,
+                top: (top * dest_texture.get_height().unwrap() as f32) as u32,
+                width: (dimensions * dest_texture.get_width() as f32) as u32,
+                height: (dimensions * dest_texture.get_height().unwrap() as f32) as u32,
             };
 
             opengl_texture.blit_all_to(&dest_texture, &dest_rect, glium::uniforms::Linear);
