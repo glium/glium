@@ -208,6 +208,10 @@ impl ::blit::BlitSurface for Texture2D {
             fbo: Some(id),
         }
     }
+
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.0.width, self.0.height.unwrap_or(1))
+    }
 }
 
 /// Trait that describes data for a two-dimensional texture.

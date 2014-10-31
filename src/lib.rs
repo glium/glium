@@ -713,6 +713,10 @@ impl<'t> blit::BlitSurface for Target<'t> {
             fbo: self.framebuffer.as_ref().map(|f| f.id),
         }
     }
+
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.dimensions.0 as u32, self.dimensions.1 as u32)
+    }
 }
 
 #[unsafe_destructor]

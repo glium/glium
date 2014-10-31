@@ -38,6 +38,9 @@ pub trait BlitSurface {
         blit(self, target, gl::COLOR_BUFFER_BIT, src_rect, target_rect, filter.to_glenum())
     }
 
+    /// Returns the dimensions of the surface.
+    fn get_dimensions(&self) -> (u32, u32);
+
     /// Don't implement this, or redirect the call to another implementation.
     #[doc(hidden)]
     unsafe fn get_implementation(&self) -> BlitSurfaceImpl;
