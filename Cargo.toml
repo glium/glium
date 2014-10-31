@@ -21,3 +21,6 @@ git = "https://github.com/bjz/cgmath-rs"
 
 #[dependencies.nalgebra]
 #git = "https://github.com/sebcrozet/nalgebra"
+
+[dev-dependencies.image]
+git = "https://github.com/PistonDevelopers/rust-image"
