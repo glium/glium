@@ -15,7 +15,7 @@ pub struct Rect {
     /// 
     pub left: u32,
     /// 
-    pub top: u32,
+    pub bottom: u32,
     /// 
     pub width: u32,
     /// 
@@ -23,6 +23,8 @@ pub struct Rect {
 }
 
 /// Surface that can be blitted (ie. copied) to another one.
+///
+/// *Important*: in the OpenGL world, y coordinates start at the bottom of the surface.
 ///
 /// ## Panic
 ///
@@ -41,7 +43,7 @@ pub trait BlitSurface {
     /// Copies the entire surface to a target surface.
     fn blit_all_to<S: BlitSurface>(&self, target: &S, target_rect: &Rect, filter: SamplerFilter) {
         let src_dim = self.get_dimensions();
-        let src_rect = Rect { left: 0, top: 0, width: src_dim.0, height: src_dim.1 };
+        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0, height: src_dim.1 };
         self.blit_to(&src_rect, target, target_rect, filter)
     }
 
@@ -51,9 +53,9 @@ pub trait BlitSurface {
     /// Copies the entire surface to the entire target.
     fn fill<S: BlitSurface>(&self, target: &S, filter: SamplerFilter) {
         let src_dim = self.get_dimensions();
-        let src_rect = Rect { left: 0, top: 0, width: src_dim.0, height: src_dim.1 };
+        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0, height: src_dim.1 };
         let target_dim = target.get_dimensions();
-        let target_rect = Rect { left: 0, top: 0, width: target_dim.0, height: target_dim.1 };
+        let target_rect = Rect { left: 0, bottom: 0, width: target_dim.0, height: target_dim.1 };
         self.blit_to(&src_rect, target, &target_rect, filter)
     }
 
@@ -80,12 +82,12 @@ fn blit<S1: BlitSurface, S2: BlitSurface>(source: &S1, target: &S2, mask: gl::ty
             if version >= &context::GlVersion(4, 5) {
                 gl.BlitNamedFramebuffer(source.unwrap_or(0), target.unwrap_or(0),
                     src_rect.left as gl::types::GLint,
-                    src_rect.top as gl::types::GLint,
+                    src_rect.bottom as gl::types::GLint,
                     (src_rect.left + src_rect.width) as gl::types::GLint,
-                    (src_rect.top + src_rect.height) as gl::types::GLint,
-                    target_rect.left as gl::types::GLint, target_rect.top as gl::types::GLint,
+                    (src_rect.bottom + src_rect.height) as gl::types::GLint,
+                    target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
                     (target_rect.left + target_rect.width) as gl::types::GLint,
-                    (target_rect.top + target_rect.height) as gl::types::GLint, mask, filter);
+                    (target_rect.bottom + target_rect.height) as gl::types::GLint, mask, filter);
 
                 return;
             }
@@ -117,21 +119,21 @@ fn blit<S1: BlitSurface, S2: BlitSurface>(source: &S1, target: &S2, mask: gl::ty
             // doing the blit
             if version >= &context::GlVersion(3, 0) {
                 gl.BlitFramebuffer(src_rect.left as gl::types::GLint,
-                    src_rect.top as gl::types::GLint,
+                    src_rect.bottom as gl::types::GLint,
                     (src_rect.left + src_rect.width) as gl::types::GLint,
-                    (src_rect.top + src_rect.height) as gl::types::GLint,
-                    target_rect.left as gl::types::GLint, target_rect.top as gl::types::GLint,
+                    (src_rect.bottom + src_rect.height) as gl::types::GLint,
+                    target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
                     (target_rect.left + target_rect.width) as gl::types::GLint,
-                    (target_rect.top + target_rect.height) as gl::types::GLint, mask, filter);
+                    (target_rect.bottom + target_rect.height) as gl::types::GLint, mask, filter);
 
             } else {
                 gl.BlitFramebufferEXT(src_rect.left as gl::types::GLint,
-                    src_rect.top as gl::types::GLint,
+                    src_rect.bottom as gl::types::GLint,
                     (src_rect.left + src_rect.width) as gl::types::GLint,
-                    (src_rect.top + src_rect.height) as gl::types::GLint,
-                    target_rect.left as gl::types::GLint, target_rect.top as gl::types::GLint,
+                    (src_rect.bottom + src_rect.height) as gl::types::GLint,
+                    target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
                     (target_rect.left + target_rect.width) as gl::types::GLint,
-                    (target_rect.top + target_rect.height) as gl::types::GLint, mask, filter);
+                    (target_rect.bottom + target_rect.height) as gl::types::GLint, mask, filter);
             }
         }
     });

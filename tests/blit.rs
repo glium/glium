@@ -16,14 +16,14 @@ fn blit_texture_to_window() {
 
     let src_rect = Rect {
         left: 0,
-        top: 0,
+        bottom: 0,
         width: 2,
         height: 2,
     };
 
     let dest_rect = Rect {
         left: 1,
-        top: 1,
+        bottom: 1,
         width: 2,
         height: 2,
     };

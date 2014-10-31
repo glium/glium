@@ -215,6 +215,9 @@ impl ::blit::BlitSurface for Texture2D {
 }
 
 /// Trait that describes data for a two-dimensional texture.
+///
+/// *Important*: in the OpenGL world, y coordinates start at the bottom of the surface. `into_vec`
+/// should return the bottom line first, and `from_vec` takes the bottom line first.
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture2DData<P> {
     /// Returns the dimensions of the texture.
