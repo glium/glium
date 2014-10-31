@@ -57,6 +57,20 @@ fn blit<S1: BlitSurface, S2: BlitSurface>(source: &S1, target: &S2, mask: gl::ty
 
     display.context.exec(proc(gl, state, version, _) {
         unsafe {
+            // trying to do a named blit if possible
+            if version >= &context::GlVersion(4, 5) {
+                gl.BlitNamedFramebuffer(source.unwrap_or(0), target.unwrap_or(0),
+                    src_rect.left as gl::types::GLint,
+                    src_rect.top as gl::types::GLint,
+                    (src_rect.left + src_rect.width) as gl::types::GLint,
+                    (src_rect.top + src_rect.height) as gl::types::GLint,
+                    target_rect.left as gl::types::GLint, target_rect.top as gl::types::GLint,
+                    (target_rect.left + target_rect.width) as gl::types::GLint,
+                    (target_rect.top + target_rect.height) as gl::types::GLint, mask, filter);
+
+                return;
+            }
+
             // binding source framebuffer
             if state.read_framebuffer != source {
                 if version >= &context::GlVersion(3, 0) {
