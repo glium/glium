@@ -197,6 +197,19 @@ impl Texture for Texture2D {
     }
 }
 
+impl ::blit::BlitSurface for Texture2D {
+    unsafe fn get_implementation(&self) -> ::BlitSurfaceImpl {
+        let fbo = self.0.build_fbo();
+        let id = fbo.id;
+
+        ::BlitSurfaceImpl {
+            display: self.0.display.clone(),
+            fbo_storage: Some(fbo),
+            fbo: Some(id),
+        }
+    }
+}
+
 /// Trait that describes data for a two-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture2DData<P> {
@@ -439,7 +452,22 @@ impl TextureImplementation {
         use std::kinds::marker::ContravariantLifetime;
 
         let display = self.display.clone();
-        let fbo = super::FrameBufferObject::new(display.clone());
+        let fbo = self.build_fbo();
+
+        // returning the target
+        super::Target {
+            display: display,
+            marker: ContravariantLifetime,
+            dimensions: (self.width as uint, self.height.unwrap_or(1) as uint),
+            framebuffer: Some(fbo),
+            execute_end: None,
+        }
+    }
+
+    /// Builds a framebuffer object to draw on this texture.
+    fn build_fbo(&self) -> ::FrameBufferObject {
+        let display = self.display.clone();
+        let fbo = super::FrameBufferObject::new(display);
 
         // binding the texture to the FBO
         {
@@ -475,14 +503,7 @@ impl TextureImplementation {
             });
         }
 
-        // returning the target
-        super::Target {
-            display: display,
-            marker: ContravariantLifetime,
-            dimensions: (self.width as uint, self.height.unwrap_or(1) as uint),
-            framebuffer: Some(fbo),
-            execute_end: None,
-        }
+        fbo
     }
 
     /// Reads the content of the texture.
