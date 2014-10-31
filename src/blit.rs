@@ -41,6 +41,15 @@ pub trait BlitSurface {
     /// Returns the dimensions of the surface.
     fn get_dimensions(&self) -> (u32, u32);
 
+    /// Copies the entire surface to the entire target.
+    fn fill<S: BlitSurface>(&self, target: &S, filter: SamplerFilter) {
+        let src_dim = self.get_dimensions();
+        let src_rect = Rect { left: 0, top: 0, width: src_dim.0, height: src_dim.1 };
+        let target_dim = target.get_dimensions();
+        let target_rect = Rect { left: 0, top: 0, width: target_dim.0, height: target_dim.1 };
+        self.blit_to(&src_rect, target, &target_rect, filter)
+    }
+
     /// Don't implement this, or redirect the call to another implementation.
     #[doc(hidden)]
     unsafe fn get_implementation(&self) -> BlitSurfaceImpl;
