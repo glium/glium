@@ -762,8 +762,33 @@ impl FrameBufferObject {
 impl Drop for FrameBufferObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _, version, _) {
+        self.display.context.exec(proc(gl, state, version, _) {
             unsafe {
+                // unbinding framebuffer
+                if version >= &context::GlVersion(3, 0) {
+                    if state.draw_framebuffer == Some(id) && state.read_framebuffer == Some(id) {
+                        gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
+                        state.draw_framebuffer = None;
+                        state.read_framebuffer = None;
+
+                    } else if state.draw_framebuffer == Some(id) {
+                        gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+                        state.draw_framebuffer = None;
+
+                    } else if state.read_framebuffer == Some(id) {
+                        gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                        state.read_framebuffer = None;
+                    }
+
+                } else {
+                    if state.draw_framebuffer == Some(id) || state.read_framebuffer == Some(id) {
+                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                        state.draw_framebuffer = None;
+                        state.read_framebuffer = None;
+                    }
+                }
+
+                // deleting
                 if version >= &context::GlVersion(3, 0) {
                     gl.DeleteFramebuffers(1, [ id ].as_ptr());
                 } else {
