@@ -27,10 +27,16 @@ impl glium::texture::Texture2DData<(u8, u8, u8, u8)> for Image {
     }
 
     fn into_vec(self) -> Vec<(u8, u8, u8, u8)> {
-        self.image.to_rgba().into_vec()
+        use self::image::GenericImage;
+        let (width, _) = self.image.dimensions();
+
+        let raw_data = self.image.to_rgba().into_vec()
             .into_iter()
             .map(|p| p.channels())
-            .collect()
+            .collect::<Vec<_>>();
+
+        raw_data.as_slice().chunks(width as uint).rev().flat_map(|l| l.iter())
+            .map(|l| l.clone()).collect()
     }
 
     fn from_vec(_: Vec<(u8, u8, u8, u8)>, _: u32) -> Image {
