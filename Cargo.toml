@@ -12,7 +12,6 @@ git = "http://github.com/bjz/gl-rs"
 [dependencies.glutin]
 git = "http://github.com/tomaka/glutin"
 features = ["window", "headless"]
-default-features = false
 
 [dependencies.glium_macros]
 path = "macros"
