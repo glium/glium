@@ -44,7 +44,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     ecx.attribute(span.clone(), ecx.meta_list(span.clone(),
                         token::InternedString::new("allow"),
                         vec![ecx.meta_word(span.clone(),
-                                token::InternedString::new("dead_assignment"))]
+                                token::InternedString::new("unused_assignments"))]
                     ))
                 ],
                 combine_substructure: generic::combine_substructure(body),

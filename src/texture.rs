@@ -14,7 +14,6 @@ The most common type of texture is a `Texture2D` (the two dimensions being the w
 */
 
 use context::GlVersion;
-use data_types;
 use gl;
 use libc;
 use std::fmt;

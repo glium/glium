@@ -1,7 +1,6 @@
 use gl;
 use glutin;
 use native::NativeTaskBuilder;
-use std::mem;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::task::TaskBuilder;

@@ -194,7 +194,7 @@ target.finish();
 #![feature(tuple_indexing)]
 #![feature(unsafe_destructor)]
 #![unstable]
-#![deny(missing_doc)]
+#![deny(missing_docs)]
 
 #[phase(plugin)]
 extern crate compile_msg;
@@ -273,7 +273,7 @@ pub trait DrawCommand {
 }
 
 /// Types of primitives.
-#[allow(missing_doc)]
+#[allow(missing_docs)]
 #[experimental = "Will be replaced soon"]
 pub enum PrimitiveType {
     PointsList,
