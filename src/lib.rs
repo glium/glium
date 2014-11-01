@@ -169,10 +169,8 @@ Now that everything is initialized, we can finally draw something. To do so, cal
 in order to obtain a `Target` object. Note that it is also possible to draw on a texture by
 calling `texture.draw()`, but this is not covered here.
 
-The `Target` object has a `draw` function which takes an object that implements the
-`glium::DrawCommand` trait. The only command provided by glium is `BasicDraw`.
-
-The arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
+The `Target` object has a `draw` function which you can use to draw things.
+Its arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
 `DrawParameters` which contains miscellaneous informations about how everything should be rendered
 (depth test, blending, backface culling, etc.).
 
@@ -184,8 +182,7 @@ The arguments are the vertex buffer, index buffer, program, uniforms, and an obj
 # let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
-target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms,
-    &std::default::Default::default()));
+target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
 target.finish();
 ```
 
@@ -609,22 +606,11 @@ impl<'t> Target<'t> {
     }
 
     /// Draws.
-    pub fn draw<D: DrawCommand>(&mut self, object: D) {
-        object.draw(self);
-    }
-}
-
-/// Basic draw command.
-pub struct BasicDraw<'a, 'b, 'c, 'd, 'e, V, U: 'd>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer,
-    pub &'c Program, pub &'d U, pub &'e DrawParameters);
-
-impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
-    DrawCommand for BasicDraw<'a, 'b, 'c, 'd, 'e, V, U>
-{
-    fn draw(self, target: &mut Target) {
-        let BasicDraw(vertex_buffer, index_buffer, program, uniforms, draw_parameters) = self;
-
-        let fbo_id = target.framebuffer.as_ref().map(|f| f.id);
+    pub fn draw<V, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
+        index_buffer: &IndexBuffer, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters)
+    {
+        let fbo_id = self.framebuffer.as_ref().map(|f| f.id);
         let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
         let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) =
             index_buffer::get_clone(index_buffer);
@@ -635,7 +621,7 @@ impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
 
         let (tx, rx) = channel();
 
-        target.display.context.exec(proc(gl, state, version, _) {
+        self.display.context.exec(proc(gl, state, version, _) {
             unsafe {
                 if state.draw_framebuffer != fbo_id {
                     if version >= &context::GlVersion(3, 0) {
