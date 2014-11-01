@@ -93,7 +93,7 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
+        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
         target.finish();
 
         // sleeping for some time in order not to use up too much CPU
