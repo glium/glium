@@ -6,6 +6,8 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
+use glium::Surface;
+
 #[test]
 fn test() {
     use glium::DisplayBuild;

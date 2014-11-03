@@ -175,6 +175,7 @@ Its arguments are the vertex buffer, index buffer, program, uniforms, and an obj
 (depth test, blending, backface culling, etc.).
 
 ```no_run
+use glium::Surface;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let vertex_buffer: glium::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
 # let index_buffer: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
@@ -220,7 +221,8 @@ pub use program::{Program, ProgramCreationError};
 pub use program::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
 pub use texture::{Texture, Texture2D};
 
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
@@ -229,6 +231,7 @@ pub mod texture;
 
 mod context;
 mod data_types;
+mod framebuffer;
 mod index_buffer;
 mod program;
 
@@ -584,6 +587,25 @@ impl DrawParameters {
     }
 }
 
+/// Object which can be drawn upon.
+pub trait Surface {
+    /// Clears the color components of the target.
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32);
+
+    /// Clears the depth component of the target.
+    fn clear_depth(&mut self, value: f32);
+
+    /// Clears the stencil component of the target.
+    fn clear_stencil(&mut self, value: int);
+
+    /// Returns the dimensions in pixels of the target.
+    fn get_dimensions(&self) -> (uint, uint);
+
+    /// Draws.
+    fn draw<V, U>(&mut self, &VertexBuffer<V>, &IndexBuffer, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where U: uniforms::Uniforms;
+}
+
 /// A target where things can be drawn.
 pub struct Target<'a> {
     display: Arc<DisplayImpl>,
@@ -594,8 +616,13 @@ pub struct Target<'a> {
 }
 
 impl<'t> Target<'t> {
-    /// Clears the color components of the target.
-    pub fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+    /// Stop drawing on the target.
+    pub fn finish(self) {
+    }
+}
+
+impl<'t> Surface for Target<'t> {
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
         let (red, green, blue, alpha) = (
             red as gl::types::GLclampf,
             green as gl::types::GLclampf,
@@ -613,8 +640,7 @@ impl<'t> Target<'t> {
         });
     }
 
-    /// Clears the depth component of the target.
-    pub fn clear_depth(&mut self, value: f32) {
+    fn clear_depth(&mut self, value: f32) {
         let value = value as gl::types::GLclampf;
 
         self.display.context.exec(proc(gl, state, _, _) {
@@ -627,8 +653,7 @@ impl<'t> Target<'t> {
         });
     }
 
-    /// Clears the stencil component of the target.
-    pub fn clear_stencil(&mut self, value: int) {
+    fn clear_stencil(&mut self, value: int) {
         let value = value as gl::types::GLint;
 
         self.display.context.exec(proc(gl, state, _, _) {
@@ -641,17 +666,11 @@ impl<'t> Target<'t> {
         });
     }
 
-    /// Returns the dimensions in pixels of the target.
-    pub fn get_dimensions(&self) -> (uint, uint) {
+    fn get_dimensions(&self) -> (uint, uint) {
         self.dimensions
     }
 
-    /// Stop drawing on the target.
-    pub fn finish(self) {
-    }
-
-    /// Draws.
-    pub fn draw<V, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
+    fn draw<V, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
         index_buffer: &IndexBuffer, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters)
     {
@@ -892,6 +911,7 @@ impl DisplayBuild for glutin::WindowBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
+                framebuffer_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -905,6 +925,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
+                framebuffer_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -921,7 +942,12 @@ pub struct Display {
 }
 
 struct DisplayImpl {
+    // contains everything related to the current context and its state
     context: context::Context,
+
+    // we maintain a list of FBOs
+    // when something requirering a FBO is drawn, we look for an existing one in this hashmap
+    framebuffer_objects: Mutex<HashMap<framebuffer::FramebufferAttachments, FrameBufferObject>>,
 }
 
 impl Display {
@@ -1017,6 +1043,15 @@ impl Display {
 
         let data = rx.recv();
         texture::Texture2DData::from_vec(data, dimensions.0 as u32)
+    }
+}
+
+// this destructor is here because framebuffers contain an `Arc<DisplayImpl>`, which would lead
+// to a leak
+impl Drop for DisplayImpl {
+    fn drop(&mut self) {
+        let mut fbos = self.framebuffer_objects.lock();
+        fbos.clear();
     }
 }
 
