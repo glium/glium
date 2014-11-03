@@ -175,6 +175,7 @@ Its arguments are the vertex buffer, index buffer, program, uniforms, and an obj
 (depth test, blending, backface culling, etc.).
 
 ```no_run
+use glium::Surface;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let vertex_buffer: glium::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
 # let index_buffer: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
@@ -220,7 +221,8 @@ pub use program::{Program, ProgramCreationError};
 pub use program::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
 pub use texture::{Texture, Texture2D};
 
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
@@ -229,6 +231,7 @@ pub mod texture;
 
 mod context;
 mod data_types;
+mod framebuffer;
 mod index_buffer;
 mod program;
 
@@ -584,297 +587,68 @@ impl DrawParameters {
     }
 }
 
+/// Object which can be drawn upon.
+pub trait Surface {
+    /// Clears the color components of the target.
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32);
+
+    /// Clears the depth component of the target.
+    fn clear_depth(&mut self, value: f32);
+
+    /// Clears the stencil component of the target.
+    fn clear_stencil(&mut self, value: int);
+
+    /// Returns the dimensions in pixels of the target.
+    fn get_dimensions(&self) -> (uint, uint);
+
+    /// Draws.
+    fn draw<V, U>(&mut self, &VertexBuffer<V>, &IndexBuffer, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where U: uniforms::Uniforms;
+}
+
 /// A target where things can be drawn.
 pub struct Target<'a> {
     display: Arc<DisplayImpl>,
     marker: std::kinds::marker::ContravariantLifetime<'a>,
-    framebuffer: Option<FrameBufferObject>,
-    execute_end: Option<proc(&DisplayImpl):Send>,
     dimensions: (uint, uint),
 }
 
 impl<'t> Target<'t> {
-    /// Clears the color components of the target.
-    pub fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let (red, green, blue, alpha) = (
-            red as gl::types::GLclampf,
-            green as gl::types::GLclampf,
-            blue as gl::types::GLclampf,
-            alpha as gl::types::GLclampf
-        );
-
-        self.display.context.exec(proc(gl, state, _, _) {
-            if state.clear_color != (red, green, blue, alpha) {
-                gl.ClearColor(red, green, blue, alpha);
-                state.clear_color = (red, green, blue, alpha);
-            }
-
-            gl.Clear(gl::COLOR_BUFFER_BIT);
-        });
-    }
-
-    /// Clears the depth component of the target.
-    pub fn clear_depth(&mut self, value: f32) {
-        let value = value as gl::types::GLclampf;
-
-        self.display.context.exec(proc(gl, state, _, _) {
-            if state.clear_depth != value {
-                gl.ClearDepth(value as f64);        // TODO: find out why this needs "as"
-                state.clear_depth = value;
-            }
-
-            gl.Clear(gl::DEPTH_BUFFER_BIT);
-        });
-    }
-
-    /// Clears the stencil component of the target.
-    pub fn clear_stencil(&mut self, value: int) {
-        let value = value as gl::types::GLint;
-
-        self.display.context.exec(proc(gl, state, _, _) {
-            if state.clear_stencil != value {
-                gl.ClearStencil(value);
-                state.clear_stencil = value;
-            }
-
-            gl.Clear(gl::STENCIL_BUFFER_BIT);
-        });
-    }
-
-    /// Returns the dimensions in pixels of the target.
-    pub fn get_dimensions(&self) -> (uint, uint) {
-        self.dimensions
-    }
-
     /// Stop drawing on the target.
     pub fn finish(self) {
     }
+}
 
-    /// Draws.
-    pub fn draw<V, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
+impl<'t> Surface for Target<'t> {
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        framebuffer::clear_color(&self.display, None, red, green, blue, alpha)
+    }
+
+    fn clear_depth(&mut self, value: f32) {
+        framebuffer::clear_depth(&self.display, None, value)
+    }
+
+    fn clear_stencil(&mut self, value: int) {
+        framebuffer::clear_stencil(&self.display, None, value)
+    }
+
+    fn get_dimensions(&self) -> (uint, uint) {
+        self.dimensions
+    }
+
+    fn draw<V, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
         index_buffer: &IndexBuffer, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters)
     {
-        let fbo_id = self.framebuffer.as_ref().map(|f| f.id);
-        let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
-        let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) =
-            index_buffer::get_clone(index_buffer);
-        let program_id = program::get_program_id(program);
-        let uniforms = uniforms.to_binder();
-        let uniforms_locations = program::get_uniforms_locations(program);
-        let draw_parameters = draw_parameters.clone();
-
-        let (tx, rx) = channel();
-
-        self.display.context.exec(proc(gl, state, version, _) {
-            unsafe {
-                if state.draw_framebuffer != fbo_id {
-                    if version >= &context::GlVersion(3, 0) {
-                        gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
-                        state.draw_framebuffer = fbo_id.clone();
-                    } else {
-                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
-                        state.draw_framebuffer = fbo_id.clone();
-                        state.read_framebuffer = fbo_id.clone();
-                    }
-                }
-
-                // binding program
-                if state.program != program_id {
-                    gl.UseProgram(program_id);
-                    state.program = program_id;
-                }
-
-                // binding program uniforms
-                uniforms.0(gl, |name| {
-                    uniforms_locations
-                        .find_equiv(name)
-                        .map(|val| val.0)
-                });
-
-                // binding vertex buffer
-                if state.array_buffer_binding != Some(vb_id) {
-                    gl.BindBuffer(gl::ARRAY_BUFFER, vb_id);
-                    state.array_buffer_binding = Some(vb_id);
-                }
-
-                // binding index buffer
-                if state.element_array_buffer_binding != Some(ib_id) {
-                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
-                    state.element_array_buffer_binding = Some(ib_id);
-                }
-
-                // binding vertex buffer
-                let mut locations = Vec::new();
-                for &(ref name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
-                    in vb_bindingsclone.iter()
-                {
-                    let loc = gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
-                    locations.push(loc);
-
-                    if loc != -1 {
-                        match data_type {
-                            gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
-                            gl::INT | gl::UNSIGNED_INT =>
-                                gl.VertexAttribIPointer(loc as u32,
-                                    elements_count as gl::types::GLint, data_type,
-                                    vb_elementssize as i32, offset as *const libc::c_void),
-
-                            _ => gl.VertexAttribPointer(loc as u32,
-                                    elements_count as gl::types::GLint, data_type, 0,
-                                    vb_elementssize as i32, offset as *const libc::c_void)
-                        }
-                        
-                        gl.EnableVertexAttribArray(loc as u32);
-                    }
-                }
-
-                // sync-ing parameters
-                draw_parameters.sync(gl, state);
-                
-                // drawing
-                gl.DrawElements(ib_primitives, ib_elemcounts as i32, ib_datatype, std::ptr::null());
-
-                // disable vertex attrib array
-                for l in locations.iter() {
-                    gl.DisableVertexAttribArray(l.clone() as u32);
-                }
-            }
-
-            tx.send(());
-        });
-
-        rx.recv();
+        framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
+            draw_parameters)
     }
 }
 
 #[unsafe_destructor]
 impl<'t> Drop for Target<'t> {
     fn drop(&mut self) {
-        match self.execute_end.take() {
-            Some(f) => f(&*self.display),
-            None => ()
-        }
-    }
-}
-
-/// Frame buffer.
-struct FrameBufferObject {
-    display: Arc<DisplayImpl>,
-    id: gl::types::GLuint,
-    current_read_buffer: gl::types::GLenum,
-}
-
-impl FrameBufferObject {
-    /// Builds a new FBO.
-    fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
-        let (tx, rx) = channel();
-
-        display.context.exec(proc(gl, _, version, _) {
-            unsafe {
-                let id: gl::types::GLuint = std::mem::uninitialized();
-                if version >= &context::GlVersion(3, 0) {
-                    gl.GenFramebuffers(1, std::mem::transmute(&id));
-                } else {
-                    gl.GenFramebuffersEXT(1, std::mem::transmute(&id));
-                }
-                tx.send(id);
-            }
-        });
-
-        FrameBufferObject {
-            display: display,
-            id: rx.recv(),
-            current_read_buffer: gl::BACK,
-        }
-    }
-}
-
-impl Drop for FrameBufferObject {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, state, version, _) {
-            unsafe {
-                // unbinding framebuffer
-                if version >= &context::GlVersion(3, 0) {
-                    if state.draw_framebuffer == Some(id) && state.read_framebuffer == Some(id) {
-                        gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                        state.draw_framebuffer = None;
-                        state.read_framebuffer = None;
-
-                    } else if state.draw_framebuffer == Some(id) {
-                        gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-                        state.draw_framebuffer = None;
-
-                    } else if state.read_framebuffer == Some(id) {
-                        gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                        state.read_framebuffer = None;
-                    }
-
-                } else {
-                    if state.draw_framebuffer == Some(id) || state.read_framebuffer == Some(id) {
-                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                        state.draw_framebuffer = None;
-                        state.read_framebuffer = None;
-                    }
-                }
-
-                // deleting
-                if version >= &context::GlVersion(3, 0) {
-                    gl.DeleteFramebuffers(1, [ id ].as_ptr());
-                } else {
-                    gl.DeleteFramebuffersEXT(1, [ id ].as_ptr());
-                }
-            }
-        });
-    }
-}
-
-/// Render buffer.
-#[allow(dead_code)]     // TODO: remove
-struct RenderBuffer {
-    display: Arc<DisplayImpl>,
-    id: gl::types::GLuint,
-}
-
-#[allow(dead_code)]     // TODO: remove
-impl RenderBuffer {
-    /// Builds a new render buffer.
-    fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
-        let (tx, rx) = channel();
-
-        display.context.exec(proc(gl, _, version, _) {
-            unsafe {
-                let id: gl::types::GLuint = std::mem::uninitialized();
-                if version >= &context::GlVersion(3, 0) {
-                    gl.GenRenderbuffers(1, std::mem::transmute(&id));
-                } else {
-                    gl.GenRenderbuffersEXT(1, std::mem::transmute(&id));
-                }
-
-                tx.send(id);
-            }
-        });
-
-        RenderBuffer {
-            display: display,
-            id: rx.recv(),
-        }
-    }
-}
-
-impl Drop for RenderBuffer {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, _, version, _) {
-            unsafe {
-                if version >= &context::GlVersion(3, 0) {
-                    gl.DeleteRenderbuffers(1, [ id ].as_ptr());
-                } else {
-                    gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
-                }
-            }
-        });
+        self.display.context.swap_buffers();
     }
 }
 
@@ -892,6 +666,7 @@ impl DisplayBuild for glutin::WindowBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
+                framebuffer_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -905,6 +680,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
+                framebuffer_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -921,7 +697,13 @@ pub struct Display {
 }
 
 struct DisplayImpl {
+    // contains everything related to the current context and its state
     context: context::Context,
+
+    // we maintain a list of FBOs
+    // when something requirering a FBO is drawn, we look for an existing one in this hashmap
+    framebuffer_objects: Mutex<HashMap<framebuffer::FramebufferAttachments,
+                                       framebuffer::FrameBufferObject>>,
 }
 
 impl Display {
@@ -941,10 +723,6 @@ impl Display {
             display: self.context.clone(),
             marker: std::kinds::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
-            framebuffer: None,
-            execute_end: Some(proc(context: &DisplayImpl) {
-                context.context.swap_buffers();
-            }),
         }
     }
 
@@ -1017,6 +795,15 @@ impl Display {
 
         let data = rx.recv();
         texture::Texture2DData::from_vec(data, dimensions.0 as u32)
+    }
+}
+
+// this destructor is here because framebuffers contain an `Arc<DisplayImpl>`, which would lead
+// to a leak
+impl Drop for DisplayImpl {
+    fn drop(&mut self) {
+        let mut fbos = self.framebuffer_objects.lock();
+        fbos.clear();
     }
 }
 
