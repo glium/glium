@@ -548,6 +548,16 @@ impl fmt::Show for TextureImplementation {
 
 impl Drop for TextureImplementation {
     fn drop(&mut self) {
+        // removing FBOs which contain this texture
+        {
+            let mut fbos = self.display.framebuffer_objects.lock();
+            let to_delete = fbos.keys().filter(|b| b.colors.iter().find(|&id| id == &self.id).is_some())
+                .map(|k| k.clone()).collect::<Vec<_>>();
+            for k in to_delete.into_iter() {
+                fbos.remove(&k);
+            }
+        }
+
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state, _, _) {
             unsafe { gl.DeleteTextures(1, [ id ].as_ptr()); }

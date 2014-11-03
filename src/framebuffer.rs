@@ -61,9 +61,9 @@ impl<'a> Surface for FrameBuffer<'a> {
 
 #[deriving(Hash, Clone, PartialEq, Eq)]
 pub struct FramebufferAttachments {
-    colors: Vec<gl::types::GLuint>,
-    depth: Option<gl::types::GLuint>,
-    stencil: Option<gl::types::GLuint>,
+    pub colors: Vec<gl::types::GLuint>,
+    pub depth: Option<gl::types::GLuint>,
+    pub stencil: Option<gl::types::GLuint>,
 }
 
 /// Frame buffer.
