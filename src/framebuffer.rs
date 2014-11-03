@@ -1,11 +1,10 @@
 use std::kinds::marker::ContravariantLifetime;
-use std::ptr;
+use std::{mem, ptr};
 use std::sync::Arc;
 
 use texture::{mod, Texture};
 use uniforms::Uniforms;
 use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Surface};
-use {FrameBufferObject};
 
 use {vertex_buffer, index_buffer, program};
 use {gl, context, libc};
@@ -65,6 +64,126 @@ pub struct FramebufferAttachments {
     colors: Vec<gl::types::GLuint>,
     depth: Option<gl::types::GLuint>,
     stencil: Option<gl::types::GLuint>,
+}
+
+/// Frame buffer.
+pub struct FrameBufferObject {
+    display: Arc<DisplayImpl>,
+    id: gl::types::GLuint,
+    current_read_buffer: gl::types::GLenum,
+}
+
+impl FrameBufferObject {
+    /// Builds a new FBO.
+    fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
+        let (tx, rx) = channel();
+
+        display.context.exec(proc(gl, _, version, _) {
+            unsafe {
+                let id: gl::types::GLuint = mem::uninitialized();
+                if version >= &context::GlVersion(3, 0) {
+                    gl.GenFramebuffers(1, mem::transmute(&id));
+                } else {
+                    gl.GenFramebuffersEXT(1, mem::transmute(&id));
+                }
+                tx.send(id);
+            }
+        });
+
+        FrameBufferObject {
+            display: display,
+            id: rx.recv(),
+            current_read_buffer: gl::BACK,
+        }
+    }
+}
+
+impl Drop for FrameBufferObject {
+    fn drop(&mut self) {
+        let id = self.id.clone();
+        self.display.context.exec(proc(gl, state, version, _) {
+            unsafe {
+                // unbinding framebuffer
+                if version >= &context::GlVersion(3, 0) {
+                    if state.draw_framebuffer == Some(id) && state.read_framebuffer == Some(id) {
+                        gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
+                        state.draw_framebuffer = None;
+                        state.read_framebuffer = None;
+
+                    } else if state.draw_framebuffer == Some(id) {
+                        gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+                        state.draw_framebuffer = None;
+
+                    } else if state.read_framebuffer == Some(id) {
+                        gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                        state.read_framebuffer = None;
+                    }
+
+                } else {
+                    if state.draw_framebuffer == Some(id) || state.read_framebuffer == Some(id) {
+                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                        state.draw_framebuffer = None;
+                        state.read_framebuffer = None;
+                    }
+                }
+
+                // deleting
+                if version >= &context::GlVersion(3, 0) {
+                    gl.DeleteFramebuffers(1, [ id ].as_ptr());
+                } else {
+                    gl.DeleteFramebuffersEXT(1, [ id ].as_ptr());
+                }
+            }
+        });
+    }
+}
+
+/// Render buffer.
+#[allow(dead_code)]     // TODO: remove
+pub struct RenderBuffer {
+    display: Arc<DisplayImpl>,
+    id: gl::types::GLuint,
+}
+
+#[allow(dead_code)]     // TODO: remove
+impl RenderBuffer {
+    /// Builds a new render buffer.
+    fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
+        let (tx, rx) = channel();
+
+        display.context.exec(proc(gl, _, version, _) {
+            unsafe {
+                let id: gl::types::GLuint = mem::uninitialized();
+                if version >= &context::GlVersion(3, 0) {
+                    gl.GenRenderbuffers(1, mem::transmute(&id));
+                } else {
+                    gl.GenRenderbuffersEXT(1, mem::transmute(&id));
+                }
+
+                tx.send(id);
+            }
+        });
+
+        RenderBuffer {
+            display: display,
+            id: rx.recv(),
+        }
+    }
+}
+
+impl Drop for RenderBuffer {
+    fn drop(&mut self) {
+        let id = self.id.clone();
+        self.display.context.exec(proc(gl, _, version, _) {
+            unsafe {
+                if version >= &context::GlVersion(3, 0) {
+                    gl.DeleteRenderbuffers(1, [ id ].as_ptr());
+                } else {
+                    gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
+                }
+            }
+        });
+    }
 }
 
 /// Draws everything.
