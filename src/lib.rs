@@ -404,6 +404,36 @@ impl DepthFunction {
     }
 }
 
+/// Defines how the device should render polygons.
+///
+/// The usual value is `Fill`, which fills the content of polygon with the color. However other
+/// values are sometimes useful, especially for debugging purposes.
+#[deriving(Clone, Show, PartialEq, Eq)]
+pub enum PolygonMode {
+    /// Only draw a single point at each vertex.
+    ///
+    /// All attributes that apply to points are used when using this mode.
+    Point,
+
+    /// Only draw a line in the boundaries of each polygon.
+    ///
+    /// All attributes that apply to lines (`line_width`) are used when using this mode.
+    Line,
+
+    /// Fill the content of the polygon. This is the default mode.
+    Fill,
+}
+
+impl PolygonMode {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            Point => gl::POINT,
+            Line => gl::LINE,
+            Fill => gl::FILL,
+        }
+    }
+}
+
 /// Represents the parameters to use when drawing.
 ///
 /// Example:
@@ -438,6 +468,9 @@ pub struct DrawParameters {
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
     ///  the camera.
     pub backface_culling: BackfaceCullingMode,
+
+    /// Sets how to render polygons. The default value is `Fill`.
+    pub polygon_mode: PolygonMode,
 }
 
 impl std::default::Default for DrawParameters {
@@ -447,6 +480,7 @@ impl std::default::Default for DrawParameters {
             blending_function: Some(AlwaysReplace),
             line_width: None,
             backface_culling: CullingDisabled,
+            polygon_mode: Fill,
         }
     }
 }
@@ -535,6 +569,15 @@ impl DrawParameters {
                     state.cull_face = gl::BACK;
                 }
             },
+        }
+
+        // polygon mode
+        {
+            let polygon_mode = self.polygon_mode.to_glenum();
+            if state.polygon_mode != polygon_mode {
+                gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
+                state.polygon_mode = polygon_mode;
+            }
         }
     }
 }
