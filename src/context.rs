@@ -87,6 +87,9 @@ pub struct GLState {
 
     /// The latest value passed to `glCullFace`.
     pub cull_face: gl::types::GLenum,
+
+    /// The latest value passed to `glPolygonMode`.
+    pub polygon_mode: gl::types::GLenum,
 }
 
 impl GLState {
@@ -118,6 +121,7 @@ impl GLState {
             viewport: viewport,
             line_width: 1.0,
             cull_face: gl::BACK,
+            polygon_mode: gl::FILL,
         }
     }
 }
