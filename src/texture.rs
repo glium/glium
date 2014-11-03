@@ -13,9 +13,10 @@ The most common type of texture is a `Texture2D` (the two dimensions being the w
 
 */
 
-use {gl, image, libc};
+use {gl, image, libc, framebuffer};
 
 use context::GlVersion;
+use Surface;
 
 use std::{fmt, mem};
 use std::sync::Arc;
@@ -208,8 +209,8 @@ impl Texture2D {
     ///
     /// This does not erase the existing content of the texture as long as you don't call
     ///  `clear_colors` on the `Target`.
-    pub fn draw(&mut self) -> super::Target {
-        self.0.draw()
+    pub fn as_surface<'a>(&'a mut self) -> TextureSurface<'a> {
+        TextureSurface(framebuffer::FrameBuffer::new().with_texture(self))
     }
 }
 
@@ -496,57 +497,6 @@ impl TextureImplementation {
         }
     }
 
-    /// Start drawing on this texture.
-    fn draw(&mut self) -> super::Target {
-        use std::kinds::marker::ContravariantLifetime;
-
-        let display = self.display.clone();
-        let fbo = super::FrameBufferObject::new(display.clone());
-
-        // binding the texture to the FBO
-        {
-            let my_id = self.id.clone();
-            let fbo_id = fbo.id;
-            self.display.context.exec(proc(gl, state, version, extensions) {
-                if version >= &GlVersion(4, 5) {
-                    gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
-
-                } else if extensions.gl_ext_direct_state_access &&
-                          extensions.gl_ext_geometry_shader4
-                {
-                    gl.NamedFramebufferTextureEXT(fbo_id, gl::COLOR_ATTACHMENT0, my_id, 0);
-
-                } else if version >= &GlVersion(3, 2) {
-                    gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
-                    state.draw_framebuffer = Some(fbo_id);
-                    gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, my_id, 0);
-
-                } else if version >= &GlVersion(3, 0) {
-                    gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
-                    state.draw_framebuffer = Some(fbo_id);
-                    gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0,
-                        gl::TEXTURE_2D, my_id, 0);
-
-                } else {
-                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-                    state.draw_framebuffer = Some(fbo_id);
-                    state.read_framebuffer = Some(fbo_id);
-                    gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT, gl::COLOR_ATTACHMENT0,
-                        gl::TEXTURE_2D, my_id, 0);
-                }
-            });
-        }
-
-        // returning the target
-        super::Target {
-            display: display,
-            marker: ContravariantLifetime,
-            dimensions: (self.width as uint, self.height.unwrap_or(1) as uint),
-            framebuffer: Some(fbo),
-            execute_end: None,
-        }
-    }
-
     /// Reads the content of the texture.
     ///
     /// Same as `read_mipmap` with `level` as `0`.
@@ -600,5 +550,34 @@ impl Drop for TextureImplementation {
         self.display.context.exec(proc(gl, _state, _, _) {
             unsafe { gl.DeleteTextures(1, [ id ].as_ptr()); }
         });
+    }
+}
+
+/// Struct that allows you to draw on a texture.
+///
+/// To obtain such an object, call `texture.as_surface()`.
+pub struct TextureSurface<'a>(framebuffer::FrameBuffer<'a>);
+
+impl<'a> Surface for TextureSurface<'a> {
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        unimplemented!()
+    }
+
+    fn clear_depth(&mut self, value: f32) {
+        unimplemented!()
+    }
+
+    fn clear_stencil(&mut self, value: int) {
+        unimplemented!()
+    }
+
+    fn get_dimensions(&self) -> (uint, uint) {
+        unimplemented!()
+    }
+
+    fn draw<V, U>(&mut self, vb: &::VertexBuffer<V>, ib: &::IndexBuffer, program: &::Program,
+        uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
+    {
+        unimplemented!()
     }
 }

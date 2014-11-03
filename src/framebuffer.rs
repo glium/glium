@@ -28,9 +28,7 @@ impl<'a> FrameBuffer<'a> {
         }
     }
 
-    pub fn with_texture<T: 'a>(mut self, texture: &'a mut texture::Texture2D)
-        -> FrameBuffer<'a> where T: Texture
-    {
+    pub fn with_texture<T: 'a>(mut self, texture: &'a mut T) -> FrameBuffer<'a> where T: Texture {
         self.attachments.colors.push(texture::get_id(texture.get_implementation()));
         self
     }
