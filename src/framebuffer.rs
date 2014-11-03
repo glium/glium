@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use texture::{mod, Texture};
 use uniforms::Uniforms;
-use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Surface};
+use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surface};
 
 use {vertex_buffer, index_buffer, program};
 use {gl, context, libc};
@@ -14,6 +14,7 @@ pub struct FrameBuffer<'a> {
     display: Arc<DisplayImpl>,
     attachments: FramebufferAttachments,
     marker: ContravariantLifetime<'a>,
+    dimensions: Option<(u32, u32)>,
 }
 
 impl<'a> FrameBuffer<'a> {
@@ -25,12 +26,15 @@ impl<'a> FrameBuffer<'a> {
                 depth: None,
                 stencil: None
             },
-            marker: ContravariantLifetime
+            marker: ContravariantLifetime,
+            dimensions: None,
         }
     }
 
-    pub fn with_texture<T: 'a>(mut self, texture: &'a mut T) -> FrameBuffer<'a> where T: Texture {
+    pub fn with_texture<T: 'a>(mut self, texture: &'a T) -> FrameBuffer<'a> where T: Texture {
+        // TODO: check existing dimensions
         self.attachments.colors.push(texture::get_id(texture.get_implementation()));
+        self.dimensions = Some((texture.get_width(), texture.get_height().unwrap_or(1)));
         self
     }
 }
@@ -49,13 +53,18 @@ impl<'a> Surface for FrameBuffer<'a> {
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
-        unimplemented!()
+        let dimensions = self.dimensions.expect("no texture was bound to this framebuffer");
+        (dimensions.0 as uint, dimensions.1 as uint)
     }
 
     fn draw<V, U>(&mut self, vb: &::VertexBuffer<V>, ib: &::IndexBuffer, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
     {
         draw(&self.display, Some(&self.attachments), vb, ib, program, uniforms, draw_parameters)
+    }
+
+    fn get_blit_helper(&self) -> ::BlitHelper {
+        ::BlitHelper(&self.display, Some(&self.attachments))
     }
 }
 
@@ -334,6 +343,79 @@ pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&Framebuffe
         }
 
         gl.Clear(gl::STENCIL_BUFFER_BIT);
+    });
+}
+
+pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types::GLbitfield,
+    src_rect: &Rect, target_rect: &Rect, filter: gl::types::GLenum)
+{
+    let ::BlitHelper(display, source) = source.get_blit_helper();
+    let ::BlitHelper(_, target) = target.get_blit_helper();
+
+    let src_rect = src_rect.clone();
+    let target_rect = target_rect.clone();
+
+    let source = get_framebuffer(display, source);
+    let target = get_framebuffer(display, target);
+
+    display.context.exec(proc(gl, state, version, _) {
+        // trying to do a named blit if possible
+        if version >= &context::GlVersion(4, 5) {
+            gl.BlitNamedFramebuffer(source.unwrap_or(0), target.unwrap_or(0),
+                src_rect.left as gl::types::GLint,
+                src_rect.bottom as gl::types::GLint,
+                (src_rect.left + src_rect.width) as gl::types::GLint,
+                (src_rect.bottom + src_rect.height) as gl::types::GLint,
+                target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
+                (target_rect.left + target_rect.width) as gl::types::GLint,
+                (target_rect.bottom + target_rect.height) as gl::types::GLint, mask, filter);
+
+            return;
+        }
+
+        // binding source framebuffer
+        if state.read_framebuffer != source {
+            if version >= &context::GlVersion(3, 0) {
+                gl.BindFramebuffer(gl::READ_FRAMEBUFFER, source.unwrap_or(0));
+                state.read_framebuffer = source;
+
+            } else {
+                gl.BindFramebufferEXT(gl::READ_FRAMEBUFFER_EXT, source.unwrap_or(0));
+                state.read_framebuffer = source;
+            }
+        }
+
+        // binding target framebuffer
+        if state.draw_framebuffer != target {
+            if version >= &context::GlVersion(3, 0) {
+                gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, target.unwrap_or(0));
+                state.draw_framebuffer = target;
+
+            } else {
+                gl.BindFramebufferEXT(gl::DRAW_FRAMEBUFFER_EXT, target.unwrap_or(0));
+                state.draw_framebuffer = target;
+            }
+        }
+
+        // doing the blit
+        if version >= &context::GlVersion(3, 0) {
+            gl.BlitFramebuffer(src_rect.left as gl::types::GLint,
+                src_rect.bottom as gl::types::GLint,
+                (src_rect.left + src_rect.width) as gl::types::GLint,
+                (src_rect.bottom + src_rect.height) as gl::types::GLint,
+                target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
+                (target_rect.left + target_rect.width) as gl::types::GLint,
+                (target_rect.bottom + target_rect.height) as gl::types::GLint, mask, filter);
+
+        } else {
+            gl.BlitFramebufferEXT(src_rect.left as gl::types::GLint,
+                src_rect.bottom as gl::types::GLint,
+                (src_rect.left + src_rect.width) as gl::types::GLint,
+                (src_rect.bottom + src_rect.height) as gl::types::GLint,
+                target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
+                (target_rect.left + target_rect.width) as gl::types::GLint,
+                (target_rect.bottom + target_rect.height) as gl::types::GLint, mask, filter);
+        }
     });
 }
 

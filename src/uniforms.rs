@@ -166,7 +166,8 @@ pub enum SamplerFilter {
 }
 
 impl SamplerFilter {
-    fn to_glenum(&self) -> gl::types::GLenum {
+    #[doc(hidden)]      // TODO: hacky
+    pub fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             Nearest => gl::NEAREST,
             Linear => gl::LINEAR,

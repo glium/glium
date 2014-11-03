@@ -209,7 +209,7 @@ impl Texture2D {
     ///
     /// This does not erase the existing content of the texture as long as you don't call
     ///  `clear_colors` on the `Target`.
-    pub fn as_surface<'a>(&'a mut self) -> TextureSurface<'a> {
+    pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {
         // TODO: hacky, shouldn't recreate a Display
         TextureSurface(framebuffer::FrameBuffer::new(&::Display { context: self.0.display.clone() })
             .with_texture(self))
@@ -591,5 +591,9 @@ impl<'a> Surface for TextureSurface<'a> {
         uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
     {
         self.0.draw(vb, ib, program, uniforms, draw_parameters)
+    }
+
+    fn get_blit_helper(&self) -> ::BlitHelper {
+        self.0.get_blit_helper()
     }
 }

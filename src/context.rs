@@ -153,6 +153,8 @@ pub struct ExtensionsList {
     pub gl_ext_framebuffer_object: bool,
     /// GL_EXT_geometry_shader4
     pub gl_ext_geometry_shader4: bool,
+    /// GL_EXT_framebuffer_blit
+    pub gl_ext_framebuffer_blit: bool,
 }
 
 impl Context {
@@ -352,6 +354,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_direct_state_access: false,
         gl_ext_framebuffer_object: false,
         gl_ext_geometry_shader4: false,
+        gl_ext_framebuffer_blit: false,
     };
 
     for extension in strings.into_iter() {
@@ -359,6 +362,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
             "GL_EXT_framebuffer_object" => extensions.gl_ext_framebuffer_object = true,
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
+            "GL_EXT_framebuffer_blit" => extensions.gl_ext_framebuffer_blit = true,
             _ => ()
         }
     }
