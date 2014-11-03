@@ -138,6 +138,59 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
             data: unsafe { CVec::new(rx.recv().unwrap(), elements_count) },
         }
     }
+
+    /// Reads the content of the buffer.
+    ///
+    /// This function is usually better if are just doing one punctual read, while `map` is better
+    /// if you want to have multiple small reads.
+    pub fn read(&self) -> Vec<T> {
+        self.read_slice(0, self.elements_count)
+    }
+
+    /// Reads the content of the buffer.
+    ///
+    /// This function is usually better if are just doing one punctual read, while `map` is better
+    /// if you want to have multiple small reads.
+    ///
+    /// The offset and size are expressed in number of elements.
+    ///
+    /// ## Panic
+    ///
+    /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
+    pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
+        assert!(offset + size <= self.elements_count);
+
+        let id = self.id.clone();
+        let elements_size = self.elements_size.clone();
+        let (tx, rx) = channel();
+
+        self.display.context.exec(proc(gl, state, version, _) {
+            unsafe {
+                let mut data = Vec::with_capacity(size);
+                data.set_len(size);
+
+                if version >= &GlVersion(4, 5) {
+                    gl.GetNamedBufferSubData(id, (offset * elements_size) as gl::types::GLintptr,
+                        (size * elements_size) as gl::types::GLsizeiptr,
+                        data.as_mut_ptr() as *mut libc::c_void);
+
+                } else {
+                    if state.array_buffer_binding != Some(id) {
+                        gl.BindBuffer(gl::ARRAY_BUFFER, id);
+                        state.array_buffer_binding = Some(id);
+                    }
+
+                    gl.GetBufferSubData(gl::ARRAY_BUFFER, (offset * elements_size)
+                        as gl::types::GLintptr, (size * elements_size) as gl::types::GLsizeiptr,
+                        data.as_mut_ptr() as *mut libc::c_void);
+                }
+
+                tx.send_opt(data).ok();
+            }
+        });
+
+        rx.recv()
+    }
 }
 
 impl<T> fmt::Show for VertexBuffer<T> {
