@@ -84,18 +84,9 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
 
     let (tx, rx) = channel();
 
-    display.context.exec(proc(gl, state, version, _) {
+    display.context.exec(proc(gl, state, version, extensions) {
         unsafe {
-            if state.draw_framebuffer != fbo_id {
-                if version >= &context::GlVersion(3, 0) {
-                    gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
-                    state.draw_framebuffer = fbo_id.clone();
-                } else {
-                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
-                    state.draw_framebuffer = fbo_id.clone();
-                    state.read_framebuffer = fbo_id.clone();
-                }
-            }
+            bind_framebuffer(gl, state, version, extensions, fbo_id, true, false);
 
             // binding program
             if state.program != program_id {
@@ -170,7 +161,7 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
 pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
     red: f32, green: f32, blue: f32, alpha: f32)
 {
-    // FIXME: use framebuffer
+    let fbo_id = get_framebuffer(display, framebuffer);
 
     let (red, green, blue, alpha) = (
         red as gl::types::GLclampf,
@@ -179,7 +170,9 @@ pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
         alpha as gl::types::GLclampf
     );
 
-    display.context.exec(proc(gl, state, _, _) {
+    display.context.exec(proc(gl, state, version, extensions) {
+        bind_framebuffer(gl, state, version, extensions, fbo_id, true, false);
+
         if state.clear_color != (red, green, blue, alpha) {
             gl.ClearColor(red, green, blue, alpha);
             state.clear_color = (red, green, blue, alpha);
@@ -192,11 +185,12 @@ pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
 pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
     value: f32)
 {
-    // FIXME: use framebuffer
-
     let value = value as gl::types::GLclampf;
+    let fbo_id = get_framebuffer(display, framebuffer);
 
-    display.context.exec(proc(gl, state, _, _) {
+    display.context.exec(proc(gl, state, version, extensions) {
+        bind_framebuffer(gl, state, version, extensions, fbo_id, true, false);
+
         if state.clear_depth != value {
             gl.ClearDepth(value as f64);        // TODO: find out why this needs "as"
             state.clear_depth = value;
@@ -209,11 +203,12 @@ pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
 pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
     value: int)
 {
-    // FIXME: use framebuffer
-
     let value = value as gl::types::GLint;
+    let fbo_id = get_framebuffer(display, framebuffer);
 
-    display.context.exec(proc(gl, state, _, _) {
+    display.context.exec(proc(gl, state, version, extensions) {
+        bind_framebuffer(gl, state, version, extensions, fbo_id, true, false);
+
         if state.clear_stencil != value {
             gl.ClearStencil(value);
             state.clear_stencil = value;
@@ -248,4 +243,30 @@ fn initialize_fbo(display: &Arc<DisplayImpl>, fbo: &mut FrameBufferObject,
     content: &FramebufferAttachments)
 {
     // TODO: missing implementation
+}
+
+fn bind_framebuffer(gl: &gl::Gl, state: &mut context::GLState, version: &context::GlVersion,
+    _: &context::ExtensionsList, fbo_id: Option<gl::types::GLuint>, draw: bool, read: bool)
+{
+    if draw && state.draw_framebuffer != fbo_id {
+        if version >= &context::GlVersion(3, 0) {
+            gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
+            state.draw_framebuffer = fbo_id.clone();
+        } else {
+            gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+            state.draw_framebuffer = fbo_id.clone();
+            state.read_framebuffer = fbo_id.clone();
+        }
+    }
+
+    if read && state.read_framebuffer != fbo_id {
+        if version >= &context::GlVersion(3, 0) {
+            gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id.unwrap_or(0));
+            state.read_framebuffer = fbo_id.clone();
+        } else {
+            gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
+            state.draw_framebuffer = fbo_id.clone();
+            state.read_framebuffer = fbo_id.clone();
+        }
+    }
 }
