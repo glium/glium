@@ -220,6 +220,7 @@ pub use texture::{Texture, Texture2D};
 
 use std::sync::Arc;
 
+pub mod blit;
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
@@ -239,7 +240,8 @@ mod gl {
         generator: "struct",
         extensions: [
             "GL_EXT_direct_state_access",
-            "GL_EXT_framebuffer_object"
+            "GL_EXT_framebuffer_object",
+            "GL_EXT_framebuffer_blit",
         ]
     }
 }
@@ -703,6 +705,20 @@ impl<'t> Target<'t> {
     }
 }
 
+impl<'t> blit::BlitSurface for Target<'t> {
+    unsafe fn get_implementation(&self) -> BlitSurfaceImpl {
+        BlitSurfaceImpl {
+            display: self.display.clone(),
+            fbo_storage: None,
+            fbo: self.framebuffer.as_ref().map(|f| f.id),
+        }
+    }
+
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.dimensions.0 as u32, self.dimensions.1 as u32)
+    }
+}
+
 #[unsafe_destructor]
 impl<'t> Drop for Target<'t> {
     fn drop(&mut self) {
@@ -783,6 +799,15 @@ impl Drop for FrameBufferObject {
             }
         });
     }
+}
+
+/// Used by the blit implementation.
+#[doc(hidden)]
+pub struct BlitSurfaceImpl {
+    display: Arc<DisplayImpl>,
+    #[allow(dead_code)]
+    fbo_storage: Option<FrameBufferObject>,
+    fbo: Option<gl::types::GLuint>,
 }
 
 /// Render buffer.
