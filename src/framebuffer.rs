@@ -242,7 +242,43 @@ fn get_framebuffer(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
 fn initialize_fbo(display: &Arc<DisplayImpl>, fbo: &mut FrameBufferObject,
     content: &FramebufferAttachments)
 {
-    // TODO: missing implementation
+    use context::GlVersion;
+
+    let fbo_id = fbo.id;
+
+    if content.depth.is_some() { unimplemented!() }
+    if content.stencil.is_some() { unimplemented!() }
+
+    for (slot, texture) in content.colors.iter().enumerate() {
+        let tex_id = texture.clone();
+
+        display.context.exec(proc(gl, state, version, extensions) {
+            if version >= &GlVersion(4, 5) {
+                gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0 + slot as u32, tex_id, 0);
+
+            } else if extensions.gl_ext_direct_state_access &&
+                      extensions.gl_ext_geometry_shader4
+            {
+                gl.NamedFramebufferTextureEXT(fbo_id, gl::COLOR_ATTACHMENT0 + slot as u32, tex_id,
+                    0);
+
+            } else if version >= &GlVersion(3, 2) {
+                bind_framebuffer(gl, state, version, extensions, Some(fbo_id), true, false);
+                gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0 + slot as u32,
+                    tex_id, 0);
+
+            } else if version >= &GlVersion(3, 0) {
+                bind_framebuffer(gl, state, version, extensions, Some(fbo_id), true, false);
+                gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0 + slot as u32,
+                    gl::TEXTURE_2D, tex_id, 0);
+
+            } else {
+                bind_framebuffer(gl, state, version, extensions, Some(fbo_id), true, true);
+                gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT, gl::COLOR_ATTACHMENT0 + slot as u32,
+                    gl::TEXTURE_2D, tex_id, 0);
+            }
+        });
+    }
 }
 
 fn bind_framebuffer(gl: &gl::Gl, state: &mut context::GLState, version: &context::GlVersion,
