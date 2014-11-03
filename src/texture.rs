@@ -13,11 +13,11 @@ The most common type of texture is a `Texture2D` (the two dimensions being the w
 
 */
 
+use {gl, image, libc};
+
 use context::GlVersion;
-use gl;
-use libc;
-use std::fmt;
-use std::mem;
+
+use std::{fmt, mem};
 use std::sync::Arc;
 
 /// Trait that describes a texture.
@@ -100,6 +100,28 @@ impl<T: PixelValue> PixelValue for [T, ..3] {
 impl<T: PixelValue> PixelValue for [T, ..4] {
     fn get_gl_type(_: Option<[T, ..4]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
     fn get_num_elems(_: Option<[T, ..4]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 4 }
+}
+
+#[cfg(feature = "image")]
+impl<T> PixelValue for image::Rgb<T> where T: PixelValue {
+    fn get_gl_type(_: Option<image::Rgb<T>>) -> gl::types::GLenum {
+        PixelValue::get_gl_type(None::<T>)
+    }
+
+    fn get_num_elems(_: Option<image::Rgb<T>>) -> gl::types::GLint {
+        PixelValue::get_num_elems(None::<T>) * 3
+    }
+}
+
+#[cfg(feature = "image")]
+impl<T> PixelValue for image::Rgba<T> where T: PixelValue {
+    fn get_gl_type(_: Option<image::Rgba<T>>) -> gl::types::GLenum {
+        PixelValue::get_gl_type(None::<T>)
+    }
+
+    fn get_num_elems(_: Option<image::Rgba<T>>) -> gl::types::GLint {
+        PixelValue::get_num_elems(None::<T>) * 4
+    }
 }
 
 
@@ -221,6 +243,46 @@ impl<P: PixelValue + Clone> Texture2DData<P> for Vec<Vec<P>> {      // TODO: rem
 
     fn from_vec(data: Vec<P>, width: u32) -> Vec<Vec<P>> {
         data.as_slice().chunks(width as uint).map(|e| e.to_vec()).collect()
+    }
+}
+
+#[cfg(feature = "image")]
+impl<T, P> Texture2DData<P> for image::ImageBuf<P> where T: Primitive, P: PixelValue +
+    image::Pixel<T> + Clone + Copy
+{
+    fn get_dimensions(&self) -> (u32, u32) {
+        use image::GenericImage;
+        self.dimensions()
+    }
+
+    fn into_vec(self) -> Vec<P> {
+        use image::GenericImage;
+        let (width, _) = self.dimensions();
+
+        let raw_data = self.into_vec();
+
+        raw_data.as_slice().chunks(width as uint).rev().flat_map(|l| l.iter())
+            .map(|l| l.clone()).collect()
+    }
+
+    fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuf<P> {
+        unimplemented!()
+    }
+}
+
+#[cfg(feature = "image")]
+impl Texture2DData<image::Rgba<u8>> for image::DynamicImage {
+    fn get_dimensions(&self) -> (u32, u32) {
+        use image::GenericImage;
+        self.dimensions()
+    }
+
+    fn into_vec(self) -> Vec<image::Rgba<u8>> {
+        self.to_rgba().into_vec()
+    }
+
+    fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
+        unimplemented!()
     }
 }
 

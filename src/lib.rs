@@ -204,6 +204,8 @@ extern crate gl_generator;
 
 extern crate cgmath;
 extern crate glutin;
+#[cfg(feature = "image")]
+extern crate image;
 extern crate libc;
 //extern crate nalgebra;
 extern crate native;
