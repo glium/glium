@@ -3,6 +3,9 @@ name = "glium"
 version = "0.0.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 
+[features]
+default = ["image"]
+
 [dependencies.compile_msg]
 git = "https://github.com/huonw/compile_msg"
 
@@ -21,3 +24,7 @@ git = "https://github.com/bjz/cgmath-rs"
 
 #[dependencies.nalgebra]
 #git = "https://github.com/sebcrozet/nalgebra"
+
+[dependencies.image]
+git = "https://github.com/PistonDevelopers/image"
+optional = true
