@@ -174,7 +174,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
 
                 if version >= &GlVersion(4, 5) {
                     gl.GetNamedBufferSubData(id, (offset * elements_size) as gl::types::GLintptr,
-                        (size * elements_size) as gl::types::GLsizeiptr,
+                        (size * elements_size) as gl::types::GLsizei,
                         data.as_mut_ptr() as *mut libc::c_void);
 
                 } else {
