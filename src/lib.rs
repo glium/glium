@@ -643,7 +643,7 @@ impl<'t> Target<'t> {
                 // binding program uniforms
                 uniforms.0(gl, |name| {
                     uniforms_locations
-                        .find_equiv(&name)
+                        .find_equiv(name)
                         .map(|val| val.0)
                 });
 
