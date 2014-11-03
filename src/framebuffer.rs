@@ -10,6 +10,18 @@ use {vertex_buffer, index_buffer, program};
 use {gl, context, libc};
 
 /// A framebuffer that you can use to draw things.
+///
+/// ## Low-level implementation
+///
+/// Creating a `FrameBuffer` does **not** immediatly create a FrameBuffer Object. Instead, it is
+/// created when you first use it.
+///
+/// FBOs are stored globally (in the `Display` object), which means that if you create a
+/// `FrameBuffer`, destroy it, and then recreate the exact same `FrameBuffer`, the FBO previously
+/// used will be re-used.
+///
+/// Note that these informations are implementation details and may change in the future.
+///
 pub struct FrameBuffer<'a> {
     display: Arc<DisplayImpl>,
     attachments: FramebufferAttachments,

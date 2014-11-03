@@ -207,8 +207,15 @@ impl Texture2D {
 
     /// Starts drawing on the texture.
     ///
-    /// This does not erase the existing content of the texture as long as you don't call
-    ///  `clear_colors` on the `Target`.
+    /// All the function calls to the `TextureSurface` will draw on the texture instead of the
+    /// screen.
+    ///
+    /// ## Low-level implementation
+    ///
+    /// The first time that this function is called, a FrameBuffer Object will be created and
+    /// cached. The following calls to `as_surface` will load the existing FBO and re-use it.
+    /// When the texture is destroyed, the FBO is destroyed too.
+    ///
     pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {
         // TODO: hacky, shouldn't recreate a Display
         TextureSurface(framebuffer::FrameBuffer::new(&::Display { context: self.0.display.clone() })

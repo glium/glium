@@ -659,7 +659,10 @@ pub trait Surface {
 #[doc(hidden)]
 pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a framebuffer::FramebufferAttachments>);
 
-/// A target where things can be drawn.
+/// Implementation of `Surface` targetting the default framebuffer.
+///
+/// The back- and front-buffers are swapped when the `Target` is destroyed. This operation is
+/// instantaneous, even when vsync is enabled.
 pub struct Target<'a> {
     display: Arc<DisplayImpl>,
     marker: std::kinds::marker::ContravariantLifetime<'a>,
@@ -667,7 +670,7 @@ pub struct Target<'a> {
 }
 
 impl<'t> Target<'t> {
-    /// Stop drawing on the target.
+    /// Stop drawing and swap the buffers.
     pub fn finish(self) {
     }
 }
@@ -774,7 +777,12 @@ impl Display {
         self.context.context.get_framebuffer_dimensions()
     }
 
-    /// 
+    /// Start drawing on the backbuffer.
+    ///
+    /// This function returns a `Target` which can be used to draw on it. When the `Target` is
+    /// destroyed, the buffers are swapped.
+    ///
+    /// Note that destroying a `Target` is immediate, even if vsync is enabled.
     pub fn draw(&self) -> Target {
         Target {
             display: self.context.clone(),
