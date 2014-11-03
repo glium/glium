@@ -15,3 +15,15 @@ pub fn build_display() -> glium::Display {
         glutin::WindowBuilder::new().with_visibility(false).build_glium().unwrap()
     }
 }
+
+/// Builds a 2x2 unicolor texture.
+pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, blue: f32)
+    -> glium::Texture2D
+{
+    let color = (red, green, blue);
+
+    glium::texture::Texture2D::new(display, vec![
+        vec![color, color],
+        vec![color, color],
+    ])
+}

@@ -244,7 +244,8 @@ mod gl {
         generator: "struct",
         extensions: [
             "GL_EXT_direct_state_access",
-            "GL_EXT_framebuffer_object"
+            "GL_EXT_framebuffer_object",
+            "GL_EXT_framebuffer_blit",
         ]
     }
 }
@@ -587,6 +588,19 @@ impl DrawParameters {
     }
 }
 
+/// 
+#[deriving(Show, Clone, Default)]
+pub struct Rect {
+    /// 
+    pub left: u32,
+    /// 
+    pub bottom: u32,
+    /// 
+    pub width: u32,
+    /// 
+    pub height: u32,
+}
+
 /// Object which can be drawn upon.
 pub trait Surface {
     /// Clears the color components of the target.
@@ -604,7 +618,45 @@ pub trait Surface {
     /// Draws.
     fn draw<V, U>(&mut self, &VertexBuffer<V>, &IndexBuffer, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where U: uniforms::Uniforms;
+
+    /// Returns an opaque type that is used by the implementation of blit functions.
+    fn get_blit_helper(&self) -> BlitHelper;
+
+    /// Copies a rectangle of pixels from this surface to another surface.
+    ///
+    /// If the source and destination don't have the same size, the image will be resized. The
+    /// `filter` parameter is used only in this situation.
+    #[experimental = "The name will likely change"]
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
+        filter: uniforms::SamplerFilter) where S: Surface
+    {
+        framebuffer::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
+            filter.to_glenum())
+    }
+
+    /// Copies the entire surface to a target surface.
+    #[experimental = "The name will likely change"]
+    fn blit_whole_color_to<S>(&self, target: &S, target_rect: &Rect,
+        filter: uniforms::SamplerFilter) where S: Surface
+    {
+        let src_dim = self.get_dimensions();
+        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
+        self.blit_color(&src_rect, target, target_rect, filter)
+    }
+
+    /// Copies the entire surface to the entire target.
+    #[experimental = "The name will likely change"]
+    fn fill<S>(&self, target: &S, filter: uniforms::SamplerFilter) where S: Surface {
+        let src_dim = self.get_dimensions();
+        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
+        let target_dim = target.get_dimensions();
+        let target_rect = Rect { left: 0, bottom: 0, width: target_dim.0 as u32, height: target_dim.1 as u32 };
+        self.blit_color(&src_rect, target, &target_rect, filter)
+    }
 }
+
+#[doc(hidden)]
+pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a framebuffer::FramebufferAttachments>);
 
 /// A target where things can be drawn.
 pub struct Target<'a> {
@@ -642,6 +694,10 @@ impl<'t> Surface for Target<'t> {
     {
         framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
             draw_parameters)
+    }
+
+    fn get_blit_helper(&self) -> BlitHelper {
+        BlitHelper(&self.display, None)
     }
 }
 
