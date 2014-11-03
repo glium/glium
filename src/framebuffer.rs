@@ -12,13 +12,15 @@ use {gl, context, libc};
 
 /// Creates a framebuffer that allows you to draw on something.
 pub struct FrameBuffer<'a> {
+    display: Arc<DisplayImpl>,
     attachments: FramebufferAttachments,
     marker: ContravariantLifetime<'a>,
 }
 
 impl<'a> FrameBuffer<'a> {
-    pub fn new<'a>() -> FrameBuffer<'a> {
+    pub fn new<'a>(display: &::Display) -> FrameBuffer<'a> {
         FrameBuffer {
+            display: display.context.clone(),
             attachments: FramebufferAttachments {
                 colors: Vec::new(),
                 depth: None,
@@ -31,6 +33,30 @@ impl<'a> FrameBuffer<'a> {
     pub fn with_texture<T: 'a>(mut self, texture: &'a mut T) -> FrameBuffer<'a> where T: Texture {
         self.attachments.colors.push(texture::get_id(texture.get_implementation()));
         self
+    }
+}
+
+impl<'a> Surface for FrameBuffer<'a> {
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        clear_color(&self.display, Some(&self.attachments), red, green, blue, alpha)
+    }
+
+    fn clear_depth(&mut self, value: f32) {
+        clear_depth(&self.display, Some(&self.attachments), value)
+    }
+
+    fn clear_stencil(&mut self, value: int) {
+        clear_stencil(&self.display, Some(&self.attachments), value)
+    }
+
+    fn get_dimensions(&self) -> (uint, uint) {
+        unimplemented!()
+    }
+
+    fn draw<V, U>(&mut self, vb: &::VertexBuffer<V>, ib: &::IndexBuffer, program: &::Program,
+        uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
+    {
+        draw(&self.display, Some(&self.attachments), vb, ib, program, uniforms, draw_parameters)
     }
 }
 
@@ -139,6 +165,62 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
     // synchronizing with the end of the draw
     // TODO: remove that after making sure that everything is ok
     rx.recv();
+}
+
+pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
+    red: f32, green: f32, blue: f32, alpha: f32)
+{
+    // FIXME: use framebuffer
+
+    let (red, green, blue, alpha) = (
+        red as gl::types::GLclampf,
+        green as gl::types::GLclampf,
+        blue as gl::types::GLclampf,
+        alpha as gl::types::GLclampf
+    );
+
+    display.context.exec(proc(gl, state, _, _) {
+        if state.clear_color != (red, green, blue, alpha) {
+            gl.ClearColor(red, green, blue, alpha);
+            state.clear_color = (red, green, blue, alpha);
+        }
+
+        gl.Clear(gl::COLOR_BUFFER_BIT);
+    });
+}
+
+pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
+    value: f32)
+{
+    // FIXME: use framebuffer
+
+    let value = value as gl::types::GLclampf;
+
+    display.context.exec(proc(gl, state, _, _) {
+        if state.clear_depth != value {
+            gl.ClearDepth(value as f64);        // TODO: find out why this needs "as"
+            state.clear_depth = value;
+        }
+
+        gl.Clear(gl::DEPTH_BUFFER_BIT);
+    });
+}
+
+pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
+    value: int)
+{
+    // FIXME: use framebuffer
+
+    let value = value as gl::types::GLint;
+
+    display.context.exec(proc(gl, state, _, _) {
+        if state.clear_stencil != value {
+            gl.ClearStencil(value);
+            state.clear_stencil = value;
+        }
+
+        gl.Clear(gl::STENCIL_BUFFER_BIT);
+    });
 }
 
 fn get_framebuffer(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>)

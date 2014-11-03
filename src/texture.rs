@@ -210,7 +210,9 @@ impl Texture2D {
     /// This does not erase the existing content of the texture as long as you don't call
     ///  `clear_colors` on the `Target`.
     pub fn as_surface<'a>(&'a mut self) -> TextureSurface<'a> {
-        TextureSurface(framebuffer::FrameBuffer::new().with_texture(self))
+        // TODO: hacky, shouldn't recreate a Display
+        TextureSurface(framebuffer::FrameBuffer::new(&::Display { context: self.0.display.clone() })
+            .with_texture(self))
     }
 }
 
@@ -560,24 +562,24 @@ pub struct TextureSurface<'a>(framebuffer::FrameBuffer<'a>);
 
 impl<'a> Surface for TextureSurface<'a> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        unimplemented!()
+        self.0.clear_color(red, green, blue, alpha)
     }
 
     fn clear_depth(&mut self, value: f32) {
-        unimplemented!()
+        self.0.clear_depth(value)
     }
 
     fn clear_stencil(&mut self, value: int) {
-        unimplemented!()
+        self.0.clear_stencil(value)
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
-        unimplemented!()
+        self.0.get_dimensions()
     }
 
     fn draw<V, U>(&mut self, vb: &::VertexBuffer<V>, ib: &::IndexBuffer, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
     {
-        unimplemented!()
+        self.0.draw(vb, ib, program, uniforms, draw_parameters)
     }
 }
