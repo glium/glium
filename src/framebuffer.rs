@@ -9,7 +9,7 @@ use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surf
 use {vertex_buffer, index_buffer, program};
 use {gl, context, libc};
 
-/// Creates a framebuffer that allows you to draw on something.
+/// A framebuffer that you can use to draw things.
 pub struct FrameBuffer<'a> {
     display: Arc<DisplayImpl>,
     attachments: FramebufferAttachments,
@@ -18,6 +18,7 @@ pub struct FrameBuffer<'a> {
 }
 
 impl<'a> FrameBuffer<'a> {
+    /// Creates an empty framebuffer.
     pub fn new<'a>(display: &::Display) -> FrameBuffer<'a> {
         FrameBuffer {
             display: display.context.clone(),
@@ -31,6 +32,7 @@ impl<'a> FrameBuffer<'a> {
         }
     }
 
+    /// Attach an additional texture to this framebuffer.
     pub fn with_texture<T: 'a>(mut self, texture: &'a T) -> FrameBuffer<'a> where T: Texture {
         // TODO: check existing dimensions
         self.attachments.colors.push(texture::get_id(texture.get_implementation()));
