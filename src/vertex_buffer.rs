@@ -106,6 +106,9 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     }
 
     /// Maps the buffer to allow write access to it.
+    ///
+    /// **Warning**: using this function can slow things down a lot because the function
+    /// waits for all the previous commands to be executed before returning.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
         let (tx, rx) = channel();
         let id = self.id.clone();
