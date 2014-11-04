@@ -18,7 +18,7 @@ use {gl, image, libc, framebuffer};
 use context::GlVersion;
 use Surface;
 
-use std::{fmt, mem};
+use std::{fmt, mem, ptr};
 use std::sync::Arc;
 
 /// Trait that describes a texture.
@@ -134,7 +134,7 @@ impl Texture1D {
     pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: T) -> Texture1D {
         let data = data.into_vec();
         let width = data.len() as u32;
-        Texture1D(TextureImplementation::new(display, data, width, None, None, None))
+        Texture1D(TextureImplementation::new(display, Some(data), width, None, None, None))
     }
 }
 
@@ -181,7 +181,7 @@ impl Texture1DArray {
             let d = t.into_vec(); width = d.len(); d.into_iter()
         }).collect();
 
-        Texture1DArray(TextureImplementation::new(display, data, width as u32, None, None,
+        Texture1DArray(TextureImplementation::new(display, Some(data), width as u32, None, None,
             Some(array_size as u32)))
     }
 }
@@ -201,7 +201,33 @@ impl Texture2D {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
 
-        Texture2D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1),
+        Texture2D(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
+            None, None))
+    }
+
+    /// Creates an empty two-dimensional textures.
+    ///
+    /// The texture will contain undefined data.
+    ///
+    /// **Note**: you will need to pass a generic parameter.
+    ///
+    /// # Example 
+    ///
+    /// ```
+    /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # use glium::DisplayBuild;
+    /// # fn main() {
+    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
+    /// #   .build_glium().unwrap();
+    /// let texture = glium::Texture2D::new_empty::<(u8, u8, u8)>(&display, 512, 512);
+    /// # }
+    /// ```
+    ///
+    pub fn new_empty<P: PixelValue>(display: &super::Display, width: u32, height: u32)
+        -> Texture2D
+    {
+        Texture2D(TextureImplementation::new::<P>(display, None, width, Some(height),
             None, None))
     }
 
@@ -314,8 +340,8 @@ impl Texture2DArray {
             dimensions = t.get_dimensions(); t.into_vec().into_iter()
         }).collect();
 
-        Texture2DArray(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1),
-            None, Some(array_size as u32)))
+        Texture2DArray(TextureImplementation::new(display, Some(data), dimensions.0,
+            Some(dimensions.1), None, Some(array_size as u32)))
     }
 }
 
@@ -333,7 +359,7 @@ impl Texture3D {
     pub fn new<P: PixelValue, T: Texture3DData<P>>(display: &super::Display, data: T) -> Texture3D {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
-        Texture3D(TextureImplementation::new(display, data, dimensions.0, Some(dimensions.1),
+        Texture3D(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
             Some(dimensions.2), None))
     }
 }
@@ -384,15 +410,18 @@ pub fn get_id(texture: &TextureImplementation) -> gl::types::GLuint {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    fn new<P: PixelValue>(display: &super::Display, data: Vec<P>, width: u32,
+    fn new<P: PixelValue>(display: &super::Display, data: Option<Vec<P>>, width: u32,
         height: Option<u32>, depth: Option<u32>, array_size: Option<u32>) -> TextureImplementation
     {
         let element_components = PixelValue::get_num_elems(None::<P>);
 
-        if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
-            array_size.unwrap_or(1) as uint != data.len()
-        {
-            panic!("Texture data has different size from width*height*depth*array_size*elemLen");
+        if let Some(ref data) = data {
+            if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
+                array_size.unwrap_or(1) as uint != data.len()
+            {
+                panic!("Texture data has different size from \
+                        width * height * depth * array_size * elemLen");
+            }
         }
 
         let texture_type = if height.is_none() && depth.is_none() {
@@ -445,7 +474,10 @@ impl TextureImplementation {
         display.context.context.exec(proc(gl, _state, version, _) {
             unsafe {
                 let data = data;
-                let data_raw: *const libc::c_void = mem::transmute(data.as_slice().as_ptr());
+                let data_raw: *const libc::c_void = match data {
+                    Some(data) => mem::transmute(data.as_slice().as_ptr()),
+                    None => ptr::null(),
+                };
 
                 gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 {
                     4

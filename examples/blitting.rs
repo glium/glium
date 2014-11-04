@@ -20,10 +20,7 @@ fn main() {
     let opengl_texture = glium::Texture2D::new(&display, image);
 
     // building a 1024x1024 black texture
-    // TODO: use a nicer way
-    let dest_texture = glium::Texture2D::new(&display,
-        Vec::from_elem(1024, Vec::from_elem(1024, (0u8, 0u8, 0u8)))
-    );
+    let dest_texture = glium::Texture2D::new_empty::<(u8,u8,u8,u8)>(&display, 1024, 1024);
 
     // the main loop
     // each cycle will draw once
