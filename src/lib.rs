@@ -591,16 +591,20 @@ impl DrawParameters {
     }
 }
 
-/// 
+/// Area of a surface in pixels.
+///
+/// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
 #[deriving(Show, Clone, Default)]
 pub struct Rect {
-    /// 
+    /// Number of pixels between the left border of the surface and the left border of
+    /// the rectangle.
     pub left: u32,
-    /// 
+    /// Number of pixels between the bottom border of the surface and the bottom border
+    /// of the rectangle.
     pub bottom: u32,
-    /// 
+    /// Width of the area in pixels.
     pub width: u32,
-    /// 
+    /// Height of the area in pixels.
     pub height: u32,
 }
 
@@ -627,8 +631,16 @@ pub trait Surface {
 
     /// Copies a rectangle of pixels from this surface to another surface.
     ///
-    /// If the source and destination don't have the same size, the image will be resized. The
-    /// `filter` parameter is used only in this situation.
+    /// The `source_rect` defines the area of the source (`self`) that will be copied, and the
+    /// `target_rect` defines the area where the copied image will be pasted. If the source and
+    /// target areas don't have the same dimensions, the image will be resized to match.
+    /// The `filter` parameter is relevant only in this situation.
+    ///
+    /// It is possible for the source and the target to be the same surface. However if the
+    /// rectangles overlap, then the behavior is undefined.
+    ///
+    /// Note that there is no alpha blending, depth/stencil checking, etc. or anything ; this
+    /// function just copies pixels.
     #[experimental = "The name will likely change"]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
         filter: uniforms::SamplerFilter) where S: Surface
@@ -637,7 +649,7 @@ pub trait Surface {
             filter.to_glenum())
     }
 
-    /// Copies the entire surface to a target surface.
+    /// Copies the entire surface to a target surface. See `blit_color`.
     #[experimental = "The name will likely change"]
     fn blit_whole_color_to<S>(&self, target: &S, target_rect: &Rect,
         filter: uniforms::SamplerFilter) where S: Surface
@@ -647,7 +659,7 @@ pub trait Surface {
         self.blit_color(&src_rect, target, target_rect, filter)
     }
 
-    /// Copies the entire surface to the entire target.
+    /// Copies the entire surface to the entire target. See `blit_color`.
     #[experimental = "The name will likely change"]
     fn fill<S>(&self, target: &S, filter: uniforms::SamplerFilter) where S: Surface {
         let src_dim = self.get_dimensions();
