@@ -203,7 +203,7 @@ impl Context {
                 }
 
                 // this is necessary on Windows 8, or nothing is being displayed
-                gl.Flush();
+                unsafe { gl.Flush(); }
 
                 // swapping
                 window.swap_buffers();
@@ -218,10 +218,12 @@ impl Context {
                         if gl_state.viewport != (0, 0, width as gl::types::GLsizei,
                                                  height as gl::types::GLsizei)
                         {
-                            gl.Viewport(0, 0, width as gl::types::GLsizei,
-                                height as gl::types::GLsizei);
-                            gl_state.viewport = (0, 0, width as gl::types::GLsizei,
-                                height as gl::types::GLsizei);
+                            unsafe {
+                                gl.Viewport(0, 0, width as gl::types::GLsizei,
+                                    height as gl::types::GLsizei);
+                                gl_state.viewport = (0, 0, width as gl::types::GLsizei,
+                                    height as gl::types::GLsizei);
+                            }
                         }
                     }
 

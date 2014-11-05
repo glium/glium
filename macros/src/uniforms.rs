@@ -68,7 +68,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 ));
 
                 linkers.push(quote_expr!(ecx, {
-                    gl.ActiveTexture(active_texture as u32);
+                    unsafe { gl.ActiveTexture(active_texture as u32) };
 
                     match loc_getter($ident_str) {
                         Some(loc) => {

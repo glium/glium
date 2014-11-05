@@ -497,13 +497,13 @@ impl DrawParameters {
     fn sync(&self, gl: &gl::Gl, state: &mut context::GLState) {
         // depth function
         match self.depth_function {
-            Some(Overwrite) => {
+            Some(Overwrite) => unsafe {
                 if state.enabled_depth_test {
                     gl.Disable(gl::DEPTH_TEST);
                     state.enabled_depth_test = false;
                 }
             },
-            Some(depth_function) => {
+            Some(depth_function) => unsafe {
                 let depth_function = depth_function.to_glenum();
                 if state.depth_func != depth_function {
                     gl.DepthFunc(depth_function);
@@ -519,13 +519,13 @@ impl DrawParameters {
 
         // blending function
         match self.blending_function {
-            Some(AlwaysReplace) => {
+            Some(AlwaysReplace) => unsafe {
                 if state.enabled_blend {
                     gl.Disable(gl::BLEND);
                     state.enabled_blend = false;
                 }
             },
-            Some(LerpBySourceAlpha) => {
+            Some(LerpBySourceAlpha) => unsafe {
                 if state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
                     gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                     state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
@@ -541,8 +541,10 @@ impl DrawParameters {
         // line width
         if let Some(line_width) = self.line_width {
             if state.line_width != line_width {
-                gl.LineWidth(line_width);
-                state.line_width = line_width;
+                unsafe {
+                    gl.LineWidth(line_width);
+                    state.line_width = line_width;
+                }
             }
         }
 
@@ -550,13 +552,13 @@ impl DrawParameters {
         // note: we never change the value of `glFrontFace`, whose default is GL_CCW
         //  that's why `CullClockWise` uses `GL_BACK` for example
         match self.backface_culling {
-            CullingDisabled => {
+            CullingDisabled => unsafe {
                 if state.enabled_cull_face {
                     gl.Disable(gl::CULL_FACE);
                     state.enabled_cull_face = false;
                 }
             },
-            CullCounterClockWise => {
+            CullCounterClockWise => unsafe {
                 if !state.enabled_cull_face {
                     gl.Enable(gl::CULL_FACE);
                     state.enabled_cull_face = true;
@@ -566,7 +568,7 @@ impl DrawParameters {
                     state.cull_face = gl::FRONT;
                 }
             },
-            CullClockWise => {
+            CullClockWise => unsafe {
                 if !state.enabled_cull_face {
                     gl.Enable(gl::CULL_FACE);
                     state.enabled_cull_face = true;
@@ -579,7 +581,7 @@ impl DrawParameters {
         }
 
         // polygon mode
-        {
+        unsafe {
             let polygon_mode = self.polygon_mode.to_glenum();
             if state.polygon_mode != polygon_mode {
                 gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
@@ -794,8 +796,10 @@ impl Display {
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     pub fn release_shader_compiler(&self) {
         self.context.context.exec(proc(gl, _, version, _) {
-            if version >= &context::GlVersion(4, 1) {
-                gl.ReleaseShaderCompiler();
+            unsafe {
+                if version >= &context::GlVersion(4, 1) {
+                    gl.ReleaseShaderCompiler();
+                }
             }
         });
     }
@@ -874,7 +878,7 @@ impl Drop for DisplayImpl {
 
 #[allow(dead_code)]
 fn get_gl_error(gl: &gl::Gl) -> &'static str {
-    match gl.GetError() {
+    match unsafe { gl.GetError() } {
         gl::NO_ERROR => "GL_NO_ERROR",
         gl::INVALID_ENUM => "GL_INVALID_ENUM",
         gl::INVALID_VALUE => "GL_INVALID_VALUE",

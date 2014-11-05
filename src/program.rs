@@ -13,7 +13,9 @@ impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, _state, _, _) {
-            gl.DeleteShader(id);
+            unsafe {
+                gl.DeleteShader(id);
+            }
         });
     }
 }
@@ -201,12 +203,14 @@ impl Drop for Program {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, state, _, _) {
-            if state.program == id {
-                gl.UseProgram(0);
-                state.program = 0;
-            }
+            unsafe {
+                if state.program == id {
+                    gl.UseProgram(0);
+                    state.program = 0;
+                }
 
-            gl.DeleteProgram(id);
+                gl.DeleteProgram(id);
+            }
         });
     }
 }
