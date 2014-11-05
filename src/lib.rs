@@ -717,11 +717,38 @@ impl<'t> Drop for Target<'t> {
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
-    fn build_glium(self) -> Result<Display, String>;
+    fn build_glium(self) -> Result<Display, GliumCreationError>;
+}
+
+/// Error that can happen while creating a glium display.
+#[deriving(Clone, Show, PartialEq, Eq)]
+pub enum GliumCreationError {
+    /// An error has happened while creating the glutin window or headless renderer.
+    GlutinCreationError(glutin::CreationError),
+}
+
+impl std::error::Error for GliumCreationError {
+    fn description(&self) -> &str {
+        match self {
+            &GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
+        }
+    }
+
+    fn cause(&self) -> Option<&std::error::Error> {
+        match self {
+            &GlutinCreationError(ref err) => Some(err as &std::error::Error),
+        }
+    }
+}
+
+impl std::error::FromError<glutin::CreationError> for GliumCreationError {
+    fn from_error(err: glutin::CreationError) -> GliumCreationError {
+        GlutinCreationError(err)
+    }
 }
 
 impl DisplayBuild for glutin::WindowBuilder {
-    fn build_glium(self) -> Result<Display, String> {
+    fn build_glium(self) -> Result<Display, GliumCreationError> {
         let window = try!(self.build());
         let context = context::Context::new_from_window(window);
 
@@ -735,7 +762,7 @@ impl DisplayBuild for glutin::WindowBuilder {
 }
 
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
-    fn build_glium(self) -> Result<Display, String> {
+    fn build_glium(self) -> Result<Display, GliumCreationError> {
         let window = try!(self.build());
         let context = context::Context::new_from_headless(window);
 
