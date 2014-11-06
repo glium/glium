@@ -17,10 +17,10 @@ fn main() {
     // building a texture with "OpenGL" drawn on it
     let image = image::load(BufReader::new(include_bin!("../tests/fixture/opengl.png")),
         image::PNG).unwrap();
-    let opengl_texture = glium::Texture2D::new(&display, image);
+    let opengl_texture = glium::Texture2d::new(&display, image);
 
     // building a 1024x1024 black texture
-    let dest_texture = glium::Texture2D::new_empty::<(u8,u8,u8,u8)>(&display, 1024, 1024);
+    let dest_texture = glium::Texture2d::new_empty::<(u8,u8,u8,u8)>(&display, 1024, 1024);
 
     // the main loop
     // each cycle will draw once

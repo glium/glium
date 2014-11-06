@@ -14,7 +14,7 @@ mod support;
 fn texture_1d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::Texture1D::new(&display, vec![
+    let texture = glium::texture::Texture1d::new(&display, vec![
         (0.0, 0.0, 0.0, 0.0),
         (0.0, 0.0, 0.0, 0.0),
         (0.0, 0.0, 0.0, 0.0),
@@ -30,7 +30,7 @@ fn texture_1d_creation() {
 fn texture_2d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::Texture2D::new(&display, vec![
+    let texture = glium::texture::Texture2d::new(&display, vec![
         vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
         vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
         vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0f32)],
@@ -46,7 +46,7 @@ fn texture_2d_creation() {
 fn texture_3d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::Texture3D::new(&display, vec![
+    let texture = glium::texture::Texture3d::new(&display, vec![
         vec![
             vec![(0.0, 0.0, 0.0, 0.0)],
             vec![(0.0, 0.0, 0.0, 0.0)],

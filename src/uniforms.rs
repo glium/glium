@@ -17,7 +17,7 @@ extern crate glium_macros;
 
 #[uniforms]
 struct Uniforms<'a> {
-    texture: &'a glium::Texture2D,
+    texture: &'a glium::Texture2d,
     matrix: [[f32, ..4], ..4],
 }
 
@@ -35,7 +35,7 @@ Each field must implement the `UniformValue` trait.
 
 ## Textures and samplers
 
-To use a texture, write a `&Texture2D` like a regular uniform value.
+To use a texture, write a `&Texture2d` like a regular uniform value.
 
 To use a texture with a sampler, write a `Sampler` object.
 
@@ -49,7 +49,7 @@ Example:
 # fn main() {
 #[uniforms]
 struct Uniforms<'a> {
-    texture: glium::uniforms::Sampler<'a, glium::Texture2D>,
+    texture: glium::uniforms::Sampler<'a, glium::Texture2d>,
     matrix: [[f32, ..4], ..4],
 }
 
@@ -445,35 +445,35 @@ impl<'a> UniformValue for &'a texture::TextureImplementation {
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture1D {
+impl<'a> UniformValue for &'a texture::Texture1d {
     fn to_binder(&self) -> UniformValueBinder {
         use texture::Texture;
         self.get_implementation().to_binder()
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture1DArray {
+impl<'a> UniformValue for &'a texture::Texture1dArray {
     fn to_binder(&self) -> UniformValueBinder {
         use texture::Texture;
         self.get_implementation().to_binder()
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture2D {
+impl<'a> UniformValue for &'a texture::Texture2d {
     fn to_binder(&self) -> UniformValueBinder {
         use texture::Texture;
         self.get_implementation().to_binder()
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture2DArray {
+impl<'a> UniformValue for &'a texture::Texture2dArray {
     fn to_binder(&self) -> UniformValueBinder {
         use texture::Texture;
         self.get_implementation().to_binder()
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture3D {
+impl<'a> UniformValue for &'a texture::Texture3d {
     fn to_binder(&self) -> UniformValueBinder {
         use texture::Texture;
         self.get_implementation().to_binder()
