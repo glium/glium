@@ -2,11 +2,11 @@
 
 A texture is an image available for drawing.
 
-To create a texture, you must first create a struct that implements one of `Texture1DData`,
- `Texture2DData` or `Texture3DData`. Then call the appropriate `new` function of the type of
+To create a texture, you must first create a struct that implements one of `Texture1dData`,
+ `Texture2dData` or `Texture3dData`. Then call the appropriate `new` function of the type of
  texture that you desire.
 
-The most common type of texture is a `Texture2D` (the two dimensions being the width and height),
+The most common type of texture is a `Texture2d` (the two dimensions being the width and height),
  it is what you will use most of the time.
 
 **Note**: `TextureCube` does not yet exist.
@@ -127,18 +127,18 @@ impl<T> PixelValue for image::Rgba<T> where T: PixelValue {
 
 
 /// A one-dimensional texture.
-pub struct Texture1D(TextureImplementation);
+pub struct Texture1d(TextureImplementation);
 
-impl Texture1D {
+impl Texture1d {
     /// Creates a one-dimensional texture.
-    pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: T) -> Texture1D {
+    pub fn new<P: PixelValue, T: Texture1dData<P>>(display: &super::Display, data: T) -> Texture1d {
         let data = data.into_vec();
         let width = data.len() as u32;
-        Texture1D(TextureImplementation::new(display, Some(data), width, None, None, None))
+        Texture1d(TextureImplementation::new(display, Some(data), width, None, None, None))
     }
 }
 
-impl Texture for Texture1D {
+impl Texture for Texture1d {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
     }
@@ -146,34 +146,34 @@ impl Texture for Texture1D {
 
 /// Trait that describes data for a one-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture1DData<P> {
+pub trait Texture1dData<P> {
     /// Returns a vec where each element is a pixel of the texture.
     fn into_vec(self) -> Vec<P>;
 }
 
-impl<P: PixelValue> Texture1DData<P> for Vec<P> {
+impl<P: PixelValue> Texture1dData<P> for Vec<P> {
     fn into_vec(self) -> Vec<P> {
         self
     }
 }
 
-impl<'a, P: PixelValue + Clone> Texture1DData<P> for &'a [P] {
+impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
     fn into_vec(self) -> Vec<P> {
         self.to_vec()
     }
 }
 
 /// An array of one-dimensional textures.
-pub struct Texture1DArray(TextureImplementation);
+pub struct Texture1dArray(TextureImplementation);
 
-impl Texture1DArray {
+impl Texture1dArray {
     /// Creates an array of one-dimensional textures.
     ///
     /// # Panic
     ///
     /// Panics if all the elements don't have the same dimensions.
-    pub fn new<P: PixelValue, T: Texture1DData<P>>(display: &super::Display, data: Vec<T>)
-        -> Texture1DArray
+    pub fn new<P: PixelValue, T: Texture1dData<P>>(display: &super::Display, data: Vec<T>)
+        -> Texture1dArray
     {
         let array_size = data.len();
         let mut width = 0;
@@ -181,27 +181,27 @@ impl Texture1DArray {
             let d = t.into_vec(); width = d.len(); d.into_iter()
         }).collect();
 
-        Texture1DArray(TextureImplementation::new(display, Some(data), width as u32, None, None,
+        Texture1dArray(TextureImplementation::new(display, Some(data), width as u32, None, None,
             Some(array_size as u32)))
     }
 }
 
-impl Texture for Texture1DArray {
+impl Texture for Texture1dArray {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
     }
 }
 
 /// A two-dimensional texture. This is usually the texture that you want to use.
-pub struct Texture2D(TextureImplementation);
+pub struct Texture2d(TextureImplementation);
 
-impl Texture2D {
+impl Texture2d {
     /// Creates a two-dimensional texture.
-    pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: T) -> Texture2D {
+    pub fn new<P: PixelValue, T: Texture2dData<P>>(display: &super::Display, data: T) -> Texture2d {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
 
-        Texture2D(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
+        Texture2d(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
             None, None))
     }
 
@@ -220,14 +220,14 @@ impl Texture2D {
     /// # fn main() {
     /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
     /// #   .build_glium().unwrap();
-    /// let texture = glium::Texture2D::new_empty::<(u8, u8, u8)>(&display, 512, 512);
+    /// let texture = glium::Texture2d::new_empty::<(u8, u8, u8)>(&display, 512, 512);
     /// # }
     /// ```
     ///
     pub fn new_empty<P: PixelValue>(display: &super::Display, width: u32, height: u32)
-        -> Texture2D
+        -> Texture2d
     {
-        Texture2D(TextureImplementation::new::<P>(display, None, width, Some(height),
+        Texture2d(TextureImplementation::new::<P>(display, None, width, Some(height),
             None, None))
     }
 
@@ -249,7 +249,7 @@ impl Texture2D {
     }
 }
 
-impl Texture for Texture2D {
+impl Texture for Texture2d {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
     }
@@ -257,7 +257,7 @@ impl Texture for Texture2D {
 
 /// Trait that describes data for a two-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture2DData<P> {
+pub trait Texture2dData<P> {
     /// Returns the dimensions of the texture.
     fn get_dimensions(&self) -> (u32, u32);
 
@@ -268,7 +268,7 @@ pub trait Texture2DData<P> {
     fn from_vec(Vec<P>, width: u32) -> Self;
 }
 
-impl<P: PixelValue + Clone> Texture2DData<P> for Vec<Vec<P>> {      // TODO: remove Clone
+impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: remove Clone
     fn get_dimensions(&self) -> (u32, u32) {
         (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
     }
@@ -283,7 +283,7 @@ impl<P: PixelValue + Clone> Texture2DData<P> for Vec<Vec<P>> {      // TODO: rem
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2DData<P> for image::ImageBuf<P> where T: Primitive, P: PixelValue +
+impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: Primitive, P: PixelValue +
     image::Pixel<T> + Clone + Copy
 {
     fn get_dimensions(&self) -> (u32, u32) {
@@ -307,7 +307,7 @@ impl<T, P> Texture2DData<P> for image::ImageBuf<P> where T: Primitive, P: PixelV
 }
 
 #[cfg(feature = "image")]
-impl Texture2DData<image::Rgba<u8>> for image::DynamicImage {
+impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
     fn get_dimensions(&self) -> (u32, u32) {
         use image::GenericImage;
         self.dimensions()
@@ -323,16 +323,16 @@ impl Texture2DData<image::Rgba<u8>> for image::DynamicImage {
 }
 
 /// An array of two-dimensional textures.
-pub struct Texture2DArray(TextureImplementation);
+pub struct Texture2dArray(TextureImplementation);
 
-impl Texture2DArray {
+impl Texture2dArray {
     /// Creates an array of two-dimensional textures.
     ///
     /// # Panic
     ///
     /// Panics if all the elements don't have the same dimensions.
-    pub fn new<P: PixelValue, T: Texture2DData<P>>(display: &super::Display, data: Vec<T>)
-        -> Texture2DArray
+    pub fn new<P: PixelValue, T: Texture2dData<P>>(display: &super::Display, data: Vec<T>)
+        -> Texture2dArray
     {
         let array_size = data.len();
         let mut dimensions = (0, 0);
@@ -340,31 +340,31 @@ impl Texture2DArray {
             dimensions = t.get_dimensions(); t.into_vec().into_iter()
         }).collect();
 
-        Texture2DArray(TextureImplementation::new(display, Some(data), dimensions.0,
+        Texture2dArray(TextureImplementation::new(display, Some(data), dimensions.0,
             Some(dimensions.1), None, Some(array_size as u32)))
     }
 }
 
-impl Texture for Texture2DArray {
+impl Texture for Texture2dArray {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
     }
 }
 
 /// A three-dimensional texture.
-pub struct Texture3D(TextureImplementation);
+pub struct Texture3d(TextureImplementation);
 
-impl Texture3D {
+impl Texture3d {
     /// Creates a three-dimensional texture.
-    pub fn new<P: PixelValue, T: Texture3DData<P>>(display: &super::Display, data: T) -> Texture3D {
+    pub fn new<P: PixelValue, T: Texture3dData<P>>(display: &super::Display, data: T) -> Texture3d {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
-        Texture3D(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
+        Texture3d(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
             Some(dimensions.2), None))
     }
 }
 
-impl Texture for Texture3D {
+impl Texture for Texture3d {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
     }
@@ -372,7 +372,7 @@ impl Texture for Texture3D {
 
 /// Trait that describes data for a three-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture3DData<P> {
+pub trait Texture3dData<P> {
     /// Returns the dimensions of the texture.
     fn get_dimensions(&self) -> (u32, u32, u32);
 
@@ -380,7 +380,7 @@ pub trait Texture3DData<P> {
     fn into_vec(self) -> Vec<P>;
 }
 
-impl<P: PixelValue> Texture3DData<P> for Vec<Vec<Vec<P>>> {
+impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
     fn get_dimensions(&self) -> (u32, u32, u32) {
         (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32,
             self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)

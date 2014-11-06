@@ -220,7 +220,7 @@ pub use framebuffer::FrameBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
-pub use texture::{Texture, Texture2D};
+pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -847,7 +847,7 @@ impl Display {
     ///
     /// You will only see the data that has finished being drawn.
     ///
-    /// This function can return any type that implements `Texture2DData`.
+    /// This function can return any type that implements `Texture2dData`.
     ///
     /// ## Example
     ///
@@ -861,7 +861,7 @@ impl Display {
     /// # }
     /// ```
     pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
-        where P: texture::PixelValue + Clone + Send, T: texture::Texture2DData<P>
+        where P: texture::PixelValue + Clone + Send, T: texture::Texture2dData<P>
     {
         let dimensions = self.get_framebuffer_dimensions();
         let pixels_count = dimensions.0 * dimensions.1;
@@ -902,7 +902,7 @@ impl Display {
         });
 
         let data = rx.recv();
-        texture::Texture2DData::from_vec(data, dimensions.0 as u32)
+        texture::Texture2dData::from_vec(data, dimensions.0 as u32)
     }
 }
 
