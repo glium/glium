@@ -526,25 +526,6 @@ pub enum TextureFormat {
     UncompressedIntegral(UncompressedIntegralFormat),
 }
 
-/// A one-dimensional texture.
-pub struct Texture1d(TextureImplementation);
-
-impl Texture1d {
-    /// Creates a one-dimensional texture.
-    pub fn new<P: PixelValue, T: Texture1dData<P>>(display: &super::Display, data: T) -> Texture1d {
-        let data = data.into_vec();
-        let width = data.len() as u32;
-        let format = PixelValue::get_format(None::<P>).to_default_float_format();
-        Texture1d(TextureImplementation::new(display, format, Some(data), width, None, None, None))
-    }
-}
-
-impl Texture for Texture1d {
-    fn get_implementation(&self) -> &TextureImplementation {
-        &self.0
-    }
-}
-
 /// Trait that describes data for a one-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture1dData<P> {
@@ -561,6 +542,113 @@ impl<P: PixelValue> Texture1dData<P> for Vec<P> {
 impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
     fn into_vec(self) -> Vec<P> {
         self.to_vec()
+    }
+}
+
+/// Trait that describes data for a two-dimensional texture.
+#[experimental = "Will be rewritten to use an associated type"]
+pub trait Texture2dData<P> {
+    /// Returns the dimensions of the texture.
+    fn get_dimensions(&self) -> (u32, u32);
+
+    /// Returns a vec where each element is a pixel of the texture.
+    fn into_vec(self) -> Vec<P>;
+
+    /// Builds a new object from raw data.
+    fn from_vec(Vec<P>, width: u32) -> Self;
+}
+
+impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: remove Clone
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
+    }
+
+    fn into_vec(self) -> Vec<P> {
+        self.into_iter().flat_map(|e| e.into_iter()).collect()
+    }
+
+    fn from_vec(data: Vec<P>, width: u32) -> Vec<Vec<P>> {
+        data.as_slice().chunks(width as uint).map(|e| e.to_vec()).collect()
+    }
+}
+
+#[cfg(feature = "image")]
+impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: Primitive, P: PixelValue +
+    image::Pixel<T> + Clone + Copy
+{
+    fn get_dimensions(&self) -> (u32, u32) {
+        use image::GenericImage;
+        self.dimensions()
+    }
+
+    fn into_vec(self) -> Vec<P> {
+        use image::GenericImage;
+        let (width, _) = self.dimensions();
+
+        let raw_data = self.into_vec();
+
+        raw_data.as_slice().chunks(width as uint).rev().flat_map(|l| l.iter())
+            .map(|l| l.clone()).collect()
+    }
+
+    fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuf<P> {
+        unimplemented!()
+    }
+}
+
+#[cfg(feature = "image")]
+impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
+    fn get_dimensions(&self) -> (u32, u32) {
+        use image::GenericImage;
+        self.dimensions()
+    }
+
+    fn into_vec(self) -> Vec<image::Rgba<u8>> {
+        self.to_rgba().into_vec()
+    }
+
+    fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
+        unimplemented!()
+    }
+}
+
+/// Trait that describes data for a three-dimensional texture.
+#[experimental = "Will be rewritten to use an associated type"]
+pub trait Texture3dData<P> {
+    /// Returns the dimensions of the texture.
+    fn get_dimensions(&self) -> (u32, u32, u32);
+
+    /// Returns a vec where each element is a pixel of the texture.
+    fn into_vec(self) -> Vec<P>;
+}
+
+impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
+    fn get_dimensions(&self) -> (u32, u32, u32) {
+        (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32,
+            self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
+    }
+
+    fn into_vec(self) -> Vec<P> {
+        self.into_iter().flat_map(|e| e.into_iter()).flat_map(|e| e.into_iter()).collect()
+    }
+}
+
+/// A one-dimensional texture.
+pub struct Texture1d(TextureImplementation);
+
+impl Texture1d {
+    /// Creates a one-dimensional texture.
+    pub fn new<P: PixelValue, T: Texture1dData<P>>(display: &super::Display, data: T) -> Texture1d {
+        let data = data.into_vec();
+        let width = data.len() as u32;
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
+        Texture1d(TextureImplementation::new(display, format, Some(data), width, None, None, None))
+    }
+}
+
+impl Texture for Texture1d {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
     }
 }
 
@@ -665,74 +753,6 @@ impl Texture for Texture2d {
         &self.0
     }
 }
-
-/// Trait that describes data for a two-dimensional texture.
-#[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture2dData<P> {
-    /// Returns the dimensions of the texture.
-    fn get_dimensions(&self) -> (u32, u32);
-
-    /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec<P>;
-
-    /// Builds a new object from raw data.
-    fn from_vec(Vec<P>, width: u32) -> Self;
-}
-
-impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: remove Clone
-    fn get_dimensions(&self) -> (u32, u32) {
-        (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
-    }
-
-    fn into_vec(self) -> Vec<P> {
-        self.into_iter().flat_map(|e| e.into_iter()).collect()
-    }
-
-    fn from_vec(data: Vec<P>, width: u32) -> Vec<Vec<P>> {
-        data.as_slice().chunks(width as uint).map(|e| e.to_vec()).collect()
-    }
-}
-
-#[cfg(feature = "image")]
-impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: Primitive, P: PixelValue +
-    image::Pixel<T> + Clone + Copy
-{
-    fn get_dimensions(&self) -> (u32, u32) {
-        use image::GenericImage;
-        self.dimensions()
-    }
-
-    fn into_vec(self) -> Vec<P> {
-        use image::GenericImage;
-        let (width, _) = self.dimensions();
-
-        let raw_data = self.into_vec();
-
-        raw_data.as_slice().chunks(width as uint).rev().flat_map(|l| l.iter())
-            .map(|l| l.clone()).collect()
-    }
-
-    fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuf<P> {
-        unimplemented!()
-    }
-}
-
-#[cfg(feature = "image")]
-impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
-    fn get_dimensions(&self) -> (u32, u32) {
-        use image::GenericImage;
-        self.dimensions()
-    }
-
-    fn into_vec(self) -> Vec<image::Rgba<u8>> {
-        self.to_rgba().into_vec()
-    }
-
-    fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
-        unimplemented!()
-    }
-}
-
 /// An array of two-dimensional textures.
 pub struct Texture2dArray(TextureImplementation);
 
@@ -781,27 +801,6 @@ impl Texture3d {
 impl Texture for Texture3d {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
-    }
-}
-
-/// Trait that describes data for a three-dimensional texture.
-#[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture3dData<P> {
-    /// Returns the dimensions of the texture.
-    fn get_dimensions(&self) -> (u32, u32, u32);
-
-    /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec<P>;
-}
-
-impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
-    fn get_dimensions(&self) -> (u32, u32, u32) {
-        (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32,
-            self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
-    }
-
-    fn into_vec(self) -> Vec<P> {
-        self.into_iter().flat_map(|e| e.into_iter()).flat_map(|e| e.into_iter()).collect()
     }
 }
 
