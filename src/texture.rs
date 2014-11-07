@@ -629,7 +629,7 @@ impl Texture2d {
     /// All the function calls to the `TextureSurface` will draw on the texture instead of the
     /// screen.
     ///
-    /// ## Low-level implementation
+    /// ## Low-level informations
     ///
     /// The first time that this function is called, a FrameBuffer Object will be created and
     /// cached. The following calls to `as_surface` will load the existing FBO and re-use it.

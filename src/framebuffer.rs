@@ -11,7 +11,7 @@ use {gl, context, libc};
 
 /// A framebuffer that you can use to draw things.
 ///
-/// ## Low-level implementation
+/// ## Low-level informations
 ///
 /// Creating a `FrameBuffer` does **not** immediatly create a FrameBuffer Object. Instead, it is
 /// created when you first use it.
