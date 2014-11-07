@@ -661,6 +661,8 @@ impl Texture2d {
             unsafe {
                 let mut data: Vec<P> = Vec::with_capacity(pixels_count);
 
+                gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
+
                 if version >= &GlVersion(4, 5) {
                     gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
                         (pixels_count * mem::size_of::<P>()) as gl::types::GLsizei,
