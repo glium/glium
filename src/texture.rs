@@ -471,7 +471,7 @@ impl TextureImplementation {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state, version, _) {
+        display.context.context.exec(proc(gl, state, version, _) {
             unsafe {
                 let data = data;
                 let data_raw: *const libc::c_void = match data {
@@ -486,6 +486,11 @@ impl TextureImplementation {
                 } else {
                     1
                 });
+
+                if state.pixel_unpack_buffer_binding.is_some() {
+                    state.pixel_unpack_buffer_binding = None;
+                    gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
+                }
 
                 let id: gl::types::GLuint = mem::uninitialized();
                 gl.GenTextures(1, mem::transmute(&id));

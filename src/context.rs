@@ -67,10 +67,16 @@ pub struct GLState {
     /// The latest buffer bound to `GL_ELEMENT_ARRAY_BUFFER`.
     pub element_array_buffer_binding: Option<gl::types::GLuint>,
 
-    /// The latest framebuffer bound to `GL_READ_FRAMEBUFFER`.
+    /// The latest buffer bound to `GL_PIXEL_PACK_BUFFER`.
+    pub pixel_pack_buffer_binding: Option<gl::types::GLuint>,
+
+    /// The latest buffer bound to `GL_PIXEL_UNPACK_BUFFER`.
+    pub pixel_unpack_buffer_binding: Option<gl::types::GLuint>,
+
+    /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: Option<gl::types::GLuint>,
 
-    /// The latest framebuffer bound to `GL_DRAW_FRAMEBUFFER`.
+    /// The latest buffer bound to `GL_DRAW_FRAMEBUFFER`.
     pub draw_framebuffer: Option<gl::types::GLuint>,
 
     /// The latest values passed to `glBlendFunc`.
@@ -114,6 +120,8 @@ impl GLState {
             clear_stencil: 0,
             array_buffer_binding: None,
             element_array_buffer_binding: None,
+            pixel_pack_buffer_binding: None,
+            pixel_unpack_buffer_binding: None,
             read_framebuffer: None,
             draw_framebuffer: None,
             depth_func: gl::LESS,
