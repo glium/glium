@@ -51,80 +51,401 @@ pub trait Texture {
 /// A trait that must be implemented for any type that can represent the value of a pixel.
 #[experimental = "Will be rewritten after UFCS land"]
 pub trait PixelValue: Copy + Send {     // TODO: Clone, but [T, ..N] doesn't impl Clone
-    /// Returns the `GLenum` corresponding to the type of this pixel.
-    fn get_gl_type(_: Option<Self>) -> gl::types::GLenum;
-    /// Returns the number of color components.
-    fn get_num_elems(_: Option<Self>) -> gl::types::GLint;
+    /// Returns corresponding client format.
+    fn get_format(_: Option<Self>) -> ClientFormat;
 }
 
-// TODO: hacky
 impl PixelValue for i8 {
-    fn get_gl_type(_: Option<(i8)>) -> gl::types::GLenum { gl::BYTE }
-    fn get_num_elems(_: Option<(i8)>) -> gl::types::GLint { 1 }
+    fn get_format(_: Option<i8>) -> ClientFormat {
+        ClientFormatI8
+    }
+}
+
+impl PixelValue for (i8, i8) {
+    fn get_format(_: Option<(i8, i8)>) -> ClientFormat {
+        ClientFormatI8I8
+    }
+}
+
+impl PixelValue for (i8, i8, i8) {
+    fn get_format(_: Option<(i8, i8, i8)>) -> ClientFormat {
+        ClientFormatI8I8I8
+    }
+}
+
+impl PixelValue for (i8, i8, i8, i8) {
+    fn get_format(_: Option<(i8, i8, i8, i8)>) -> ClientFormat {
+        ClientFormatI8I8I8I8
+    }
 }
 
 impl PixelValue for u8 {
-    fn get_gl_type(_: Option<(u8)>) -> gl::types::GLenum { gl::UNSIGNED_BYTE }
-    fn get_num_elems(_: Option<(u8)>) -> gl::types::GLint { 1 }
+    fn get_format(_: Option<u8>) -> ClientFormat {
+        ClientFormatU8
+    }
+}
+
+impl PixelValue for (u8, u8) {
+    fn get_format(_: Option<(u8, u8)>) -> ClientFormat {
+        ClientFormatU8U8
+    }
+}
+
+impl PixelValue for (u8, u8, u8) {
+    fn get_format(_: Option<(u8, u8, u8)>) -> ClientFormat {
+        ClientFormatU8U8U8
+    }
+}
+
+impl PixelValue for (u8, u8, u8, u8) {
+    fn get_format(_: Option<(u8, u8, u8, u8)>) -> ClientFormat {
+        ClientFormatU8U8U8U8
+    }
 }
 
 impl PixelValue for f32 {
-    fn get_gl_type(_: Option<(f32)>) -> gl::types::GLenum { gl::FLOAT }
-    fn get_num_elems(_: Option<(f32)>) -> gl::types::GLint { 1 }
-}
-
-impl<T: PixelValue> PixelValue for (T, T) {
-    fn get_gl_type(_: Option<(T, T)>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
-    fn get_num_elems(_: Option<(T, T)>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 2 }
-}
-
-impl<T: PixelValue> PixelValue for (T, T, T) {
-    fn get_gl_type(_: Option<(T, T, T)>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
-    fn get_num_elems(_: Option<(T, T, T)>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 3 }
-}
-
-impl<T: PixelValue> PixelValue for (T, T, T, T) {
-    fn get_gl_type(_: Option<(T, T, T, T)>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
-    fn get_num_elems(_: Option<(T, T, T, T)>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 4 }
-}
-
-impl<T: PixelValue> PixelValue for [T, ..2] {
-    fn get_gl_type(_: Option<[T, ..2]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
-    fn get_num_elems(_: Option<[T, ..2]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 2 }
-}
-
-impl<T: PixelValue> PixelValue for [T, ..3] {
-    fn get_gl_type(_: Option<[T, ..3]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
-    fn get_num_elems(_: Option<[T, ..3]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 3 }
-}
-
-impl<T: PixelValue> PixelValue for [T, ..4] {
-    fn get_gl_type(_: Option<[T, ..4]>) -> gl::types::GLenum { PixelValue::get_gl_type(None::<T>) }
-    fn get_num_elems(_: Option<[T, ..4]>) -> gl::types::GLint { PixelValue::get_num_elems(None::<T>) * 4 }
-}
-
-#[cfg(feature = "image")]
-impl<T> PixelValue for image::Rgb<T> where T: PixelValue {
-    fn get_gl_type(_: Option<image::Rgb<T>>) -> gl::types::GLenum {
-        PixelValue::get_gl_type(None::<T>)
+    fn get_format(_: Option<f32>) -> ClientFormat {
+        ClientFormatF32
     }
+}
 
-    fn get_num_elems(_: Option<image::Rgb<T>>) -> gl::types::GLint {
-        PixelValue::get_num_elems(None::<T>) * 3
+impl PixelValue for (f32, f32) {
+    fn get_format(_: Option<(f32, f32)>) -> ClientFormat {
+        ClientFormatF32F32
+    }
+}
+
+impl PixelValue for (f32, f32, f32) {
+    fn get_format(_: Option<(f32, f32, f32)>) -> ClientFormat {
+        ClientFormatF32F32F32
+    }
+}
+
+impl PixelValue for (f32, f32, f32, f32) {
+    fn get_format(_: Option<(f32, f32, f32, f32)>) -> ClientFormat {
+        ClientFormatF32F32F32F32
     }
 }
 
 #[cfg(feature = "image")]
-impl<T> PixelValue for image::Rgba<T> where T: PixelValue {
-    fn get_gl_type(_: Option<image::Rgba<T>>) -> gl::types::GLenum {
-        PixelValue::get_gl_type(None::<T>)
-    }
-
-    fn get_num_elems(_: Option<image::Rgba<T>>) -> gl::types::GLint {
-        PixelValue::get_num_elems(None::<T>) * 4
+impl PixelValue for image::Rgb<u8>{
+    fn get_format(_: Option<image::Rgb<u8>>) -> ClientFormat {
+        ClientFormatU8U8U8
     }
 }
 
+#[cfg(feature = "image")]
+impl PixelValue for image::Rgba<u8> {
+    fn get_format(_: Option<image::Rgba<u8>>) -> ClientFormat {
+        ClientFormatU8U8U8U8
+    }
+}
+
+/// List of client-side pixel formats.
+#[allow(missing_docs)]
+pub enum ClientFormat {
+    ClientFormatU8,
+    ClientFormatU8U8,
+    ClientFormatU8U8U8,
+    ClientFormatU8U8U8U8,
+    ClientFormatI8,
+    ClientFormatI8I8,
+    ClientFormatI8I8I8,
+    ClientFormatI8I8I8I8,
+    ClientFormatU16,
+    ClientFormatU16U16,
+    ClientFormatU16U16U16,
+    ClientFormatU16U16U16U16,
+    ClientFormatI16,
+    ClientFormatI16I16,
+    ClientFormatI16I16I16,
+    ClientFormatI16I16I16I16,
+    ClientFormatU32,
+    ClientFormatU32U32,
+    ClientFormatU32U32U32,
+    ClientFormatU32U32U32U32,
+    ClientFormatI32,
+    ClientFormatI32I32,
+    ClientFormatI32I32I32,
+    ClientFormatI32I32I32I32,
+    ClientFormatU3U3U2,
+    ClientFormatU5U6U5,
+    ClientFormatU4U4U4U4,
+    ClientFormatU5U5U5U1,
+    ClientFormatU10U10U10U2,
+    ClientFormatF16,
+    ClientFormatF16F16,
+    ClientFormatF16F16F16,
+    ClientFormatF16F16F16F16,
+    ClientFormatF32,
+    ClientFormatF32F32,
+    ClientFormatF32F32F32,
+    ClientFormatF32F32F32F32,
+}
+
+impl ClientFormat {
+    /// Returns a (format, type) tuple.
+    #[doc(hidden)]      // TODO: shouldn't be pub
+    pub fn to_gl_enum(&self) -> (gl::types::GLenum, gl::types::GLenum) {
+        match *self {
+            ClientFormatU8 => (gl::RED, gl::UNSIGNED_BYTE),
+            ClientFormatU8U8 => (gl::RG, gl::UNSIGNED_BYTE),
+            ClientFormatU8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
+            ClientFormatU8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
+            ClientFormatI8 => (gl::RED, gl::BYTE),
+            ClientFormatI8I8 => (gl::RG, gl::BYTE),
+            ClientFormatI8I8I8 => (gl::RGB, gl::BYTE),
+            ClientFormatI8I8I8I8 => (gl::RGBA, gl::BYTE),
+            ClientFormatU16 => (gl::RED, gl::UNSIGNED_SHORT),
+            ClientFormatU16U16 => (gl::RG, gl::UNSIGNED_SHORT),
+            ClientFormatU16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
+            ClientFormatU16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
+            ClientFormatI16 => (gl::RED, gl::SHORT),
+            ClientFormatI16I16 => (gl::RG, gl::SHORT),
+            ClientFormatI16I16I16 => (gl::RGB, gl::SHORT),
+            ClientFormatI16I16I16I16 => (gl::RGBA, gl::SHORT),
+            ClientFormatU32 => (gl::RED, gl::UNSIGNED_INT),
+            ClientFormatU32U32 => (gl::RG, gl::UNSIGNED_INT),
+            ClientFormatU32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
+            ClientFormatU32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
+            ClientFormatI32 => (gl::RED, gl::INT),
+            ClientFormatI32I32 => (gl::RG, gl::INT),
+            ClientFormatI32I32I32 => (gl::RGB, gl::INT),
+            ClientFormatI32I32I32I32 => (gl::RGBA, gl::INT),
+            ClientFormatU3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
+            ClientFormatU5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
+            ClientFormatU4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
+            ClientFormatU5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
+            ClientFormatU10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
+            ClientFormatF16 => (gl::RED, gl::HALF_FLOAT),
+            ClientFormatF16F16 => (gl::RG, gl::HALF_FLOAT),
+            ClientFormatF16F16F16 => (gl::RGB, gl::HALF_FLOAT),
+            ClientFormatF16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
+            ClientFormatF32 => (gl::RED, gl::FLOAT),
+            ClientFormatF32F32 => (gl::RG, gl::FLOAT),
+            ClientFormatF32F32F32 => (gl::RGB, gl::FLOAT),
+            ClientFormatF32F32F32F32 => (gl::RGBA, gl::FLOAT),
+        }
+    }
+
+    /// Returns the default corresponding floating-point-like internal format.
+    pub fn to_float_internal_format(&self) -> Option<UncompressedFloatFormat> {
+        match *self {
+            ClientFormatU8 => Some(FloatFormatU8),
+            ClientFormatU8U8 => Some(FloatFormatU8U8),
+            ClientFormatU8U8U8 => Some(FloatFormatU8U8U8),
+            ClientFormatU8U8U8U8 => Some(FloatFormatU8U8U8U8),
+            ClientFormatI8 => Some(FloatFormatI8),
+            ClientFormatI8I8 => Some(FloatFormatI8I8),
+            ClientFormatI8I8I8 => Some(FloatFormatI8I8I8),
+            ClientFormatI8I8I8I8 => Some(FloatFormatI8I8I8I8),
+            ClientFormatU16 => Some(FloatFormatU16),
+            ClientFormatU16U16 => Some(FloatFormatU16U16),
+            ClientFormatU16U16U16 => None,
+            ClientFormatU16U16U16U16 => Some(FloatFormatU16U16U16U16),
+            ClientFormatI16 => Some(FloatFormatI16),
+            ClientFormatI16I16 => Some(FloatFormatI16I16),
+            ClientFormatI16I16I16 => Some(FloatFormatI16I16I16),
+            ClientFormatI16I16I16I16 => None,
+            ClientFormatU32 => None,
+            ClientFormatU32U32 => None,
+            ClientFormatU32U32U32 => None,
+            ClientFormatU32U32U32U32 => None,
+            ClientFormatI32 => None,
+            ClientFormatI32I32 => None,
+            ClientFormatI32I32I32 => None,
+            ClientFormatI32I32I32I32 => None,
+            ClientFormatU3U3U2 => None,
+            ClientFormatU5U6U5 => None,
+            ClientFormatU4U4U4U4 => Some(FloatFormatU4U4U4U4),
+            ClientFormatU5U5U5U1 => Some(FloatFormatU5U5U5U1),
+            ClientFormatU10U10U10U2 => Some(FloatFormatU10U10U10U2),
+            ClientFormatF16 => Some(FloatFormatF16),
+            ClientFormatF16F16 => Some(FloatFormatF16F16),
+            ClientFormatF16F16F16 => Some(FloatFormatF16F16F16),
+            ClientFormatF16F16F16F16 => Some(FloatFormatF16F16F16F16),
+            ClientFormatF32 => Some(FloatFormatF32),
+            ClientFormatF32F32 => Some(FloatFormatF32F32),
+            ClientFormatF32F32F32 => Some(FloatFormatF32F32F32),
+            ClientFormatF32F32F32F32 => Some(FloatFormatF32F32F32F32),
+        }
+    }
+}
+
+/// List of uncompressed pixel formats that contain floating points-like data.
+///
+/// Some formats are marked as "guaranteed to be supported". What this means is that you are
+/// certain that the backend will use exactly these formats. If you try to use a format that
+/// is not supported by the backend, it will automatically fall back to a larger format.
+pub enum UncompressedFloatFormat {
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU8,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI8,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU16,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI16,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU8U8,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI8I8,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU16U16,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI16I16,
+    /// 
+    FloatFormatU3U32U,
+    /// 
+    FloatFormatU4U4U4,
+    /// 
+    FloatFormatU5U5U5,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatU8U8U8,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI8I8I8,
+    /// 
+    FloatFormatU10U10U10,
+    /// 
+    FloatFormatU12U12U12,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI16I16I16,
+    /// 
+    FloatFormatU2U2U2U2,
+    /// 
+    FloatFormatU4U4U4U4,
+    /// 
+    FloatFormatU5U5U5U1,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU8U8U8U8,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatI8I8I8I8,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU10U10U10U2,
+    /// 
+    FloatFormatU12U12U12U12,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatU16U16U16U16,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF16,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF16F16,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatF16F16F16,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF16F16F16F16,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF32,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF32F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatF32F32F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF32F32F32F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    FloatFormatF11F11F10,
+    /// Uses three components of 9 bits of precision that all share the same exponent.
+    ///
+    /// Use this format only if all the components are approximately equal.
+    ///
+    /// Guaranteed to be supported for textures.
+    FloatFormatF9F9F9,
+}
+
+impl UncompressedFloatFormat {
+    fn to_gl_enum(&self) -> gl::types::GLenum {
+        match *self {
+            FloatFormatU8 => gl::R8,
+            FloatFormatI8 => gl::R8_SNORM,
+            FloatFormatU16 => gl::R16,
+            FloatFormatI16 => gl::R16_SNORM,
+            FloatFormatU8U8 => gl::RG8,
+            FloatFormatI8I8 => gl::RG8_SNORM,
+            FloatFormatU16U16 => gl::RG16,
+            FloatFormatI16I16 => gl::RG16_SNORM,
+            FloatFormatU3U32U => gl::R3_G3_B2,
+            FloatFormatU4U4U4 => gl::RGB4,
+            FloatFormatU5U5U5 => gl::RGB5,
+            FloatFormatU8U8U8 => gl::RGB8,
+            FloatFormatI8I8I8 => gl::RGB8_SNORM,
+            FloatFormatU10U10U10 => gl::RGB10,
+            FloatFormatU12U12U12 => gl::RGB12,
+            FloatFormatI16I16I16 => gl::RGB16_SNORM,
+            FloatFormatU2U2U2U2 => gl::RGBA2,
+            FloatFormatU4U4U4U4 => gl::RGBA4,
+            FloatFormatU5U5U5U1 => gl::RGB5_A1,
+            FloatFormatU8U8U8U8 => gl::RGBA8,
+            FloatFormatI8I8I8I8 => gl::RGBA8_SNORM,
+            FloatFormatU10U10U10U2 => gl::RGB10_A2,
+            FloatFormatU12U12U12U12 => gl::RGBA12,
+            FloatFormatU16U16U16U16 => gl::RGBA16,
+            FloatFormatF16 => gl::R16F,
+            FloatFormatF16F16 => gl::RG16F,
+            FloatFormatF16F16F16 => gl::RGB16F,
+            FloatFormatF16F16F16F16 => gl::RGBA16F,
+            FloatFormatF32 => gl::R32F,
+            FloatFormatF32F32 => gl::RG32F,
+            FloatFormatF32F32F32 => gl::RGB32F,
+            FloatFormatF32F32F32F32 => gl::RGBA32F,
+            FloatFormatF11F11F10 => gl::R11F_G11F_B10F,
+            FloatFormatF9F9F9 => gl::RGB9_E5,
+        }
+    }
+}
+
+/// Format of the internal representation of a texture.
+pub enum TextureFormat {
+    /// 
+    Uncompressed(UncompressedFloatFormat),
+}
 
 /// A one-dimensional texture.
 pub struct Texture1d(TextureImplementation);
@@ -413,8 +734,6 @@ impl TextureImplementation {
     fn new<P: PixelValue>(display: &super::Display, data: Option<Vec<P>>, width: u32,
         height: Option<u32>, depth: Option<u32>, array_size: Option<u32>) -> TextureImplementation
     {
-        let element_components = PixelValue::get_num_elems(None::<P>);
-
         if let Some(ref data) = data {
             if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
                 array_size.unwrap_or(1) as uint != data.len()
@@ -432,43 +751,12 @@ impl TextureImplementation {
             gl::TEXTURE_3D
         };
 
-        let data_type = PixelValue::get_gl_type(None::<P>);
-
-        let (internal_data_format, data_format, data_type) = match (element_components, data_type) {
-            (1, gl::BYTE)           => (gl::RED, gl::RED, gl::BYTE),
-            (1, gl::UNSIGNED_BYTE)  => (gl::RED, gl::RED, gl::UNSIGNED_BYTE),
-            (1, gl::SHORT)          => (gl::RED, gl::RED, gl::SHORT),
-            (1, gl::UNSIGNED_SHORT) => (gl::RED, gl::RED, gl::UNSIGNED_SHORT),
-            (1, gl::INT)            => (gl::RED, gl::RED, gl::INT),
-            (1, gl::UNSIGNED_INT)   => (gl::RED, gl::RED, gl::UNSIGNED_INT),
-            (1, gl::FLOAT)          => (gl::R32F, gl::RED, gl::FLOAT),
-
-            (2, gl::BYTE)           => (gl::RG, gl::RG, gl::BYTE),
-            (2, gl::UNSIGNED_BYTE)  => (gl::RG, gl::RG, gl::UNSIGNED_BYTE),
-            (2, gl::SHORT)          => (gl::RG, gl::RG, gl::SHORT),
-            (2, gl::UNSIGNED_SHORT) => (gl::RG, gl::RG, gl::UNSIGNED_SHORT),
-            (2, gl::INT)            => (gl::RG, gl::RG, gl::INT),
-            (2, gl::UNSIGNED_INT)   => (gl::RG, gl::RG, gl::UNSIGNED_INT),
-            (2, gl::FLOAT)          => (gl::RG32F, gl::RG, gl::FLOAT),
-
-            (3, gl::BYTE)           => (gl::RGB, gl::RGB, gl::BYTE),
-            (3, gl::UNSIGNED_BYTE)  => (gl::RGB, gl::RGB, gl::UNSIGNED_BYTE),
-            (3, gl::SHORT)          => (gl::RGB, gl::RGB, gl::SHORT),
-            (3, gl::UNSIGNED_SHORT) => (gl::RGB, gl::RGB, gl::UNSIGNED_SHORT),
-            (3, gl::INT)            => (gl::RGB, gl::RGB, gl::INT),
-            (3, gl::UNSIGNED_INT)   => (gl::RGB, gl::RGB, gl::UNSIGNED_INT),
-            (3, gl::FLOAT)          => (gl::RGB32F, gl::RGB, gl::FLOAT),
-
-            (4, gl::BYTE)           => (gl::RGBA, gl::RGBA, gl::BYTE),
-            (4, gl::UNSIGNED_BYTE)  => (gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE),
-            (4, gl::SHORT)          => (gl::RGBA, gl::RGBA, gl::SHORT),
-            (4, gl::UNSIGNED_SHORT) => (gl::RGBA, gl::RGBA, gl::UNSIGNED_SHORT),
-            (4, gl::INT)            => (gl::RGBA, gl::RGBA, gl::INT),
-            (4, gl::UNSIGNED_INT)   => (gl::RGBA, gl::RGBA, gl::UNSIGNED_INT),
-            (4, gl::FLOAT)          => (gl::RGBA32F, gl::RGBA, gl::FLOAT),
-
-            _ => panic!("unsupported texture type")
-        };
+        let (client_format, client_type) = PixelValue::get_format(None::<P>).to_gl_enum();
+        let internal_data_format = PixelValue::get_format(None::<P>).to_float_internal_format()
+                                                                    .expect("Could not determine \
+                                                                             proper internal \
+                                                                             format")
+                                                                    .to_gl_enum();
 
         let (tx, rx) = channel();
         display.context.context.exec(proc(gl, state, version, _) {
@@ -512,14 +800,14 @@ impl TextureImplementation {
                     gl.TexImage3D(texture_type, 0, internal_data_format as i32, width as i32,
                         height.unwrap() as i32,
                         if let Some(d) = depth { d } else { array_size.unwrap_or(1) } as i32, 0,
-                        data_format as u32, data_type, data_raw);
+                        client_format as u32, client_type, data_raw);
 
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
                     gl.TexImage2D(texture_type, 0, internal_data_format as i32, width as i32,
-                        height.unwrap() as i32, 0, data_format as u32, data_type, data_raw);
+                        height.unwrap() as i32, 0, client_format as u32, client_type, data_raw);
                 } else {
                     gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0,
-                        data_format as u32, data_type, data_raw);
+                        client_format as u32, client_type, data_raw);
                 }
 
                 if version >= &GlVersion(3, 0) {

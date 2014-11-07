@@ -867,15 +867,7 @@ impl Display {
         let dimensions = self.get_framebuffer_dimensions();
         let pixels_count = dimensions.0 * dimensions.1;
 
-        let format = match texture::PixelValue::get_num_elems(None::<P>) {
-            1 => gl::RED,
-            2 => gl::RG,
-            3 => gl::RGB,
-            4 => gl::RGBA,
-            _ => panic!("pixels with more than 4 components are not supported")
-        };
-
-        let gltype = texture::PixelValue::get_gl_type(None::<P>);
+        let (format, gltype) = texture::PixelValue::get_format(None::<P>).to_gl_enum();
 
         let (tx, rx) = channel();
         self.context.context.exec(proc(gl, state, version, _) {
