@@ -30,7 +30,7 @@ The window where you are drawing on will produce events. They can be received by
 # Fundamentals
 
 In order to draw something on the window, you must first call `display.draw()`. This function
-call returns a `Target` object which you can manipulate to draw things. Once the object
+call returns a `Frame` object which you can manipulate to draw things. Once the object
 is destroyed, the result will be presented to the user by swapping the front and back buffers.
 
 You can easily fill the window with one color by calling `clear_colors` on the target. Drawing
@@ -166,10 +166,10 @@ This includes textures and samplers (not covered here). You can check the docume
 `uniforms` module for more informations.
 
 Now that everything is initialized, we can finally draw something. To do so, call `display.draw()`
-in order to obtain a `Target` object. Note that it is also possible to draw on a texture by
+in order to obtain a `Frame` object. Note that it is also possible to draw on a texture by
 calling `texture.draw()`, but this is not covered here.
 
-The `Target` object has a `draw` function which you can use to draw things.
+The `Frame` object has a `draw` function which you can use to draw things.
 Its arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
 `DrawParameters` which contains miscellaneous informations about how everything should be rendered
 (depth test, blending, backface culling, etc.).
@@ -277,7 +277,7 @@ compile_error!("This platform is not supported")
 /// You can implement this for your own type by redirecting the call to another command.
 pub trait DrawCommand {
     /// Draws the object on the specified target.
-    fn draw(self, &mut Target);
+    fn draw(self, &mut Frame);
 }
 
 /// Types of primitives.
@@ -676,21 +676,21 @@ pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a framebuffer::Framebuf
 
 /// Implementation of `Surface` targetting the default framebuffer.
 ///
-/// The back- and front-buffers are swapped when the `Target` is destroyed. This operation is
+/// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
 /// instantaneous, even when vsync is enabled.
-pub struct Target<'a> {
+pub struct Frame<'a> {
     display: Arc<DisplayImpl>,
     marker: std::kinds::marker::ContravariantLifetime<'a>,
     dimensions: (uint, uint),
 }
 
-impl<'t> Target<'t> {
+impl<'t> Frame<'t> {
     /// Stop drawing and swap the buffers.
     pub fn finish(self) {
     }
 }
 
-impl<'t> Surface for Target<'t> {
+impl<'t> Surface for Frame<'t> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
         framebuffer::clear_color(&self.display, None, red, green, blue, alpha)
     }
@@ -721,7 +721,7 @@ impl<'t> Surface for Target<'t> {
 }
 
 #[unsafe_destructor]
-impl<'t> Drop for Target<'t> {
+impl<'t> Drop for Frame<'t> {
     fn drop(&mut self) {
         self.display.context.swap_buffers();
     }
@@ -821,12 +821,12 @@ impl Display {
 
     /// Start drawing on the backbuffer.
     ///
-    /// This function returns a `Target` which can be used to draw on it. When the `Target` is
+    /// This function returns a `Frame` which can be used to draw on it. When the `Frame` is
     /// destroyed, the buffers are swapped.
     ///
-    /// Note that destroying a `Target` is immediate, even if vsync is enabled.
-    pub fn draw(&self) -> Target {
-        Target {
+    /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
+    pub fn draw(&self) -> Frame {
+        Frame {
             display: self.context.clone(),
             marker: std::kinds::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
