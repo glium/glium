@@ -271,6 +271,14 @@ impl ClientFormat {
             ClientFormatF32F32F32F32 => Some(FloatFormatF32F32F32F32),
         }
     }
+
+    /// Returns a GLenum corresponding to the default floating-point-like format corresponding
+    /// to this client format.
+    fn to_default_float_format(&self) -> gl::types::GLenum {
+        self.to_float_internal_format()
+            .map(|e| e.to_gl_enum())
+            .unwrap_or_else(|| self.to_gl_enum().0)
+    }
 }
 
 /// List of uncompressed pixel formats that contain floating points-like data.
@@ -526,7 +534,8 @@ impl Texture1d {
     pub fn new<P: PixelValue, T: Texture1dData<P>>(display: &super::Display, data: T) -> Texture1d {
         let data = data.into_vec();
         let width = data.len() as u32;
-        Texture1d(TextureImplementation::new(display, Some(data), width, None, None, None))
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
+        Texture1d(TextureImplementation::new(display, format, Some(data), width, None, None, None))
     }
 }
 
@@ -573,8 +582,10 @@ impl Texture1dArray {
             let d = t.into_vec(); width = d.len(); d.into_iter()
         }).collect();
 
-        Texture1dArray(TextureImplementation::new(display, Some(data), width as u32, None, None,
-            Some(array_size as u32)))
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
+
+        Texture1dArray(TextureImplementation::new(display, format, Some(data), width as u32, None,
+            None, Some(array_size as u32)))
     }
 }
 
@@ -590,11 +601,12 @@ pub struct Texture2d(TextureImplementation);
 impl Texture2d {
     /// Creates a two-dimensional texture.
     pub fn new<P: PixelValue, T: Texture2dData<P>>(display: &super::Display, data: T) -> Texture2d {
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
 
-        Texture2d(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
-            None, None))
+        Texture2d(TextureImplementation::new(display, format, Some(data), dimensions.0,
+            Some(dimensions.1), None, None))
     }
 
     /// Creates an empty two-dimensional textures.
@@ -619,7 +631,8 @@ impl Texture2d {
     pub fn new_empty<P: PixelValue>(display: &super::Display, width: u32, height: u32)
         -> Texture2d
     {
-        Texture2d(TextureImplementation::new::<P>(display, None, width, Some(height),
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
+        Texture2d(TextureImplementation::new::<P>(display, format, None, width, Some(height),
             None, None))
     }
 
@@ -738,7 +751,9 @@ impl Texture2dArray {
             dimensions = t.get_dimensions(); t.into_vec().into_iter()
         }).collect();
 
-        Texture2dArray(TextureImplementation::new(display, Some(data), dimensions.0,
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
+
+        Texture2dArray(TextureImplementation::new(display, format, Some(data), dimensions.0,
             Some(dimensions.1), None, Some(array_size as u32)))
     }
 }
@@ -757,8 +772,9 @@ impl Texture3d {
     pub fn new<P: PixelValue, T: Texture3dData<P>>(display: &super::Display, data: T) -> Texture3d {
         let dimensions = data.get_dimensions();
         let data = data.into_vec();
-        Texture3d(TextureImplementation::new(display, Some(data), dimensions.0, Some(dimensions.1),
-            Some(dimensions.2), None))
+        let format = PixelValue::get_format(None::<P>).to_default_float_format();
+        Texture3d(TextureImplementation::new(display, format, Some(data), dimensions.0,
+            Some(dimensions.1), Some(dimensions.2), None))
     }
 }
 
@@ -832,8 +848,9 @@ pub fn get_id(texture: &TextureImplementation) -> gl::types::GLuint {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    fn new<P: PixelValue>(display: &super::Display, data: Option<Vec<P>>, width: u32,
-        height: Option<u32>, depth: Option<u32>, array_size: Option<u32>) -> TextureImplementation
+    fn new<P: PixelValue>(display: &super::Display, format: gl::types::GLenum,
+        data: Option<Vec<P>>, width: u32, height: Option<u32>, depth: Option<u32>,
+        array_size: Option<u32>) -> TextureImplementation
     {
         if let Some(ref data) = data {
             if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
@@ -853,11 +870,6 @@ impl TextureImplementation {
         };
 
         let (client_format, client_type) = PixelValue::get_format(None::<P>).to_gl_enum();
-        let internal_data_format = PixelValue::get_format(None::<P>).to_float_internal_format()
-                                                                    .expect("Could not determine \
-                                                                             proper internal \
-                                                                             format")
-                                                                    .to_gl_enum();
 
         let (tx, rx) = channel();
         display.context.context.exec(proc(gl, state, version, _) {
@@ -898,16 +910,16 @@ impl TextureImplementation {
                     gl::LINEAR_MIPMAP_LINEAR as i32);
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    gl.TexImage3D(texture_type, 0, internal_data_format as i32, width as i32,
+                    gl.TexImage3D(texture_type, 0, format as i32, width as i32,
                         height.unwrap() as i32,
                         if let Some(d) = depth { d } else { array_size.unwrap_or(1) } as i32, 0,
                         client_format as u32, client_type, data_raw);
 
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    gl.TexImage2D(texture_type, 0, internal_data_format as i32, width as i32,
+                    gl.TexImage2D(texture_type, 0, format as i32, width as i32,
                         height.unwrap() as i32, 0, client_format as u32, client_type, data_raw);
                 } else {
-                    gl.TexImage1D(texture_type, 0, internal_data_format as i32, width as i32, 0,
+                    gl.TexImage1D(texture_type, 0, format as i32, width as i32, 0,
                         client_format as u32, client_type, data_raw);
                 }
 
