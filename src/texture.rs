@@ -516,7 +516,6 @@ pub enum TextureFormat {
     UncompressedFloat(UncompressedFloatFormat),
     /// 
     UncompressedIntegral(UncompressedIntegralFormat),
-
 }
 
 /// A one-dimensional texture.
@@ -643,48 +642,7 @@ impl Texture2d {
 
     /// Reads the content of the texture into a `Texture2DData`.
     pub fn read<P, T>(&self) -> T where P: PixelValue, T: Texture2dData<P> {
-        self.read_mipmap(0)
-    }
-
-    /// Reads the content of a mipmap level of the texture.
-    // TODO: this function is private because it only works for level 0 right now
-    //       width/height need adjustements
-    fn read_mipmap<P, T>(&self, level: u32) -> T where P: PixelValue, T: Texture2dData<P> {
-        assert_eq!(level, 0);   // TODO: 
-
-        let pixels_count = (self.get_width() * self.get_height().unwrap()) as uint;
-
-        let (format, gltype) = PixelValue::get_format(None::<P>).to_gl_enum();
-        let my_id = self.0.id;
-
-        let (tx, rx) = channel();
-        self.0.display.context.exec(proc(gl, state, version, extensions) {
-            unsafe {
-                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
-
-                gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
-
-                if version >= &GlVersion(4, 5) {
-                    gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
-                        (pixels_count * mem::size_of::<P>()) as gl::types::GLsizei,
-                        data.as_mut_ptr() as *mut libc::c_void);
-
-                } else if extensions.gl_ext_direct_state_access {
-                    gl.GetTextureImageEXT(my_id, gl::TEXTURE_2D, level as gl::types::GLint,
-                        format, gltype, data.as_mut_ptr() as *mut libc::c_void);
-
-                } else {
-                    gl.BindTexture(gl::TEXTURE_2D, my_id);
-                    gl.GetTexImage(gl::TEXTURE_2D, level as gl::types::GLint, format, gltype,
-                        data.as_mut_ptr() as *mut libc::c_void);
-                }
-
-                data.set_len(pixels_count);
-                tx.send(data);
-            }
-        });
-
-        let data = rx.recv();
+        let data = self.0.read::<P>(0);
         Texture2dData::from_vec(data, self.get_width() as u32)
     }
 }
@@ -972,6 +930,48 @@ impl TextureImplementation {
             depth: depth,
             array_size: array_size,
         }
+    }
+
+    /// Reads the content of a mipmap level of the texture.
+    // TODO: this function only works for level 0 right now
+    //       width/height need adjustements
+    fn read<P>(&self, level: u32) -> Vec<P> where P: PixelValue {
+        assert_eq!(level, 0);   // TODO: 
+
+        let pixels_count = (self.width * self.height.unwrap_or(1) * self.depth.unwrap_or(1))
+                            as uint;
+
+        let (format, gltype) = PixelValue::get_format(None::<P>).to_gl_enum();
+        let my_id = self.id;
+
+        let (tx, rx) = channel();
+        self.display.context.exec(proc(gl, state, version, extensions) {
+            unsafe {
+                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
+
+                gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
+
+                if version >= &GlVersion(4, 5) {
+                    gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
+                        (pixels_count * mem::size_of::<P>()) as gl::types::GLsizei,
+                        data.as_mut_ptr() as *mut libc::c_void);
+
+                } else if extensions.gl_ext_direct_state_access {
+                    gl.GetTextureImageEXT(my_id, gl::TEXTURE_2D, level as gl::types::GLint,
+                        format, gltype, data.as_mut_ptr() as *mut libc::c_void);
+
+                } else {
+                    gl.BindTexture(gl::TEXTURE_2D, my_id);
+                    gl.GetTexImage(gl::TEXTURE_2D, level as gl::types::GLint, format, gltype,
+                        data.as_mut_ptr() as *mut libc::c_void);
+                }
+
+                data.set_len(pixels_count);
+                tx.send(data);
+            }
+        });
+
+        rx.recv()
     }
 }
 
