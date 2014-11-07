@@ -15,6 +15,7 @@ The most common type of texture is a `Texture2d` (the two dimensions being the w
 
 use {gl, image, libc, framebuffer};
 
+use buffer::{mod, Buffer};
 use context::GlVersion;
 use Surface;
 
@@ -827,6 +828,29 @@ impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
 
     fn into_vec(self) -> Vec<P> {
         self.into_iter().flat_map(|e| e.into_iter()).flat_map(|e| e.into_iter()).collect()
+    }
+}
+
+/// Buffer that stores the content of a texture.
+///
+/// The generic type represents the texture type that the buffer contains.
+///
+/// **Note**: pixel buffers are unusable for the moment (they are not yet implemented).
+pub struct PixelBuffer<T> {
+    buffer: Buffer<buffer::PixelUnpackBuffer>,
+}
+
+impl<T> PixelBuffer<T> {
+    /// Builds a new buffer with an uninitialized content.
+    pub fn new_empty(display: &super::Display, capacity: uint) -> PixelBuffer<()> {
+        PixelBuffer {
+            buffer: Buffer::new_empty(display, 1, capacity, gl::DYNAMIC_READ),
+        }
+    }
+
+    /// Turns a `PixelBuffer<T>` into a `PixelBuffer<U>` without any check.
+    pub unsafe fn transmute<U>(self) -> PixelBuffer<U> {
+        PixelBuffer { buffer: self.buffer }
     }
 }
 

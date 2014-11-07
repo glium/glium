@@ -2,8 +2,7 @@ use context::{mod, GlVersion};
 use gl;
 use libc;
 use std::c_vec::CVec;
-use std::fmt;
-use std::mem;
+use std::{fmt, mem, ptr};
 use std::sync::Arc;
 
 /// A buffer in the graphics card's memory.
@@ -53,6 +52,36 @@ impl BufferType for ElementArrayBuffer {
     }
 }
 
+/// Used for pixel buffers.
+pub struct PixelPackBuffer;
+
+impl BufferType for PixelPackBuffer {
+    fn get_storage_point(_: Option<PixelPackBuffer>, state: &mut context::GLState)
+        -> &mut Option<gl::types::GLuint>
+    {
+        &mut state.pixel_pack_buffer_binding
+    }
+
+    fn get_bind_point(_: Option<PixelPackBuffer>) -> gl::types::GLenum {
+        gl::PIXEL_PACK_BUFFER
+    }
+}
+
+/// Used for pixel buffers.
+pub struct PixelUnpackBuffer;
+
+impl BufferType for PixelUnpackBuffer {
+    fn get_storage_point(_: Option<PixelUnpackBuffer>, state: &mut context::GLState)
+        -> &mut Option<gl::types::GLuint>
+    {
+        &mut state.pixel_unpack_buffer_binding
+    }
+
+    fn get_bind_point(_: Option<PixelUnpackBuffer>) -> gl::types::GLenum {
+        gl::PIXEL_UNPACK_BUFFER
+    }
+}
+
 impl<T: BufferType> Buffer<T> {
     pub fn new<D: Send + Copy>(display: &super::Display, data: Vec<D>, usage: gl::types::GLenum)
         -> Buffer<T>
@@ -84,6 +113,45 @@ impl<T: BufferType> Buffer<T> {
                     *storage = Some(id);
                     gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
                         data.as_ptr() as *const libc::c_void, usage);
+                }
+
+                tx.send(id);
+            }
+        });
+
+        Buffer {
+            display: display.context.clone(),
+            id: rx.recv(),
+            elements_size: elements_size,
+            elements_count: elements_count,
+        }
+    }
+
+    pub fn new_empty(display: &super::Display, elements_size: uint, elements_count: uint,
+                     usage: gl::types::GLenum) -> Buffer<T>
+    {
+        let buffer_size = elements_count * elements_size as uint;
+
+        let (tx, rx) = channel();
+        display.context.context.exec(proc(gl, state, version, extensions) {
+            unsafe {
+                let mut id: gl::types::GLuint = mem::uninitialized();
+                gl.GenBuffers(1, &mut id);
+
+                if version >= &GlVersion(4, 5) {
+                    gl.NamedBufferData(id, buffer_size as gl::types::GLsizei, ptr::null(), usage);
+                        
+                } else if extensions.gl_ext_direct_state_access {
+                    gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr, ptr::null(),
+                        usage);
+
+                } else {
+                    let storage = BufferType::get_storage_point(None::<T>, state);
+                    let bind = BufferType::get_bind_point(None::<T>);
+
+                    gl.BindBuffer(bind, id);
+                    *storage = Some(id);
+                    gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr, ptr::null(), usage);
                 }
 
                 tx.send(id);
