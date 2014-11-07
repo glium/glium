@@ -2,6 +2,9 @@
 Test supports module.
 
 */
+
+#![allow(dead_code)]
+
 use glutin;
 use glium::{mod, DisplayBuild};
 
