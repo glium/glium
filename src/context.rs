@@ -51,6 +51,9 @@ pub struct GLState {
     // The latest value passed to `glUseProgram`.
     pub program: gl::types::GLuint,
 
+    // The latest value passed to `glBindVertexArray`.
+    pub vertex_array: gl::types::GLuint,
+
     // The latest value passed to `glClearColor`.
     pub clear_color: (gl::types::GLclampf, gl::types::GLclampf,
                       gl::types::GLclampf, gl::types::GLclampf),
@@ -115,6 +118,7 @@ impl GLState {
             enabled_stencil_test: false,
 
             program: 0,
+            vertex_array: 0,
             clear_color: (0.0, 0.0, 0.0, 0.0),
             clear_depth: 1.0,
             clear_stencil: 0,

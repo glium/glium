@@ -236,6 +236,7 @@ mod data_types;
 mod framebuffer;
 mod index_buffer;
 mod program;
+mod vertex_array_object;
 
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
@@ -769,6 +770,7 @@ impl DisplayBuild for glutin::WindowBuilder {
             context: Arc::new(DisplayImpl {
                 context: context,
                 framebuffer_objects: Mutex::new(HashMap::new()),
+                vertex_array_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -783,6 +785,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
             context: Arc::new(DisplayImpl {
                 context: context,
                 framebuffer_objects: Mutex::new(HashMap::new()),
+                vertex_array_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -806,6 +809,11 @@ struct DisplayImpl {
     // when something requirering a FBO is drawn, we look for an existing one in this hashmap
     framebuffer_objects: Mutex<HashMap<framebuffer::FramebufferAttachments,
                                        framebuffer::FrameBufferObject>>,
+
+    // we maintain a list of VAOs for each vertexbuffer-program association
+    // the key is a (vertexbuffer, program)
+    vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint),
+                                        vertex_array_object::VertexArrayObject>>,
 }
 
 impl Display {
@@ -899,12 +907,19 @@ impl Display {
     }
 }
 
-// this destructor is here because framebuffers contain an `Arc<DisplayImpl>`, which would lead
-// to a leak
-impl Drop for DisplayImpl {
+// this destructor is here because objects in `Display` contain an `Arc<DisplayImpl>`,
+// which would lead to a leak
+impl Drop for Display {
     fn drop(&mut self) {
-        let mut fbos = self.framebuffer_objects.lock();
-        fbos.clear();
+        {
+            let mut fbos = self.context.framebuffer_objects.lock();
+            fbos.clear();
+        }
+
+        {
+            let mut vaos = self.context.vertex_array_objects.lock();
+            vaos.clear();
+        }
     }
 }
 

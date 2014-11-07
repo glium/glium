@@ -166,6 +166,10 @@ impl Buffer {
         }
     }
 
+    pub fn get_display(&self) -> &Arc<super::DisplayImpl> {
+        &self.display
+    }
+
     pub fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

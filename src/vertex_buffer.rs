@@ -8,10 +8,22 @@ pub struct VertexBuffer<T> {
     bindings: VertexBindings,
 }
 
-/// This public function is accessible from within `glium` but not for the user.
+/// Don't use this function outside of glium
 #[doc(hidden)]
-pub fn get_clone<T>(vb: &VertexBuffer<T>) -> (gl::types::GLuint, uint, VertexBindings) {
-    (vb.buffer.get_id(), vb.buffer.get_elements_size(), vb.bindings.clone())
+pub fn get_id<T>(vb: &VertexBuffer<T>) -> gl::types::GLuint {
+    vb.buffer.get_id()
+}
+
+/// Don't use this function outside of glium
+#[doc(hidden)]
+pub fn get_elements_size<T>(vb: &VertexBuffer<T>) -> uint {
+    vb.buffer.get_elements_size()
+}
+
+/// Don't use this function outside of glium
+#[doc(hidden)]
+pub fn get_bindings<T>(vb: &VertexBuffer<T>) -> &VertexBindings {
+    &vb.bindings
 }
 
 impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
@@ -92,6 +104,19 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
     pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
         self.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
+    }
+}
+
+#[unsafe_destructor]
+impl<T> Drop for VertexBuffer<T> {
+    fn drop(&mut self) {
+        // removing VAOs which contain this vertex buffer
+        let mut vaos = self.buffer.get_display().vertex_array_objects.lock();
+        let to_delete = vaos.keys().filter(|&&(v, _)| v == self.buffer.get_id())
+            .map(|k| k.clone()).collect::<Vec<_>>();
+        for k in to_delete.into_iter() {
+            vaos.remove(&k);
+        }
     }
 }
 
