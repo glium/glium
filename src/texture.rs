@@ -638,7 +638,7 @@ impl Texture2d {
     pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {
         // TODO: hacky, shouldn't recreate a Display
         TextureSurface(framebuffer::FrameBuffer::new(&::Display { context: self.0.display.clone() })
-            .with_texture(self))
+            .with_color_texture(self))
     }
 
     /// Reads the content of the texture into a `Texture2DData`.

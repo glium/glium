@@ -45,7 +45,7 @@ impl<'a> FrameBuffer<'a> {
     }
 
     /// Attach an additional texture to this framebuffer.
-    pub fn with_texture<T: 'a>(mut self, texture: &'a T) -> FrameBuffer<'a> where T: Texture {
+    pub fn with_color_texture<T: 'a>(mut self, texture: &'a T) -> FrameBuffer<'a> where T: Texture {
         // TODO: check existing dimensions
         self.attachments.colors.push(texture::get_id(texture.get_implementation()));
         self.dimensions = Some((texture.get_width(), texture.get_height().unwrap_or(1)));
