@@ -639,6 +639,53 @@ impl Texture2d {
         TextureSurface(framebuffer::FrameBuffer::new(&::Display { context: self.0.display.clone() })
             .with_texture(self))
     }
+
+    /// Reads the content of the texture into a `Texture2DData`.
+    pub fn read<P, T>(&self) -> T where P: PixelValue, T: Texture2dData<P> {
+        self.read_mipmap(0)
+    }
+
+    /// Reads the content of a mipmap level of the texture.
+    // TODO: this function is private because it only works for level 0 right now
+    //       width/height need adjustements
+    fn read_mipmap<P, T>(&self, level: u32) -> T where P: PixelValue, T: Texture2dData<P> {
+        assert_eq!(level, 0);   // TODO: 
+
+        let pixels_count = (self.get_width() * self.get_height().unwrap()) as uint;
+
+        let (format, gltype) = PixelValue::get_format(None::<P>).to_gl_enum();
+        let my_id = self.0.id;
+
+        let (tx, rx) = channel();
+        self.0.display.context.exec(proc(gl, state, version, extensions) {
+            unsafe {
+                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
+
+                gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
+
+                if version >= &GlVersion(4, 5) {
+                    gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
+                        (pixels_count * mem::size_of::<P>()) as gl::types::GLsizei,
+                        data.as_mut_ptr() as *mut libc::c_void);
+
+                } else if extensions.gl_ext_direct_state_access {
+                    gl.GetTextureImageEXT(my_id, gl::TEXTURE_2D, level as gl::types::GLint,
+                        format, gltype, data.as_mut_ptr() as *mut libc::c_void);
+
+                } else {
+                    gl.BindTexture(gl::TEXTURE_2D, my_id);
+                    gl.GetTexImage(gl::TEXTURE_2D, level as gl::types::GLint, format, gltype,
+                        data.as_mut_ptr() as *mut libc::c_void);
+                }
+
+                data.set_len(pixels_count);
+                tx.send(data);
+            }
+        });
+
+        let data = rx.recv();
+        Texture2dData::from_vec(data, self.get_width() as u32)
+    }
 }
 
 impl Texture for Texture2d {
@@ -900,45 +947,6 @@ impl TextureImplementation {
             depth: depth,
             array_size: array_size,
         }
-    }
-
-    /// Reads the content of the texture.
-    ///
-    /// Same as `read_mipmap` with `level` as `0`.
-    // TODO: draft ; must be checked and turned public
-    #[allow(dead_code)]     // remove
-    fn read(&self) -> Vec<u8> {
-        self.read_mipmap(0)
-    }
-
-    /// Reads the content of one of the mipmaps the texture.
-    ///
-    /// Returns a 2D array of pixels.
-    /// Each pixel has R, G and B components between 0 and 255.
-    // TODO: draft ; must be checked and turned public
-    #[allow(dead_code)]     // remove
-    fn read_mipmap(&self, _level: uint) -> Vec<u8> {
-        unimplemented!()
-        /*let bind_point = self.bind_point;
-        let id = self.id;
-        let buffer_size = self.width * self.height * self.depth *
-            self.array_size * 3;
-
-        if level != 0 {
-            unimplemented!()
-        }
-
-        self.display.context.exec(proc(gl, _state, _, _) {
-            let mut buffer = Vec::from_elem(buffer_size, 0u8);
-
-            unsafe {
-                gl.BindTexture(bind_point, id);
-                gl.GetTexImage(bind_point, 0 as gl::types::GLint, gl::RGBA_INTEGER,
-                    gl::UNSIGNED_BYTE, buffer.as_mut_ptr() as *mut libc::c_void);
-            }
-
-            buffer
-        }).get()*/
     }
 }
 
