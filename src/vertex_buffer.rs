@@ -1,24 +1,17 @@
-use context::GlVersion;
+use buffer::{mod, Buffer};
 use gl;
-use libc;
-use std::c_vec::CVec;
-use std::fmt;
-use std::mem;
-use std::sync::Arc;
 
 /// A list of verices loaded in the graphics card's memory.
+#[deriving(Show)]
 pub struct VertexBuffer<T> {
-    display: Arc<super::DisplayImpl>,
-    id: gl::types::GLuint,
-    elements_size: uint,
+    buffer: Buffer<buffer::ArrayBuffer>,
     bindings: VertexBindings,
-    elements_count: uint,
 }
 
 /// This public function is accessible from within `glium` but not for the user.
 #[doc(hidden)]
 pub fn get_clone<T>(vb: &VertexBuffer<T>) -> (gl::types::GLuint, uint, VertexBindings) {
-    (vb.id.clone(), vb.elements_size.clone(), vb.bindings.clone())
+    (vb.buffer.get_id(), vb.buffer.get_elements_size(), vb.bindings.clone())
 }
 
 impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
@@ -50,7 +43,12 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// ```
     /// 
     pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
-        VertexBuffer::new_impl(display, data, false)
+        let bindings = VertexFormat::build_bindings(None::<T>);
+
+        VertexBuffer {
+            buffer: Buffer::new(display, data, gl::STATIC_DRAW),
+            bindings: bindings,
+        }
     }
 
     /// Builds a new vertex buffer.
@@ -58,50 +56,11 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// This function will create a buffer that has better performances when it is modified
     ///  frequently.
     pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
-        VertexBuffer::new_impl(display, data, true)
-    }
-
-    fn new_impl(display: &super::Display, data: Vec<T>, dynamic: bool) -> VertexBuffer<T> {
         let bindings = VertexFormat::build_bindings(None::<T>);
 
-        let elements_size = { use std::mem; mem::size_of::<T>() };
-        let elements_count = data.len();
-        let buffer_size = elements_count * elements_size as uint;
-
-        let usage = if dynamic { gl::DYNAMIC_DRAW } else { gl::STATIC_DRAW };
-
-        let (tx, rx) = channel();
-
-        display.context.context.exec(proc(gl, state, version, extensions) {
-            unsafe {
-                let mut id: gl::types::GLuint = mem::uninitialized();
-                gl.GenBuffers(1, &mut id);
-
-                if version >= &GlVersion(4, 5) {
-                    gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
-                        data.as_ptr() as *const libc::c_void, usage);
-                        
-                } else if extensions.gl_ext_direct_state_access {
-                    gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr,
-                        data.as_ptr() as *const libc::c_void, usage);
-
-                } else {
-                    gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                    state.array_buffer_binding = Some(id);
-                    gl.BufferData(gl::ARRAY_BUFFER, buffer_size as gl::types::GLsizeiptr,
-                        data.as_ptr() as *const libc::c_void, usage);
-                }
-
-                tx.send(id);
-            }
-        });
-
         VertexBuffer {
-            display: display.context.clone(),
-            id: rx.recv(),
-            elements_size: elements_size,
+            buffer: Buffer::new(display, data, gl::DYNAMIC_DRAW),
             bindings: bindings,
-            elements_count: elements_count,
         }
     }
 
@@ -110,36 +69,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// **Warning**: using this function can slow things down a lot because the function
     /// waits for all the previous commands to be executed before returning.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
-        let (tx, rx) = channel();
-        let id = self.id.clone();
-        let elements_count = self.elements_count.clone();
-
-        self.display.context.exec(proc(gl, state, version, _) {
-            let ptr = unsafe {
-                if version >= &GlVersion(4, 5) {
-                    gl.MapNamedBuffer(id, gl::READ_WRITE)
-
-                } else {
-                    if state.array_buffer_binding != Some(id) {
-                        gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                        state.array_buffer_binding = Some(id);
-                    }
-
-                    gl.MapBuffer(gl::ARRAY_BUFFER, gl::READ_WRITE)
-                }
-            };
-
-            if ptr.is_null() {
-                tx.send(Err("glMapBuffer returned null"));
-            } else {
-                tx.send(Ok(ptr as *mut T));
-            }
-        });
-
-        Mapping {
-            buffer: self,
-            data: unsafe { CVec::new(rx.recv().unwrap(), elements_count) },
-        }
+        Mapping(self.buffer.map())
     }
 
     /// Reads the content of the buffer.
@@ -147,7 +77,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// This function is usually better if are just doing one punctual read, while `map` is better
     /// if you want to have multiple small reads.
     pub fn read(&self) -> Vec<T> {
-        self.read_slice(0, self.elements_count)
+        self.buffer.read()
     }
 
     /// Reads the content of the buffer.
@@ -161,62 +91,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///
     /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
     pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
-        assert!(offset + size <= self.elements_count);
-
-        let id = self.id.clone();
-        let elements_size = self.elements_size.clone();
-        let (tx, rx) = channel();
-
-        self.display.context.exec(proc(gl, state, version, _) {
-            unsafe {
-                let mut data = Vec::with_capacity(size);
-                data.set_len(size);
-
-                if version >= &GlVersion(4, 5) {
-                    gl.GetNamedBufferSubData(id, (offset * elements_size) as gl::types::GLintptr,
-                        (size * elements_size) as gl::types::GLsizei,
-                        data.as_mut_ptr() as *mut libc::c_void);
-
-                } else {
-                    if state.array_buffer_binding != Some(id) {
-                        gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                        state.array_buffer_binding = Some(id);
-                    }
-
-                    gl.GetBufferSubData(gl::ARRAY_BUFFER, (offset * elements_size)
-                        as gl::types::GLintptr, (size * elements_size) as gl::types::GLsizeiptr,
-                        data.as_mut_ptr() as *mut libc::c_void);
-                }
-
-                tx.send_opt(data).ok();
-            }
-        });
-
-        rx.recv()
-    }
-}
-
-impl<T> fmt::Show for VertexBuffer<T> {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
-        (format!("VertexBuffer #{}", self.id)).fmt(formatter)
-    }
-}
-
-#[unsafe_destructor]
-impl<T> Drop for VertexBuffer<T> {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, state, _, _) {
-            if state.array_buffer_binding == Some(id) {
-                state.array_buffer_binding = None;
-            }
-
-            if state.element_array_buffer_binding == Some(id) {
-                state.element_array_buffer_binding = None;
-            }
-
-            unsafe { gl.DeleteBuffers(1, [ id ].as_ptr()); }
-        });
+        self.buffer.read_slice(offset, size)
     }
 }
 
@@ -249,41 +124,16 @@ pub trait VertexFormat: Copy {
 }
 
 /// A mapping of a buffer.
-pub struct Mapping<'b, T> {
-    buffer: &'b mut VertexBuffer<T>,
-    data: CVec<T>,
-}
-
-#[unsafe_destructor]
-impl<'a, T> Drop for Mapping<'a, T> {
-    fn drop(&mut self) {
-        let id = self.buffer.id.clone();
-        self.buffer.display.context.exec(proc(gl, state, version, _) {
-            unsafe {
-                if version >= &GlVersion(4, 5) {
-                    gl.UnmapNamedBuffer(id);
-
-                } else {
-                    if state.array_buffer_binding != Some(id) {
-                        gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                        state.array_buffer_binding = Some(id);
-                    }
-
-                    gl.UnmapBuffer(gl::ARRAY_BUFFER);
-                }
-            }
-        });
-    }
-}
+pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::ArrayBuffer, T>);
 
 impl<'a, T> Deref<[T]> for Mapping<'a, T> {
     fn deref<'b>(&'b self) -> &'b [T] {
-        self.data.as_slice()
+        self.0.deref()
     }
 }
 
 impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
-        self.data.as_mut_slice()
+        self.0.deref_mut()
     }
 }

@@ -230,6 +230,7 @@ pub mod uniforms;
 pub mod vertex_buffer;
 pub mod texture;
 
+mod buffer;
 mod context;
 mod data_types;
 mod framebuffer;
