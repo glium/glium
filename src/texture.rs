@@ -279,6 +279,50 @@ impl ClientFormat {
             .map(|e| e.to_gl_enum())
             .unwrap_or_else(|| self.to_gl_enum().0)
     }
+
+    /// Returns a GLenum corresponding to the default compressed format corresponding
+    /// to this client format.
+    fn to_default_compressed_format(&self) -> gl::types::GLenum {
+        match *self {
+            ClientFormatU8 => gl::COMPRESSED_RED,
+            ClientFormatU8U8 => gl::COMPRESSED_RG,
+            ClientFormatU8U8U8 => gl::COMPRESSED_RGB,
+            ClientFormatU8U8U8U8 => gl::COMPRESSED_RGBA,
+            ClientFormatI8 => gl::COMPRESSED_RED,
+            ClientFormatI8I8 => gl::COMPRESSED_RG,
+            ClientFormatI8I8I8 => gl::COMPRESSED_RGB,
+            ClientFormatI8I8I8I8 => gl::COMPRESSED_RGBA,
+            ClientFormatU16 => gl::COMPRESSED_RED,
+            ClientFormatU16U16 => gl::COMPRESSED_RG,
+            ClientFormatU16U16U16 => gl::COMPRESSED_RGB,
+            ClientFormatU16U16U16U16 => gl::COMPRESSED_RGBA,
+            ClientFormatI16 => gl::COMPRESSED_RED,
+            ClientFormatI16I16 => gl::COMPRESSED_RG,
+            ClientFormatI16I16I16 => gl::COMPRESSED_RGB,
+            ClientFormatI16I16I16I16 => gl::COMPRESSED_RGBA,
+            ClientFormatU32 => gl::COMPRESSED_RED,
+            ClientFormatU32U32 => gl::COMPRESSED_RG,
+            ClientFormatU32U32U32 => gl::COMPRESSED_RGB,
+            ClientFormatU32U32U32U32 => gl::COMPRESSED_RGBA,
+            ClientFormatI32 => gl::COMPRESSED_RED,
+            ClientFormatI32I32 => gl::COMPRESSED_RG,
+            ClientFormatI32I32I32 => gl::COMPRESSED_RGB,
+            ClientFormatI32I32I32I32 => gl::COMPRESSED_RGBA,
+            ClientFormatU3U3U2 => gl::COMPRESSED_RGB,
+            ClientFormatU5U6U5 => gl::COMPRESSED_RGB,
+            ClientFormatU4U4U4U4 => gl::COMPRESSED_RGBA,
+            ClientFormatU5U5U5U1 => gl::COMPRESSED_RGBA,
+            ClientFormatU10U10U10U2 => gl::COMPRESSED_RGBA,
+            ClientFormatF16 => gl::COMPRESSED_RED,
+            ClientFormatF16F16 => gl::COMPRESSED_RG,
+            ClientFormatF16F16F16 => gl::COMPRESSED_RGB,
+            ClientFormatF16F16F16F16 => gl::COMPRESSED_RGBA,
+            ClientFormatF32 => gl::COMPRESSED_RED,
+            ClientFormatF32F32 => gl::COMPRESSED_RG,
+            ClientFormatF32F32F32 => gl::COMPRESSED_RGB,
+            ClientFormatF32F32F32F32 => gl::COMPRESSED_RGBA,
+        }
+    }
 }
 
 /// List of uncompressed pixel formats that contain floating points-like data.
@@ -518,6 +562,31 @@ impl UncompressedIntegralFormat {
     }
 }
 
+/// List of compressed texture formats.
+///
+/// TODO: many formats are missing
+pub enum CompressedFormat {
+    /// Red/green compressed texture with one unsigned component.
+    CompressedRGTCFormatU,
+    /// Red/green compressed texture with one signed component.
+    CompressedRGTCFormatI,
+    /// Red/green compressed texture with two unsigned components.
+    CompressedRGTCFormatUU,
+    /// Red/green compressed texture with two signed components.
+    CompressedRGTCFormatII,
+}
+
+impl CompressedFormat {
+    fn to_gl_enum(&self) -> gl::types::GLenum {
+        match *self {
+            CompressedRGTCFormatU => gl::COMPRESSED_RED_RGTC1,
+            CompressedRGTCFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
+            CompressedRGTCFormatUU => gl::COMPRESSED_RG_RGTC2,
+            CompressedRGTCFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
+        }
+    }
+}
+
 /// Format of the internal representation of a texture.
 pub enum TextureFormat {
     /// 
@@ -753,6 +822,52 @@ impl Texture for Texture2d {
         &self.0
     }
 }
+
+/// A compressed two-dimensional texture.
+/// 
+/// This is usually the texture that you want to use if you don't need to render to this texture.
+///
+/// A `CompressedTexture2d` uses less memory than a `Texture2d`, but can't be used as surfaces.
+pub struct CompressedTexture2d(TextureImplementation);
+
+impl CompressedTexture2d {
+    /// Creates a two-dimensional texture.
+    pub fn new<P: PixelValue, T: Texture2dData<P>>(display: &super::Display, data: T)
+        -> CompressedTexture2d
+    {
+        let format = PixelValue::get_format(None::<P>).to_default_compressed_format();
+        let dimensions = data.get_dimensions();
+        let data = data.into_vec();
+
+        CompressedTexture2d(TextureImplementation::new(display, format, Some(data), dimensions.0,
+            Some(dimensions.1), None, None))
+    }
+
+    /// Creates a two-dimensional texture with a specific format.
+    pub fn with_format<P: PixelValue, T: Texture2dData<P>>(display: &super::Display,
+        format: CompressedFormat, data: T) -> CompressedTexture2d
+    {
+        let format = format.to_gl_enum();
+        let dimensions = data.get_dimensions();
+        let data = data.into_vec();
+
+        CompressedTexture2d(TextureImplementation::new(display, format, Some(data), dimensions.0,
+            Some(dimensions.1), None, None))
+    }
+
+    /// Reads the content of the texture into a `Texture2dData`.
+    pub fn read<P, T>(&self) -> T where P: PixelValue, T: Texture2dData<P> {
+        let data = self.0.read::<P>(0);
+        Texture2dData::from_vec(data, self.get_width() as u32)
+    }
+}
+
+impl Texture for CompressedTexture2d {
+    fn get_implementation(&self) -> &TextureImplementation {
+        &self.0
+    }
+}
+
 /// An array of two-dimensional textures.
 pub struct Texture2dArray(TextureImplementation);
 
