@@ -6,7 +6,7 @@ use texture::{mod, Texture, Texture2d};
 use uniforms::Uniforms;
 use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surface};
 
-use {vertex_buffer, index_buffer, program};
+use {vertex_buffer, index_buffer, program, vertex_array_object};
 use {gl, context, libc};
 
 /// A framebuffer that you can use to draw things.
@@ -216,13 +216,14 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
 {
     let fbo_id = get_framebuffer(display, framebuffer);
 
-    let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
     let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) =
         index_buffer::get_clone(index_buffer);
     let program_id = program::get_program_id(program);
     let uniforms = uniforms.to_binder();
     let uniforms_locations = program::get_uniforms_locations(program);
     let draw_parameters = draw_parameters.clone();
+
+    let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer, program_id);
 
     let (tx, rx) = channel();
 
@@ -244,9 +245,9 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
             });
 
             // binding vertex buffer
-            if state.array_buffer_binding != Some(vb_id) {
-                gl.BindBuffer(gl::ARRAY_BUFFER, vb_id);
-                state.array_buffer_binding = Some(vb_id);
+            if state.vertex_array != vao_id {
+                gl.BindVertexArray(vao_id);
+                state.vertex_array = vao_id;;
             }
 
             // binding index buffer
@@ -255,41 +256,11 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
                 state.element_array_buffer_binding = Some(ib_id);
             }
 
-            // binding vertex buffer
-            let mut locations = Vec::new();
-            for &(ref name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
-                in vb_bindingsclone.iter()
-            {
-                let loc = gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
-                locations.push(loc);
-
-                if loc != -1 {
-                    match data_type {
-                        gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
-                        gl::INT | gl::UNSIGNED_INT =>
-                            gl.VertexAttribIPointer(loc as u32,
-                                elements_count as gl::types::GLint, data_type,
-                                vb_elementssize as i32, offset as *const libc::c_void),
-
-                        _ => gl.VertexAttribPointer(loc as u32,
-                                elements_count as gl::types::GLint, data_type, 0,
-                                vb_elementssize as i32, offset as *const libc::c_void)
-                    }
-                    
-                    gl.EnableVertexAttribArray(loc as u32);
-                }
-            }
-
             // sync-ing parameters
             draw_parameters.sync(gl, state);
             
             // drawing
             gl.DrawElements(ib_primitives, ib_elemcounts as i32, ib_datatype, ptr::null());
-
-            // disable vertex attrib array
-            for l in locations.iter() {
-                gl.DisableVertexAttribArray(l.clone() as u32);
-            }
         }
 
         tx.send(());
