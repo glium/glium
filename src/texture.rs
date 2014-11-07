@@ -441,10 +441,81 @@ impl UncompressedFloatFormat {
     }
 }
 
+/// List of uncompressed pixel formats that contain integral data.
+#[allow(missing_docs)]
+pub enum UncompressedIntegralFormat {
+    IntegralFormatI8,
+    IntegralFormatU8,
+    IntegralFormatI16,
+    IntegralFormatU16,
+    IntegralFormatI32,
+    IntegralFormatU32,
+    IntegralFormatI8I8,
+    IntegralFormatU8U8,
+    IntegralFormatI16I16,
+    IntegralFormatU16U16,
+    IntegralFormatI32I32,
+    IntegralFormatU32U32,
+    IntegralFormatI8I8I8,
+    IntegralFormatU8U8U8,
+    /// May not be supported by renderbuffers.
+    IntegralFormatI16I16I16,
+    /// May not be supported by renderbuffers.
+    IntegralFormatU16U16U16,
+    /// May not be supported by renderbuffers.
+    IntegralFormatI32I32I32,
+    /// May not be supported by renderbuffers.
+    IntegralFormatU32U32U32,
+    /// May not be supported by renderbuffers.
+    IntegralFormatI8I8I8I8,
+    /// May not be supported by renderbuffers.
+    IntegralFormatU8U8U8U8,
+    IntegralFormatI16I16I16I16,
+    IntegralFormatU16U16U16U16,
+    IntegralFormatI32I32I32I32,
+    IntegralFormatU32U32U32U32,
+    IntegralFormatU10U10U10U2,
+}
+
+impl UncompressedIntegralFormat {
+    fn to_gl_enum(&self) -> gl::types::GLenum {
+        match *self {
+            IntegralFormatI8 => gl::R8I,
+            IntegralFormatU8 => gl::R8UI,
+            IntegralFormatI16 => gl::R16I,
+            IntegralFormatU16 => gl::R16UI,
+            IntegralFormatI32 => gl::R32I,
+            IntegralFormatU32 => gl::R32UI,
+            IntegralFormatI8I8 => gl::RG8I,
+            IntegralFormatU8U8 => gl::RG8UI,
+            IntegralFormatI16I16 => gl::RG16I,
+            IntegralFormatU16U16 => gl::RG16UI,
+            IntegralFormatI32I32 => gl::RG32I,
+            IntegralFormatU32U32 => gl::RG32UI,
+            IntegralFormatI8I8I8 => gl::RGB8I,
+            IntegralFormatU8U8U8 => gl::RGB8UI,
+            IntegralFormatI16I16I16 => gl::RGB16I,
+            IntegralFormatU16U16U16 => gl::RGB16UI,
+            IntegralFormatI32I32I32 => gl::RGB32I,
+            IntegralFormatU32U32U32 => gl::RGB32UI,
+            IntegralFormatI8I8I8I8 => gl::RGBA8I,
+            IntegralFormatU8U8U8U8 => gl::RGBA8UI,
+            IntegralFormatI16I16I16I16 => gl::RGBA16I,
+            IntegralFormatU16U16U16U16 => gl::RGBA16UI,
+            IntegralFormatI32I32I32I32 => gl::RGBA32I,
+            IntegralFormatU32U32U32U32 => gl::RGBA32UI,
+            IntegralFormatU10U10U10U2 => gl::RGB10_A2UI,
+        }
+    }
+}
+
 /// Format of the internal representation of a texture.
 pub enum TextureFormat {
     /// 
-    Uncompressed(UncompressedFloatFormat),
+    UncompressedFloat(UncompressedFloatFormat),
+    /// 
+    UncompressedIntegral(UncompressedIntegralFormat),
+
 }
 
 /// A one-dimensional texture.
