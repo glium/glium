@@ -6,7 +6,7 @@ use PrimitiveType;
 /// A list of indices loaded in the graphics card's memory.
 #[deriving(Show)]
 pub struct IndexBuffer {
-    buffer: Buffer<buffer::ElementArrayBuffer>,
+    buffer: Buffer,
     data_type: gl::types::GLenum,
     primitives: gl::types::GLenum,
 }
@@ -39,7 +39,8 @@ impl IndexBuffer {
         prim: PrimitiveType, data: &[T]) -> IndexBuffer
     {
         IndexBuffer {
-            buffer: Buffer::new(display, data.to_vec(), gl::STATIC_DRAW),   // TODO: perf loss
+            buffer: Buffer::new::<buffer::ElementArrayBuffer, T>(display, data.to_vec(),
+                gl::STATIC_DRAW),   // TODO: perf loss
             data_type: data_types::GLDataType::get_gl_type(None::<T>),
             primitives: prim.get_gl_enum()
         }

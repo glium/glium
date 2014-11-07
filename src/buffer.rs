@@ -6,7 +6,7 @@ use std::{fmt, mem, ptr};
 use std::sync::Arc;
 
 /// A buffer in the graphics card's memory.
-pub struct Buffer<T> {
+pub struct Buffer {
     display: Arc<super::DisplayImpl>,
     id: gl::types::GLuint,
     elements_size: uint,
@@ -82,9 +82,9 @@ impl BufferType for PixelUnpackBuffer {
     }
 }
 
-impl<T: BufferType> Buffer<T> {
-    pub fn new<D: Send + Copy>(display: &super::Display, data: Vec<D>, usage: gl::types::GLenum)
-        -> Buffer<T>
+impl Buffer {
+    pub fn new<T, D>(display: &super::Display, data: Vec<D>, usage: gl::types::GLenum)
+        -> Buffer where T: BufferType, D: Send + Copy
     {
         let elements_size = { use std::mem; mem::size_of::<D>() };
         let elements_count = data.len();
@@ -127,8 +127,8 @@ impl<T: BufferType> Buffer<T> {
         }
     }
 
-    pub fn new_empty(display: &super::Display, elements_size: uint, elements_count: uint,
-                     usage: gl::types::GLenum) -> Buffer<T>
+    pub fn new_empty<T>(display: &super::Display, elements_size: uint, elements_count: uint,
+                        usage: gl::types::GLenum) -> Buffer where T: BufferType
     {
         let buffer_size = elements_count * elements_size as uint;
 
@@ -182,7 +182,7 @@ impl<T: BufferType> Buffer<T> {
         self.elements_count * self.elements_size
     }
 
-    pub fn map<'a, D: Send>(&'a mut self) -> Mapping<'a, T, D> {
+    pub fn map<'a, T, D>(&'a mut self) -> Mapping<'a, T, D> where T: BufferType, D: Send {
         let (tx, rx) = channel();
         let id = self.id.clone();
         let elements_count = self.elements_count.clone();
@@ -215,11 +215,13 @@ impl<T: BufferType> Buffer<T> {
         }
     }
 
-    pub fn read<D: Send>(&self) -> Vec<D> {
-        self.read_slice(0, self.elements_count)
+    pub fn read<T, D>(&self) -> Vec<D> where T: BufferType, D: Send {
+        self.read_slice::<T, D>(0, self.elements_count)
     }
 
-    pub fn read_slice<D: Send>(&self, offset: uint, size: uint) -> Vec<D> {
+    pub fn read_slice<T, D>(&self, offset: uint, size: uint)
+                            -> Vec<D> where T: BufferType, D: Send
+    {
         assert!(offset + size <= self.elements_count);
 
         let id = self.id.clone();
@@ -255,14 +257,13 @@ impl<T: BufferType> Buffer<T> {
     }
 }
 
-impl<T> fmt::Show for Buffer<T> {
+impl fmt::Show for Buffer {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
         (format!("Buffer #{}", self.id)).fmt(formatter)
     }
 }
 
-#[unsafe_destructor]
-impl<T> Drop for Buffer<T> {
+impl Drop for Buffer {
     fn drop(&mut self) {
         let id = self.id.clone();
         self.display.context.exec(proc(gl, state, _, _) {
@@ -272,6 +273,14 @@ impl<T> Drop for Buffer<T> {
 
             if state.element_array_buffer_binding == Some(id) {
                 state.element_array_buffer_binding = None;
+            }
+
+            if state.pixel_pack_buffer_binding == Some(id) {
+                state.pixel_pack_buffer_binding = None;
+            }
+
+            if state.pixel_unpack_buffer_binding == Some(id) {
+                state.pixel_unpack_buffer_binding = None;
             }
 
             unsafe { gl.DeleteBuffers(1, [ id ].as_ptr()); }
@@ -309,7 +318,7 @@ pub trait VertexFormat: Copy {
 
 /// A mapping of a buffer.
 pub struct Mapping<'b, T, D> {
-    buffer: &'b mut Buffer<T>,
+    buffer: &'b mut Buffer,
     data: CVec<D>,
 }
 

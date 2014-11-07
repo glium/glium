@@ -837,14 +837,15 @@ impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
 ///
 /// **Note**: pixel buffers are unusable for the moment (they are not yet implemented).
 pub struct PixelBuffer<T> {
-    buffer: Buffer<buffer::PixelUnpackBuffer>,
+    buffer: Buffer,
 }
 
 impl<T> PixelBuffer<T> {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty(display: &super::Display, capacity: uint) -> PixelBuffer<()> {
         PixelBuffer {
-            buffer: Buffer::new_empty(display, 1, capacity, gl::DYNAMIC_READ),
+            buffer: Buffer::new_empty::<buffer::PixelUnpackBuffer>(display, 1, capacity,
+                gl::DYNAMIC_READ),
         }
     }
 
