@@ -2,7 +2,7 @@ use std::kinds::marker::ContravariantLifetime;
 use std::{mem, ptr};
 use std::sync::Arc;
 
-use texture::{mod, Texture};
+use texture::{mod, Texture, Texture2d};
 use uniforms::Uniforms;
 use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surface};
 
@@ -45,7 +45,7 @@ impl<'a> FrameBuffer<'a> {
     }
 
     /// Attach an additional texture to this framebuffer.
-    pub fn with_color_texture<T: 'a>(mut self, texture: &'a T) -> FrameBuffer<'a> where T: Texture {
+    pub fn with_color_texture(mut self, texture: &'a Texture2d) -> FrameBuffer<'a> {
         // TODO: check existing dimensions
         self.attachments.colors.push(texture::get_id(texture.get_implementation()));
         self.dimensions = Some((texture.get_width(), texture.get_height().unwrap_or(1)));
