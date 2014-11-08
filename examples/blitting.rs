@@ -19,8 +19,9 @@ fn main() {
         image::PNG).unwrap();
     let opengl_texture = glium::Texture2d::new(&display, image);
 
-    // building a 1024x1024 black texture
-    let dest_texture = glium::Texture2d::new_empty::<(u8,u8,u8,u8)>(&display, 1024, 1024);
+    // building a 1024x1024 empty texture
+    let dest_texture = glium::Texture2d::new_empty(&display, glium::texture::FloatFormatU8U8U8U8,
+                                                   1024, 1024);
 
     // the main loop
     // each cycle will draw once

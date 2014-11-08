@@ -779,17 +779,18 @@ impl Texture2d {
     /// # extern crate glutin;
     /// # use glium::DisplayBuild;
     /// # fn main() {
+    /// use glium::texture::FloatFormatU8U8U8U8;
     /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
     /// #   .build_glium().unwrap();
-    /// let texture = glium::Texture2d::new_empty::<(u8, u8, u8)>(&display, 512, 512);
+    /// let texture = glium::Texture2d::new_empty(&display, FloatFormatU8U8U8U8, 512, 512);
     /// # }
     /// ```
     ///
-    pub fn new_empty<P: PixelValue>(display: &super::Display, width: u32, height: u32)
-        -> Texture2d
+    pub fn new_empty(display: &super::Display, format: UncompressedFloatFormat, width: u32,
+        height: u32) -> Texture2d
     {
-        let format = PixelValue::get_format(None::<P>).to_default_float_format();
-        Texture2d(TextureImplementation::new::<P>(display, format, None, width, Some(height),
+        let format = format.to_gl_enum();
+        Texture2d(TextureImplementation::new::<u8>(display, format, None, width, Some(height),
             None, None))
     }
 

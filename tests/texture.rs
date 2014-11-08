@@ -110,7 +110,8 @@ fn render_to_texture2d() {
     let display = support::build_display();
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
-    let texture = glium::Texture2d::new_empty::<(u8, u8, u8 ,u8)>(&display, 1024, 1024);
+    let texture = glium::Texture2d::new_empty(&display, glium::texture::FloatFormatU8U8U8U8,
+                                              1024, 1024);
     let params = Default::default();
     texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
 
