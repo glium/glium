@@ -80,7 +80,8 @@ vertex buffer.
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList, &[ 0u16, 1, 2 ]);
+let index_buffer = glium::IndexBuffer::new(&display,
+    glium::index_buffer::TrianglesList(vec![ 0u16, 1, 2 ]));
 ```
 
 Then we create the program, which is composed of a *vertex shader*, a program executed once for
@@ -225,6 +226,7 @@ pub use texture::{Texture, Texture2d};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+pub mod index_buffer;
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
@@ -234,7 +236,6 @@ mod buffer;
 mod context;
 mod data_types;
 mod framebuffer;
-mod index_buffer;
 mod program;
 mod vertex_array_object;
 
@@ -279,53 +280,6 @@ compile_error!("This platform is not supported")
 pub trait DrawCommand {
     /// Draws the object on the specified target.
     fn draw(self, &mut Frame);
-}
-
-/// Types of primitives.
-#[allow(missing_docs)]
-#[experimental = "Will be replaced soon"]
-pub enum PrimitiveType {
-    PointsList,
-    LinesList,
-    LinesListAdjacency,
-    LineStrip,
-    LineStripAdjacency,
-    TrianglesList,
-    TrianglesListAdjacency,
-    TriangleStrip,
-    TriangleStripAdjacency,
-    TriangleFan
-}
-
-impl PrimitiveType {
-    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-    fn get_gl_enum(&self) -> gl::types::GLenum {
-        match *self {
-            PointsList => gl::POINTS,
-            LinesList => gl::LINES,
-            LinesListAdjacency => gl::LINES_ADJACENCY,
-            LineStrip => gl::LINE_STRIP,
-            LineStripAdjacency => gl::LINE_STRIP_ADJACENCY,
-            TrianglesList => gl::TRIANGLES,
-            TrianglesListAdjacency => gl::TRIANGLES_ADJACENCY,
-            TriangleStrip => gl::TRIANGLE_STRIP,
-            TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
-            TriangleFan => gl::TRIANGLE_FAN
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    fn get_gl_enum(&self) -> gl::types::GLenum {
-        match *self {
-            PointsList => gl::POINTS,
-            LinesList => gl::LINES,
-            LineStrip => gl::LINE_STRIP,
-            TrianglesList => gl::TRIANGLES,
-            TriangleStrip => gl::TRIANGLE_STRIP,
-            TriangleFan => gl::TRIANGLE_FAN,
-            _ => panic!("Not supported by GLES")
-        }
-    }
 }
 
 /// Function that the GPU will use for blending.
