@@ -104,6 +104,102 @@ impl PixelValue for (u8, u8, u8, u8) {
     }
 }
 
+impl PixelValue for i16 {
+    fn get_format(_: Option<i16>) -> ClientFormat {
+        ClientFormatI16
+    }
+}
+
+impl PixelValue for (i16, i16) {
+    fn get_format(_: Option<(i16, i16)>) -> ClientFormat {
+        ClientFormatI16I16
+    }
+}
+
+impl PixelValue for (i16, i16, i16) {
+    fn get_format(_: Option<(i16, i16, i16)>) -> ClientFormat {
+        ClientFormatI16I16I16
+    }
+}
+
+impl PixelValue for (i16, i16, i16, i16) {
+    fn get_format(_: Option<(i16, i16, i16, i16)>) -> ClientFormat {
+        ClientFormatI16I16I16I16
+    }
+}
+
+impl PixelValue for u16 {
+    fn get_format(_: Option<u16>) -> ClientFormat {
+        ClientFormatU16
+    }
+}
+
+impl PixelValue for (u16, u16) {
+    fn get_format(_: Option<(u16, u16)>) -> ClientFormat {
+        ClientFormatU16U16
+    }
+}
+
+impl PixelValue for (u16, u16, u16) {
+    fn get_format(_: Option<(u16, u16, u16)>) -> ClientFormat {
+        ClientFormatU16U16U16
+    }
+}
+
+impl PixelValue for (u16, u16, u16, u16) {
+    fn get_format(_: Option<(u16, u16, u16, u16)>) -> ClientFormat {
+        ClientFormatU16U16U16U16
+    }
+}
+
+impl PixelValue for i32 {
+    fn get_format(_: Option<i32>) -> ClientFormat {
+        ClientFormatI32
+    }
+}
+
+impl PixelValue for (i32, i32) {
+    fn get_format(_: Option<(i32, i32)>) -> ClientFormat {
+        ClientFormatI32I32
+    }
+}
+
+impl PixelValue for (i32, i32, i32) {
+    fn get_format(_: Option<(i32, i32, i32)>) -> ClientFormat {
+        ClientFormatI32I32I32
+    }
+}
+
+impl PixelValue for (i32, i32, i32, i32) {
+    fn get_format(_: Option<(i32, i32, i32, i32)>) -> ClientFormat {
+        ClientFormatI32I32I32I32
+    }
+}
+
+impl PixelValue for u32 {
+    fn get_format(_: Option<u32>) -> ClientFormat {
+        ClientFormatU32
+    }
+}
+
+impl PixelValue for (u32, u32) {
+    fn get_format(_: Option<(u32, u32)>) -> ClientFormat {
+        ClientFormatU32U32
+    }
+}
+
+impl PixelValue for (u32, u32, u32) {
+    fn get_format(_: Option<(u32, u32, u32)>) -> ClientFormat {
+        ClientFormatU32U32U32
+    }
+}
+
+impl PixelValue for (u32, u32, u32, u32) {
+    fn get_format(_: Option<(u32, u32, u32, u32)>) -> ClientFormat {
+        ClientFormatU32U32U32U32
+    }
+}
+
 impl PixelValue for f32 {
     fn get_format(_: Option<f32>) -> ClientFormat {
         ClientFormatF32
@@ -143,6 +239,8 @@ impl PixelValue for image::Rgba<u8> {
 }
 
 /// List of client-side pixel formats.
+///
+/// These are all the possible formats of data when uploading to a texture.
 #[allow(missing_docs)]
 pub enum ClientFormat {
     ClientFormatU8,
