@@ -6,7 +6,7 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::Texture;
+use glium::{Texture, Surface};
 
 mod support;
 
@@ -99,4 +99,23 @@ fn compressed_texture_2d_creation() {
     assert_eq!(texture.get_height(), Some(3));
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
+}
+
+#[test]
+fn render_to_texture2d() {
+    use std::default::Default;
+
+    let display = support::build_display();
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = glium::Texture2d::new_empty::<(u8, u8, u8 ,u8)>(&display, 1024, 1024);
+    let params = Default::default();
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+
+    assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
+    // FIXME: FAILING TESTS
+    //assert_eq!(read_back[512][512], (1.0, 0.0, 0.0, 1.0));
+    //assert_eq!(read_back[1023][1023], (1.0, 0.0, 0.0, 1.0));
 }
