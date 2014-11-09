@@ -196,8 +196,6 @@ impl Context {
         let (tx_success, rx_success) = channel();
 
         TaskBuilder::new().native().spawn(proc() {
-            // DRIVER-SPECIFIC: creating the window in the same thread as the rendering,
-            //                  otherwise ATI X11 drivers fail at `glxMakeCurrent`
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
