@@ -27,6 +27,12 @@ pub struct GLState {
     /// Whether GL_CULL_FACE is enabled
     pub enabled_cull_face: bool,
 
+    /// Whether GL_DEBUG_OUTPUT is enabled. None means "unknown".
+    pub enabled_debug_output: Option<bool>,
+
+    /// Whether GL_DEBUG_OUTPUT_SYNCHRONOUS is enabled
+    pub enabled_debug_output_synchronous: bool,
+
     /// Whether GL_DEPTH_TEST is enabled
     pub enabled_depth_test: bool,
 
@@ -109,6 +115,8 @@ impl GLState {
         GLState {
             enabled_blend: false,
             enabled_cull_face: false,
+            enabled_debug_output: None,
+            enabled_debug_output_synchronous: false,
             enabled_depth_test: false,
             enabled_dither: false,
             enabled_polygon_offset_fill: false,
@@ -167,6 +175,8 @@ pub struct ExtensionsList {
     pub gl_ext_geometry_shader4: bool,
     /// GL_EXT_framebuffer_blit
     pub gl_ext_framebuffer_blit: bool,
+    /// GL_KHR_debug
+    pub gl_khr_debug: bool,
 }
 
 impl Context {
@@ -369,6 +379,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_framebuffer_object: false,
         gl_ext_geometry_shader4: false,
         gl_ext_framebuffer_blit: false,
+        gl_khr_debug: false,
     };
 
     for extension in strings.into_iter() {
@@ -377,6 +388,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_framebuffer_object" => extensions.gl_ext_framebuffer_object = true,
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
             "GL_EXT_framebuffer_blit" => extensions.gl_ext_framebuffer_blit = true,
+            "GL_KHR_debug" => extensions.gl_khr_debug = true,
             _ => ()
         }
     }
