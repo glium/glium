@@ -896,6 +896,8 @@ impl Display {
                 //       but with GL only, it doesn't have one
                 if version >= &context::GlVersion(4,5) || extensions.gl_khr_debug {
                     gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
+                    gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                        std::ptr::null(), gl::TRUE);
                 }
 
                 if state.enabled_debug_output != Some(true) {
