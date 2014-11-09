@@ -194,6 +194,7 @@ target.finish();
 #![feature(phase)]
 #![feature(slicing_syntax)]
 #![feature(tuple_indexing)]
+#![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
 #![deny(missing_docs)]
@@ -226,6 +227,7 @@ pub use texture::{Texture, Texture2d};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+pub mod debug;
 pub mod index_buffer;
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
@@ -723,6 +725,7 @@ impl DisplayBuild for glutin::WindowBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
+                debug_callback: Mutex::new(None),
                 framebuffer_objects: Mutex::new(HashMap::new()),
                 vertex_array_objects: Mutex::new(HashMap::new()),
             }),
@@ -738,6 +741,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
+                debug_callback: Mutex::new(None),
                 framebuffer_objects: Mutex::new(HashMap::new()),
                 vertex_array_objects: Mutex::new(HashMap::new()),
             }),
@@ -758,6 +762,10 @@ pub struct Display {
 struct DisplayImpl {
     // contains everything related to the current context and its state
     context: context::Context,
+
+    // the callback used for debug messages
+    debug_callback: Mutex<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
+                                     + Send + Sync>>>,
 
     // we maintain a list of FBOs
     // when something requirering a FBO is drawn, we look for an existing one in this hashmap
@@ -801,6 +809,98 @@ impl Display {
             unsafe {
                 if version >= &context::GlVersion(4, 1) {
                     gl.ReleaseShaderCompiler();
+                }
+            }
+        });
+    }
+
+    /// Sets the callback to use when an OpenGL debug message is generated.
+    ///
+    /// **Important**: some contexts don't support debug output, in which case this function will
+    /// act as a no-op. Even if the context does support them, you are not guaranteed to get any.
+    /// Debug messages are just a convenience and are not reliable.
+    #[experimental = "The API will probably change"]
+    pub fn set_debug_callback<F>(&self, callback: F)
+        where F: FnMut(String, debug::Source, debug::MessageType, debug::Severity) + Send + Sync
+    {
+        self.set_debug_callback_impl(callback, false);
+    }
+
+    /// Sets the callback to use when an OpenGL debug message is generated.
+    ///
+    /// Contrary to `set_debug_callback`, the callback is called synchronously.
+    #[experimental = "The API will probably change"]
+    pub unsafe fn set_debug_callback_sync<F>(&self, callback: F)
+        where F: FnMut(String, debug::Source, debug::MessageType, debug::Severity) + Send + Sync
+    {
+        self.set_debug_callback_impl(callback, true);
+    }
+
+    fn set_debug_callback_impl<F>(&self, callback: F, sync: bool)
+        where F: FnMut(String, debug::Source, debug::MessageType, debug::Severity) + Send + Sync
+    {
+        // changing the callback
+        {
+            let mut cb = self.context.debug_callback.lock();
+            *cb = Some(box callback as Box<FnMut(String, debug::Source, debug::MessageType,
+                                                 debug::Severity)
+                                           + Send + Sync>);
+        }
+
+        // this is the C callback
+        extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
+            id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
+            message: *const gl::types::GLchar, user_param: *mut libc::c_void)
+        {
+            use std::c_str::CString;
+            use std::num::FromPrimitive;
+
+            unsafe {
+                let user_param = user_param as *mut DisplayImpl;
+                let user_param = user_param.as_mut().unwrap();
+
+                let message = CString::new(message, false);
+                let message = message.as_str().unwrap_or("<message was not utf-8>");
+
+                let ref mut callback = user_param.debug_callback;
+                let mut callback = callback.lock();
+                let callback = callback.deref_mut();
+
+                if let &Some(ref mut callback) = callback {
+                    callback.call_mut((message.to_string(),
+                        FromPrimitive::from_uint(source as uint).unwrap_or(debug::OtherSource),
+                        FromPrimitive::from_uint(ty as uint).unwrap_or(debug::Other),
+                        FromPrimitive::from_uint(severity as uint).unwrap_or(debug::Notification)));
+                }
+            }
+        }
+
+        // SAFETY NOTICE: we pass a raw pointer to the `DisplayImpl`
+        let ptr: &DisplayImpl = self.context.deref();
+        let ptr = ptr as *const DisplayImpl;
+
+        // enabling the callback
+        self.context.context.exec(proc(gl, state, version, extensions) {
+            unsafe {
+                if state.enabled_debug_output_synchronous != sync {
+                    if sync {
+                        gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                        state.enabled_debug_output_synchronous = true;
+                    } else {
+                        gl.Disable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                        state.enabled_debug_output_synchronous = false;
+                    }
+                }
+
+                // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
+                //       but with GL only, it doesn't have one
+                if version >= &context::GlVersion(4,5) || extensions.gl_khr_debug {
+                    gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
+                }
+
+                if state.enabled_debug_output != Some(true) {
+                    gl.Enable(gl::DEBUG_OUTPUT);
+                    state.enabled_debug_output = Some(true);
                 }
             }
         });
@@ -865,6 +965,17 @@ impl Display {
 // which would lead to a leak
 impl Drop for Display {
     fn drop(&mut self) {
+        // disabling callback, to avoid
+        self.context.context.exec(proc(gl, state, _, _) {
+            unsafe {
+                if state.enabled_debug_output != Some(false) {
+                    gl.Disable(gl::DEBUG_OUTPUT);
+                    state.enabled_debug_output = Some(false);
+                    gl.Finish();
+                }
+            }
+        });
+
         {
             let mut fbos = self.context.framebuffer_objects.lock();
             fbos.clear();
