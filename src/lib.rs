@@ -719,8 +719,7 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
 
 impl DisplayBuild for glutin::WindowBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let window = try!(self.build());
-        let context = context::Context::new_from_window(window);
+        let context = try!(context::Context::new_from_window(self));
 
         Ok(Display {
             context: Arc::new(DisplayImpl {
@@ -735,8 +734,7 @@ impl DisplayBuild for glutin::WindowBuilder {
 
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let window = try!(self.build());
-        let context = context::Context::new_from_headless(window);
+        let context = try!(context::Context::new_from_headless(self));
 
         Ok(Display {
             context: Arc::new(DisplayImpl {

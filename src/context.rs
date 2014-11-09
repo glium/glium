@@ -4,6 +4,7 @@ use native::NativeTaskBuilder;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::task::TaskBuilder;
+use GliumCreationError;
 
 enum Message {
     EndFrame,
@@ -180,7 +181,7 @@ pub struct ExtensionsList {
 }
 
 impl Context {
-    pub fn new_from_window(window: glutin::Window) -> Context {
+    pub fn new_from_window(window: glutin::WindowBuilder) -> Result<Context, GliumCreationError> {
         let (tx_events, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
@@ -192,8 +193,21 @@ impl Context {
             dimensions: dimensions.clone(),
         };
 
+        let (tx_success, rx_success) = channel();
+
         TaskBuilder::new().native().spawn(proc() {
+            // DRIVER-SPECIFIC: creating the window in the same thread as the rendering,
+            //                  otherwise ATI X11 drivers fail at `glxMakeCurrent`
+            let window = match window.build() {
+                Ok(w) => w,
+                Err(e) => {
+                    tx_success.send(Err(e));
+                    return;
+                }
+            };
+
             unsafe { window.make_current(); }
+            tx_success.send(Ok(()));
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
 
@@ -257,10 +271,13 @@ impl Context {
             }
         });
 
-        context
+        try!(rx_success.recv());
+        Ok(context)
     }
 
-    pub fn new_from_headless(window: glutin::HeadlessContext) -> Context {
+    pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
+        -> Result<Context, GliumCreationError>
+    {
         let (_, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
@@ -273,8 +290,18 @@ impl Context {
             dimensions: dimensions,
         };
 
+        let (tx_success, rx_success) = channel();
+
         TaskBuilder::new().native().spawn(proc() {
+            let window = match window.build() {
+                Ok(w) => w,
+                Err(e) => {
+                    tx_success.send(Err(e));
+                    return;
+                }
+            };
             unsafe { window.make_current(); }
+            tx_success.send(Ok(()));
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
 
@@ -292,7 +319,8 @@ impl Context {
             }
         });
 
-        context
+        try!(rx_success.recv());
+        Ok(context)
     }
 
     pub fn get_framebuffer_dimensions(&self) -> (uint, uint) {
