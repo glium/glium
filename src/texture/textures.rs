@@ -4,6 +4,7 @@ use super::{UncompressedFloatFormat, CompressedFormat};
 use super::PixelValue;
 
 use framebuffer;
+use uniforms::{UniformValue, UniformValueBinder};
 
 use Display;
 
@@ -23,6 +24,12 @@ impl Texture1d {
 impl Texture for Texture1d {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
+    }
+}
+
+impl<'a> UniformValue for &'a Texture1d {
+    fn to_binder(&self) -> UniformValueBinder {
+        self.get_implementation().to_binder()
     }
 }
 
@@ -54,6 +61,12 @@ impl Texture1dArray {
 impl Texture for Texture1dArray {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
+    }
+}
+
+impl<'a> UniformValue for &'a Texture1dArray {
+    fn to_binder(&self) -> UniformValueBinder {
+        self.get_implementation().to_binder()
     }
 }
 
@@ -129,6 +142,12 @@ impl Texture for Texture2d {
     }
 }
 
+impl<'a> UniformValue for &'a Texture2d {
+    fn to_binder(&self) -> UniformValueBinder {
+        self.get_implementation().to_binder()
+    }
+}
+
 /// A compressed two-dimensional texture.
 /// 
 /// This is usually the texture that you want to use if you don't need to render to this texture.
@@ -174,6 +193,12 @@ impl Texture for CompressedTexture2d {
     }
 }
 
+impl<'a> UniformValue for &'a CompressedTexture2d {
+    fn to_binder(&self) -> UniformValueBinder {
+        self.get_implementation().to_binder()
+    }
+}
+
 /// An array of two-dimensional textures.
 pub struct Texture2dArray(TextureImplementation);
 
@@ -205,6 +230,12 @@ impl Texture for Texture2dArray {
     }
 }
 
+impl<'a> UniformValue for &'a Texture2dArray {
+    fn to_binder(&self) -> UniformValueBinder {
+        self.get_implementation().to_binder()
+    }
+}
+
 /// A three-dimensional texture.
 pub struct Texture3d(TextureImplementation);
 
@@ -222,5 +253,11 @@ impl Texture3d {
 impl Texture for Texture3d {
     fn get_implementation(&self) -> &TextureImplementation {
         &self.0
+    }
+}
+
+impl<'a> UniformValue for &'a Texture3d {
+    fn to_binder(&self) -> UniformValueBinder {
+        self.get_implementation().to_binder()
     }
 }
