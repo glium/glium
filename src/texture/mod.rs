@@ -23,11 +23,13 @@ use std::{fmt, mem, ptr};
 use std::sync::Arc;
 
 pub use self::pixel::PixelValue;
+pub use self::render_buffer::RenderBuffer;
 pub use self::textures::{Texture1d, Texture2d, Texture3d};
 pub use self::textures::{Texture1dArray, Texture2dArray};
 pub use self::textures::{CompressedTexture2d};
 
 mod pixel;
+mod render_buffer;
 mod textures;
 
 /// Trait that describes a texture.

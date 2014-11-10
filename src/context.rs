@@ -89,6 +89,9 @@ pub struct GLState {
     /// The latest buffer bound to `GL_DRAW_FRAMEBUFFER`.
     pub draw_framebuffer: Option<gl::types::GLuint>,
 
+    /// The latest render buffer bound with `glBindRenderbuffer`.
+    pub renderbuffer: Option<gl::types::GLuint>,
+
     /// The latest values passed to `glBlendFunc`.
     pub blend_func: (gl::types::GLenum, gl::types::GLenum),
 
@@ -137,6 +140,7 @@ impl GLState {
             pixel_unpack_buffer_binding: None,
             read_framebuffer: None,
             draw_framebuffer: None,
+            renderbuffer: None,
             depth_func: gl::LESS,
             blend_func: (0, 0),     // no default specified
             viewport: viewport,
