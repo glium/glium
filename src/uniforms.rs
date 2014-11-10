@@ -445,41 +445,6 @@ impl<'a> UniformValue for &'a texture::TextureImplementation {
     }
 }
 
-impl<'a> UniformValue for &'a texture::Texture1d {
-    fn to_binder(&self) -> UniformValueBinder {
-        use texture::Texture;
-        self.get_implementation().to_binder()
-    }
-}
-
-impl<'a> UniformValue for &'a texture::Texture1dArray {
-    fn to_binder(&self) -> UniformValueBinder {
-        use texture::Texture;
-        self.get_implementation().to_binder()
-    }
-}
-
-impl<'a> UniformValue for &'a texture::Texture2d {
-    fn to_binder(&self) -> UniformValueBinder {
-        use texture::Texture;
-        self.get_implementation().to_binder()
-    }
-}
-
-impl<'a> UniformValue for &'a texture::Texture2dArray {
-    fn to_binder(&self) -> UniformValueBinder {
-        use texture::Texture;
-        self.get_implementation().to_binder()
-    }
-}
-
-impl<'a> UniformValue for &'a texture::Texture3d {
-    fn to_binder(&self) -> UniformValueBinder {
-        use texture::Texture;
-        self.get_implementation().to_binder()
-    }
-}
-
 // TODO: no method to get a slice?
 /*impl UniformValue for nalgebra::na::Vec1<f32> {
     fn to_binder(&self) -> UniformValueBinder {
