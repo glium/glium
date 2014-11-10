@@ -4,6 +4,7 @@ use libc;
 use std::c_vec::CVec;
 use std::{fmt, mem, ptr};
 use std::sync::Arc;
+use GlObject;
 
 /// A buffer in the graphics card's memory.
 pub struct Buffer {
@@ -170,10 +171,6 @@ impl Buffer {
         &self.display
     }
 
-    pub fn get_id(&self) -> gl::types::GLuint {
-        self.id
-    }
-
     pub fn get_elements_size(&self) -> uint {
         self.elements_size
     }
@@ -289,6 +286,12 @@ impl Drop for Buffer {
 
             unsafe { gl.DeleteBuffers(1, [ id ].as_ptr()); }
         });
+    }
+}
+
+impl GlObject for Buffer {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
     }
 }
 

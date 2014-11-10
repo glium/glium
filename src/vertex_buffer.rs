@@ -1,17 +1,12 @@
 use buffer::{mod, Buffer};
 use gl;
+use GlObject;
 
 /// A list of verices loaded in the graphics card's memory.
 #[deriving(Show)]
 pub struct VertexBuffer<T> {
     buffer: Buffer,
     bindings: VertexBindings,
-}
-
-/// Don't use this function outside of glium
-#[doc(hidden)]
-pub fn get_id<T>(vb: &VertexBuffer<T>) -> gl::types::GLuint {
-    vb.buffer.get_id()
 }
 
 /// Don't use this function outside of glium
@@ -117,6 +112,12 @@ impl<T> Drop for VertexBuffer<T> {
         for k in to_delete.into_iter() {
             vaos.remove(&k);
         }
+    }
+}
+
+impl<T> GlObject for VertexBuffer<T> {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.buffer.get_id()
     }
 }
 

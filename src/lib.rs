@@ -262,6 +262,12 @@ mod gl {
 ))]
 compile_error!("This platform is not supported")
 
+/// Internal trait for objects that are OpenGL objects.
+trait GlObject {
+    /// Returns the id of the object.
+    fn get_id(&self) -> gl::types::GLuint;
+}
+
 /// Function that the GPU will use for blending.
 #[deriving(Clone, Show, PartialEq, Eq)]
 pub enum BlendingFunction {

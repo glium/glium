@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::mem;
 
 use vertex_buffer::{mod, VertexBuffer, VertexBindings};
-use DisplayImpl;
+use {DisplayImpl, GlObject};
 
 use {libc, gl};
 
@@ -21,7 +21,7 @@ impl VertexArrayObject {
 
         let bindings = vertex_buffer::get_bindings(vertex_buffer).clone();
         let vb_elementssize = vertex_buffer::get_elements_size(vertex_buffer);
-        let vertex_buffer = vertex_buffer::get_id(vertex_buffer);
+        let vertex_buffer = GlObject::get_id(vertex_buffer);
 
         display.context.exec(proc(gl, state, _, _) {
             unsafe {
@@ -88,12 +88,18 @@ impl Drop for VertexArrayObject {
     }
 }
 
+impl GlObject for VertexArrayObject {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+}
+
 pub fn get_vertex_array_object<T>(display: &Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
     program_id: gl::types::GLuint) -> gl::types::GLuint
 {
     let mut vaos = display.vertex_array_objects.lock();
 
-    let vb_id = vertex_buffer::get_id(vertex_buffer);
+    let vb_id = GlObject::get_id(vertex_buffer);
     if let Some(value) = vaos.find(&(vb_id, program_id)) {
         return value.id;
     }

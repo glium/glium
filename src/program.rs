@@ -2,7 +2,7 @@ use gl;
 use std::{fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::Arc;
-use {Display, DisplayImpl};
+use {Display, DisplayImpl, GlObject};
 
 struct Shader {
     display: Arc<DisplayImpl>,
@@ -189,8 +189,10 @@ impl fmt::Show for Program {
     }
 }
 
-pub fn get_program_id(program: &Program) -> gl::types::GLuint {
-    program.id
+impl GlObject for Program {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
 }
 
 pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint,

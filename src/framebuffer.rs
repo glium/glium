@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use texture::{mod, Texture, Texture2d};
 use uniforms::Uniforms;
-use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surface};
+use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surface, GlObject};
 
 use {vertex_buffer, index_buffer, program, vertex_array_object};
 use {gl, context, libc};
@@ -161,6 +161,12 @@ impl Drop for FrameBufferObject {
     }
 }
 
+impl GlObject for FrameBufferObject {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+}
+
 /// Render buffer.
 #[allow(dead_code)]     // TODO: remove
 pub struct RenderBuffer {
@@ -218,7 +224,7 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
 
     let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) =
         index_buffer::get_clone(index_buffer);
-    let program_id = program::get_program_id(program);
+    let program_id = program.get_id();
     let uniforms = uniforms.to_binder();
     let uniforms_locations = program::get_uniforms_locations(program);
     let draw_parameters = draw_parameters.clone();

@@ -3,6 +3,7 @@
 */
 use buffer::{mod, Buffer};
 use gl;
+use GlObject;
 
 /// A list of indices loaded in the graphics card's memory.
 #[deriving(Show)]
@@ -39,6 +40,12 @@ impl IndexBuffer {
     /// 
     pub fn new<T: IntoIndexBuffer>(display: &super::Display, data: T) -> IndexBuffer {
         data.into_index_buffer(display)
+    }
+}
+
+impl GlObject for IndexBuffer {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.buffer.get_id()
     }
 }
 
