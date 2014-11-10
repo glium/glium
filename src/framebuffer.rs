@@ -167,54 +167,6 @@ impl GlObject for FrameBufferObject {
     }
 }
 
-/// Render buffer.
-#[allow(dead_code)]     // TODO: remove
-pub struct RenderBuffer {
-    display: Arc<DisplayImpl>,
-    id: gl::types::GLuint,
-}
-
-#[allow(dead_code)]     // TODO: remove
-impl RenderBuffer {
-    /// Builds a new render buffer.
-    fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
-        let (tx, rx) = channel();
-
-        display.context.exec(proc(gl, _, version, _) {
-            unsafe {
-                let id: gl::types::GLuint = mem::uninitialized();
-                if version >= &context::GlVersion(3, 0) {
-                    gl.GenRenderbuffers(1, mem::transmute(&id));
-                } else {
-                    gl.GenRenderbuffersEXT(1, mem::transmute(&id));
-                }
-
-                tx.send(id);
-            }
-        });
-
-        RenderBuffer {
-            display: display,
-            id: rx.recv(),
-        }
-    }
-}
-
-impl Drop for RenderBuffer {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, _, version, _) {
-            unsafe {
-                if version >= &context::GlVersion(3, 0) {
-                    gl.DeleteRenderbuffers(1, [ id ].as_ptr());
-                } else {
-                    gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
-                }
-            }
-        });
-    }
-}
-
 /// Draws everything.
 pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
     framebuffer: Option<&FramebufferAttachments>, vertex_buffer: &VertexBuffer<V>,
