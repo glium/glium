@@ -262,14 +262,6 @@ mod gl {
 ))]
 compile_error!("This platform is not supported")
 
-/// A command that asks to draw something.
-///
-/// You can implement this for your own type by redirecting the call to another command.
-pub trait DrawCommand {
-    /// Draws the object on the specified target.
-    fn draw(self, &mut Frame);
-}
-
 /// Function that the GPU will use for blending.
 #[deriving(Clone, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
