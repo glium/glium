@@ -27,20 +27,6 @@ The `display` object is the most important object of this library.
 The window where you are drawing on will produce events. They can be received by calling
 `display.poll_events()`.
 
-# Fundamentals
-
-In order to draw something on the window, you must first call `display.draw()`. This function
-call returns a `Frame` object which you can manipulate to draw things. Once the object
-is destroyed, the result will be presented to the user by swapping the front and back buffers.
-
-You can easily fill the window with one color by calling `clear_colors` on the target. Drawing
-something more complex, however, requires two elements:
-
- - A mesh, which describes the shape and the characteristics of the object that you want to draw,
- and is composed of a `VertexBuffer` object and an `IndexBuffer` object.
- - A program that is going to be executed by the GPU and is the result of compiling and linking
- GLSL code, alongside with the values of its global variables which are called *uniforms*.
-
 ## Complete example
 
 We start by creating the vertex buffer, which contains the list of all the points that are part
@@ -168,7 +154,7 @@ This includes textures and samplers (not covered here). You can check the docume
 
 Now that everything is initialized, we can finally draw something. To do so, call `display.draw()`
 in order to obtain a `Frame` object. Note that it is also possible to draw on a texture by
-calling `texture.draw()`, but this is not covered here.
+calling `texture.as_surface()`, but this is not covered here.
 
 The `Frame` object has a `draw` function which you can use to draw things.
 Its arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
