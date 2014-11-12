@@ -13,7 +13,10 @@ The most common type of texture is a `Texture2d` (the two dimensions being the w
 
 */
 
-use {gl, image, libc, framebuffer};
+use {gl, libc, framebuffer};
+
+#[cfg(feature = "image")]
+use image;
 
 use buffer::{mod, Buffer};
 use context::GlVersion;
