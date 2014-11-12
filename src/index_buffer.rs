@@ -4,6 +4,7 @@
 use buffer::{mod, Buffer};
 use gl;
 use GlObject;
+use {IndicesSource, IndicesSourceHelper};
 
 /// A list of indices loaded in the graphics card's memory.
 #[deriving(Show)]
@@ -11,14 +12,6 @@ pub struct IndexBuffer {
     buffer: Buffer,
     data_type: gl::types::GLenum,
     primitives: gl::types::GLenum,
-}
-
-/// This public function is accessible from within `glium` but not for the user.
-#[doc(hidden)]
-pub fn get_clone(ib: &IndexBuffer) -> (gl::types::GLuint, uint, gl::types::GLenum,
-    gl::types::GLenum)
-{
-    (ib.buffer.get_id(), ib.buffer.get_elements_count(), ib.data_type.clone(), ib.primitives.clone())
 }
 
 impl IndexBuffer {
@@ -46,6 +39,28 @@ impl IndexBuffer {
 impl GlObject for IndexBuffer {
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
+    }
+}
+
+impl IndicesSource for IndexBuffer {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let id = self.buffer.get_id();
+        let elems_count = self.buffer.get_elements_count();
+        let datatype = self.data_type.clone();
+        let primitives = self.primitives.clone();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use std::ptr;
+
+                if state.element_array_buffer_binding != Some(id) {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
+                    state.element_array_buffer_binding = Some(id);
+                }
+
+                gl.DrawElements(primitives, elems_count as i32, datatype, ptr::null());
+            }
+        })
     }
 }
 
