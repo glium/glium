@@ -1,4 +1,23 @@
 /*!
+In order to draw, you need to provide a source of indices which is used to link the vertices
+together into *primitives*.
+
+There are height types of primitives, each one with a corresponding struct:
+ - `PointsList`
+ - `LinesList`
+ - `LinesListAdjacency`
+ - `LineStrip`
+ - `LineStripAdjacency`
+ - `TrianglesList`
+ - `TrianglesListAdjacency`
+ - `TriangleStrip`
+ - `TriangleStripAdjacency`
+ - `TriangleFan`
+
+Each struct contains a vector with the indices and can be used as an `IndicesSource`.
+
+However the most optimal way to draw something is to load the data in the video memory by
+creating an `IndexBuffer`.
 
 */
 use buffer::{mod, Buffer};
