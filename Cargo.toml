@@ -6,6 +6,7 @@ description = "High-level and safe OpenGL wrapper."
 keywords = ["opengl", "gamedev"]
 documentation = "http://tomaka.github.io/glium-docs/glium/index.html"
 license = "Apache"
+build = "build/main.rs"
 
 [features]
 default = ["image", "gl_extensions"]
