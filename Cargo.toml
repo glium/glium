@@ -2,6 +2,10 @@
 name = "glium"
 version = "0.0.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+description = "High-level and safe OpenGL wrapper."
+keywords = ["opengl", "gamedev"]
+documentation = "http://tomaka.github.io/glium-docs/glium/index.html"
+license = "Apache"
 
 [features]
 default = ["image"]
@@ -16,9 +20,6 @@ git = "http://github.com/bjz/gl-rs"
 git = "http://github.com/tomaka/glutin"
 features = ["window", "headless"]
 
-[dependencies.glium_macros]
-path = "macros"
-
 [dependencies.cgmath]
 git = "https://github.com/bjz/cgmath-rs"
 
@@ -28,3 +29,7 @@ git = "https://github.com/bjz/cgmath-rs"
 [dependencies.image]
 git = "https://github.com/PistonDevelopers/image"
 optional = true
+
+[dev-dependencies.glium_macros]
+path = "macros"
+version = "*"
