@@ -108,6 +108,28 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
     }
 }
 
+impl<T> IndicesSource for PointsList<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::POINTS, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
+    }
+}
+
 /// A list of lines stored in RAM.
 pub struct LinesList<T>(pub Vec<T>);
 
@@ -118,6 +140,28 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::LINES,
         }
+    }
+}
+
+impl<T> IndicesSource for LinesList<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::LINES, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
     }
 }
 
@@ -134,6 +178,28 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
+impl<T> IndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::LINES_ADJACENCY, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
+    }
+}
+
 /// A list of lines connected together stored in RAM.
 pub struct LineStrip<T>(pub Vec<T>);
 
@@ -144,6 +210,28 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::LINE_STRIP,
         }
+    }
+}
+
+impl<T> IndicesSource for LineStrip<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::LINE_STRIP, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
     }
 }
 
@@ -160,6 +248,28 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
+impl<T> IndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::LINE_STRIP_ADJACENCY, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
+    }
+}
+
 /// A list of triangles stored in RAM.
 pub struct TrianglesList<T>(pub Vec<T>);
 
@@ -170,6 +280,28 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLES,
         }
+    }
+}
+
+impl<T> IndicesSource for TrianglesList<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::TRIANGLES, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
     }
 }
 
@@ -186,6 +318,28 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
     }
 }
 
+impl<T> IndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::TRIANGLES_ADJACENCY, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
+    }
+}
+
 /// A list of triangles connected together stored in RAM.
 pub struct TriangleStrip<T>(pub Vec<T>);
 
@@ -196,6 +350,28 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLE_STRIP,
         }
+    }
+}
+
+impl<T> IndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::TRIANGLE_STRIP, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
     }
 }
 
@@ -212,6 +388,28 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
     }
 }
 
+impl<T> IndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::TRIANGLE_STRIP_ADJACENCY, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
+    }
+}
+
 /// A list of triangles stored in RAM.
 pub struct TriangleFan<T>(pub Vec<T>);
 
@@ -222,5 +420,27 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLE_FAN,
         }
+    }
+}
+
+impl<T> IndicesSource for TriangleFan<T> where T: Index + Send + Copy {
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
+        let elems_count = self.0.len();
+        let data_type = Index::to_glenum(None::<T>);
+        let ptr = self.0.as_ptr();
+
+        IndicesSourceHelper(proc(gl, state) {
+            unsafe {
+                use libc;
+
+                if state.element_array_buffer_binding != None {
+                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                    state.element_array_buffer_binding = None;
+                }
+
+                gl.DrawElements(gl::TRIANGLE_FAN, elems_count as i32, data_type,
+                                ptr as *const libc::c_void);
+            }
+        })
     }
 }
