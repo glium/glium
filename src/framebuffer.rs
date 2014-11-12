@@ -4,7 +4,8 @@ use std::sync::Arc;
 
 use texture::{mod, Texture, Texture2d};
 use uniforms::Uniforms;
-use {DisplayImpl, VertexBuffer, IndexBuffer, Program, DrawParameters, Rect, Surface, GlObject};
+use {DisplayImpl, VertexBuffer, Program, DrawParameters, Rect, Surface, GlObject};
+use IndicesSource;
 
 use {vertex_buffer, index_buffer, program, vertex_array_object};
 use {gl, context, libc};
@@ -168,14 +169,15 @@ impl GlObject for FrameBufferObject {
 }
 
 /// Draws everything.
-pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
+pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
     framebuffer: Option<&FramebufferAttachments>, vertex_buffer: &VertexBuffer<V>,
-    index_buffer: &IndexBuffer, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
+    indices: &I, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
+    where I: IndicesSource, U: Uniforms
 {
     let fbo_id = get_framebuffer(display, framebuffer);
 
-    let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) =
-        index_buffer::get_clone(index_buffer);
+    let draw_cmd = indices.to_indices_source_helper().0;
+
     let program_id = program.get_id();
     let uniforms = uniforms.to_binder();
     let uniforms_locations = program::get_uniforms_locations(program);
@@ -208,17 +210,11 @@ pub fn draw<V, U: Uniforms>(display: &Arc<DisplayImpl>,
                 state.vertex_array = vao_id;;
             }
 
-            // binding index buffer
-            if state.element_array_buffer_binding != Some(ib_id) {
-                gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
-                state.element_array_buffer_binding = Some(ib_id);
-            }
-
             // sync-ing parameters
             draw_parameters.sync(gl, state);
             
             // drawing
-            gl.DrawElements(ib_primitives, ib_elemcounts as i32, ib_datatype, ptr::null());
+            draw_cmd(gl, state);
         }
 
         tx.send(());

@@ -668,6 +668,15 @@ impl<'t> Drop for Frame<'t> {
     }
 }
 
+/// Can be used as a source of indices when drawing.
+pub trait IndicesSource {
+    /// Opaque function.
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper;
+}
+
+/// Opaque type used by the implementation.
+pub struct IndicesSourceHelper(proc(&gl::Gl, &mut context::GLState): Send);
+
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
