@@ -87,7 +87,14 @@ impl Buffer {
     pub fn new<T, D>(display: &super::Display, data: Vec<D>, usage: gl::types::GLenum)
         -> Buffer where T: BufferType, D: Send + Copy
     {
-        let elements_size = { use std::mem; mem::size_of::<D>() };
+        use std::mem;
+
+        let elements_size = {
+            let d0: *const D = &data[0];
+            let d1: *const D = &data[1];
+            (d1 as uint) - (d0 as uint)
+        };
+
         let elements_count = data.len();
         let buffer_size = elements_count * elements_size as uint;
 

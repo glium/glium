@@ -565,8 +565,8 @@ pub trait Surface {
     fn get_dimensions(&self) -> (uint, uint);
 
     /// Draws.
-    fn draw<V, U>(&mut self, &VertexBuffer<V>, &IndexBuffer, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters) where U: uniforms::Uniforms;
+    fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
     fn get_blit_helper(&self) -> BlitHelper;
@@ -648,9 +648,8 @@ impl<'t> Surface for Frame<'t> {
         self.dimensions
     }
 
-    fn draw<V, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
-        index_buffer: &IndexBuffer, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters)
+    fn draw<V, I: IndicesSource, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
+        index_buffer: &I, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
     {
         framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
             draw_parameters)
