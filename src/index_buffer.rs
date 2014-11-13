@@ -119,6 +119,10 @@ pub struct PointsList<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
+
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -154,6 +158,9 @@ pub struct LinesList<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -189,6 +196,9 @@ pub struct LinesListAdjacency<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -224,6 +234,9 @@ pub struct LineStrip<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -259,6 +272,9 @@ pub struct LineStripAdjacency<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -294,6 +310,9 @@ pub struct TrianglesList<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -329,6 +348,9 @@ pub struct TrianglesListAdjacency<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -364,6 +386,9 @@ pub struct TriangleStrip<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -399,6 +424,9 @@ pub struct TriangleStripAdjacency<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
@@ -434,6 +462,9 @@ pub struct TriangleFan<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),

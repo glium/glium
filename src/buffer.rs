@@ -89,8 +89,6 @@ impl Buffer {
     {
         use std::mem;
 
-        assert!(mem::align_of::<D>() <= mem::size_of::<D>(), "Buffer elements are not \
-                                                              packed in memory");
         let elements_size = mem::size_of::<D>();
         let elements_count = data.len();
         let buffer_size = elements_count * elements_size as uint;
