@@ -851,8 +851,9 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.get_dimensions()
     }
 
-    fn draw<V, U>(&mut self, vb: &::VertexBuffer<V>, ib: &::IndexBuffer, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
+    fn draw<V, I, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
+        uniforms: &U, draw_parameters: &::DrawParameters) where I: ::IndicesSource,
+        U: ::uniforms::Uniforms
     {
         self.0.draw(vb, ib, program, uniforms, draw_parameters)
     }

@@ -72,8 +72,9 @@ impl<'a> Surface for FrameBuffer<'a> {
         (dimensions.0 as uint, dimensions.1 as uint)
     }
 
-    fn draw<V, U>(&mut self, vb: &::VertexBuffer<V>, ib: &::IndexBuffer, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) where U: ::uniforms::Uniforms
+    fn draw<V, I, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
+        uniforms: &U, draw_parameters: &::DrawParameters) where I: ::IndicesSource,
+        U: ::uniforms::Uniforms
     {
         draw(&self.display, Some(&self.attachments), vb, ib, program, uniforms, draw_parameters)
     }
