@@ -48,9 +48,8 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
     match substr.fields {
         &generic::Struct(ref fields) => {
             let mut declarations = Vec::new();
-            let mut linkers = Vec::new();
 
-            for field in fields.iter() {
+            for (index, field) in fields.iter().enumerate() {
                 let ref self_ = field.self_;
                 let ident = match field.name {
                     Some(i) => i,
@@ -63,32 +62,33 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 let ident_str = token::get_ident(ident);
                 let ident_str = ident_str.get();
 
-                declarations.push(quote_stmt!(ecx,
-                    let $ident = $self_.to_binder();
-                ));
+                if index == 0 {
+                    declarations.push(quote_stmt!(ecx,
+                        let uniforms = {
+                            use glium::uniforms::UniformsStorage;
+                            UniformsStorage::new($ident_str, $self_)
+                        };
+                    ));
 
-                linkers.push(quote_expr!(ecx, {
-                    unsafe { gl.ActiveTexture(active_texture as u32) };
-
-                    match loc_getter($ident_str) {
-                        Some(loc) => {
-                            let v = $ident.get_proc();
-                            v(gl, loc, &mut active_texture);
-                        },
-                        None => ()
-                    };
-                }));
+                } else {
+                    declarations.push(quote_stmt!(ecx,
+                        let uniforms = uniforms.add($ident_str, $self_);
+                    ));
+                }
             }
 
-            quote_expr!(ecx, {
-                use glium::uniforms::UniformValue;
-
-                $declarations
-
-                ::glium::uniforms::UniformsBinder(proc(gl, loc_getter) {
-                    let mut active_texture = 0x84C0; // gl::TEXTURE0
-                    $linkers
+            let end = if declarations.len() == 0 {
+                quote_expr!(ecx, {
+                    use glium::uniforms::EmptyUniforms;
+                    EmptyUniforms
                 })
+            } else {
+                quote_expr!(ecx, uniforms)
+            };
+
+            quote_expr!(ecx, {
+                $declarations
+                $end.to_binder()
             })
         },
 

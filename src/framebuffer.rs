@@ -199,11 +199,12 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
             }
 
             // binding program uniforms
+            let mut active_texture = gl::TEXTURE0;
             uniforms.0(gl, |name| {
                 uniforms_locations
                     .find_equiv(name)
                     .map(|val| val.0)
-            });
+            }, &mut active_texture);
 
             // binding vertex buffer
             if state.vertex_array != vao_id {

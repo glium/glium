@@ -95,14 +95,6 @@ pub trait UniformValue {
 /// It must call `glUniform*`.
 pub struct UniformValueBinder(proc(&gl::Gl, gl::types::GLint, &mut gl::types::GLenum):Send);
 
-impl UniformValueBinder {
-    /// This method exists because we need to access it from `glium_macros`.
-    #[doc(hidden)]
-    pub fn get_proc(self) -> proc(&gl::Gl, gl::types::GLint, &mut gl::types::GLenum):Send {
-        self.0
-    }
-}
-
 /// Object that contains all the uniforms of a program with their bindings points.
 ///
 /// It is more or less a collection of `UniformValue`s.
@@ -119,15 +111,71 @@ pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {
     fn to_binder(&self) -> UniformsBinder {
-        UniformsBinder(proc(_, _) {})
+        UniformsBinder(proc(_, _, _) {})
+    }
+}
+
+/// Stores uniforms in an efficient way.
+///
+/// # Example
+///
+/// ```ignore   // TODO: CRASHES RUSTDOC OTHERWISE
+/// use glium::uniforms::UniformsStorage;
+///
+/// // `name1` will contain 2.0
+/// let uniforms = UniformsStorage::new("name1", 2.0f32);
+///
+/// // `name2` will contain -0.5
+/// let uniforms = uniforms.add("name2", -0.5f32);
+///
+/// // `name3` will contain `texture`
+/// # let texture: glium::Texture2d = unsafe { ::std::mem::uninitialized() };
+/// let uniforms = uniforms.add("name3", &texture);
+///
+/// // the final type is `UniformsStorage<&Texture2d, UniformsStorage<f32, UniformsStorage<f32, EmptyUniforms>>>`
+/// // but you shouldn't care about it
+/// ```
+///
+pub struct UniformsStorage<'a, T, R>(&'a str, T, R);
+
+impl<'a, T> UniformsStorage<'a, T, EmptyUniforms> where T: UniformValue {
+    /// Builds a new storage with a value.
+    pub fn new(name: &'a str, value: T) -> UniformsStorage<'a, T, EmptyUniforms> {
+        UniformsStorage(name, value, EmptyUniforms)
+    }
+}
+
+impl<'a, T, R> UniformsStorage<'a, T, R> {
+    /// Adds a value to the storage.
+    pub fn add<'b, V: UniformValue>(self, name: &'b str, value: V)
+        -> UniformsStorage<'b, V, UniformsStorage<'a, T, R>>
+    {
+        UniformsStorage(name, value, self)
+    }
+}
+
+impl<'a, T, R> Uniforms for UniformsStorage<'a, T, R> where T: UniformValue, R: Uniforms {
+    fn to_binder(&self) -> UniformsBinder {
+        let name = self.0.to_string();
+        let value_binder = self.1.to_binder().0;
+        let rest = self.2.to_binder().0;
+
+        UniformsBinder(proc(gl, symbols, active_texture) {
+            if let Some(loc) = symbols(name.as_slice()) {
+                value_binder(gl, loc, active_texture);
+            }   // note: ignoring if the uniform was not found in the program
+
+            rest(gl, symbols, active_texture);
+        })
     }
 }
 
 /// The actual content of this object is hidden outside of this library.
-///
-/// The content is however `pub` because we need to access it from `glium_macros`.
+// The field is "pub" because of framebuffer.
+// TODO: remove this hack
 #[doc(hidden)]
-pub struct UniformsBinder(pub proc(&gl::Gl, |&str| -> Option<gl::types::GLint>):Send);
+pub struct UniformsBinder(pub proc(&gl::Gl, |&str| -> Option<gl::types::GLint>,
+                          &mut gl::types::GLenum):Send);
 
 
 /// Function to use for out-of-bounds samples.
@@ -437,6 +485,7 @@ impl<'a> UniformValue for &'a texture::TextureImplementation {
         let my_id = texture::get_id(*self);
         UniformValueBinder(proc(gl, location, active_texture) {
             unsafe {
+                gl.ActiveTexture(*active_texture as u32);
                 gl.BindTexture(gl::TEXTURE_2D, my_id);      // FIXME: check bind point
                 gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint);
                 *active_texture += 1;
