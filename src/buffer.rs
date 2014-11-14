@@ -101,9 +101,12 @@ impl Buffer {
         let (tx, rx) = channel();
 
         display.context.context.exec(proc(gl, state, version, extensions) {
+            let data = data;
+
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 gl.GenBuffers(1, &mut id);
+                tx.send(id);
 
                 if version >= &GlVersion(4, 5) {
                     gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
@@ -122,8 +125,6 @@ impl Buffer {
                     gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
                         data.as_ptr() as *const libc::c_void, usage);
                 }
-
-                tx.send(id);
             }
         });
 
