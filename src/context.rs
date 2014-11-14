@@ -182,6 +182,10 @@ pub struct ExtensionsList {
     pub gl_ext_framebuffer_blit: bool,
     /// GL_KHR_debug
     pub gl_khr_debug: bool,
+    /// GL_NVX_gpu_memory_info
+    pub gl_nvx_gpu_memory_info: bool,
+    /// GL_ATI_meminfo
+    pub gl_ati_meminfo: bool,
 }
 
 impl Context {
@@ -410,6 +414,8 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_geometry_shader4: false,
         gl_ext_framebuffer_blit: false,
         gl_khr_debug: false,
+        gl_nvx_gpu_memory_info: false,
+        gl_ati_meminfo: false,
     };
 
     for extension in strings.into_iter() {
@@ -419,6 +425,8 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
             "GL_EXT_framebuffer_blit" => extensions.gl_ext_framebuffer_blit = true,
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
+            "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
+            "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
             _ => ()
         }
     }

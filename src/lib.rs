@@ -238,6 +238,8 @@ mod gl {
             "GL_EXT_direct_state_access",
             "GL_EXT_framebuffer_object",
             "GL_EXT_framebuffer_blit",
+            "GL_NVX_gpu_memory_info",
+            "GL_ATI_meminfo",
         ]
     }
 }
@@ -802,6 +804,37 @@ impl Display {
                 }
             }
         });
+    }
+
+    /// Returns an estimate of the amount of video memory available in bytes.
+    ///
+    /// Returns `None` if no estimate is available.
+    pub fn get_free_video_memory(&self) -> Option<uint> {
+        let (tx, rx) = channel();
+
+        self.context.context.exec(proc(gl, _, _, extensions) {
+            unsafe {
+                use std::mem;
+                let mut value: [gl::types::GLint, ..4] = mem::uninitialized();
+
+                let value = if extensions.gl_nvx_gpu_memory_info {
+                    gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+                                   &mut value[0]);
+                    Some(value[0])
+
+                } else if extensions.gl_ati_meminfo {
+                    gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
+                    Some(value[0])
+
+                } else {
+                    None
+                };
+
+                tx.send(value);
+            }
+        });
+
+        rx.recv().map(|v| v as uint * 1024)
     }
 
     /// Sets the callback to use when an OpenGL debug message is generated.
