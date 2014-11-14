@@ -10,9 +10,14 @@ use glium::{mod, DisplayBuild};
 
 use std::os;
 
+/// Returns true if we are executed headless tests.
+pub fn is_headless() -> bool {
+    os::getenv("HEADLESS_TESTS").is_some()
+}
+
 /// Builds a headless display for tests.
 pub fn build_display() -> glium::Display {
-    if os::getenv("HEADLESS_TESTS").is_some() {
+    if is_headless() {
         glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap()
     } else {
         glutin::WindowBuilder::new().with_visibility(false).build_glium().unwrap()
