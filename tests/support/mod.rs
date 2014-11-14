@@ -83,3 +83,19 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::Vertex
             None).unwrap()
     )
 }
+
+/// Builds a VB and an IB corresponding to a rectangle.
+///
+/// The VB has the "position" attribute of type "vec2".
+pub fn build_rectangle_vb_ib(display: &glium::Display)
+    -> (glium::VertexBuffer<Vertex>, glium::IndexBuffer)
+{
+    (
+        glium::VertexBuffer::new(display, vec![
+            Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
+            Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
+        ]),
+
+        glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
+    )
+}
