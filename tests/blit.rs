@@ -1,4 +1,5 @@
 #![feature(phase)]
+#![feature(unboxed_closures)]
 
 #[phase(plugin)]
 extern crate glium_macros;

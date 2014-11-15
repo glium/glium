@@ -984,6 +984,22 @@ impl Display {
         let data = rx.recv();
         texture::Texture2dData::from_vec(data, dimensions.0 as u32)
     }
+
+    /// Asserts that there are no OpenGL error pending.
+    ///
+    /// This function is supposed to be used in tests.
+    pub fn assert_no_error(&self) {
+        let (tx, rx) = channel();
+
+        self.context.context.exec(proc(gl, _, _, _) {
+            tx.send(get_gl_error(gl));
+        });
+
+        match rx.recv() {
+            Some(msg) => panic!("{}", msg),
+            None => ()
+        };
+    }
 }
 
 // this destructor is here because objects in `Display` contain an `Arc<DisplayImpl>`,
@@ -1014,16 +1030,16 @@ impl Drop for Display {
 }
 
 #[allow(dead_code)]
-fn get_gl_error(gl: &gl::Gl) -> &'static str {
+fn get_gl_error(gl: &gl::Gl) -> Option<&'static str> {
     match unsafe { gl.GetError() } {
-        gl::NO_ERROR => "GL_NO_ERROR",
-        gl::INVALID_ENUM => "GL_INVALID_ENUM",
-        gl::INVALID_VALUE => "GL_INVALID_VALUE",
-        gl::INVALID_OPERATION => "GL_INVALID_OPERATION",
-        gl::INVALID_FRAMEBUFFER_OPERATION => "GL_INVALID_FRAMEBUFFER_OPERATION",
-        gl::OUT_OF_MEMORY => "GL_OUT_OF_MEMORY",
-        /*gl::STACK_UNDERFLOW => "GL_STACK_UNDERFLOW",
-        gl::STACK_OVERFLOW => "GL_STACK_OVERFLOW",*/
-        _ => "Unknown glGetError return value"
+        gl::NO_ERROR => None,
+        gl::INVALID_ENUM => Some("GL_INVALID_ENUM"),
+        gl::INVALID_VALUE => Some("GL_INVALID_VALUE"),
+        gl::INVALID_OPERATION => Some("GL_INVALID_OPERATION"),
+        gl::INVALID_FRAMEBUFFER_OPERATION => Some("GL_INVALID_FRAMEBUFFER_OPERATION"),
+        gl::OUT_OF_MEMORY => Some("GL_OUT_OF_MEMORY"),
+        /*gl::STACK_UNDERFLOW => Some("GL_STACK_UNDERFLOW"),
+        gl::STACK_OVERFLOW => Some("GL_STACK_OVERFLOW"),*/
+        _ => Some("Unknown glGetError return value")
     }
 }

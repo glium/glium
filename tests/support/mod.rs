@@ -17,11 +17,21 @@ pub fn is_headless() -> bool {
 
 /// Builds a headless display for tests.
 pub fn build_display() -> glium::Display {
-    if is_headless() {
+    let display = if is_headless() {
         glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap()
     } else {
         glutin::WindowBuilder::new().with_visibility(false).build_glium().unwrap()
-    }
+    };
+
+    unsafe {
+        display.set_debug_callback_sync(|&mut: msg: String, _, _, severity: glium::debug::Severity| {
+            if severity == glium::debug::Medium || severity == glium::debug::High {
+                panic!("{}", msg);
+            }
+        })
+    };
+
+    display
 }
 
 /// Builds a 2x2 unicolor texture.

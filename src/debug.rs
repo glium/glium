@@ -6,7 +6,7 @@
 use gl;
 
 /// Severity of a debug message.
-#[deriving(Clone, Show, FromPrimitive)]
+#[deriving(Clone, Show, FromPrimitive, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Severity {
     /// Anything that isn't an error or performance issue.
