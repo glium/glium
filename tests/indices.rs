@@ -59,6 +59,8 @@ fn triangles_list_cpu() {
 
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -82,6 +84,8 @@ fn triangle_strip_cpu() {
 
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -112,6 +116,8 @@ fn triangles_list_gpu() {
 
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -142,4 +148,6 @@ fn triangle_strip_gpu() {
 
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    
+    display.assert_no_error();
 }

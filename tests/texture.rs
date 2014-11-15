@@ -25,6 +25,8 @@ fn texture_1d_creation() {
     assert_eq!(texture.get_height(), None);
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -41,6 +43,8 @@ fn texture_2d_creation() {
     assert_eq!(texture.get_height(), Some(3));
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -66,6 +70,8 @@ fn texture_3d_creation() {
     assert_eq!(texture.get_height(), Some(2));
     assert_eq!(texture.get_depth(), Some(3));
     assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -84,6 +90,8 @@ fn texture_2d_read() {
     assert_eq!(read_back[0][1], (4, 8, 16));
     assert_eq!(read_back[1][0], (32, 64, 128));
     assert_eq!(read_back[1][1], (32, 16, 4));
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -100,6 +108,8 @@ fn compressed_texture_2d_creation() {
     assert_eq!(texture.get_height(), Some(3));
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -121,4 +131,6 @@ fn render_to_texture2d() {
     assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back[512][512], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back[1023][1023], (1.0, 0.0, 0.0, 1.0));
+    
+    display.assert_no_error();
 }

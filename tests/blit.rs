@@ -60,4 +60,6 @@ fn blit_texture_to_window() {
     assert_eq!(data[1][3], (0.0, 0.0, 0.0));
 
     assert_eq!(data[3][3], (0.0, 0.0, 0.0));
+    
+    display.assert_no_error();
 }
