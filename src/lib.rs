@@ -905,27 +905,27 @@ impl Display {
         // enabling the callback
         self.context.context.exec(proc(gl, state, version, extensions) {
             unsafe {
-                if state.enabled_debug_output_synchronous != sync {
-                    if sync {
-                        gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                        state.enabled_debug_output_synchronous = true;
-                    } else {
-                        gl.Disable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                        state.enabled_debug_output_synchronous = false;
-                    }
-                }
-
-                // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
-                //       but with GL only, it doesn't have one
                 if version >= &context::GlVersion(4,5) || extensions.gl_khr_debug {
+                    if state.enabled_debug_output_synchronous != sync {
+                        if sync {
+                            gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                            state.enabled_debug_output_synchronous = true;
+                        } else {
+                            gl.Disable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                            state.enabled_debug_output_synchronous = false;
+                        }
+                    }
+
+                    // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
+                    //       but with GL only, it doesn't have one
                     gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
                     gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                         std::ptr::null(), gl::TRUE);
-                }
 
-                if state.enabled_debug_output != Some(true) {
-                    gl.Enable(gl::DEBUG_OUTPUT);
-                    state.enabled_debug_output = Some(true);
+                    if state.enabled_debug_output != Some(true) {
+                        gl.Enable(gl::DEBUG_OUTPUT);
+                        state.enabled_debug_output = Some(true);
+                    }
                 }
             }
         });
