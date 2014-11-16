@@ -2,7 +2,7 @@
 
 use gl;
 
-pub trait GLDataType: Num + Copy {
+pub trait GLDataType: Copy {
     /// Returns the OpenGL enumeration corresponding to this type.
     fn get_gl_type(Option<Self>) -> gl::types::GLenum;
 }

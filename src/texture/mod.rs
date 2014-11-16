@@ -564,8 +564,8 @@ impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: rem
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: Primitive, P: PixelValue +
-    image::Pixel<T> + Clone + Copy
+impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: image::Primitive,
+    P: PixelValue + image::Pixel<T> + Clone + Copy
 {
     fn get_dimensions(&self) -> (u32, u32) {
         use image::GenericImage;
