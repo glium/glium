@@ -1,4 +1,5 @@
 #![feature(phase)]
+#![feature(unboxed_closures)]
 
 #[phase(plugin)]
 extern crate glium_macros;
@@ -25,4 +26,6 @@ fn display_clear_color() {
             assert_eq!(pixel, &(1.0, 0.0, 0.0));
         }
     }
+
+    display.assert_no_error();
 }

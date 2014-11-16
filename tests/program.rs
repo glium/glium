@@ -1,4 +1,5 @@
 #![feature(phase)]
+#![feature(unboxed_closures)]
 
 #[phase(plugin)]
 extern crate glium_macros;
@@ -43,6 +44,8 @@ fn program_creation() {
 
         // geometry shader
         None).unwrap();
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -71,6 +74,8 @@ fn program_compilation_error() {
         Err(glium::CompilationError(_)) => (),
         _ => panic!()
     };
+
+    display.assert_no_error();
 }
 
 /*
@@ -112,5 +117,7 @@ fn program_linking_error() {
         Err(glium::LinkingError(_)) => (),
         _ => panic!()
     };
+    
+    display.assert_no_error();
 }
 */

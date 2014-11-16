@@ -1,4 +1,5 @@
 #![feature(phase)]
+#![feature(unboxed_closures)]
 
 #[phase(plugin)]
 extern crate glium_macros;
@@ -26,6 +27,8 @@ fn vertex_buffer_creation() {
             Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
         ]
     );
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -48,6 +51,8 @@ fn vertex_buffer_mapping_read() {
     let mapping = vb.map();
     assert_eq!(mapping[0].field1.as_slice(), [2, 3].as_slice());
     assert_eq!(mapping[1].field2.as_slice(), [15, 17].as_slice());
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -75,6 +80,8 @@ fn vertex_buffer_mapping_write() {
     let mapping = vb.map();
     assert_eq!(mapping[0].field1.as_slice(), [0, 1].as_slice());
     assert_eq!(mapping[1].field2.as_slice(), [15, 17].as_slice());
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -97,6 +104,8 @@ fn vertex_buffer_read() {
     let data = vb.read();
     assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
     assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -118,6 +127,8 @@ fn vertex_buffer_read_slice() {
 
     let data = vb.read_slice(1, 1);
     assert_eq!(data[0].field2.as_slice(), [15, 17].as_slice());
+    
+    display.assert_no_error();
 }
 
 #[test]

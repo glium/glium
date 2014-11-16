@@ -1,4 +1,5 @@
 #![feature(phase)]
+#![feature(unboxed_closures)]
 
 #[phase(plugin)]
 extern crate glium_macros;
@@ -89,4 +90,6 @@ fn test() {
     let mut target = display.draw();
     target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
     target.finish();
+    
+    display.assert_no_error();
 }
