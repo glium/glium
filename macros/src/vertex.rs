@@ -98,7 +98,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         _ => {
             ecx.span_err(span, "Unable to implement `glium::VertexFormat::build_bindings` \
                                 on a non-structure");
-            ecx.expr_lit(span, ast::LitNil)
+            ecx.expr_int(span, 0)
         }
     }
 }

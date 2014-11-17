@@ -56,7 +56,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     None => {
                         ecx.span_err(span, "Unable to implement `glium::uniforms::Uniforms` \
                                             on a structure with unnamed fields");
-                        return ecx.expr_lit(span, ast::LitNil);
+                        return ecx.expr_int(span, 0);
                     }
                 };
                 let ident_str = token::get_ident(ident);
@@ -95,7 +95,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         _ => {
             ecx.span_err(span, "Unable to implement `glium::uniforms::Uniforms` \
                                 on a non-structure");
-            ecx.expr_lit(span, ast::LitNil)
+            ecx.expr_int(span, 0)
         }
     }
 }
