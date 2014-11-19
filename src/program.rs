@@ -91,7 +91,7 @@ impl Program {
             unsafe {
                 let id = gl.CreateProgram();
                 if id == 0 {
-                    tx.send(Err(ProgramCreationFailure));
+                    tx.send(Err(ProgramCreationError::ProgramCreationFailure));
                     return;
                 }
 
@@ -105,6 +105,8 @@ impl Program {
                 {   let mut link_success: gl::types::GLint = mem::uninitialized();
                     gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
                     if link_success == 0 {
+                        use ProgramCreationError::LinkingError;
+
                         match gl.GetError() {
                             gl::NO_ERROR => (),
                             gl::INVALID_VALUE => {
@@ -240,7 +242,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
             let id = gl.CreateShader(shader_type);
 
             if id == 0 {
-                tx.send(Err(ShaderTypeNotSupported));
+                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
                 return;
             }
 
@@ -265,7 +267,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
                 error_log.set_len(error_log_size as uint);
 
                 let msg = String::from_utf8(error_log).unwrap();
-                tx.send(Err(CompilationError(msg)));
+                tx.send(Err(ProgramCreationError::CompilationError(msg)));
                 return;
             }
 
@@ -292,5 +294,5 @@ fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
 fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
     -> Result<Shader, ProgramCreationError>
 {
-    Err(ShaderTypeNotSupported)
+    Err(ProgramCreationError::ShaderTypeNotSupported)
 }

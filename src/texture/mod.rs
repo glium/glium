@@ -67,43 +67,43 @@ pub trait Texture {
 /// These are all the possible formats of data when uploading to a texture.
 #[allow(missing_docs)]
 pub enum ClientFormat {
-    ClientFormatU8,
-    ClientFormatU8U8,
-    ClientFormatU8U8U8,
-    ClientFormatU8U8U8U8,
-    ClientFormatI8,
-    ClientFormatI8I8,
-    ClientFormatI8I8I8,
-    ClientFormatI8I8I8I8,
-    ClientFormatU16,
-    ClientFormatU16U16,
-    ClientFormatU16U16U16,
-    ClientFormatU16U16U16U16,
-    ClientFormatI16,
-    ClientFormatI16I16,
-    ClientFormatI16I16I16,
-    ClientFormatI16I16I16I16,
-    ClientFormatU32,
-    ClientFormatU32U32,
-    ClientFormatU32U32U32,
-    ClientFormatU32U32U32U32,
-    ClientFormatI32,
-    ClientFormatI32I32,
-    ClientFormatI32I32I32,
-    ClientFormatI32I32I32I32,
-    ClientFormatU3U3U2,
-    ClientFormatU5U6U5,
-    ClientFormatU4U4U4U4,
-    ClientFormatU5U5U5U1,
-    ClientFormatU10U10U10U2,
-    ClientFormatF16,
-    ClientFormatF16F16,
-    ClientFormatF16F16F16,
-    ClientFormatF16F16F16F16,
-    ClientFormatF32,
-    ClientFormatF32F32,
-    ClientFormatF32F32F32,
-    ClientFormatF32F32F32F32,
+    U8,
+    U8U8,
+    U8U8U8,
+    U8U8U8U8,
+    I8,
+    I8I8,
+    I8I8I8,
+    I8I8I8I8,
+    U16,
+    U16U16,
+    U16U16U16,
+    U16U16U16U16,
+    I16,
+    I16I16,
+    I16I16I16,
+    I16I16I16I16,
+    U32,
+    U32U32,
+    U32U32U32,
+    U32U32U32U32,
+    I32,
+    I32I32,
+    I32I32I32,
+    I32I32I32I32,
+    U3U3U2,
+    U5U6U5,
+    U4U4U4U4,
+    U5U5U5U1,
+    U10U10U10U2,
+    F16,
+    F16F16,
+    F16F16F16,
+    F16F16F16F16,
+    F32,
+    F32F32,
+    F32F32F32,
+    F32F32F32F32,
 }
 
 impl ClientFormat {
@@ -111,86 +111,86 @@ impl ClientFormat {
     #[doc(hidden)]      // TODO: shouldn't be pub
     pub fn to_gl_enum(&self) -> (gl::types::GLenum, gl::types::GLenum) {
         match *self {
-            ClientFormatU8 => (gl::RED, gl::UNSIGNED_BYTE),
-            ClientFormatU8U8 => (gl::RG, gl::UNSIGNED_BYTE),
-            ClientFormatU8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
-            ClientFormatU8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
-            ClientFormatI8 => (gl::RED, gl::BYTE),
-            ClientFormatI8I8 => (gl::RG, gl::BYTE),
-            ClientFormatI8I8I8 => (gl::RGB, gl::BYTE),
-            ClientFormatI8I8I8I8 => (gl::RGBA, gl::BYTE),
-            ClientFormatU16 => (gl::RED, gl::UNSIGNED_SHORT),
-            ClientFormatU16U16 => (gl::RG, gl::UNSIGNED_SHORT),
-            ClientFormatU16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
-            ClientFormatU16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
-            ClientFormatI16 => (gl::RED, gl::SHORT),
-            ClientFormatI16I16 => (gl::RG, gl::SHORT),
-            ClientFormatI16I16I16 => (gl::RGB, gl::SHORT),
-            ClientFormatI16I16I16I16 => (gl::RGBA, gl::SHORT),
-            ClientFormatU32 => (gl::RED, gl::UNSIGNED_INT),
-            ClientFormatU32U32 => (gl::RG, gl::UNSIGNED_INT),
-            ClientFormatU32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
-            ClientFormatU32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
-            ClientFormatI32 => (gl::RED, gl::INT),
-            ClientFormatI32I32 => (gl::RG, gl::INT),
-            ClientFormatI32I32I32 => (gl::RGB, gl::INT),
-            ClientFormatI32I32I32I32 => (gl::RGBA, gl::INT),
-            ClientFormatU3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
-            ClientFormatU5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
-            ClientFormatU4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
-            ClientFormatU5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
-            ClientFormatU10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
-            ClientFormatF16 => (gl::RED, gl::HALF_FLOAT),
-            ClientFormatF16F16 => (gl::RG, gl::HALF_FLOAT),
-            ClientFormatF16F16F16 => (gl::RGB, gl::HALF_FLOAT),
-            ClientFormatF16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
-            ClientFormatF32 => (gl::RED, gl::FLOAT),
-            ClientFormatF32F32 => (gl::RG, gl::FLOAT),
-            ClientFormatF32F32F32 => (gl::RGB, gl::FLOAT),
-            ClientFormatF32F32F32F32 => (gl::RGBA, gl::FLOAT),
+            ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
+            ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
+            ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
+            ClientFormat::U8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
+            ClientFormat::I8 => (gl::RED, gl::BYTE),
+            ClientFormat::I8I8 => (gl::RG, gl::BYTE),
+            ClientFormat::I8I8I8 => (gl::RGB, gl::BYTE),
+            ClientFormat::I8I8I8I8 => (gl::RGBA, gl::BYTE),
+            ClientFormat::U16 => (gl::RED, gl::UNSIGNED_SHORT),
+            ClientFormat::U16U16 => (gl::RG, gl::UNSIGNED_SHORT),
+            ClientFormat::U16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
+            ClientFormat::U16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
+            ClientFormat::I16 => (gl::RED, gl::SHORT),
+            ClientFormat::I16I16 => (gl::RG, gl::SHORT),
+            ClientFormat::I16I16I16 => (gl::RGB, gl::SHORT),
+            ClientFormat::I16I16I16I16 => (gl::RGBA, gl::SHORT),
+            ClientFormat::U32 => (gl::RED, gl::UNSIGNED_INT),
+            ClientFormat::U32U32 => (gl::RG, gl::UNSIGNED_INT),
+            ClientFormat::U32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
+            ClientFormat::U32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
+            ClientFormat::I32 => (gl::RED, gl::INT),
+            ClientFormat::I32I32 => (gl::RG, gl::INT),
+            ClientFormat::I32I32I32 => (gl::RGB, gl::INT),
+            ClientFormat::I32I32I32I32 => (gl::RGBA, gl::INT),
+            ClientFormat::U3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
+            ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
+            ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
+            ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
+            ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
+            ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
+            ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
+            ClientFormat::F16F16F16 => (gl::RGB, gl::HALF_FLOAT),
+            ClientFormat::F16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
+            ClientFormat::F32 => (gl::RED, gl::FLOAT),
+            ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
+            ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
+            ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
         }
     }
 
     /// Returns the default corresponding floating-point-like internal format.
     pub fn to_float_internal_format(&self) -> Option<UncompressedFloatFormat> {
         match *self {
-            ClientFormatU8 => Some(FloatFormatU8),
-            ClientFormatU8U8 => Some(FloatFormatU8U8),
-            ClientFormatU8U8U8 => Some(FloatFormatU8U8U8),
-            ClientFormatU8U8U8U8 => Some(FloatFormatU8U8U8U8),
-            ClientFormatI8 => Some(FloatFormatI8),
-            ClientFormatI8I8 => Some(FloatFormatI8I8),
-            ClientFormatI8I8I8 => Some(FloatFormatI8I8I8),
-            ClientFormatI8I8I8I8 => Some(FloatFormatI8I8I8I8),
-            ClientFormatU16 => Some(FloatFormatU16),
-            ClientFormatU16U16 => Some(FloatFormatU16U16),
-            ClientFormatU16U16U16 => None,
-            ClientFormatU16U16U16U16 => Some(FloatFormatU16U16U16U16),
-            ClientFormatI16 => Some(FloatFormatI16),
-            ClientFormatI16I16 => Some(FloatFormatI16I16),
-            ClientFormatI16I16I16 => Some(FloatFormatI16I16I16),
-            ClientFormatI16I16I16I16 => None,
-            ClientFormatU32 => None,
-            ClientFormatU32U32 => None,
-            ClientFormatU32U32U32 => None,
-            ClientFormatU32U32U32U32 => None,
-            ClientFormatI32 => None,
-            ClientFormatI32I32 => None,
-            ClientFormatI32I32I32 => None,
-            ClientFormatI32I32I32I32 => None,
-            ClientFormatU3U3U2 => None,
-            ClientFormatU5U6U5 => None,
-            ClientFormatU4U4U4U4 => Some(FloatFormatU4U4U4U4),
-            ClientFormatU5U5U5U1 => Some(FloatFormatU5U5U5U1),
-            ClientFormatU10U10U10U2 => Some(FloatFormatU10U10U10U2),
-            ClientFormatF16 => Some(FloatFormatF16),
-            ClientFormatF16F16 => Some(FloatFormatF16F16),
-            ClientFormatF16F16F16 => Some(FloatFormatF16F16F16),
-            ClientFormatF16F16F16F16 => Some(FloatFormatF16F16F16F16),
-            ClientFormatF32 => Some(FloatFormatF32),
-            ClientFormatF32F32 => Some(FloatFormatF32F32),
-            ClientFormatF32F32F32 => Some(FloatFormatF32F32F32),
-            ClientFormatF32F32F32F32 => Some(FloatFormatF32F32F32F32),
+            ClientFormat::U8 => Some(UncompressedFloatFormat::U8),
+            ClientFormat::U8U8 => Some(UncompressedFloatFormat::U8U8),
+            ClientFormat::U8U8U8 => Some(UncompressedFloatFormat::U8U8U8),
+            ClientFormat::U8U8U8U8 => Some(UncompressedFloatFormat::U8U8U8U8),
+            ClientFormat::I8 => Some(UncompressedFloatFormat::I8),
+            ClientFormat::I8I8 => Some(UncompressedFloatFormat::I8I8),
+            ClientFormat::I8I8I8 => Some(UncompressedFloatFormat::I8I8I8),
+            ClientFormat::I8I8I8I8 => Some(UncompressedFloatFormat::I8I8I8I8),
+            ClientFormat::U16 => Some(UncompressedFloatFormat::U16),
+            ClientFormat::U16U16 => Some(UncompressedFloatFormat::U16U16),
+            ClientFormat::U16U16U16 => None,
+            ClientFormat::U16U16U16U16 => Some(UncompressedFloatFormat::U16U16U16U16),
+            ClientFormat::I16 => Some(UncompressedFloatFormat::I16),
+            ClientFormat::I16I16 => Some(UncompressedFloatFormat::I16I16),
+            ClientFormat::I16I16I16 => Some(UncompressedFloatFormat::I16I16I16),
+            ClientFormat::I16I16I16I16 => None,
+            ClientFormat::U32 => None,
+            ClientFormat::U32U32 => None,
+            ClientFormat::U32U32U32 => None,
+            ClientFormat::U32U32U32U32 => None,
+            ClientFormat::I32 => None,
+            ClientFormat::I32I32 => None,
+            ClientFormat::I32I32I32 => None,
+            ClientFormat::I32I32I32I32 => None,
+            ClientFormat::U3U3U2 => None,
+            ClientFormat::U5U6U5 => None,
+            ClientFormat::U4U4U4U4 => Some(UncompressedFloatFormat::U4U4U4U4),
+            ClientFormat::U5U5U5U1 => Some(UncompressedFloatFormat::U5U5U5U1),
+            ClientFormat::U10U10U10U2 => Some(UncompressedFloatFormat::U10U10U10U2),
+            ClientFormat::F16 => Some(UncompressedFloatFormat::F16),
+            ClientFormat::F16F16 => Some(UncompressedFloatFormat::F16F16),
+            ClientFormat::F16F16F16 => Some(UncompressedFloatFormat::F16F16F16),
+            ClientFormat::F16F16F16F16 => Some(UncompressedFloatFormat::F16F16F16F16),
+            ClientFormat::F32 => Some(UncompressedFloatFormat::F32),
+            ClientFormat::F32F32 => Some(UncompressedFloatFormat::F32F32),
+            ClientFormat::F32F32F32 => Some(UncompressedFloatFormat::F32F32F32),
+            ClientFormat::F32F32F32F32 => Some(UncompressedFloatFormat::F32F32F32F32),
         }
     }
 
@@ -206,43 +206,43 @@ impl ClientFormat {
     /// to this client format.
     fn to_default_compressed_format(&self) -> gl::types::GLenum {
         match *self {
-            ClientFormatU8 => gl::COMPRESSED_RED,
-            ClientFormatU8U8 => gl::COMPRESSED_RG,
-            ClientFormatU8U8U8 => gl::COMPRESSED_RGB,
-            ClientFormatU8U8U8U8 => gl::COMPRESSED_RGBA,
-            ClientFormatI8 => gl::COMPRESSED_RED,
-            ClientFormatI8I8 => gl::COMPRESSED_RG,
-            ClientFormatI8I8I8 => gl::COMPRESSED_RGB,
-            ClientFormatI8I8I8I8 => gl::COMPRESSED_RGBA,
-            ClientFormatU16 => gl::COMPRESSED_RED,
-            ClientFormatU16U16 => gl::COMPRESSED_RG,
-            ClientFormatU16U16U16 => gl::COMPRESSED_RGB,
-            ClientFormatU16U16U16U16 => gl::COMPRESSED_RGBA,
-            ClientFormatI16 => gl::COMPRESSED_RED,
-            ClientFormatI16I16 => gl::COMPRESSED_RG,
-            ClientFormatI16I16I16 => gl::COMPRESSED_RGB,
-            ClientFormatI16I16I16I16 => gl::COMPRESSED_RGBA,
-            ClientFormatU32 => gl::COMPRESSED_RED,
-            ClientFormatU32U32 => gl::COMPRESSED_RG,
-            ClientFormatU32U32U32 => gl::COMPRESSED_RGB,
-            ClientFormatU32U32U32U32 => gl::COMPRESSED_RGBA,
-            ClientFormatI32 => gl::COMPRESSED_RED,
-            ClientFormatI32I32 => gl::COMPRESSED_RG,
-            ClientFormatI32I32I32 => gl::COMPRESSED_RGB,
-            ClientFormatI32I32I32I32 => gl::COMPRESSED_RGBA,
-            ClientFormatU3U3U2 => gl::COMPRESSED_RGB,
-            ClientFormatU5U6U5 => gl::COMPRESSED_RGB,
-            ClientFormatU4U4U4U4 => gl::COMPRESSED_RGBA,
-            ClientFormatU5U5U5U1 => gl::COMPRESSED_RGBA,
-            ClientFormatU10U10U10U2 => gl::COMPRESSED_RGBA,
-            ClientFormatF16 => gl::COMPRESSED_RED,
-            ClientFormatF16F16 => gl::COMPRESSED_RG,
-            ClientFormatF16F16F16 => gl::COMPRESSED_RGB,
-            ClientFormatF16F16F16F16 => gl::COMPRESSED_RGBA,
-            ClientFormatF32 => gl::COMPRESSED_RED,
-            ClientFormatF32F32 => gl::COMPRESSED_RG,
-            ClientFormatF32F32F32 => gl::COMPRESSED_RGB,
-            ClientFormatF32F32F32F32 => gl::COMPRESSED_RGBA,
+            ClientFormat::U8 => gl::COMPRESSED_RED,
+            ClientFormat::U8U8 => gl::COMPRESSED_RG,
+            ClientFormat::U8U8U8 => gl::COMPRESSED_RGB,
+            ClientFormat::U8U8U8U8 => gl::COMPRESSED_RGBA,
+            ClientFormat::I8 => gl::COMPRESSED_RED,
+            ClientFormat::I8I8 => gl::COMPRESSED_RG,
+            ClientFormat::I8I8I8 => gl::COMPRESSED_RGB,
+            ClientFormat::I8I8I8I8 => gl::COMPRESSED_RGBA,
+            ClientFormat::U16 => gl::COMPRESSED_RED,
+            ClientFormat::U16U16 => gl::COMPRESSED_RG,
+            ClientFormat::U16U16U16 => gl::COMPRESSED_RGB,
+            ClientFormat::U16U16U16U16 => gl::COMPRESSED_RGBA,
+            ClientFormat::I16 => gl::COMPRESSED_RED,
+            ClientFormat::I16I16 => gl::COMPRESSED_RG,
+            ClientFormat::I16I16I16 => gl::COMPRESSED_RGB,
+            ClientFormat::I16I16I16I16 => gl::COMPRESSED_RGBA,
+            ClientFormat::U32 => gl::COMPRESSED_RED,
+            ClientFormat::U32U32 => gl::COMPRESSED_RG,
+            ClientFormat::U32U32U32 => gl::COMPRESSED_RGB,
+            ClientFormat::U32U32U32U32 => gl::COMPRESSED_RGBA,
+            ClientFormat::I32 => gl::COMPRESSED_RED,
+            ClientFormat::I32I32 => gl::COMPRESSED_RG,
+            ClientFormat::I32I32I32 => gl::COMPRESSED_RGB,
+            ClientFormat::I32I32I32I32 => gl::COMPRESSED_RGBA,
+            ClientFormat::U3U3U2 => gl::COMPRESSED_RGB,
+            ClientFormat::U5U6U5 => gl::COMPRESSED_RGB,
+            ClientFormat::U4U4U4U4 => gl::COMPRESSED_RGBA,
+            ClientFormat::U5U5U5U1 => gl::COMPRESSED_RGBA,
+            ClientFormat::U10U10U10U2 => gl::COMPRESSED_RGBA,
+            ClientFormat::F16 => gl::COMPRESSED_RED,
+            ClientFormat::F16F16 => gl::COMPRESSED_RG,
+            ClientFormat::F16F16F16 => gl::COMPRESSED_RGB,
+            ClientFormat::F16F16F16F16 => gl::COMPRESSED_RGBA,
+            ClientFormat::F32 => gl::COMPRESSED_RED,
+            ClientFormat::F32F32 => gl::COMPRESSED_RG,
+            ClientFormat::F32F32F32 => gl::COMPRESSED_RGB,
+            ClientFormat::F32F32F32F32 => gl::COMPRESSED_RGBA,
         }
     }
 }
@@ -256,162 +256,162 @@ pub enum UncompressedFloatFormat {
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU8,
+    U8,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI8,
+    I8,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU16,
+    U16,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI16,
+    I16,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU8U8,
+    U8U8,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI8I8,
+    I8I8,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU16U16,
+    U16U16,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI16I16,
+    I16I16,
     /// 
-    FloatFormatU3U32U,
+    U3U32U,
     /// 
-    FloatFormatU4U4U4,
+    U4U4U4,
     /// 
-    FloatFormatU5U5U5,
-    /// 
-    ///
-    /// Guaranteed to be supported for textures.
-    FloatFormatU8U8U8,
+    U5U5U5,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI8I8I8,
-    /// 
-    FloatFormatU10U10U10,
-    /// 
-    FloatFormatU12U12U12,
+    U8U8U8,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI16I16I16,
+    I8I8I8,
     /// 
-    FloatFormatU2U2U2U2,
+    U10U10U10,
     /// 
-    FloatFormatU4U4U4U4,
-    /// 
-    FloatFormatU5U5U5U1,
-    /// 
-    ///
-    /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU8U8U8U8,
+    U12U12U12,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatI8I8I8I8,
+    I16I16I16,
+    /// 
+    U2U2U2U2,
+    /// 
+    U4U4U4U4,
+    /// 
+    U5U5U5U1,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU10U10U10U2,
-    /// 
-    FloatFormatU12U12U12U12,
-    /// 
-    ///
-    /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatU16U16U16U16,
-    /// 
-    ///
-    /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF16,
-    /// 
-    ///
-    /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF16F16,
+    U8U8U8U8,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatF16F16F16,
+    I8I8I8I8,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF16F16F16F16,
+    U10U10U10U2,
+    /// 
+    U12U12U12U12,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF32,
+    U16U16U16U16,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF32F32,
+    F16,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    F16F16,
     /// 
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatF32F32F32,
+    F16F16F16,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF32F32F32F32,
+    F16F16F16F16,
     /// 
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
-    FloatFormatF11F11F10,
+    F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    F32F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for textures.
+    F32F32F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    F32F32F32F32,
+    /// 
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    F11F11F10,
     /// Uses three components of 9 bits of precision that all share the same exponent.
     ///
     /// Use this format only if all the components are approximately equal.
     ///
     /// Guaranteed to be supported for textures.
-    FloatFormatF9F9F9,
+    F9F9F9,
 }
 
 impl UncompressedFloatFormat {
     fn to_gl_enum(&self) -> gl::types::GLenum {
         match *self {
-            FloatFormatU8 => gl::R8,
-            FloatFormatI8 => gl::R8_SNORM,
-            FloatFormatU16 => gl::R16,
-            FloatFormatI16 => gl::R16_SNORM,
-            FloatFormatU8U8 => gl::RG8,
-            FloatFormatI8I8 => gl::RG8_SNORM,
-            FloatFormatU16U16 => gl::RG16,
-            FloatFormatI16I16 => gl::RG16_SNORM,
-            FloatFormatU3U32U => gl::R3_G3_B2,
-            FloatFormatU4U4U4 => gl::RGB4,
-            FloatFormatU5U5U5 => gl::RGB5,
-            FloatFormatU8U8U8 => gl::RGB8,
-            FloatFormatI8I8I8 => gl::RGB8_SNORM,
-            FloatFormatU10U10U10 => gl::RGB10,
-            FloatFormatU12U12U12 => gl::RGB12,
-            FloatFormatI16I16I16 => gl::RGB16_SNORM,
-            FloatFormatU2U2U2U2 => gl::RGBA2,
-            FloatFormatU4U4U4U4 => gl::RGBA4,
-            FloatFormatU5U5U5U1 => gl::RGB5_A1,
-            FloatFormatU8U8U8U8 => gl::RGBA8,
-            FloatFormatI8I8I8I8 => gl::RGBA8_SNORM,
-            FloatFormatU10U10U10U2 => gl::RGB10_A2,
-            FloatFormatU12U12U12U12 => gl::RGBA12,
-            FloatFormatU16U16U16U16 => gl::RGBA16,
-            FloatFormatF16 => gl::R16F,
-            FloatFormatF16F16 => gl::RG16F,
-            FloatFormatF16F16F16 => gl::RGB16F,
-            FloatFormatF16F16F16F16 => gl::RGBA16F,
-            FloatFormatF32 => gl::R32F,
-            FloatFormatF32F32 => gl::RG32F,
-            FloatFormatF32F32F32 => gl::RGB32F,
-            FloatFormatF32F32F32F32 => gl::RGBA32F,
-            FloatFormatF11F11F10 => gl::R11F_G11F_B10F,
-            FloatFormatF9F9F9 => gl::RGB9_E5,
+            UncompressedFloatFormat::U8 => gl::R8,
+            UncompressedFloatFormat::I8 => gl::R8_SNORM,
+            UncompressedFloatFormat::U16 => gl::R16,
+            UncompressedFloatFormat::I16 => gl::R16_SNORM,
+            UncompressedFloatFormat::U8U8 => gl::RG8,
+            UncompressedFloatFormat::I8I8 => gl::RG8_SNORM,
+            UncompressedFloatFormat::U16U16 => gl::RG16,
+            UncompressedFloatFormat::I16I16 => gl::RG16_SNORM,
+            UncompressedFloatFormat::U3U32U => gl::R3_G3_B2,
+            UncompressedFloatFormat::U4U4U4 => gl::RGB4,
+            UncompressedFloatFormat::U5U5U5 => gl::RGB5,
+            UncompressedFloatFormat::U8U8U8 => gl::RGB8,
+            UncompressedFloatFormat::I8I8I8 => gl::RGB8_SNORM,
+            UncompressedFloatFormat::U10U10U10 => gl::RGB10,
+            UncompressedFloatFormat::U12U12U12 => gl::RGB12,
+            UncompressedFloatFormat::I16I16I16 => gl::RGB16_SNORM,
+            UncompressedFloatFormat::U2U2U2U2 => gl::RGBA2,
+            UncompressedFloatFormat::U4U4U4U4 => gl::RGBA4,
+            UncompressedFloatFormat::U5U5U5U1 => gl::RGB5_A1,
+            UncompressedFloatFormat::U8U8U8U8 => gl::RGBA8,
+            UncompressedFloatFormat::I8I8I8I8 => gl::RGBA8_SNORM,
+            UncompressedFloatFormat::U10U10U10U2 => gl::RGB10_A2,
+            UncompressedFloatFormat::U12U12U12U12 => gl::RGBA12,
+            UncompressedFloatFormat::U16U16U16U16 => gl::RGBA16,
+            UncompressedFloatFormat::F16 => gl::R16F,
+            UncompressedFloatFormat::F16F16 => gl::RG16F,
+            UncompressedFloatFormat::F16F16F16 => gl::RGB16F,
+            UncompressedFloatFormat::F16F16F16F16 => gl::RGBA16F,
+            UncompressedFloatFormat::F32 => gl::R32F,
+            UncompressedFloatFormat::F32F32 => gl::RG32F,
+            UncompressedFloatFormat::F32F32F32 => gl::RGB32F,
+            UncompressedFloatFormat::F32F32F32F32 => gl::RGBA32F,
+            UncompressedFloatFormat::F11F11F10 => gl::R11F_G11F_B10F,
+            UncompressedFloatFormat::F9F9F9 => gl::RGB9_E5,
         }
     }
 }
@@ -419,67 +419,67 @@ impl UncompressedFloatFormat {
 /// List of uncompressed pixel formats that contain integral data.
 #[allow(missing_docs)]
 pub enum UncompressedIntegralFormat {
-    IntegralFormatI8,
-    IntegralFormatU8,
-    IntegralFormatI16,
-    IntegralFormatU16,
-    IntegralFormatI32,
-    IntegralFormatU32,
-    IntegralFormatI8I8,
-    IntegralFormatU8U8,
-    IntegralFormatI16I16,
-    IntegralFormatU16U16,
-    IntegralFormatI32I32,
-    IntegralFormatU32U32,
-    IntegralFormatI8I8I8,
-    IntegralFormatU8U8U8,
+    I8,
+    U8,
+    I16,
+    U16,
+    I32,
+    U32,
+    I8I8,
+    U8U8,
+    I16I16,
+    U16U16,
+    I32I32,
+    U32U32,
+    I8I8I8,
+    U8U8U8,
     /// May not be supported by renderbuffers.
-    IntegralFormatI16I16I16,
+    I16I16I16,
     /// May not be supported by renderbuffers.
-    IntegralFormatU16U16U16,
+    U16U16U16,
     /// May not be supported by renderbuffers.
-    IntegralFormatI32I32I32,
+    I32I32I32,
     /// May not be supported by renderbuffers.
-    IntegralFormatU32U32U32,
+    U32U32U32,
     /// May not be supported by renderbuffers.
-    IntegralFormatI8I8I8I8,
+    I8I8I8I8,
     /// May not be supported by renderbuffers.
-    IntegralFormatU8U8U8U8,
-    IntegralFormatI16I16I16I16,
-    IntegralFormatU16U16U16U16,
-    IntegralFormatI32I32I32I32,
-    IntegralFormatU32U32U32U32,
-    IntegralFormatU10U10U10U2,
+    U8U8U8U8,
+    I16I16I16I16,
+    U16U16U16U16,
+    I32I32I32I32,
+    U32U32U32U32,
+    U10U10U10U2,
 }
 
 impl UncompressedIntegralFormat {
     fn to_gl_enum(&self) -> gl::types::GLenum {
         match *self {
-            IntegralFormatI8 => gl::R8I,
-            IntegralFormatU8 => gl::R8UI,
-            IntegralFormatI16 => gl::R16I,
-            IntegralFormatU16 => gl::R16UI,
-            IntegralFormatI32 => gl::R32I,
-            IntegralFormatU32 => gl::R32UI,
-            IntegralFormatI8I8 => gl::RG8I,
-            IntegralFormatU8U8 => gl::RG8UI,
-            IntegralFormatI16I16 => gl::RG16I,
-            IntegralFormatU16U16 => gl::RG16UI,
-            IntegralFormatI32I32 => gl::RG32I,
-            IntegralFormatU32U32 => gl::RG32UI,
-            IntegralFormatI8I8I8 => gl::RGB8I,
-            IntegralFormatU8U8U8 => gl::RGB8UI,
-            IntegralFormatI16I16I16 => gl::RGB16I,
-            IntegralFormatU16U16U16 => gl::RGB16UI,
-            IntegralFormatI32I32I32 => gl::RGB32I,
-            IntegralFormatU32U32U32 => gl::RGB32UI,
-            IntegralFormatI8I8I8I8 => gl::RGBA8I,
-            IntegralFormatU8U8U8U8 => gl::RGBA8UI,
-            IntegralFormatI16I16I16I16 => gl::RGBA16I,
-            IntegralFormatU16U16U16U16 => gl::RGBA16UI,
-            IntegralFormatI32I32I32I32 => gl::RGBA32I,
-            IntegralFormatU32U32U32U32 => gl::RGBA32UI,
-            IntegralFormatU10U10U10U2 => gl::RGB10_A2UI,
+            UncompressedIntegralFormat::I8 => gl::R8I,
+            UncompressedIntegralFormat::U8 => gl::R8UI,
+            UncompressedIntegralFormat::I16 => gl::R16I,
+            UncompressedIntegralFormat::U16 => gl::R16UI,
+            UncompressedIntegralFormat::I32 => gl::R32I,
+            UncompressedIntegralFormat::U32 => gl::R32UI,
+            UncompressedIntegralFormat::I8I8 => gl::RG8I,
+            UncompressedIntegralFormat::U8U8 => gl::RG8UI,
+            UncompressedIntegralFormat::I16I16 => gl::RG16I,
+            UncompressedIntegralFormat::U16U16 => gl::RG16UI,
+            UncompressedIntegralFormat::I32I32 => gl::RG32I,
+            UncompressedIntegralFormat::U32U32 => gl::RG32UI,
+            UncompressedIntegralFormat::I8I8I8 => gl::RGB8I,
+            UncompressedIntegralFormat::U8U8U8 => gl::RGB8UI,
+            UncompressedIntegralFormat::I16I16I16 => gl::RGB16I,
+            UncompressedIntegralFormat::U16U16U16 => gl::RGB16UI,
+            UncompressedIntegralFormat::I32I32I32 => gl::RGB32I,
+            UncompressedIntegralFormat::U32U32U32 => gl::RGB32UI,
+            UncompressedIntegralFormat::I8I8I8I8 => gl::RGBA8I,
+            UncompressedIntegralFormat::U8U8U8U8 => gl::RGBA8UI,
+            UncompressedIntegralFormat::I16I16I16I16 => gl::RGBA16I,
+            UncompressedIntegralFormat::U16U16U16U16 => gl::RGBA16UI,
+            UncompressedIntegralFormat::I32I32I32I32 => gl::RGBA32I,
+            UncompressedIntegralFormat::U32U32U32U32 => gl::RGBA32UI,
+            UncompressedIntegralFormat::U10U10U10U2 => gl::RGB10_A2UI,
         }
     }
 }
@@ -489,22 +489,22 @@ impl UncompressedIntegralFormat {
 /// TODO: many formats are missing
 pub enum CompressedFormat {
     /// Red/green compressed texture with one unsigned component.
-    CompressedRGTCFormatU,
+    RGTCFormatU,
     /// Red/green compressed texture with one signed component.
-    CompressedRGTCFormatI,
+    RGTCFormatI,
     /// Red/green compressed texture with two unsigned components.
-    CompressedRGTCFormatUU,
+    RGTCFormatUU,
     /// Red/green compressed texture with two signed components.
-    CompressedRGTCFormatII,
+    RGTCFormatII,
 }
 
 impl CompressedFormat {
     fn to_gl_enum(&self) -> gl::types::GLenum {
         match *self {
-            CompressedRGTCFormatU => gl::COMPRESSED_RED_RGTC1,
-            CompressedRGTCFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
-            CompressedRGTCFormatUU => gl::COMPRESSED_RG_RGTC2,
-            CompressedRGTCFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
+            CompressedFormat::RGTCFormatU => gl::COMPRESSED_RED_RGTC1,
+            CompressedFormat::RGTCFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
+            CompressedFormat::RGTCFormatUU => gl::COMPRESSED_RG_RGTC2,
+            CompressedFormat::RGTCFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
         }
     }
 }

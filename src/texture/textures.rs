@@ -97,10 +97,10 @@ impl Texture2d {
     /// # extern crate glutin;
     /// # use glium::DisplayBuild;
     /// # fn main() {
-    /// use glium::texture::FloatFormatU8U8U8U8;
+    /// use glium::texture::UncompressedFloatFormat::U8U8U8U8;
     /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
     /// #   .build_glium().unwrap();
-    /// let texture = glium::Texture2d::new_empty(&display, FloatFormatU8U8U8U8, 512, 512);
+    /// let texture = glium::Texture2d::new_empty(&display, U8U8U8U8, 512, 512);
     /// # }
     /// ```
     ///

@@ -20,7 +20,8 @@ fn main() {
     let opengl_texture = glium::Texture2d::new(&display, image);
 
     // building a 1024x1024 empty texture
-    let dest_texture = glium::Texture2d::new_empty(&display, glium::texture::FloatFormatU8U8U8U8,
+    let dest_texture = glium::Texture2d::new_empty(&display, glium::texture::
+                                                             UncompressedFloatFormat::U8U8U8U8,
                                                    1024, 1024);
 
     // the main loop
@@ -48,7 +49,7 @@ fn main() {
         // polling and handling the events received by the window
         for event in display.poll_events().into_iter() {
             match event {
-                glutin::Closed => break 'main,
+                glutin::Event::Closed => break 'main,
                 _ => ()
             }
         }

@@ -196,9 +196,9 @@ pub enum SamplerWrapFunction {
 impl SamplerWrapFunction {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            Repeat => gl::REPEAT,
-            Mirror => gl::MIRRORED_REPEAT,
-            Clamp => gl::CLAMP_TO_EDGE,
+            SamplerWrapFunction::Repeat => gl::REPEAT,
+            SamplerWrapFunction::Mirror => gl::MIRRORED_REPEAT,
+            SamplerWrapFunction::Clamp => gl::CLAMP_TO_EDGE,
         }
     }
 } 
@@ -217,8 +217,8 @@ impl SamplerFilter {
     #[doc(hidden)]      // TODO: hacky
     pub fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            Nearest => gl::NEAREST,
-            Linear => gl::LINEAR,
+            SamplerFilter::Nearest => gl::NEAREST,
+            SamplerFilter::Linear => gl::LINEAR,
         }
     }
 }
@@ -249,9 +249,13 @@ pub struct SamplerBehavior {
 impl ::std::default::Default for SamplerBehavior {
     fn default() -> SamplerBehavior {
         SamplerBehavior {
-            wrap_function: (Mirror, Mirror, Mirror),
-            minify_filter: Linear,
-            magnify_filter: Linear,
+            wrap_function: (
+                SamplerWrapFunction::Mirror,
+                SamplerWrapFunction::Mirror,
+                SamplerWrapFunction::Mirror
+            ),
+            minify_filter: SamplerFilter::Linear,
+            magnify_filter: SamplerFilter::Linear,
         }
     }
 }

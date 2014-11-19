@@ -238,8 +238,8 @@ impl Context {
                 // processing commands
                 loop {
                     match rx_commands.recv_opt() {
-                        Ok(EndFrame) => break,
-                        Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
+                        Ok(Message::EndFrame) => break,
+                        Ok(Message::Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
                         Err(_) => break 'main
                     }
                 }
@@ -253,7 +253,7 @@ impl Context {
                 // getting events
                 for event in window.poll_events() {
                     // calling `glViewport` if the window has been resized
-                    if let &glutin::Resized(width, height) = &event {
+                    if let &glutin::Event::Resized(width, height) = &event {
                         dimensions.0.store(width, Relaxed);
                         dimensions.1.store(height, Relaxed);
 
@@ -318,8 +318,8 @@ impl Context {
 
             loop {
                 match rx_commands.recv_opt() {
-                    Ok(Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
-                    Ok(EndFrame) => (),     // ignoring buffer swapping
+                    Ok(Message::Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
+                    Ok(Message::EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
                 }
             }
@@ -337,11 +337,11 @@ impl Context {
     }
 
     pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, &GlVersion, &ExtensionsList): Send) {
-        self.commands.lock().send(Execute(f));
+        self.commands.lock().send(Message::Execute(f));
     }
 
     pub fn swap_buffers(&self) {
-        self.commands.lock().send(EndFrame);
+        self.commands.lock().send(Message::EndFrame);
     }
 
     pub fn recv(&self) -> Vec<glutin::Event> {

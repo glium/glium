@@ -207,7 +207,7 @@ pub use index_buffer::IndexBuffer;
 pub use framebuffer::FrameBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
 pub use program::{Program, ProgramCreationError};
-pub use program::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
+pub use program::ProgramCreationError::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
 pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
@@ -343,14 +343,14 @@ impl DepthFunction {
     /// Turns the `DepthFunction` into the corresponding GLenum.
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            Ignore => gl::NEVER,
-            Overwrite => gl::ALWAYS,
-            IfEqual => gl::EQUAL,
-            IfNotEqual => gl::NOTEQUAL,
-            IfMore => gl::GREATER,
-            IfMoreOrEqual => gl::GEQUAL,
-            IfLess => gl::LESS,
-            IfLessOrEqual => gl::LEQUAL,
+            DepthFunction::Ignore => gl::NEVER,
+            DepthFunction::Overwrite => gl::ALWAYS,
+            DepthFunction::IfEqual => gl::EQUAL,
+            DepthFunction::IfNotEqual => gl::NOTEQUAL,
+            DepthFunction::IfMore => gl::GREATER,
+            DepthFunction::IfMoreOrEqual => gl::GEQUAL,
+            DepthFunction::IfLess => gl::LESS,
+            DepthFunction::IfLessOrEqual => gl::LEQUAL,
         }
     }
 }
@@ -378,9 +378,9 @@ pub enum PolygonMode {
 impl PolygonMode {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            Point => gl::POINT,
-            Line => gl::LINE,
-            Fill => gl::FILL,
+            PolygonMode::Point => gl::POINT,
+            PolygonMode::Line => gl::LINE,
+            PolygonMode::Fill => gl::FILL,
         }
     }
 }
@@ -428,10 +428,10 @@ impl std::default::Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
             depth_function: None,
-            blending_function: Some(AlwaysReplace),
+            blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
-            backface_culling: CullingDisabled,
-            polygon_mode: Fill,
+            backface_culling: BackfaceCullingMode::CullingDisabled,
+            polygon_mode: PolygonMode::Fill,
         }
     }
 }
@@ -441,7 +441,7 @@ impl DrawParameters {
     fn sync(&self, gl: &gl::Gl, state: &mut context::GLState) {
         // depth function
         match self.depth_function {
-            Some(Overwrite) => unsafe {
+            Some(DepthFunction::Overwrite) => unsafe {
                 if state.enabled_depth_test {
                     gl.Disable(gl::DEPTH_TEST);
                     state.enabled_depth_test = false;
@@ -463,13 +463,13 @@ impl DrawParameters {
 
         // blending function
         match self.blending_function {
-            Some(AlwaysReplace) => unsafe {
+            Some(BlendingFunction::AlwaysReplace) => unsafe {
                 if state.enabled_blend {
                     gl.Disable(gl::BLEND);
                     state.enabled_blend = false;
                 }
             },
-            Some(LerpBySourceAlpha) => unsafe {
+            Some(BlendingFunction::LerpBySourceAlpha) => unsafe {
                 if state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
                     gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                     state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
@@ -496,13 +496,13 @@ impl DrawParameters {
         // note: we never change the value of `glFrontFace`, whose default is GL_CCW
         //  that's why `CullClockWise` uses `GL_BACK` for example
         match self.backface_culling {
-            CullingDisabled => unsafe {
+            BackfaceCullingMode::CullingDisabled => unsafe {
                 if state.enabled_cull_face {
                     gl.Disable(gl::CULL_FACE);
                     state.enabled_cull_face = false;
                 }
             },
-            CullCounterClockWise => unsafe {
+            BackfaceCullingMode::CullCounterClockWise => unsafe {
                 if !state.enabled_cull_face {
                     gl.Enable(gl::CULL_FACE);
                     state.enabled_cull_face = true;
@@ -512,7 +512,7 @@ impl DrawParameters {
                     state.cull_face = gl::FRONT;
                 }
             },
-            CullClockWise => unsafe {
+            BackfaceCullingMode::CullClockWise => unsafe {
                 if !state.enabled_cull_face {
                     gl.Enable(gl::CULL_FACE);
                     state.enabled_cull_face = true;
@@ -694,20 +694,20 @@ pub enum GliumCreationError {
 impl std::error::Error for GliumCreationError {
     fn description(&self) -> &str {
         match self {
-            &GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
+            &GliumCreationError::GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
         }
     }
 
     fn cause(&self) -> Option<&std::error::Error> {
         match self {
-            &GlutinCreationError(ref err) => Some(err as &std::error::Error),
+            &GliumCreationError::GlutinCreationError(ref err) => Some(err as &std::error::Error),
         }
     }
 }
 
 impl std::error::FromError<glutin::CreationError> for GliumCreationError {
     fn from_error(err: glutin::CreationError) -> GliumCreationError {
-        GlutinCreationError(err)
+        GliumCreationError::GlutinCreationError(err)
     }
 }
 
@@ -891,9 +891,9 @@ impl Display {
 
                 if let &Some(ref mut callback) = callback {
                     callback.call_mut((message.to_string(),
-                        FromPrimitive::from_uint(source as uint).unwrap_or(debug::OtherSource),
-                        FromPrimitive::from_uint(ty as uint).unwrap_or(debug::Other),
-                        FromPrimitive::from_uint(severity as uint).unwrap_or(debug::Notification)));
+                        FromPrimitive::from_uint(source as uint).unwrap_or(debug::Source::OtherSource),
+                        FromPrimitive::from_uint(ty as uint).unwrap_or(debug::MessageType::Other),
+                        FromPrimitive::from_uint(severity as uint).unwrap_or(debug::Severity::Notification)));
                 }
             }
         }
