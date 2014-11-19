@@ -12,9 +12,9 @@ struct Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state, _, _) {
+        self.display.context.exec(proc(ctxt) {
             unsafe {
-                gl.DeleteShader(id);
+                ctxt.gl.DeleteShader(id);
             }
         });
     }
@@ -87,9 +87,9 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state, _, _) {
+        display.context.context.exec(proc(ctxt) {
             unsafe {
-                let id = gl.CreateProgram();
+                let id = ctxt.gl.CreateProgram();
                 if id == 0 {
                     tx.send(Err(ProgramCreationError::ProgramCreationFailure));
                     return;
@@ -97,17 +97,17 @@ impl Program {
 
                 // attaching shaders
                 for sh in shaders_ids.iter() {
-                    gl.AttachShader(id, sh.clone());
+                    ctxt.gl.AttachShader(id, sh.clone());
                 }
 
                 // linking and checking for errors
-                gl.LinkProgram(id);
+                ctxt.gl.LinkProgram(id);
                 {   let mut link_success: gl::types::GLint = mem::uninitialized();
-                    gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
+                    ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
                     if link_success == 0 {
                         use ProgramCreationError::LinkingError;
 
-                        match gl.GetError() {
+                        match ctxt.gl.GetError() {
                             gl::NO_ERROR => (),
                             gl::INVALID_VALUE => {
                                 tx.send(Err(LinkingError(format!("glLinkProgram triggered \
@@ -127,10 +127,10 @@ impl Program {
                         };
 
                         let mut error_log_size: gl::types::GLint = mem::uninitialized();
-                        gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+                        ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
                         let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
-                        gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
+                        ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
                             error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                         error_log.set_len(error_log_size as uint);
 
@@ -147,13 +147,13 @@ impl Program {
         let id = try!(rx.recv());
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state, _, _) {
+        display.context.context.exec(proc(ctxt) {
             unsafe {
                 // reflecting program uniforms
                 let mut uniforms = HashMap::new();
 
                 let mut active_uniforms: gl::types::GLint = mem::uninitialized();
-                gl.GetProgramiv(id, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
+                ctxt.gl.GetProgramiv(id, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
 
                 for uniform_id in range(0, active_uniforms) {
                     let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -161,13 +161,13 @@ impl Program {
 
                     let mut data_type: gl::types::GLenum = mem::uninitialized();
                     let mut data_size: gl::types::GLint = mem::uninitialized();
-                    gl.GetActiveUniform(id, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
+                    ctxt.gl.GetActiveUniform(id, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
                         &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
                         uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                     uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
 
                     let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
-                    let location = gl.GetUniformLocation(id, uniform_name.to_c_str().unwrap());
+                    let location = ctxt.gl.GetUniformLocation(id, uniform_name.to_c_str().unwrap());
 
                     uniforms.insert(uniform_name, (location, data_type, data_size));
                 }
@@ -217,14 +217,14 @@ impl Drop for Program {
 
         // sending the destroy command
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, state, _, _) {
+        self.display.context.exec(proc(ctxt) {
             unsafe {
-                if state.program == id {
-                    gl.UseProgram(0);
-                    state.program = 0;
+                if ctxt.state.program == id {
+                    ctxt.gl.UseProgram(0);
+                    ctxt.state.program = 0;
                 }
 
-                gl.DeleteProgram(id);
+                ctxt.gl.DeleteProgram(id);
             }
         });
     }
@@ -237,32 +237,32 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     let source_code = source_code.to_c_str();
 
     let (tx, rx) = channel();
-    display.context.context.exec(proc(gl, _state, _, _) {
+    display.context.context.exec(proc(ctxt) {
         unsafe {
-            let id = gl.CreateShader(shader_type);
+            let id = ctxt.gl.CreateShader(shader_type);
 
             if id == 0 {
                 tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
                 return;
             }
 
-            gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
-            gl.CompileShader(id);
+            ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
+            ctxt.gl.CompileShader(id);
 
             // checking compilation success
             let compilation_success = {
                 let mut compilation_success: gl::types::GLint = mem::uninitialized();
-                gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
+                ctxt.gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
                 compilation_success
             };
 
             if compilation_success == 0 {
                 // compilation error
                 let mut error_log_size: gl::types::GLint = mem::uninitialized();
-                gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+                ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
                 let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
-                gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
+                ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
                     error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                 error_log.set_len(error_log_size as uint);
 

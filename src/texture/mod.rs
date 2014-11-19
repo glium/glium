@@ -691,7 +691,7 @@ impl TextureImplementation {
         let (client_format, client_type) = PixelValue::get_format(None::<P>).to_gl_enum();
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, state, version, _) {
+        display.context.context.exec(proc(ctxt) {
             unsafe {
                 let data = data;
                 let data_raw: *const libc::c_void = match data {
@@ -699,7 +699,7 @@ impl TextureImplementation {
                     None => ptr::null(),
                 };
 
-                gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 {
+                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 {
                     4
                 } else if height.unwrap_or(1) % 2 == 0 {
                     2
@@ -707,45 +707,45 @@ impl TextureImplementation {
                     1
                 });
 
-                if state.pixel_unpack_buffer_binding.is_some() {
-                    state.pixel_unpack_buffer_binding = None;
-                    gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
+                if ctxt.state.pixel_unpack_buffer_binding.is_some() {
+                    ctxt.state.pixel_unpack_buffer_binding = None;
+                    ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
                 }
 
                 let id: gl::types::GLuint = mem::uninitialized();
-                gl.GenTextures(1, mem::transmute(&id));
+                ctxt.gl.GenTextures(1, mem::transmute(&id));
 
-                gl.BindTexture(texture_type, id);
+                ctxt.gl.BindTexture(texture_type, id);
 
-                gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
                 if height.is_some() || depth.is_some() || array_size.is_some() {
-                    gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
                 }
                 if depth.is_some() || array_size.is_some() {
-                    gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
+                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
                 }
-                gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-                gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
                     gl::LINEAR_MIPMAP_LINEAR as i32);
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    gl.TexImage3D(texture_type, 0, format as i32, width as i32,
+                    ctxt.gl.TexImage3D(texture_type, 0, format as i32, width as i32,
                         height.unwrap() as i32,
                         if let Some(d) = depth { d } else { array_size.unwrap_or(1) } as i32, 0,
                         client_format as u32, client_type, data_raw);
 
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    gl.TexImage2D(texture_type, 0, format as i32, width as i32,
+                    ctxt.gl.TexImage2D(texture_type, 0, format as i32, width as i32,
                         height.unwrap() as i32, 0, client_format as u32, client_type, data_raw);
                 } else {
-                    gl.TexImage1D(texture_type, 0, format as i32, width as i32, 0,
+                    ctxt.gl.TexImage1D(texture_type, 0, format as i32, width as i32, 0,
                         client_format as u32, client_type, data_raw);
                 }
 
-                if version >= &GlVersion(3, 0) {
-                    gl.GenerateMipmap(texture_type);
+                if ctxt.version >= &GlVersion(3, 0) {
+                    ctxt.gl.GenerateMipmap(texture_type);
                 } else {
-                    gl.GenerateMipmapEXT(texture_type);
+                    ctxt.gl.GenerateMipmapEXT(texture_type);
                 }
 
                 tx.send(id);
@@ -776,24 +776,24 @@ impl TextureImplementation {
         let my_id = self.id;
 
         let (tx, rx) = channel();
-        self.display.context.exec(proc(gl, state, version, extensions) {
+        self.display.context.exec(proc(ctxt) {
             unsafe {
                 let mut data: Vec<P> = Vec::with_capacity(pixels_count);
 
-                gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
+                ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
 
-                if version >= &GlVersion(4, 5) {
-                    gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
+                if ctxt.version >= &GlVersion(4, 5) {
+                    ctxt.gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
                         (pixels_count * mem::size_of::<P>()) as gl::types::GLsizei,
                         data.as_mut_ptr() as *mut libc::c_void);
 
-                } else if extensions.gl_ext_direct_state_access {
-                    gl.GetTextureImageEXT(my_id, gl::TEXTURE_2D, level as gl::types::GLint,
+                } else if ctxt.extensions.gl_ext_direct_state_access {
+                    ctxt.gl.GetTextureImageEXT(my_id, gl::TEXTURE_2D, level as gl::types::GLint,
                         format, gltype, data.as_mut_ptr() as *mut libc::c_void);
 
                 } else {
-                    gl.BindTexture(gl::TEXTURE_2D, my_id);
-                    gl.GetTexImage(gl::TEXTURE_2D, level as gl::types::GLint, format, gltype,
+                    ctxt.gl.BindTexture(gl::TEXTURE_2D, my_id);
+                    ctxt.gl.GetTexImage(gl::TEXTURE_2D, level as gl::types::GLint, format, gltype,
                         data.as_mut_ptr() as *mut libc::c_void);
                 }
 
@@ -826,8 +826,8 @@ impl Drop for TextureImplementation {
         }
 
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state, _, _) {
-            unsafe { gl.DeleteTextures(1, [ id ].as_ptr()); }
+        self.display.context.exec(proc(ctxt) {
+            unsafe { ctxt.gl.DeleteTextures(1, [ id ].as_ptr()); }
         });
     }
 }

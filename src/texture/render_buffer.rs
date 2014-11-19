@@ -22,30 +22,30 @@ impl RenderBuffer {
         let format = format.to_gl_enum();
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(gl, state, version, extensions) {
+        display.context.context.exec(proc(ctxt) {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
-                if version >= &context::GlVersion(3, 0) {
-                    gl.GenRenderbuffers(1, mem::transmute(&id));
+                if ctxt.version >= &context::GlVersion(3, 0) {
+                    ctxt.gl.GenRenderbuffers(1, mem::transmute(&id));
                 } else {
-                    gl.GenRenderbuffersEXT(1, mem::transmute(&id));
+                    ctxt.gl.GenRenderbuffersEXT(1, mem::transmute(&id));
                 }
 
                 tx.send(id);
 
                 // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
-                if version >= &context::GlVersion(4, 5) {
-                    gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
+                if ctxt.version >= &context::GlVersion(4, 5) {
+                    ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
                                                 height as gl::types::GLsizei);
 
-                } else if extensions.gl_ext_direct_state_access {
-                    gl.NamedRenderbufferStorageEXT(id, format, width as gl::types::GLsizei,
+                } else if ctxt.extensions.gl_ext_direct_state_access {
+                    ctxt.gl.NamedRenderbufferStorageEXT(id, format, width as gl::types::GLsizei,
                                                    height as gl::types::GLsizei);
 
                 } else {
-                    gl.BindRenderbuffer(gl::RENDERBUFFER, id);
-                    state.renderbuffer = Some(id);
-                    gl.RenderbufferStorage(gl::RENDERBUFFER, format, width as gl::types::GLsizei,
+                    ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
+                    ctxt.state.renderbuffer = Some(id);
+                    ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format, width as gl::types::GLsizei,
                                            height as gl::types::GLsizei);
                 }
             }
@@ -61,17 +61,17 @@ impl RenderBuffer {
 impl Drop for RenderBuffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, state, version, _) {
+        self.display.context.exec(proc(ctxt) {
             unsafe {
-                if state.renderbuffer == Some(id) {
-                    gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
-                    state.renderbuffer = None;
+                if ctxt.state.renderbuffer == Some(id) {
+                    ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
+                    ctxt.state.renderbuffer = None;
                 }
 
-                if version >= &context::GlVersion(3, 0) {
-                    gl.DeleteRenderbuffers(1, [ id ].as_ptr());
+                if ctxt.version >= &context::GlVersion(3, 0) {
+                    ctxt.gl.DeleteRenderbuffers(1, [ id ].as_ptr());
                 } else {
-                    gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
+                    ctxt.gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
                 }
             }
         });

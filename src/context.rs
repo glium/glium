@@ -8,7 +8,7 @@ use GliumCreationError;
 
 enum Message {
     EndFrame,
-    Execute(proc(&gl::Gl, &mut GLState, &GlVersion, &ExtensionsList):Send),
+    Execute(proc(CommandContext):Send),
 }
 
 pub struct Context {
@@ -19,7 +19,14 @@ pub struct Context {
     dimensions: Arc<(AtomicUint, AtomicUint)>,
 }
 
-/// Represents the current OpenGL state.
+pub struct CommandContext<'a, 'b> {
+    pub gl: &'a gl::Gl,
+    pub state: &'b mut GLState,
+    pub version: &'a GlVersion,
+    pub extensions: &'a ExtensionsList,
+}
+
+/// Represents the current OpenGL ctxt.state.
 /// The current state is passed to each function and can be freely updated.
 pub struct GLState {
     /// Whether GL_BLEND is enabled
@@ -151,7 +158,7 @@ impl GLState {
     }
 }
 
-/// Describes an OpenGL version.
+/// Describes an OpenGL ctxt.version.
 #[deriving(Show, Clone, PartialEq, Eq)]
 pub struct GlVersion(pub u8, pub u8);
 
@@ -239,7 +246,9 @@ impl Context {
                 loop {
                     match rx_commands.recv_opt() {
                         Ok(Message::EndFrame) => break,
-                        Ok(Message::Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
+                        Ok(Message::Execute(cmd)) => cmd(CommandContext {
+                            gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions
+                        }),
                         Err(_) => break 'main
                     }
                 }
@@ -318,7 +327,9 @@ impl Context {
 
             loop {
                 match rx_commands.recv_opt() {
-                    Ok(Message::Execute(cmd)) => cmd(&gl, &mut gl_state, &version, &extensions),
+                    Ok(Message::Execute(cmd)) => cmd(CommandContext {
+                        gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions
+                    }),
                     Ok(Message::EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
                 }
@@ -336,7 +347,7 @@ impl Context {
         )
     }
 
-    pub fn exec(&self, f: proc(&gl::Gl, &mut GLState, &GlVersion, &ExtensionsList): Send) {
+    pub fn exec(&self, f: proc(CommandContext): Send) {
         self.commands.lock().send(Message::Execute(f));
     }
 
@@ -399,7 +410,7 @@ fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
         } else {
             let list = CString::new(list as *const i8, false);
             let list = list.as_str()
-                .expect("List of OpenGL extensions contains non-utf8 characters");
+                           .expect("List of OpenGL extensions contains non-utf8 characters");
             list.words().map(|e| e.to_string()).collect()
         }
     }
