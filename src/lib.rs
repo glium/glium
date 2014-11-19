@@ -186,9 +186,6 @@ target.finish();
 #![deny(missing_docs)]
 
 #[phase(plugin)]
-extern crate compile_msg;
-
-#[phase(plugin)]
 extern crate gl_generator;
 
 extern crate cgmath;
@@ -227,7 +224,6 @@ mod framebuffer;
 mod program;
 mod vertex_array_object;
 
-#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
     generate_gl_bindings! {
         api: "gl",
@@ -243,26 +239,6 @@ mod gl {
         ]
     }
 }
-
-#[cfg(target_os = "android")]
-mod gl {
-    pub use self::Gles2 as Gl;
-    generate_gl_bindings! {
-        api: "gles2",
-        profile: "core",
-        version: "2.0",
-        generator: "struct",
-        extensions: []
-    }
-}
-
-#[cfg(all(
-    not(target_os = "windows"),
-    not(target_os = "linux"),
-    not(target_os = "macos"),
-    not(target_os = "android")
-))]
-compile_error!("This platform is not supported")
 
 /// Internal trait for objects that are OpenGL objects.
 trait GlObject {

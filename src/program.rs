@@ -76,7 +76,7 @@ impl Program {
         let mut shaders_store = Vec::new();
         shaders_store.push(try!(build_shader(display, gl::VERTEX_SHADER, vertex_shader)));
         match geometry_shader {
-            Some(gs) => shaders_store.push(try!(build_geometry_shader(display, gs))),
+            Some(gs) => shaders_store.push(try!(build_shader(display, gl::GEOMETRY_SHADER, gs))),
             None => ()
         }
         shaders_store.push(try!(build_shader(display, gl::FRAGMENT_SHADER, fragment_shader)));
@@ -239,6 +239,11 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     let (tx, rx) = channel();
     display.context.context.exec(proc(ctxt) {
         unsafe {
+            if shader_type == gl::GEOMETRY_SHADER && ctxt.opengl_es {
+                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
+                return;
+            }
+
             let id = ctxt.gl.CreateShader(shader_type);
 
             if id == 0 {
@@ -281,18 +286,4 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
             id: id
         }
     })
-}
-
-#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Shader, ProgramCreationError>
-{
-    build_shader(display, gl::GEOMETRY_SHADER, source_code)
-}
-
-#[cfg(target_os = "android")]
-fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Shader, ProgramCreationError>
-{
-    Err(ProgramCreationError::ShaderTypeNotSupported)
 }

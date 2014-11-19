@@ -24,6 +24,7 @@ pub struct CommandContext<'a, 'b> {
     pub state: &'b mut GLState,
     pub version: &'a GlVersion,
     pub extensions: &'a ExtensionsList,
+    pub opengl_es: bool,
 }
 
 /// Represents the current OpenGL ctxt.state.
@@ -247,7 +248,8 @@ impl Context {
                     match rx_commands.recv_opt() {
                         Ok(Message::EndFrame) => break,
                         Ok(Message::Execute(cmd)) => cmd(CommandContext {
-                            gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions
+                            gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions,
+                            opengl_es: false,
                         }),
                         Err(_) => break 'main
                     }
@@ -328,7 +330,8 @@ impl Context {
             loop {
                 match rx_commands.recv_opt() {
                     Ok(Message::Execute(cmd)) => cmd(CommandContext {
-                        gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions
+                        gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions,
+                        opengl_es: false,
                     }),
                     Ok(Message::EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break

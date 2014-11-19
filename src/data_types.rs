@@ -49,12 +49,12 @@ impl GLDataType for f32 {
     }
 }
 
-#[cfg(not(target_os = "android"))]
-impl GLDataType for f64 {
-    fn get_gl_type(_: Option<f64>) -> gl::types::GLenum {
-        gl::DOUBLE
-    }
-}
+// TODO: OpenGL ES doesn't support DOUBLEs
+//impl GLDataType for f64 {
+//    fn get_gl_type(_: Option<f64>) -> gl::types::GLenum {
+//        gl::DOUBLE
+//    }
+//}
 
 #[doc(hidden)]
 pub trait GLDataTuple {
