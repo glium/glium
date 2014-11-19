@@ -287,7 +287,7 @@ pub enum BlendingFunction {
     ///
     /// This is the mode that you usually use for transparency.
     ///
-    /// Means `(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` in OpenGL.
+    /// Means `(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` in Openctxt.gl.
     LerpBySourceAlpha,
 }
 
@@ -437,25 +437,25 @@ impl std::default::Default for DrawParameters {
 }
 
 impl DrawParameters {
-    /// Synchronizes the parmaeters with the current state.
-    fn sync(&self, gl: &gl::Gl, state: &mut context::GLState) {
+    /// Synchronizes the parmaeters with the current ctxt.state.
+    fn sync(&self, ctxt: &mut context::CommandContext) {
         // depth function
         match self.depth_function {
             Some(DepthFunction::Overwrite) => unsafe {
-                if state.enabled_depth_test {
-                    gl.Disable(gl::DEPTH_TEST);
-                    state.enabled_depth_test = false;
+                if ctxt.state.enabled_depth_test {
+                    ctxt.gl.Disable(gl::DEPTH_TEST);
+                    ctxt.state.enabled_depth_test = false;
                 }
             },
             Some(depth_function) => unsafe {
                 let depth_function = depth_function.to_glenum();
-                if state.depth_func != depth_function {
-                    gl.DepthFunc(depth_function);
-                    state.depth_func = depth_function;
+                if ctxt.state.depth_func != depth_function {
+                    ctxt.gl.DepthFunc(depth_function);
+                    ctxt.state.depth_func = depth_function;
                 }
-                if !state.enabled_depth_test {
-                    gl.Enable(gl::DEPTH_TEST);
-                    state.enabled_depth_test = true;
+                if !ctxt.state.enabled_depth_test {
+                    ctxt.gl.Enable(gl::DEPTH_TEST);
+                    ctxt.state.enabled_depth_test = true;
                 }
             },
             _ => ()
@@ -464,19 +464,19 @@ impl DrawParameters {
         // blending function
         match self.blending_function {
             Some(BlendingFunction::AlwaysReplace) => unsafe {
-                if state.enabled_blend {
-                    gl.Disable(gl::BLEND);
-                    state.enabled_blend = false;
+                if ctxt.state.enabled_blend {
+                    ctxt.gl.Disable(gl::BLEND);
+                    ctxt.state.enabled_blend = false;
                 }
             },
             Some(BlendingFunction::LerpBySourceAlpha) => unsafe {
-                if state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
-                    gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
-                    state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+                if ctxt.state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
+                    ctxt.gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+                    ctxt.state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                 }
-                if !state.enabled_blend {
-                    gl.Enable(gl::BLEND);
-                    state.enabled_blend = true;
+                if !ctxt.state.enabled_blend {
+                    ctxt.gl.Enable(gl::BLEND);
+                    ctxt.state.enabled_blend = true;
                 }
             },
             _ => ()
@@ -484,10 +484,10 @@ impl DrawParameters {
 
         // line width
         if let Some(line_width) = self.line_width {
-            if state.line_width != line_width {
+            if ctxt.state.line_width != line_width {
                 unsafe {
-                    gl.LineWidth(line_width);
-                    state.line_width = line_width;
+                    ctxt.gl.LineWidth(line_width);
+                    ctxt.state.line_width = line_width;
                 }
             }
         }
@@ -497,29 +497,29 @@ impl DrawParameters {
         //  that's why `CullClockWise` uses `GL_BACK` for example
         match self.backface_culling {
             BackfaceCullingMode::CullingDisabled => unsafe {
-                if state.enabled_cull_face {
-                    gl.Disable(gl::CULL_FACE);
-                    state.enabled_cull_face = false;
+                if ctxt.state.enabled_cull_face {
+                    ctxt.gl.Disable(gl::CULL_FACE);
+                    ctxt.state.enabled_cull_face = false;
                 }
             },
             BackfaceCullingMode::CullCounterClockWise => unsafe {
-                if !state.enabled_cull_face {
-                    gl.Enable(gl::CULL_FACE);
-                    state.enabled_cull_face = true;
+                if !ctxt.state.enabled_cull_face {
+                    ctxt.gl.Enable(gl::CULL_FACE);
+                    ctxt.state.enabled_cull_face = true;
                 }
-                if state.cull_face != gl::FRONT {
-                    gl.CullFace(gl::FRONT);
-                    state.cull_face = gl::FRONT;
+                if ctxt.state.cull_face != gl::FRONT {
+                    ctxt.gl.CullFace(gl::FRONT);
+                    ctxt.state.cull_face = gl::FRONT;
                 }
             },
             BackfaceCullingMode::CullClockWise => unsafe {
-                if !state.enabled_cull_face {
-                    gl.Enable(gl::CULL_FACE);
-                    state.enabled_cull_face = true;
+                if !ctxt.state.enabled_cull_face {
+                    ctxt.gl.Enable(gl::CULL_FACE);
+                    ctxt.state.enabled_cull_face = true;
                 }
-                if state.cull_face != gl::BACK {
-                    gl.CullFace(gl::BACK);
-                    state.cull_face = gl::BACK;
+                if ctxt.state.cull_face != gl::BACK {
+                    ctxt.gl.CullFace(gl::BACK);
+                    ctxt.state.cull_face = gl::BACK;
                 }
             },
         }
@@ -527,9 +527,9 @@ impl DrawParameters {
         // polygon mode
         unsafe {
             let polygon_mode = self.polygon_mode.to_glenum();
-            if state.polygon_mode != polygon_mode {
-                gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
-                state.polygon_mode = polygon_mode;
+            if ctxt.state.polygon_mode != polygon_mode {
+                ctxt.gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
+                ctxt.state.polygon_mode = polygon_mode;
             }
         }
     }
@@ -676,7 +676,7 @@ pub trait IndicesSource {
 }
 
 /// Opaque type used by the implementation.
-pub struct IndicesSourceHelper(proc(&gl::Gl, &mut context::GLState): Send);
+pub struct IndicesSourceHelper(proc(&mut context::CommandContext): Send);
 
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
@@ -797,10 +797,10 @@ impl Display {
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(proc(gl, _, version, _) {
+        self.context.context.exec(proc(ctxt) {
             unsafe {
-                if version >= &context::GlVersion(4, 1) {
-                    gl.ReleaseShaderCompiler();
+                if ctxt.version >= &context::GlVersion(4, 1) {
+                    ctxt.gl.ReleaseShaderCompiler();
                 }
             }
         });
@@ -812,18 +812,18 @@ impl Display {
     pub fn get_free_video_memory(&self) -> Option<uint> {
         let (tx, rx) = channel();
 
-        self.context.context.exec(proc(gl, _, _, extensions) {
+        self.context.context.exec(proc(ctxt) {
             unsafe {
                 use std::mem;
                 let mut value: [gl::types::GLint, ..4] = mem::uninitialized();
 
-                let value = if extensions.gl_nvx_gpu_memory_info {
-                    gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+                let value = if ctxt.extensions.gl_nvx_gpu_memory_info {
+                    ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
                                    &mut value[0]);
                     Some(value[0])
 
-                } else if extensions.gl_ati_meminfo {
-                    gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
+                } else if ctxt.extensions.gl_ati_meminfo {
+                    ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
                     Some(value[0])
 
                 } else {
@@ -903,28 +903,28 @@ impl Display {
         let ptr = ptr as *const DisplayImpl;
 
         // enabling the callback
-        self.context.context.exec(proc(gl, state, version, extensions) {
+        self.context.context.exec(proc(ctxt) {
             unsafe {
-                if version >= &context::GlVersion(4,5) || extensions.gl_khr_debug {
-                    if state.enabled_debug_output_synchronous != sync {
+                if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                    if ctxt.state.enabled_debug_output_synchronous != sync {
                         if sync {
-                            gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                            state.enabled_debug_output_synchronous = true;
+                            ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                            ctxt.state.enabled_debug_output_synchronous = true;
                         } else {
-                            gl.Disable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                            state.enabled_debug_output_synchronous = false;
+                            ctxt.gl.Disable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                            ctxt.state.enabled_debug_output_synchronous = false;
                         }
                     }
 
                     // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
                     //       but with GL only, it doesn't have one
-                    gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
-                    gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                    ctxt.gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
+                    ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                         std::ptr::null(), gl::TRUE);
 
-                    if state.enabled_debug_output != Some(true) {
-                        gl.Enable(gl::DEBUG_OUTPUT);
-                        state.enabled_debug_output = Some(true);
+                    if ctxt.state.enabled_debug_output != Some(true) {
+                        ctxt.gl.Enable(gl::DEBUG_OUTPUT);
+                        ctxt.state.enabled_debug_output = Some(true);
                     }
                 }
             }
@@ -957,23 +957,23 @@ impl Display {
         let (format, gltype) = texture::PixelValue::get_format(None::<P>).to_gl_enum();
 
         let (tx, rx) = channel();
-        self.context.context.exec(proc(gl, state, version, _) {
+        self.context.context.exec(proc(ctxt) {
             unsafe {
                 // unbinding framebuffers
-                if state.read_framebuffer.is_some() {
-                    if version >= &context::GlVersion(3, 0) {
-                        gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                        state.read_framebuffer = None;
+                if ctxt.state.read_framebuffer.is_some() {
+                    if ctxt.version >= &context::GlVersion(3, 0) {
+                        ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                        ctxt.state.read_framebuffer = None;
                     } else {
-                        gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                        state.draw_framebuffer = None;
-                        state.read_framebuffer = None;
+                        ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                        ctxt.state.draw_framebuffer = None;
+                        ctxt.state.read_framebuffer = None;
                     }
                 }
 
                 // reading
                 let mut data: Vec<P> = Vec::with_capacity(pixels_count);
-                gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
+                ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
                     dimensions.1 as gl::types::GLint, format, gltype,
                     data.as_mut_ptr() as *mut libc::c_void);
                 data.set_len(pixels_count);
@@ -991,8 +991,8 @@ impl Display {
     pub fn assert_no_error(&self) {
         let (tx, rx) = channel();
 
-        self.context.context.exec(proc(gl, _, _, _) {
-            tx.send(get_gl_error(gl));
+        self.context.context.exec(proc(ctxt) {
+            tx.send(get_gl_error(ctxt));
         });
 
         match rx.recv() {
@@ -1007,12 +1007,12 @@ impl Display {
 impl Drop for Display {
     fn drop(&mut self) {
         // disabling callback, to avoid
-        self.context.context.exec(proc(gl, state, _, _) {
+        self.context.context.exec(proc(ctxt) {
             unsafe {
-                if state.enabled_debug_output != Some(false) {
-                    gl.Disable(gl::DEBUG_OUTPUT);
-                    state.enabled_debug_output = Some(false);
-                    gl.Finish();
+                if ctxt.state.enabled_debug_output != Some(false) {
+                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
+                    ctxt.state.enabled_debug_output = Some(false);
+                    ctxt.gl.Finish();
                 }
             }
         });
@@ -1030,8 +1030,8 @@ impl Drop for Display {
 }
 
 #[allow(dead_code)]
-fn get_gl_error(gl: &gl::Gl) -> Option<&'static str> {
-    match unsafe { gl.GetError() } {
+fn get_gl_error(ctxt: context::CommandContext) -> Option<&'static str> {
+    match unsafe { ctxt.gl.GetError() } {
         gl::NO_ERROR => None,
         gl::INVALID_ENUM => Some("GL_INVALID_ENUM"),
         gl::INVALID_VALUE => Some("GL_INVALID_VALUE"),

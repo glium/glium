@@ -23,41 +23,41 @@ impl VertexArrayObject {
         let vb_elementssize = vertex_buffer::get_elements_size(vertex_buffer);
         let vertex_buffer = GlObject::get_id(vertex_buffer);
 
-        display.context.exec(proc(gl, state, _, _) {
+        display.context.exec(proc(ctxt) {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
-                gl.GenVertexArrays(1, mem::transmute(&id));
+                ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
                 tx.send(id);
 
-                gl.BindVertexArray(id);
-                state.vertex_array = id;
+                ctxt.gl.BindVertexArray(id);
+                ctxt.state.vertex_array = id;
 
                 // binding vertex buffer
-                if state.array_buffer_binding != Some(vertex_buffer) {
-                    gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
-                    state.array_buffer_binding = Some(vertex_buffer);
+                if ctxt.state.array_buffer_binding != Some(vertex_buffer) {
+                    ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
+                    ctxt.state.array_buffer_binding = Some(vertex_buffer);
                 }
 
                 // binding attributes
                 for (name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
                     in bindings.into_iter()
                 {
-                    let loc = gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
+                    let loc = ctxt.gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
 
                     if loc != -1 {
                         match data_type {
                             gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
                             gl::INT | gl::UNSIGNED_INT =>
-                                gl.VertexAttribIPointer(loc as u32,
+                                ctxt.gl.VertexAttribIPointer(loc as u32,
                                     elements_count as gl::types::GLint, data_type,
                                     vb_elementssize as i32, offset as *const libc::c_void),
 
-                            _ => gl.VertexAttribPointer(loc as u32,
+                            _ => ctxt.gl.VertexAttribPointer(loc as u32,
                                     elements_count as gl::types::GLint, data_type, 0,
                                     vb_elementssize as i32, offset as *const libc::c_void)
                         }
                         
-                        gl.EnableVertexAttribArray(loc as u32);
+                        ctxt.gl.EnableVertexAttribArray(loc as u32);
                     }
                 }
             }
@@ -73,16 +73,16 @@ impl VertexArrayObject {
 impl Drop for VertexArrayObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, state, _, _) {
+        self.display.context.exec(proc(ctxt) {
             unsafe {
                 // unbinding
-                if state.vertex_array == id {
-                    gl.BindVertexArray(0);
-                    state.vertex_array = 0;
+                if ctxt.state.vertex_array == id {
+                    ctxt.gl.BindVertexArray(0);
+                    ctxt.state.vertex_array = 0;
                 }
 
                 // deleting
-                gl.DeleteVertexArrays(1, [ id ].as_ptr());
+                ctxt.gl.DeleteVertexArrays(1, [ id ].as_ptr());
             }
         });
     }
