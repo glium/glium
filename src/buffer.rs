@@ -279,7 +279,7 @@ impl Buffer {
 }
 
 impl fmt::Show for Buffer {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         (format!("Buffer #{}", self.id)).fmt(formatter)
     }
 }

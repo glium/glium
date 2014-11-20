@@ -186,7 +186,7 @@ impl Program {
 }
 
 impl fmt::Show for Program {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         (format!("Program #{}", self.id)).fmt(formatter)
     }
 }
