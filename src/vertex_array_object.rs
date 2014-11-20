@@ -38,6 +38,11 @@ impl VertexArrayObject {
                     ctxt.state.array_buffer_binding = Some(vertex_buffer);
                 }
 
+                // binding index buffer
+                // TODO: not sure if this is necessary
+                ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+                ctxt.state.element_array_buffer_binding = None;
+
                 // binding attributes
                 for (name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
                     in bindings.into_iter()

@@ -90,10 +90,10 @@ impl IndicesSource for IndexBuffer {
                     }
                 }
 
-                if ctxt.state.element_array_buffer_binding != Some(id) {
+                //if ctxt.state.element_array_buffer_binding != Some(id) {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
                     ctxt.state.element_array_buffer_binding = Some(id);
-                }
+                //}
 
                 ctxt.gl.DrawElements(primitives, elems_count as i32, datatype, ptr::null());
             }
@@ -159,10 +159,10 @@ impl<T> IndicesSource for PointsList<T> where T: Index + Send + Copy {
             unsafe {
                 use libc;
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::POINTS, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -197,10 +197,10 @@ impl<T> IndicesSource for LinesList<T> where T: Index + Send + Copy {
             unsafe {
                 use libc;
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::LINES, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -253,10 +253,10 @@ impl<T> IndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
                     panic!("OpenGL ES doesn't support LinesListAdjacency");
                 }
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::LINES_ADJACENCY, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -291,10 +291,10 @@ impl<T> IndicesSource for LineStrip<T> where T: Index + Send + Copy {
             unsafe {
                 use libc;
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::LINE_STRIP, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -347,10 +347,10 @@ impl<T> IndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
                     panic!("OpenGL ES doesn't support LineStripAdjacency");
                 }
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::LINE_STRIP_ADJACENCY, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -385,10 +385,10 @@ impl<T> IndicesSource for TrianglesList<T> where T: Index + Send + Copy {
             unsafe {
                 use libc;
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::TRIANGLES, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -441,10 +441,10 @@ impl<T> IndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy
                     panic!("OpenGL ES doesn't support TrianglesListAdjacency");
                 }
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::TRIANGLES_ADJACENCY, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -479,10 +479,10 @@ impl<T> IndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
             unsafe {
                 use libc;
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::TRIANGLE_STRIP, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -535,10 +535,10 @@ impl<T> IndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy
                     panic!("OpenGL ES doesn't support TriangleStripAdjacency");
                 }
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::TRIANGLE_STRIP_ADJACENCY, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);
@@ -573,10 +573,10 @@ impl<T> IndicesSource for TriangleFan<T> where T: Index + Send + Copy {
             unsafe {
                 use libc;
 
-                if ctxt.state.element_array_buffer_binding != None {
+                //if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
                     ctxt.state.element_array_buffer_binding = None;
-                }
+                //}
 
                 ctxt.gl.DrawElements(gl::TRIANGLE_FAN, elems_count as i32, data_type,
                                 ptr as *const libc::c_void);

@@ -185,6 +185,7 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
     let draw_parameters = draw_parameters.clone();
 
     let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer, program_id);
+    let vb_id = vertex_buffer.get_id();
 
     let (tx, rx) = channel();
 
@@ -206,10 +207,16 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
                     .map(|val| val.0)
             }, &mut active_texture);
 
-            // binding vertex buffer
+            // binding VAO
             if ctxt.state.vertex_array != vao_id {
                 ctxt.gl.BindVertexArray(vao_id);
-                ctxt.state.vertex_array = vao_id;;
+                ctxt.state.vertex_array = vao_id;
+            }
+
+            // binding vertex buffer
+            if ctxt.state.array_buffer_binding != Some(vb_id) {
+                ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vb_id);
+                ctxt.state.array_buffer_binding = Some(vb_id);
             }
 
             // sync-ing parameters
