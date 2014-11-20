@@ -1,5 +1,7 @@
 extern crate glutin;
 extern crate glium;
+
+#[cfg(feature = "image")]
 extern crate image;
 
 use std::io::BufReader;
@@ -7,6 +9,12 @@ use std::rand;
 
 use glium::{DisplayBuild, Texture, Surface, Rect};
 
+#[cfg(not(feature = "image"))]
+fn main() {
+    println!("This example requires the `image` feature to be enabled");
+}
+
+#[cfg(feature = "image")]
 fn main() {
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()

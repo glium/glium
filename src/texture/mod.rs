@@ -766,6 +766,7 @@ impl TextureImplementation {
     /// Reads the content of a mipmap level of the texture.
     // TODO: this function only works for level 0 right now
     //       width/height need adjustements
+    #[cfg(feature = "gl_extensions")]
     fn read<P>(&self, level: u32) -> Vec<P> where P: PixelValue {
         assert_eq!(level, 0);   // TODO: 
 

@@ -32,6 +32,7 @@ fn vertex_buffer_creation() {
 }
 
 #[test]
+#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_mapping_read() {
     let display = support::build_display();
 
@@ -56,6 +57,7 @@ fn vertex_buffer_mapping_read() {
 }
 
 #[test]
+#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_mapping_write() {
     let display = support::build_display();
     
@@ -85,6 +87,7 @@ fn vertex_buffer_mapping_write() {
 }
 
 #[test]
+#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_read() {
     let display = support::build_display();
 
@@ -109,6 +112,7 @@ fn vertex_buffer_read() {
 }
 
 #[test]
+#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_read_slice() {
     let display = support::build_display();
 
@@ -133,6 +137,7 @@ fn vertex_buffer_read_slice() {
 
 #[test]
 #[should_fail]
+#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_read_slice_out_of_bounds() {
     let display = support::build_display();
 

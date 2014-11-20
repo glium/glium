@@ -17,3 +17,10 @@ Its objectives:
 ## [Link to the documentation](http://tomaka.github.io/glium-docs/glium/)
 
 The documentation contains examples about how to use it.
+
+## Features
+
+Glium has two features: `image` and `gl_extensions`.
+
+ - `image` allows support for the `image` library, which allows to easily textures from different image formats.
+ - `gl_extensions` enables functionnalities that are available with OpenGL but not with OpenGL ES. Attempting to use them with OpenGL ES will panic.
