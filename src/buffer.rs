@@ -108,7 +108,7 @@ impl Buffer {
                 ctxt.gl.GenBuffers(1, &mut id);
                 tx.send(id);
 
-                if ctxt.version >= &GlVersion(4, 5) {
+                if !ctxt.opengl_es && ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
                         data.as_ptr() as *const libc::c_void, usage);
                         
@@ -147,7 +147,7 @@ impl Buffer {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenBuffers(1, &mut id);
 
-                if ctxt.version >= &GlVersion(4, 5) {
+                if !ctxt.opengl_es && ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.NamedBufferData(id, buffer_size as gl::types::GLsizei, ptr::null(), usage);
                         
                 } else if ctxt.extensions.gl_ext_direct_state_access {
@@ -191,12 +191,18 @@ impl Buffer {
         self.elements_count * self.elements_size
     }
 
+    #[cfg(feature = "gl_extensions")]
     pub fn map<'a, T, D>(&'a mut self) -> Mapping<'a, T, D> where T: BufferType, D: Send {
         let (tx, rx) = channel();
         let id = self.id.clone();
         let elements_count = self.elements_count.clone();
 
         self.display.context.exec(proc(ctxt) {
+            if ctxt.opengl_es {
+                tx.send(Err("OpenGL ES doesn't support glMapBuffer"));
+                return;
+            }
+
             let ptr = unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.MapNamedBuffer(id, gl::READ_WRITE)
@@ -224,10 +230,12 @@ impl Buffer {
         }
     }
 
+    #[cfg(feature = "gl_extensions")]
     pub fn read<T, D>(&self) -> Vec<D> where T: BufferType, D: Send {
         self.read_slice::<T, D>(0, self.elements_count)
     }
 
+    #[cfg(feature = "gl_extensions")]
     pub fn read_slice<T, D>(&self, offset: uint, size: uint)
                             -> Vec<D> where T: BufferType, D: Send
     {
@@ -238,11 +246,16 @@ impl Buffer {
         let (tx, rx) = channel();
 
         self.display.context.exec(proc(ctxt) {
+            if ctxt.opengl_es {
+                panic!("OpenGL ES doesn't support glGetBufferSubData");
+                return;
+            }
+
             unsafe {
                 let mut data = Vec::with_capacity(size);
                 data.set_len(size);
 
-                if ctxt.version >= &GlVersion(4, 5) {
+                if !ctxt.opengl_es && ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.GetNamedBufferSubData(id, (offset * elements_size) as gl::types::GLintptr,
                         (size * elements_size) as gl::types::GLsizei,
                         data.as_mut_ptr() as *mut libc::c_void);
@@ -332,11 +345,13 @@ pub trait VertexFormat: Copy {
 }
 
 /// A mapping of a buffer.
+#[cfg(feature = "gl_extensions")]
 pub struct Mapping<'b, T, D> {
     buffer: &'b mut Buffer,
     data: CVec<D>,
 }
 
+#[cfg(feature = "gl_extensions")]
 #[unsafe_destructor]
 impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     fn drop(&mut self) {
@@ -362,12 +377,14 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<'a, T, D> Deref<[D]> for Mapping<'a, T, D> {
     fn deref<'b>(&'b self) -> &'b [D] {
         self.data.as_slice()
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<'a, T, D> DerefMut<[D]> for Mapping<'a, T, D> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [D] {
         self.data.as_mut_slice()

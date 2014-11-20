@@ -93,6 +93,7 @@ fn texture_3d_creation() {
 }
 
 #[test]
+#[cfg(feature = "gl_extensions")]
 fn texture_2d_read() {
     let display = support::build_display();
 
@@ -131,8 +132,8 @@ fn compressed_texture_2d_creation() {
 }
 
 #[test]
-#[ignore]   
-// FIXME: FAILING TEST
+#[ignore]  // FIXME: FAILING TEST
+#[cfg(feature = "gl_extensions")]
 fn render_to_texture2d() {
     use std::default::Default;
 

@@ -8,7 +8,8 @@ documentation = "http://tomaka.github.io/glium-docs/glium/index.html"
 license = "Apache"
 
 [features]
-default = ["image"]
+default = ["image", "gl_extensions"]
+gl_extensions = []
 
 [dependencies.compile_msg]
 git = "https://github.com/huonw/compile_msg"

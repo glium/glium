@@ -49,7 +49,15 @@ impl IndexBuffer {
     ///     glium::index_buffer::TrianglesList(vec![0u8, 1, 2, 1, 3, 4, 2, 4, 3]));
     /// # }
     /// ```
-    /// 
+    ///
+    /// # Panic
+    ///
+    /// Attempting to draw with an index buffer that uses an indices format with adjacency infos
+    /// on OpenGL ES will trigger a panic.
+    ///
+    /// If you want to be compatible with all platforms, it is preferable to disable the
+    /// `gl_extensions` feature, which prevents you from accidentally using them.
+    ///
     pub fn new<T: IntoIndexBuffer>(display: &super::Display, data: T) -> IndexBuffer {
         data.into_index_buffer(display)
     }
@@ -71,6 +79,16 @@ impl IndicesSource for IndexBuffer {
         IndicesSourceHelper(proc(ctxt) {
             unsafe {
                 use std::ptr;
+
+                if ctxt.opengl_es {
+                    match primitives {
+                        gl::LINES_ADJACENCY | gl::TRIANGLES_ADJACENCY |
+                        gl::TRIANGLE_STRIP_ADJACENCY => {
+                            panic!("OpenGL ES doesn't support adjacency infos");
+                        },
+                        _ => ()
+                    }
+                }
 
                 if ctxt.state.element_array_buffer_binding != Some(id) {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
@@ -192,8 +210,21 @@ impl<T> IndicesSource for LinesList<T> where T: Index + Send + Copy {
 }
 
 /// A list of lines with adjacency infos stored in RAM.
+///
+/// # Panic
+///
+/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// drawing will thus panic.
+/// If you want to be compatible with all platforms, it is preferable to disable the
+/// `gl_extensions` feature.
+///
+/// # Features
+///
+/// Only available if the `gl_extensions` feature is enabled.
+#[cfg(feature = "gl_extensions")]
 pub struct LinesListAdjacency<T>(pub Vec<T>);
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -207,6 +238,7 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
         let elems_count = self.0.len();
@@ -216,6 +248,10 @@ impl<T> IndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
         IndicesSourceHelper(proc(ctxt) {
             unsafe {
                 use libc;
+
+                if ctxt.opengl_es {
+                    panic!("OpenGL ES doesn't support LinesListAdjacency");
+                }
 
                 if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
@@ -268,8 +304,21 @@ impl<T> IndicesSource for LineStrip<T> where T: Index + Send + Copy {
 }
 
 /// A list of lines connected together with adjacency infos stored in RAM.
+///
+/// # Panic
+///
+/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// drawing will thus panic.
+/// If you want to be compatible with all platforms, it is preferable to disable the
+/// `gl_extensions` feature.
+///
+/// # Features
+///
+/// Only available if the `gl_extensions` feature is enabled.
+#[cfg(feature = "gl_extensions")]
 pub struct LineStripAdjacency<T>(pub Vec<T>);
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -283,6 +332,7 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
         let elems_count = self.0.len();
@@ -292,6 +342,10 @@ impl<T> IndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
         IndicesSourceHelper(proc(ctxt) {
             unsafe {
                 use libc;
+
+                if ctxt.opengl_es {
+                    panic!("OpenGL ES doesn't support LineStripAdjacency");
+                }
 
                 if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
@@ -344,8 +398,21 @@ impl<T> IndicesSource for TrianglesList<T> where T: Index + Send + Copy {
 }
 
 /// A list of triangles with adjacency infos stored in RAM.
+///
+/// # Panic
+///
+/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// drawing will thus panic.
+/// If you want to be compatible with all platforms, it is preferable to disable the
+/// `gl_extensions` feature.
+///
+/// # Features
+///
+/// Only available if the `gl_extensions` feature is enabled.
+#[cfg(feature = "gl_extensions")]
 pub struct TrianglesListAdjacency<T>(pub Vec<T>);
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -359,6 +426,7 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
         let elems_count = self.0.len();
@@ -368,6 +436,10 @@ impl<T> IndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy
         IndicesSourceHelper(proc(ctxt) {
             unsafe {
                 use libc;
+
+                if ctxt.opengl_es {
+                    panic!("OpenGL ES doesn't support TrianglesListAdjacency");
+                }
 
                 if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
@@ -420,8 +492,21 @@ impl<T> IndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
 }
 
 /// A list of triangles connected together with adjacency infos stored in RAM.
+///
+/// # Panic
+///
+/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// drawing will thus panic.
+/// If you want to be compatible with all platforms, it is preferable to disable the
+/// `gl_extensions` feature.
+///
+/// # Features
+///
+/// Only available if the `gl_extensions` feature is enabled.
+#[cfg(feature = "gl_extensions")]
 pub struct TriangleStripAdjacency<T>(pub Vec<T>);
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -435,6 +520,7 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
         let elems_count = self.0.len();
@@ -444,6 +530,10 @@ impl<T> IndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy
         IndicesSourceHelper(proc(ctxt) {
             unsafe {
                 use libc;
+
+                if ctxt.opengl_es {
+                    panic!("OpenGL ES doesn't support TriangleStripAdjacency");
+                }
 
                 if ctxt.state.element_array_buffer_binding != None {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);

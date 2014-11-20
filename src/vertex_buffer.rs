@@ -75,6 +75,17 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///
     /// **Warning**: using this function can slow things down a lot because the function
     /// waits for all the previous commands to be executed before returning.
+    ///
+    /// # Panic
+    ///
+    /// OpenGL ES doesn't support mapping buffers. Using this function will thus panic.
+    /// If you want to be compatible with all platforms, it is preferable to disable the
+    /// `gl_extensions` feature.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_extensions` feature is enabled.
+    #[cfg(feature = "gl_extensions")]
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
         Mapping(self.buffer.map::<buffer::ArrayBuffer, T>())
     }
@@ -83,6 +94,17 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///
     /// This function is usually better if are just doing one punctual read, while `map` is better
     /// if you want to have multiple small reads.
+    ///
+    /// # Panic
+    ///
+    /// OpenGL ES doesn't support reading buffers. Using this function will thus panic.
+    /// If you want to be compatible with all platforms, it is preferable to disable the
+    /// `gl_extensions` feature.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_extensions` feature is enabled.
+    #[cfg(feature = "gl_extensions")]
     pub fn read(&self) -> Vec<T> {
         self.buffer.read::<buffer::ArrayBuffer, T>()
     }
@@ -97,6 +119,15 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// ## Panic
     ///
     /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
+    ///
+    /// OpenGL ES doesn't support reading buffers. Using this function will thus panic.
+    /// If you want to be compatible with all platforms, it is preferable to disable the
+    /// `gl_extensions` feature.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_extensions` feature is enabled.
+    #[cfg(feature = "gl_extensions")]
     pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
         self.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
     }
@@ -150,14 +181,21 @@ pub trait VertexFormat: Copy {
 }
 
 /// A mapping of a buffer.
+///
+/// # Features
+///
+/// Only available if the `gl_extensions` feature is enabled.
+#[cfg(feature = "gl_extensions")]
 pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::ArrayBuffer, T>);
 
+#[cfg(feature = "gl_extensions")]
 impl<'a, T> Deref<[T]> for Mapping<'a, T> {
     fn deref<'b>(&'b self) -> &'b [T] {
         self.0.deref()
     }
 }
 
+#[cfg(feature = "gl_extensions")]
 impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
         self.0.deref_mut()

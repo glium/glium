@@ -130,6 +130,17 @@ impl Texture2d {
     }
 
     /// Reads the content of the texture into a `Texture2DData`.
+    ///
+    /// # Panic
+    ///
+    /// OpenGL ES doesn't support reading textures. Using this function will thus panic.
+    /// If you want to be compatible with all platforms, it is preferable to disable the
+    /// `gl_extensions` feature.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_extensions` feature is enabled.
+    #[cfg(feature = "gl_extensions")]
     pub fn read<P, T>(&self) -> T where P: PixelValue, T: Texture2dData<P> {
         let data = self.0.read::<P>(0);
         Texture2dData::from_vec(data, self.get_width() as u32)
@@ -181,6 +192,17 @@ impl CompressedTexture2d {
     }
 
     /// Reads the content of the texture into a `Texture2dData`.
+    ///
+    /// # Panic
+    ///
+    /// OpenGL ES doesn't support reading textures. Using this function will thus panic.
+    /// If you want to be compatible with all platforms, it is preferable to disable the
+    /// `gl_extensions` feature.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_extensions` feature is enabled.
+    #[cfg(feature = "gl_extensions")]
     pub fn read<P, T>(&self) -> T where P: PixelValue, T: Texture2dData<P> {
         let data = self.0.read::<P>(0);
         Texture2dData::from_vec(data, self.get_width() as u32)
