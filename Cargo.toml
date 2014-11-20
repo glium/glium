@@ -10,6 +10,7 @@ license = "Apache"
 [features]
 default = ["image", "gl_extensions"]
 gl_extensions = []
+gles_extensions = []
 
 [dependencies.compile_msg]
 git = "https://github.com/huonw/compile_msg"

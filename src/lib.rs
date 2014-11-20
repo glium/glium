@@ -771,10 +771,15 @@ impl Display {
     }
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
+    ///
+    /// # Features
+    ///
+    /// This method is always available, but is a no-op if it's not available in
+    /// the implementation.
     pub fn release_shader_compiler(&self) {
         self.context.context.exec(proc(ctxt) {
             unsafe {
-                if ctxt.version >= &context::GlVersion(4, 1) {
+                if ctxt.opengl_es || ctxt.version >= &context::GlVersion(4, 1) {
                     ctxt.gl.ReleaseShaderCompiler();
                 }
             }

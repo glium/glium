@@ -20,7 +20,16 @@ The documentation contains examples about how to use it.
 
 ## Features
 
-Glium has two features: `image` and `gl_extensions`.
+Glium has three features: `image` and `gl_extensions`.
 
  - `image` allows support for the `image` library, which allows to easily textures from different image formats.
- - `gl_extensions` enables functionnalities that are available with OpenGL but not with OpenGL ES. Attempting to use them with OpenGL ES will panic.
+ - `gl_extensions`
+ - `gles_extensions`
+
+If you disable both `gl_extensions` and `gles_extensions`, then only
+functionnalities that are available in both OpenGL 3 and OpenGL ES 2 will be
+available at compile-time.
+
+Enabling either `gl_extensions` or `gles_extensions` will unlock these
+functionnalities, but they will trigger a `panic!` if use them while they are
+not available on the target hardware.
