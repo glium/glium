@@ -1,5 +1,5 @@
 use std::kinds::marker::ContravariantLifetime;
-use std::{mem, ptr};
+use std::mem;
 use std::sync::Arc;
 
 use texture::{mod, Texture, Texture2d};
@@ -7,8 +7,8 @@ use uniforms::Uniforms;
 use {DisplayImpl, VertexBuffer, Program, DrawParameters, Rect, Surface, GlObject};
 use IndicesSource;
 
-use {vertex_buffer, index_buffer, program, vertex_array_object};
-use {gl, context, libc};
+use {program, vertex_array_object};
+use {gl, context};
 
 /// A framebuffer that you can use to draw things.
 ///
@@ -202,7 +202,7 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
             let mut active_texture = gl::TEXTURE0;
             uniforms.0(&mut ctxt, |name| {
                 uniforms_locations
-                    .find_equiv(name)
+                    .get(name)
                     .map(|val| val.0)
             }, &mut active_texture);
 
@@ -374,7 +374,7 @@ fn get_framebuffer(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
     if let Some(framebuffer) = framebuffer {
         let mut framebuffers = display.framebuffer_objects.lock();
 
-        if let Some(value) = framebuffers.find(framebuffer) {
+        if let Some(value) = framebuffers.get(framebuffer) {
             return Some(value.id);
         }
 

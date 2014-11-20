@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::mem;
 
-use vertex_buffer::{mod, VertexBuffer, VertexBindings};
+use vertex_buffer::{mod, VertexBuffer};
 use {DisplayImpl, GlObject};
 
 use {libc, gl};
@@ -100,11 +100,11 @@ pub fn get_vertex_array_object<T>(display: &Arc<DisplayImpl>, vertex_buffer: &Ve
     let mut vaos = display.vertex_array_objects.lock();
 
     let vb_id = GlObject::get_id(vertex_buffer);
-    if let Some(value) = vaos.find(&(vb_id, program_id)) {
+    if let Some(value) = vaos.get(&(vb_id, program_id)) {
         return value.id;
     }
 
-    let mut new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, program_id);
+    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, program_id);
     let new_vao_id = new_vao.id;
     vaos.insert((vb_id, program_id), new_vao);
     new_vao_id

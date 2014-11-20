@@ -248,7 +248,6 @@ impl Buffer {
         self.display.context.exec(proc(ctxt) {
             if ctxt.opengl_es {
                 panic!("OpenGL ES doesn't support glGetBufferSubData");
-                return;
             }
 
             unsafe {
