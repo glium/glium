@@ -241,6 +241,7 @@ impl Context {
                     (0, 0, dim.0 as gl::types::GLsizei, dim.1 as gl::types::GLsizei)
                 };
 
+                unsafe { gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3) };
                 GLState::new_defaults(viewport)
             };
 
@@ -330,6 +331,7 @@ impl Context {
             tx_success.send(Ok(()));
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
+            // TODO: call glViewport
 
             // building the GLState, version, and extensions
             let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME: 
