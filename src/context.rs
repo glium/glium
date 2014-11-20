@@ -25,6 +25,7 @@ pub struct CommandContext<'a, 'b> {
     pub version: &'a GlVersion,
     pub extensions: &'a ExtensionsList,
     pub opengl_es: bool,
+    pub capabilities: &'a Capabilities,
 }
 
 /// Represents the current OpenGL ctxt.state.
@@ -196,6 +197,12 @@ pub struct ExtensionsList {
     pub gl_ati_meminfo: bool,
 }
 
+/// Represents the capabilities of the context.
+pub struct Capabilities {
+    /// True if the context supports left and right buffers.
+    pub stereo: bool,
+}
+
 impl Context {
     pub fn new_from_window(window: glutin::WindowBuilder) -> Result<Context, GliumCreationError> {
         let (tx_events, rx_events) = channel();
@@ -238,7 +245,9 @@ impl Context {
             };
 
             // getting the GL version and extensions
+            let opengl_es = false;
             let version = get_gl_version(&gl);
+            let capabilities = get_capabilities(&gl, opengl_es);
             let extensions = get_extensions(&gl);
 
             // main loop
@@ -249,7 +258,7 @@ impl Context {
                         Ok(Message::EndFrame) => break,
                         Ok(Message::Execute(cmd)) => cmd(CommandContext {
                             gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions,
-                            opengl_es: false,
+                            opengl_es: opengl_es, capabilities: &capabilities,
                         }),
                         Err(_) => break 'main
                     }
@@ -324,14 +333,16 @@ impl Context {
 
             // building the GLState, version, and extensions
             let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME: 
+            let opengl_es = false;
             let version = get_gl_version(&gl);
             let extensions = get_extensions(&gl);
+            let capabilities = get_capabilities(&gl, opengl_es);
 
             loop {
                 match rx_commands.recv_opt() {
                     Ok(Message::Execute(cmd)) => cmd(CommandContext {
                         gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions,
-                        opengl_es: false,
+                        opengl_es: opengl_es, capabilities: &capabilities,
                     }),
                     Ok(Message::EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
@@ -446,4 +457,19 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
     }
 
     extensions
+}
+
+fn get_capabilities(gl: &gl::Gl, gl_es: bool) -> Capabilities {
+    Capabilities {
+        stereo: unsafe {
+            if gl_es {
+                false
+            } else {
+                use std::mem;
+                let mut val: gl::types::GLboolean = mem::uninitialized();
+                gl.GetBooleanv(gl::STEREO, &mut val);
+                val != 0
+            }
+        }
+    }
 }
