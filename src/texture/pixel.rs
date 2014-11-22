@@ -177,7 +177,7 @@ impl PixelValue for (f32, f32, f32, f32) {
 }
 
 #[cfg(feature = "image")]
-impl PixelValue for image::Rgb<u8>{
+impl PixelValue for image::Rgb<u8> {
     fn get_format(_: Option<image::Rgb<u8>>) -> super::ClientFormat {
         super::ClientFormat::U8U8U8
     }
@@ -187,5 +187,47 @@ impl PixelValue for image::Rgb<u8>{
 impl PixelValue for image::Rgba<u8> {
     fn get_format(_: Option<image::Rgba<u8>>) -> super::ClientFormat {
         super::ClientFormat::U8U8U8U8
+    }
+}
+
+#[cfg(feature = "image")]
+impl PixelValue for image::Luma<u8> {
+    fn get_format(_: Option<image::Luma<u8>>) -> super::ClientFormat {
+        super::ClientFormat::U8
+    }
+}
+
+#[cfg(feature = "image")]
+impl PixelValue for image::Luma<u16> {
+    fn get_format(_: Option<image::Luma<u16>>) -> super::ClientFormat {
+        super::ClientFormat::U16
+    }
+}
+
+#[cfg(feature = "image")]
+impl PixelValue for image::Luma<f32> {
+    fn get_format(_: Option<image::Luma<f32>>) -> super::ClientFormat {
+        super::ClientFormat::F32
+    }
+}
+
+#[cfg(feature = "image")]
+impl PixelValue for image::LumaA<u8> {
+    fn get_format(_: Option<image::LumaA<u8>>) -> super::ClientFormat {
+        super::ClientFormat::U8U8
+    }
+}
+
+#[cfg(feature = "image")]
+impl PixelValue for image::LumaA<u16> {
+    fn get_format(_: Option<image::LumaA<u16>>) -> super::ClientFormat {
+        super::ClientFormat::U16U16
+    }
+}
+
+#[cfg(feature = "image")]
+impl PixelValue for image::LumaA<f32> {
+    fn get_format(_: Option<image::LumaA<f32>>) -> super::ClientFormat {
+        super::ClientFormat::F32F32
     }
 }
