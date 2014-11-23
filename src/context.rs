@@ -1,6 +1,5 @@
 use gl;
 use glutin;
-use native::NativeTaskBuilder;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::task::TaskBuilder;
@@ -218,7 +217,7 @@ impl Context {
 
         let (tx_success, rx_success) = channel();
 
-        TaskBuilder::new().native().spawn(proc() {
+        spawn(proc() {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
@@ -319,7 +318,7 @@ impl Context {
 
         let (tx_success, rx_success) = channel();
 
-        TaskBuilder::new().native().spawn(proc() {
+        spawn(proc() {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {

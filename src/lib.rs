@@ -194,7 +194,6 @@ extern crate glutin;
 extern crate image;
 extern crate libc;
 //extern crate nalgebra;
-extern crate native;
 
 #[doc(hidden)]
 pub use data_types::GLDataTuple;
