@@ -396,6 +396,13 @@ pub struct DrawParameters {
 
     /// Sets how to render polygons. The default value is `Fill`.
     pub polygon_mode: PolygonMode,
+
+    /// Whether multisample antialiasing (MSAA) should be used. Default value is `true`.
+    ///
+    /// Note that you will need to set the appropriate option when creating the window.
+    /// The recommended way to do is to leave this to `true`, and adjust the option when
+    /// creating the window.
+    pub multisampling: bool,
 }
 
 impl std::default::Default for DrawParameters {
@@ -406,6 +413,7 @@ impl std::default::Default for DrawParameters {
             line_width: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,
             polygon_mode: PolygonMode::Fill,
+            multisampling: true,
         }
     }
 }
@@ -504,6 +512,19 @@ impl DrawParameters {
             if ctxt.state.polygon_mode != polygon_mode {
                 ctxt.gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
                 ctxt.state.polygon_mode = polygon_mode;
+            }
+        }
+
+        // multisampling
+        if ctxt.state.enabled_multisample != self.multisampling {
+            unsafe {
+                if self.multisampling {
+                    ctxt.gl.Enable(gl::MULTISAMPLE);
+                    ctxt.state.enabled_multisample = true;
+                } else {
+                    ctxt.gl.Disable(gl::MULTISAMPLE);
+                    ctxt.state.enabled_multisample = false;
+                }
             }
         }
     }
