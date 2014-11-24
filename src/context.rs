@@ -203,7 +203,9 @@ pub struct Capabilities {
 }
 
 impl Context {
-    pub fn new_from_window(window: glutin::WindowBuilder) -> Result<Context, GliumCreationError> {
+    pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
+        -> Result<Context, GliumCreationError>
+    {
         let (tx_events, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
@@ -215,19 +217,10 @@ impl Context {
             dimensions: dimensions.clone(),
         };
 
-        let (tx_success, rx_success) = channel();
+        let window = try!(window.build());
 
         spawn(proc() {
-            let window = match window.build() {
-                Ok(w) => w,
-                Err(e) => {
-                    tx_success.send(Err(e));
-                    return;
-                }
-            };
-
             unsafe { window.make_current(); }
-            tx_success.send(Ok(()));
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
 
@@ -297,7 +290,6 @@ impl Context {
             }
         });
 
-        try!(rx_success.recv());
         Ok(context)
     }
 

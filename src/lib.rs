@@ -685,9 +685,9 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
     }
 }
 
-impl DisplayBuild for glutin::WindowBuilder {
+impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let context = try!(context::Context::new_from_window(self));
+        let context = try!(context::Context::new_from_window(self, None));
 
         Ok(Display {
             context: Arc::new(DisplayImpl {
