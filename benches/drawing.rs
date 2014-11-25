@@ -20,8 +20,7 @@ fn clear_color(bencher: &mut test::Bencher) {
         target.clear_color(1.0, 0.0, 0.0, 1.0);
         target.finish();
 
-        let d: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
-        d
+        display.synchronize();
     });
 }
 
@@ -105,7 +104,6 @@ fn triangle(bencher: &mut test::Bencher) {
                     &std::default::Default::default());
         target.finish();
 
-        let d: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
-        d
+        display.synchronize();
     });
 }
