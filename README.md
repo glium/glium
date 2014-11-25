@@ -5,6 +5,8 @@ High-level OpenGL wrapper for the Rust language.
 ```toml
 [dependencies.glium]
 git = "https://github.com/tomaka/glium"
+[dependencies.glium_macros]
+git = "https://github.com/tomaka/glium"
 ```
 
 Its objectives:
