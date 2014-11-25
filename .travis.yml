@@ -9,3 +9,6 @@ script:
     - cargo build --verbose
     - cargo test --verbose
     - cargo test --no-default-features --verbose
+
+after_script:
+  - cargo bench
