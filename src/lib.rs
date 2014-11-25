@@ -979,6 +979,24 @@ impl Display {
             None => ()
         };
     }
+
+    /// Waits until all the previous commands have finished being executed.
+    ///
+    /// When you execute OpenGL functions, they are not executed immediatly. Instead they are
+    /// put in a queue. This function waits until all commands have finished being executed and
+    /// the queue is empty.
+    ///
+    /// **You don't need to call this function manually, except when running benchmarks.**
+    pub fn synchronize(&self) {
+        let (tx, rx) = channel();
+
+        self.context.context.exec(proc(ctxt) {
+            unsafe { ctxt.gl.Finish(); }
+            tx.send(());
+        });
+
+        rx.recv();
+    }
 }
 
 // this destructor is here because objects in `Display` contain an `Arc<DisplayImpl>`,
