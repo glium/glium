@@ -1,5 +1,6 @@
 use gl;
 use glutin;
+use std::error::FromError;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::task::TaskBuilder;
@@ -194,6 +195,8 @@ pub struct ExtensionsList {
     pub gl_nvx_gpu_memory_info: bool,
     /// GL_ATI_meminfo
     pub gl_ati_meminfo: bool,
+    /// GL_ARB_vertex_array_object
+    pub gl_arb_vertex_array_object: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -218,6 +221,7 @@ impl Context {
         };
 
         let window = try!(window.build());
+        let (tx_success, rx_success) = channel();
 
         spawn(proc() {
             unsafe { window.make_current(); }
@@ -243,6 +247,24 @@ impl Context {
             let capabilities = get_capabilities(&gl, opengl_es);
             let extensions = get_extensions(&gl);
 
+            // checking compatibility with glium
+            match check_gl_compatibility(CommandContext {
+                gl: &gl,
+                state: &mut gl_state,
+                version: &version,
+                extensions: &extensions,
+                opengl_es: opengl_es,
+                capabilities: &capabilities,
+            }) {
+                Err(e) => {
+                    tx_success.send(Err(e));
+                    return;
+                },
+                Ok(_) => {
+                    tx_success.send(Ok(()));
+                }
+            };
+
             // main loop
             'main: loop {
                 // processing commands
@@ -250,8 +272,12 @@ impl Context {
                     match rx_commands.recv_opt() {
                         Ok(Message::EndFrame) => break,
                         Ok(Message::Execute(cmd)) => cmd(CommandContext {
-                            gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions,
-                            opengl_es: opengl_es, capabilities: &capabilities,
+                            gl: &gl,
+                            state: &mut gl_state,
+                            version: &version,
+                            extensions: &extensions,
+                            opengl_es: opengl_es,
+                            capabilities: &capabilities,
                         }),
                         Err(_) => break 'main
                     }
@@ -290,6 +316,7 @@ impl Context {
             }
         });
 
+        try!(rx_success.recv());
         Ok(context)
     }
 
@@ -308,18 +335,17 @@ impl Context {
             dimensions: dimensions,
         };
 
-        let (tx_success, rx_success) = channel();
+        let (tx_success, rx_success): (Sender<Result<(), GliumCreationError>>, _) = channel();
 
         spawn(proc() {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
-                    tx_success.send(Err(e));
+                    tx_success.send(Err(FromError::from_error(e)));
                     return;
                 }
             };
             unsafe { window.make_current(); }
-            tx_success.send(Ok(()));
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
             // TODO: call glViewport
@@ -331,11 +357,33 @@ impl Context {
             let extensions = get_extensions(&gl);
             let capabilities = get_capabilities(&gl, opengl_es);
 
+            // checking compatibility with glium
+            match check_gl_compatibility(CommandContext {
+                gl: &gl,
+                state: &mut gl_state,
+                version: &version,
+                extensions: &extensions,
+                opengl_es: opengl_es,
+                capabilities: &capabilities,
+            }) {
+                Err(e) => {
+                    tx_success.send(Err(e));
+                    return;
+                },
+                Ok(_) => {
+                    tx_success.send(Ok(()));
+                }
+            };
+
             loop {
                 match rx_commands.recv_opt() {
                     Ok(Message::Execute(cmd)) => cmd(CommandContext {
-                        gl:&gl, state: &mut gl_state, version: &version, extensions: &extensions,
-                        opengl_es: opengl_es, capabilities: &capabilities,
+                        gl: &gl,
+                        state: &mut gl_state,
+                        version: &version,
+                        extensions: &extensions,
+                        opengl_es: opengl_es,
+                        capabilities: &capabilities,
                     }),
                     Ok(Message::EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
@@ -373,6 +421,39 @@ impl Context {
             }
         }
         result
+    }
+}
+
+fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError> {
+    let mut result = Vec::new();
+
+    if ctxt.opengl_es {
+        if ctxt.version < &GlVersion(3, 0) {
+            result.push("OpenGL ES version inferior to 3.0");
+        }
+
+    } else {
+        if ctxt.version < &GlVersion(2, 0) {
+            result.push("OpenGL version inferior to 2.0 is not supported");
+        }
+
+        if !ctxt.extensions.gl_ext_framebuffer_object && ctxt.version < &GlVersion(3, 0) {
+            result.push("OpenGL implementation doesn't support framebuffers");
+        }
+
+        if !ctxt.extensions.gl_ext_framebuffer_blit && ctxt.version < &GlVersion(3, 0) {
+            result.push("OpenGL implementation doesn't support blitting framebuffers");
+        }
+
+        if !ctxt.extensions.gl_arb_vertex_array_object && ctxt.version < &GlVersion(3, 0) {
+            result.push("OpenGL implementation doesn't support vertex array objects");
+        }
+    }
+
+    if result.len() == 0 {
+        Ok(())   
+    } else {
+        Err(GliumCreationError::IncompatibleOpenGl(result.connect("\n")))
     }
 }
 
@@ -434,6 +515,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_khr_debug: false,
         gl_nvx_gpu_memory_info: false,
         gl_ati_meminfo: false,
+        gl_arb_vertex_array_object: false,
     };
 
     for extension in strings.into_iter() {
@@ -445,6 +527,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
+            "GL_ARB_vertex_array_object" => extensions.gl_arb_vertex_array_object = true,
             _ => ()
         }
     }

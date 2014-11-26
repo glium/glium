@@ -655,6 +655,9 @@ pub struct IndicesSourceHelper(proc(&mut context::CommandContext): Send);
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
+    ///
+    /// Performances a compatibility check to make sure that all core elements of glium
+    /// are supported by the implementation.
     fn build_glium(self) -> Result<Display, GliumCreationError>;
 }
 
@@ -663,18 +666,30 @@ pub trait DisplayBuild {
 pub enum GliumCreationError {
     /// An error has happened while creating the glutin window or headless renderer.
     GlutinCreationError(glutin::CreationError),
+
+    /// The OpenGL implementation is too old.
+    IncompatibleOpenGl(String),
 }
 
 impl std::error::Error for GliumCreationError {
     fn description(&self) -> &str {
         match self {
             &GliumCreationError::GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
+            &GliumCreationError::IncompatibleOpenGl(_) => "The OpenGL implementation is too old to work with glium",
+        }
+    }
+
+    fn detail(&self) -> Option<String> {
+        match self {
+            &GliumCreationError::GlutinCreationError(_) => None,
+            &GliumCreationError::IncompatibleOpenGl(ref e) => Some(e.clone()),
         }
     }
 
     fn cause(&self) -> Option<&std::error::Error> {
         match self {
             &GliumCreationError::GlutinCreationError(ref err) => Some(err as &std::error::Error),
+            &GliumCreationError::IncompatibleOpenGl(_) => None,
         }
     }
 }
