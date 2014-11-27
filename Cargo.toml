@@ -25,8 +25,8 @@ features = ["window", "headless"]
 [dependencies.cgmath]
 git = "https://github.com/bjz/cgmath-rs"
 
-#[dependencies.nalgebra]
-#git = "https://github.com/sebcrozet/nalgebra"
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"
 
 [dependencies.image]
 git = "https://github.com/PistonDevelopers/image"
