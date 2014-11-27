@@ -193,7 +193,7 @@ extern crate glutin;
 #[cfg(feature = "image")]
 extern crate image;
 extern crate libc;
-//extern crate nalgebra;
+extern crate nalgebra;
 
 #[doc(hidden)]
 pub use data_types::GLDataTuple;

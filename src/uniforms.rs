@@ -76,7 +76,7 @@ let uniforms = Uniforms {
 
 use {gl, context, texture};
 use cgmath;
-//use nalgebra;
+use nalgebra;
 use std::sync::Arc;
 
 /// Represents a value that can be used as the value of a uniform.
@@ -498,62 +498,133 @@ impl<'a> UniformValue for &'a texture::TextureImplementation {
     }
 }
 
-// TODO: no method to get a slice?
-/*impl UniformValue for nalgebra::na::Vec1<f32> {
+
+impl UniformValue for nalgebra::Mat2<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.as_array();
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Vec2<f32> {
+impl UniformValue for nalgebra::Mat3<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.as_array();
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Vec3<f32> {
+impl UniformValue for nalgebra::Mat4<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.as_array();
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Vec4<f32> {
+impl UniformValue for nalgebra::Ortho3<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.to_mat(); // Bind to a Mat4
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Mat1<f32> {
+impl UniformValue for nalgebra::OrthoMat3<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.as_mat(); // Bind to a Mat4
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Mat2<f32> {
+impl UniformValue for nalgebra::Persp3<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.to_mat(); // Bind to a Mat4
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Mat3<f32> {
+impl UniformValue for nalgebra::PerspMat3<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.as_mat(); // Bind to a Mat4
         my_value.to_binder()
     }
 }
 
-impl UniformValue for nalgebra::na::Mat4<f32> {
+impl UniformValue for nalgebra::Pnt2<f32> {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.into_fixed();
+        let my_value = self.as_array();
         my_value.to_binder()
     }
-}*/
+}
+
+impl UniformValue for nalgebra::Pnt3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.as_array();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Pnt4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.as_array();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Quat<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.as_array();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Rot2<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.submat(); // Bind to a Mat2
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Rot3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.submat(); // Bind to a Mat3
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Rot4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.submat(); // Bind to a Mat4
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::UnitQuat<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.quat(); // Bind to a Quat
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Vec2<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.as_array();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Vec3<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.as_array();
+        my_value.to_binder()
+    }
+}
+
+impl UniformValue for nalgebra::Vec4<f32> {
+    fn to_binder(&self) -> UniformValueBinder {
+        let my_value = self.as_array();
+        my_value.to_binder()
+    }
+}
+
 
 impl UniformValue for cgmath::Matrix2<f32> {
     fn to_binder(&self) -> UniformValueBinder {
