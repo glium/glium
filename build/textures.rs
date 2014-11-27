@@ -125,7 +125,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         };
 
         (writeln!(dest, "
-                /// Builds a new texture by uploading data in memory.
+                /// Builds a new texture by uploading data.
+                ///
+                /// This function will automatically generate all mipmaps of the texture.
                 pub fn new<P: PixelValue, T: {data_type}>(display: &::Display, data: {param})
                     -> {name}
                 {{
