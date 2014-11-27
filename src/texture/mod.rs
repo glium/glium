@@ -6,10 +6,8 @@ To create a texture, you must first create a struct that implements one of `Text
  `Texture2dData` or `Texture3dData`. Then call the appropriate `new` function of the type of
  texture that you desire.
 
-The most common type of texture is a `Texture2d` (the two dimensions being the width and height),
- it is what you will use most of the time.
-
-**Note**: `TextureCube` does not yet exist.
+The most common types of textures are `CompressedTexture2d` and `Texture2d` (the two dimensions
+being the width and height), it is what you will use most of the time.
 
 */
 
@@ -18,22 +16,21 @@ use {gl, libc, framebuffer};
 #[cfg(feature = "image")]
 use image;
 
-use buffer::{mod, Buffer};
-use context::GlVersion;
-use Surface;
-
 use std::{fmt, mem, ptr};
 use std::sync::Arc;
 
+use buffer::{mod, Buffer};
+use context::GlVersion;
+use uniforms::{UniformValue, UniformValueBinder};
+use Surface;
+
 pub use self::pixel::PixelValue;
 pub use self::render_buffer::RenderBuffer;
-pub use self::textures::{Texture1d, Texture2d, Texture3d};
-pub use self::textures::{Texture1dArray, Texture2dArray};
-pub use self::textures::{CompressedTexture2d};
 
 mod pixel;
 mod render_buffer;
-mod textures;
+
+include!(concat!(env!("OUT_DIR"), "/textures.rs"))
 
 /// Trait that describes a texture.
 pub trait Texture {
@@ -149,6 +146,55 @@ impl ClientFormat {
             ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
             ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
         }
+    }
+
+    /// Returns a (format, type) tuple corresponding to the "signed integer" format, if possible.
+    fn to_gl_enum_int(&self) -> Option<(gl::types::GLenum, gl::types::GLenum)> {
+        let (components, format) = self.to_gl_enum();
+
+        let components = match components {
+            gl::RED => gl::RED_INTEGER,
+            gl::RG => gl::RG_INTEGER,
+            gl::RGB => gl::RGB_INTEGER,
+            gl::RGBA => gl::RGBA_INTEGER,
+            _ => return None
+        };
+
+        match format {
+            gl::BYTE => (),
+            gl::SHORT => (),
+            gl::INT => (),
+            _ => return None
+        };
+
+        Some((components, format))
+    }
+
+    /// Returns a (format, type) tuple corresponding to the "unsigned integer" format, if possible.
+    fn to_gl_enum_uint(&self) -> Option<(gl::types::GLenum, gl::types::GLenum)> {
+        let (components, format) = self.to_gl_enum();
+
+        let components = match components {
+            gl::RED => gl::RED_INTEGER,
+            gl::RG => gl::RG_INTEGER,
+            gl::RGB => gl::RGB_INTEGER,
+            gl::RGBA => gl::RGBA_INTEGER,
+            _ => return None
+        };
+
+        match format {
+            gl::UNSIGNED_BYTE => (),
+            gl::UNSIGNED_SHORT => (),
+            gl::UNSIGNED_INT => (),
+            gl::UNSIGNED_BYTE_3_3_2 => (),
+            gl::UNSIGNED_SHORT_5_6_5 => (),
+            gl::UNSIGNED_SHORT_4_4_4_4 => (),
+            gl::UNSIGNED_SHORT_5_5_5_1 => (),
+            gl::UNSIGNED_INT_10_10_10_2 => (),
+            _ => return None
+        };
+
+        Some((components, format))
     }
 
     /// Returns the default corresponding floating-point-like internal format.
@@ -416,70 +462,82 @@ impl UncompressedFloatFormat {
     }
 }
 
-/// List of uncompressed pixel formats that contain integral data.
+/// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
-pub enum UncompressedIntegralFormat {
+pub enum UncompressedIntFormat {
     I8,
-    U8,
     I16,
-    U16,
     I32,
-    U32,
     I8I8,
-    U8U8,
     I16I16,
-    U16U16,
     I32I32,
-    U32U32,
     I8I8I8,
-    U8U8U8,
     /// May not be supported by renderbuffers.
     I16I16I16,
     /// May not be supported by renderbuffers.
-    U16U16U16,
-    /// May not be supported by renderbuffers.
     I32I32I32,
+    /// May not be supported by renderbuffers.
+    I8I8I8I8,
+    I16I16I16I16,
+    I32I32I32I32,
+}
+
+impl UncompressedIntFormat {
+    fn to_gl_enum(&self) -> gl::types::GLenum {
+        match *self {
+            UncompressedIntFormat::I8 => gl::R8I,
+            UncompressedIntFormat::I16 => gl::R16I,
+            UncompressedIntFormat::I32 => gl::R32I,
+            UncompressedIntFormat::I8I8 => gl::RG8I,
+            UncompressedIntFormat::I16I16 => gl::RG16I,
+            UncompressedIntFormat::I32I32 => gl::RG32I,
+            UncompressedIntFormat::I8I8I8 => gl::RGB8I,
+            UncompressedIntFormat::I16I16I16 => gl::RGB16I,
+            UncompressedIntFormat::I32I32I32 => gl::RGB32I,
+            UncompressedIntFormat::I8I8I8I8 => gl::RGBA8I,
+            UncompressedIntFormat::I16I16I16I16 => gl::RGBA16I,
+            UncompressedIntFormat::I32I32I32I32 => gl::RGBA32I,
+        }
+    }
+}
+
+/// List of uncompressed pixel formats that contain unsigned integral data.
+#[allow(missing_docs)]
+pub enum UncompressedUintFormat {
+    U8,
+    U16,
+    U32,
+    U8U8,
+    U16U16,
+    U32U32,
+    U8U8U8,
+    /// May not be supported by renderbuffers.
+    U16U16U16,
     /// May not be supported by renderbuffers.
     U32U32U32,
     /// May not be supported by renderbuffers.
-    I8I8I8I8,
-    /// May not be supported by renderbuffers.
     U8U8U8U8,
-    I16I16I16I16,
     U16U16U16U16,
-    I32I32I32I32,
     U32U32U32U32,
     U10U10U10U2,
 }
 
-impl UncompressedIntegralFormat {
+impl UncompressedUintFormat {
     fn to_gl_enum(&self) -> gl::types::GLenum {
         match *self {
-            UncompressedIntegralFormat::I8 => gl::R8I,
-            UncompressedIntegralFormat::U8 => gl::R8UI,
-            UncompressedIntegralFormat::I16 => gl::R16I,
-            UncompressedIntegralFormat::U16 => gl::R16UI,
-            UncompressedIntegralFormat::I32 => gl::R32I,
-            UncompressedIntegralFormat::U32 => gl::R32UI,
-            UncompressedIntegralFormat::I8I8 => gl::RG8I,
-            UncompressedIntegralFormat::U8U8 => gl::RG8UI,
-            UncompressedIntegralFormat::I16I16 => gl::RG16I,
-            UncompressedIntegralFormat::U16U16 => gl::RG16UI,
-            UncompressedIntegralFormat::I32I32 => gl::RG32I,
-            UncompressedIntegralFormat::U32U32 => gl::RG32UI,
-            UncompressedIntegralFormat::I8I8I8 => gl::RGB8I,
-            UncompressedIntegralFormat::U8U8U8 => gl::RGB8UI,
-            UncompressedIntegralFormat::I16I16I16 => gl::RGB16I,
-            UncompressedIntegralFormat::U16U16U16 => gl::RGB16UI,
-            UncompressedIntegralFormat::I32I32I32 => gl::RGB32I,
-            UncompressedIntegralFormat::U32U32U32 => gl::RGB32UI,
-            UncompressedIntegralFormat::I8I8I8I8 => gl::RGBA8I,
-            UncompressedIntegralFormat::U8U8U8U8 => gl::RGBA8UI,
-            UncompressedIntegralFormat::I16I16I16I16 => gl::RGBA16I,
-            UncompressedIntegralFormat::U16U16U16U16 => gl::RGBA16UI,
-            UncompressedIntegralFormat::I32I32I32I32 => gl::RGBA32I,
-            UncompressedIntegralFormat::U32U32U32U32 => gl::RGBA32UI,
-            UncompressedIntegralFormat::U10U10U10U2 => gl::RGB10_A2UI,
+            UncompressedUintFormat::U8 => gl::R8UI,
+            UncompressedUintFormat::U16 => gl::R16UI,
+            UncompressedUintFormat::U32 => gl::R32UI,
+            UncompressedUintFormat::U8U8 => gl::RG8UI,
+            UncompressedUintFormat::U16U16 => gl::RG16UI,
+            UncompressedUintFormat::U32U32 => gl::RG32UI,
+            UncompressedUintFormat::U8U8U8 => gl::RGB8UI,
+            UncompressedUintFormat::U16U16U16 => gl::RGB16UI,
+            UncompressedUintFormat::U32U32U32 => gl::RGB32UI,
+            UncompressedUintFormat::U8U8U8U8 => gl::RGBA8UI,
+            UncompressedUintFormat::U16U16U16U16 => gl::RGBA16UI,
+            UncompressedUintFormat::U32U32U32U32 => gl::RGBA32UI,
+            UncompressedUintFormat::U10U10U10U2 => gl::RGB10_A2UI,
         }
     }
 }
@@ -514,7 +572,7 @@ pub enum TextureFormat {
     /// 
     UncompressedFloat(UncompressedFloatFormat),
     /// 
-    UncompressedIntegral(UncompressedIntegralFormat),
+    UncompressedIntegral(UncompressedIntFormat),
 }
 
 /// Trait that describes data for a one-dimensional texture.
@@ -522,17 +580,28 @@ pub enum TextureFormat {
 pub trait Texture1dData<P> {
     /// Returns a vec where each element is a pixel of the texture.
     fn into_vec(self) -> Vec<P>;
+
+    /// Builds a new object from raw data.
+    fn from_vec(Vec<P>) -> Self;
 }
 
 impl<P: PixelValue> Texture1dData<P> for Vec<P> {
     fn into_vec(self) -> Vec<P> {
         self
     }
+
+    fn from_vec(data: Vec<P>) -> Vec<P> {
+        data
+    }
 }
 
 impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
     fn into_vec(self) -> Vec<P> {
         self.to_vec()
+    }
+
+    fn from_vec(_: Vec<P>) -> &'a [P] {
+        panic!()        // TODO: what to do here?
     }
 }
 
@@ -583,7 +652,7 @@ impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: image::Primitive,
     }
 
     fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuf<P> {
-        unimplemented!()
+        unimplemented!()        // TODO: 
     }
 }
 
@@ -599,7 +668,7 @@ impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
     }
 
     fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
-        unimplemented!()
+        unimplemented!()        // TODO: 
     }
 }
 
@@ -611,6 +680,9 @@ pub trait Texture3dData<P> {
 
     /// Returns a vec where each element is a pixel of the texture.
     fn into_vec(self) -> Vec<P>;
+
+    /// Builds a new object from raw data.
+    fn from_vec(Vec<P>, width: u32, height: u32) -> Self;
 }
 
 impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
@@ -621,6 +693,10 @@ impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
 
     fn into_vec(self) -> Vec<P> {
         self.into_iter().flat_map(|e| e.into_iter()).flat_map(|e| e.into_iter()).collect()
+    }
+
+    fn from_vec(data: Vec<P>, width: u32, height: u32) -> Vec<Vec<Vec<P>>> {
+        unimplemented!()        // TODO: 
     }
 }
 
@@ -667,9 +743,10 @@ pub fn get_id(texture: &TextureImplementation) -> gl::types::GLuint {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    fn new<P: PixelValue>(display: &super::Display, format: gl::types::GLenum,
-        data: Option<Vec<P>>, width: u32, height: Option<u32>, depth: Option<u32>,
-        array_size: Option<u32>) -> TextureImplementation
+    fn new<P>(display: &super::Display, format: gl::types::GLenum, data: Option<Vec<P>>,
+        client_format: gl::types::GLenum, client_type: gl::types::GLenum, width: u32,
+        height: Option<u32>, depth: Option<u32>, array_size: Option<u32>) -> TextureImplementation
+        where P: Send
     {
         if let Some(ref data) = data {
             if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
@@ -687,8 +764,6 @@ impl TextureImplementation {
         } else {
             gl::TEXTURE_3D
         };
-
-        let (client_format, client_type) = PixelValue::get_format(None::<P>).to_gl_enum();
 
         let (tx, rx) = channel();
         display.context.context.exec(proc(ctxt) {
