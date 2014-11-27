@@ -49,6 +49,9 @@ pub struct GLState {
     /// Whether GL_DITHER is enabled
     pub enabled_dither: bool,
 
+    /// Whether GL_MULTISAMPLE is enabled
+    pub enabled_multisample: bool,
+
     /// Whether GL_POLYGON_OFFSET_FILL is enabled
     pub enabled_polygon_offset_fill: bool,
 
@@ -132,6 +135,7 @@ impl GLState {
             enabled_debug_output_synchronous: false,
             enabled_depth_test: false,
             enabled_dither: false,
+            enabled_multisample: true,
             enabled_polygon_offset_fill: false,
             enabled_sample_alpha_to_coverage: false,
             enabled_sample_coverage: false,
