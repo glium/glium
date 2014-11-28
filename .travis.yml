@@ -7,8 +7,8 @@ install:
 
 script:
     - cargo build --verbose
-    - cargo test --verbose
-    - cargo test --no-default-features --verbose
+    - cargo test --features "headless" --verbose
+    - cargo test --no-default-features --features "headless" --verbose
 
 after_script:
   - cargo bench

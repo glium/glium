@@ -765,6 +765,7 @@ impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
     }
 }
 
+#[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
         let context = try!(context::Context::new_from_headless(self));

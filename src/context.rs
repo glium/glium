@@ -331,6 +331,7 @@ impl Context {
         })
     }
 
+    #[cfg(feature = "headless")]
     pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
         -> Result<Context, GliumCreationError>
     {
