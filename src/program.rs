@@ -167,7 +167,7 @@ impl Program {
                     uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
 
                     let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
-                    let location = ctxt.gl.GetUniformLocation(id, uniform_name.to_c_str().unwrap());
+                    let location = ctxt.gl.GetUniformLocation(id, uniform_name.to_c_str().into_inner());
 
                     uniforms.insert(uniform_name, (location, data_type, data_size));
                 }
