@@ -12,6 +12,7 @@ build = "build/main.rs"
 default = ["image", "gl_extensions"]
 gl_extensions = []
 gles_extensions = []
+headless = ["glutin/headless"]
 
 [dependencies.compile_msg]
 git = "https://github.com/huonw/compile_msg"
@@ -21,7 +22,7 @@ git = "http://github.com/bjz/gl-rs"
 
 [dependencies.glutin]
 git = "http://github.com/tomaka/glutin"
-features = ["window", "headless"]
+features = ["window"]
 
 [dependencies.cgmath]
 git = "https://github.com/bjz/cgmath-rs"

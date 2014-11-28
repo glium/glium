@@ -9,12 +9,13 @@ extern crate glium;
 
 use glium::Surface;
 
+mod support;
+
 #[test]
 fn test() {
     use glium::DisplayBuild;
 
-    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .build_glium().unwrap();
+    let display = support::build_display();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {

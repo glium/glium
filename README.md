@@ -22,9 +22,10 @@ The documentation contains examples about how to use it.
 
 ## Features
 
-Glium has three features: `image` and `gl_extensions`.
+Glium has four features:
 
  - `image` allows support for the `image` library, which allows to easily textures from different image formats.
+ - `headless` which enables headless building and testing.
  - `gl_extensions`
  - `gles_extensions`
 
