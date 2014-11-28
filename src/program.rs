@@ -3,6 +3,7 @@ use std::{fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::Arc;
 use {Display, DisplayImpl, GlObject};
+use context::CommandContext;
 
 struct Shader {
     display: Arc<DisplayImpl>,
@@ -28,7 +29,13 @@ pub struct Program {
     id: gl::types::GLuint,
 
     // location, type and size of each uniform, ordered by name
-    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>
+    uniforms: Arc<HashMap<String, Uniform>>,
+}
+
+struct Uniform {
+    pub location: gl::types::GLint,
+    pub ty: gl::types::GLenum,
+    pub size: gl::types::GLint,
 }
 
 /// Error that can be triggered when creating a `Program`.
@@ -149,30 +156,7 @@ impl Program {
         let (tx, rx) = channel();
         display.context.context.exec(proc(ctxt) {
             unsafe {
-                // reflecting program uniforms
-                let mut uniforms = HashMap::new();
-
-                let mut active_uniforms: gl::types::GLint = mem::uninitialized();
-                ctxt.gl.GetProgramiv(id, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
-
-                for uniform_id in range(0, active_uniforms) {
-                    let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
-                    let mut uniform_name_tmp_len = 63;
-
-                    let mut data_type: gl::types::GLenum = mem::uninitialized();
-                    let mut data_size: gl::types::GLint = mem::uninitialized();
-                    ctxt.gl.GetActiveUniform(id, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
-                        &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
-                        uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
-                    uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
-
-                    let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
-                    let location = ctxt.gl.GetUniformLocation(id, uniform_name.to_c_str().into_inner());
-
-                    uniforms.insert(uniform_name, (location, data_type, data_size));
-                }
-
-                tx.send(Arc::new(uniforms));
+                tx.send(reflect_uniforms(ctxt, id))
             }
         });
 
@@ -180,7 +164,7 @@ impl Program {
             display: display.context.clone(),
             shaders: shaders_store,
             id: id,
-            uniforms: rx.recv(),
+            uniforms: Arc::new(rx.recv()),
         })
     }
 }
@@ -197,8 +181,7 @@ impl GlObject for Program {
     }
 }
 
-pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint,
-    gl::types::GLenum, gl::types::GLint)>>
+pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform>>
 {
     program.uniforms.clone()
 }
@@ -286,4 +269,37 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
             id: id
         }
     })
+}
+
+unsafe fn reflect_uniforms(ctxt: CommandContext, program: gl::types::GLuint)
+    -> HashMap<String, Uniform>
+{
+    // reflecting program uniforms
+    let mut uniforms = HashMap::new();
+
+    let mut active_uniforms: gl::types::GLint = mem::uninitialized();
+    ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
+
+    for uniform_id in range(0, active_uniforms) {
+        let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
+        let mut uniform_name_tmp_len = 63;
+
+        let mut data_type: gl::types::GLenum = mem::uninitialized();
+        let mut data_size: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
+            &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
+            uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+        uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
+
+        let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
+        let location = ctxt.gl.GetUniformLocation(program, uniform_name.to_c_str().into_inner());
+
+        uniforms.insert(uniform_name, Uniform {
+            location: location, 
+            ty: data_type, 
+            size: data_size
+        });
+    }
+
+    uniforms
 }
