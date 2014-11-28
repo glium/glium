@@ -212,7 +212,7 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
             uniforms.0(&mut ctxt, |name| {
                 uniforms_locations
                     .get(name)
-                    .map(|val| val.0)
+                    .map(|val| val.location)
             }, &mut active_texture);
 
             // binding VAO
