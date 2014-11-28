@@ -47,7 +47,7 @@ impl VertexArrayObject {
                 for (name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
                     in bindings.into_iter()
                 {
-                    let loc = ctxt.gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
+                    let loc = ctxt.gl.GetAttribLocation(program_id, name.to_c_str().into_inner());
 
                     if loc != -1 {
                         match data_type {
