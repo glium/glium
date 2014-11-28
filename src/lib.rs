@@ -226,7 +226,7 @@ mod vertex_array_object;
 mod gl {
     generate_gl_bindings! {
         api: "gl",
-        profile: "core",
+        profile: "compatibility",
         version: "4.5",
         generator: "struct",
         extensions: [
@@ -562,6 +562,26 @@ pub trait Surface {
     /// Returns the dimensions in pixels of the target.
     fn get_dimensions(&self) -> (uint, uint);
 
+    /// Returns the number of bits of each pixel of the depth buffer.
+    ///
+    /// Returns `None` if there is no depth buffer.
+    fn get_depth_buffer_bits(&self) -> Option<u16>;
+
+    /// Returns true if the surface has a depth buffer available.
+    fn has_depth_buffer(&self) -> bool {
+        self.get_depth_buffer_bits().is_some()
+    }
+
+    /// Returns the number of bits of each pixel of the stencil buffer.
+    ///
+    /// Returns `None` if there is no stencil buffer.
+    fn get_stencil_buffer_bits(&self) -> Option<u16>;
+
+    /// Returns true if the surface has a stencil buffer available.
+    fn has_stencil_buffer(&self) -> bool {
+        self.get_stencil_buffer_bits().is_some()
+    }
+
     /// Draws.
     fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;
@@ -644,6 +664,14 @@ impl<'t> Surface for Frame<'t> {
 
     fn get_dimensions(&self) -> (uint, uint) {
         self.dimensions
+    }
+
+    fn get_depth_buffer_bits(&self) -> Option<u16> {
+        self.display.context.capabilities().depth_bits
+    }
+
+    fn get_stencil_buffer_bits(&self) -> Option<u16> {
+        self.display.context.capabilities().stencil_bits
     }
 
     fn draw<V, I: IndicesSource, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,

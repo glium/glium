@@ -72,6 +72,14 @@ impl<'a> Surface for FrameBuffer<'a> {
         (dimensions.0 as uint, dimensions.1 as uint)
     }
 
+    fn get_depth_buffer_bits(&self) -> Option<u16> {
+        None
+    }
+
+    fn get_stencil_buffer_bits(&self) -> Option<u16> {
+        None
+    }
+
     fn draw<V, I, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) where I: ::IndicesSource,
         U: ::uniforms::Uniforms

@@ -930,6 +930,14 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.get_dimensions()
     }
 
+    fn get_depth_buffer_bits(&self) -> Option<u16> {
+        self.0.get_depth_buffer_bits()
+    }
+
+    fn get_stencil_buffer_bits(&self) -> Option<u16> {
+        self.0.get_stencil_buffer_bits()
+    }
+
     fn draw<V, I, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) where I: ::IndicesSource,
         U: ::uniforms::Uniforms

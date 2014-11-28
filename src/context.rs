@@ -17,6 +17,8 @@ pub struct Context {
 
     /// Dimensions of the frame buffer.
     dimensions: Arc<(AtomicUint, AtomicUint)>,
+
+    capabilities: Arc<Capabilities>,
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -207,6 +209,12 @@ pub struct ExtensionsList {
 pub struct Capabilities {
     /// True if the context supports left and right buffers.
     pub stereo: bool,
+
+    /// Number of bits in the default framebuffer's depth buffer
+    pub depth_bits: Option<u16>,
+
+    /// Number of bits in the default framebuffer's stencil buffer
+    pub stencil_bits: Option<u16>,
 }
 
 impl Context {
@@ -217,12 +225,7 @@ impl Context {
         let (tx_commands, rx_commands) = channel();
 
         let dimensions = Arc::new((AtomicUint::new(800), AtomicUint::new(600)));
-
-        let context = Context {
-            commands: Mutex::new(tx_commands),
-            events: Mutex::new(rx_events),
-            dimensions: dimensions.clone(),
-        };
+        let dimensions2 = dimensions.clone();
 
         let window = try!(window.build());
         let (tx_success, rx_success) = channel();
@@ -248,7 +251,7 @@ impl Context {
             // getting the GL version and extensions
             let opengl_es = false;
             let version = get_gl_version(&gl);
-            let capabilities = get_capabilities(&gl, opengl_es);
+            let capabilities = Arc::new(get_capabilities(&gl, &version, opengl_es));
             let extensions = get_extensions(&gl);
 
             // checking compatibility with glium
@@ -258,14 +261,14 @@ impl Context {
                 version: &version,
                 extensions: &extensions,
                 opengl_es: opengl_es,
-                capabilities: &capabilities,
+                capabilities: &*capabilities,
             }) {
                 Err(e) => {
                     tx_success.send(Err(e));
                     return;
                 },
                 Ok(_) => {
-                    tx_success.send(Ok(()));
+                    tx_success.send(Ok(capabilities.clone()));
                 }
             };
 
@@ -281,7 +284,7 @@ impl Context {
                             version: &version,
                             extensions: &extensions,
                             opengl_es: opengl_es,
-                            capabilities: &capabilities,
+                            capabilities: &*capabilities,
                         }),
                         Err(_) => break 'main
                     }
@@ -320,8 +323,12 @@ impl Context {
             }
         });
 
-        try!(rx_success.recv());
-        Ok(context)
+        Ok(Context {
+            commands: Mutex::new(tx_commands),
+            events: Mutex::new(rx_events),
+            dimensions: dimensions2,
+            capabilities: try!(rx_success.recv()),
+        })
     }
 
     pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
@@ -332,14 +339,9 @@ impl Context {
 
         // TODO: fixme
         let dimensions = Arc::new((AtomicUint::new(800), AtomicUint::new(600)));
+        let dimensions2 = dimensions.clone();
 
-        let context = Context {
-            commands: Mutex::new(tx_commands),
-            events: Mutex::new(rx_events),
-            dimensions: dimensions,
-        };
-
-        let (tx_success, rx_success): (Sender<Result<(), GliumCreationError>>, _) = channel();
+        let (tx_success, rx_success) = channel();
 
         spawn(proc() {
             let window = match window.build() {
@@ -359,7 +361,7 @@ impl Context {
             let opengl_es = false;
             let version = get_gl_version(&gl);
             let extensions = get_extensions(&gl);
-            let capabilities = get_capabilities(&gl, opengl_es);
+            let capabilities = Arc::new(get_capabilities(&gl, &version, opengl_es));
 
             // checking compatibility with glium
             match check_gl_compatibility(CommandContext {
@@ -368,14 +370,14 @@ impl Context {
                 version: &version,
                 extensions: &extensions,
                 opengl_es: opengl_es,
-                capabilities: &capabilities,
+                capabilities: &*capabilities,
             }) {
                 Err(e) => {
                     tx_success.send(Err(e));
                     return;
                 },
                 Ok(_) => {
-                    tx_success.send(Ok(()));
+                    tx_success.send(Ok(capabilities.clone()));
                 }
             };
 
@@ -387,7 +389,7 @@ impl Context {
                         version: &version,
                         extensions: &extensions,
                         opengl_es: opengl_es,
-                        capabilities: &capabilities,
+                        capabilities: &*capabilities,
                     }),
                     Ok(Message::EndFrame) => (),     // ignoring buffer swapping
                     Err(_) => break
@@ -395,8 +397,12 @@ impl Context {
             }
         });
 
-        try!(rx_success.recv());
-        Ok(context)
+        Ok(Context {
+            commands: Mutex::new(tx_commands),
+            events: Mutex::new(rx_events),
+            dimensions: dimensions2,
+            capabilities: try!(rx_success.recv()),
+        })
     }
 
     pub fn get_framebuffer_dimensions(&self) -> (uint, uint) {
@@ -425,6 +431,10 @@ impl Context {
             }
         }
         result
+    }
+
+    pub fn capabilities(&self) -> &Capabilities {
+        &*self.capabilities
     }
 }
 
@@ -539,17 +549,52 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
     extensions
 }
 
-fn get_capabilities(gl: &gl::Gl, gl_es: bool) -> Capabilities {
+fn get_capabilities(gl: &gl::Gl, version: &GlVersion, gl_es: bool) -> Capabilities {
+    use std::mem;
+
     Capabilities {
         stereo: unsafe {
             if gl_es {
                 false
             } else {
-                use std::mem;
                 let mut val: gl::types::GLboolean = mem::uninitialized();
                 gl.GetBooleanv(gl::STEREO, &mut val);
                 val != 0
             }
-        }
+        },
+
+        depth_bits: unsafe {
+            let mut value = mem::uninitialized();
+
+            if version >= &GlVersion(3, 0) {
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
+                                                       gl::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
+                                                       &mut value);
+            } else {
+                gl.GetIntegerv(gl::DEPTH_BITS, &mut value);
+            };
+
+            match value {
+                0 => None,
+                v => Some(v as u16),
+            }
+        },
+
+        stencil_bits: unsafe {
+            let mut value = mem::uninitialized();
+
+            if version >= &GlVersion(3, 0) {
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
+                                                       gl::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
+                                                       &mut value);
+            } else {
+                gl.GetIntegerv(gl::STENCIL_BITS, &mut value);
+            };
+
+            match value {
+                0 => None,
+                v => Some(v as u16),
+            }
+        },
     }
 }
