@@ -22,7 +22,7 @@ use std::sync::Arc;
 use buffer::{mod, Buffer};
 use context::GlVersion;
 use uniforms::{UniformValue, UniformValueBinder};
-use Surface;
+use {Surface, GlObject};
 
 pub use self::pixel::PixelValue;
 pub use self::render_buffer::RenderBuffer;
@@ -735,12 +735,6 @@ pub struct TextureImplementation {
     array_size: Option<u32>,
 }
 
-/// This function is not visible outside of `glium`.
-#[doc(hidden)]
-pub fn get_id(texture: &TextureImplementation) -> gl::types::GLuint {
-    texture.id
-}
-
 impl TextureImplementation {
     /// Builds a new texture.
     fn new<P>(display: &super::Display, format: gl::types::GLenum, data: Option<Vec<P>>,
@@ -879,6 +873,12 @@ impl TextureImplementation {
         });
 
         rx.recv()
+    }
+}
+
+impl GlObject for TextureImplementation {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
     }
 }
 

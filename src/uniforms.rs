@@ -79,6 +79,8 @@ use cgmath;
 use nalgebra;
 use std::sync::Arc;
 
+use GlObject;
+
 /// Represents a value that can be used as the value of a uniform.
 ///
 /// You can implement this trait for your own types by redirecting the call to another
@@ -486,7 +488,7 @@ impl UniformValue for [f32, ..4] {
 
 impl<'a> UniformValue for &'a texture::TextureImplementation {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_id = texture::get_id(*self);
+        let my_id = self.get_id();
         UniformValueBinder(proc(ctxt, location, active_texture) {
             unsafe {
                 ctxt.gl.ActiveTexture(*active_texture as u32);
