@@ -40,13 +40,7 @@ struct Vertex {
 }
 
 #[test]
-fn triangles_list_cpu() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-    
+fn triangles_list_cpu() {    
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -72,12 +66,6 @@ fn triangles_list_cpu() {
 
 #[test]
 fn triangle_strip_cpu() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -103,12 +91,6 @@ fn triangle_strip_cpu() {
 
 #[test]
 fn triangles_list_gpu() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -135,12 +117,6 @@ fn triangles_list_gpu() {
 
 #[test]
 fn triangle_strip_gpu() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-
     let display = support::build_display();
     let program = build_program(&display);
 
