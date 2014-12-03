@@ -26,7 +26,9 @@ pub fn build_display() -> glium::Display {
 
     unsafe {
         display.set_debug_callback_sync(|&mut: msg: String, _, _, severity: glium::debug::Severity| {
-            if severity == glium::debug::Medium || severity == glium::debug::High {
+            if severity == glium::debug::Severity::Medium ||
+               severity == glium::debug::Severity::High
+            {
                 panic!("{}", msg);
             }
         })
@@ -44,7 +46,9 @@ pub fn build_display() -> glium::Display {
 
     unsafe {
         display.set_debug_callback_sync(|&mut: msg: String, _, _, severity: glium::debug::Severity| {
-            if severity == glium::debug::Medium || severity == glium::debug::High {
+            if severity == glium::debug::Severity::Medium ||
+               severity == glium::debug::Severity::High
+            {
                 panic!("{}", msg);
             }
         })

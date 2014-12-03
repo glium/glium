@@ -59,11 +59,11 @@ struct Uniforms<'a> {
 let uniforms = Uniforms {
     texture: glium::uniforms::Sampler(&tex, glium::uniforms::SamplerBehavior {
         wrap_function: (
-            glium::uniforms::Repeat,
-            glium::uniforms::Repeat,
-            glium::uniforms::Repeat
+            glium::uniforms::SamplerWrapFunction::Repeat,
+            glium::uniforms::SamplerWrapFunction::Repeat,
+            glium::uniforms::SamplerWrapFunction::Repeat
         ),
-        minify_filter: glium::uniforms::Linear,
+        minify_filter: glium::uniforms::SamplerFilter::Linear,
         .. std::default::Default::default()
     }),
     matrix: matrix,

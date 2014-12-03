@@ -46,12 +46,12 @@ fn main() {
             };
 
             opengl_texture.as_surface().blit_whole_color_to(&dest_texture.as_surface(), &dest_rect,
-                glium::uniforms::Linear);
+                                                            glium::uniforms::SamplerFilter::Linear);
         }
 
         // drawing a frame
         let target = display.draw();
-        dest_texture.as_surface().fill(&target, glium::uniforms::Linear);
+        dest_texture.as_surface().fill(&target, glium::uniforms::SamplerFilter::Linear);
         target.finish();
 
         // polling and handling the events received by the window
