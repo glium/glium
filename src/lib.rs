@@ -366,7 +366,7 @@ impl PolygonMode {
 /// 
 /// ```
 /// let params = glium::DrawParameters {
-///     depth_function: Some(glium::IfLess),
+///     depth_function: Some(glium::DepthFunction::IfLess),
 ///     .. std::default::Default::default()
 /// };
 /// ```
