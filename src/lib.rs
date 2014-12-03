@@ -366,7 +366,7 @@ impl PolygonMode {
 /// 
 /// ```
 /// let params = glium::DrawParameters {
-///     depth_function: Some(glium::DepthFunction::IfLess),
+///     depth_function: glium::DepthFunction::IfLess,
 ///     .. std::default::Default::default()
 /// };
 /// ```
@@ -374,9 +374,10 @@ impl PolygonMode {
 #[deriving(Clone, Show, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
-    ///  on the target. 
-    /// `None` means "don't care".
-    pub depth_function: Option<DepthFunction>,
+    /// on the target.
+    ///
+    /// The default is `Overwrite`.
+    pub depth_function: DepthFunction,
 
     /// The function that the GPU will use to merge the existing pixel with the pixel that is
     /// being written.
@@ -409,7 +410,7 @@ pub struct DrawParameters {
 impl std::default::Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
-            depth_function: None,
+            depth_function: DepthFunction::Overwrite,
             blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,
@@ -424,13 +425,13 @@ impl DrawParameters {
     fn sync(&self, ctxt: &mut context::CommandContext) {
         // depth function
         match self.depth_function {
-            Some(DepthFunction::Overwrite) => unsafe {
+            DepthFunction::Overwrite => unsafe {
                 if ctxt.state.enabled_depth_test {
                     ctxt.gl.Disable(gl::DEPTH_TEST);
                     ctxt.state.enabled_depth_test = false;
                 }
             },
-            Some(depth_function) => unsafe {
+            depth_function => unsafe {
                 let depth_function = depth_function.to_glenum();
                 if ctxt.state.depth_func != depth_function {
                     ctxt.gl.DepthFunc(depth_function);
@@ -440,8 +441,7 @@ impl DrawParameters {
                     ctxt.gl.Enable(gl::DEPTH_TEST);
                     ctxt.state.enabled_depth_test = true;
                 }
-            },
-            _ => ()
+            }
         }
 
         // blending function
