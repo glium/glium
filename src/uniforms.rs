@@ -95,7 +95,62 @@ pub trait UniformValue {
 /// The proc takes as parameter the `Gl` object, the binding location, and a `&mut GLenum` that
 ///  represents the current value of `glActiveTexture`.
 /// It must call `glUniform*`.
-pub struct UniformValueBinder(proc(&mut context::CommandContext, gl::types::GLint, &mut gl::types::GLenum):Send);
+pub struct UniformValueBinder(UniformValueBinderImpl);
+
+impl UniformValueBinder {
+    unsafe fn bind(&self, ctxt: &mut context::CommandContext, location: gl::types::GLint,
+                   active_texture: &mut gl::types::GLenum)
+    {
+        match self.0 {
+            UniformValueBinderImpl::SignedInt(val) => {
+                ctxt.gl.Uniform1i(location, val)
+            },
+            UniformValueBinderImpl::UnsignedInt(val) => {
+                ctxt.gl.Uniform1ui(location, val)
+            },
+            UniformValueBinderImpl::Float(val) => {
+                ctxt.gl.Uniform1f(location, val)
+            },
+            UniformValueBinderImpl::Mat2(val) => {
+                ctxt.gl.UniformMatrix2fv(location, 1, 0, val.as_ptr() as *const f32)
+            },
+            UniformValueBinderImpl::Mat3(val) => {
+                ctxt.gl.UniformMatrix3fv(location, 1, 0, val.as_ptr() as *const f32)
+            },
+            UniformValueBinderImpl::Mat4(val) => {
+                ctxt.gl.UniformMatrix4fv(location, 1, 0, val.as_ptr() as *const f32)
+            },
+            UniformValueBinderImpl::Vec2(val) => {
+                ctxt.gl.Uniform2fv(location, 1, val.as_ptr() as *const f32)
+            },
+            UniformValueBinderImpl::Vec3(val) => {
+                ctxt.gl.Uniform3fv(location, 1, val.as_ptr() as *const f32)
+            },
+            UniformValueBinderImpl::Vec4(val) => {
+                ctxt.gl.Uniform4fv(location, 1, val.as_ptr() as *const f32)
+            },
+            UniformValueBinderImpl::Texture(id) => {
+                ctxt.gl.ActiveTexture(*active_texture as u32);
+                ctxt.gl.BindTexture(gl::TEXTURE_2D, id);      // FIXME: check bind point
+                ctxt.gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint);
+                *active_texture += 1;
+            }
+        }
+    }
+}
+
+enum UniformValueBinderImpl {
+    SignedInt(gl::types::GLint),
+    UnsignedInt(gl::types::GLuint),
+    Float(f32),
+    Mat2([[f32, ..2], ..2]),
+    Mat3([[f32, ..3], ..3]),
+    Mat4([[f32, ..4], ..4]),
+    Vec2([f32, ..2]),
+    Vec3([f32, ..3]),
+    Vec4([f32, ..4]),
+    Texture(gl::types::GLuint),
+}
 
 /// Object that contains all the uniforms of a program with their bindings points.
 ///
@@ -159,12 +214,12 @@ impl<'a, T, R> UniformsStorage<'a, T, R> {
 impl<'a, T, R> Uniforms for UniformsStorage<'a, T, R> where T: UniformValue, R: Uniforms {
     fn to_binder(&self) -> UniformsBinder {
         let name = self.0.to_string();
-        let value_binder = self.1.to_binder().0;
+        let value = self.1.to_binder();
         let rest = self.2.to_binder().0;
 
         UniformsBinder(proc(ctxt, symbols, active_texture) {
             if let Some(loc) = symbols(name.as_slice()) {
-                value_binder(ctxt, loc, active_texture);
+                unsafe { value.bind(ctxt, loc, active_texture) };
             }   // note: ignoring if the uniform was not found in the program
 
             rest(ctxt, symbols, active_texture);
@@ -327,179 +382,105 @@ impl Drop for SamplerObject {
 
 impl UniformValue for i8 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1i(location, my_value as gl::types::GLint)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::SignedInt(*self as gl::types::GLint))
     }
 }
 
 impl UniformValue for u8 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1ui(location, my_value as gl::types::GLuint)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::UnsignedInt(*self as gl::types::GLuint))
     }
 }
 
 impl UniformValue for i16 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1i(location, my_value as gl::types::GLint)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::SignedInt(*self as gl::types::GLint))
     }
 }
 
 impl UniformValue for u16 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1ui(location, my_value as gl::types::GLuint)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::UnsignedInt(*self as gl::types::GLuint))
     }
 }
 
 impl UniformValue for i32 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1i(location, my_value as gl::types::GLint)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::SignedInt(*self as gl::types::GLint))
     }
 }
 
 impl UniformValue for u32 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1ui(location, my_value as gl::types::GLuint)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::UnsignedInt(*self as gl::types::GLuint))
     }
 }
 
 impl UniformValue for f32 {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe {
-                ctxt.gl.Uniform1f(location, my_value)
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Float(*self))
     }
 }
 
 impl UniformValue for [[f32, ..2], ..2] {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = *self;
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe { ctxt.gl.UniformMatrix2fv(location, 1, 0, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Mat2(*self))
     }
 }
 
 impl UniformValue for [[f32, ..3], ..3] {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = *self;
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe { ctxt.gl.UniformMatrix3fv(location, 1, 0, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Mat3(*self))
     }
 }
 
 impl UniformValue for [[f32, ..4], ..4] {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = *self;
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe { ctxt.gl.UniformMatrix4fv(location, 1, 0, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Mat4(*self))
     }
 }
 
 impl UniformValue for (f32, f32) {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            let my_value = [ my_value.0, my_value.1 ];
-            unsafe { ctxt.gl.Uniform2fv(location, 1, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Vec2([self.0, self.1]))
     }
 }
 
 impl UniformValue for (f32, f32, f32) {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            let my_value = [ my_value.0, my_value.1, my_value.2 ];
-            unsafe { ctxt.gl.Uniform3fv(location, 1, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Vec3([self.0, self.1, self.2]))
     }
 }
 
 impl UniformValue for (f32, f32, f32, f32) {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = self.clone();
-        UniformValueBinder(proc(ctxt, location, _) {
-            let my_value = [ my_value.0, my_value.1, my_value.2, my_value.3 ];
-            unsafe { ctxt.gl.Uniform4fv(location, 1, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Vec4([self.0, self.1, self.2, self.3]))
     }
 }
 
 impl UniformValue for [f32, ..2] {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = *self;
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe { ctxt.gl.Uniform2fv(location, 1, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Vec2(*self))
     }
 }
 
 impl UniformValue for [f32, ..3] {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = *self;
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe { ctxt.gl.Uniform3fv(location, 1, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Vec3(*self))
     }
 }
 
 impl UniformValue for [f32, ..4] {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_value = *self;
-        UniformValueBinder(proc(ctxt, location, _) {
-            unsafe { ctxt.gl.Uniform4fv(location, 1, my_value.as_ptr() as *const f32) }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Vec4(*self))
     }
 }
 
 impl<'a> UniformValue for &'a texture::TextureImplementation {
     fn to_binder(&self) -> UniformValueBinder {
-        let my_id = self.get_id();
-        UniformValueBinder(proc(ctxt, location, active_texture) {
-            unsafe {
-                ctxt.gl.ActiveTexture(*active_texture as u32);
-                ctxt.gl.BindTexture(gl::TEXTURE_2D, my_id);      // FIXME: check bind point
-                ctxt.gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint);
-                *active_texture += 1;
-            }
-        })
+        UniformValueBinder(UniformValueBinderImpl::Texture(self.get_id()))
     }
 }
-
 
 impl UniformValue for nalgebra::Mat2<f32> {
     fn to_binder(&self) -> UniformValueBinder {
