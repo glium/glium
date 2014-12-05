@@ -38,21 +38,6 @@ impl BufferType for ArrayBuffer {
     }
 }
 
-/// Used for index buffers.
-pub struct ElementArrayBuffer;
-
-impl BufferType for ElementArrayBuffer {
-    fn get_storage_point(_: Option<ElementArrayBuffer>, state: &mut context::GLState)
-        -> &mut Option<gl::types::GLuint>
-    {
-        &mut state.element_array_buffer_binding
-    }
-
-    fn get_bind_point(_: Option<ElementArrayBuffer>) -> gl::types::GLenum {
-        gl::ELEMENT_ARRAY_BUFFER
-    }
-}
-
 /// Used for pixel buffers.
 pub struct PixelPackBuffer;
 
@@ -290,10 +275,6 @@ impl Drop for Buffer {
         self.display.context.exec(proc(ctxt) {
             if ctxt.state.array_buffer_binding == Some(id) {
                 ctxt.state.array_buffer_binding = None;
-            }
-
-            if ctxt.state.element_array_buffer_binding == Some(id) {
-                ctxt.state.element_array_buffer_binding = None;
             }
 
             if ctxt.state.pixel_pack_buffer_binding == Some(id) {

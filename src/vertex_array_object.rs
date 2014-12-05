@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::mem;
 
 use vertex_buffer::{mod, VertexBuffer};
-use {DisplayImpl, GlObject};
+use {DisplayImpl, IndicesSource, GlObject};
 
 use {libc, gl};
 
@@ -15,7 +15,7 @@ pub struct VertexArrayObject {
 impl VertexArrayObject {
     /// 
     fn new<T>(display: Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
-        program_id: gl::types::GLuint) -> VertexArrayObject
+              ib_id: gl::types::GLuint, program_id: gl::types::GLuint) -> VertexArrayObject
     {
         let (tx, rx) = channel();
 
@@ -39,9 +39,7 @@ impl VertexArrayObject {
                 }
 
                 // binding index buffer
-                // TODO: not sure if this is necessary
-                ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                ctxt.state.element_array_buffer_binding = None;
+                ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
 
                 // binding attributes
                 for (name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
@@ -99,18 +97,21 @@ impl GlObject for VertexArrayObject {
     }
 }
 
-pub fn get_vertex_array_object<T>(display: &Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
-    program_id: gl::types::GLuint) -> gl::types::GLuint
+pub fn get_vertex_array_object<T, I>(display: &Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
+    indices: &I, program_id: gl::types::GLuint) -> gl::types::GLuint
+    where I: IndicesSource
 {
     let mut vaos = display.vertex_array_objects.lock();
 
+    let ib_id = indices.to_indices_source_helper().index_buffer.map(|b| b.get_id()).unwrap_or(0);
     let vb_id = GlObject::get_id(vertex_buffer);
-    if let Some(value) = vaos.get(&(vb_id, program_id)) {
+
+    if let Some(value) = vaos.get(&(vb_id, ib_id, program_id)) {
         return value.id;
     }
 
-    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, program_id);
+    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, ib_id, program_id);
     let new_vao_id = new_vao.id;
-    vaos.insert((vb_id, program_id), new_vao);
+    vaos.insert((vb_id, ib_id, program_id), new_vao);
     new_vao_id
 }

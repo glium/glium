@@ -138,7 +138,7 @@ impl<T> Drop for VertexBuffer<T> {
     fn drop(&mut self) {
         // removing VAOs which contain this vertex buffer
         let mut vaos = self.buffer.get_display().vertex_array_objects.lock();
-        let to_delete = vaos.keys().filter(|&&(v, _)| v == self.buffer.get_id())
+        let to_delete = vaos.keys().filter(|&&(v, _, _)| v == self.buffer.get_id())
             .map(|k| k.clone()).collect::<Vec<_>>();
         for k in to_delete.into_iter() {
             vaos.remove(&k);

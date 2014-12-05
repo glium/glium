@@ -185,14 +185,18 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
 {
     let fbo_id = get_framebuffer(display, framebuffer);
 
-    let draw_cmd = indices.to_indices_source_helper().0;
-
     let program_id = program.get_id();
+    let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer, indices,
+                                                              program_id);
+
+    let ::IndicesSourceHelper { pointer, primitives, data_type,
+                                indices_count, .. } = indices.to_indices_source_helper();
+    let pointer = pointer.unwrap_or(::std::ptr::null());
+
     let uniforms = uniforms.to_binder();
     let uniforms_locations = program::get_uniforms_locations(program);
     let draw_parameters = draw_parameters.clone();
 
-    let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer, program_id);
     let vb_id = vertex_buffer.get_id();
 
     let (tx, rx) = channel();
@@ -229,9 +233,9 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
 
             // sync-ing parameters
             draw_parameters.sync(&mut ctxt);
-            
+
             // drawing
-            draw_cmd(&mut ctxt);
+            ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer);
         }
 
         tx.send(());
