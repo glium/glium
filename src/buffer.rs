@@ -108,22 +108,19 @@ impl Buffer {
                 ctxt.gl.GenBuffers(1, &mut id);
                 tx.send(id);
 
-                if !ctxt.opengl_es && ctxt.version >= &GlVersion(4, 5) {
-                    ctxt.gl.NamedBufferData(id, buffer_size as gl::types::GLsizei,
-                        data.as_ptr() as *const libc::c_void, usage);
-                        
-                } else if ctxt.extensions.gl_ext_direct_state_access {
-                    ctxt.gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr,
-                        data.as_ptr() as *const libc::c_void, usage);
+                let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
+                let bind = BufferType::get_bind_point(None::<T>);
 
-                } else {
-                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                    let bind = BufferType::get_bind_point(None::<T>);
+                ctxt.gl.BindBuffer(bind, id);
+                *storage = Some(id);
+                ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
+                                   data.as_ptr() as *const libc::c_void, usage);
 
-                    ctxt.gl.BindBuffer(bind, id);
-                    *storage = Some(id);
-                    ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                        data.as_ptr() as *const libc::c_void, usage);
+                let mut obtained_size: gl::types::GLint = mem::uninitialized();
+                ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
+                if buffer_size != obtained_size as uint {
+                    ctxt.gl.DeleteBuffers(1, [id].as_ptr());
+                    panic!("Not enough available memory for buffer");
                 }
             }
         });
@@ -147,20 +144,18 @@ impl Buffer {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenBuffers(1, &mut id);
 
-                if !ctxt.opengl_es && ctxt.version >= &GlVersion(4, 5) {
-                    ctxt.gl.NamedBufferData(id, buffer_size as gl::types::GLsizei, ptr::null(), usage);
-                        
-                } else if ctxt.extensions.gl_ext_direct_state_access {
-                    ctxt.gl.NamedBufferDataEXT(id, buffer_size as gl::types::GLsizeiptr, ptr::null(),
-                        usage);
+                let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
+                let bind = BufferType::get_bind_point(None::<T>);
 
-                } else {
-                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                    let bind = BufferType::get_bind_point(None::<T>);
+                ctxt.gl.BindBuffer(bind, id);
+                *storage = Some(id);
+                ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr, ptr::null(), usage);
 
-                    ctxt.gl.BindBuffer(bind, id);
-                    *storage = Some(id);
-                    ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr, ptr::null(), usage);
+                let mut obtained_size: gl::types::GLint = mem::uninitialized();
+                ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
+                if buffer_size != obtained_size as uint {
+                    ctxt.gl.DeleteBuffers(1, [id].as_ptr());
+                    panic!("Not enough available memory for buffer");
                 }
 
                 tx.send(id);
