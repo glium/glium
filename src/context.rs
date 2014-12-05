@@ -88,9 +88,6 @@ pub struct GLState {
     /// The latest buffer bound to `GL_ARRAY_BUFFER`.
     pub array_buffer_binding: Option<gl::types::GLuint>,
 
-    /// The latest buffer bound to `GL_ELEMENT_ARRAY_BUFFER`.
-    pub element_array_buffer_binding: Option<gl::types::GLuint>,
-
     /// The latest buffer bound to `GL_PIXEL_PACK_BUFFER`.
     pub pixel_pack_buffer_binding: Option<gl::types::GLuint>,
 
@@ -150,7 +147,6 @@ impl GLState {
             clear_depth: 1.0,
             clear_stencil: 0,
             array_buffer_binding: None,
-            element_array_buffer_binding: None,
             pixel_pack_buffer_binding: None,
             pixel_unpack_buffer_binding: None,
             read_framebuffer: None,

@@ -22,6 +22,7 @@ creating an `IndexBuffer`.
 */
 use buffer::{mod, Buffer};
 use gl;
+use libc;
 use GlObject;
 use {IndicesSource, IndicesSourceHelper};
 
@@ -71,33 +72,25 @@ impl GlObject for IndexBuffer {
 
 impl IndicesSource for IndexBuffer {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let id = self.buffer.get_id();
-        let elems_count = self.buffer.get_elements_count();
-        let datatype = self.data_type.clone();
-        let primitives = self.primitives.clone();
+        IndicesSourceHelper {
+            index_buffer: Some(&self.buffer),
+            pointer: None,
+            primitives: self.primitives,
+            data_type: self.data_type,
+            indices_count: self.buffer.get_elements_count() as u32,
+        }
+    }
+}
 
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use std::ptr;
-
-                if ctxt.opengl_es {
-                    match primitives {
-                        gl::LINES_ADJACENCY | gl::TRIANGLES_ADJACENCY |
-                        gl::TRIANGLE_STRIP_ADJACENCY => {
-                            panic!("OpenGL ES doesn't support adjacency infos");
-                        },
-                        _ => ()
-                    }
-                }
-
-                //if ctxt.state.element_array_buffer_binding != Some(id) {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
-                    ctxt.state.element_array_buffer_binding = Some(id);
-                //}
-
-                ctxt.gl.DrawElements(primitives, elems_count as i32, datatype, ptr::null());
-            }
-        })
+impl Drop for IndexBuffer {
+    fn drop(&mut self) {
+        // removing VAOs which contain this index buffer
+        let mut vaos = self.buffer.get_display().vertex_array_objects.lock();
+        let to_delete = vaos.keys().filter(|&&(_, i, _)| i == self.buffer.get_id())
+            .map(|k| k.clone()).collect::<Vec<_>>();
+        for k in to_delete.into_iter() {
+            vaos.remove(&k);
+        }
     }
 }
 
@@ -142,7 +135,7 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
                                                               packed in memory");
 
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::POINTS,
         }
@@ -151,23 +144,13 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
 
 impl<T> IndicesSource for PointsList<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::POINTS, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::POINTS,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -180,7 +163,7 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::LINES,
         }
@@ -189,23 +172,13 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
 
 impl<T> IndicesSource for LinesList<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::LINES, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::LINES,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -231,7 +204,7 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::LINES_ADJACENCY,
         }
@@ -241,27 +214,13 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
 #[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                if ctxt.opengl_es {
-                    panic!("OpenGL ES doesn't support LinesListAdjacency");
-                }
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::LINES_ADJACENCY, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::LINES_ADJACENCY,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -274,7 +233,7 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::LINE_STRIP,
         }
@@ -283,23 +242,13 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
 
 impl<T> IndicesSource for LineStrip<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::LINE_STRIP, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::LINE_STRIP,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -325,7 +274,7 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::LINE_STRIP_ADJACENCY,
         }
@@ -335,27 +284,13 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
 #[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                if ctxt.opengl_es {
-                    panic!("OpenGL ES doesn't support LineStripAdjacency");
-                }
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::LINE_STRIP_ADJACENCY, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::LINE_STRIP_ADJACENCY,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -368,7 +303,7 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLES,
         }
@@ -377,23 +312,13 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
 
 impl<T> IndicesSource for TrianglesList<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::TRIANGLES, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::TRIANGLES,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -419,7 +344,7 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLES_ADJACENCY,
         }
@@ -429,27 +354,13 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
 #[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                if ctxt.opengl_es {
-                    panic!("OpenGL ES doesn't support TrianglesListAdjacency");
-                }
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::TRIANGLES_ADJACENCY, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::TRIANGLES_ADJACENCY,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -462,7 +373,7 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLE_STRIP,
         }
@@ -471,23 +382,13 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
 
 impl<T> IndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::TRIANGLE_STRIP, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::TRIANGLE_STRIP,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -513,7 +414,7 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLE_STRIP_ADJACENCY,
         }
@@ -523,27 +424,13 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
 #[cfg(feature = "gl_extensions")]
 impl<T> IndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                if ctxt.opengl_es {
-                    panic!("OpenGL ES doesn't support TriangleStripAdjacency");
-                }
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::TRIANGLE_STRIP_ADJACENCY, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::TRIANGLE_STRIP_ADJACENCY,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }
 
@@ -556,7 +443,7 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ElementArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
             data_type: Index::to_glenum(None::<T>),
             primitives: gl::TRIANGLE_FAN,
         }
@@ -565,22 +452,12 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
 
 impl<T> IndicesSource for TriangleFan<T> where T: Index + Send + Copy {
     fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        let elems_count = self.0.len();
-        let data_type = Index::to_glenum(None::<T>);
-        let ptr = self.0.as_ptr();
-
-        IndicesSourceHelper(proc(ctxt) {
-            unsafe {
-                use libc;
-
-                //if ctxt.state.element_array_buffer_binding != None {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-                    ctxt.state.element_array_buffer_binding = None;
-                //}
-
-                ctxt.gl.DrawElements(gl::TRIANGLE_FAN, elems_count as i32, data_type,
-                                ptr as *const libc::c_void);
-            }
-        })
+        IndicesSourceHelper {
+            index_buffer: None,
+            pointer: Some(self.0.as_ptr() as *const libc::c_void),
+            primitives: gl::TRIANGLE_FAN,
+            data_type: Index::to_glenum(None::<T>),
+            indices_count: self.0.len() as u32,
+        }
     }
 }

@@ -700,7 +700,13 @@ pub trait IndicesSource {
 }
 
 /// Opaque type used by the implementation.
-pub struct IndicesSourceHelper(proc(&mut context::CommandContext): Send);
+pub struct IndicesSourceHelper<'a> {
+    index_buffer: Option<&'a buffer::Buffer>,
+    pointer: Option<*const libc::c_void>,
+    primitives: gl::types::GLenum,
+    data_type: gl::types::GLenum,
+    indices_count: gl::types::GLuint,
+}
 
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
@@ -804,9 +810,9 @@ struct DisplayImpl {
     framebuffer_objects: Mutex<HashMap<framebuffer::FramebufferAttachments,
                                        framebuffer::FrameBufferObject>>,
 
-    // we maintain a list of VAOs for each vertexbuffer-program association
+    // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (vertexbuffer, program)
-    vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint),
+    vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint, gl::types::GLuint),
                                         vertex_array_object::VertexArrayObject>>,
 }
 
