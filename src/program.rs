@@ -43,6 +43,7 @@ struct Uniform {
 /// Informations about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
+#[deriving(Show)]
 struct Attribute {
     pub location: gl::types::GLint,
     pub ty: gl::types::GLenum,
@@ -348,7 +349,7 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
         attr_name_tmp.set_len(attr_name_tmp_len as uint);
 
         let attr_name = String::from_utf8(attr_name_tmp).unwrap();
-        let location = ctxt.gl.GetUniformLocation(program, attr_name.to_c_str().into_inner());
+        let location = ctxt.gl.GetAttribLocation(program, attr_name.to_c_str().into_inner());
 
         attributes.insert(attr_name, Attribute {
             location: location, 

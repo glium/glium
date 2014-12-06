@@ -52,9 +52,11 @@ impl VertexArrayObject {
                         None => continue
                     };
 
-                    if attribute.ty != data_type || attribute.size != elements_count as i32 {
-                        panic!("The program attributes do not match the vertex format");
-                    }
+                    // FIXME: the reflected attributes can be (GL_FLOAT_VEC2, 1) while the
+                    //        vertex buffer can be (GL_FLOAT, 2) ; need to check these cases
+                    /*if attribute.ty != data_type || attribute.size != elements_count as i32 {
+                        panic!("The program attributes do not match the vertex format {} {}");
+                    }*/
 
                     if attribute.location != -1 {
                         match data_type {
