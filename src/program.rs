@@ -198,9 +198,16 @@ impl GlObject for Program {
     }
 }
 
+// TODO: remove this hack
 pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform>>
 {
     program.uniforms.clone()
+}
+
+// TODO: remove this hack
+pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute>>
+{
+    program.attributes.clone()
 }
 
 impl Drop for Program {
