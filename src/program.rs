@@ -27,12 +27,24 @@ pub struct Program {
     #[allow(dead_code)]
     shaders: Vec<Shader>,
     id: gl::types::GLuint,
-
-    // location, type and size of each uniform, ordered by name
     uniforms: Arc<HashMap<String, Uniform>>,
+    attributes: Arc<HashMap<String, Attribute>>,
 }
 
+/// Informations about a uniform (except its name).
+///
+/// Internal struct. Not public.
 struct Uniform {
+    pub location: gl::types::GLint,
+    pub ty: gl::types::GLenum,
+    pub size: gl::types::GLint,
+}
+
+/// Informations about an attribute of a program (except its name).
+///
+/// Internal struct. Not public.
+#[deriving(Show)]
+struct Attribute {
     pub location: gl::types::GLint,
     pub ty: gl::types::GLenum,
     pub size: gl::types::GLint,
@@ -154,17 +166,23 @@ impl Program {
         let id = try!(rx.recv());
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(proc(mut ctxt) {
             unsafe {
-                tx.send(reflect_uniforms(ctxt, id))
+                tx.send((
+                    reflect_uniforms(&mut ctxt, id),
+                    reflect_attributes(&mut ctxt, id)
+                ))
             }
         });
+
+        let (uniforms, attributes) = rx.recv();
 
         Ok(Program {
             display: display.context.clone(),
             shaders: shaders_store,
             id: id,
-            uniforms: Arc::new(rx.recv()),
+            uniforms: Arc::new(uniforms),
+            attributes: Arc::new(attributes),
         })
     }
 }
@@ -181,9 +199,16 @@ impl GlObject for Program {
     }
 }
 
+// TODO: remove this hack
 pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform>>
 {
     program.uniforms.clone()
+}
+
+// TODO: remove this hack
+pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute>>
+{
+    program.attributes.clone()
 }
 
 impl Drop for Program {
@@ -271,7 +296,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     })
 }
 
-unsafe fn reflect_uniforms(ctxt: CommandContext, program: gl::types::GLuint)
+unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint)
     -> HashMap<String, Uniform>
 {
     // reflecting program uniforms
@@ -302,4 +327,36 @@ unsafe fn reflect_uniforms(ctxt: CommandContext, program: gl::types::GLuint)
     }
 
     uniforms
+}
+
+unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLuint)
+    -> HashMap<String, Attribute>
+{
+    let mut attributes = HashMap::new();
+
+    let mut active_attributes: gl::types::GLint = mem::uninitialized();
+    ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
+
+    for attribute_id in range(0, active_attributes) {
+        let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
+        let mut attr_name_tmp_len = 63;
+
+        let mut data_type: gl::types::GLenum = mem::uninitialized();
+        let mut data_size: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint, attr_name_tmp_len,
+            &mut attr_name_tmp_len, &mut data_size, &mut data_type,
+            attr_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+        attr_name_tmp.set_len(attr_name_tmp_len as uint);
+
+        let attr_name = String::from_utf8(attr_name_tmp).unwrap();
+        let location = ctxt.gl.GetAttribLocation(program, attr_name.to_c_str().into_inner());
+
+        attributes.insert(attr_name, Attribute {
+            location: location, 
+            ty: data_type, 
+            size: data_size
+        });
+    }
+
+    attributes
 }

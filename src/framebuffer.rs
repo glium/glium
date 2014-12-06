@@ -185,9 +185,8 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
 {
     let fbo_id = get_framebuffer(display, framebuffer);
 
-    let program_id = program.get_id();
     let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer, indices,
-                                                              program_id);
+                                                              program);
 
     let ::IndicesSourceHelper { pointer, primitives, data_type,
                                 indices_count, .. } = indices.to_indices_source_helper();
@@ -198,6 +197,7 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
     let draw_parameters = draw_parameters.clone();
 
     let vb_id = vertex_buffer.get_id();
+    let program_id = program.get_id();
 
     let (tx, rx) = channel();
 
