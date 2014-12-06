@@ -7,12 +7,13 @@ use GlObject;
 pub struct VertexBuffer<T> {
     buffer: Buffer,
     bindings: VertexBindings,
+    elements_size: uint,
 }
 
 /// Don't use this function outside of glium
 #[doc(hidden)]
 pub fn get_elements_size<T>(vb: &VertexBuffer<T>) -> uint {
-    vb.buffer.get_elements_size()
+    vb.elements_size
 }
 
 /// Don't use this function outside of glium
@@ -52,9 +53,13 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = VertexFormat::build_bindings(None::<T>);
 
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW);
+        let elements_size = buffer.get_elements_size();
+
         VertexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW),
+            buffer: buffer,
             bindings: bindings,
+            elements_size: elements_size,
         }
     }
 
@@ -65,9 +70,64 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = VertexFormat::build_bindings(None::<T>);
 
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::DYNAMIC_DRAW);
+        let elements_size = buffer.get_elements_size();
+
         VertexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::DYNAMIC_DRAW),
+            buffer: buffer,
             bindings: bindings,
+            elements_size: elements_size,
+        }
+    }
+}
+
+impl<T: Send + Copy> VertexBuffer<T> {
+    /// Builds a new vertex buffer from an undeterminate data type and bindings.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #![feature(phase)]
+    /// # #[phase(plugin)]
+    /// # extern crate glium_macros;
+    /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # use glium::DisplayBuild;
+    /// # fn main() {
+    /// let bindings = vec![
+    ///     ("position".to_string(), glium::vertex_buffer::VertexAttrib {
+    ///         offset: 0,
+    ///         data_type: 0x1406,  // GL_FLOAT
+    ///         elements_count: 2,
+    ///     }),
+    ///     ("color".to_string(), glium::vertex_buffer::VertexAttrib {
+    ///         offset: 2 * ::std::mem::size_of::<f32>(),
+    ///         data_type: 0x1406,  // GL_FLOAT
+    ///         elements_count: 1,
+    ///     }),
+    /// ];
+    ///
+    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
+    /// #   .build_glium().unwrap();
+    /// let data = vec![
+    ///     1.0, -0.3, 409.0,
+    ///     -0.4, 2.8, 715.0f32
+    /// ];
+    ///
+    /// let vertex_buffer = unsafe {
+    ///     glium::VertexBuffer::new_raw(&display, data, bindings, 3 * ::std::mem::size_of::<f32>())
+    /// };
+    /// # }
+    /// ```
+    ///
+    #[experimental]
+    pub unsafe fn new_raw(display: &super::Display, data: Vec<T>,
+                          bindings: VertexBindings, elements_size: uint) -> VertexBuffer<T>
+    {
+        VertexBuffer {
+            buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW),
+            bindings: bindings,
+            elements_size: elements_size,
         }
     }
 
