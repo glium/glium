@@ -199,8 +199,6 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
     let vb_id = vertex_buffer.get_id();
     let program_id = program.get_id();
 
-    let (tx, rx) = channel();
-
     display.context.exec(proc(mut ctxt) {
         unsafe {
             bind_framebuffer(&mut ctxt, fbo_id, true, false);
@@ -237,13 +235,7 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
             // drawing
             ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer);
         }
-
-        tx.send(());
     });
-
-    // synchronizing with the end of the draw
-    // TODO: remove that after making sure that everything is ok
-    rx.recv();
 }
 
 pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
