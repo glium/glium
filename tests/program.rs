@@ -78,11 +78,10 @@ fn program_compilation_error() {
     display.assert_no_error();
 }
 
-/*
-This test is disabled because some OpenGL drivers don't catch
-the linking error (even though they are supposed to)
-
+// This test is disabled because some OpenGL drivers don't catch
+// the linking error (even though they are supposed to)
 #[test]
+#[ignore]
 fn program_linking_error() {
     let display = support::build_display();
 
@@ -120,4 +119,3 @@ fn program_linking_error() {
     
     display.assert_no_error();
 }
-*/
