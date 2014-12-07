@@ -68,6 +68,32 @@ pub enum ProgramCreationError {
     ShaderTypeNotSupported,
 }
 
+impl ::std::error::Error for ProgramCreationError {
+    fn description(&self) -> &str {
+        match self {
+            &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
+                                                           shaders",
+            &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
+            &ProgramCreationError::ProgramCreationFailure => "glCreateProgram failed",
+            &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
+                                                              not supported by the backend",
+        }
+    }
+
+    fn detail(&self) -> Option<String> {
+        match self {
+            &ProgramCreationError::CompilationError(ref s) => Some(s.clone()),
+            &ProgramCreationError::LinkingError(ref s) => Some(s.clone()),
+            &ProgramCreationError::ProgramCreationFailure => None,
+            &ProgramCreationError::ShaderTypeNotSupported => None,
+        }
+    }
+
+    fn cause(&self) -> Option<&::std::error::Error> {
+        None
+    }
+}
+
 impl Program {
     /// Builds a new program.
     ///
