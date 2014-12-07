@@ -243,7 +243,7 @@ impl Context {
             };
 
             // getting the GL version and extensions
-            let opengl_es = false;
+            let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
             let version = get_gl_version(&gl);
             let capabilities = Arc::new(get_capabilities(&gl, &version, opengl_es));
             let extensions = get_extensions(&gl);
@@ -353,7 +353,7 @@ impl Context {
 
             // building the GLState, version, and extensions
             let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME: 
-            let opengl_es = false;
+            let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
             let version = get_gl_version(&gl);
             let extensions = get_extensions(&gl);
             let capabilities = Arc::new(get_capabilities(&gl, &version, opengl_es));
