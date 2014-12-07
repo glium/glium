@@ -177,14 +177,16 @@ target.finish();
 */
 
 #![feature(globs)]
-#![feature(if_let)]
 #![feature(phase)]
 #![feature(slicing_syntax)]
-#![feature(tuple_indexing)]
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
 #![deny(missing_docs)]
+
+// TODO: remove these when everything is implemented
+#![allow(dead_code)]
+#![allow(unused_variables)]
 
 #[phase(plugin)]
 extern crate gl_generator;

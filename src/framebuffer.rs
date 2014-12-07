@@ -2,7 +2,7 @@ use std::kinds::marker::ContravariantLifetime;
 use std::mem;
 use std::sync::Arc;
 
-use texture::{mod, Texture, Texture2d};
+use texture::{Texture, Texture2d};
 use uniforms::Uniforms;
 use {DisplayImpl, VertexBuffer, Program, DrawParameters, Rect, Surface, GlObject};
 use IndicesSource;

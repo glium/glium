@@ -1,9 +1,7 @@
 use gl;
 use glutin;
-use std::error::FromError;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
-use std::task::TaskBuilder;
 use GliumCreationError;
 
 enum Message {
@@ -344,7 +342,7 @@ impl Context {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
-                    tx_success.send(Err(FromError::from_error(e)));
+                    tx_success.send(Err(::std::error::FromError::from_error(e)));
                     return;
                 }
             };
