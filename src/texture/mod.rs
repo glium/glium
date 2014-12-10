@@ -633,7 +633,7 @@ impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: rem
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: image::Primitive,
+impl<T, P> Texture2dData<P> for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
     P: PixelValue + image::Pixel<T> + Clone + Copy
 {
     fn get_dimensions(&self) -> (u32, u32) {
@@ -647,11 +647,18 @@ impl<T, P> Texture2dData<P> for image::ImageBuf<P> where T: image::Primitive,
 
         let raw_data = self.into_vec();
 
-        raw_data.as_slice().chunks(width as uint).rev().flat_map(|l| l.iter())
-            .map(|l| l.clone()).collect()
+        raw_data
+            .as_slice()
+            .chunks(width as uint * image::Pixel::channel_count(None::<&P>) as uint)
+            .rev()
+            .flat_map(|row| {
+                row .chunks(image::Pixel::channel_count(None::<&P>) as uint)
+                    .map(|pixel| image::Pixel::from_slice(None::<&P>, pixel).clone())
+            })
+            .collect()
     }
 
-    fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuf<P> {
+    fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuffer<Vec<T>, T, P> {
         unimplemented!()        // TODO: 
     }
 }
@@ -664,7 +671,7 @@ impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
     }
 
     fn into_vec(self) -> Vec<image::Rgba<u8>> {
-        self.to_rgba().into_vec()
+        unimplemented!()        // TODO: 
     }
 
     fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
