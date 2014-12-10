@@ -671,7 +671,7 @@ impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
     }
 
     fn into_vec(self) -> Vec<image::Rgba<u8>> {
-        unimplemented!()        // TODO: 
+        Texture2dData::into_vec(self.to_rgba())
     }
 
     fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
