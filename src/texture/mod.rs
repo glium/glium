@@ -577,15 +577,22 @@ pub enum TextureFormat {
 
 /// Trait that describes data for a one-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture1dData<P> {
+pub trait Texture1dData<T> {
+    /// Returns the format of the pixels.
+    fn get_format(&self) -> ClientFormat;
+
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec<P>;
+    fn into_vec(self) -> Vec<T>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec<P>) -> Self;
+    fn from_vec(Vec<T>) -> Self;
 }
 
 impl<P: PixelValue> Texture1dData<P> for Vec<P> {
+    fn get_format(&self) -> ClientFormat {
+        PixelValue::get_format(None::<P>)
+    }
+
     fn into_vec(self) -> Vec<P> {
         self
     }
@@ -596,6 +603,10 @@ impl<P: PixelValue> Texture1dData<P> for Vec<P> {
 }
 
 impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
+    fn get_format(&self) -> ClientFormat {
+        PixelValue::get_format(None::<P>)
+    }
+
     fn into_vec(self) -> Vec<P> {
         self.to_vec()
     }
@@ -608,6 +619,9 @@ impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
 /// Trait that describes data for a two-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture2dData<P> {
+    /// Returns the format of the pixels.
+    fn get_format(&self) -> ClientFormat;
+
     /// Returns the dimensions of the texture.
     fn get_dimensions(&self) -> (u32, u32);
 
@@ -619,6 +633,10 @@ pub trait Texture2dData<P> {
 }
 
 impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: remove Clone
+    fn get_format(&self) -> ClientFormat {
+        PixelValue::get_format(None::<P>)
+    }
+
     fn get_dimensions(&self) -> (u32, u32) {
         (self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
     }
@@ -633,15 +651,19 @@ impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: rem
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2dData<P> for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
+impl<T, P> Texture2dData<T> for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
     P: PixelValue + image::Pixel<T> + Clone + Copy
 {
+    fn get_format(&self) -> ClientFormat {
+        PixelValue::get_format(None::<P>)
+    }
+
     fn get_dimensions(&self) -> (u32, u32) {
         use image::GenericImage;
         self.dimensions()
     }
 
-    fn into_vec(self) -> Vec<P> {
+    fn into_vec(self) -> Vec<T> {
         use image::GenericImage;
         let (width, _) = self.dimensions();
 
@@ -651,30 +673,32 @@ impl<T, P> Texture2dData<P> for image::ImageBuffer<Vec<T>, T, P> where T: image:
             .as_slice()
             .chunks(width as uint * image::Pixel::channel_count(None::<&P>) as uint)
             .rev()
-            .flat_map(|row| {
-                row .chunks(image::Pixel::channel_count(None::<&P>) as uint)
-                    .map(|pixel| image::Pixel::from_slice(None::<&P>, pixel).clone())
-            })
+            .flat_map(|row| row.iter())
+            .map(|p| p.clone())
             .collect()
     }
 
-    fn from_vec(_: Vec<P>, _: u32) -> image::ImageBuffer<Vec<T>, T, P> {
+    fn from_vec(_: Vec<T>, _: u32) -> image::ImageBuffer<Vec<T>, T, P> {
         unimplemented!()        // TODO: 
     }
 }
 
 #[cfg(feature = "image")]
-impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
+impl Texture2dData<u8> for image::DynamicImage {
+    fn get_format(&self) -> ClientFormat {
+        ClientFormat::U8U8U8U8
+    }
+
     fn get_dimensions(&self) -> (u32, u32) {
         use image::GenericImage;
         self.dimensions()
     }
 
-    fn into_vec(self) -> Vec<image::Rgba<u8>> {
+    fn into_vec(self) -> Vec<u8> {
         Texture2dData::into_vec(self.to_rgba())
     }
 
-    fn from_vec(_: Vec<image::Rgba<u8>>, _: u32) -> image::DynamicImage {
+    fn from_vec(_: Vec<u8>, _: u32) -> image::DynamicImage {
         unimplemented!()        // TODO: 
     }
 }
@@ -682,6 +706,9 @@ impl Texture2dData<image::Rgba<u8>> for image::DynamicImage {
 /// Trait that describes data for a three-dimensional texture.
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture3dData<P> {
+    /// Returns the format of the pixels.
+    fn get_format(&self) -> ClientFormat;
+
     /// Returns the dimensions of the texture.
     fn get_dimensions(&self) -> (u32, u32, u32);
 
@@ -693,6 +720,10 @@ pub trait Texture3dData<P> {
 }
 
 impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
+    fn get_format(&self) -> ClientFormat {
+        PixelValue::get_format(None::<P>)
+    }
+
     fn get_dimensions(&self) -> (u32, u32, u32) {
         (self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0) as u32,
             self.iter().next().map(|e| e.len()).unwrap_or(0) as u32, self.len() as u32)
@@ -751,10 +782,15 @@ impl TextureImplementation {
     {
         if let Some(ref data) = data {
             if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
-                array_size.unwrap_or(1) as uint != data.len()
+                array_size.unwrap_or(1) as uint != data.len() &&
+               width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
+                array_size.unwrap_or(1) as uint * 2 != data.len() &&
+               width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
+                array_size.unwrap_or(1) as uint * 3 != data.len() &&
+               width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
+                array_size.unwrap_or(1) as uint * 4 != data.len()
             {
-                panic!("Texture data has different size from \
-                        width * height * depth * array_size * elemLen");
+                panic!("Texture data size mismatch");
             }
         }
 

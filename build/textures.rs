@@ -133,6 +133,53 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 {{
             ", data_type = data_type, param = param, name = name)).unwrap();
 
+
+        // writing the `let format = ...` line
+        match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => {
+                (writeln!(dest, "let format = data.get_format();")).unwrap();
+            },
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => {
+                (writeln!(dest, "let format = data[0].get_format();")).unwrap();
+            },
+        }
+        match ty {
+            TextureType::Compressed => {
+                (write!(dest, "let format = format.to_default_compressed_format();")).unwrap();
+            },
+            TextureType::Regular | TextureType::Integral | TextureType::Unsigned => {
+                (write!(dest, "let format = format.to_default_float_format();")).unwrap();
+            },
+        };
+
+        // writing the `let (client_format, client_type) = ...` line
+        match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => {
+                (writeln!(dest, "let client_format = data.get_format();")).unwrap();
+            },
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => {
+                (writeln!(dest, "let client_format = data[0].get_format();")).unwrap();
+            },
+        }
+        (write!(dest, "let (client_format, client_type) = ")).unwrap();
+        match ty {
+            TextureType::Compressed | TextureType::Regular => {
+                (write!(dest, "client_format.to_gl_enum()")).unwrap();
+            },
+            TextureType::Integral => {
+                (write!(dest, "client_format.to_gl_enum_int().expect(\"Client format must \
+                               have an integral format\")")).unwrap();
+            },
+            TextureType::Unsigned => {
+                (write!(dest, "client_format.to_gl_enum_uint().expect(\"Client format must \
+                               have an integral format\")")).unwrap();
+            },
+        };
+        (writeln!(dest, ";")).unwrap();
+
+
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "
                     let data = data.into_vec();
@@ -170,36 +217,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                     let width = width as u32; let height = height as u32;
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
         }
-
-        // writing the `let format = ...` line
-        (writeln!(dest, "let format = PixelValue::get_format(None::<P>);")).unwrap();
-        match ty {
-            TextureType::Compressed => {
-                (write!(dest, "let format = format.to_default_compressed_format();")).unwrap();
-            },
-            TextureType::Regular | TextureType::Integral | TextureType::Unsigned => {
-                (write!(dest, "let format = format.to_default_float_format();")).unwrap();
-            },
-        };
-
-        // writing the `let (client_format, client_type) = ...` line
-        (writeln!(dest, "let client_format = PixelValue::get_format(None::<P>);")).unwrap();
-        (write!(dest, "let (client_format, client_type) = ")).unwrap();
-        match ty {
-            TextureType::Compressed | TextureType::Regular => {
-                (write!(dest, "client_format.to_gl_enum()")).unwrap();
-            },
-            TextureType::Integral => {
-                (write!(dest, "client_format.to_gl_enum_int().expect(\"Client format must \
-                               have an integral format\")")).unwrap();
-            },
-            TextureType::Unsigned => {
-                (write!(dest, "client_format.to_gl_enum_uint().expect(\"Client format must \
-                               have an integral format\")")).unwrap();
-            },
-        };
-        (writeln!(dest, ";")).unwrap();
-
         // writing the constructor
         (write!(dest, "{}(TextureImplementation::new(display, format, Some(data), \
                        client_format, client_type, ", name)).unwrap();
