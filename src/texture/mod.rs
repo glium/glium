@@ -811,13 +811,7 @@ impl TextureImplementation {
                     None => ptr::null(),
                 };
 
-                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, if width % 4 == 0 {
-                    4
-                } else if height.unwrap_or(1) % 2 == 0 {
-                    2
-                } else {
-                    1
-                });
+                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
 
                 if ctxt.state.pixel_unpack_buffer_binding.is_some() {
                     ctxt.state.pixel_unpack_buffer_binding = None;
