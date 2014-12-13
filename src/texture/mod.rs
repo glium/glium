@@ -63,6 +63,7 @@ pub trait Texture {
 ///
 /// These are all the possible formats of data when uploading to a texture.
 #[allow(missing_docs)]
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum ClientFormat {
     U8,
     U8U8,
@@ -298,6 +299,7 @@ impl ClientFormat {
 /// Some formats are marked as "guaranteed to be supported". What this means is that you are
 /// certain that the backend will use exactly these formats. If you try to use a format that
 /// is not supported by the backend, it will automatically fall back to a larger format.
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
     /// 
     ///
@@ -464,6 +466,7 @@ impl UncompressedFloatFormat {
 
 /// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedIntFormat {
     I8,
     I16,
@@ -503,6 +506,7 @@ impl UncompressedIntFormat {
 
 /// List of uncompressed pixel formats that contain unsigned integral data.
 #[allow(missing_docs)]
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedUintFormat {
     U8,
     U16,
@@ -545,6 +549,7 @@ impl UncompressedUintFormat {
 /// List of compressed texture formats.
 ///
 /// TODO: many formats are missing
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum CompressedFormat {
     /// Red/green compressed texture with one unsigned component.
     RGTCFormatU,
@@ -568,6 +573,7 @@ impl CompressedFormat {
 }
 
 /// Format of the internal representation of a texture.
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum TextureFormat {
     /// 
     UncompressedFloat(UncompressedFloatFormat),

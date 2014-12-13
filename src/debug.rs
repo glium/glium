@@ -6,7 +6,7 @@
 use gl;
 
 /// Severity of a debug message.
-#[deriving(Clone, Show, FromPrimitive, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, FromPrimitive, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Severity {
     /// Anything that isn't an error or performance issue.
@@ -25,7 +25,7 @@ pub enum Severity {
 }
 
 /// Source of a debug message.
-#[deriving(Clone, Show, FromPrimitive)]
+#[deriving(Clone, Copy, Show, FromPrimitive)]
 #[repr(u32)]
 pub enum Source {
     /// Calls to the OpenGL API.
@@ -50,7 +50,7 @@ pub enum Source {
 }
 
 /// Type of a debug message.
-#[deriving(Clone, Show, FromPrimitive)]
+#[deriving(Clone, Copy, Show, FromPrimitive)]
 #[repr(u32)]
 pub enum MessageType {
     /// An error, typically from the API

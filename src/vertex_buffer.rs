@@ -217,7 +217,7 @@ impl<T> GlObject for VertexBuffer<T> {
 /// When you create a vertex buffer, you need to pass some sort of array of data. In order for
 /// OpenGL to use this data, we must tell it some informations about each field of each
 /// element. This structure describes one such field.
-#[deriving(Show, Clone)]
+#[deriving(Show, Clone, Copy)]
 pub struct VertexAttrib {
     /// The offset, in bytes, between the start of each vertex and the attribute.
     pub offset: uint,
