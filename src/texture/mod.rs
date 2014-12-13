@@ -806,9 +806,10 @@ impl TextureImplementation {
         display.context.context.exec(proc(ctxt) {
             unsafe {
                 let data = data;
-                let data_raw: *const libc::c_void = match data {
-                    Some(data) => mem::transmute(data.as_slice().as_ptr()),
-                    None => ptr::null(),
+                let data_raw = if let Some(data) = data {
+                    data.as_ptr() as *const libc::c_void
+                } else {
+                    ptr::null()
                 };
 
                 ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
