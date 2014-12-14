@@ -70,6 +70,7 @@ pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, 
 }
 
 #[vertex_format]
+#[deriving(Copy)]
 struct Vertex {
     position: [f32, ..2],
 }

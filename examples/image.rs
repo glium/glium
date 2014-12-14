@@ -34,6 +34,7 @@ fn main() {
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
+        #[deriving(Copy)]
         struct Vertex {
             position: [f32, ..2],
             tex_coords: [f32, ..2],

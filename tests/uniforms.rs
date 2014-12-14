@@ -13,6 +13,7 @@ use glium::Surface;
 mod support;
 
 #[vertex_format]
+#[deriving(Copy)]
 struct Vertex {
     position: [f32, ..2],
 }

@@ -19,6 +19,7 @@ fn main() {
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
+        #[deriving(Copy)]
         struct Vertex {
             position: [f32, ..2],
             color: [f32, ..3],
@@ -72,6 +73,7 @@ fn main() {
 
     // creating the uniforms structure
     #[uniforms]
+    #[deriving(Copy)]
     struct Uniforms {
         matrix: [[f32, ..4], ..4],
     }

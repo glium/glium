@@ -34,6 +34,7 @@ fn build_program(display: &glium::Display) -> glium::Program {
 }
 
 #[vertex_format]
+#[deriving(Copy)]
 struct Vertex {
     position: [f32, ..2],
 }

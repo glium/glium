@@ -15,6 +15,7 @@ fn vertex_buffer_creation() {
 
     #[vertex_format]
     #[allow(dead_code)]
+    #[deriving(Copy)]
     struct Vertex {
         field1: [f32, ..3],
         field2: [f32, ..3],
@@ -37,6 +38,7 @@ fn vertex_buffer_mapping_read() {
     let display = support::build_display();
 
     #[vertex_format]
+    #[deriving(Copy)]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
@@ -62,6 +64,7 @@ fn vertex_buffer_mapping_write() {
     let display = support::build_display();
     
     #[vertex_format]
+    #[deriving(Copy)]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
@@ -92,6 +95,7 @@ fn vertex_buffer_read() {
     let display = support::build_display();
 
     #[vertex_format]
+    #[deriving(Copy)]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
@@ -117,6 +121,7 @@ fn vertex_buffer_read_slice() {
     let display = support::build_display();
 
     #[vertex_format]
+    #[deriving(Copy)]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
@@ -142,6 +147,7 @@ fn vertex_buffer_read_slice_out_of_bounds() {
     let display = support::build_display();
 
     #[vertex_format]
+    #[deriving(Copy)]
     struct Vertex {
         field1: [u8, ..2],
         field2: [u8, ..2],
