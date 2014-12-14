@@ -176,6 +176,7 @@ target.finish();
 
 */
 
+#![feature(default_type_params)]
 #![feature(globs)]
 #![feature(phase)]
 #![feature(slicing_syntax)]
@@ -850,7 +851,7 @@ impl Display {
     /// This method is always available, but is a no-op if it's not available in
     /// the implementation.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.opengl_es || ctxt.version >= &context::GlVersion(4, 1) {
                     ctxt.gl.ReleaseShaderCompiler();
@@ -865,7 +866,7 @@ impl Display {
     pub fn get_free_video_memory(&self) -> Option<uint> {
         let (tx, rx) = channel();
 
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             unsafe {
                 use std::mem;
                 let mut value: [gl::types::GLint, ..4] = mem::uninitialized();
@@ -956,7 +957,7 @@ impl Display {
         let ptr = ptr as *const DisplayImpl;
 
         // enabling the callback
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
                     if ctxt.state.enabled_debug_output_synchronous != sync {
@@ -1010,7 +1011,7 @@ impl Display {
         let (format, gltype) = texture::PixelValue::get_format(None::<P>).to_gl_enum();
 
         let (tx, rx) = channel();
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             unsafe {
                 // unbinding framebuffers
                 if ctxt.state.read_framebuffer.is_some() {
@@ -1044,7 +1045,7 @@ impl Display {
     pub fn assert_no_error(&self) {
         let (tx, rx) = channel();
 
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             tx.send(get_gl_error(ctxt));
         });
 
@@ -1064,7 +1065,7 @@ impl Display {
     pub fn synchronize(&self) {
         let (tx, rx) = channel();
 
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             unsafe { ctxt.gl.Finish(); }
             tx.send(());
         });
@@ -1078,7 +1079,7 @@ impl Display {
 impl Drop for Display {
     fn drop(&mut self) {
         // disabling callback, to avoid
-        self.context.context.exec(proc(ctxt) {
+        self.context.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.state.enabled_debug_output != Some(false) {
                     ctxt.gl.Disable(gl::DEBUG_OUTPUT);

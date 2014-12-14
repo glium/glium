@@ -25,7 +25,7 @@ impl VertexArrayObject {
         let vertex_buffer = GlObject::get_id(vertex_buffer);
         let attributes = ::program::get_attributes(program);
 
-        display.context.exec(proc(ctxt) {
+        display.context.exec(move |: ctxt| {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
@@ -87,7 +87,7 @@ impl VertexArrayObject {
 impl Drop for VertexArrayObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 // unbinding
                 if ctxt.state.vertex_array == id {

@@ -50,7 +50,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 combine_substructure: generic::combine_substructure(body),
             },
         ],
-    }.expand(ecx, meta_item, item, push);
+    }.expand(ecx, meta_item, item, |i| push(i));
 }
 
 fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,

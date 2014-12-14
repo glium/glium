@@ -6,7 +6,7 @@ use GliumCreationError;
 
 enum Message {
     EndFrame,
-    Execute(proc(CommandContext):Send),
+    Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>),
 }
 
 pub struct Context {
@@ -224,7 +224,7 @@ impl Context {
         let window = try!(window.build());
         let (tx_success, rx_success) = channel();
 
-        spawn(proc() {
+        spawn(move || {
             unsafe { window.make_current(); }
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
@@ -272,7 +272,7 @@ impl Context {
                 loop {
                     match rx_commands.recv_opt() {
                         Ok(Message::EndFrame) => break,
-                        Ok(Message::Execute(cmd)) => cmd(CommandContext {
+                        Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
                             gl: &gl,
                             state: &mut gl_state,
                             version: &version,
@@ -338,7 +338,7 @@ impl Context {
 
         let (tx_success, rx_success) = channel();
 
-        spawn(proc() {
+        spawn(move || {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
@@ -407,8 +407,8 @@ impl Context {
         )
     }
 
-    pub fn exec(&self, f: proc(CommandContext): Send) {
-        self.commands.lock().send(Message::Execute(f));
+    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
+        self.commands.lock().send(Message::Execute(box f));
     }
 
     pub fn swap_buffers(&self) {
@@ -477,7 +477,7 @@ fn get_gl_version(gl: &gl::Gl) -> GlVersion {
         let version = version.words().next().expect("glGetString(GL_VERSION) returned an empty \
                                                      string");
 
-        let mut iter = version.split(|c: char| c == '.');
+        let mut iter = version.split(move |&mut: c: char| c == '.');
         let major = iter.next().unwrap();
         let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 

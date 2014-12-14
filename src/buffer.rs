@@ -85,7 +85,7 @@ impl Buffer {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(move |: ctxt| {
             let data = data;
 
             unsafe {
@@ -124,7 +124,7 @@ impl Buffer {
         let buffer_size = elements_count * elements_size as uint;
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(move |: ctxt| {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenBuffers(1, &mut id);
@@ -177,7 +177,7 @@ impl Buffer {
         let id = self.id.clone();
         let elements_count = self.elements_count.clone();
 
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             if ctxt.opengl_es {
                 tx.send(Err("OpenGL ES doesn't support glMapBuffer"));
                 return;
@@ -225,7 +225,7 @@ impl Buffer {
         let elements_size = self.elements_size.clone();
         let (tx, rx) = channel();
 
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             if ctxt.opengl_es {
                 panic!("OpenGL ES doesn't support glGetBufferSubData");
             }
@@ -267,7 +267,7 @@ impl fmt::Show for Buffer {
 impl Drop for Buffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             if ctxt.state.array_buffer_binding == Some(id) {
                 ctxt.state.array_buffer_binding = None;
             }
@@ -331,7 +331,7 @@ pub struct Mapping<'b, T, D> {
 impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     fn drop(&mut self) {
         let id = self.buffer.id.clone();
-        self.buffer.display.context.exec(proc(ctxt) {
+        self.buffer.display.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.UnmapNamedBuffer(id);
