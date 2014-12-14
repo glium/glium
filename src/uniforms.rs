@@ -164,6 +164,7 @@ pub trait Uniforms {
 }
 
 /// Object that can be used when you don't have any uniform.
+#[deriving(Show, Copy, Clone)]
 pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {
@@ -238,7 +239,7 @@ pub struct UniformsBinder(pub proc(&mut context::CommandContext, |&str| -> Optio
 /// Function to use for out-of-bounds samples.
 ///
 /// This is how GL must handle samples that are outside the texture.
-#[deriving(Show, Clone, Hash, PartialEq, Eq)]
+#[deriving(Show, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SamplerWrapFunction {
     /// Samples at coord `x + 1` are mapped to coord `x`.
     Repeat,
@@ -261,7 +262,7 @@ impl SamplerWrapFunction {
 } 
 
 /// The function that the GPU will use when loading the value of a texel.
-#[deriving(Show, Clone, Hash, PartialEq, Eq)]
+#[deriving(Show, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SamplerFilter {
     /// The nearest texel will be loaded.
     Nearest,
@@ -293,7 +294,7 @@ impl<'t, T: texture::Texture + 't> UniformValue for Sampler<'t, T> {
 /// Behavior of a sampler.
 // TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS,
 //       GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
-#[deriving(Show, Clone, Hash, PartialEq, Eq)]
+#[deriving(Show, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
     pub wrap_function: (SamplerWrapFunction, SamplerWrapFunction, SamplerWrapFunction),

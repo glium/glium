@@ -248,7 +248,7 @@ trait GlObject {
 }
 
 /// Function that the GPU will use for blending.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Always replace the destination pixel by the source.
     ///
@@ -271,7 +271,7 @@ pub enum BlendingFunction {
 /// Culling mode.
 /// 
 /// Describes how triangles could be filtered before the fragment part.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BackfaceCullingMode {
     /// All triangles are always drawn.
     CullingDisabled,
@@ -285,7 +285,7 @@ pub enum BackfaceCullingMode {
 
 /// The function that the GPU will use to determine whether to write over an existing pixel
 ///  on the target.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
     /// 
@@ -336,7 +336,7 @@ impl DepthFunction {
 ///
 /// The usual value is `Fill`, which fills the content of polygon with the color. However other
 /// values are sometimes useful, especially for debugging purposes.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum PolygonMode {
     /// Only draw a single point at each vertex.
     ///
@@ -373,7 +373,7 @@ impl PolygonMode {
 /// };
 /// ```
 ///
-#[deriving(Clone, Show, PartialEq)]
+#[deriving(Clone, Copy, Show, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target.
@@ -536,7 +536,7 @@ impl DrawParameters {
 /// Area of a surface in pixels.
 ///
 /// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
-#[deriving(Show, Clone, Default)]
+#[deriving(Show, Clone, Copy, Default)]
 pub struct Rect {
     /// Number of pixels between the left border of the surface and the left border of
     /// the rectangle.
