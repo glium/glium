@@ -812,7 +812,7 @@ impl TextureImplementation {
         display.context.context.exec(move |: ctxt| {
             unsafe {
                 let data = data;
-                let data_raw = if let Some(data) = data {
+                let data_raw = if let Some(ref data) = data {
                     data.as_ptr() as *const libc::c_void
                 } else {
                     ptr::null()
