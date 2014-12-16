@@ -111,7 +111,7 @@ impl FrameBufferObject {
     fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
         let (tx, rx) = channel();
 
-        display.context.exec(proc(ctxt) {
+        display.context.exec(move |: ctxt| {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -134,7 +134,7 @@ impl FrameBufferObject {
 impl Drop for FrameBufferObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 // unbinding framebuffer
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -199,7 +199,7 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
     let vb_id = vertex_buffer.get_id();
     let program_id = program.get_id();
 
-    display.context.exec(proc(mut ctxt) {
+    display.context.exec(move |: mut ctxt| {
         unsafe {
             bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
@@ -211,11 +211,11 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
 
             // binding program uniforms
             let mut active_texture = gl::TEXTURE0;
-            uniforms.0(&mut ctxt, |name| {
+            uniforms.0.call((&mut ctxt, box |&: name| {
                 uniforms_locations
                     .get(name)
                     .map(|val| val.location)
-            }, &mut active_texture);
+            }, &mut active_texture));
 
             // binding VAO
             if ctxt.state.vertex_array != vao_id {
@@ -250,7 +250,7 @@ pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
         alpha as gl::types::GLclampf
     );
 
-    display.context.exec(proc(mut ctxt) {
+    display.context.exec(move |: mut ctxt| {
         bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         unsafe {
@@ -270,7 +270,7 @@ pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
     let value = value as gl::types::GLclampf;
     let fbo_id = get_framebuffer(display, framebuffer);
 
-    display.context.exec(proc(mut ctxt) {
+    display.context.exec(move |: mut ctxt| {
         bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         unsafe {
@@ -290,7 +290,7 @@ pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&Framebuffe
     let value = value as gl::types::GLint;
     let fbo_id = get_framebuffer(display, framebuffer);
 
-    display.context.exec(proc(mut ctxt) {
+    display.context.exec(move |: mut ctxt| {
         bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         unsafe {
@@ -316,7 +316,7 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
     let source = get_framebuffer(display, source);
     let target = get_framebuffer(display, target);
 
-    display.context.exec(proc(ctxt) {
+    display.context.exec(move |: ctxt| {
         unsafe {
             // trying to do a named blit if possible
             if ctxt.version >= &context::GlVersion(4, 5) {
@@ -413,7 +413,7 @@ fn initialize_fbo(display: &Arc<DisplayImpl>, fbo: &mut FrameBufferObject,
     for (slot, texture) in content.colors.iter().enumerate() {
         let tex_id = texture.clone();
 
-        display.context.exec(proc(mut ctxt) {
+        display.context.exec(move |: mut ctxt| {
             unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0 + slot as u32,

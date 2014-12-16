@@ -809,7 +809,7 @@ impl TextureImplementation {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(move |: ctxt| {
             unsafe {
                 let data = data;
                 let data_raw = if let Some(data) = data {
@@ -890,7 +890,7 @@ impl TextureImplementation {
         let my_id = self.id;
 
         let (tx, rx) = channel();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 let mut data: Vec<P> = Vec::with_capacity(pixels_count);
 
@@ -946,7 +946,7 @@ impl Drop for TextureImplementation {
         }
 
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe { ctxt.gl.DeleteTextures(1, [ id ].as_ptr()); }
         });
     }

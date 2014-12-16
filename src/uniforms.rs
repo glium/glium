@@ -169,7 +169,7 @@ pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {
     fn to_binder(&self) -> UniformsBinder {
-        UniformsBinder(proc(_, _, _) {})
+        UniformsBinder(box move |_, _, _| {})
     }
 }
 
@@ -218,12 +218,12 @@ impl<'a, T, R> Uniforms for UniformsStorage<'a, T, R> where T: UniformValue, R: 
         let value = self.1.to_binder();
         let rest = self.2.to_binder().0;
 
-        UniformsBinder(proc(ctxt, symbols, active_texture) {
-            if let Some(loc) = symbols(name.as_slice()) {
+        UniformsBinder(box move |ctxt, symbols, active_texture| {
+            if let Some(loc) = symbols.call((name.as_slice(),)) {
                 unsafe { value.bind(ctxt, loc, active_texture) };
             }   // note: ignoring if the uniform was not found in the program
 
-            rest(ctxt, symbols, active_texture);
+            rest.call((ctxt, symbols, active_texture));
         })
     }
 }
@@ -232,8 +232,8 @@ impl<'a, T, R> Uniforms for UniformsStorage<'a, T, R> where T: UniformValue, R: 
 // The field is "pub" because of framebuffer.
 // TODO: remove this hack
 #[doc(hidden)]
-pub struct UniformsBinder(pub proc(&mut context::CommandContext, |&str| -> Option<gl::types::GLint>,
-                          &mut gl::types::GLenum):Send);
+pub struct UniformsBinder(pub Box<Fn(&mut context::CommandContext, Box<Fn(&str) -> Option<gl::types::GLint>>,
+                          &mut gl::types::GLenum)+Send>);
 
 
 /// Function to use for out-of-bounds samples.
@@ -329,7 +329,7 @@ impl SamplerObject {
     pub fn new(display: &super::Display) -> SamplerObject {
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(move |: ctxt| {
             let sampler = unsafe {
                 use std::mem;
                 let mut sampler: gl::types::GLuint = mem::uninitialized();
@@ -348,7 +348,7 @@ impl SamplerObject {
 
     pub fn bind(&self, gl: gl::Gl, sampler: SamplerBehavior) {
         let id = self.id;
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 ctxt.gl.SamplerParameteri(id, gl::TEXTURE_WRAP_S,
                     sampler.wrap_function.0.to_glenum() as gl::types::GLint);
@@ -372,7 +372,7 @@ impl SamplerObject {
 impl Drop for SamplerObject {
     fn drop(&mut self) {
         let id = self.id;
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 ctxt.gl.DeleteSamplers(1, [id].as_ptr());
             }

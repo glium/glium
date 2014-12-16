@@ -13,7 +13,7 @@ struct Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 ctxt.gl.DeleteShader(id);
             }
@@ -132,7 +132,7 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(move |: ctxt| {
             unsafe {
                 let id = ctxt.gl.CreateProgram();
                 if id == 0 {
@@ -192,7 +192,7 @@ impl Program {
         let id = try!(rx.recv());
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(mut ctxt) {
+        display.context.context.exec(move |: mut ctxt| {
             unsafe {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
@@ -251,7 +251,7 @@ impl Drop for Program {
 
         // sending the destroy command
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.state.program == id {
                     ctxt.gl.UseProgram(0);
@@ -271,7 +271,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     let source_code = source_code.to_c_str();
 
     let (tx, rx) = channel();
-    display.context.context.exec(proc(ctxt) {
+    display.context.context.exec(move |: ctxt| {
         unsafe {
             if shader_type == gl::GEOMETRY_SHADER && ctxt.opengl_es {
                 tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));

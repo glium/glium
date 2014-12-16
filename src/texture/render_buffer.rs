@@ -22,7 +22,7 @@ impl RenderBuffer {
         let format = format.to_gl_enum();
         let (tx, rx) = channel();
 
-        display.context.context.exec(proc(ctxt) {
+        display.context.context.exec(move |: ctxt| {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -61,7 +61,7 @@ impl RenderBuffer {
 impl Drop for RenderBuffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(ctxt) {
+        self.display.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.state.renderbuffer == Some(id) {
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
