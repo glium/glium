@@ -84,22 +84,22 @@ pub struct GLState {
     pub clear_stencil: gl::types::GLint,
 
     /// The latest buffer bound to `GL_ARRAY_BUFFER`.
-    pub array_buffer_binding: Option<gl::types::GLuint>,
+    pub array_buffer_binding: gl::types::GLuint,
 
     /// The latest buffer bound to `GL_PIXEL_PACK_BUFFER`.
-    pub pixel_pack_buffer_binding: Option<gl::types::GLuint>,
+    pub pixel_pack_buffer_binding: gl::types::GLuint,
 
     /// The latest buffer bound to `GL_PIXEL_UNPACK_BUFFER`.
-    pub pixel_unpack_buffer_binding: Option<gl::types::GLuint>,
+    pub pixel_unpack_buffer_binding: gl::types::GLuint,
 
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
-    pub read_framebuffer: Option<gl::types::GLuint>,
+    pub read_framebuffer: gl::types::GLuint,
 
     /// The latest buffer bound to `GL_DRAW_FRAMEBUFFER`.
-    pub draw_framebuffer: Option<gl::types::GLuint>,
+    pub draw_framebuffer: gl::types::GLuint,
 
     /// The latest render buffer bound with `glBindRenderbuffer`.
-    pub renderbuffer: Option<gl::types::GLuint>,
+    pub renderbuffer: gl::types::GLuint,
 
     /// The latest values passed to `glBlendFunc`.
     pub blend_func: (gl::types::GLenum, gl::types::GLenum),
@@ -144,12 +144,12 @@ impl GLState {
             clear_color: (0.0, 0.0, 0.0, 0.0),
             clear_depth: 1.0,
             clear_stencil: 0,
-            array_buffer_binding: None,
-            pixel_pack_buffer_binding: None,
-            pixel_unpack_buffer_binding: None,
-            read_framebuffer: None,
-            draw_framebuffer: None,
-            renderbuffer: None,
+            array_buffer_binding: 0,
+            pixel_pack_buffer_binding: 0,
+            pixel_unpack_buffer_binding: 0,
+            read_framebuffer: 0,
+            draw_framebuffer: 0,
+            renderbuffer: 0,
             depth_func: gl::LESS,
             blend_func: (0, 0),     // no default specified
             viewport: viewport,

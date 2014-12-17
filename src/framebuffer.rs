@@ -138,25 +138,25 @@ impl Drop for FrameBufferObject {
             unsafe {
                 // unbinding framebuffer
                 if ctxt.version >= &context::GlVersion(3, 0) {
-                    if ctxt.state.draw_framebuffer == Some(id) && ctxt.state.read_framebuffer == Some(id) {
+                    if ctxt.state.draw_framebuffer == id && ctxt.state.read_framebuffer == id {
                         ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                        ctxt.state.draw_framebuffer = None;
-                        ctxt.state.read_framebuffer = None;
+                        ctxt.state.draw_framebuffer = 0;
+                        ctxt.state.read_framebuffer = 0;
 
-                    } else if ctxt.state.draw_framebuffer == Some(id) {
+                    } else if ctxt.state.draw_framebuffer == id {
                         ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-                        ctxt.state.draw_framebuffer = None;
+                        ctxt.state.draw_framebuffer = 0;
 
-                    } else if ctxt.state.read_framebuffer == Some(id) {
+                    } else if ctxt.state.read_framebuffer == id {
                         ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                        ctxt.state.read_framebuffer = None;
+                        ctxt.state.read_framebuffer = 0;
                     }
 
                 } else {
-                    if ctxt.state.draw_framebuffer == Some(id) || ctxt.state.read_framebuffer == Some(id) {
+                    if ctxt.state.draw_framebuffer == id || ctxt.state.read_framebuffer == id {
                         ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                        ctxt.state.draw_framebuffer = None;
-                        ctxt.state.read_framebuffer = None;
+                        ctxt.state.draw_framebuffer = 0;
+                        ctxt.state.read_framebuffer = 0;
                     }
                 }
 
@@ -224,9 +224,9 @@ pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
             }
 
             // binding vertex buffer
-            if ctxt.state.array_buffer_binding != Some(vb_id) {
+            if ctxt.state.array_buffer_binding != vb_id {
                 ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vb_id);
-                ctxt.state.array_buffer_binding = Some(vb_id);
+                ctxt.state.array_buffer_binding = vb_id;
             }
 
             // sync-ing parameters
@@ -333,26 +333,26 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
             }
 
             // binding source framebuffer
-            if ctxt.state.read_framebuffer != source {
+            if ctxt.state.read_framebuffer != source.unwrap_or(0) {
                 if ctxt.version >= &context::GlVersion(3, 0) {
                     ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, source.unwrap_or(0));
-                    ctxt.state.read_framebuffer = source;
+                    ctxt.state.read_framebuffer = source.unwrap_or(0);
 
                 } else {
                     ctxt.gl.BindFramebufferEXT(gl::READ_FRAMEBUFFER_EXT, source.unwrap_or(0));
-                    ctxt.state.read_framebuffer = source;
+                    ctxt.state.read_framebuffer = source.unwrap_or(0);
                 }
             }
 
             // binding target framebuffer
-            if ctxt.state.draw_framebuffer != target {
+            if ctxt.state.draw_framebuffer != target.unwrap_or(0) {
                 if ctxt.version >= &context::GlVersion(3, 0) {
                     ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, target.unwrap_or(0));
-                    ctxt.state.draw_framebuffer = target;
+                    ctxt.state.draw_framebuffer = target.unwrap_or(0);
 
                 } else {
                     ctxt.gl.BindFramebufferEXT(gl::DRAW_FRAMEBUFFER_EXT, target.unwrap_or(0));
-                    ctxt.state.draw_framebuffer = target;
+                    ctxt.state.draw_framebuffer = target.unwrap_or(0);
                 }
             }
 
@@ -448,15 +448,17 @@ fn initialize_fbo(display: &Arc<DisplayImpl>, fbo: &mut FrameBufferObject,
 fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: Option<gl::types::GLuint>,
                     draw: bool, read: bool)
 {
+    let fbo_id = fbo_id.unwrap_or(0);
+
     if draw && ctxt.state.draw_framebuffer != fbo_id {
         unsafe {
             if ctxt.version >= &context::GlVersion(3, 0) {
-                ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id.unwrap_or(0));
-                ctxt.state.draw_framebuffer = fbo_id.clone();
+                ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
             } else {
-                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
-                ctxt.state.draw_framebuffer = fbo_id.clone();
-                ctxt.state.read_framebuffer = fbo_id.clone();
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
             }
         }
     }
@@ -464,12 +466,12 @@ fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: Option<gl::types
     if read && ctxt.state.read_framebuffer != fbo_id {
         unsafe {
             if ctxt.version >= &context::GlVersion(3, 0) {
-                ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id.unwrap_or(0));
-                ctxt.state.read_framebuffer = fbo_id.clone();
+                ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
+                ctxt.state.read_framebuffer = fbo_id;
             } else {
-                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
-                ctxt.state.draw_framebuffer = fbo_id.clone();
-                ctxt.state.read_framebuffer = fbo_id.clone();
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
             }
         }
     }

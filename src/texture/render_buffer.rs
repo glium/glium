@@ -44,7 +44,7 @@ impl RenderBuffer {
 
                 } else {
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
-                    ctxt.state.renderbuffer = Some(id);
+                    ctxt.state.renderbuffer = id;
                     ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format, width as gl::types::GLsizei,
                                            height as gl::types::GLsizei);
                 }
@@ -63,9 +63,9 @@ impl Drop for RenderBuffer {
         let id = self.id.clone();
         self.display.context.exec(move |: ctxt| {
             unsafe {
-                if ctxt.state.renderbuffer == Some(id) {
+                if ctxt.state.renderbuffer == id {
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
-                    ctxt.state.renderbuffer = None;
+                    ctxt.state.renderbuffer = 0;
                 }
 
                 if ctxt.version >= &context::GlVersion(3, 0) {
