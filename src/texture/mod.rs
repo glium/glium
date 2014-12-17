@@ -820,8 +820,8 @@ impl TextureImplementation {
 
                 ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
 
-                if ctxt.state.pixel_unpack_buffer_binding.is_some() {
-                    ctxt.state.pixel_unpack_buffer_binding = None;
+                if ctxt.state.pixel_unpack_buffer_binding != 0 {
+                    ctxt.state.pixel_unpack_buffer_binding = 0;
                     ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
                 }
 

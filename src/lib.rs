@@ -1014,14 +1014,14 @@ impl Display {
         self.context.context.exec(move |: ctxt| {
             unsafe {
                 // unbinding framebuffers
-                if ctxt.state.read_framebuffer.is_some() {
+                if ctxt.state.read_framebuffer != 0 {
                     if ctxt.version >= &context::GlVersion(3, 0) {
                         ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                        ctxt.state.read_framebuffer = None;
+                        ctxt.state.read_framebuffer = 0;
                     } else {
                         ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                        ctxt.state.draw_framebuffer = None;
-                        ctxt.state.read_framebuffer = None;
+                        ctxt.state.draw_framebuffer = 0;
+                        ctxt.state.read_framebuffer = 0;
                     }
                 }
 

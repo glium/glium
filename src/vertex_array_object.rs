@@ -35,9 +35,9 @@ impl VertexArrayObject {
                 ctxt.state.vertex_array = id;
 
                 // binding vertex buffer
-                if ctxt.state.array_buffer_binding != Some(vertex_buffer) {
+                if ctxt.state.array_buffer_binding != vertex_buffer {
                     ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
-                    ctxt.state.array_buffer_binding = Some(vertex_buffer);
+                    ctxt.state.array_buffer_binding = vertex_buffer;
                 }
 
                 // binding index buffer
