@@ -98,6 +98,10 @@ pub struct GLState {
     /// The latest buffer bound to `GL_DRAW_FRAMEBUFFER`.
     pub draw_framebuffer: gl::types::GLuint,
 
+    /// The latest values passed to `glReadBuffer` with the default framebuffer.
+    /// `None` means "unknown".
+    pub default_framebuffer_read: Option<gl::types::GLenum>,
+
     /// The latest render buffer bound with `glBindRenderbuffer`.
     pub renderbuffer: gl::types::GLuint,
 
@@ -149,6 +153,7 @@ impl GLState {
             pixel_unpack_buffer_binding: 0,
             read_framebuffer: 0,
             draw_framebuffer: 0,
+            default_framebuffer_read: None,
             renderbuffer: 0,
             depth_func: gl::LESS,
             blend_func: (0, 0),     // no default specified

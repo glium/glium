@@ -1026,6 +1026,12 @@ impl Display {
                     }
                 }
 
+                // adjusting glReadBuffer
+                if ctxt.state.default_framebuffer_read != Some(gl::FRONT_LEFT) {
+                    ctxt.gl.ReadBuffer(gl::FRONT_LEFT);
+                    ctxt.state.default_framebuffer_read = Some(gl::FRONT_LEFT);
+                }
+
                 // reading
                 let mut data: Vec<P> = Vec::with_capacity(pixels_count);
                 ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
