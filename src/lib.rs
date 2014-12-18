@@ -44,6 +44,7 @@ extern crate glium_macros;
 # extern crate glium;
 # fn main() {
 #[vertex_format]
+#[deriving(Copy)]
 struct Vertex {
     position: [f32, ..2],
     color: [f32, ..3],
@@ -993,12 +994,12 @@ impl Display {
     ///
     /// ## Example
     ///
-    /// ```
+    /// ```noçrun
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # use glium::DisplayBuild;
     /// # fn main() {
-    /// # let display = glutin::HeadlessRendererBuilder::new(1024, 768).build_glium().unwrap();
+    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
     /// # }
     /// ```

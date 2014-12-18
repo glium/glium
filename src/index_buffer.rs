@@ -39,13 +39,11 @@ impl IndexBuffer {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate glium;
     /// # extern crate glutin;
-    /// # use glium::DisplayBuild;
     /// # fn main() {
-    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
-    /// #  .build_glium().unwrap();
+    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let index_buffer = glium::IndexBuffer::new(&display,
     ///     glium::index_buffer::TrianglesList(vec![0u8, 1, 2, 1, 3, 4, 2, 4, 3]));
     /// # }

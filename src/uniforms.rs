@@ -33,47 +33,7 @@ let uniforms = Uniforms {
 
 Each field must implement the `UniformValue` trait.
 
-## Textures and samplers
-
-To use a texture, write a `&Texture2d` like a regular uniform value.
-
-To use a texture with a sampler, write a `Sampler` object.
-
-Example:
-
-```no_run
-# #![feature(phase)]
-# #[phase(plugin)]
-# extern crate glium_macros;
-# extern crate glium;
-# fn main() {
-#[uniforms]
-struct Uniforms<'a> {
-    texture: glium::uniforms::Sampler<'a, glium::Texture2d>,
-    matrix: [[f32, ..4], ..4],
-}
-
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let tex = unsafe { std::mem::uninitialized() };
-# let matrix = unsafe { std::mem::uninitialized() };
-let uniforms = Uniforms {
-    texture: glium::uniforms::Sampler(&tex, glium::uniforms::SamplerBehavior {
-        wrap_function: (
-            glium::uniforms::SamplerWrapFunction::Repeat,
-            glium::uniforms::SamplerWrapFunction::Repeat,
-            glium::uniforms::SamplerWrapFunction::Repeat
-        ),
-        minify_filter: glium::uniforms::SamplerFilter::Linear,
-        .. std::default::Default::default()
-    }),
-    matrix: matrix,
-};
-# }
-```
-
-
 */
-
 use {gl, context, texture};
 use cgmath;
 use nalgebra;
