@@ -4,7 +4,7 @@ version = "0.0.2"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = "High-level and safe OpenGL wrapper."
 keywords = ["opengl", "gamedev"]
-documentation = "http://tomaka.github.io/glium-docs/glium/index.html"
+documentation = "http://tomaka.github.io/glium"
 license = "Apache"
 build = "build/main.rs"
 
