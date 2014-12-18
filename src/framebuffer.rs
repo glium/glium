@@ -32,7 +32,7 @@ pub struct FrameBuffer<'a> {
 
 impl<'a> FrameBuffer<'a> {
     /// Creates an empty framebuffer.
-    pub fn new<'a>(display: &::Display) -> FrameBuffer<'a> {
+    pub fn new(display: &::Display) -> FrameBuffer<'a> {
         FrameBuffer {
             display: display.context.clone(),
             attachments: FramebufferAttachments {

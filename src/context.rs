@@ -378,7 +378,7 @@ impl Context {
 
             loop {
                 match rx_commands.recv_opt() {
-                    Ok(Message::Execute(cmd)) => cmd(CommandContext {
+                    Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
                         gl: &gl,
                         state: &mut gl_state,
                         version: &version,

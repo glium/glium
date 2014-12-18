@@ -13,8 +13,6 @@ mod support;
 
 #[test]
 fn test() {
-    use glium::DisplayBuild;
-
     let display = support::build_display();
 
     // building the vertex buffer, which contains all the vertices that we will draw

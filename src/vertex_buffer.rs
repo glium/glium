@@ -27,22 +27,21 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```no_run
     /// # #![feature(phase)]
     /// # #[phase(plugin)]
     /// # extern crate glium_macros;
     /// # extern crate glium;
     /// # extern crate glutin;
-    /// # use glium::DisplayBuild;
     /// # fn main() {
     /// #[vertex_format]
+    /// #[deriving(Copy)]
     /// struct Vertex {
     ///     position: [f32, ..3],
     ///     texcoords: [f32, ..2],
     /// }
     ///
-    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
-    /// #   .build_glium().unwrap();
+    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let vertex_buffer = glium::VertexBuffer::new(&display, vec![
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },
@@ -86,13 +85,12 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```no_run
     /// # #![feature(phase)]
     /// # #[phase(plugin)]
     /// # extern crate glium_macros;
     /// # extern crate glium;
     /// # extern crate glutin;
-    /// # use glium::DisplayBuild;
     /// # fn main() {
     /// let bindings = vec![
     ///     ("position".to_string(), glium::vertex_buffer::VertexAttrib {
@@ -107,8 +105,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///     }),
     /// ];
     ///
-    /// # let display: glium::Display = glutin::HeadlessRendererBuilder::new(1024, 768)
-    /// #   .build_glium().unwrap();
+    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let data = vec![
     ///     1.0, -0.3, 409.0,
     ///     -0.4, 2.8, 715.0f32
