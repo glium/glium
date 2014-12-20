@@ -30,7 +30,7 @@ pub use self::render_buffer::RenderBuffer;
 mod pixel;
 mod render_buffer;
 
-include!(concat!(env!("OUT_DIR"), "/textures.rs"))
+include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
 /// Trait that describes a texture.
 pub trait Texture {
