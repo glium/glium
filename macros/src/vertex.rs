@@ -1,10 +1,8 @@
-use std::fmt;
-use std::from_str::FromStr;
 use syntax::ast;
 use syntax::ext::base;
 use syntax::ext::build::AstBuilder;
 use syntax::ext::deriving::generic;
-use syntax::{attr, codemap};
+use syntax::codemap;
 use syntax::parse::token;
 use syntax::ptr::P;
 
@@ -46,19 +44,20 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     ecx.attribute(span.clone(), ecx.meta_list(span.clone(),
                         token::InternedString::new("allow"),
                         vec![ecx.meta_word(span.clone(),
-                                token::InternedString::new("dead_assignment"))]
+                                token::InternedString::new("unused_assignments"))]
                     ))
                 ],
                 combine_substructure: generic::combine_substructure(body),
             },
         ],
-    }.expand(ecx, meta_item, item, push);
+    }.expand(ecx, meta_item, item, |i| push(i));
 }
 
 fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         substr: &generic::Substructure) -> P<ast::Expr>
 {
     let ecx: &base::ExtCtxt = ecx;
+    let self_ty = &substr.type_ident;
 
     match substr.fields {
         &generic::StaticStruct(ref definition, generic::Named(ref fields)) => {
@@ -69,23 +68,28 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     let ident_str = ident_str.get();
 
                     quote_expr!(ecx, {
-                        bindings.insert($ident_str.to_string(), (
-                            GLDataTuple::get_gl_type(None::<$elem_type>),
-                            GLDataTuple::get_num_elems(None::<$elem_type>),
-                            offset_sum
-                        ));
+                        let offset = {
+                            let dummy: &$self_ty = unsafe { mem::transmute(0u) };
+                            let dummy_field = &dummy.$ident;
+                            let dummy_field: uint = unsafe { mem::transmute(dummy_field) };
+                            dummy_field
+                        };
 
-                        offset_sum += mem::size_of::<$elem_type>();
+                        bindings.push(($ident_str.to_string(), VertexAttrib {
+                            offset: offset,
+                            data_type: GLDataTuple::get_gl_type(None::<$elem_type>),
+                            elements_count: GLDataTuple::get_num_elems(None::<$elem_type>) as u32,
+                        }));
                     })
 
                 }).collect::<Vec<P<ast::Expr>>>();
 
             quote_expr!(ecx, {
+                use glium::vertex_buffer::VertexAttrib;
                 use glium::GLDataTuple;
                 use std::mem;
 
-                let mut bindings = { use std::collections::HashMap; HashMap::new() };
-                let mut offset_sum = 0;
+                let mut bindings = Vec::new();
                 $content;
                 bindings
             })
@@ -94,7 +98,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         _ => {
             ecx.span_err(span, "Unable to implement `glium::VertexFormat::build_bindings` \
                                 on a non-structure");
-            ecx.expr_lit(span, ast::LitNil)
+            ecx.expr_int(span, 0)
         }
     }
 }

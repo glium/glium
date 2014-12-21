@@ -1,24 +1,36 @@
 #![feature(phase)]
-#![feature(unboxed_closures)]
-
-#[phase(plugin)]
-extern crate glium_macros;
 
 extern crate glutin;
 extern crate glium;
+extern crate test;
+
+#[phase(plugin)]
+extern crate glium_macros;
 
 use glium::Surface;
 
 mod support;
 
-#[test]
-fn test() {
+#[bench]
+fn clear_color(bencher: &mut test::Bencher) {
+    let display = support::build_display();
+
+    bencher.iter(|| {
+        let mut target = display.draw();
+        target.clear_color(1.0, 0.0, 0.0, 1.0);
+        target.finish();
+
+        display.synchronize();
+    });
+}
+
+#[bench]
+fn triangle(bencher: &mut test::Bencher) {
     let display = support::build_display();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
         struct Vertex {
             position: [f32, ..2],
             color: [f32, ..3],
@@ -76,20 +88,22 @@ fn test() {
         matrix: [[f32, ..4], ..4],
     }
     
-    // building the uniforms
-    let uniforms = Uniforms {
-        matrix: [
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [0.0, 0.0, 0.0, 1.0f32]
-        ]
-    };
+    bencher.iter(|| {
+        // building the uniforms
+        let uniforms = Uniforms {
+            matrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0f32]
+            ]
+        };
 
-    // drawing a frame
-    let mut target = display.draw();
-    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
-    target.finish();
-    
-    display.assert_no_error();
+        let mut target = display.draw();
+        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms,
+                    &std::default::Default::default());
+        target.finish();
+
+        display.synchronize();
+    });
 }

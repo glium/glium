@@ -1,10 +1,8 @@
-use std::fmt;
-use std::from_str::FromStr;
 use syntax::ast;
 use syntax::ext::base;
 use syntax::ext::build::AstBuilder;
 use syntax::ext::deriving::generic;
-use syntax::{attr, codemap};
+use syntax::codemap;
 use syntax::parse::token;
 use syntax::ptr::P;
 
@@ -39,7 +37,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 combine_substructure: generic::combine_substructure(body),
             },
         ],
-    }.expand(ecx, meta_item, item, push);
+    }.expand(ecx, meta_item, item, |i| push(i));
 }
 
 fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
@@ -50,54 +48,54 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
     match substr.fields {
         &generic::Struct(ref fields) => {
             let mut declarations = Vec::new();
-            let mut linkers = Vec::new();
 
-            for field in fields.iter() {
+            for (index, field) in fields.iter().enumerate() {
                 let ref self_ = field.self_;
                 let ident = match field.name {
                     Some(i) => i,
                     None => {
                         ecx.span_err(span, "Unable to implement `glium::uniforms::Uniforms` \
                                             on a structure with unnamed fields");
-                        return ecx.expr_lit(span, ast::LitNil);
+                        return ecx.expr_int(span, 0);
                     }
                 };
                 let ident_str = token::get_ident(ident);
                 let ident_str = ident_str.get();
 
-                declarations.push(quote_stmt!(ecx,
-                    let $ident = $self_.to_binder();
-                ));
+                if index == 0 {
+                    declarations.push(quote_stmt!(ecx,
+                        let uniforms = {
+                            use glium::uniforms::UniformsStorage;
+                            UniformsStorage::new($ident_str, $self_)
+                        };
+                    ));
 
-                linkers.push(quote_expr!(ecx, {
-                    gl.ActiveTexture(active_texture as u32);
-
-                    match loc_getter($ident_str) {
-                        Some(loc) => {
-                            let v = $ident.get_proc();
-                            v(gl, loc, &mut active_texture);
-                        },
-                        None => ()
-                    };
-                }));
+                } else {
+                    declarations.push(quote_stmt!(ecx,
+                        let uniforms = uniforms.add($ident_str, $self_);
+                    ));
+                }
             }
 
-            quote_expr!(ecx, {
-                use glium::uniforms::UniformValue;
-
-                $declarations
-
-                ::glium::uniforms::UniformsBinder(proc(gl, loc_getter) {
-                    let mut active_texture = 0x84C0; // gl::TEXTURE0
-                    $linkers
+            let end = if declarations.len() == 0 {
+                quote_expr!(ecx, {
+                    use glium::uniforms::EmptyUniforms;
+                    EmptyUniforms
                 })
+            } else {
+                quote_expr!(ecx, uniforms)
+            };
+
+            quote_expr!(ecx, {
+                $declarations
+                $end.to_binder()
             })
         },
 
         _ => {
             ecx.span_err(span, "Unable to implement `glium::uniforms::Uniforms` \
                                 on a non-structure");
-            ecx.expr_lit(span, ast::LitNil)
+            ecx.expr_int(span, 0)
         }
     }
 }

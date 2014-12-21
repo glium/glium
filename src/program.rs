@@ -2,7 +2,8 @@ use gl;
 use std::{fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::Arc;
-use {Display, DisplayImpl};
+use {Display, DisplayImpl, GlObject};
+use context::CommandContext;
 
 struct Shader {
     display: Arc<DisplayImpl>,
@@ -12,8 +13,10 @@ struct Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
-            gl.DeleteShader(id);
+        self.display.context.exec(move |: ctxt| {
+            unsafe {
+                ctxt.gl.DeleteShader(id);
+            }
         });
     }
 }
@@ -24,7 +27,27 @@ pub struct Program {
     #[allow(dead_code)]
     shaders: Vec<Shader>,
     id: gl::types::GLuint,
-    uniforms: Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>>     // location, type and size of each uniform, ordered by name
+    uniforms: Arc<HashMap<String, Uniform>>,
+    attributes: Arc<HashMap<String, Attribute>>,
+}
+
+/// Informations about a uniform (except its name).
+///
+/// Internal struct. Not public.
+struct Uniform {
+    pub location: gl::types::GLint,
+    pub ty: gl::types::GLenum,
+    pub size: gl::types::GLint,
+}
+
+/// Informations about an attribute of a program (except its name).
+///
+/// Internal struct. Not public.
+#[deriving(Show)]
+struct Attribute {
+    pub location: gl::types::GLint,
+    pub ty: gl::types::GLenum,
+    pub size: gl::types::GLint,
 }
 
 /// Error that can be triggered when creating a `Program`.
@@ -45,6 +68,32 @@ pub enum ProgramCreationError {
     ShaderTypeNotSupported,
 }
 
+impl ::std::error::Error for ProgramCreationError {
+    fn description(&self) -> &str {
+        match self {
+            &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
+                                                           shaders",
+            &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
+            &ProgramCreationError::ProgramCreationFailure => "glCreateProgram failed",
+            &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
+                                                              not supported by the backend",
+        }
+    }
+
+    fn detail(&self) -> Option<String> {
+        match self {
+            &ProgramCreationError::CompilationError(ref s) => Some(s.clone()),
+            &ProgramCreationError::LinkingError(ref s) => Some(s.clone()),
+            &ProgramCreationError::ProgramCreationFailure => None,
+            &ProgramCreationError::ShaderTypeNotSupported => None,
+        }
+    }
+
+    fn cause(&self) -> Option<&::std::error::Error> {
+        None
+    }
+}
+
 impl Program {
     /// Builds a new program.
     ///
@@ -61,7 +110,8 @@ impl Program {
     /// ```no_run
     /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
     /// # let vertex_source = ""; let fragment_source = ""; let geometry_source = "";
-    /// let program = glium::Program::new(&display, vertex_source, fragment_source, Some(geometry_source));
+    /// let program = glium::Program::new(&display, vertex_source, fragment_source,
+    ///     Some(geometry_source));
     /// ```
     /// 
     #[experimental = "The list of shaders and the result error will probably change"]
@@ -71,7 +121,7 @@ impl Program {
         let mut shaders_store = Vec::new();
         shaders_store.push(try!(build_shader(display, gl::VERTEX_SHADER, vertex_shader)));
         match geometry_shader {
-            Some(gs) => shaders_store.push(try!(build_geometry_shader(display, gs))),
+            Some(gs) => shaders_store.push(try!(build_shader(display, gl::GEOMETRY_SHADER, gs))),
             None => ()
         }
         shaders_store.push(try!(build_shader(display, gl::FRAGMENT_SHADER, fragment_shader)));
@@ -82,45 +132,51 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.context.exec(move |: ctxt| {
             unsafe {
-                let id = gl.CreateProgram();
+                let id = ctxt.gl.CreateProgram();
                 if id == 0 {
-                    tx.send(Err(ProgramCreationFailure));
+                    tx.send(Err(ProgramCreationError::ProgramCreationFailure));
                     return;
                 }
 
                 // attaching shaders
                 for sh in shaders_ids.iter() {
-                    gl.AttachShader(id, sh.clone());
+                    ctxt.gl.AttachShader(id, sh.clone());
                 }
 
                 // linking and checking for errors
-                gl.LinkProgram(id);
+                ctxt.gl.LinkProgram(id);
                 {   let mut link_success: gl::types::GLint = mem::uninitialized();
-                    gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
+                    ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
                     if link_success == 0 {
-                        match gl.GetError() {
+                        use ProgramCreationError::LinkingError;
+
+                        match ctxt.gl.GetError() {
                             gl::NO_ERROR => (),
                             gl::INVALID_VALUE => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered GL_INVALID_VALUE"))));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered \
+                                                                  GL_INVALID_VALUE"))));
                                 return;
                             },
                             gl::INVALID_OPERATION => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered GL_INVALID_OPERATION"))));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered \
+                                                                  GL_INVALID_OPERATION"))));
                                 return;
                             },
                             _ => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered an unknown error"))));
+                                tx.send(Err(LinkingError(format!("glLinkProgram triggered an \
+                                                                  unknown error"))));
                                 return;
                             }
                         };
 
                         let mut error_log_size: gl::types::GLint = mem::uninitialized();
-                        gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+                        ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
                         let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
-                        gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size, error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+                        ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
+                            error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                         error_log.set_len(error_log_size as uint);
 
                         let msg = String::from_utf8(error_log).unwrap();
@@ -136,66 +192,74 @@ impl Program {
         let id = try!(rx.recv());
 
         let (tx, rx) = channel();
-        display.context.context.exec(proc(gl, _state) {
+        display.context.context.exec(move |: mut ctxt| {
             unsafe {
-                // reflecting program uniforms
-                let mut uniforms = HashMap::new();
-
-                let mut active_uniforms: gl::types::GLint = mem::uninitialized();
-                gl.GetProgramiv(id, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
-
-                for uniform_id in range(0, active_uniforms) {
-                    let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
-                    let mut uniform_name_tmp_len = 63;
-
-                    let mut data_type: gl::types::GLenum = mem::uninitialized();
-                    let mut data_size: gl::types::GLint = mem::uninitialized();
-                    gl.GetActiveUniform(id, uniform_id as gl::types::GLuint, uniform_name_tmp_len, &mut uniform_name_tmp_len, &mut data_size, &mut data_type, uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
-                    uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
-
-                    let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
-                    let location = gl.GetUniformLocation(id, uniform_name.to_c_str().unwrap());
-
-                    uniforms.insert(uniform_name, (location, data_type, data_size));
-                }
-
-                tx.send(Arc::new(uniforms));
+                tx.send((
+                    reflect_uniforms(&mut ctxt, id),
+                    reflect_attributes(&mut ctxt, id)
+                ))
             }
         });
+
+        let (uniforms, attributes) = rx.recv();
 
         Ok(Program {
             display: display.context.clone(),
             shaders: shaders_store,
             id: id,
-            uniforms: rx.recv(),
+            uniforms: Arc::new(uniforms),
+            attributes: Arc::new(attributes),
         })
     }
 }
 
 impl fmt::Show for Program {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         (format!("Program #{}", self.id)).fmt(formatter)
     }
 }
 
-pub fn get_program_id(program: &Program) -> gl::types::GLuint {
-    program.id
+impl GlObject for Program {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
 }
 
-pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, (gl::types::GLint, gl::types::GLenum, gl::types::GLint)>> {
+// TODO: remove this hack
+pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform>>
+{
     program.uniforms.clone()
+}
+
+// TODO: remove this hack
+pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute>>
+{
+    program.attributes.clone()
 }
 
 impl Drop for Program {
     fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, state) {
-            if state.program == id {
-                gl.UseProgram(0);
-                state.program = 0;
+        // removing VAOs which contain this program
+        {
+            let mut vaos = self.display.vertex_array_objects.lock();
+            let to_delete = vaos.keys().filter(|&&(_, _, p)| p == self.id)
+                .map(|k| k.clone()).collect::<Vec<_>>();
+            for k in to_delete.into_iter() {
+                vaos.remove(&k);
             }
+        }
 
-            gl.DeleteProgram(id);
+        // sending the destroy command
+        let id = self.id.clone();
+        self.display.context.exec(move |: ctxt| {
+            unsafe {
+                if ctxt.state.program == id {
+                    ctxt.gl.UseProgram(0);
+                    ctxt.state.program = 0;
+                }
+
+                ctxt.gl.DeleteProgram(id);
+            }
         });
     }
 }
@@ -207,36 +271,42 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     let source_code = source_code.to_c_str();
 
     let (tx, rx) = channel();
-    display.context.context.exec(proc(gl, _state) {
+    display.context.context.exec(move |: ctxt| {
         unsafe {
-            let id = gl.CreateShader(shader_type);
-
-            if id == 0 {
-                tx.send(Err(ShaderTypeNotSupported));
+            if shader_type == gl::GEOMETRY_SHADER && ctxt.opengl_es {
+                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
                 return;
             }
 
-            gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
-            gl.CompileShader(id);
+            let id = ctxt.gl.CreateShader(shader_type);
+
+            if id == 0 {
+                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
+                return;
+            }
+
+            ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
+            ctxt.gl.CompileShader(id);
 
             // checking compilation success
             let compilation_success = {
                 let mut compilation_success: gl::types::GLint = mem::uninitialized();
-                gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
+                ctxt.gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
                 compilation_success
             };
 
             if compilation_success == 0 {
                 // compilation error
                 let mut error_log_size: gl::types::GLint = mem::uninitialized();
-                gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+                ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
                 let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
-                gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size, error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+                ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
+                    error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
                 error_log.set_len(error_log_size as uint);
 
                 let msg = String::from_utf8(error_log).unwrap();
-                tx.send(Err(CompilationError(msg)));
+                tx.send(Err(ProgramCreationError::CompilationError(msg)));
                 return;
             }
 
@@ -252,16 +322,67 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     })
 }
 
-#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Shader, ProgramCreationError>
+unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint)
+    -> HashMap<String, Uniform>
 {
-    build_shader(display, gl::GEOMETRY_SHADER, source_code)
+    // reflecting program uniforms
+    let mut uniforms = HashMap::new();
+
+    let mut active_uniforms: gl::types::GLint = mem::uninitialized();
+    ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
+
+    for uniform_id in range(0, active_uniforms) {
+        let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
+        let mut uniform_name_tmp_len = 63;
+
+        let mut data_type: gl::types::GLenum = mem::uninitialized();
+        let mut data_size: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
+            &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
+            uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+        uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
+
+        let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
+        let location = ctxt.gl.GetUniformLocation(program, uniform_name.to_c_str().into_inner());
+
+        uniforms.insert(uniform_name, Uniform {
+            location: location, 
+            ty: data_type, 
+            size: data_size
+        });
+    }
+
+    uniforms
 }
 
-#[cfg(target_os = "android")]
-fn build_geometry_shader<S: ToCStr>(display: &Display, source_code: S)
-    -> Result<Shader, ProgramCreationError>
+unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLuint)
+    -> HashMap<String, Attribute>
 {
-    Err(ShaderTypeNotSupported)
+    let mut attributes = HashMap::new();
+
+    let mut active_attributes: gl::types::GLint = mem::uninitialized();
+    ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
+
+    for attribute_id in range(0, active_attributes) {
+        let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
+        let mut attr_name_tmp_len = 63;
+
+        let mut data_type: gl::types::GLenum = mem::uninitialized();
+        let mut data_size: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint, attr_name_tmp_len,
+            &mut attr_name_tmp_len, &mut data_size, &mut data_type,
+            attr_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+        attr_name_tmp.set_len(attr_name_tmp_len as uint);
+
+        let attr_name = String::from_utf8(attr_name_tmp).unwrap();
+        let location = ctxt.gl.GetAttribLocation(program, attr_name.to_c_str().into_inner());
+
+        attributes.insert(attr_name, Attribute {
+            location: location, 
+            ty: data_type, 
+            size: data_size
+        });
+    }
+
+    attributes
 }

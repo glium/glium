@@ -27,20 +27,6 @@ The `display` object is the most important object of this library.
 The window where you are drawing on will produce events. They can be received by calling
 `display.poll_events()`.
 
-# Fundamentals
-
-In order to draw something on the window, you must first call `display.draw()`. This function
-call returns a `Target` object which you can manipulate to draw things. Once the object
-is destroyed, the result will be presented to the user by swapping the front and back buffers.
-
-You can easily fill the window with one color by calling `clear_colors` on the target. Drawing
-something more complex, however, requires two elements:
-
- - A mesh, which describes the shape and the characteristics of the object that you want to draw,
- and is composed of a `VertexBuffer` object and an `IndexBuffer` object.
- - A program that is going to be executed by the GPU and is the result of compiling and linking
- GLSL code, alongside with the values of its global variables which are called *uniforms*.
-
 ## Complete example
 
 We start by creating the vertex buffer, which contains the list of all the points that are part
@@ -58,6 +44,7 @@ extern crate glium_macros;
 # extern crate glium;
 # fn main() {
 #[vertex_format]
+#[deriving(Copy)]
 struct Vertex {
     position: [f32, ..2],
     color: [f32, ..3],
@@ -80,7 +67,8 @@ vertex buffer.
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList, &[ 0u16, 1, 2 ]);
+let index_buffer = glium::IndexBuffer::new(&display,
+    glium::index_buffer::TrianglesList(vec![ 0u16, 1, 2 ]));
 ```
 
 Then we create the program, which is composed of a *vertex shader*, a program executed once for
@@ -166,17 +154,16 @@ This includes textures and samplers (not covered here). You can check the docume
 `uniforms` module for more informations.
 
 Now that everything is initialized, we can finally draw something. To do so, call `display.draw()`
-in order to obtain a `Target` object. Note that it is also possible to draw on a texture by
-calling `texture.draw()`, but this is not covered here.
+in order to obtain a `Frame` object. Note that it is also possible to draw on a texture by
+calling `texture.as_surface()`, but this is not covered here.
 
-The `Target` object has a `draw` function which takes an object that implements the
-`glium::DrawCommand` trait. The only command provided by glium is `BasicDraw`.
-
-The arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
+The `Frame` object has a `draw` function which you can use to draw things.
+Its arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
 `DrawParameters` which contains miscellaneous informations about how everything should be rendered
 (depth test, blending, backface culling, etc.).
 
 ```no_run
+use glium::Surface;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let vertex_buffer: glium::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
 # let index_buffer: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
@@ -184,141 +171,86 @@ The arguments are the vertex buffer, index buffer, program, uniforms, and an obj
 # let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
-target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
+target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
 target.finish();
 ```
 
 */
 
-#![feature(if_let)]
+#![feature(default_type_params)]
+#![feature(globs)]
 #![feature(phase)]
 #![feature(slicing_syntax)]
-#![feature(tuple_indexing)]
+#![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
-#![deny(missing_doc)]
+#![deny(missing_docs)]
 
-#[phase(plugin)]
-extern crate compile_msg;
+// TODO: remove these when everything is implemented
+#![allow(dead_code)]
+#![allow(unused_variables)]
 
 #[phase(plugin)]
 extern crate gl_generator;
 
 extern crate cgmath;
 extern crate glutin;
+#[cfg(feature = "image")]
+extern crate image;
 extern crate libc;
-//extern crate nalgebra;
-extern crate native;
-extern crate time;
+extern crate nalgebra;
 
 #[doc(hidden)]
 pub use data_types::GLDataTuple;
 
 pub use index_buffer::IndexBuffer;
+pub use framebuffer::FrameBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
 pub use program::{Program, ProgramCreationError};
-pub use texture::{Texture, Texture2D};
+pub use program::ProgramCreationError::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
+pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
-use std::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
+pub mod debug;
+pub mod index_buffer;
 pub mod uniforms;
 /// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
 pub mod texture;
 
+mod buffer;
 mod context;
 mod data_types;
-mod index_buffer;
+mod framebuffer;
 mod program;
+mod vertex_array_object;
 
-#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 mod gl {
     generate_gl_bindings! {
         api: "gl",
-        profile: "core",
+        profile: "compatibility",
         version: "4.5",
         generator: "struct",
         extensions: [
             "GL_EXT_direct_state_access",
-            "GL_EXT_framebuffer_object"
+            "GL_EXT_framebuffer_object",
+            "GL_EXT_framebuffer_blit",
+            "GL_NVX_gpu_memory_info",
+            "GL_ATI_meminfo",
         ]
     }
 }
 
-#[cfg(target_os = "android")]
-mod gl {
-    pub use self::Gles2 as Gl;
-    generate_gl_bindings! {
-        api: "gles2",
-        profile: "core",
-        version: "2.0",
-        generator: "struct",
-        extensions: []
-    }
-}
-
-#[cfg(all(not(target_os = "windows"), not(target_os = "linux"), not(target_os = "macos"), not(target_os = "android")))]
-compile_error!("This platform is not supported")
-
-/// A command that asks to draw something.
-///
-/// You can implement this for your own type by redirecting the call to another command.
-pub trait DrawCommand {
-    /// Draws the object on the specified target.
-    fn draw(self, &mut Target);
-}
-
-/// Types of primitives.
-#[allow(missing_doc)]
-#[experimental = "Will be replaced soon"]
-pub enum PrimitiveType {
-    PointsList,
-    LinesList,
-    LinesListAdjacency,
-    LineStrip,
-    LineStripAdjacency,
-    TrianglesList,
-    TrianglesListAdjacency,
-    TriangleStrip,
-    TriangleStripAdjacency,
-    TriangleFan
-}
-
-impl PrimitiveType {
-    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-    fn get_gl_enum(&self) -> gl::types::GLenum {
-        match *self {
-            PointsList => gl::POINTS,
-            LinesList => gl::LINES,
-            LinesListAdjacency => gl::LINES_ADJACENCY,
-            LineStrip => gl::LINE_STRIP,
-            LineStripAdjacency => gl::LINE_STRIP_ADJACENCY,
-            TrianglesList => gl::TRIANGLES,
-            TrianglesListAdjacency => gl::TRIANGLES_ADJACENCY,
-            TriangleStrip => gl::TRIANGLE_STRIP,
-            TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
-            TriangleFan => gl::TRIANGLE_FAN
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    fn get_gl_enum(&self) -> gl::types::GLenum {
-        match *self {
-            PointsList => gl::POINTS,
-            LinesList => gl::LINES,
-            LineStrip => gl::LINE_STRIP,
-            TrianglesList => gl::TRIANGLES,
-            TriangleStrip => gl::TRIANGLE_STRIP,
-            TriangleFan => gl::TRIANGLE_FAN,
-            _ => fail!("Not supported by GLES")
-        }
-    }
+/// Internal trait for objects that are OpenGL objects.
+trait GlObject {
+    /// Returns the id of the object.
+    fn get_id(&self) -> gl::types::GLuint;
 }
 
 /// Function that the GPU will use for blending.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Always replace the destination pixel by the source.
     ///
@@ -334,14 +266,14 @@ pub enum BlendingFunction {
     ///
     /// This is the mode that you usually use for transparency.
     ///
-    /// Means `(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` in OpenGL.
+    /// Means `(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` in Openctxt.gl.
     LerpBySourceAlpha,
 }
 
 /// Culling mode.
 /// 
 /// Describes how triangles could be filtered before the fragment part.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BackfaceCullingMode {
     /// All triangles are always drawn.
     CullingDisabled,
@@ -355,7 +287,7 @@ pub enum BackfaceCullingMode {
 
 /// The function that the GPU will use to determine whether to write over an existing pixel
 ///  on the target.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
     /// 
@@ -390,14 +322,44 @@ impl DepthFunction {
     /// Turns the `DepthFunction` into the corresponding GLenum.
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            Ignore => gl::NEVER,
-            Overwrite => gl::ALWAYS,
-            IfEqual => gl::EQUAL,
-            IfNotEqual => gl::NOTEQUAL,
-            IfMore => gl::GREATER,
-            IfMoreOrEqual => gl::GEQUAL,
-            IfLess => gl::LESS,
-            IfLessOrEqual => gl::LEQUAL,
+            DepthFunction::Ignore => gl::NEVER,
+            DepthFunction::Overwrite => gl::ALWAYS,
+            DepthFunction::IfEqual => gl::EQUAL,
+            DepthFunction::IfNotEqual => gl::NOTEQUAL,
+            DepthFunction::IfMore => gl::GREATER,
+            DepthFunction::IfMoreOrEqual => gl::GEQUAL,
+            DepthFunction::IfLess => gl::LESS,
+            DepthFunction::IfLessOrEqual => gl::LEQUAL,
+        }
+    }
+}
+
+/// Defines how the device should render polygons.
+///
+/// The usual value is `Fill`, which fills the content of polygon with the color. However other
+/// values are sometimes useful, especially for debugging purposes.
+#[deriving(Clone, Copy, Show, PartialEq, Eq)]
+pub enum PolygonMode {
+    /// Only draw a single point at each vertex.
+    ///
+    /// All attributes that apply to points are used when using this mode.
+    Point,
+
+    /// Only draw a line in the boundaries of each polygon.
+    ///
+    /// All attributes that apply to lines (`line_width`) are used when using this mode.
+    Line,
+
+    /// Fill the content of the polygon. This is the default mode.
+    Fill,
+}
+
+impl PolygonMode {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            PolygonMode::Point => gl::POINT,
+            PolygonMode::Line => gl::LINE,
+            PolygonMode::Fill => gl::FILL,
         }
     }
 }
@@ -408,17 +370,18 @@ impl DepthFunction {
 /// 
 /// ```
 /// let params = glium::DrawParameters {
-///     depth_function: Some(glium::IfLess),
+///     depth_function: glium::DepthFunction::IfLess,
 ///     .. std::default::Default::default()
 /// };
 /// ```
 ///
-#[deriving(Clone, Show, PartialEq)]
+#[deriving(Clone, Copy, Show, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
-    ///  on the target. 
-    /// `None` means "don't care".
-    pub depth_function: Option<DepthFunction>,
+    /// on the target.
+    ///
+    /// The default is `Overwrite`.
+    pub depth_function: DepthFunction,
 
     /// The function that the GPU will use to merge the existing pixel with the pixel that is
     /// being written.
@@ -436,60 +399,71 @@ pub struct DrawParameters {
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
     ///  the camera.
     pub backface_culling: BackfaceCullingMode,
+
+    /// Sets how to render polygons. The default value is `Fill`.
+    pub polygon_mode: PolygonMode,
+
+    /// Whether multisample antialiasing (MSAA) should be used. Default value is `true`.
+    ///
+    /// Note that you will need to set the appropriate option when creating the window.
+    /// The recommended way to do is to leave this to `true`, and adjust the option when
+    /// creating the window.
+    pub multisampling: bool,
 }
 
 impl std::default::Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
-            depth_function: None,
-            blending_function: Some(AlwaysReplace),
+            depth_function: DepthFunction::Overwrite,
+            blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
-            backface_culling: CullingDisabled,
+            backface_culling: BackfaceCullingMode::CullingDisabled,
+            polygon_mode: PolygonMode::Fill,
+            multisampling: true,
         }
     }
 }
 
 impl DrawParameters {
-    /// Synchronizes the parmaeters with the current state.
-    fn sync(&self, gl: &gl::Gl, state: &mut context::GLState) {
+    /// Synchronizes the parmaeters with the current ctxt.state.
+    fn sync(&self, ctxt: &mut context::CommandContext) {
         // depth function
         match self.depth_function {
-            Some(Overwrite) => {
-                if state.enabled_depth_test {
-                    gl.Disable(gl::DEPTH_TEST);
-                    state.enabled_depth_test = false;
+            DepthFunction::Overwrite => unsafe {
+                if ctxt.state.enabled_depth_test {
+                    ctxt.gl.Disable(gl::DEPTH_TEST);
+                    ctxt.state.enabled_depth_test = false;
                 }
             },
-            Some(depth_function) => {
+            depth_function => unsafe {
                 let depth_function = depth_function.to_glenum();
-                if state.depth_func != depth_function {
-                    gl.DepthFunc(depth_function);
-                    state.depth_func = depth_function;
+                if ctxt.state.depth_func != depth_function {
+                    ctxt.gl.DepthFunc(depth_function);
+                    ctxt.state.depth_func = depth_function;
                 }
-                if !state.enabled_depth_test {
-                    gl.Enable(gl::DEPTH_TEST);
-                    state.enabled_depth_test = true;
+                if !ctxt.state.enabled_depth_test {
+                    ctxt.gl.Enable(gl::DEPTH_TEST);
+                    ctxt.state.enabled_depth_test = true;
                 }
-            },
-            _ => ()
+            }
         }
 
         // blending function
         match self.blending_function {
-            Some(AlwaysReplace) => {
-                if state.enabled_blend {
-                    gl.Disable(gl::BLEND);
-                    state.enabled_blend = false;
+            Some(BlendingFunction::AlwaysReplace) => unsafe {
+                if ctxt.state.enabled_blend {
+                    ctxt.gl.Disable(gl::BLEND);
+                    ctxt.state.enabled_blend = false;
                 }
             },
-            Some(LerpBySourceAlpha) => {
-                if state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
-                    gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
-                    state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+            Some(BlendingFunction::LerpBySourceAlpha) => unsafe {
+                if ctxt.state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
+                    ctxt.gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+                    ctxt.state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                 }
-                if !state.enabled_blend {
-                    gl.Enable(gl::BLEND);
-                    state.enabled_blend = true;
+                if !ctxt.state.enabled_blend {
+                    ctxt.gl.Enable(gl::BLEND);
+                    ctxt.state.enabled_blend = true;
                 }
             },
             _ => ()
@@ -497,9 +471,11 @@ impl DrawParameters {
 
         // line width
         if let Some(line_width) = self.line_width {
-            if state.line_width != line_width {
-                gl.LineWidth(line_width);
-                state.line_width = line_width;
+            if ctxt.state.line_width != line_width {
+                unsafe {
+                    ctxt.gl.LineWidth(line_width);
+                    ctxt.state.line_width = line_width;
+                }
             }
         }
 
@@ -507,308 +483,309 @@ impl DrawParameters {
         // note: we never change the value of `glFrontFace`, whose default is GL_CCW
         //  that's why `CullClockWise` uses `GL_BACK` for example
         match self.backface_culling {
-            CullingDisabled => {
-                if state.enabled_cull_face {
-                    gl.Disable(gl::CULL_FACE);
-                    state.enabled_cull_face = false;
+            BackfaceCullingMode::CullingDisabled => unsafe {
+                if ctxt.state.enabled_cull_face {
+                    ctxt.gl.Disable(gl::CULL_FACE);
+                    ctxt.state.enabled_cull_face = false;
                 }
             },
-            CullCounterClockWise => {
-                if !state.enabled_cull_face {
-                    gl.Enable(gl::CULL_FACE);
-                    state.enabled_cull_face = true;
+            BackfaceCullingMode::CullCounterClockWise => unsafe {
+                if !ctxt.state.enabled_cull_face {
+                    ctxt.gl.Enable(gl::CULL_FACE);
+                    ctxt.state.enabled_cull_face = true;
                 }
-                if state.cull_face != gl::FRONT {
-                    gl.CullFace(gl::FRONT);
-                    state.cull_face = gl::FRONT;
-                }
-            },
-            CullClockWise => {
-                if !state.enabled_cull_face {
-                    gl.Enable(gl::CULL_FACE);
-                    state.enabled_cull_face = true;
-                }
-                if state.cull_face != gl::BACK {
-                    gl.CullFace(gl::BACK);
-                    state.cull_face = gl::BACK;
+                if ctxt.state.cull_face != gl::FRONT {
+                    ctxt.gl.CullFace(gl::FRONT);
+                    ctxt.state.cull_face = gl::FRONT;
                 }
             },
+            BackfaceCullingMode::CullClockWise => unsafe {
+                if !ctxt.state.enabled_cull_face {
+                    ctxt.gl.Enable(gl::CULL_FACE);
+                    ctxt.state.enabled_cull_face = true;
+                }
+                if ctxt.state.cull_face != gl::BACK {
+                    ctxt.gl.CullFace(gl::BACK);
+                    ctxt.state.cull_face = gl::BACK;
+                }
+            },
+        }
+
+        // polygon mode
+        unsafe {
+            let polygon_mode = self.polygon_mode.to_glenum();
+            if ctxt.state.polygon_mode != polygon_mode {
+                ctxt.gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
+                ctxt.state.polygon_mode = polygon_mode;
+            }
+        }
+
+        // multisampling
+        if ctxt.state.enabled_multisample != self.multisampling {
+            unsafe {
+                if self.multisampling {
+                    ctxt.gl.Enable(gl::MULTISAMPLE);
+                    ctxt.state.enabled_multisample = true;
+                } else {
+                    ctxt.gl.Disable(gl::MULTISAMPLE);
+                    ctxt.state.enabled_multisample = false;
+                }
+            }
         }
     }
 }
 
-/// A target where things can be drawn.
-pub struct Target<'t> {
-    display: Arc<DisplayImpl>,
-    display_hold: Option<&'t Display>,
-    texture: Option<&'t mut texture::TextureImplementation>,
-    framebuffer: Option<FrameBufferObject>,
-    execute_end: Option<proc(&DisplayImpl):Send>,
-    dimensions: (uint, uint),
+/// Area of a surface in pixels.
+///
+/// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
+#[deriving(Show, Clone, Copy, Default)]
+pub struct Rect {
+    /// Number of pixels between the left border of the surface and the left border of
+    /// the rectangle.
+    pub left: u32,
+    /// Number of pixels between the bottom border of the surface and the bottom border
+    /// of the rectangle.
+    pub bottom: u32,
+    /// Width of the area in pixels.
+    pub width: u32,
+    /// Height of the area in pixels.
+    pub height: u32,
 }
 
-impl<'t> Target<'t> {
+/// Object which can be drawn upon.
+pub trait Surface {
     /// Clears the color components of the target.
-    pub fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let (red, green, blue, alpha) = (
-            red as gl::types::GLclampf,
-            green as gl::types::GLclampf,
-            blue as gl::types::GLclampf,
-            alpha as gl::types::GLclampf
-        );
-
-        self.display.context.exec(proc(gl, state) {
-            if state.clear_color != (red, green, blue, alpha) {
-                gl.ClearColor(red, green, blue, alpha);
-                state.clear_color = (red, green, blue, alpha);
-            }
-
-            gl.Clear(gl::COLOR_BUFFER_BIT);
-        });
-    }
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32);
 
     /// Clears the depth component of the target.
-    pub fn clear_depth(&mut self, value: f32) {
-        let value = value as gl::types::GLclampf;
-
-        self.display.context.exec(proc(gl, state) {
-            if state.clear_depth != value {
-                gl.ClearDepth(value as f64);        // TODO: find out why this needs "as"
-                state.clear_depth = value;
-            }
-
-            gl.Clear(gl::DEPTH_BUFFER_BIT);
-        });
-    }
+    fn clear_depth(&mut self, value: f32);
 
     /// Clears the stencil component of the target.
-    pub fn clear_stencil(&mut self, value: int) {
-        let value = value as gl::types::GLint;
-
-        self.display.context.exec(proc(gl, state) {
-            if state.clear_stencil != value {
-                gl.ClearStencil(value);
-                state.clear_stencil = value;
-            }
-
-            gl.Clear(gl::STENCIL_BUFFER_BIT);
-        });
-    }
+    fn clear_stencil(&mut self, value: int);
 
     /// Returns the dimensions in pixels of the target.
-    pub fn get_dimensions(&self) -> (uint, uint) {
-        self.dimensions
+    fn get_dimensions(&self) -> (uint, uint);
+
+    /// Returns the number of bits of each pixel of the depth buffer.
+    ///
+    /// Returns `None` if there is no depth buffer.
+    fn get_depth_buffer_bits(&self) -> Option<u16>;
+
+    /// Returns true if the surface has a depth buffer available.
+    fn has_depth_buffer(&self) -> bool {
+        self.get_depth_buffer_bits().is_some()
     }
 
-    /// Stop drawing on the target.
-    pub fn finish(self) {
+    /// Returns the number of bits of each pixel of the stencil buffer.
+    ///
+    /// Returns `None` if there is no stencil buffer.
+    fn get_stencil_buffer_bits(&self) -> Option<u16>;
+
+    /// Returns true if the surface has a stencil buffer available.
+    fn has_stencil_buffer(&self) -> bool {
+        self.get_stencil_buffer_bits().is_some()
     }
 
     /// Draws.
-    pub fn draw<D: DrawCommand>(&mut self, object: D) {
-        object.draw(self);
+    fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;
+
+    /// Returns an opaque type that is used by the implementation of blit functions.
+    fn get_blit_helper(&self) -> BlitHelper;
+
+    /// Copies a rectangle of pixels from this surface to another surface.
+    ///
+    /// The `source_rect` defines the area of the source (`self`) that will be copied, and the
+    /// `target_rect` defines the area where the copied image will be pasted. If the source and
+    /// target areas don't have the same dimensions, the image will be resized to match.
+    /// The `filter` parameter is relevant only in this situation.
+    ///
+    /// It is possible for the source and the target to be the same surface. However if the
+    /// rectangles overlap, then the behavior is undefined.
+    ///
+    /// Note that there is no alpha blending, depth/stencil checking, etc. or anything ; this
+    /// function just copies pixels.
+    #[experimental = "The name will likely change"]
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
+        filter: uniforms::SamplerFilter) where S: Surface
+    {
+        framebuffer::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
+            filter.to_glenum())
+    }
+
+    /// Copies the entire surface to a target surface. See `blit_color`.
+    #[experimental = "The name will likely change"]
+    fn blit_whole_color_to<S>(&self, target: &S, target_rect: &Rect,
+        filter: uniforms::SamplerFilter) where S: Surface
+    {
+        let src_dim = self.get_dimensions();
+        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
+        self.blit_color(&src_rect, target, target_rect, filter)
+    }
+
+    /// Copies the entire surface to the entire target. See `blit_color`.
+    #[experimental = "The name will likely change"]
+    fn fill<S>(&self, target: &S, filter: uniforms::SamplerFilter) where S: Surface {
+        let src_dim = self.get_dimensions();
+        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
+        let target_dim = target.get_dimensions();
+        let target_rect = Rect { left: 0, bottom: 0, width: target_dim.0 as u32, height: target_dim.1 as u32 };
+        self.blit_color(&src_rect, target, &target_rect, filter)
     }
 }
 
-/// Basic draw command.
-pub struct BasicDraw<'a, 'b, 'c, 'd, 'e, V, U: 'd>(pub &'a VertexBuffer<V>, pub &'b IndexBuffer,
-    pub &'c Program, pub &'d U, pub &'e DrawParameters);
+#[doc(hidden)]
+pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a framebuffer::FramebufferAttachments>);
 
-impl<'a, 'b, 'c, 'd, 'e, V, U: uniforms::Uniforms>
-    DrawCommand for BasicDraw<'a, 'b, 'c, 'd, 'e, V, U>
-{
-    fn draw(self, target: &mut Target) {
-        let BasicDraw(vertex_buffer, index_buffer, program, uniforms, draw_parameters) = self;
+/// Implementation of `Surface` targetting the default framebuffer.
+///
+/// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
+/// instantaneous, even when vsync is enabled.
+pub struct Frame<'a> {
+    display: Arc<DisplayImpl>,
+    marker: std::kinds::marker::ContravariantLifetime<'a>,
+    dimensions: (uint, uint),
+}
 
-        let fbo_id = target.framebuffer.as_ref().map(|f| f.id);
-        let (vb_id, vb_elementssize, vb_bindingsclone) = vertex_buffer::get_clone(vertex_buffer);
-        let (ib_id, ib_elemcounts, ib_datatype, ib_primitives) = index_buffer::get_clone(index_buffer);
-        let program_id = program::get_program_id(program);
-        let uniforms = uniforms.to_binder();
-        let uniforms_locations = program::get_uniforms_locations(program);
-        let draw_parameters = draw_parameters.clone();
+impl<'t> Frame<'t> {
+    /// Stop drawing and swap the buffers.
+    pub fn finish(self) {
+    }
+}
 
-        let (tx, rx) = channel();
+impl<'t> Surface for Frame<'t> {
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        framebuffer::clear_color(&self.display, None, red, green, blue, alpha)
+    }
 
-        target.display.context.exec(proc(gl, state) {
-            unsafe {
-                if gl.BindFramebuffer.is_loaded() {
-                    gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id.unwrap_or(0));
-                } else {
-                    gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id.unwrap_or(0));
-                }
+    fn clear_depth(&mut self, value: f32) {
+        framebuffer::clear_depth(&self.display, None, value)
+    }
 
-                // binding program
-                if state.program != program_id {
-                    gl.UseProgram(program_id);
-                    state.program = program_id;
-                }
+    fn clear_stencil(&mut self, value: int) {
+        framebuffer::clear_stencil(&self.display, None, value)
+    }
 
-                // binding program uniforms
-                uniforms.0(gl, |name| {
-                    uniforms_locations
-                        .find_equiv(&name)
-                        .map(|val| val.0)
-                });
+    fn get_dimensions(&self) -> (uint, uint) {
+        self.dimensions
+    }
 
-                // binding vertex buffer
-                if state.array_buffer_binding != Some(vb_id) {
-                    gl.BindBuffer(gl::ARRAY_BUFFER, vb_id);
-                    state.array_buffer_binding = Some(vb_id);
-                }
+    fn get_depth_buffer_bits(&self) -> Option<u16> {
+        self.display.context.capabilities().depth_bits
+    }
 
-                // binding index buffer
-                if state.element_array_buffer_binding != Some(ib_id) {
-                    gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
-                    state.element_array_buffer_binding = Some(ib_id);
-                }
+    fn get_stencil_buffer_bits(&self) -> Option<u16> {
+        self.display.context.capabilities().stencil_bits
+    }
 
-                // binding vertex buffer
-                let mut locations = Vec::new();
-                for (name, &(data_type, data_size, data_offset)) in vb_bindingsclone.iter() {
-                    let loc = gl.GetAttribLocation(program_id, name.to_c_str().unwrap());
-                    locations.push(loc);
+    fn draw<V, I: IndicesSource, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
+        index_buffer: &I, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
+    {
+        framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
+            draw_parameters)
+    }
 
-                    if loc != -1 {
-                        match data_type {
-                            gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT | gl::INT | gl::UNSIGNED_INT
-                                => fail!("Not supported"), // TODO: gl.VertexAttribIPointer(loc as u32, data_size, data_type, vb_elementssize as i32, data_offset as *const libc::c_void),
-                            _ => gl.VertexAttribPointer(loc as u32, data_size, data_type, 0, vb_elementssize as i32, data_offset as *const libc::c_void)
-                        }
-                        
-                        gl.EnableVertexAttribArray(loc as u32);
-                    }
-                }
-
-                // sync-ing parameters
-                draw_parameters.sync(gl, state);
-                
-                // drawing
-                gl.DrawElements(ib_primitives, ib_elemcounts as i32, ib_datatype, std::ptr::null());
-
-                // disable vertex attrib array
-                for l in locations.iter() {
-                    gl.DisableVertexAttribArray(l.clone() as u32);
-                }
-            }
-
-            tx.send(());
-        });
-
-        rx.recv();
+    fn get_blit_helper(&self) -> BlitHelper {
+        BlitHelper(&self.display, None)
     }
 }
 
 #[unsafe_destructor]
-impl<'t> Drop for Target<'t> {
+impl<'t> Drop for Frame<'t> {
     fn drop(&mut self) {
-        match self.execute_end.take() {
-            Some(f) => f(&*self.display),
-            None => ()
-        }
+        self.display.context.swap_buffers();
     }
 }
 
-/// Frame buffer.
-struct FrameBufferObject {
-    display: Arc<DisplayImpl>,
-    id: gl::types::GLuint,
+/// Can be used as a source of indices when drawing.
+pub trait IndicesSource {
+    /// Opaque function.
+    fn to_indices_source_helper(&self) -> IndicesSourceHelper;
 }
 
-impl FrameBufferObject {
-    /// Builds a new FBO.
-    fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
-        let (tx, rx) = channel();
-
-        display.context.exec(proc(gl, _state) {
-            unsafe {
-                let id: gl::types::GLuint = std::mem::uninitialized();
-                gl.GenFramebuffers(1, std::mem::transmute(&id));
-                tx.send(id);
-            }
-        });
-
-        FrameBufferObject {
-            display: display,
-            id: rx.recv(),
-        }
-    }
-}
-
-impl Drop for FrameBufferObject {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
-            unsafe { gl.DeleteFramebuffers(1, [ id ].as_ptr()); }
-        });
-    }
-}
-
-/// Render buffer.
-#[allow(dead_code)]     // TODO: remove
-struct RenderBuffer {
-    display: Arc<DisplayImpl>,
-    id: gl::types::GLuint,
-}
-
-impl RenderBuffer {
-    /// Builds a new render buffer.
-    fn new(display: Arc<DisplayImpl>) -> RenderBuffer {
-        let (tx, rx) = channel();
-
-        display.context.exec(proc(gl, _state) {
-            unsafe {
-                let id: gl::types::GLuint = std::mem::uninitialized();
-                gl.GenRenderbuffers(1, std::mem::transmute(&id));
-                tx.send(id);
-            }
-        });
-
-        RenderBuffer {
-            display: display,
-            id: rx.recv(),
-        }
-    }
-}
-
-impl Drop for RenderBuffer {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(proc(gl, _state) {
-            unsafe { gl.DeleteRenderbuffers(1, [ id ].as_ptr()); }
-        });
-    }
+/// Opaque type used by the implementation.
+pub struct IndicesSourceHelper<'a> {
+    index_buffer: Option<&'a buffer::Buffer>,
+    pointer: Option<*const libc::c_void>,
+    primitives: gl::types::GLenum,
+    data_type: gl::types::GLenum,
+    indices_count: gl::types::GLuint,
 }
 
 /// Objects that can build a `Display` object.
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
-    fn build_glium(self) -> Result<Display, String>;
+    ///
+    /// Performances a compatibility check to make sure that all core elements of glium
+    /// are supported by the implementation.
+    fn build_glium(self) -> Result<Display, GliumCreationError>;
 }
 
-impl DisplayBuild for glutin::WindowBuilder {
-    fn build_glium(self) -> Result<Display, String> {
-        let window = try!(self.build());
-        let context = context::Context::new_from_window(window);
+/// Error that can happen while creating a glium display.
+#[deriving(Clone, Show, PartialEq, Eq)]
+pub enum GliumCreationError {
+    /// An error has happened while creating the glutin window or headless renderer.
+    GlutinCreationError(glutin::CreationError),
+
+    /// The OpenGL implementation is too old.
+    IncompatibleOpenGl(String),
+}
+
+impl std::error::Error for GliumCreationError {
+    fn description(&self) -> &str {
+        match self {
+            &GliumCreationError::GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
+            &GliumCreationError::IncompatibleOpenGl(_) => "The OpenGL implementation is too old to work with glium",
+        }
+    }
+
+    fn detail(&self) -> Option<String> {
+        match self {
+            &GliumCreationError::GlutinCreationError(_) => None,
+            &GliumCreationError::IncompatibleOpenGl(ref e) => Some(e.clone()),
+        }
+    }
+
+    fn cause(&self) -> Option<&std::error::Error> {
+        match self {
+            &GliumCreationError::GlutinCreationError(ref err) => Some(err as &std::error::Error),
+            &GliumCreationError::IncompatibleOpenGl(_) => None,
+        }
+    }
+}
+
+impl std::error::FromError<glutin::CreationError> for GliumCreationError {
+    fn from_error(err: glutin::CreationError) -> GliumCreationError {
+        GliumCreationError::GlutinCreationError(err)
+    }
+}
+
+impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
+    fn build_glium(self) -> Result<Display, GliumCreationError> {
+        let context = try!(context::Context::new_from_window(self, None));
 
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
-                gl_version: (0, 0),
+                debug_callback: Mutex::new(None),
+                framebuffer_objects: Mutex::new(HashMap::new()),
+                vertex_array_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
 }
 
+#[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
-    fn build_glium(self) -> Result<Display, String> {
-        let window = try!(self.build());
-        let context = context::Context::new_from_headless(window);
+    fn build_glium(self) -> Result<Display, GliumCreationError> {
+        let context = try!(context::Context::new_from_headless(self));
 
         Ok(Display {
             context: Arc::new(DisplayImpl {
                 context: context,
-                gl_version: (0, 0),
+                debug_callback: Mutex::new(None),
+                framebuffer_objects: Mutex::new(HashMap::new()),
+                vertex_array_objects: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -825,8 +802,22 @@ pub struct Display {
 }
 
 struct DisplayImpl {
+    // contains everything related to the current context and its state
     context: context::Context,
-    gl_version: (gl::types::GLint, gl::types::GLint),
+
+    // the callback used for debug messages
+    debug_callback: Mutex<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
+                                     + Send + Sync>>>,
+
+    // we maintain a list of FBOs
+    // when something requirering a FBO is drawn, we look for an existing one in this hashmap
+    framebuffer_objects: Mutex<HashMap<framebuffer::FramebufferAttachments,
+                                       framebuffer::FrameBufferObject>>,
+
+    // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
+    // the key is a (vertexbuffer, program)
+    vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint, gl::types::GLuint),
+                                        vertex_array_object::VertexArrayObject>>,
 }
 
 impl Display {
@@ -840,26 +831,294 @@ impl Display {
         self.context.context.get_framebuffer_dimensions()
     }
 
-    /// 
-    pub fn draw(&self) -> Target {
-        Target {
+    /// Start drawing on the backbuffer.
+    ///
+    /// This function returns a `Frame` which can be used to draw on it. When the `Frame` is
+    /// destroyed, the buffers are swapped.
+    ///
+    /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
+    pub fn draw(&self) -> Frame {
+        Frame {
             display: self.context.clone(),
-            display_hold: Some(self),
+            marker: std::kinds::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
-            texture: None,
-            framebuffer: None,
-            execute_end: Some(proc(context: &DisplayImpl) {
-                context.context.swap_buffers();
-            }),
         }
     }
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
+    ///
+    /// # Features
+    ///
+    /// This method is always available, but is a no-op if it's not available in
+    /// the implementation.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(proc(gl, _) {
-            if gl.ReleaseShaderCompiler.is_loaded() {
-                gl.ReleaseShaderCompiler();
+        self.context.context.exec(move |: ctxt| {
+            unsafe {
+                if ctxt.opengl_es || ctxt.version >= &context::GlVersion(4, 1) {
+                    ctxt.gl.ReleaseShaderCompiler();
+                }
             }
         });
+    }
+
+    /// Returns an estimate of the amount of video memory available in bytes.
+    ///
+    /// Returns `None` if no estimate is available.
+    pub fn get_free_video_memory(&self) -> Option<uint> {
+        let (tx, rx) = channel();
+
+        self.context.context.exec(move |: ctxt| {
+            unsafe {
+                use std::mem;
+                let mut value: [gl::types::GLint, ..4] = mem::uninitialized();
+
+                let value = if ctxt.extensions.gl_nvx_gpu_memory_info {
+                    ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+                                   &mut value[0]);
+                    Some(value[0])
+
+                } else if ctxt.extensions.gl_ati_meminfo {
+                    ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
+                    Some(value[0])
+
+                } else {
+                    None
+                };
+
+                tx.send(value);
+            }
+        });
+
+        rx.recv().map(|v| v as uint * 1024)
+    }
+
+    /// Sets the callback to use when an OpenGL debug message is generated.
+    ///
+    /// **Important**: some contexts don't support debug output, in which case this function will
+    /// act as a no-op. Even if the context does support them, you are not guaranteed to get any.
+    /// Debug messages are just a convenience and are not reliable.
+    #[experimental = "The API will probably change"]
+    pub fn set_debug_callback<F>(&self, callback: F)
+        where F: FnMut(String, debug::Source, debug::MessageType, debug::Severity) + Send + Sync
+    {
+        self.set_debug_callback_impl(callback, false);
+    }
+
+    /// Sets the callback to use when an OpenGL debug message is generated.
+    ///
+    /// Contrary to `set_debug_callback`, the callback is called synchronously.
+    #[experimental = "The API will probably change"]
+    pub unsafe fn set_debug_callback_sync<F>(&self, callback: F)
+        where F: FnMut(String, debug::Source, debug::MessageType, debug::Severity) + Send + Sync
+    {
+        self.set_debug_callback_impl(callback, true);
+    }
+
+    fn set_debug_callback_impl<F>(&self, callback: F, sync: bool)
+        where F: FnMut(String, debug::Source, debug::MessageType, debug::Severity) + Send + Sync
+    {
+        // changing the callback
+        {
+            let mut cb = self.context.debug_callback.lock();
+            *cb = Some(box callback as Box<FnMut(String, debug::Source, debug::MessageType,
+                                                 debug::Severity)
+                                           + Send + Sync>);
+        }
+
+        // this is the C callback
+        extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
+            id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
+            message: *const gl::types::GLchar, user_param: *mut libc::c_void)
+        {
+            use std::c_str::CString;
+            use std::num::FromPrimitive;
+
+            unsafe {
+                let user_param = user_param as *mut DisplayImpl;
+                let user_param = user_param.as_mut().unwrap();
+
+                let message = CString::new(message, false);
+                let message = message.as_str().unwrap_or("<message was not utf-8>");
+
+                let ref mut callback = user_param.debug_callback;
+                let mut callback = callback.lock();
+                let callback = callback.deref_mut();
+
+                if let &Some(ref mut callback) = callback {
+                    callback.call_mut((message.to_string(),
+                        FromPrimitive::from_uint(source as uint).unwrap_or(debug::Source::OtherSource),
+                        FromPrimitive::from_uint(ty as uint).unwrap_or(debug::MessageType::Other),
+                        FromPrimitive::from_uint(severity as uint).unwrap_or(debug::Severity::Notification)));
+                }
+            }
+        }
+
+        // SAFETY NOTICE: we pass a raw pointer to the `DisplayImpl`
+        let ptr: &DisplayImpl = self.context.deref();
+        let ptr = ptr as *const DisplayImpl;
+
+        // enabling the callback
+        self.context.context.exec(move |: ctxt| {
+            unsafe {
+                if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                    if ctxt.state.enabled_debug_output_synchronous != sync {
+                        if sync {
+                            ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                            ctxt.state.enabled_debug_output_synchronous = true;
+                        } else {
+                            ctxt.gl.Disable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                            ctxt.state.enabled_debug_output_synchronous = false;
+                        }
+                    }
+
+                    // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
+                    //       but with GL only, it doesn't have one
+                    ctxt.gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
+                    ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                        std::ptr::null(), gl::TRUE);
+
+                    if ctxt.state.enabled_debug_output != Some(true) {
+                        ctxt.gl.Enable(gl::DEBUG_OUTPUT);
+                        ctxt.state.enabled_debug_output = Some(true);
+                    }
+                }
+            }
+        });
+    }
+
+    /// Reads the content of the front buffer.
+    ///
+    /// You will only see the data that has finished being drawn.
+    ///
+    /// This function can return any type that implements `Texture2dData`.
+    ///
+    /// ## Example
+    ///
+    /// ```noçrun
+    /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # use glium::DisplayBuild;
+    /// # fn main() {
+    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+    /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    /// # }
+    /// ```
+    pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
+        where P: texture::PixelValue + Clone + Send, T: texture::Texture2dData<P>
+    {
+        let dimensions = self.get_framebuffer_dimensions();
+        let pixels_count = dimensions.0 * dimensions.1;
+
+        let (format, gltype) = texture::PixelValue::get_format(None::<P>).to_gl_enum();
+
+        let (tx, rx) = channel();
+        self.context.context.exec(move |: ctxt| {
+            unsafe {
+                // unbinding framebuffers
+                if ctxt.state.read_framebuffer != 0 {
+                    if ctxt.version >= &context::GlVersion(3, 0) {
+                        ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                        ctxt.state.read_framebuffer = 0;
+                    } else {
+                        ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                        ctxt.state.draw_framebuffer = 0;
+                        ctxt.state.read_framebuffer = 0;
+                    }
+                }
+
+                // adjusting glReadBuffer
+                if ctxt.state.default_framebuffer_read != Some(gl::FRONT_LEFT) {
+                    ctxt.gl.ReadBuffer(gl::FRONT_LEFT);
+                    ctxt.state.default_framebuffer_read = Some(gl::FRONT_LEFT);
+                }
+
+                // reading
+                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
+                ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
+                    dimensions.1 as gl::types::GLint, format, gltype,
+                    data.as_mut_ptr() as *mut libc::c_void);
+                data.set_len(pixels_count);
+                tx.send(data);
+            }
+        });
+
+        let data = rx.recv();
+        texture::Texture2dData::from_vec(data, dimensions.0 as u32)
+    }
+
+    /// Asserts that there are no OpenGL error pending.
+    ///
+    /// This function is supposed to be used in tests.
+    pub fn assert_no_error(&self) {
+        let (tx, rx) = channel();
+
+        self.context.context.exec(move |: ctxt| {
+            tx.send(get_gl_error(ctxt));
+        });
+
+        match rx.recv() {
+            Some(msg) => panic!("{}", msg),
+            None => ()
+        };
+    }
+
+    /// Waits until all the previous commands have finished being executed.
+    ///
+    /// When you execute OpenGL functions, they are not executed immediatly. Instead they are
+    /// put in a queue. This function waits until all commands have finished being executed and
+    /// the queue is empty.
+    ///
+    /// **You don't need to call this function manually, except when running benchmarks.**
+    pub fn synchronize(&self) {
+        let (tx, rx) = channel();
+
+        self.context.context.exec(move |: ctxt| {
+            unsafe { ctxt.gl.Finish(); }
+            tx.send(());
+        });
+
+        rx.recv();
+    }
+}
+
+// this destructor is here because objects in `Display` contain an `Arc<DisplayImpl>`,
+// which would lead to a leak
+impl Drop for Display {
+    fn drop(&mut self) {
+        // disabling callback, to avoid
+        self.context.context.exec(move |: ctxt| {
+            unsafe {
+                if ctxt.state.enabled_debug_output != Some(false) {
+                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
+                    ctxt.state.enabled_debug_output = Some(false);
+                    ctxt.gl.Finish();
+                }
+            }
+        });
+
+        {
+            let mut fbos = self.context.framebuffer_objects.lock();
+            fbos.clear();
+        }
+
+        {
+            let mut vaos = self.context.vertex_array_objects.lock();
+            vaos.clear();
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn get_gl_error(ctxt: context::CommandContext) -> Option<&'static str> {
+    match unsafe { ctxt.gl.GetError() } {
+        gl::NO_ERROR => None,
+        gl::INVALID_ENUM => Some("GL_INVALID_ENUM"),
+        gl::INVALID_VALUE => Some("GL_INVALID_VALUE"),
+        gl::INVALID_OPERATION => Some("GL_INVALID_OPERATION"),
+        gl::INVALID_FRAMEBUFFER_OPERATION => Some("GL_INVALID_FRAMEBUFFER_OPERATION"),
+        gl::OUT_OF_MEMORY => Some("GL_OUT_OF_MEMORY"),
+        /*gl::STACK_UNDERFLOW => Some("GL_STACK_UNDERFLOW"),
+        gl::STACK_OVERFLOW => Some("GL_STACK_OVERFLOW"),*/
+        _ => Some("Unknown glGetError return value")
     }
 }
