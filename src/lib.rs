@@ -200,9 +200,6 @@ extern crate image;
 extern crate libc;
 extern crate nalgebra;
 
-#[doc(hidden)]
-pub use data_types::GLDataTuple;
-
 pub use index_buffer::IndexBuffer;
 pub use framebuffer::FrameBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
@@ -222,7 +219,6 @@ pub mod texture;
 
 mod buffer;
 mod context;
-mod data_types;
 mod framebuffer;
 mod program;
 mod vertex_array_object;

@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::mem;
 
 use program::Program;
-use vertex_buffer::{mod, VertexBuffer};
+use vertex_buffer::{mod, VertexBuffer, BindingType};
 use {DisplayImpl, IndicesSource, GlObject};
 
 use {libc, gl};
@@ -44,9 +44,9 @@ impl VertexArrayObject {
                 ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
 
                 // binding attributes
-                for (name, vertex_buffer::VertexAttrib { offset, data_type, elements_count })
-                    in bindings.into_iter()
-                {
+                for (name, offset, ty) in bindings.into_iter() {
+                    let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
+
                     let attribute = match attributes.get(&name) {
                         Some(a) => a,
                         None => continue
@@ -126,4 +126,37 @@ pub fn get_vertex_array_object<T, I>(display: &Arc<DisplayImpl>, vertex_buffer: 
     let new_vao_id = new_vao.id;
     vaos.insert((vb_id, ib_id, program_id), new_vao);
     new_vao_id
+}
+
+fn vertex_binding_type_to_gl(ty: BindingType) -> (gl::types::GLenum, gl::types::GLint) {
+    match ty {
+        BindingType::I8 => (gl::BYTE, 1),
+        BindingType::I8I8 => (gl::BYTE, 2),
+        BindingType::I8I8I8 => (gl::BYTE, 3),
+        BindingType::I8I8I8I8 => (gl::BYTE, 4),
+        BindingType::U8 => (gl::UNSIGNED_BYTE, 1),
+        BindingType::U8U8 => (gl::UNSIGNED_BYTE, 2),
+        BindingType::U8U8U8 => (gl::UNSIGNED_BYTE, 3),
+        BindingType::U8U8U8U8 => (gl::UNSIGNED_BYTE, 4),
+        BindingType::I16 => (gl::SHORT, 1),
+        BindingType::I16I16 => (gl::SHORT, 2),
+        BindingType::I16I16I16 => (gl::SHORT, 3),
+        BindingType::I16I16I16I16 => (gl::SHORT, 4),
+        BindingType::U16 => (gl::UNSIGNED_SHORT, 1),
+        BindingType::U16U16 => (gl::UNSIGNED_SHORT, 2),
+        BindingType::U16U16U16 => (gl::UNSIGNED_SHORT, 3),
+        BindingType::U16U16U16U16 => (gl::UNSIGNED_SHORT, 4),
+        BindingType::I32 => (gl::INT, 1),
+        BindingType::I32I32 => (gl::INT, 2),
+        BindingType::I32I32I32 => (gl::INT, 3),
+        BindingType::I32I32I32I32 => (gl::INT, 4),
+        BindingType::U32 => (gl::UNSIGNED_INT, 1),
+        BindingType::U32U32 => (gl::UNSIGNED_INT, 2),
+        BindingType::U32U32U32 => (gl::UNSIGNED_INT, 3),
+        BindingType::U32U32U32U32 => (gl::UNSIGNED_INT, 4),
+        BindingType::F32 => (gl::FLOAT, 1),
+        BindingType::F32F32 => (gl::FLOAT, 2),
+        BindingType::F32F32F32 => (gl::FLOAT, 3),
+        BindingType::F32F32F32F32 => (gl::FLOAT, 4),
+    }
 }

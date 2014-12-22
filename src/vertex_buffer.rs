@@ -209,34 +209,6 @@ impl<T> GlObject for VertexBuffer<T> {
     }
 }
 
-/// Describes the attribute of a vertex.
-///
-/// When you create a vertex buffer, you need to pass some sort of array of data. In order for
-/// OpenGL to use this data, we must tell it some informations about each field of each
-/// element. This structure describes one such field.
-#[deriving(Show, Clone, Copy)]
-pub struct VertexAttrib {
-    /// The offset, in bytes, between the start of each vertex and the attribute.
-    pub offset: uint,
-
-    /// Type of the field.
-    pub data_type: gl::types::GLenum,
-
-    /// Number of invidual elements in the attribute.
-    ///
-    /// For example if `data_type` is a f32 and `elements_count` is 2, then you have a `vec2`.
-    pub elements_count: u32,
-}
-
-/// Describes the layout of each vertex in a vertex buffer.
-pub type VertexBindings = Vec<(String, VertexAttrib)>;
-
-/// Trait for structures that represent a vertex.
-pub trait VertexFormat: Copy {
-    /// Builds the `VertexBindings` representing the layout of this element.
-    fn build_bindings(Option<Self>) -> VertexBindings;
-}
-
 /// A mapping of a buffer.
 ///
 /// # Features
@@ -256,5 +228,351 @@ impl<'a, T> Deref<[T]> for Mapping<'a, T> {
 impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
         self.0.deref_mut()
+    }
+}
+
+#[allow(missing_docs)]
+#[deriving(Copy, Clone, Show, PartialEq, Eq)]
+pub enum BindingType {
+    I8,
+    I8I8,
+    I8I8I8,
+    I8I8I8I8,
+    U8,
+    U8U8,
+    U8U8U8,
+    U8U8U8U8,
+    I16,
+    I16I16,
+    I16I16I16,
+    I16I16I16I16,
+    U16,
+    U16U16,
+    U16U16U16,
+    U16U16U16U16,
+    I32,
+    I32I32,
+    I32I32I32,
+    I32I32I32I32,
+    U32,
+    U32U32,
+    U32U32U32,
+    U32U32U32U32,
+    F32,
+    F32F32,
+    F32F32F32,
+    F32F32F32F32,
+}
+
+/// Describes the layout of each vertex in a vertex buffer.
+///
+/// The first element is the name of the binding, the second element is the offset
+/// from the start of each vertex to this element, and the third element is the type.
+pub type VertexBindings = Vec<(String, uint, BindingType)>;
+
+/// Trait for structures that represent a vertex.
+pub trait VertexFormat: Copy {
+    /// Builds the `VertexBindings` representing the layout of this element.
+    fn build_bindings(Option<Self>) -> VertexBindings;
+}
+
+/// Trait for types that can be used as vertex attributes.
+// TODO: mark this trait as "unsafe"
+pub trait Attribute {
+    /// Get the type of data.
+    fn get_type(_: Option<Self>) -> BindingType;
+}
+
+impl Attribute for i8 {
+    fn get_type(_: Option<i8>) -> BindingType {
+        BindingType::I8
+    }
+}
+
+impl Attribute for (i8, i8) {
+    fn get_type(_: Option<(i8, i8)>) -> BindingType {
+        BindingType::I8I8
+    }
+}
+
+impl Attribute for [i8, ..2] {
+    fn get_type(_: Option<[i8, ..2]>) -> BindingType {
+        BindingType::I8I8
+    }
+}
+
+impl Attribute for (i8, i8, i8) {
+    fn get_type(_: Option<(i8, i8, i8)>) -> BindingType {
+        BindingType::I8I8I8
+    }
+}
+
+impl Attribute for [i8, ..3] {
+    fn get_type(_: Option<[i8, ..3]>) -> BindingType {
+        BindingType::I8I8I8
+    }
+}
+
+impl Attribute for (i8, i8, i8, i8) {
+    fn get_type(_: Option<(i8, i8, i8, i8)>) -> BindingType {
+        BindingType::I8I8I8I8
+    }
+}
+
+impl Attribute for [i8, ..4] {
+    fn get_type(_: Option<[i8, ..4]>) -> BindingType {
+        BindingType::I8I8I8I8
+    }
+}
+
+impl Attribute for u8 {
+    fn get_type(_: Option<u8>) -> BindingType {
+        BindingType::U8
+    }
+}
+
+impl Attribute for (u8, u8) {
+    fn get_type(_: Option<(u8, u8)>) -> BindingType {
+        BindingType::U8U8
+    }
+}
+
+impl Attribute for [u8, ..2] {
+    fn get_type(_: Option<[u8, ..2]>) -> BindingType {
+        BindingType::U8U8
+    }
+}
+
+impl Attribute for (u8, u8, u8) {
+    fn get_type(_: Option<(u8, u8, u8)>) -> BindingType {
+        BindingType::U8U8U8
+    }
+}
+
+impl Attribute for [u8, ..3] {
+    fn get_type(_: Option<[u8, ..3]>) -> BindingType {
+        BindingType::U8U8U8
+    }
+}
+
+impl Attribute for (u8, u8, u8, u8) {
+    fn get_type(_: Option<(u8, u8, u8, u8)>) -> BindingType {
+        BindingType::U8U8U8U8
+    }
+}
+
+impl Attribute for [u8, ..4] {
+    fn get_type(_: Option<[u8, ..4]>) -> BindingType {
+        BindingType::U8U8U8U8
+    }
+}
+
+impl Attribute for i16 {
+    fn get_type(_: Option<i16>) -> BindingType {
+        BindingType::I16
+    }
+}
+
+impl Attribute for (i16, i16) {
+    fn get_type(_: Option<(i16, i16)>) -> BindingType {
+        BindingType::I16I16
+    }
+}
+
+impl Attribute for [i16, ..2] {
+    fn get_type(_: Option<[i16, ..2]>) -> BindingType {
+        BindingType::I16I16
+    }
+}
+
+impl Attribute for (i16, i16, i16) {
+    fn get_type(_: Option<(i16, i16, i16)>) -> BindingType {
+        BindingType::I16I16I16
+    }
+}
+
+impl Attribute for [i16, ..3] {
+    fn get_type(_: Option<[i16, ..3]>) -> BindingType {
+        BindingType::I16I16I16
+    }
+}
+
+impl Attribute for (i16, i16, i16, i16) {
+    fn get_type(_: Option<(i16, i16, i16, i16)>) -> BindingType {
+        BindingType::I16I16I16I16
+    }
+}
+
+impl Attribute for [i16, ..4] {
+    fn get_type(_: Option<[i16, ..4]>) -> BindingType {
+        BindingType::I16I16I16I16
+    }
+}
+
+impl Attribute for u16 {
+    fn get_type(_: Option<u16>) -> BindingType {
+        BindingType::U16
+    }
+}
+
+impl Attribute for (u16, u16) {
+    fn get_type(_: Option<(u16, u16)>) -> BindingType {
+        BindingType::U16U16
+    }
+}
+
+impl Attribute for [u16, ..2] {
+    fn get_type(_: Option<[u16, ..2]>) -> BindingType {
+        BindingType::U16U16
+    }
+}
+
+impl Attribute for (u16, u16, u16) {
+    fn get_type(_: Option<(u16, u16, u16)>) -> BindingType {
+        BindingType::U16U16U16
+    }
+}
+
+impl Attribute for [u16, ..3] {
+    fn get_type(_: Option<[u16, ..3]>) -> BindingType {
+        BindingType::U16U16U16
+    }
+}
+
+impl Attribute for (u16, u16, u16, u16) {
+    fn get_type(_: Option<(u16, u16, u16, u16)>) -> BindingType {
+        BindingType::U16U16U16U16
+    }
+}
+
+impl Attribute for [u16, ..4] {
+    fn get_type(_: Option<[u16, ..4]>) -> BindingType {
+        BindingType::U16U16U16U16
+    }
+}
+
+impl Attribute for i32 {
+    fn get_type(_: Option<i32>) -> BindingType {
+        BindingType::I32
+    }
+}
+
+impl Attribute for (i32, i32) {
+    fn get_type(_: Option<(i32, i32)>) -> BindingType {
+        BindingType::I32I32
+    }
+}
+
+impl Attribute for [i32, ..2] {
+    fn get_type(_: Option<[i32, ..2]>) -> BindingType {
+        BindingType::I32I32
+    }
+}
+
+impl Attribute for (i32, i32, i32) {
+    fn get_type(_: Option<(i32, i32, i32)>) -> BindingType {
+        BindingType::I32I32I32
+    }
+}
+
+impl Attribute for [i32, ..3] {
+    fn get_type(_: Option<[i32, ..3]>) -> BindingType {
+        BindingType::I32I32I32
+    }
+}
+
+impl Attribute for (i32, i32, i32, i32) {
+    fn get_type(_: Option<(i32, i32, i32, i32)>) -> BindingType {
+        BindingType::I32I32I32I32
+    }
+}
+
+impl Attribute for [i32, ..4] {
+    fn get_type(_: Option<[i32, ..4]>) -> BindingType {
+        BindingType::I32I32I32I32
+    }
+}
+
+impl Attribute for u32 {
+    fn get_type(_: Option<u32>) -> BindingType {
+        BindingType::U32
+    }
+}
+
+impl Attribute for (u32, u32) {
+    fn get_type(_: Option<(u32, u32)>) -> BindingType {
+        BindingType::U32U32
+    }
+}
+
+impl Attribute for [u32, ..2] {
+    fn get_type(_: Option<[u32, ..2]>) -> BindingType {
+        BindingType::U32U32
+    }
+}
+
+impl Attribute for (u32, u32, u32) {
+    fn get_type(_: Option<(u32, u32, u32)>) -> BindingType {
+        BindingType::U32U32U32
+    }
+}
+
+impl Attribute for [u32, ..3] {
+    fn get_type(_: Option<[u32, ..3]>) -> BindingType {
+        BindingType::U32U32U32
+    }
+}
+
+impl Attribute for (u32, u32, u32, u32) {
+    fn get_type(_: Option<(u32, u32, u32, u32)>) -> BindingType {
+        BindingType::U32U32U32U32
+    }
+}
+
+impl Attribute for [u32, ..4] {
+    fn get_type(_: Option<[u32, ..4]>) -> BindingType {
+        BindingType::U32U32U32U32
+    }
+}
+
+impl Attribute for f32 {
+    fn get_type(_: Option<f32>) -> BindingType {
+        BindingType::F32
+    }
+}
+
+impl Attribute for (f32, f32) {
+    fn get_type(_: Option<(f32, f32)>) -> BindingType {
+        BindingType::F32F32
+    }
+}
+
+impl Attribute for [f32, ..2] {
+    fn get_type(_: Option<[f32, ..2]>) -> BindingType {
+        BindingType::F32F32
+    }
+}
+
+impl Attribute for (f32, f32, f32) {
+    fn get_type(_: Option<(f32, f32, f32)>) -> BindingType {
+        BindingType::F32F32F32
+    }
+}
+
+impl Attribute for [f32, ..3] {
+    fn get_type(_: Option<[f32, ..3]>) -> BindingType {
+        BindingType::F32F32F32
+    }
+}
+
+impl Attribute for (f32, f32, f32, f32) {
+    fn get_type(_: Option<(f32, f32, f32, f32)>) -> BindingType {
+        BindingType::F32F32F32F32
+    }
+}
+
+impl Attribute for [f32, ..4] {
+    fn get_type(_: Option<[f32, ..4]>) -> BindingType {
+        BindingType::F32F32F32F32
     }
 }
