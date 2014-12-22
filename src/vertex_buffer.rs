@@ -92,17 +92,13 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
-    /// let bindings = vec![
-    ///     ("position".to_string(), glium::vertex_buffer::VertexAttrib {
-    ///         offset: 0,
-    ///         data_type: 0x1406,  // GL_FLOAT
-    ///         elements_count: 2,
-    ///     }),
-    ///     ("color".to_string(), glium::vertex_buffer::VertexAttrib {
-    ///         offset: 2 * ::std::mem::size_of::<f32>(),
-    ///         data_type: 0x1406,  // GL_FLOAT
-    ///         elements_count: 1,
-    ///     }),
+    /// let bindings = vec![(
+    ///         "position".to_string(), 0,
+    ///         glium::vertex_buffer::BindingType::F32F32,
+    ///     ), (
+    ///         "color".to_string(), 2 * ::std::mem::size_of::<f32>(),
+    ///         glium::vertex_buffer::BindingType::F32,
+    ///     ),
     /// ];
     ///
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
