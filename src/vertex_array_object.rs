@@ -25,6 +25,18 @@ impl VertexArrayObject {
         let vertex_buffer = GlObject::get_id(vertex_buffer);
         let attributes = ::program::get_attributes(program);
 
+        // checking the attributes types
+        for &(ref name, _, ty) in bindings.iter() {
+            let attribute = match attributes.get(name) {
+                Some(a) => a,
+                None => continue
+            };
+
+            if !vertex_type_matches(ty, attribute.ty, attribute.size) {
+                panic!("The program attributes do not match the vertex format");
+            }
+        }
+
         display.context.exec(move |: ctxt| {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
@@ -51,11 +63,6 @@ impl VertexArrayObject {
                         Some(a) => a,
                         None => continue
                     };
-
-                    // checking that the types are matching
-                    if !vertex_type_matches(ty, attribute.ty, attribute.size) {
-                        panic!("The program attributes do not match the vertex format");
-                    }
 
                     if attribute.location != -1 {
                         match data_type {
