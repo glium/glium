@@ -52,11 +52,10 @@ impl VertexArrayObject {
                         None => continue
                     };
 
-                    // FIXME: the reflected attributes can be (GL_FLOAT_VEC2, 1) while the
-                    //        vertex buffer can be (GL_FLOAT, 2) ; need to check these cases
-                    /*if attribute.ty != data_type || attribute.size != elements_count as i32 {
-                        panic!("The program attributes do not match the vertex format {} {}");
-                    }*/
+                    // checking that the types are matching
+                    if !vertex_type_matches(ty, attribute.ty, attribute.size) {
+                        panic!("The program attributes do not match the vertex format");
+                    }
 
                     if attribute.location != -1 {
                         match data_type {
@@ -158,5 +157,53 @@ fn vertex_binding_type_to_gl(ty: BindingType) -> (gl::types::GLenum, gl::types::
         BindingType::F32F32 => (gl::FLOAT, 2),
         BindingType::F32F32F32 => (gl::FLOAT, 3),
         BindingType::F32F32F32F32 => (gl::FLOAT, 4),
+    }
+}
+
+fn vertex_type_matches(ty: BindingType, gl_ty: gl::types::GLenum,
+                       gl_size: gl::types::GLint) -> bool
+{
+    match (ty, gl_ty, gl_size) {
+        (BindingType::I8, gl::BYTE, 1) => true,
+        (BindingType::I8I8, gl::BYTE, 2) => true,
+        (BindingType::I8I8I8, gl::BYTE, 3) => true,
+        (BindingType::I8I8I8I8, gl::BYTE, 4) => true,
+        (BindingType::U8, gl::UNSIGNED_BYTE, 1) => true,
+        (BindingType::U8U8, gl::UNSIGNED_BYTE, 2) => true,
+        (BindingType::U8U8U8, gl::UNSIGNED_BYTE, 3) => true,
+        (BindingType::U8U8U8U8, gl::UNSIGNED_BYTE, 4) => true,
+        (BindingType::I16, gl::SHORT, 1) => true,
+        (BindingType::I16I16, gl::SHORT, 2) => true,
+        (BindingType::I16I16I16, gl::SHORT, 3) => true,
+        (BindingType::I16I16I16I16, gl::SHORT, 4) => true,
+        (BindingType::U16, gl::UNSIGNED_SHORT, 1) => true,
+        (BindingType::U16U16, gl::UNSIGNED_SHORT, 2) => true,
+        (BindingType::U16U16U16, gl::UNSIGNED_SHORT, 3) => true,
+        (BindingType::U16U16U16U16, gl::UNSIGNED_SHORT, 4) => true,
+        (BindingType::I32, gl::INT, 1) => true,
+        (BindingType::I32I32, gl::INT, 2) => true,
+        (BindingType::I32I32, gl::INT_VEC2, 1) => true,
+        (BindingType::I32I32I32, gl::INT, 3) => true,
+        (BindingType::I32I32I32, gl::INT_VEC3, 1) => true,
+        (BindingType::I32I32I32I32, gl::INT, 4) => true,
+        (BindingType::I32I32I32I32, gl::INT_VEC4, 1) => true,
+        (BindingType::I32I32I32I32, gl::INT_VEC2, 2) => true,
+        (BindingType::U32, gl::UNSIGNED_INT, 1) => true,
+        (BindingType::U32U32, gl::UNSIGNED_INT, 2) => true,
+        (BindingType::U32U32, gl::UNSIGNED_INT_VEC2, 1) => true,
+        (BindingType::U32U32U32, gl::UNSIGNED_INT, 3) => true,
+        (BindingType::U32U32U32, gl::UNSIGNED_INT_VEC3, 1) => true,
+        (BindingType::U32U32U32U32, gl::UNSIGNED_INT, 4) => true,
+        (BindingType::U32U32U32U32, gl::UNSIGNED_INT_VEC4, 1) => true,
+        (BindingType::U32U32U32U32, gl::UNSIGNED_INT_VEC2, 2) => true,
+        (BindingType::F32, gl::FLOAT, 1) => true,
+        (BindingType::F32F32, gl::FLOAT, 2) => true,
+        (BindingType::F32F32, gl::FLOAT_VEC2, 1) => true,
+        (BindingType::F32F32F32, gl::FLOAT, 3) => true,
+        (BindingType::F32F32F32, gl::FLOAT_VEC3, 1) => true,
+        (BindingType::F32F32F32F32, gl::FLOAT, 4) => true,
+        (BindingType::F32F32F32F32, gl::FLOAT_VEC4, 1) => true,
+        (BindingType::F32F32F32F32, gl::FLOAT_VEC2, 2) => true,
+        _ => false,
     }
 }
