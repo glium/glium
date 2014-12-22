@@ -74,7 +74,9 @@ impl Buffer {
     {
         use std::mem;
 
-        let elements_size = {
+        let elements_size = if data.len() <= 1 {
+            mem::size_of::<D>()
+        } else {
             let d0: *const D = &data[0];
             let d1: *const D = &data[1];
             (d1 as uint) - (d0 as uint)
