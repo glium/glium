@@ -18,8 +18,6 @@ impl VertexArrayObject {
     fn new<T>(display: Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
               ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
-        let (tx, rx) = channel();
-
         let bindings = vertex_buffer::get_bindings(vertex_buffer).clone();
         let vb_elementssize = vertex_buffer::get_elements_size(vertex_buffer);
         let vertex_buffer = GlObject::get_id(vertex_buffer);
@@ -36,6 +34,8 @@ impl VertexArrayObject {
                 panic!("The program attributes do not match the vertex format");
             }
         }
+
+        let (tx, rx) = channel();
 
         display.context.exec(move |: ctxt| {
             unsafe {
@@ -118,19 +118,18 @@ pub fn get_vertex_array_object<T, I>(display: &Arc<DisplayImpl>, vertex_buffer: 
                                      indices: &I, program: &Program) -> gl::types::GLuint
                                      where I: IndicesSource
 {
-    let mut vaos = display.vertex_array_objects.lock();
-
     let ib_id = indices.to_indices_source_helper().index_buffer.map(|b| b.get_id()).unwrap_or(0);
     let vb_id = GlObject::get_id(vertex_buffer);
     let program_id = program.get_id();
 
-    if let Some(value) = vaos.get(&(vb_id, ib_id, program_id)) {
+    if let Some(value) = display.vertex_array_objects.lock().get(&(vb_id, ib_id, program_id)) {
         return value.id;
     }
 
+    // we create the new VAO without the mutex locked
     let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, ib_id, program);
     let new_vao_id = new_vao.id;
-    vaos.insert((vb_id, ib_id, program_id), new_vao);
+    display.vertex_array_objects.lock().insert((vb_id, ib_id, program_id), new_vao);
     new_vao_id
 }
 
