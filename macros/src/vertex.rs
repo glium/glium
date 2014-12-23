@@ -75,18 +75,17 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                             dummy_field
                         };
 
-                        bindings.push(($ident_str.to_string(), VertexAttrib {
-                            offset: offset,
-                            data_type: GLDataTuple::get_gl_type(None::<$elem_type>),
-                            elements_count: GLDataTuple::get_num_elems(None::<$elem_type>) as u32,
-                        }));
+                        bindings.push((
+                            $ident_str.to_string(),
+                            offset,
+                            Attribute::get_type(None::<$elem_type>),
+                        ));
                     })
 
                 }).collect::<Vec<P<ast::Expr>>>();
 
             quote_expr!(ecx, {
-                use glium::vertex_buffer::VertexAttrib;
-                use glium::GLDataTuple;
+                use glium::vertex_buffer::Attribute;
                 use std::mem;
 
                 let mut bindings = Vec::new();

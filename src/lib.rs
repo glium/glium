@@ -200,9 +200,6 @@ extern crate image;
 extern crate libc;
 extern crate nalgebra;
 
-#[doc(hidden)]
-pub use data_types::GLDataTuple;
-
 pub use index_buffer::IndexBuffer;
 pub use framebuffer::FrameBuffer;
 pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
@@ -216,13 +213,11 @@ use std::sync::{Arc, Mutex};
 pub mod debug;
 pub mod index_buffer;
 pub mod uniforms;
-/// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
 pub mod texture;
 
 mod buffer;
 mod context;
-mod data_types;
 mod framebuffer;
 mod program;
 mod vertex_array_object;
@@ -605,6 +600,9 @@ pub trait Surface {
     /// # Panic
     ///
     /// - Panics if the requested depth function requires a depth buffer and none is attached.
+    /// - Panics if the type of some of the vertex source's attributes do not match the program's.
+    /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
+    ///   vertex's attribute is not used by the program).
     ///
     fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;
