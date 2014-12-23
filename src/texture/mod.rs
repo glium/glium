@@ -918,6 +918,13 @@ impl TextureImplementation {
 
         rx.recv()
     }
+
+    /// Returns the `Display` associated to this texture.
+    pub fn get_display(&self) -> ::Display {
+        ::Display {
+            context: self.display.clone()
+        }
+    }
 }
 
 impl GlObject for TextureImplementation {

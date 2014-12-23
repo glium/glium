@@ -793,6 +793,7 @@ impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
                 debug_callback: Mutex::new(None),
                 framebuffer_objects: Mutex::new(HashMap::new()),
                 vertex_array_objects: Mutex::new(HashMap::new()),
+                samplers: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -809,6 +810,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
                 debug_callback: Mutex::new(None),
                 framebuffer_objects: Mutex::new(HashMap::new()),
                 vertex_array_objects: Mutex::new(HashMap::new()),
+                samplers: Mutex::new(HashMap::new()),
             }),
         })
     }
@@ -841,6 +843,9 @@ struct DisplayImpl {
     // the key is a (vertexbuffer, program)
     vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint, gl::types::GLuint),
                                         vertex_array_object::VertexArrayObject>>,
+
+    // we maintain a list of samplers for each possible behavior
+    samplers: Mutex<HashMap<uniforms::SamplerBehavior, uniforms::SamplerObject>>,
 }
 
 impl Display {
@@ -1106,10 +1111,10 @@ impl Display {
 
 // this destructor is here because objects in `Display` contain an `Arc<DisplayImpl>`,
 // which would lead to a leak
-impl Drop for Display {
+impl Drop for DisplayImpl {
     fn drop(&mut self) {
         // disabling callback, to avoid
-        self.context.context.exec(move |: ctxt| {
+        self.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.state.enabled_debug_output != Some(false) {
                     ctxt.gl.Disable(gl::DEBUG_OUTPUT);
@@ -1120,13 +1125,18 @@ impl Drop for Display {
         });
 
         {
-            let mut fbos = self.context.framebuffer_objects.lock();
+            let mut fbos = self.framebuffer_objects.lock();
             fbos.clear();
         }
 
         {
-            let mut vaos = self.context.vertex_array_objects.lock();
+            let mut vaos = self.vertex_array_objects.lock();
             vaos.clear();
+        }
+
+        {
+            let mut samplers = self.samplers.lock();
+            samplers.clear();
         }
     }
 }
