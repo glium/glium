@@ -19,11 +19,10 @@ fn attribute_types_matching() {
     #[deriving(Copy)]
     struct Vertex {
         field1: [f32, ..2],
-        field2: [i32, ..3],
     }
 
     let vertex_buffer = glium::VertexBuffer::new(&display, vec![
-            Vertex { field1: [0.0, 0.0], field2: [0, 0, 0] }
+            Vertex { field1: [0.0, 0.0] }
         ]);
     let index_buffer = glium::IndexBuffer::new(&display,
                             glium::index_buffer::PointsList(vec![0u16]));
@@ -34,11 +33,9 @@ fn attribute_types_matching() {
             #version 110
 
             attribute vec2 field1;
-            attribute ivec3 field2;
 
             void main() {
-                float z = 0.0;
-                gl_Position = vec4(field1, z, 1.0);
+                gl_Position = vec4(field1, 0.0, 1.0);
             }
         ",
         "
