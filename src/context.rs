@@ -214,6 +214,11 @@ pub struct Capabilities {
 
     /// Number of bits in the default framebuffer's stencil buffer
     pub stencil_bits: Option<u16>,
+
+    /// Maximum number of textures that can be bind to a program.
+    ///
+    /// `glActiveTexture` must be between `GL_TEXTURE0` and `GL_TEXTURE0` + this value - 1.
+    pub max_combined_texture_image_units: gl::types::GLint,
 }
 
 impl Context {
@@ -596,5 +601,11 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, gl_es: bool) -> Capabiliti
                 v => Some(v as u16),
             }
         },
+
+        max_combined_texture_image_units: unsafe {
+            let mut val = 2;
+            gl.GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, &mut val);
+            val
+        }
     }
 }

@@ -90,6 +90,8 @@ impl UniformValueBinder {
                 ctxt.gl.Uniform4fv(location, 1, val.as_ptr() as *const f32)
             },
             UniformValueBinderImpl::Texture(id) => {
+                assert!(*active_texture < gl::TEXTURE0 +
+                        ctxt.capabilities.max_combined_texture_image_units as gl::types::GLenum);
                 ctxt.gl.ActiveTexture(*active_texture as u32);
                 ctxt.gl.BindTexture(gl::TEXTURE_2D, id);      // FIXME: check bind point
                 ctxt.gl.Uniform1i(location, (*active_texture - gl::TEXTURE0) as gl::types::GLint);
