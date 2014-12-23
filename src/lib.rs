@@ -678,8 +678,10 @@ impl<'t> Surface for Frame<'t> {
         self.display.context.capabilities().stencil_bits
     }
 
-    fn draw<V, I: IndicesSource, U: uniforms::Uniforms>(&mut self, vertex_buffer: &VertexBuffer<V>,
-        index_buffer: &I, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
+    fn draw<V, I, U>(&mut self, vertex_buffer: &VertexBuffer<V>,
+                     index_buffer: &I, program: &Program, uniforms: &U,
+                     draw_parameters: &DrawParameters)
+                     where I: IndicesSource, U: uniforms::Uniforms
     {
         framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
             draw_parameters)
