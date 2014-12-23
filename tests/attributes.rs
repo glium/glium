@@ -62,7 +62,7 @@ fn attribute_types_matching() {
 }
 
 #[test]
-#[should_fail(expected = "The program attributes do not match the vertex format")]
+#[should_fail(expected = "The program attribute `field1` does not match the vertex format")]
 fn attribute_types_mismatch() {
     let display = support::build_display();
 

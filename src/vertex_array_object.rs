@@ -31,7 +31,7 @@ impl VertexArrayObject {
             };
 
             if !vertex_type_matches(ty, attribute.ty, attribute.size) {
-                panic!("The program attributes do not match the vertex format");
+                panic!("The program attribute `{}` does not match the vertex format", name);
             }
         }
 
