@@ -213,7 +213,6 @@ use std::sync::{Arc, Mutex};
 pub mod debug;
 pub mod index_buffer;
 pub mod uniforms;
-/// Contains everything related to vertex buffers.
 pub mod vertex_buffer;
 pub mod texture;
 
@@ -601,6 +600,7 @@ pub trait Surface {
     /// # Panic
     ///
     /// - Panics if the requested depth function requires a depth buffer and none is attached.
+    /// - Panics if the type of some of the vertex source's attributes do not match the program's
     ///
     fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;

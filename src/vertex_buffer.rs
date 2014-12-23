@@ -1,3 +1,6 @@
+/*!
+Contains everything related to vertex buffers.
+*/
 use buffer::{mod, Buffer};
 use gl;
 use GlObject;
