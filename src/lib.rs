@@ -600,7 +600,9 @@ pub trait Surface {
     /// # Panic
     ///
     /// - Panics if the requested depth function requires a depth buffer and none is attached.
-    /// - Panics if the type of some of the vertex source's attributes do not match the program's
+    /// - Panics if the type of some of the vertex source's attributes do not match the program's.
+    /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
+    ///   vertex's attribute is not used by the program).
     ///
     fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;

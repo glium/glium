@@ -35,6 +35,13 @@ impl VertexArrayObject {
             }
         }
 
+        // checking for missing attributes
+        for (&ref name, _) in attributes.iter() {
+            if bindings.iter().find(|&&(ref n, _, _)| n == name).is_none() {
+                panic!("The program attribute `{}` is missing in the vertex bindings", name);
+            }
+        };
+
         let (tx, rx) = channel();
 
         display.context.exec(move |: ctxt| {
