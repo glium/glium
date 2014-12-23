@@ -202,6 +202,8 @@ pub struct ExtensionsList {
     pub gl_ati_meminfo: bool,
     /// GL_ARB_vertex_array_object
     pub gl_arb_vertex_array_object: bool,
+    /// GL_ARB_sampler_objects
+    pub gl_arb_sampler_objects: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -467,6 +469,10 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         if !ctxt.extensions.gl_arb_vertex_array_object && ctxt.version < &GlVersion(3, 0) {
             result.push("OpenGL implementation doesn't support vertex array objects");
         }
+
+        if !ctxt.extensions.gl_arb_sampler_objects && ctxt.version < &GlVersion(3, 3) {
+            result.push("OpenGL implementation doesn't support sampler objects");
+        }
     }
 
     if result.len() == 0 {
@@ -535,6 +541,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_nvx_gpu_memory_info: false,
         gl_ati_meminfo: false,
         gl_arb_vertex_array_object: false,
+        gl_arb_sampler_objects: false,
     };
 
     for extension in strings.into_iter() {
@@ -547,6 +554,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
             "GL_ARB_vertex_array_object" => extensions.gl_arb_vertex_array_object = true,
+            "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             _ => ()
         }
     }
