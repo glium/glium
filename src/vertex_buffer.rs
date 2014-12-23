@@ -13,18 +13,6 @@ pub struct VertexBuffer<T> {
     elements_size: uint,
 }
 
-/// Don't use this function outside of glium
-#[doc(hidden)]
-pub fn get_elements_size<T>(vb: &VertexBuffer<T>) -> uint {
-    vb.elements_size
-}
-
-/// Don't use this function outside of glium
-#[doc(hidden)]
-pub fn get_bindings<T>(vb: &VertexBuffer<T>) -> &VertexBindings {
-    &vb.bindings
-}
-
 impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// Builds a new vertex buffer.
     ///
@@ -186,6 +174,18 @@ impl<T: Send + Copy> VertexBuffer<T> {
     #[cfg(feature = "gl_extensions")]
     pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
         self.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
+    }
+}
+
+impl<T> VertexBuffer<T> {
+    /// Returns the number of bytes between two consecutive elements in the buffer.
+    pub fn get_elements_size(&self) -> uint {
+        self.elements_size
+    }
+
+    /// Returns the associated `VertexBindings`.
+    pub fn get_bindings(&self) -> &VertexBindings {
+        &self.bindings
     }
 }
 

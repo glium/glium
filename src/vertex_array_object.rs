@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::mem;
 
 use program::Program;
-use vertex_buffer::{mod, VertexBuffer, BindingType};
+use vertex_buffer::{VertexBuffer, BindingType};
 use {DisplayImpl, IndicesSource, GlObject};
 
 use {libc, gl};
@@ -18,8 +18,8 @@ impl VertexArrayObject {
     fn new<T>(display: Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
               ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
-        let bindings = vertex_buffer::get_bindings(vertex_buffer).clone();
-        let vb_elementssize = vertex_buffer::get_elements_size(vertex_buffer);
+        let bindings = vertex_buffer.get_bindings().clone();
+        let vb_elementssize = vertex_buffer.get_elements_size();
         let vertex_buffer = GlObject::get_id(vertex_buffer);
         let attributes = ::program::get_attributes(program);
 
