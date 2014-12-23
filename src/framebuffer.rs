@@ -84,6 +84,10 @@ impl<'a> Surface for FrameBuffer<'a> {
         uniforms: &U, draw_parameters: &::DrawParameters) where I: ::IndicesSource,
         U: ::uniforms::Uniforms
     {
+        if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
+            panic!("Requested a depth function but no depth buffer is attached");
+        }
+
         draw(&self.display, Some(&self.attachments), vb, ib, program, uniforms, draw_parameters)
     }
 

@@ -319,6 +319,20 @@ pub enum DepthFunction {
 }
 
 impl DepthFunction {
+    /// Returns true if the function requires a depth buffer to be used.
+    pub fn requires_depth_buffer(&self) -> bool {
+        match *self {
+            DepthFunction::Ignore => true,
+            DepthFunction::Overwrite => false,
+            DepthFunction::IfEqual => true,
+            DepthFunction::IfNotEqual => true,
+            DepthFunction::IfMore => true,
+            DepthFunction::IfMoreOrEqual => true,
+            DepthFunction::IfLess => true,
+            DepthFunction::IfLessOrEqual => true,
+        }
+    }
+
     /// Turns the `DepthFunction` into the corresponding GLenum.
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -587,6 +601,11 @@ pub trait Surface {
     }
 
     /// Draws.
+    ///
+    /// # Panic
+    ///
+    /// - Panics if the requested depth function requires a depth buffer and none is attached.
+    ///
     fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;
 
@@ -683,6 +702,10 @@ impl<'t> Surface for Frame<'t> {
                      draw_parameters: &DrawParameters)
                      where I: IndicesSource, U: uniforms::Uniforms
     {
+        if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
+            panic!("Requested a depth function but no depth buffer is attached");
+        }
+
         framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
             draw_parameters)
     }
