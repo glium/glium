@@ -857,6 +857,12 @@ impl Display {
         }
     }
 
+    /// Returns the maximum value that can be used for anisotropic filtering, or `None`
+    /// if the hardware doesn't support it.
+    pub fn get_max_anisotropy_support(&self) -> Option<u16> {
+        self.context.context.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
+    }
+
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     ///
     /// # Features

@@ -290,6 +290,16 @@ pub struct SamplerBehavior {
     pub minify_filter: SamplerFilter,
     /// Filter to use when magnifying the texture.
     pub magnify_filter: SamplerFilter,
+    /// `1` means no anisotropic filtering, any value superior to `1` does.
+    ///
+    /// ## Compatibility
+    ///
+    /// This parameter is always available. However it is ignored on hardware that does
+    /// not support anisotropic filtering.
+    ///
+    /// If you set the value to a value higher than what the hardware supports, it will
+    /// be clamped.
+    pub max_anisotropy: u16,
 }
 
 impl ::std::default::Default for SamplerBehavior {
@@ -302,6 +312,7 @@ impl ::std::default::Default for SamplerBehavior {
             ),
             minify_filter: SamplerFilter::Linear,
             magnify_filter: SamplerFilter::Linear,
+            max_anisotropy: 1,
         }
     }
 }
@@ -338,6 +349,16 @@ impl SamplerObject {
                     behavior.minify_filter.to_glenum() as gl::types::GLint);
                 ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MAG_FILTER,
                     behavior.magnify_filter.to_glenum() as gl::types::GLint);
+
+                if let Some(max_value) = ctxt.capabilities.max_texture_max_anisotropy {
+                    let value = if behavior.max_anisotropy as f32 > max_value {
+                        max_value
+                    } else {
+                        behavior.max_anisotropy as f32
+                    };
+
+                    ctxt.gl.SamplerParameterf(sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, value);
+                }
             }
 
             tx.send(sampler);

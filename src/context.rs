@@ -204,6 +204,8 @@ pub struct ExtensionsList {
     pub gl_arb_vertex_array_object: bool,
     /// GL_ARB_sampler_objects
     pub gl_arb_sampler_objects: bool,
+    /// GL_EXT_texture_filter_anisotropic
+    pub gl_ext_texture_filter_anisotropic: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -221,6 +223,11 @@ pub struct Capabilities {
     ///
     /// `glActiveTexture` must be between `GL_TEXTURE0` and `GL_TEXTURE0` + this value - 1.
     pub max_combined_texture_image_units: gl::types::GLint,
+
+    /// Maximum value for `GL_TEXTURE_MAX_ANISOTROPY_EXT​`.
+    ///
+    /// `None` if the extension is not supported by the hardware.
+    pub max_texture_max_anisotropy: Option<gl::types::GLfloat>,
 }
 
 impl Context {
@@ -257,8 +264,8 @@ impl Context {
             // getting the GL version and extensions
             let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
             let version = get_gl_version(&gl);
-            let capabilities = Arc::new(get_capabilities(&gl, &version, opengl_es));
             let extensions = get_extensions(&gl);
+            let capabilities = Arc::new(get_capabilities(&gl, &version, &extensions, opengl_es));
 
             // checking compatibility with glium
             match check_gl_compatibility(CommandContext {
@@ -368,7 +375,7 @@ impl Context {
             let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
             let version = get_gl_version(&gl);
             let extensions = get_extensions(&gl);
-            let capabilities = Arc::new(get_capabilities(&gl, &version, opengl_es));
+            let capabilities = Arc::new(get_capabilities(&gl, &version, &extensions, opengl_es));
 
             // checking compatibility with glium
             match check_gl_compatibility(CommandContext {
@@ -544,6 +551,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ati_meminfo: false,
         gl_arb_vertex_array_object: false,
         gl_arb_sampler_objects: false,
+        gl_ext_texture_filter_anisotropic: false,
     };
 
     for extension in strings.into_iter() {
@@ -557,6 +565,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
             "GL_ARB_vertex_array_object" => extensions.gl_arb_vertex_array_object = true,
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
+            "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             _ => ()
         }
     }
@@ -564,7 +573,9 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
     extensions
 }
 
-fn get_capabilities(gl: &gl::Gl, version: &GlVersion, gl_es: bool) -> Capabilities {
+fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsList,
+                    gl_es: bool) -> Capabilities
+{
     use std::mem;
 
     Capabilities {
@@ -616,6 +627,17 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, gl_es: bool) -> Capabiliti
             let mut val = 2;
             gl.GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, &mut val);
             val
-        }
+        },
+
+        max_texture_max_anisotropy: if !extensions.gl_ext_texture_filter_anisotropic {
+            None
+
+        } else {
+            Some(unsafe {
+                let mut val = mem::uninitialized();
+                gl.GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut val);
+                val
+            })
+        },
     }
 }
