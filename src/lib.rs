@@ -179,7 +179,6 @@ target.finish();
 
 #![feature(default_type_params)]
 #![feature(globs)]
-#![feature(phase)]
 #![feature(slicing_syntax)]
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
@@ -189,9 +188,6 @@ target.finish();
 // TODO: remove these when everything is implemented
 #![allow(dead_code)]
 #![allow(unused_variables)]
-
-#[phase(plugin)]
-extern crate gl_generator;
 
 extern crate cgmath;
 extern crate glutin;
@@ -223,19 +219,7 @@ mod program;
 mod vertex_array_object;
 
 mod gl {
-    generate_gl_bindings! {
-        api: "gl",
-        profile: "compatibility",
-        version: "4.5",
-        generator: "struct",
-        extensions: [
-            "GL_EXT_direct_state_access",
-            "GL_EXT_framebuffer_object",
-            "GL_EXT_framebuffer_blit",
-            "GL_NVX_gpu_memory_info",
-            "GL_ATI_meminfo",
-        ]
-    }
+    include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
 
 /// Internal trait for objects that are OpenGL objects.
