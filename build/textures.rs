@@ -285,7 +285,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `as_surface` function
-    /*if dimensions == TextureDimensions::Texture2d && ty == TextureType::Regular {
+    if dimensions == TextureDimensions::Texture2d && ty == TextureType::Regular {
         (write!(dest, "
                 /// Starts drawing on the texture.
                 ///
@@ -300,10 +300,10 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
                     // TODO: hacky, shouldn't recreate a Display
-                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&::Display {{ context: self.0.display.clone() }}, self)
+                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&::Display {{ context: self.0.display.clone() }}, self))
                 }}
             ")).unwrap();
-    }*/
+    }
 
     // writing the `read` function
     // TODO: implement for arrays too

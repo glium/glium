@@ -19,7 +19,7 @@ fn no_depth_buffer() {
 
     let texture = glium::texture::Texture2d::new_empty(&display,
                             glium::texture::UncompressedFloatFormat::U8U8U8U8, 128, 128);
-    let mut framebuffer = glium::FrameBuffer::new(&display).with_color_texture(&texture);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 
     let parameters = glium::DrawParameters {
         depth_function: glium::DepthFunction::IfLess,
