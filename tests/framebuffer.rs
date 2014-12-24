@@ -45,6 +45,7 @@ fn simple_dimensions() {
 }
 
 #[test]
+#[cfg(feature = "gl_extensions")]       // TODO: remove
 fn simple_render_to_texture() {
     use std::default::Default;
 
