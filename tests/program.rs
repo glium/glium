@@ -119,3 +119,38 @@ fn program_linking_error() {
     
     display.assert_no_error();
 }
+
+#[test]
+fn get_frag_data_location() {    
+    let display = support::build_display();
+
+    let program = glium::Program::new(&display,
+        "
+            #version 110
+
+            void main() {
+                gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 130
+
+            out vec4 color;
+
+            void main() {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+        None);
+
+    // ignoring test in case of compilation error (version 1.30 may not be supported)
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
+
+    assert!(program.get_frag_data_location("color").is_some());
+    assert!(program.get_frag_data_location("unexisting").is_none());
+    
+    display.assert_no_error();
+}

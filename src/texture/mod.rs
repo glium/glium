@@ -945,7 +945,7 @@ impl Drop for TextureImplementation {
         // removing FBOs which contain this texture
         {
             let mut fbos = self.display.framebuffer_objects.lock();
-            let to_delete = fbos.keys().filter(|b| b.colors.iter().find(|&id| id == &self.id).is_some())
+            let to_delete = fbos.keys().filter(|b| b.colors.iter().find(|&&(_, id)| id == self.id).is_some())
                 .map(|k| k.clone()).collect::<Vec<_>>();
             for k in to_delete.into_iter() {
                 fbos.remove(&k);
@@ -962,7 +962,7 @@ impl Drop for TextureImplementation {
 /// Struct that allows you to draw on a texture.
 ///
 /// To obtain such an object, call `texture.as_surface()`.
-pub struct TextureSurface<'a>(framebuffer::FrameBuffer<'a>);
+pub struct TextureSurface<'a>(framebuffer::SimpleFrameBuffer<'a>);
 
 impl<'a> Surface for TextureSurface<'a> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {

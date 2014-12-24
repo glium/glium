@@ -96,6 +96,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 }}
             ", name)).unwrap();
 
+    // `GlObject` trait impl
+    (writeln!(dest, "
+                impl GlObject for {} {{
+                    fn get_id(&self) -> gl::types::GLuint {{
+                        self.0.get_id()
+                    }}
+                }}
+            ", name)).unwrap();
+
     // `UniformValue` trait impl
     (writeln!(dest, "
                 impl<'a> UniformValue for &'a {} {{
@@ -291,8 +300,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
                     // TODO: hacky, shouldn't recreate a Display
-                    TextureSurface(framebuffer::FrameBuffer::new(&::Display {{ context: self.0.display.clone() }})
-                        .with_color_texture(self))
+                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&::Display {{ context: self.0.display.clone() }}, self))
                 }}
             ")).unwrap();
     }

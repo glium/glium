@@ -1,7 +1,7 @@
 use gl;
 use std::{fmt, mem, ptr};
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use {Display, DisplayImpl, GlObject};
 use context::CommandContext;
 
@@ -29,6 +29,7 @@ pub struct Program {
     id: gl::types::GLuint,
     uniforms: Arc<HashMap<String, Uniform>>,
     attributes: Arc<HashMap<String, Attribute>>,
+    frag_data_locations: Mutex<HashMap<String, Option<u32>>>,
 }
 
 /// Informations about a uniform (except its name).
@@ -203,7 +204,45 @@ impl Program {
             id: id,
             uniforms: Arc::new(uniforms),
             attributes: Arc::new(attributes),
+            frag_data_locations: Mutex::new(HashMap::new()),
         })
+    }
+
+    /// Returns the *location* of an output fragment, if it exists.
+    ///
+    /// The *location* is a low-level information that is used internally by glium.
+    /// You probably don't need to call this function.
+    ///
+    /// You can declare output fragments in your shaders by writing:
+    ///
+    /// ```notrust
+    /// out vec4 foo;
+    /// ```
+    ///
+    pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
+        // looking for a cached value
+        if let Some(result) = self.frag_data_locations.lock().get(name) {
+            return result.clone();
+        }
+
+        // querying opengl
+        let id = self.id.clone();
+        let name_c = name.to_c_str();
+        let (tx, rx) = channel();
+        self.display.context.exec(move |: ctxt| {
+            unsafe {
+                let value = ctxt.gl.GetFragDataLocation(id, name_c.as_ptr());
+                tx.send(value);
+            }
+        });
+
+        let location = match rx.recv() {
+            -1 => None,
+            a => Some(a as u32),
+        };
+
+        self.frag_data_locations.lock().insert(name.to_string(), location);
+        location
     }
 }
 
