@@ -208,7 +208,6 @@ impl Program {
         })
     }
 
-    /// 
     pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
         // looking for a cached value
         if let Some(result) = self.frag_data_locations.lock().get(name) {
