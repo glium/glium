@@ -43,7 +43,7 @@ use std::default::Default;
 # let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
 let uniforms = glium::uniforms::UniformsStorage::new("texture",
     glium::uniforms::Sampler(&texture, glium::uniforms::SamplerBehavior {
-        magnify_filter: glium::uniforms::SamplerFilter::Nearest,
+        magnify_filter: glium::uniforms::MagnifySamplerFilter::Nearest,
         .. Default::default()
     }));
 ```
@@ -246,24 +246,64 @@ impl SamplerWrapFunction {
             SamplerWrapFunction::Clamp => gl::CLAMP_TO_EDGE,
         }
     }
-} 
+}
 
 /// The function that the GPU will use when loading the value of a texel.
 #[deriving(Show, Clone, Copy, Hash, PartialEq, Eq)]
-pub enum SamplerFilter {
+pub enum MagnifySamplerFilter {
     /// The nearest texel will be loaded.
     Nearest,
 
     /// All nearby texels will be loaded and their values will be merged.
-    Linear
+    Linear,
 }
 
-impl SamplerFilter {
+impl MagnifySamplerFilter {
     #[doc(hidden)]      // TODO: hacky
     pub fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            SamplerFilter::Nearest => gl::NEAREST,
-            SamplerFilter::Linear => gl::LINEAR,
+            MagnifySamplerFilter::Nearest => gl::NEAREST,
+            MagnifySamplerFilter::Linear => gl::LINEAR,
+        }
+    }
+}
+
+/// The function that the GPU will use when loading the value of a texel.
+#[deriving(Show, Clone, Copy, Hash, PartialEq, Eq)]
+pub enum MinifySamplerFilter {
+    /// The nearest texel will be loaded.
+    ///
+    /// Only uses the main texture, mipmaps are totally ignored.
+    Nearest,
+
+    /// All nearby texels will be loaded and their values will be merged.
+    ///
+    /// Only uses the main texture, mipmaps are totally ignored.
+    Linear,
+
+    /// The nearest texel of the nearest mipmap will be loaded.
+    NearestMipmapNearest,
+
+    /// Takes the nearest texel from the two nearest mipmaps, and merges them.
+    LinearMipmapNearest,
+
+    /// Same as `Linear` but from the nearest mipmap.
+    NearestMipmapLinear,
+
+    /// 
+    LinearMipmapLinear,
+}
+
+impl MinifySamplerFilter {
+    #[doc(hidden)]      // TODO: hacky
+    pub fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            MinifySamplerFilter::Nearest => gl::NEAREST,
+            MinifySamplerFilter::Linear => gl::LINEAR,
+            MinifySamplerFilter::NearestMipmapNearest => gl::NEAREST_MIPMAP_NEAREST,
+            MinifySamplerFilter::LinearMipmapNearest => gl::LINEAR_MIPMAP_NEAREST,
+            MinifySamplerFilter::NearestMipmapLinear => gl::NEAREST_MIPMAP_LINEAR,
+            MinifySamplerFilter::LinearMipmapLinear => gl::LINEAR_MIPMAP_LINEAR,
         }
     }
 }
@@ -287,9 +327,9 @@ pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
     pub wrap_function: (SamplerWrapFunction, SamplerWrapFunction, SamplerWrapFunction),
     /// Filter to use when mignifying the texture.
-    pub minify_filter: SamplerFilter,
+    pub minify_filter: MinifySamplerFilter,
     /// Filter to use when magnifying the texture.
-    pub magnify_filter: SamplerFilter,
+    pub magnify_filter: MagnifySamplerFilter,
     /// `1` means no anisotropic filtering, any value superior to `1` does.
     ///
     /// ## Compatibility
@@ -310,8 +350,8 @@ impl ::std::default::Default for SamplerBehavior {
                 SamplerWrapFunction::Mirror,
                 SamplerWrapFunction::Mirror
             ),
-            minify_filter: SamplerFilter::Linear,
-            magnify_filter: SamplerFilter::Linear,
+            minify_filter: MinifySamplerFilter::Linear,
+            magnify_filter: MagnifySamplerFilter::Linear,
             max_anisotropy: 1,
         }
     }

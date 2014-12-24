@@ -608,7 +608,7 @@ pub trait Surface {
     /// function just copies pixels.
     #[experimental = "The name will likely change"]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
-        filter: uniforms::SamplerFilter) where S: Surface
+        filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
         framebuffer::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
             filter.to_glenum())
@@ -617,7 +617,7 @@ pub trait Surface {
     /// Copies the entire surface to a target surface. See `blit_color`.
     #[experimental = "The name will likely change"]
     fn blit_whole_color_to<S>(&self, target: &S, target_rect: &Rect,
-        filter: uniforms::SamplerFilter) where S: Surface
+        filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
         let src_dim = self.get_dimensions();
         let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
@@ -626,7 +626,7 @@ pub trait Surface {
 
     /// Copies the entire surface to the entire target. See `blit_color`.
     #[experimental = "The name will likely change"]
-    fn fill<S>(&self, target: &S, filter: uniforms::SamplerFilter) where S: Surface {
+    fn fill<S>(&self, target: &S, filter: uniforms::MagnifySamplerFilter) where S: Surface {
         let src_dim = self.get_dimensions();
         let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
         let target_dim = target.get_dimensions();
