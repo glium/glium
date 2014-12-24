@@ -132,6 +132,22 @@ fn compressed_texture_2d_creation() {
 }
 
 #[test]
+fn empty_texture2d() {
+    let display = support::build_display();
+
+    let texture = glium::texture::Texture2d::new_empty(&display,
+                                                       glium::texture::UncompressedFloatFormat::
+                                                           U8U8U8U8,
+                                                       128, 128);
+
+    display.assert_no_error();
+
+    drop(texture);
+    
+    display.assert_no_error();
+}
+
+#[test]
 #[ignore]  // FIXME: FAILING TEST
 #[cfg(feature = "gl_extensions")]
 fn render_to_texture2d() {
