@@ -261,7 +261,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
         // writing the constructor
         (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, \
-                       0, 0, ", name)).unwrap();
+                       gl::RGBA, gl::UNSIGNED_BYTE, ", name)).unwrap();
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
             TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
