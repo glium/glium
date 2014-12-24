@@ -234,6 +234,8 @@ impl Context {
     pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
         -> Result<Context, GliumCreationError>
     {
+        use std::thread::Builder;
+
         let (tx_events, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
@@ -243,7 +245,7 @@ impl Context {
         let window = try!(window.build());
         let (tx_success, rx_success) = channel();
 
-        spawn(move || {
+        Builder::new().name("glium rendering thread".to_string()).spawn(move || {
             unsafe { window.make_current(); }
 
             let gl = gl::Gl::load_with(|symbol| window.get_proc_address(symbol));
@@ -334,7 +336,7 @@ impl Context {
                     }
                 }
             }
-        });
+        }).detach();
 
         Ok(Context {
             commands: Mutex::new(tx_commands),
@@ -348,6 +350,8 @@ impl Context {
     pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
         -> Result<Context, GliumCreationError>
     {
+        use std::thread::Builder;
+
         let (_, rx_events) = channel();
         let (tx_commands, rx_commands) = channel();
 
@@ -357,7 +361,7 @@ impl Context {
 
         let (tx_success, rx_success) = channel();
 
-        spawn(move || {
+        Builder::new().name("glium rendering thread".to_string()).spawn(move || {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
@@ -409,7 +413,7 @@ impl Context {
                     Err(_) => break
                 }
             }
-        });
+        }).detach();
 
         Ok(Context {
             commands: Mutex::new(tx_commands),
@@ -507,8 +511,8 @@ fn get_gl_version(gl: &gl::Gl) -> GlVersion {
         let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 
         GlVersion(
-            from_str(major).expect("failed to parse GL major version"),
-            from_str(minor).expect("failed to parse GL minor version"),
+            major.parse().expect("failed to parse GL major version"),
+            minor.parse().expect("failed to parse GL minor version"),
         )
     }
 }
