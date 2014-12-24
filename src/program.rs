@@ -208,6 +208,17 @@ impl Program {
         })
     }
 
+    /// Returns the *location* of an output fragment, if it exists.
+    ///
+    /// The *location* is a low-level information that is used internally by glium.
+    /// You probably don't need to call this function.
+    ///
+    /// You can declare output fragments in your shaders by writing:
+    ///
+    /// ```notrust
+    /// out vec4 foo;
+    /// ```
+    ///
     pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
         // looking for a cached value
         if let Some(result) = self.frag_data_locations.lock().get(name) {

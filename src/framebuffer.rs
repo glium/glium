@@ -1,3 +1,43 @@
+/*!
+Framebuffers allows you to customize the color, depth and stencil buffers you will draw on.
+
+In order to draw on a texture, use a `SimpleFrameBuffer`. This framebuffer is compatible with
+shaders that write to `gl_FragColor`.
+
+```no_run
+# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# let texture: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+// framebuffer.draw(...);    // draws over `texture`
+```
+
+Instead if your shader wants to write to multiple color buffers at once, you must use
+a `MultiOutputFrameBuffer`.
+
+```no_run
+# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# let texture1: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+# let texture2: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+let output = &[ ("output1", &texture1), ("output2", &texture2) ];
+let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output);
+// framebuffer.draw(...);
+
+// example shader:
+// 
+//     out vec4 output1;
+//     out vec4 output2;
+//
+//     void main() {
+//         output1 = vec4(0.0, 0.0, 0.5, 1.0);
+//         output2 = vec4(1.0, 0.7, 1.0, 1.0);
+//     }
+```
+
+**Note**: depth and stencil attachments are not yet implemented.
+
+*/
+#![experimental]
+
 use std::kinds::marker::ContravariantLifetime;
 use std::sync::Arc;
 
@@ -75,6 +115,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 }
 
+/// This struct is useless for the moment.
 pub struct MultiOutputFrameBuffer<'a> {
     display: Arc<DisplayImpl>,
     marker: ContravariantLifetime<'a>,
@@ -84,6 +125,10 @@ pub struct MultiOutputFrameBuffer<'a> {
 
 impl<'a> MultiOutputFrameBuffer<'a> {
     /// Creates a new `MultiOutputFramebuffer`.
+    ///
+    /// # Panic
+    ///
+    /// Panics if all attachments don't have the same dimensions.
     ///
     pub fn new(display: &::Display, color_attachments: &[(&str, &'a Texture2d)])
                -> MultiOutputFrameBuffer<'a>
