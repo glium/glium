@@ -1,11 +1,66 @@
 /*!
 Contains everything related to vertex buffers.
+
+The main struct is the `VertexBuffer`, which represents a buffer in the video memory
+containing a list of vertices.
+
+In order to create a vertex buffer, you must first create a struct that represents each vertex
+and implement the `glium::vertex_buffer::Vertex` trait on it. The `#[vertex_format]` attribute
+coming from `glium_macros` helps you doing that.
+
+```
+# #![feature(phase)]
+# #[phase(plugin)]
+# extern crate glium_macros;
+# extern crate glium;
+# extern crate glutin;
+# fn main() {
+#[vertex_format]
+#[deriving(Copy)]
+struct Vertex {
+    position: [f32, ..3],
+    texcoords: [f32, ..2],
+}
+```
+
+Then you must build a `Vec` of the vertices that you want to upload, and pass it to
+`VertexBuffer::new`.
+
+```no_run
+# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# #[deriving(Copy)]
+# struct Vertex {
+#     position: [f32, ..3],
+#     texcoords: [f32, ..2],
+# }
+# impl glium::vertex_buffer::Vertex for Vertex {
+#     fn build_bindings(_: Option<Vertex>) -> glium::vertex_buffer::VertexFormat {
+#         unimplemented!() }
+# }
+let data = vec![
+    Vertex {
+        position: [0.0, 0.0, 0.4],
+        texcoords: [0.0, 1.0]
+    },
+    Vertex {
+        position: [12.0, 4.5, -1.8],
+        texcoords: [1.0, 0.5]
+    },
+    Vertex {
+        position: [-7.124, 0.1, 0.0],
+        texcoords: [0.0, 0.4]
+    },
+];
+
+let vertex_buffer = glium::vertex_buffer::VertexBuffer::new(&display, data);
+```
+
 */
 use buffer::{mod, Buffer};
 use gl;
 use GlObject;
 
-/// A list of verices loaded in the graphics card's memory.
+/// A list of vertices loaded in the graphics card's memory.
 #[deriving(Show)]
 pub struct VertexBuffer<T> {
     buffer: Buffer,
@@ -270,13 +325,16 @@ pub enum AttributeType {
 pub type VertexFormat = Vec<(String, uint, AttributeType)>;
 
 /// Trait for structures that represent a vertex.
+///
+/// Instead of implementing this trait yourself, it is recommended to use the `#[vertex_format]`
+/// attribute from `glium_macros` instead.
+// TODO: this should be `unsafe`, but that would break the syntax extension
 pub trait Vertex: Copy {
     /// Builds the `VertexFormat` representing the layout of this element.
     fn build_bindings(Option<Self>) -> VertexFormat;
 }
 
 /// Trait for types that can be used as vertex attributes.
-// TODO: mark this trait as "unsafe"
 pub unsafe trait Attribute {
     /// Get the type of data.
     fn get_type(_: Option<Self>) -> AttributeType;
