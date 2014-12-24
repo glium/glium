@@ -183,7 +183,7 @@ target.finish();
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 
 // TODO: remove these when everything is implemented
 #![allow(dead_code)]
@@ -206,7 +206,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 pub mod debug;
-mod framebuffer;
+pub mod framebuffer;
 pub mod index_buffer;
 pub mod uniforms;
 pub mod vertex_buffer;
@@ -214,6 +214,7 @@ pub mod texture;
 
 mod buffer;
 mod context;
+mod fbo;
 mod program;
 mod vertex_array_object;
 
@@ -609,7 +610,7 @@ pub trait Surface {
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
-        framebuffer::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
+        fbo::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
             filter.to_glenum())
     }
 
@@ -635,7 +636,7 @@ pub trait Surface {
 }
 
 #[doc(hidden)]
-pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a framebuffer::FramebufferAttachments>);
+pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
 
 /// Implementation of `Surface` targetting the default framebuffer.
 ///
@@ -655,15 +656,15 @@ impl<'t> Frame<'t> {
 
 impl<'t> Surface for Frame<'t> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        framebuffer::clear_color(&self.display, None, red, green, blue, alpha)
+        fbo::clear_color(&self.display, None, red, green, blue, alpha)
     }
 
     fn clear_depth(&mut self, value: f32) {
-        framebuffer::clear_depth(&self.display, None, value)
+        fbo::clear_depth(&self.display, None, value)
     }
 
     fn clear_stencil(&mut self, value: int) {
-        framebuffer::clear_stencil(&self.display, None, value)
+        fbo::clear_stencil(&self.display, None, value)
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
@@ -687,7 +688,7 @@ impl<'t> Surface for Frame<'t> {
             panic!("Requested a depth function but no depth buffer is attached");
         }
 
-        framebuffer::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
+        fbo::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
             draw_parameters)
     }
 
@@ -819,8 +820,8 @@ struct DisplayImpl {
 
     // we maintain a list of FBOs
     // when something requirering a FBO is drawn, we look for an existing one in this hashmap
-    framebuffer_objects: Mutex<HashMap<framebuffer::FramebufferAttachments,
-                                       framebuffer::FrameBufferObject>>,
+    framebuffer_objects: Mutex<HashMap<fbo::FramebufferAttachments,
+                                       fbo::FrameBufferObject>>,
 
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (vertexbuffer, program)
