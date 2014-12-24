@@ -197,7 +197,6 @@ extern crate libc;
 extern crate nalgebra;
 
 pub use index_buffer::IndexBuffer;
-pub use framebuffer::FrameBuffer;
 pub use vertex_buffer::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
@@ -207,6 +206,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 pub mod debug;
+mod framebuffer;
 pub mod index_buffer;
 pub mod uniforms;
 pub mod vertex_buffer;
@@ -214,7 +214,6 @@ pub mod texture;
 
 mod buffer;
 mod context;
-mod framebuffer;
 mod program;
 mod vertex_array_object;
 

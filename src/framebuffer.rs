@@ -10,51 +10,33 @@ use IndicesSource;
 use {program, vertex_array_object};
 use {gl, context};
 
-/// A framebuffer that you can use to draw things.
-///
-/// ## Low-level informations
-///
-/// Creating a `FrameBuffer` does **not** immediatly create a FrameBuffer Object. Instead, it is
-/// created when you first use it.
-///
-/// FBOs are stored globally (in the `Display` object), which means that if you create a
-/// `FrameBuffer`, destroy it, and then recreate the exact same `FrameBuffer`, the FBO previously
-/// used will be re-used.
-///
-/// Note that these informations are implementation details and may change in the future.
-///
-pub struct FrameBuffer<'a> {
+/// A framebuffer which has only one color attachment.
+pub struct SimpleFrameBuffer<'a> {
     display: Arc<DisplayImpl>,
     attachments: FramebufferAttachments,
     marker: ContravariantLifetime<'a>,
-    dimensions: Option<(u32, u32)>,
+    dimensions: (u32, u32),
 }
 
-impl<'a> FrameBuffer<'a> {
-    /// Creates an empty framebuffer.
-    pub fn new(display: &::Display) -> FrameBuffer<'a> {
-        FrameBuffer {
+impl<'a> SimpleFrameBuffer<'a> {
+    /// Creates a `SimpleFrameBuffer`.
+    pub fn new(display: &::Display, color: &'a Texture2d) -> SimpleFrameBuffer<'a> {
+        let dimensions = (color.get_width(), color.get_height().unwrap());
+
+        SimpleFrameBuffer {
             display: display.context.clone(),
             attachments: FramebufferAttachments {
-                colors: Vec::new(),
+                colors: vec![(0, color.get_id())],
                 depth: None,
                 stencil: None
             },
             marker: ContravariantLifetime,
-            dimensions: None,
+            dimensions: dimensions,
         }
-    }
-
-    /// Attach an additional texture to this framebuffer.
-    pub fn with_color_texture(mut self, texture: &'a Texture2d) -> FrameBuffer<'a> {
-        // TODO: check existing dimensions
-        self.attachments.colors.push(texture.get_implementation().get_id());
-        self.dimensions = Some((texture.get_width(), texture.get_height().unwrap_or(1)));
-        self
     }
 }
 
-impl<'a> Surface for FrameBuffer<'a> {
+impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
         clear_color(&self.display, Some(&self.attachments), red, green, blue, alpha)
     }
@@ -68,8 +50,7 @@ impl<'a> Surface for FrameBuffer<'a> {
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
-        let dimensions = self.dimensions.expect("no texture was bound to this framebuffer");
-        (dimensions.0 as uint, dimensions.1 as uint)
+        (self.dimensions.0 as uint, self.dimensions.1 as uint)
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {
@@ -96,9 +77,73 @@ impl<'a> Surface for FrameBuffer<'a> {
     }
 }
 
+pub struct MultiOutputFrameBuffer<'a> {
+    display: Arc<DisplayImpl>,
+    marker: ContravariantLifetime<'a>,
+    dimensions: (u32, u32),
+    color_attachments: Vec<(String, gl::types::GLuint)>,
+}
+
+impl<'a> MultiOutputFrameBuffer<'a> {
+    /// Creates a new `MultiOutputFramebuffer`.
+    ///
+    pub fn new(display: &::Display, color_attachments: &[(&str, &'a Texture2d)])
+               -> MultiOutputFrameBuffer<'a>
+    {
+        let mut attachments = Vec::new();
+        let mut dimensions = None;
+
+        for &(name, texture) in color_attachments.iter() {
+            let tex_dims = (texture.get_width(), texture.get_height().unwrap());
+
+            if let Some(ref dimensions) = dimensions {
+                if dimensions != &tex_dims {
+                    panic!("All textures of a MultiOutputFrameBuffer must have \
+                            the same dimensions");
+                }
+            }
+
+            dimensions = Some(tex_dims);
+            attachments.push((name.to_string(), texture.get_id()));
+        }
+
+        if dimensions.is_none() {
+            panic!("Cannot pass an empty color_attachments when \
+                    creating a MultiOutputFrameBuffer");
+        }
+
+        MultiOutputFrameBuffer {
+            display: display.context.clone(),
+            marker: ContravariantLifetime,
+            dimensions: dimensions.unwrap(),
+            color_attachments: attachments,
+        }
+    }
+
+    fn build_attachments(&self, program: &Program) -> FramebufferAttachments {
+        let mut colors = Vec::new();
+
+        for &(ref name, texture) in self.color_attachments.iter() {
+            let location = match program.get_frag_data_location(name.as_slice()) {
+                Some(l) => l,
+                None => panic!("The fragment output `{}` was not found in the program", name)
+            };
+
+            colors.push((location, texture));
+        }
+
+        FramebufferAttachments {
+            colors: colors,
+            depth: None,
+            stencil: None,
+        }
+    }
+}
+
 #[deriving(Hash, Clone, PartialEq, Eq)]
+#[doc(hidden)]
 pub struct FramebufferAttachments {
-    pub colors: Vec<gl::types::GLuint>,
+    pub colors: Vec<(u32, gl::types::GLuint)>,
     pub depth: Option<gl::types::GLuint>,
     pub stencil: Option<gl::types::GLuint>,
 }
@@ -112,10 +157,13 @@ pub struct FrameBufferObject {
 
 impl FrameBufferObject {
     /// Builds a new FBO.
-    fn new(display: Arc<DisplayImpl>) -> FrameBufferObject {
+    fn new(display: Arc<DisplayImpl>, attachments: &FramebufferAttachments) -> FrameBufferObject {
         let (tx, rx) = channel();
+        let attachments = attachments.clone();
 
-        display.context.exec(move |: ctxt| {
+        display.context.exec(move |: mut ctxt| {
+            use context::GlVersion;
+
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -124,6 +172,37 @@ impl FrameBufferObject {
                     ctxt.gl.GenFramebuffersEXT(1, mem::transmute(&id));
                 }
                 tx.send(id);
+
+                for &(slot, tex_id) in attachments.colors.iter() {
+                    if ctxt.version >= &GlVersion(4, 5) {
+                        ctxt.gl.NamedFramebufferTexture(id, gl::COLOR_ATTACHMENT0 + slot as u32,
+                                                        tex_id, 0);
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureEXT(id, gl::COLOR_ATTACHMENT0 + slot as u32,
+                                                           tex_id, 0);
+
+                    } else if ctxt.version >= &GlVersion(3, 2) {
+                        bind_framebuffer(&mut ctxt, Some(id), true, false);
+                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                   gl::COLOR_ATTACHMENT0 + slot as u32,
+                                                   tex_id, 0);
+
+                    } else if ctxt.version >= &GlVersion(3, 0) {
+                        bind_framebuffer(&mut ctxt, Some(id), true, false);
+                        ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                     gl::COLOR_ATTACHMENT0 + slot as u32,
+                                                     gl::TEXTURE_2D, tex_id, 0);
+
+                    } else {
+                        bind_framebuffer(&mut ctxt, Some(id), true, true);
+                        ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                        gl::COLOR_ATTACHMENT0 + slot as u32,
+                                                        gl::TEXTURE_2D, tex_id, 0);
+                    }
+                }
             }
         });
 
@@ -393,59 +472,13 @@ fn get_framebuffer(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
             return Some(value.id);
         }
 
-        let mut new_fbo = FrameBufferObject::new(display.clone());
+        let new_fbo = FrameBufferObject::new(display.clone(), framebuffer);
         let new_fbo_id = new_fbo.id.clone();
-        initialize_fbo(display, &mut new_fbo, framebuffer);
         framebuffers.insert(framebuffer.clone(), new_fbo);
         Some(new_fbo_id)
 
     } else {
         None
-    }
-}
-
-fn initialize_fbo(display: &Arc<DisplayImpl>, fbo: &mut FrameBufferObject,
-    content: &FramebufferAttachments)
-{
-    use context::GlVersion;
-
-    let fbo_id = fbo.id;
-
-    if content.depth.is_some() { unimplemented!() }
-    if content.stencil.is_some() { unimplemented!() }
-
-    for (slot, texture) in content.colors.iter().enumerate() {
-        let tex_id = texture.clone();
-
-        display.context.exec(move |: mut ctxt| {
-            unsafe {
-                if ctxt.version >= &GlVersion(4, 5) {
-                    ctxt.gl.NamedFramebufferTexture(fbo_id, gl::COLOR_ATTACHMENT0 + slot as u32,
-                        tex_id, 0);
-
-                } else if ctxt.extensions.gl_ext_direct_state_access &&
-                          ctxt.extensions.gl_ext_geometry_shader4
-                {
-                    ctxt.gl.NamedFramebufferTextureEXT(fbo_id, gl::COLOR_ATTACHMENT0 + slot as u32,
-                        tex_id, 0);
-
-                } else if ctxt.version >= &GlVersion(3, 2) {
-                    bind_framebuffer(&mut ctxt, Some(fbo_id), true, false);
-                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0 + slot as u32,
-                        tex_id, 0);
-
-                } else if ctxt.version >= &GlVersion(3, 0) {
-                    bind_framebuffer(&mut ctxt, Some(fbo_id), true, false);
-                    ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
-                        gl::COLOR_ATTACHMENT0 + slot as u32, gl::TEXTURE_2D, tex_id, 0);
-
-                } else {
-                    bind_framebuffer(&mut ctxt, Some(fbo_id), true, true);
-                    ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
-                        gl::COLOR_ATTACHMENT0 + slot as u32, gl::TEXTURE_2D, tex_id, 0);
-                }
-            }
-        });
     }
 }
 
