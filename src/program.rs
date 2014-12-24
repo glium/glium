@@ -59,9 +59,6 @@ pub enum ProgramCreationError {
     /// Error while linking the program.
     LinkingError(String),
 
-    /// `glCreateProgram` failed.
-    ProgramCreationFailure,
-
     /// One of the request shader type is not supported by the backend.
     ///
     /// Usually the case of geometry shaders.
@@ -74,7 +71,6 @@ impl ::std::error::Error for ProgramCreationError {
             &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
                                                            shaders",
             &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
-            &ProgramCreationError::ProgramCreationFailure => "glCreateProgram failed",
             &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
                                                               not supported by the backend",
         }
@@ -84,7 +80,6 @@ impl ::std::error::Error for ProgramCreationError {
         match self {
             &ProgramCreationError::CompilationError(ref s) => Some(s.clone()),
             &ProgramCreationError::LinkingError(ref s) => Some(s.clone()),
-            &ProgramCreationError::ProgramCreationFailure => None,
             &ProgramCreationError::ShaderTypeNotSupported => None,
         }
     }
@@ -136,8 +131,7 @@ impl Program {
             unsafe {
                 let id = ctxt.gl.CreateProgram();
                 if id == 0 {
-                    tx.send(Err(ProgramCreationError::ProgramCreationFailure));
-                    return;
+                    panic!("glCreateProgram failed");
                 }
 
                 // attaching shaders
