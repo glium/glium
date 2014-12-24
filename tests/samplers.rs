@@ -13,7 +13,7 @@ use glium::Surface;
 mod support;
 
 #[test]
-fn nearest_filtering() {
+fn magnify_nearest_filtering() {
     // ignoring test on travis
     // TODO: find out why they are failing
     if ::std::os::getenv("TRAVIS").is_some() {
@@ -49,7 +49,7 @@ fn nearest_filtering() {
 
     let uniforms = glium::uniforms::UniformsStorage::new("texture",
         glium::uniforms::Sampler(&texture, glium::uniforms::SamplerBehavior {
-            magnify_filter: glium::uniforms::SamplerFilter::Nearest,
+            magnify_filter: glium::uniforms::MagnifySamplerFilter::Nearest,
             .. Default::default()
         }));
 

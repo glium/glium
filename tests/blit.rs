@@ -41,7 +41,7 @@ fn blit_texture_to_window() {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
 
     texture.as_surface().blit_color(&src_rect, &target, &dest_rect,
-                                    glium::uniforms::SamplerFilter::Nearest);
+                                    glium::uniforms::MagnifySamplerFilter::Nearest);
 
     target.finish();
 
