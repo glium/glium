@@ -15,7 +15,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
         span: span,
         attributes: Vec::new(),
         path: generic::ty::Path {
-            path: vec!["glium", "VertexFormat"],
+            path: vec!["glium", "Vertex"],
             lifetime: None,
             params: Vec::new(),
             global: true,
@@ -37,7 +37,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 ],
                 ret_ty: generic::ty::Literal(
                     generic::ty::Path::new(
-                        vec!["glium", "VertexBindings"]
+                        vec!["glium", "VertexFormat"]
                     ),
                 ),
                 attributes: vec![
@@ -95,7 +95,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
         },
 
         _ => {
-            ecx.span_err(span, "Unable to implement `glium::VertexFormat::build_bindings` \
+            ecx.span_err(span, "Unable to implement `glium::Vertex::build_bindings` \
                                 on a non-structure");
             ecx.expr_int(span, 0)
         }
