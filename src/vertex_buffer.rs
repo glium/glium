@@ -1,19 +1,74 @@
 /*!
 Contains everything related to vertex buffers.
+
+The main struct is the `VertexBuffer`, which represents a buffer in the video memory
+containing a list of vertices.
+
+In order to create a vertex buffer, you must first create a struct that represents each vertex
+and implement the `glium::vertex_buffer::Vertex` trait on it. The `#[vertex_format]` attribute
+coming from `glium_macros` helps you doing that.
+
+```
+# #![feature(phase)]
+# #[phase(plugin)]
+# extern crate glium_macros;
+# extern crate glium;
+# extern crate glutin;
+# fn main() {
+#[vertex_format]
+#[deriving(Copy)]
+struct Vertex {
+    position: [f32, ..3],
+    texcoords: [f32, ..2],
+}
+```
+
+Then you must build a `Vec` of the vertices that you want to upload, and pass it to
+`VertexBuffer::new`.
+
+```no_run
+# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# #[deriving(Copy)]
+# struct Vertex {
+#     position: [f32, ..3],
+#     texcoords: [f32, ..2],
+# }
+# impl glium::vertex_buffer::Vertex for Vertex {
+#     fn build_bindings(_: Option<Vertex>) -> glium::vertex_buffer::VertexFormat {
+#         unimplemented!() }
+# }
+let data = vec![
+    Vertex {
+        position: [0.0, 0.0, 0.4],
+        texcoords: [0.0, 1.0]
+    },
+    Vertex {
+        position: [12.0, 4.5, -1.8],
+        texcoords: [1.0, 0.5]
+    },
+    Vertex {
+        position: [-7.124, 0.1, 0.0],
+        texcoords: [0.0, 0.4]
+    },
+];
+
+let vertex_buffer = glium::vertex_buffer::VertexBuffer::new(&display, data);
+```
+
 */
 use buffer::{mod, Buffer};
 use gl;
 use GlObject;
 
-/// A list of verices loaded in the graphics card's memory.
+/// A list of vertices loaded in the graphics card's memory.
 #[deriving(Show)]
 pub struct VertexBuffer<T> {
     buffer: Buffer,
-    bindings: VertexBindings,
+    bindings: VertexFormat,
     elements_size: uint,
 }
 
-impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
+impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// Builds a new vertex buffer.
     ///
     /// # Example
@@ -41,7 +96,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// ```
     /// 
     pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
-        let bindings = VertexFormat::build_bindings(None::<T>);
+        let bindings = Vertex::build_bindings(None::<T>);
 
         let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW);
         let elements_size = buffer.get_elements_size();
@@ -58,7 +113,7 @@ impl<T: VertexFormat + 'static + Send> VertexBuffer<T> {
     /// This function will create a buffer that has better performances when it is modified
     ///  frequently.
     pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
-        let bindings = VertexFormat::build_bindings(None::<T>);
+        let bindings = Vertex::build_bindings(None::<T>);
 
         let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::DYNAMIC_DRAW);
         let elements_size = buffer.get_elements_size();
@@ -85,10 +140,10 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// # fn main() {
     /// let bindings = vec![(
     ///         "position".to_string(), 0,
-    ///         glium::vertex_buffer::BindingType::F32F32,
+    ///         glium::vertex_buffer::AttributeType::F32F32,
     ///     ), (
     ///         "color".to_string(), 2 * ::std::mem::size_of::<f32>(),
-    ///         glium::vertex_buffer::BindingType::F32,
+    ///         glium::vertex_buffer::AttributeType::F32,
     ///     ),
     /// ];
     ///
@@ -106,7 +161,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     #[experimental]
     pub unsafe fn new_raw(display: &super::Display, data: Vec<T>,
-                          bindings: VertexBindings, elements_size: uint) -> VertexBuffer<T>
+                          bindings: VertexFormat, elements_size: uint) -> VertexBuffer<T>
     {
         VertexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW),
@@ -183,8 +238,8 @@ impl<T> VertexBuffer<T> {
         self.elements_size
     }
 
-    /// Returns the associated `VertexBindings`.
-    pub fn get_bindings(&self) -> &VertexBindings {
+    /// Returns the associated `VertexFormat`.
+    pub fn get_bindings(&self) -> &VertexFormat {
         &self.bindings
     }
 }
@@ -232,7 +287,7 @@ impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
 
 #[allow(missing_docs)]
 #[deriving(Copy, Clone, Show, PartialEq, Eq)]
-pub enum BindingType {
+pub enum AttributeType {
     I8,
     I8I8,
     I8I8I8,
@@ -267,311 +322,314 @@ pub enum BindingType {
 ///
 /// The first element is the name of the binding, the second element is the offset
 /// from the start of each vertex to this element, and the third element is the type.
-pub type VertexBindings = Vec<(String, uint, BindingType)>;
+pub type VertexFormat = Vec<(String, uint, AttributeType)>;
 
 /// Trait for structures that represent a vertex.
-pub trait VertexFormat: Copy {
-    /// Builds the `VertexBindings` representing the layout of this element.
-    fn build_bindings(Option<Self>) -> VertexBindings;
+///
+/// Instead of implementing this trait yourself, it is recommended to use the `#[vertex_format]`
+/// attribute from `glium_macros` instead.
+// TODO: this should be `unsafe`, but that would break the syntax extension
+pub trait Vertex: Copy {
+    /// Builds the `VertexFormat` representing the layout of this element.
+    fn build_bindings(Option<Self>) -> VertexFormat;
 }
 
 /// Trait for types that can be used as vertex attributes.
-// TODO: mark this trait as "unsafe"
 pub unsafe trait Attribute {
     /// Get the type of data.
-    fn get_type(_: Option<Self>) -> BindingType;
+    fn get_type(_: Option<Self>) -> AttributeType;
 }
 
 unsafe impl Attribute for i8 {
-    fn get_type(_: Option<i8>) -> BindingType {
-        BindingType::I8
+    fn get_type(_: Option<i8>) -> AttributeType {
+        AttributeType::I8
     }
 }
 
 unsafe impl Attribute for (i8, i8) {
-    fn get_type(_: Option<(i8, i8)>) -> BindingType {
-        BindingType::I8I8
+    fn get_type(_: Option<(i8, i8)>) -> AttributeType {
+        AttributeType::I8I8
     }
 }
 
 unsafe impl Attribute for [i8, ..2] {
-    fn get_type(_: Option<[i8, ..2]>) -> BindingType {
-        BindingType::I8I8
+    fn get_type(_: Option<[i8, ..2]>) -> AttributeType {
+        AttributeType::I8I8
     }
 }
 
 unsafe impl Attribute for (i8, i8, i8) {
-    fn get_type(_: Option<(i8, i8, i8)>) -> BindingType {
-        BindingType::I8I8I8
+    fn get_type(_: Option<(i8, i8, i8)>) -> AttributeType {
+        AttributeType::I8I8I8
     }
 }
 
 unsafe impl Attribute for [i8, ..3] {
-    fn get_type(_: Option<[i8, ..3]>) -> BindingType {
-        BindingType::I8I8I8
+    fn get_type(_: Option<[i8, ..3]>) -> AttributeType {
+        AttributeType::I8I8I8
     }
 }
 
 unsafe impl Attribute for (i8, i8, i8, i8) {
-    fn get_type(_: Option<(i8, i8, i8, i8)>) -> BindingType {
-        BindingType::I8I8I8I8
+    fn get_type(_: Option<(i8, i8, i8, i8)>) -> AttributeType {
+        AttributeType::I8I8I8I8
     }
 }
 
 unsafe impl Attribute for [i8, ..4] {
-    fn get_type(_: Option<[i8, ..4]>) -> BindingType {
-        BindingType::I8I8I8I8
+    fn get_type(_: Option<[i8, ..4]>) -> AttributeType {
+        AttributeType::I8I8I8I8
     }
 }
 
 unsafe impl Attribute for u8 {
-    fn get_type(_: Option<u8>) -> BindingType {
-        BindingType::U8
+    fn get_type(_: Option<u8>) -> AttributeType {
+        AttributeType::U8
     }
 }
 
 unsafe impl Attribute for (u8, u8) {
-    fn get_type(_: Option<(u8, u8)>) -> BindingType {
-        BindingType::U8U8
+    fn get_type(_: Option<(u8, u8)>) -> AttributeType {
+        AttributeType::U8U8
     }
 }
 
 unsafe impl Attribute for [u8, ..2] {
-    fn get_type(_: Option<[u8, ..2]>) -> BindingType {
-        BindingType::U8U8
+    fn get_type(_: Option<[u8, ..2]>) -> AttributeType {
+        AttributeType::U8U8
     }
 }
 
 unsafe impl Attribute for (u8, u8, u8) {
-    fn get_type(_: Option<(u8, u8, u8)>) -> BindingType {
-        BindingType::U8U8U8
+    fn get_type(_: Option<(u8, u8, u8)>) -> AttributeType {
+        AttributeType::U8U8U8
     }
 }
 
 unsafe impl Attribute for [u8, ..3] {
-    fn get_type(_: Option<[u8, ..3]>) -> BindingType {
-        BindingType::U8U8U8
+    fn get_type(_: Option<[u8, ..3]>) -> AttributeType {
+        AttributeType::U8U8U8
     }
 }
 
 unsafe impl Attribute for (u8, u8, u8, u8) {
-    fn get_type(_: Option<(u8, u8, u8, u8)>) -> BindingType {
-        BindingType::U8U8U8U8
+    fn get_type(_: Option<(u8, u8, u8, u8)>) -> AttributeType {
+        AttributeType::U8U8U8U8
     }
 }
 
 unsafe impl Attribute for [u8, ..4] {
-    fn get_type(_: Option<[u8, ..4]>) -> BindingType {
-        BindingType::U8U8U8U8
+    fn get_type(_: Option<[u8, ..4]>) -> AttributeType {
+        AttributeType::U8U8U8U8
     }
 }
 
 unsafe impl Attribute for i16 {
-    fn get_type(_: Option<i16>) -> BindingType {
-        BindingType::I16
+    fn get_type(_: Option<i16>) -> AttributeType {
+        AttributeType::I16
     }
 }
 
 unsafe impl Attribute for (i16, i16) {
-    fn get_type(_: Option<(i16, i16)>) -> BindingType {
-        BindingType::I16I16
+    fn get_type(_: Option<(i16, i16)>) -> AttributeType {
+        AttributeType::I16I16
     }
 }
 
 unsafe impl Attribute for [i16, ..2] {
-    fn get_type(_: Option<[i16, ..2]>) -> BindingType {
-        BindingType::I16I16
+    fn get_type(_: Option<[i16, ..2]>) -> AttributeType {
+        AttributeType::I16I16
     }
 }
 
 unsafe impl Attribute for (i16, i16, i16) {
-    fn get_type(_: Option<(i16, i16, i16)>) -> BindingType {
-        BindingType::I16I16I16
+    fn get_type(_: Option<(i16, i16, i16)>) -> AttributeType {
+        AttributeType::I16I16I16
     }
 }
 
 unsafe impl Attribute for [i16, ..3] {
-    fn get_type(_: Option<[i16, ..3]>) -> BindingType {
-        BindingType::I16I16I16
+    fn get_type(_: Option<[i16, ..3]>) -> AttributeType {
+        AttributeType::I16I16I16
     }
 }
 
 unsafe impl Attribute for (i16, i16, i16, i16) {
-    fn get_type(_: Option<(i16, i16, i16, i16)>) -> BindingType {
-        BindingType::I16I16I16I16
+    fn get_type(_: Option<(i16, i16, i16, i16)>) -> AttributeType {
+        AttributeType::I16I16I16I16
     }
 }
 
 unsafe impl Attribute for [i16, ..4] {
-    fn get_type(_: Option<[i16, ..4]>) -> BindingType {
-        BindingType::I16I16I16I16
+    fn get_type(_: Option<[i16, ..4]>) -> AttributeType {
+        AttributeType::I16I16I16I16
     }
 }
 
 unsafe impl Attribute for u16 {
-    fn get_type(_: Option<u16>) -> BindingType {
-        BindingType::U16
+    fn get_type(_: Option<u16>) -> AttributeType {
+        AttributeType::U16
     }
 }
 
 unsafe impl Attribute for (u16, u16) {
-    fn get_type(_: Option<(u16, u16)>) -> BindingType {
-        BindingType::U16U16
+    fn get_type(_: Option<(u16, u16)>) -> AttributeType {
+        AttributeType::U16U16
     }
 }
 
 unsafe impl Attribute for [u16, ..2] {
-    fn get_type(_: Option<[u16, ..2]>) -> BindingType {
-        BindingType::U16U16
+    fn get_type(_: Option<[u16, ..2]>) -> AttributeType {
+        AttributeType::U16U16
     }
 }
 
 unsafe impl Attribute for (u16, u16, u16) {
-    fn get_type(_: Option<(u16, u16, u16)>) -> BindingType {
-        BindingType::U16U16U16
+    fn get_type(_: Option<(u16, u16, u16)>) -> AttributeType {
+        AttributeType::U16U16U16
     }
 }
 
 unsafe impl Attribute for [u16, ..3] {
-    fn get_type(_: Option<[u16, ..3]>) -> BindingType {
-        BindingType::U16U16U16
+    fn get_type(_: Option<[u16, ..3]>) -> AttributeType {
+        AttributeType::U16U16U16
     }
 }
 
 unsafe impl Attribute for (u16, u16, u16, u16) {
-    fn get_type(_: Option<(u16, u16, u16, u16)>) -> BindingType {
-        BindingType::U16U16U16U16
+    fn get_type(_: Option<(u16, u16, u16, u16)>) -> AttributeType {
+        AttributeType::U16U16U16U16
     }
 }
 
 unsafe impl Attribute for [u16, ..4] {
-    fn get_type(_: Option<[u16, ..4]>) -> BindingType {
-        BindingType::U16U16U16U16
+    fn get_type(_: Option<[u16, ..4]>) -> AttributeType {
+        AttributeType::U16U16U16U16
     }
 }
 
 unsafe impl Attribute for i32 {
-    fn get_type(_: Option<i32>) -> BindingType {
-        BindingType::I32
+    fn get_type(_: Option<i32>) -> AttributeType {
+        AttributeType::I32
     }
 }
 
 unsafe impl Attribute for (i32, i32) {
-    fn get_type(_: Option<(i32, i32)>) -> BindingType {
-        BindingType::I32I32
+    fn get_type(_: Option<(i32, i32)>) -> AttributeType {
+        AttributeType::I32I32
     }
 }
 
 unsafe impl Attribute for [i32, ..2] {
-    fn get_type(_: Option<[i32, ..2]>) -> BindingType {
-        BindingType::I32I32
+    fn get_type(_: Option<[i32, ..2]>) -> AttributeType {
+        AttributeType::I32I32
     }
 }
 
 unsafe impl Attribute for (i32, i32, i32) {
-    fn get_type(_: Option<(i32, i32, i32)>) -> BindingType {
-        BindingType::I32I32I32
+    fn get_type(_: Option<(i32, i32, i32)>) -> AttributeType {
+        AttributeType::I32I32I32
     }
 }
 
 unsafe impl Attribute for [i32, ..3] {
-    fn get_type(_: Option<[i32, ..3]>) -> BindingType {
-        BindingType::I32I32I32
+    fn get_type(_: Option<[i32, ..3]>) -> AttributeType {
+        AttributeType::I32I32I32
     }
 }
 
 unsafe impl Attribute for (i32, i32, i32, i32) {
-    fn get_type(_: Option<(i32, i32, i32, i32)>) -> BindingType {
-        BindingType::I32I32I32I32
+    fn get_type(_: Option<(i32, i32, i32, i32)>) -> AttributeType {
+        AttributeType::I32I32I32I32
     }
 }
 
 unsafe impl Attribute for [i32, ..4] {
-    fn get_type(_: Option<[i32, ..4]>) -> BindingType {
-        BindingType::I32I32I32I32
+    fn get_type(_: Option<[i32, ..4]>) -> AttributeType {
+        AttributeType::I32I32I32I32
     }
 }
 
 unsafe impl Attribute for u32 {
-    fn get_type(_: Option<u32>) -> BindingType {
-        BindingType::U32
+    fn get_type(_: Option<u32>) -> AttributeType {
+        AttributeType::U32
     }
 }
 
 unsafe impl Attribute for (u32, u32) {
-    fn get_type(_: Option<(u32, u32)>) -> BindingType {
-        BindingType::U32U32
+    fn get_type(_: Option<(u32, u32)>) -> AttributeType {
+        AttributeType::U32U32
     }
 }
 
 unsafe impl Attribute for [u32, ..2] {
-    fn get_type(_: Option<[u32, ..2]>) -> BindingType {
-        BindingType::U32U32
+    fn get_type(_: Option<[u32, ..2]>) -> AttributeType {
+        AttributeType::U32U32
     }
 }
 
 unsafe impl Attribute for (u32, u32, u32) {
-    fn get_type(_: Option<(u32, u32, u32)>) -> BindingType {
-        BindingType::U32U32U32
+    fn get_type(_: Option<(u32, u32, u32)>) -> AttributeType {
+        AttributeType::U32U32U32
     }
 }
 
 unsafe impl Attribute for [u32, ..3] {
-    fn get_type(_: Option<[u32, ..3]>) -> BindingType {
-        BindingType::U32U32U32
+    fn get_type(_: Option<[u32, ..3]>) -> AttributeType {
+        AttributeType::U32U32U32
     }
 }
 
 unsafe impl Attribute for (u32, u32, u32, u32) {
-    fn get_type(_: Option<(u32, u32, u32, u32)>) -> BindingType {
-        BindingType::U32U32U32U32
+    fn get_type(_: Option<(u32, u32, u32, u32)>) -> AttributeType {
+        AttributeType::U32U32U32U32
     }
 }
 
 unsafe impl Attribute for [u32, ..4] {
-    fn get_type(_: Option<[u32, ..4]>) -> BindingType {
-        BindingType::U32U32U32U32
+    fn get_type(_: Option<[u32, ..4]>) -> AttributeType {
+        AttributeType::U32U32U32U32
     }
 }
 
 unsafe impl Attribute for f32 {
-    fn get_type(_: Option<f32>) -> BindingType {
-        BindingType::F32
+    fn get_type(_: Option<f32>) -> AttributeType {
+        AttributeType::F32
     }
 }
 
 unsafe impl Attribute for (f32, f32) {
-    fn get_type(_: Option<(f32, f32)>) -> BindingType {
-        BindingType::F32F32
+    fn get_type(_: Option<(f32, f32)>) -> AttributeType {
+        AttributeType::F32F32
     }
 }
 
 unsafe impl Attribute for [f32, ..2] {
-    fn get_type(_: Option<[f32, ..2]>) -> BindingType {
-        BindingType::F32F32
+    fn get_type(_: Option<[f32, ..2]>) -> AttributeType {
+        AttributeType::F32F32
     }
 }
 
 unsafe impl Attribute for (f32, f32, f32) {
-    fn get_type(_: Option<(f32, f32, f32)>) -> BindingType {
-        BindingType::F32F32F32
+    fn get_type(_: Option<(f32, f32, f32)>) -> AttributeType {
+        AttributeType::F32F32F32
     }
 }
 
 unsafe impl Attribute for [f32, ..3] {
-    fn get_type(_: Option<[f32, ..3]>) -> BindingType {
-        BindingType::F32F32F32
+    fn get_type(_: Option<[f32, ..3]>) -> AttributeType {
+        AttributeType::F32F32F32
     }
 }
 
 unsafe impl Attribute for (f32, f32, f32, f32) {
-    fn get_type(_: Option<(f32, f32, f32, f32)>) -> BindingType {
-        BindingType::F32F32F32F32
+    fn get_type(_: Option<(f32, f32, f32, f32)>) -> AttributeType {
+        AttributeType::F32F32F32F32
     }
 }
 
 unsafe impl Attribute for [f32, ..4] {
-    fn get_type(_: Option<[f32, ..4]>) -> BindingType {
-        BindingType::F32F32F32F32
+    fn get_type(_: Option<[f32, ..4]>) -> AttributeType {
+        AttributeType::F32F32F32F32
     }
 }

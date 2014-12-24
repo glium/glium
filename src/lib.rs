@@ -198,7 +198,7 @@ extern crate nalgebra;
 
 pub use index_buffer::IndexBuffer;
 pub use framebuffer::FrameBuffer;
-pub use vertex_buffer::{VertexBuffer, VertexBindings, VertexFormat};
+pub use vertex_buffer::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ProgramCreationFailure, ShaderTypeNotSupported};
 pub use texture::{Texture, Texture2d};
