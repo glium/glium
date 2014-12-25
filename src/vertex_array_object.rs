@@ -3,7 +3,7 @@ use std::mem;
 
 use program::Program;
 use index_buffer::IndicesSource;
-use vertex_buffer::{VertexBuffer, AttributeType};
+use vertex_buffer::{VerticesSource, AttributeType};
 use {DisplayImpl, GlObject};
 
 use {libc, gl};
@@ -16,9 +16,10 @@ pub struct VertexArrayObject {
 
 impl VertexArrayObject {
     /// 
-    fn new<T>(display: Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
-              ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
+    fn new(display: Arc<DisplayImpl>, vertex_buffer: VerticesSource,
+           ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
+        let VerticesSource::VertexBuffer(vertex_buffer) = vertex_buffer;
         let bindings = vertex_buffer.get_bindings().clone();
         let vb_elementssize = vertex_buffer.get_elements_size();
         let vertex_buffer = GlObject::get_id(vertex_buffer);
@@ -122,16 +123,19 @@ impl GlObject for VertexArrayObject {
     }
 }
 
-pub fn get_vertex_array_object<T, I>(display: &Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
-                                     indices: &IndicesSource<I>, program: &Program)
-                                     -> gl::types::GLuint where I: ::index_buffer::Index
+pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: VerticesSource,
+                                  indices: &IndicesSource<I>, program: &Program)
+                                  -> gl::types::GLuint where I: ::index_buffer::Index
 {
     let ib_id = match indices {
         &IndicesSource::Buffer { .. } => 0,
         &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id()
     };
 
-    let vb_id = GlObject::get_id(vertex_buffer);
+    let vb_id = match vertex_buffer {
+        VerticesSource::VertexBuffer(vb) => vb.get_id(),
+    };
+
     let program_id = program.get_id();
 
     if let Some(value) = display.vertex_array_objects.lock().get(&(vb_id, ib_id, program_id)) {
@@ -139,7 +143,7 @@ pub fn get_vertex_array_object<T, I>(display: &Arc<DisplayImpl>, vertex_buffer: 
     }
 
     // we create the new VAO without the mutex locked
-    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, ib_id, program);
+    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer.clone(), ib_id, program);
     let new_vao_id = new_vao.id;
     display.vertex_array_objects.lock().insert((vb_id, ib_id, program_id), new_vao);
     new_vao_id

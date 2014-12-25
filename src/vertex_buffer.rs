@@ -60,12 +60,19 @@ use buffer::{mod, Buffer};
 use gl;
 use GlObject;
 
+#[deriving(Clone, Copy)]
+pub enum VerticesSource<'a> {
+    VertexBuffer(&'a VertexBufferAny),
+}
+
+pub trait ToVerticesSource {
+    fn to_vertices_source(&self) -> VerticesSource;
+}
+
 /// A list of vertices loaded in the graphics card's memory.
 #[deriving(Show)]
 pub struct VertexBuffer<T> {
-    buffer: Buffer,
-    bindings: VertexFormat,
-    elements_size: uint,
+    buffer: VertexBufferAny,
 }
 
 impl<T: Vertex + 'static + Send> VertexBuffer<T> {
@@ -102,9 +109,11 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
-            elements_size: elements_size,
+            buffer: VertexBufferAny {
+                buffer: buffer,
+                bindings: bindings,
+                elements_size: elements_size,
+            }
         }
     }
 
@@ -119,9 +128,11 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
-            elements_size: elements_size,
+            buffer: VertexBufferAny {
+                buffer: buffer,
+                bindings: bindings,
+                elements_size: elements_size,
+            }
         }
     }
 }
@@ -164,9 +175,11 @@ impl<T: Send + Copy> VertexBuffer<T> {
                           bindings: VertexFormat, elements_size: uint) -> VertexBuffer<T>
     {
         VertexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW),
-            bindings: bindings,
-            elements_size: elements_size,
+            buffer: VertexBufferAny {
+                buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW),
+                bindings: bindings,
+                elements_size: elements_size,
+            }
         }
     }
 
@@ -186,7 +199,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// Only available if the `gl_extensions` feature is enabled.
     #[cfg(feature = "gl_extensions")]
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
-        Mapping(self.buffer.map::<buffer::ArrayBuffer, T>())
+        Mapping(self.buffer.buffer.map::<buffer::ArrayBuffer, T>())
     }
 
     /// Reads the content of the buffer.
@@ -205,7 +218,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// Only available if the `gl_extensions` feature is enabled.
     #[cfg(feature = "gl_extensions")]
     pub fn read(&self) -> Vec<T> {
-        self.buffer.read::<buffer::ArrayBuffer, T>()
+        self.buffer.buffer.read::<buffer::ArrayBuffer, T>()
     }
 
     /// Reads the content of the buffer.
@@ -228,11 +241,48 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// Only available if the `gl_extensions` feature is enabled.
     #[cfg(feature = "gl_extensions")]
     pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
-        self.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
+        self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
     }
 }
 
 impl<T> VertexBuffer<T> {
+    /// Returns the number of bytes between two consecutive elements in the buffer.
+    pub fn get_elements_size(&self) -> uint {
+        self.buffer.elements_size
+    }
+
+    /// Returns the associated `VertexFormat`.
+    pub fn get_bindings(&self) -> &VertexFormat {
+        &self.buffer.bindings
+    }
+
+    /// Lose the type informations and turn the vertex buffer into a `VertexBufferAny`.
+    pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
+        self.buffer
+    }
+}
+
+impl<T> GlObject for VertexBuffer<T> {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.buffer.get_id()
+    }
+}
+
+impl<T> ToVerticesSource for VertexBuffer<T> {
+    fn to_vertices_source(&self) -> VerticesSource {
+        VerticesSource::VertexBuffer(&self.buffer)
+    }
+}
+
+/// A list of vertices loaded in the graphics card's memory.
+#[deriving(Show)]
+pub struct VertexBufferAny {
+    buffer: Buffer,
+    bindings: VertexFormat,
+    elements_size: uint,
+}
+
+impl VertexBufferAny {
     /// Returns the number of bytes between two consecutive elements in the buffer.
     pub fn get_elements_size(&self) -> uint {
         self.elements_size
@@ -242,10 +292,16 @@ impl<T> VertexBuffer<T> {
     pub fn get_bindings(&self) -> &VertexFormat {
         &self.bindings
     }
+
+    /// Turns the vertex buffer into a `VertexBuffer` without checking the type.
+    pub unsafe fn into_vertex_buffer<T>(self) -> VertexBuffer<T> {
+        VertexBuffer {
+            buffer: self,
+        }
+    }
 }
 
-#[unsafe_destructor]
-impl<T> Drop for VertexBuffer<T> {
+impl Drop for VertexBufferAny {
     fn drop(&mut self) {
         // removing VAOs which contain this vertex buffer
         let mut vaos = self.buffer.get_display().vertex_array_objects.lock();
@@ -257,9 +313,15 @@ impl<T> Drop for VertexBuffer<T> {
     }
 }
 
-impl<T> GlObject for VertexBuffer<T> {
+impl GlObject for VertexBufferAny {
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
+    }
+}
+
+impl ToVerticesSource for VertexBufferAny {
+    fn to_vertices_source(&self) -> VerticesSource {
+        VerticesSource::VertexBuffer(self)
     }
 }
 

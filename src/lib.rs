@@ -595,8 +595,9 @@ pub trait Surface {
     /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
     ///   vertex's attribute is not used by the program).
     ///
-    fn draw<V, I, ID, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters) where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms;
+    fn draw<V, I, ID, U>(&mut self, &V, &I, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where V: vertex_buffer::ToVerticesSource,
+        I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
     fn get_blit_helper(&self) -> BlitHelper;
@@ -686,11 +687,11 @@ impl<'t> Surface for Frame<'t> {
         self.display.context.capabilities().stencil_bits
     }
 
-    fn draw<V, I, ID, U>(&mut self, vertex_buffer: &VertexBuffer<V>,
+    fn draw<V, I, ID, U>(&mut self, vertex_buffer: &V,
                          index_buffer: &I, program: &Program, uniforms: &U,
                          draw_parameters: &DrawParameters)
                          where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
-                         ID: index_buffer::Index
+                         ID: index_buffer::Index, V: vertex_buffer::ToVerticesSource
     {
         use index_buffer::ToIndicesSource;
 
@@ -698,8 +699,8 @@ impl<'t> Surface for Frame<'t> {
             panic!("Requested a depth function but no depth buffer is attached");
         }
 
-        fbo::draw(&self.display, None, vertex_buffer, &index_buffer.to_indices_source(),
-                  program, uniforms, draw_parameters)
+        fbo::draw(&self.display, None, vertex_buffer.to_vertices_source(),
+                  &index_buffer.to_indices_source(), program, uniforms, draw_parameters)
     }
 
     fn get_blit_helper(&self) -> BlitHelper {

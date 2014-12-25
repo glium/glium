@@ -989,10 +989,10 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.get_stencil_buffer_bits()
     }
 
-    fn draw<V, I, ID, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
+    fn draw<V, I, ID, U>(&mut self, vb: &V, ib: &I, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters)
         where I: ::index_buffer::ToIndicesSource<ID>,
-        U: ::uniforms::Uniforms
+        U: ::uniforms::Uniforms, V: ::vertex_buffer::ToVerticesSource
     {
         self.0.draw(vb, ib, program, uniforms, draw_parameters)
     }
