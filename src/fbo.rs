@@ -2,8 +2,8 @@ use std::mem;
 use std::sync::Arc;
 
 use uniforms::Uniforms;
-use {DisplayImpl, VertexBuffer, Program, DrawParameters, Rect, Surface, GlObject};
-use IndicesSource;
+use {DisplayImpl, VertexBuffer, Program, DrawParameters, Rect, Surface, GlObject, ToGlEnum};
+use index_buffer::IndicesSource;
 
 use {program, vertex_array_object};
 use {gl, context};
@@ -131,17 +131,23 @@ impl GlObject for FrameBufferObject {
 /// Draws everything.
 pub fn draw<V, I, U>(display: &Arc<DisplayImpl>,
     framebuffer: Option<&FramebufferAttachments>, vertex_buffer: &VertexBuffer<V>,
-    indices: &I, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
-    where I: IndicesSource, U: Uniforms
+    indices: &IndicesSource<I>, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
+    where U: Uniforms, I: ::index_buffer::Index
 {
     let fbo_id = get_framebuffer(display, framebuffer);
 
     let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer, indices,
                                                               program);
 
-    let ::IndicesSourceHelper { pointer, primitives, data_type,
-                                indices_count, .. } = indices.to_indices_source_helper();
-    let pointer = pointer.unwrap_or(::std::ptr::null());
+    let pointer = match indices {
+        &IndicesSource::IndexBuffer { .. } => ::std::ptr::null(),
+        &IndicesSource::Buffer { ref pointer, .. } => pointer.as_ptr() as *const ::libc::c_void,
+    };
+
+    let primitives = indices.get_primitives_type().to_glenum();
+    let data_type = indices.get_indices_type().to_glenum();
+    assert!(indices.get_offset() == 0); // not yet implemented
+    let indices_count = indices.get_length();
 
     let uniforms = uniforms.to_binder();
     let uniforms_locations = program::get_uniforms_locations(program);

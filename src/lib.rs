@@ -177,6 +177,7 @@ target.finish();
 
 */
 
+#![feature(associated_types)]
 #![feature(default_type_params)]
 #![feature(globs)]
 #![feature(slicing_syntax)]
@@ -226,6 +227,12 @@ mod gl {
 trait GlObject {
     /// Returns the id of the object.
     fn get_id(&self) -> gl::types::GLuint;
+}
+
+/// Internal trait for enums that can be turned into GLenum.
+trait ToGlEnum {
+    /// Returns the value.
+    fn to_glenum(&self) -> gl::types::GLenum;
 }
 
 /// Function that the GPU will use for blending.
@@ -588,8 +595,8 @@ pub trait Surface {
     /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
     ///   vertex's attribute is not used by the program).
     ///
-    fn draw<V, I, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters) where I: IndicesSource, U: uniforms::Uniforms;
+    fn draw<V, I, ID, U>(&mut self, &VertexBuffer<V>, &I, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
     fn get_blit_helper(&self) -> BlitHelper;
@@ -679,17 +686,20 @@ impl<'t> Surface for Frame<'t> {
         self.display.context.capabilities().stencil_bits
     }
 
-    fn draw<V, I, U>(&mut self, vertex_buffer: &VertexBuffer<V>,
-                     index_buffer: &I, program: &Program, uniforms: &U,
-                     draw_parameters: &DrawParameters)
-                     where I: IndicesSource, U: uniforms::Uniforms
+    fn draw<V, I, ID, U>(&mut self, vertex_buffer: &VertexBuffer<V>,
+                         index_buffer: &I, program: &Program, uniforms: &U,
+                         draw_parameters: &DrawParameters)
+                         where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
+                         ID: index_buffer::Index
     {
+        use index_buffer::ToIndicesSource;
+
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             panic!("Requested a depth function but no depth buffer is attached");
         }
 
-        fbo::draw(&self.display, None, vertex_buffer, index_buffer, program, uniforms,
-            draw_parameters)
+        fbo::draw(&self.display, None, vertex_buffer, &index_buffer.to_indices_source(),
+                  program, uniforms, draw_parameters)
     }
 
     fn get_blit_helper(&self) -> BlitHelper {
@@ -702,21 +712,6 @@ impl<'t> Drop for Frame<'t> {
     fn drop(&mut self) {
         self.display.context.swap_buffers();
     }
-}
-
-/// Can be used as a source of indices when drawing.
-pub trait IndicesSource {
-    /// Opaque function.
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper;
-}
-
-/// Opaque type used by the implementation.
-pub struct IndicesSourceHelper<'a> {
-    index_buffer: Option<&'a buffer::Buffer>,
-    pointer: Option<*const libc::c_void>,
-    primitives: gl::types::GLenum,
-    data_type: gl::types::GLenum,
-    indices_count: gl::types::GLuint,
 }
 
 /// Objects that can build a `Display` object.

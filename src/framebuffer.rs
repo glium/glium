@@ -99,15 +99,18 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         None
     }
 
-    fn draw<V, I, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) where I: ::IndicesSource,
-        U: ::uniforms::Uniforms
+    fn draw<V, I, ID, U>(&mut self, vb: &::VertexBuffer<V>, ib: &I, program: &::Program,
+        uniforms: &U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
+        U: ::uniforms::Uniforms, ID: ::index_buffer::Index
     {
+        use index_buffer::ToIndicesSource;
+
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             panic!("Requested a depth function but no depth buffer is attached");
         }
 
-        fbo::draw(&self.display, Some(&self.attachments), vb, ib, program, uniforms, draw_parameters)
+        fbo::draw(&self.display, Some(&self.attachments), vb, &ib.to_indices_source(),
+                  program, uniforms, draw_parameters)
     }
 
     fn get_blit_helper(&self) -> ::BlitHelper {

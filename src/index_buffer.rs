@@ -22,16 +22,113 @@ creating an `IndexBuffer`.
 */
 use buffer::{mod, Buffer};
 use gl;
-use libc;
 use GlObject;
-use {IndicesSource, IndicesSourceHelper};
+use ToGlEnum;
+
+/// Can be used as a source of indices when drawing.
+pub trait ToIndicesSource<D> {
+    fn to_indices_source<'a>(&'a self) -> IndicesSource<'a, D>;
+}
+
+/// Describes a source of indices used for drawing.
+#[deriving(Clone)]
+pub enum IndicesSource<'a, T: 'a> {
+    IndexBuffer {
+        buffer: &'a IndexBuffer,
+        offset: uint,
+        length: uint,
+    },
+
+    Buffer {
+        pointer: &'a [T],
+        primitives: PrimitiveType,
+        offset: uint,
+        length: uint,
+    }
+}
+
+impl<'a, T> IndicesSource<'a, T> where T: Index {
+    /// Returns the types of primitives.
+    pub fn get_primitives_type(&self) -> PrimitiveType {
+        match self {
+            &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_primitives_type(),
+            &IndicesSource::Buffer { primitives, .. } => primitives,
+        }
+    }
+
+    /// Returns the types of indices.
+    pub fn get_indices_type(&self) -> IndexType {
+        match self {
+            &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_indices_type(),
+            &IndicesSource::Buffer { .. } => Index::get_type(None::<T>),
+        }
+    }
+
+    /// Returns the first element to use from the buffer.
+    pub fn get_offset(&self) -> uint {
+        match self {
+            &IndicesSource::IndexBuffer { offset, .. } => offset,
+            &IndicesSource::Buffer { offset, .. } => offset,
+        }
+    }
+
+    /// Returns the lgnth of the buffer to use.
+    pub fn get_length(&self) -> uint {
+        match self {
+            &IndicesSource::IndexBuffer { length, .. } => length,
+            &IndicesSource::Buffer { length, .. } => length,
+        }
+    }
+}
+
+/// List of available primitives.
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+pub enum PrimitiveType {
+    /// 
+    Points,
+    /// 
+    LinesList,
+    /// 
+    LinesListAdjacency,
+    /// 
+    LineStrip,
+    /// 
+    LineStripAdjacency,
+    /// 
+    TrianglesList,
+    /// 
+    TrianglesListAdjacency,
+    /// 
+    TriangleStrip,
+    /// 
+    TriangleStripAdjacency,
+    /// 
+    TriangleFan,
+}
+
+impl ToGlEnum for PrimitiveType {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &PrimitiveType::Points => gl::POINTS,
+            &PrimitiveType::LinesList => gl::LINES,
+            &PrimitiveType::LinesListAdjacency => gl::LINES_ADJACENCY,
+            &PrimitiveType::LineStrip => gl::LINE_STRIP,
+            &PrimitiveType::LineStripAdjacency => gl::LINE_STRIP_ADJACENCY,
+            &PrimitiveType::TrianglesList => gl::TRIANGLES,
+            &PrimitiveType::TrianglesListAdjacency => gl::TRIANGLES_ADJACENCY,
+            &PrimitiveType::TriangleStrip => gl::TRIANGLE_STRIP,
+            &PrimitiveType::TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
+            &PrimitiveType::TriangleFan => gl::TRIANGLE_FAN,
+        }
+    }
+}
 
 /// A list of indices loaded in the graphics card's memory.
 #[deriving(Show)]
 pub struct IndexBuffer {
     buffer: Buffer,
-    data_type: gl::types::GLenum,
-    primitives: gl::types::GLenum,
+    data_type: IndexType,
+    primitives: PrimitiveType,
 }
 
 impl IndexBuffer {
@@ -60,6 +157,16 @@ impl IndexBuffer {
     pub fn new<T: IntoIndexBuffer>(display: &super::Display, data: T) -> IndexBuffer {
         data.into_index_buffer(display)
     }
+
+    /// Returns the type of primitives associated with this index buffer.
+    pub fn get_primitives_type(&self) -> PrimitiveType {
+        self.primitives
+    }
+
+    /// Returns the data type of the indices inside this index buffer.
+    pub fn get_indices_type(&self) -> IndexType {
+        self.data_type
+    }
 }
 
 impl GlObject for IndexBuffer {
@@ -68,14 +175,12 @@ impl GlObject for IndexBuffer {
     }
 }
 
-impl IndicesSource for IndexBuffer {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: Some(&self.buffer),
-            pointer: None,
-            primitives: self.primitives,
-            data_type: self.data_type,
-            indices_count: self.buffer.get_elements_count() as u32,
+impl ToIndicesSource<u16> for IndexBuffer {      // TODO: u16?
+    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: ?
+        IndicesSource::IndexBuffer {
+            buffer: self,
+            offset: 0,
+            length: self.buffer.get_elements_count() as uint,
         }
     }
 }
@@ -92,27 +197,48 @@ impl Drop for IndexBuffer {
     }
 }
 
-/// An index from the vertex buffer.
-pub trait Index {
-    /// Returns the GL_ENUM corresponding to this type.
-    fn to_glenum(Option<Self>) -> gl::types::GLenum;
+/// Types of indices in an indices source.
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+pub enum IndexType {
+    /// u8
+    U8,
+    /// u16
+    U16,
+    /// u32
+    U32,
 }
 
-impl Index for u8 {
-    fn to_glenum(_: Option<u8>) -> gl::types::GLenum {
-        gl::UNSIGNED_BYTE
+impl ToGlEnum for IndexType {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &IndexType::U8 => gl::UNSIGNED_BYTE,
+            &IndexType::U16 => gl::UNSIGNED_SHORT,
+            &IndexType::U32 => gl::UNSIGNED_INT,
+        }
     }
 }
 
-impl Index for u16 {
-    fn to_glenum(_: Option<u16>) -> gl::types::GLenum {
-        gl::UNSIGNED_SHORT
+/// An index from the index buffer.
+pub unsafe trait Index: Copy + Send {
+    /// Returns the `IndexType` corresponding to this type.
+    fn get_type(Option<Self>) -> IndexType;
+}
+
+unsafe impl Index for u8 {
+    fn get_type(_: Option<u8>) -> IndexType {
+        IndexType::U8
     }
 }
 
-impl Index for u32 {
-    fn to_glenum(_: Option<u32>) -> gl::types::GLenum {
-        gl::UNSIGNED_INT
+unsafe impl Index for u16 {
+    fn get_type(_: Option<u16>) -> IndexType {
+        IndexType::U16
+    }
+}
+
+unsafe impl Index for u32 {
+    fn get_type(_: Option<u32>) -> IndexType {
+        IndexType::U32
     }
 }
 
@@ -134,20 +260,19 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
 
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::POINTS,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::Points,
         }
     }
 }
 
-impl<T> IndicesSource for PointsList<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::POINTS,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for PointsList<T> where T: Index + Send + Copy {
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::Points,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -162,20 +287,19 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::LINES,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::LinesList,
         }
     }
 }
 
-impl<T> IndicesSource for LinesList<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::LINES,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for LinesList<T> where T: Index + Send + Copy {
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::LinesList,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -203,21 +327,20 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::LINES_ADJACENCY,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::LinesListAdjacency,
         }
     }
 }
 
 #[cfg(feature = "gl_extensions")]
-impl<T> IndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::LINES_ADJACENCY,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for LinesListAdjacency<T> where T: Index + Send + Copy {    
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::LinesListAdjacency,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -232,20 +355,19 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::LINE_STRIP,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::LineStrip,
         }
     }
 }
 
-impl<T> IndicesSource for LineStrip<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::LINE_STRIP,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for LineStrip<T> where T: Index + Send + Copy {    
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::LineStrip,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -273,21 +395,20 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::LINE_STRIP_ADJACENCY,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::LineStripAdjacency,
         }
     }
 }
 
 #[cfg(feature = "gl_extensions")]
-impl<T> IndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::LINE_STRIP_ADJACENCY,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for LineStripAdjacency<T> where T: Index + Send + Copy {    
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::LineStripAdjacency,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -302,20 +423,19 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::TRIANGLES,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::TrianglesList,
         }
     }
 }
 
-impl<T> IndicesSource for TrianglesList<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::TRIANGLES,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for TrianglesList<T> where T: Index + Send + Copy {    
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::TrianglesList,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -343,21 +463,20 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::TRIANGLES_ADJACENCY,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::TrianglesListAdjacency,
         }
     }
 }
 
 #[cfg(feature = "gl_extensions")]
-impl<T> IndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::TRIANGLES_ADJACENCY,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for TrianglesListAdjacency<T> where T: Index + Send + Copy {
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::TrianglesListAdjacency,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -372,20 +491,19 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::TRIANGLE_STRIP,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::TriangleStrip,
         }
     }
 }
 
-impl<T> IndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::TRIANGLE_STRIP,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for TriangleStrip<T> where T: Index + Send + Copy {
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::TriangleStrip,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -413,21 +531,20 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::TRIANGLE_STRIP_ADJACENCY,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::TriangleStripAdjacency,
         }
     }
 }
 
 #[cfg(feature = "gl_extensions")]
-impl<T> IndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::TRIANGLE_STRIP_ADJACENCY,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for TriangleStripAdjacency<T> where T: Index + Send + Copy {
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::TriangleStripAdjacency,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }
@@ -442,20 +559,19 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
-            data_type: Index::to_glenum(None::<T>),
-            primitives: gl::TRIANGLE_FAN,
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::TriangleFan,
         }
     }
 }
 
-impl<T> IndicesSource for TriangleFan<T> where T: Index + Send + Copy {
-    fn to_indices_source_helper(&self) -> IndicesSourceHelper {
-        IndicesSourceHelper {
-            index_buffer: None,
-            pointer: Some(self.0.as_ptr() as *const libc::c_void),
-            primitives: gl::TRIANGLE_FAN,
-            data_type: Index::to_glenum(None::<T>),
-            indices_count: self.0.len() as u32,
+impl<T> ToIndicesSource<T> for TriangleFan<T> where T: Index + Send + Copy {
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::TriangleFan,
+            offset: 0,
+            length: self.0.len(),
         }
     }
 }

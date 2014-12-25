@@ -2,8 +2,9 @@ use std::sync::Arc;
 use std::mem;
 
 use program::Program;
+use index_buffer::IndicesSource;
 use vertex_buffer::{VertexBuffer, AttributeType};
-use {DisplayImpl, IndicesSource, GlObject};
+use {DisplayImpl, GlObject};
 
 use {libc, gl};
 
@@ -122,10 +123,14 @@ impl GlObject for VertexArrayObject {
 }
 
 pub fn get_vertex_array_object<T, I>(display: &Arc<DisplayImpl>, vertex_buffer: &VertexBuffer<T>,
-                                     indices: &I, program: &Program) -> gl::types::GLuint
-                                     where I: IndicesSource
+                                     indices: &IndicesSource<I>, program: &Program)
+                                     -> gl::types::GLuint where I: ::index_buffer::Index
 {
-    let ib_id = indices.to_indices_source_helper().index_buffer.map(|b| b.get_id()).unwrap_or(0);
+    let ib_id = match indices {
+        &IndicesSource::Buffer { .. } => 0,
+        &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id()
+    };
+
     let vb_id = GlObject::get_id(vertex_buffer);
     let program_id = program.get_id();
 
