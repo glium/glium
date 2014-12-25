@@ -8,6 +8,9 @@ env:
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
 
+before_script:
+  - glxinfo
+
 script:
     - cargo build --verbose
     - cargo test --features "headless" --verbose
