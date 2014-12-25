@@ -4,7 +4,7 @@ use std::mem;
 use super::UncompressedFloatFormat;
 
 use {gl, context};
-use {GlObject, DisplayImpl};
+use {GlObject, DisplayImpl, ToGlEnum};
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
 ///
@@ -19,7 +19,7 @@ impl RenderBuffer {
     fn new(display: &::Display, format: UncompressedFloatFormat, width: u32, height: u32)
         -> RenderBuffer
     {
-        let format = format.to_gl_enum();
+        let format = format.to_glenum();
         let (tx, rx) = channel();
 
         display.context.context.exec(move |: ctxt| {

@@ -318,8 +318,9 @@ impl DepthFunction {
             DepthFunction::IfLessOrEqual => true,
         }
     }
+}
 
-    /// Turns the `DepthFunction` into the corresponding GLenum.
+impl ToGlEnum for DepthFunction {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             DepthFunction::Ignore => gl::NEVER,
@@ -354,7 +355,7 @@ pub enum PolygonMode {
     Fill,
 }
 
-impl PolygonMode {
+impl ToGlEnum for PolygonMode {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             PolygonMode::Point => gl::POINT,
