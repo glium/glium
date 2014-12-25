@@ -60,12 +60,16 @@ use buffer::{mod, Buffer};
 use gl;
 use GlObject;
 
+/// Describes the source to use for the vertices when drawing.
 #[deriving(Clone, Copy)]
 pub enum VerticesSource<'a> {
+    /// A buffer uploaded in the video memory.
     VertexBuffer(&'a VertexBufferAny),
 }
 
+/// Objects that can be used as vertex sources.
 pub trait ToVerticesSource {
+    /// Builds the `VerticesSource`.
     fn to_vertices_source(&self) -> VerticesSource;
 }
 
@@ -275,6 +279,12 @@ impl<T> ToVerticesSource for VertexBuffer<T> {
 }
 
 /// A list of vertices loaded in the graphics card's memory.
+///
+/// Contrary to `VertexBuffer`, this struct doesn't know about the type of data
+/// inside the buffer. Therefore you can't map or read it.
+///
+/// This struct is provided for convenience, so that you can have a `Vec<VertexBufferAny>`,
+/// or return a `VertexBufferAny` instead of a `VertexBuffer<MyPrivateVertexType>`.
 #[deriving(Show)]
 pub struct VertexBufferAny {
     buffer: Buffer,
