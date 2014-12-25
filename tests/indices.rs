@@ -164,3 +164,27 @@ fn triangle_strip_gpu() {
     
     display.assert_no_error();
 }
+
+#[test]
+fn get_primitives_type() {
+    let display = support::build_display();
+
+    let indices = glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3]);
+    let indices = glium::IndexBuffer::new(&display, indices);
+
+    assert_eq!(indices.get_primitives_type(), glium::index_buffer::PrimitiveType::TriangleStrip);
+
+    display.assert_no_error();
+}
+
+#[test]
+fn get_indices_type() {
+    let display = support::build_display();
+
+    let indices = glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3]);
+    let indices = glium::IndexBuffer::new(&display, indices);
+
+    assert_eq!(indices.get_indices_type(), glium::index_buffer::IndexType::U8);
+
+    display.assert_no_error();
+}
