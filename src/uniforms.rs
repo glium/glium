@@ -55,6 +55,7 @@ use nalgebra;
 use std::sync::Arc;
 
 use GlObject;
+use ToGlEnum;
 
 /// Represents a value that can be used as the value of a uniform.
 ///
@@ -238,7 +239,7 @@ pub enum SamplerWrapFunction {
     Clamp
 }
 
-impl SamplerWrapFunction {
+impl ToGlEnum for SamplerWrapFunction {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             SamplerWrapFunction::Repeat => gl::REPEAT,
@@ -258,9 +259,8 @@ pub enum MagnifySamplerFilter {
     Linear,
 }
 
-impl MagnifySamplerFilter {
-    #[doc(hidden)]      // TODO: hacky
-    pub fn to_glenum(&self) -> gl::types::GLenum {
+impl ToGlEnum for MagnifySamplerFilter {
+    fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             MagnifySamplerFilter::Nearest => gl::NEAREST,
             MagnifySamplerFilter::Linear => gl::LINEAR,
@@ -294,9 +294,8 @@ pub enum MinifySamplerFilter {
     LinearMipmapLinear,
 }
 
-impl MinifySamplerFilter {
-    #[doc(hidden)]      // TODO: hacky
-    pub fn to_glenum(&self) -> gl::types::GLenum {
+impl ToGlEnum for MinifySamplerFilter {
+    fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             MinifySamplerFilter::Nearest => gl::NEAREST,
             MinifySamplerFilter::Linear => gl::LINEAR,

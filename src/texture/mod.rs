@@ -22,7 +22,7 @@ use std::sync::Arc;
 use buffer::{mod, Buffer};
 use context::GlVersion;
 use uniforms::{UniformValue, UniformValueBinder};
-use {Surface, GlObject};
+use {Surface, GlObject, ToGlEnum};
 
 pub use self::pixel::PixelValue;
 pub use self::render_buffer::RenderBuffer;
@@ -245,7 +245,7 @@ impl ClientFormat {
     /// to this client format.
     fn to_default_float_format(&self) -> gl::types::GLenum {
         self.to_float_internal_format()
-            .map(|e| e.to_gl_enum())
+            .map(|e| e.to_glenum())
             .unwrap_or_else(|| self.to_gl_enum().0)
     }
 
@@ -423,8 +423,8 @@ pub enum UncompressedFloatFormat {
     F9F9F9,
 }
 
-impl UncompressedFloatFormat {
-    fn to_gl_enum(&self) -> gl::types::GLenum {
+impl ToGlEnum for UncompressedFloatFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             UncompressedFloatFormat::U8 => gl::R8,
             UncompressedFloatFormat::I8 => gl::R8_SNORM,
@@ -485,8 +485,8 @@ pub enum UncompressedIntFormat {
     I32I32I32I32,
 }
 
-impl UncompressedIntFormat {
-    fn to_gl_enum(&self) -> gl::types::GLenum {
+impl ToGlEnum for UncompressedIntFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             UncompressedIntFormat::I8 => gl::R8I,
             UncompressedIntFormat::I16 => gl::R16I,
@@ -526,8 +526,8 @@ pub enum UncompressedUintFormat {
     U10U10U10U2,
 }
 
-impl UncompressedUintFormat {
-    fn to_gl_enum(&self) -> gl::types::GLenum {
+impl ToGlEnum for UncompressedUintFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             UncompressedUintFormat::U8 => gl::R8UI,
             UncompressedUintFormat::U16 => gl::R16UI,
@@ -561,8 +561,8 @@ pub enum CompressedFormat {
     RGTCFormatII,
 }
 
-impl CompressedFormat {
-    fn to_gl_enum(&self) -> gl::types::GLenum {
+impl ToGlEnum for CompressedFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             CompressedFormat::RGTCFormatU => gl::COMPRESSED_RED_RGTC1,
             CompressedFormat::RGTCFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,

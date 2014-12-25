@@ -265,7 +265,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 /// The texture will contain undefined data.
                 pub fn new_empty(display: &::Display, format: {format}, {dim_params}) -> {name} {{
-                    let format = format.to_gl_enum();
+                    let format = format.to_glenum();
             ", format = format, dim_params = dim_params, name = name)).unwrap();
 
         // writing the constructor
