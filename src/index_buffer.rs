@@ -30,6 +30,7 @@ pub trait ToIndicesSource<D> {
     fn to_indices_source<'a>(&'a self) -> IndicesSource<'a, D>;
 }
 
+/// Describes a source of indices used for drawing.
 #[deriving(Clone)]
 pub enum IndicesSource<'a, T: 'a> {
     IndexBuffer {
@@ -47,6 +48,7 @@ pub enum IndicesSource<'a, T: 'a> {
 }
 
 impl<'a, T> IndicesSource<'a, T> where T: Index {
+    /// Returns the types of primitives.
     pub fn get_primitives_type(&self) -> PrimitiveType {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_primitives_type(),
@@ -54,6 +56,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
         }
     }
 
+    /// Returns the types of indices.
     pub fn get_indices_type(&self) -> IndexType {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_indices_type(),
@@ -61,6 +64,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
         }
     }
 
+    /// Returns the first element to use from the buffer.
     pub fn get_offset(&self) -> uint {
         match self {
             &IndicesSource::IndexBuffer { offset, .. } => offset,
@@ -68,6 +72,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
         }
     }
 
+    /// Returns the lgnth of the buffer to use.
     pub fn get_length(&self) -> uint {
         match self {
             &IndicesSource::IndexBuffer { length, .. } => length,
@@ -79,15 +84,25 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
 /// List of available primitives.
 #[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
+    /// 
     Points,
+    /// 
     LinesList,
+    /// 
     LinesListAdjacency,
+    /// 
     LineStrip,
+    /// 
     LineStripAdjacency,
+    /// 
     TrianglesList,
+    /// 
     TrianglesListAdjacency,
+    /// 
     TriangleStrip,
+    /// 
     TriangleStripAdjacency,
+    /// 
     TriangleFan,
 }
 
@@ -182,10 +197,14 @@ impl Drop for IndexBuffer {
     }
 }
 
+/// Types of indices in an indices source.
 #[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum IndexType {
+    /// u8
     U8,
+    /// u16
     U16,
+    /// u32
     U32,
 }
 
