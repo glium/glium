@@ -69,21 +69,21 @@ pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, 
     ])
 }
 
-#[vertex_format]
-#[deriving(Copy)]
-struct Vertex {
-    position: [f32, ..2],
-}
-
 /// Builds a VB, IB and program that draw the red color `(1.0, 0.0, 0.0, 1.0)` on the whole screen.
-pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::VertexBuffer<Vertex>,
+pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex_buffer::VertexBufferAny,
     glium::IndexBuffer, glium::Program)
 {
+    #[vertex_format]
+    #[deriving(Copy)]
+    struct Vertex {
+        position: [f32, ..2],
+    }
+
     (
         glium::VertexBuffer::new(display, vec![
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-        ]),
+        ]).into_vertex_buffer_any(),
 
         glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
 
@@ -112,13 +112,19 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::Vertex
 ///
 /// The VB has the "position" attribute of type "vec2".
 pub fn build_rectangle_vb_ib(display: &glium::Display)
-    -> (glium::VertexBuffer<Vertex>, glium::IndexBuffer)
+    -> (glium::vertex_buffer::VertexBufferAny, glium::IndexBuffer)
 {
+    #[vertex_format]
+    #[deriving(Copy)]
+    struct Vertex {
+        position: [f32, ..2],
+    }
+
     (
         glium::VertexBuffer::new(display, vec![
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-        ]),
+        ]).into_vertex_buffer_any(),
 
         glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
     )
