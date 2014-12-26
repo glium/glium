@@ -36,3 +36,22 @@ fn release_shader_compiler() {
     display.release_shader_compiler();
     display.assert_no_error();
 }
+
+#[test]
+#[should_fail(expected = "Viewport dimensions are too large")]
+fn viewport_too_large() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        viewport: Some(glium::Rect {
+            left: 0,
+            bottom: 0,
+            width: 4294967295,
+            height: 4294967295,
+        }),
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+    display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+}
