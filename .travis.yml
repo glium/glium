@@ -3,7 +3,10 @@ language: rust
 env: 
   global:
     - secure: "Ts/4pe5X+GCq2tr88UyXvIciibED0vHaJhQE9gC4OIyJRIM4ZBiNmyVATZi16zWzLPVCkURWBIjMt5G7r7rJ0fwvGvsFUfCMg9if1xYEVgXBw/0FFvgO5CkUR+vK3lD1A9Gew1exCwz/bKz0Vf2NvHcpBdvZ3pUbageLRGKcVH4="
-    - HEADLESS_TESTS=1
+
+before_install:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
