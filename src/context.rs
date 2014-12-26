@@ -111,6 +111,9 @@ pub struct GLState {
     /// The latest value passed to `glDepthFunc`.
     pub depth_func: gl::types::GLenum,
 
+    /// The latest values passed to `glDepthRange`.
+    pub depth_range: (f32, f32),
+
     /// The latest values passed to `glViewport`.
     pub viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei),
 
@@ -156,6 +159,7 @@ impl GLState {
             default_framebuffer_read: None,
             renderbuffer: 0,
             depth_func: gl::LESS,
+            depth_range: (0.0, 1.0),
             blend_func: (0, 0),     // no default specified
             viewport: viewport,
             line_width: 1.0,

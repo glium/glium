@@ -212,6 +212,8 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
+        
+        draw_parameters.validate();
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             panic!("Requested a depth function but no depth buffer is attached");

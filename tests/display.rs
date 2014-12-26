@@ -73,3 +73,17 @@ fn timestamp_query() {
 
     display.assert_no_error();
 }
+
+#[test]
+#[should_fail(expected = "Depth range must be between 0 and 1")]
+fn wrong_depth_range() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        depth_range: (-0.1, 1.0),
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+    display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+}

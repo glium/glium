@@ -385,6 +385,20 @@ pub struct DrawParameters {
     /// The default is `Overwrite`.
     pub depth_function: DepthFunction,
 
+    /// The range of Z coordinates in surface coordinates.
+    ///
+    /// Just like OpenGL turns X and Y coordinates between `-1.0` and `1.0` into surface
+    /// coordinates, it will also map your Z coordinates to a certain range which you can
+    /// specify here.
+    ///
+    /// The two values must be between `0.0` and `1.0`, anything outside this range will result
+    /// in a panic. By default the depth range is `(0.0, 1.0)`.
+    ///
+    /// The first value of the tuple must be the "near" value, where `-1.0` will be mapped.
+    /// The second value must be the "far" value, where `1.0` will be mapped.
+    /// It is possible for the "near" value to be greater than the "far" value.
+    pub depth_range: (f32, f32),
+
     /// The function that the GPU will use to merge the existing pixel with the pixel that is
     /// being written.
     ///
@@ -428,6 +442,7 @@ impl std::default::Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
             depth_function: DepthFunction::Overwrite,
+            depth_range: (0.0, 1.0),
             blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,
@@ -439,6 +454,15 @@ impl std::default::Default for DrawParameters {
 }
 
 impl DrawParameters {
+    /// Checks parameters and panics if something is wrong.
+    fn validate(&self) {
+        if self.depth_range.0 < 0.0 || self.depth_range.0 > 1.0 ||
+           self.depth_range.1 < 0.0 || self.depth_range.1 > 1.0 
+        {
+            panic!("Depth range must be between 0 and 1");
+        }
+    }
+
     /// Synchronizes the parmaeters with the current ctxt.state.
     fn sync(&self, ctxt: &mut context::CommandContext, surface_dimensions: (u32, u32)) {
         // depth function
@@ -460,6 +484,14 @@ impl DrawParameters {
                     ctxt.state.enabled_depth_test = true;
                 }
             }
+        }
+
+        // depth range
+        if self.depth_range != ctxt.state.depth_range {
+            unsafe {
+                ctxt.gl.DepthRange(self.depth_range.0 as f64, self.depth_range.1 as f64);
+            }
+            ctxt.state.depth_range = self.depth_range;
         }
 
         // blending function
@@ -640,6 +672,7 @@ pub trait Surface {
     /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
     ///   vertex's attribute is not used by the program).
     /// - Panics if the viewport is larger than the dimensions supported by the hardware.
+    /// - Panics if the depth range is outside of `(0, 1)`.
     ///
     fn draw<'a, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'a>,
@@ -740,6 +773,8 @@ impl<'t> Surface for Frame<'t> {
                              ID: index_buffer::Index, V: vertex_buffer::IntoVerticesSource<'a>
     {
         use index_buffer::ToIndicesSource;
+
+        draw_parameters.validate();
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             panic!("Requested a depth function but no depth buffer is attached");
