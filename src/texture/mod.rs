@@ -25,10 +25,8 @@ use uniforms::{UniformValue, UniformValueBinder};
 use {Surface, GlObject, ToGlEnum};
 
 pub use self::pixel::PixelValue;
-pub use self::render_buffer::RenderBuffer;
 
 mod pixel;
-mod render_buffer;
 
 include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
@@ -1057,13 +1055,15 @@ impl fmt::Show for TextureImplementation {
 
 impl Drop for TextureImplementation {
     fn drop(&mut self) {
+        use fbo;
+
         // removing FBOs which contain this texture
         {
             let mut fbos = self.display.framebuffer_objects.lock();
 
             let to_delete = fbos.keys().filter(|b| {
-                b.colors.iter().find(|&&(_, id)| id == self.id).is_some() ||
-                b.depth == Some(self.id) || b.stencil == Some(self.id)
+                b.colors.iter().find(|&&(_, id)| id == fbo::Attachment::Texture(self.id)).is_some() ||
+                b.depth == Some(fbo::Attachment::Texture(self.id)) || b.stencil == Some(fbo::Attachment::Texture(self.id))
             }).map(|k| k.clone()).collect::<Vec<_>>();
 
             for k in to_delete.into_iter() {

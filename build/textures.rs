@@ -383,7 +383,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
                     // TODO: hacky, shouldn't recreate a Display
                     let display = ::Display {{ context: self.0.display.clone() }};
-                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&display, self, None, None))
+                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&display, self))
                 }}
             ")).unwrap();
     }
