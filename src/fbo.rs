@@ -33,6 +33,34 @@ impl FrameBufferObject {
         display.context.exec(move |: mut ctxt| {
             use context::GlVersion;
 
+            unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
+                             id: gl::types::GLuint, tex_id: gl::types::GLuint)
+            {
+                if ctxt.version >= &GlVersion(4, 5) {
+                    ctxt.gl.NamedFramebufferTexture(id, slot, tex_id, 0);
+
+                } else if ctxt.extensions.gl_ext_direct_state_access &&
+                          ctxt.extensions.gl_ext_geometry_shader4
+                {
+                    ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id, 0);
+
+                } else if ctxt.version >= &GlVersion(3, 2) {
+                    bind_framebuffer(ctxt, Some(id), true, false);
+                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                               slot, tex_id, 0);
+
+                } else if ctxt.version >= &GlVersion(3, 0) {
+                    bind_framebuffer(ctxt, Some(id), true, false);
+                    ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                 slot, gl::TEXTURE_2D, tex_id, 0);
+
+                } else {
+                    bind_framebuffer(ctxt, Some(id), true, true);
+                    ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                    slot, gl::TEXTURE_2D, tex_id, 0);
+                }
+            }
+
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -40,37 +68,19 @@ impl FrameBufferObject {
                 } else {
                     ctxt.gl.GenFramebuffersEXT(1, mem::transmute(&id));
                 }
+
                 tx.send(id);
 
                 for &(slot, tex_id) in attachments.colors.iter() {
-                    if ctxt.version >= &GlVersion(4, 5) {
-                        ctxt.gl.NamedFramebufferTexture(id, gl::COLOR_ATTACHMENT0 + slot as u32,
-                                                        tex_id, 0);
+                    attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, tex_id);
+                }
 
-                    } else if ctxt.extensions.gl_ext_direct_state_access &&
-                              ctxt.extensions.gl_ext_geometry_shader4
-                    {
-                        ctxt.gl.NamedFramebufferTextureEXT(id, gl::COLOR_ATTACHMENT0 + slot as u32,
-                                                           tex_id, 0);
+                if let Some(tex_id) = attachments.depth {
+                    attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, tex_id);
+                }
 
-                    } else if ctxt.version >= &GlVersion(3, 2) {
-                        bind_framebuffer(&mut ctxt, Some(id), true, false);
-                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
-                                                   gl::COLOR_ATTACHMENT0 + slot as u32,
-                                                   tex_id, 0);
-
-                    } else if ctxt.version >= &GlVersion(3, 0) {
-                        bind_framebuffer(&mut ctxt, Some(id), true, false);
-                        ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
-                                                     gl::COLOR_ATTACHMENT0 + slot as u32,
-                                                     gl::TEXTURE_2D, tex_id, 0);
-
-                    } else {
-                        bind_framebuffer(&mut ctxt, Some(id), true, true);
-                        ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
-                                                        gl::COLOR_ATTACHMENT0 + slot as u32,
-                                                        gl::TEXTURE_2D, tex_id, 0);
-                    }
+                if let Some(tex_id) = attachments.stencil {
+                    attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, tex_id);
                 }
             }
         });
@@ -132,8 +142,8 @@ impl GlObject for FrameBufferObject {
 /// Draws everything.
 pub fn draw<I, U>(display: &Arc<DisplayImpl>,
     framebuffer: Option<&FramebufferAttachments>, vertex_buffer: VerticesSource,
-    indices: &IndicesSource<I>, program: &Program, uniforms: &U, draw_parameters: &DrawParameters)
-    where U: Uniforms, I: ::index_buffer::Index
+    indices: &IndicesSource<I>, program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
+    dimensions: (u32, u32)) where U: Uniforms, I: ::index_buffer::Index
 {
     let fbo_id = get_framebuffer(display, framebuffer);
 
@@ -161,6 +171,9 @@ pub fn draw<I, U>(display: &Arc<DisplayImpl>,
     display.context.exec(move |: mut ctxt| {
         unsafe {
             bind_framebuffer(&mut ctxt, fbo_id, true, false);
+
+            // TODO: do this correctly
+            ctxt.gl.Viewport(0, 0, dimensions.0 as i32, dimensions.1 as i32);
 
             // binding program
             if ctxt.state.program != program_id {

@@ -701,7 +701,8 @@ impl<'t> Surface for Frame<'t> {
         }
 
         fbo::draw(&self.display, None, vertex_buffer.to_vertices_source(),
-                  &index_buffer.to_indices_source(), program, uniforms, draw_parameters)
+                  &index_buffer.to_indices_source(), program, uniforms, draw_parameters,
+                  (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
     fn get_blit_helper(&self) -> BlitHelper {

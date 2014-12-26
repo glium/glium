@@ -138,6 +138,49 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 }}
             ", name)).unwrap();
 
+    // `ToXXXAttachment` trait impl
+    if dimensions == TextureDimensions::Texture2d {
+        match ty {
+            TextureType::Regular => {
+                (writeln!(dest, "
+                        impl ::framebuffer::ToColorAttachment for {} {{
+                            fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
+                                ::framebuffer::ColorAttachment::Texture2d(self)
+                            }}
+                        }}
+                    ", name)).unwrap();
+            },
+            TextureType::Depth => {
+                (writeln!(dest, "
+                        impl ::framebuffer::ToDepthAttachment for {} {{
+                            fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
+                                ::framebuffer::DepthAttachment::Texture2d(self)
+                            }}
+                        }}
+                    ", name)).unwrap();
+            },
+            TextureType::Stencil => {
+                (writeln!(dest, "
+                        impl ::framebuffer::ToStencilAttachment for {} {{
+                            fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
+                                ::framebuffer::StencilAttachment::Texture2d(self)
+                            }}
+                        }}
+                    ", name)).unwrap();
+            },
+            TextureType::DepthStencil => {
+                (writeln!(dest, "
+                        impl ::framebuffer::ToDepthStencilAttachment for {} {{
+                            fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
+                                ::framebuffer::DepthStencilAttachment::Texture2d(self)
+                            }}
+                        }}
+                    ", name)).unwrap();
+            },
+            _ => ()
+        }
+    }
+
     // opening `impl Texture` block
     (writeln!(dest, "impl {} {{", name)).unwrap();
 
@@ -185,13 +228,13 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 (write!(dest, "let format = format.to_default_float_format();")).unwrap();
             },
             TextureType::Depth => {
-                (write!(dest, "let format = DepthFormat::F32.to_glenum();")).unwrap();
+                (write!(dest, "let format = DepthFormat::I24.to_glenum();")).unwrap();
             },
             TextureType::Stencil => {
                 (write!(dest, "let format = StencilFormat::I8.to_glenum();")).unwrap();
             },
             TextureType::DepthStencil => {
-                (write!(dest, "let format = DepthStencilFormat::F32I8.to_glenum();")).unwrap();
+                (write!(dest, "let format = DepthStencilFormat::I24I8.to_glenum();")).unwrap();
             },
         };
 
@@ -339,7 +382,8 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
                     // TODO: hacky, shouldn't recreate a Display
-                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&::Display {{ context: self.0.display.clone() }}, self))
+                    let display = ::Display {{ context: self.0.display.clone() }};
+                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&display, self, None, None))
                 }}
             ")).unwrap();
     }

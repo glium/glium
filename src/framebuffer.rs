@@ -7,7 +7,7 @@ shaders that write to `gl_FragColor`.
 ```no_run
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
 # let texture: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
-let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture, None, None);
 // framebuffer.draw(...);    // draws over `texture`
 ```
 
@@ -33,7 +33,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 //     }
 ```
 
-**Note**: depth and stencil attachments are not yet implemented.
+**Note**: depth-stencil attachments are not yet implemented.
 
 */
 #![experimental]
@@ -41,7 +41,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 use std::kinds::marker::ContravariantLifetime;
 use std::sync::Arc;
 
-use texture::{Texture, Texture2d};
+use texture::{Texture, Texture2d, DepthTexture2d, StencilTexture2d, DepthStencilTexture2d};
 use fbo::FramebufferAttachments;
 
 use {DisplayImpl, Program, Surface, GlObject};
@@ -54,22 +54,65 @@ pub struct SimpleFrameBuffer<'a> {
     attachments: FramebufferAttachments,
     marker: ContravariantLifetime<'a>,
     dimensions: (u32, u32),
+    depth_buffer_bits: Option<u16>,
+    stencil_buffer_bits: Option<u16>,
 }
 
 impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer`.
-    pub fn new(display: &::Display, color: &'a Texture2d) -> SimpleFrameBuffer<'a> {
+    pub fn new<C, D, S>(display: &::Display, color: &'a C, depth: Option<&'a D>,
+                        stencil: Option<&'a S>) -> SimpleFrameBuffer<'a>
+                        where C: ToColorAttachment, D: ToDepthAttachment, S: ToStencilAttachment
+    {
+        let color = match color.to_color_attachment() {
+            ColorAttachment::Texture2d(tex) => tex,
+        };
+
         let dimensions = (color.get_width(), color.get_height().unwrap());
+
+        let (depth, depth_bits) = if let Some(depth) = depth {
+            let tex = match depth.to_depth_attachment() {
+                DepthAttachment::Texture2d(tex) => tex,
+            };
+
+            if (tex.get_width(), tex.get_height().unwrap()) != dimensions {
+                panic!("The depth attachment must have the same dimensions \
+                        as the color attachment");
+            }
+
+            (Some(tex.get_id()), Some(32))      // FIXME: wrong number
+
+        } else {
+            (None, None)
+        };
+
+        let (stencil, stencil_bits) = if let Some(stencil) = stencil {
+            let tex = match stencil.to_stencil_attachment() {
+                StencilAttachment::Texture2d(tex) => tex,
+            };
+
+            if (tex.get_width(), tex.get_height().unwrap()) != dimensions {
+                panic!("The stencil attachment must have the same dimensions \
+                        as the color attachment");
+            }
+
+            (Some(tex.get_id()), Some(8))       // FIXME: wrong number
+
+        } else {
+            (None, None)
+        };
 
         SimpleFrameBuffer {
             display: display.context.clone(),
             attachments: FramebufferAttachments {
                 colors: vec![(0, color.get_id())],
-                depth: None,
-                stencil: None
+                depth: depth,
+                stencil: stencil,
             },
             marker: ContravariantLifetime,
             dimensions: dimensions,
+            depth_buffer_bits: depth_bits,
+            stencil_buffer_bits: stencil_bits,
         }
     }
 }
@@ -92,11 +135,11 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {
-        None
+        self.depth_buffer_bits
     }
 
     fn get_stencil_buffer_bits(&self) -> Option<u16> {
-        None
+        self.stencil_buffer_bits
     }
 
     fn draw<V, I, ID, U>(&mut self, vb: &V, ib: &I, program: &::Program,
@@ -110,7 +153,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         }
 
         fbo::draw(&self.display, Some(&self.attachments), vb.to_vertices_source(),
-                  &ib.to_indices_source(), program, uniforms, draw_parameters)
+                  &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
     fn get_blit_helper(&self) -> ::BlitHelper {
@@ -184,4 +227,56 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             stencil: None,
         }
     }
+}
+
+/// Describes an attachment for a color buffer.
+#[deriving(Copy, Clone)]
+pub enum ColorAttachment<'a> {
+    /// A texture.
+    Texture2d(&'a Texture2d),
+}
+
+/// Trait for objects that can be used as color attachments.
+pub trait ToColorAttachment {
+    /// Builds the `ColorAttachment`.
+    fn to_color_attachment(&self) -> ColorAttachment;
+}
+
+/// Describes an attachment for a depth buffer.
+#[deriving(Copy, Clone)]
+pub enum DepthAttachment<'a> {
+    /// A texture.
+    Texture2d(&'a DepthTexture2d),
+}
+
+/// Trait for objects that can be used as depth attachments.
+pub trait ToDepthAttachment {
+    /// Builds the `DepthAttachment`.
+    fn to_depth_attachment(&self) -> DepthAttachment;
+}
+
+/// Describes an attachment for a stencil buffer.
+#[deriving(Copy, Clone)]
+pub enum StencilAttachment<'a> {
+    /// A texture.
+    Texture2d(&'a StencilTexture2d),
+}
+
+/// Trait for objects that can be used as stencil attachments.
+pub trait ToStencilAttachment {
+    /// Builds the `StencilAttachment`.
+    fn to_stencil_attachment(&self) -> StencilAttachment;
+}
+
+/// Describes an attachment for a depth and stencil buffer.
+#[deriving(Copy, Clone)]
+pub enum DepthStencilAttachment<'a> {
+    /// A texture.
+    Texture2d(&'a DepthStencilTexture2d),
+}
+
+/// Trait for objects that can be used as depth and stencil attachments.
+pub trait ToDepthStencilAttachment {
+    /// Builds the `DepthStencilAttachment`.
+    fn to_depth_stencil_attachment(&self) -> DepthStencilAttachment;
 }
