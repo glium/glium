@@ -220,9 +220,6 @@ pub fn draw<I, U>(display: &Arc<DisplayImpl>,
         unsafe {
             bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
-            // TODO: do this correctly
-            ctxt.gl.Viewport(0, 0, dimensions.0 as i32, dimensions.1 as i32);
-
             // binding program
             if ctxt.state.program != program_id {
                 ctxt.gl.UseProgram(program_id);
@@ -250,7 +247,7 @@ pub fn draw<I, U>(display: &Arc<DisplayImpl>,
             }
 
             // sync-ing parameters
-            draw_parameters.sync(&mut ctxt);
+            draw_parameters.sync(&mut ctxt, dimensions);
 
             // drawing
             ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer);

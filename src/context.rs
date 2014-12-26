@@ -230,6 +230,9 @@ pub struct Capabilities {
     ///
     /// `None` if the extension is not supported by the hardware.
     pub max_texture_max_anisotropy: Option<gl::types::GLfloat>,
+
+    /// Maximum width and height of `glViewport`.
+    pub max_viewport_dims: (gl::types::GLint, gl::types::GLint),
 }
 
 impl Context {
@@ -647,5 +650,12 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsLis
                 val
             })
         },
+
+        max_viewport_dims: unsafe {
+            let mut val: [gl::types::GLint, .. 2] = [ 0, 0 ];
+            gl.GetIntegerv(gl::MAX_VIEWPORT_DIMS, val.as_mut_ptr());
+            (val[0], val[1])
+        },
+
     }
 }

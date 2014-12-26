@@ -217,6 +217,13 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
             panic!("Requested a depth function but no depth buffer is attached");
         }
 
+        if let Some(viewport) = draw_parameters.viewport {
+            assert!(viewport.width <= self.display.context.capabilities().max_viewport_dims.0
+                    as u32, "Viewport dimensions are too large");
+            assert!(viewport.height <= self.display.context.capabilities().max_viewport_dims.1
+                    as u32, "Viewport dimensions are too large");
+        }
+
         fbo::draw(&self.display, Some(&self.attachments), vb.to_vertices_source(),
                   &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }

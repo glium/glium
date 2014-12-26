@@ -411,6 +411,17 @@ pub struct DrawParameters {
     /// The recommended way to do is to leave this to `true`, and adjust the option when
     /// creating the window.
     pub multisampling: bool,
+
+    /// Specifies the viewport to use when drawing.
+    ///
+    /// The x and y positions of your vertices are mapped to the viewport so that `(-1, -1)`
+    /// corresponds to the lower-left hand corner and `(1, 1)` corresponds to the top-right
+    /// hand corner. Any pixel outside of the viewport is discarded.
+    ///
+    /// You can specify a viewport greater than the target if you want to stretch the image.
+    ///
+    /// `None` means "use the whole surface".
+    pub viewport: Option<Rect>,
 }
 
 impl std::default::Default for DrawParameters {
@@ -422,13 +433,14 @@ impl std::default::Default for DrawParameters {
             backface_culling: BackfaceCullingMode::CullingDisabled,
             polygon_mode: PolygonMode::Fill,
             multisampling: true,
+            viewport: None,
         }
     }
 }
 
 impl DrawParameters {
     /// Synchronizes the parmaeters with the current ctxt.state.
-    fn sync(&self, ctxt: &mut context::CommandContext) {
+    fn sync(&self, ctxt: &mut context::CommandContext, surface_dimensions: (u32, u32)) {
         // depth function
         match self.depth_function {
             DepthFunction::Overwrite => unsafe {
@@ -534,13 +546,44 @@ impl DrawParameters {
                 }
             }
         }
+
+        // viewport
+        if let Some(viewport) = self.viewport {
+            assert!(viewport.width <= ctxt.capabilities.max_viewport_dims.0 as u32,
+                    "Viewport dimensions are too large");
+            assert!(viewport.height <= ctxt.capabilities.max_viewport_dims.1 as u32,
+                    "Viewport dimensions are too large");
+
+            let viewport = (viewport.left as gl::types::GLint, viewport.bottom as gl::types::GLint,
+                            viewport.width as gl::types::GLsizei,
+                            viewport.height as gl::types::GLsizei);
+
+            if ctxt.state.viewport != viewport {
+                unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
+                ctxt.state.viewport = viewport;
+            }
+
+        } else {
+            assert!(surface_dimensions.0 <= ctxt.capabilities.max_viewport_dims.0 as u32,
+                    "Viewport dimensions are too large");
+            assert!(surface_dimensions.1 <= ctxt.capabilities.max_viewport_dims.1 as u32,
+                    "Viewport dimensions are too large");
+
+            let viewport = (0, 0, surface_dimensions.0 as gl::types::GLsizei,
+                            surface_dimensions.1 as gl::types::GLsizei);
+
+            if ctxt.state.viewport != viewport {
+                unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
+                ctxt.state.viewport = viewport;
+            }
+        }
     }
 }
 
 /// Area of a surface in pixels.
 ///
 /// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
-#[deriving(Show, Clone, Copy, Default)]
+#[deriving(Show, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Rect {
     /// Number of pixels between the left border of the surface and the left border of
     /// the rectangle.
@@ -596,6 +639,7 @@ pub trait Surface {
     /// - Panics if the type of some of the vertex source's attributes do not match the program's.
     /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
     ///   vertex's attribute is not used by the program).
+    /// - Panics if the viewport is larger than the dimensions supported by the hardware.
     ///
     fn draw<V, I, ID, U>(&mut self, &V, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) where V: vertex_buffer::ToVerticesSource,
@@ -699,6 +743,13 @@ impl<'t> Surface for Frame<'t> {
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             panic!("Requested a depth function but no depth buffer is attached");
+        }
+
+        if let Some(viewport) = draw_parameters.viewport {
+            assert!(viewport.width <= self.display.context.capabilities().max_viewport_dims.0
+                    as u32, "Viewport dimensions are too large");
+            assert!(viewport.height <= self.display.context.capabilities().max_viewport_dims.1
+                    as u32, "Viewport dimensions are too large");
         }
 
         fbo::draw(&self.display, None, vertex_buffer.to_vertices_source(),
@@ -860,6 +911,14 @@ impl Display {
     /// if the hardware doesn't support it.
     pub fn get_max_anisotropy_support(&self) -> Option<u16> {
         self.context.context.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
+    }
+
+    /// Returns the maximum dimensions of the viewport that you can pass when drawing.
+    ///
+    /// Glium will panic if you request a larger viewport.
+    pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
+        let d = self.context.context.capabilities().max_viewport_dims;
+        (d.0 as u32, d.1 as u32)
     }
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
