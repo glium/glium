@@ -29,3 +29,10 @@ fn display_clear_color() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn release_shader_compiler() {
+    let display = support::build_display();
+    display.release_shader_compiler();
+    display.assert_no_error();
+}
