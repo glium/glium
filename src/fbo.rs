@@ -10,11 +10,16 @@ use {program, vertex_array_object};
 use {gl, context};
 
 #[deriving(Hash, Clone, PartialEq, Eq)]
-#[doc(hidden)]
 pub struct FramebufferAttachments {
-    pub colors: Vec<(u32, gl::types::GLuint)>,
-    pub depth: Option<gl::types::GLuint>,
-    pub stencil: Option<gl::types::GLuint>,
+    pub colors: Vec<(u32, Attachment)>,
+    pub depth: Option<Attachment>,
+    pub stencil: Option<Attachment>,
+}
+
+#[deriving(Hash, Copy, Clone, PartialEq, Eq)]
+pub enum Attachment {
+    Texture(gl::types::GLuint),
+    RenderBuffer(gl::types::GLuint),
 }
 
 /// Frame buffer.
@@ -34,30 +39,73 @@ impl FrameBufferObject {
             use context::GlVersion;
 
             unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
-                             id: gl::types::GLuint, tex_id: gl::types::GLuint)
+                             id: gl::types::GLuint, attachment: Attachment)
             {
                 if ctxt.version >= &GlVersion(4, 5) {
-                    ctxt.gl.NamedFramebufferTexture(id, slot, tex_id, 0);
+                    match attachment {
+                        Attachment::Texture(tex_id) => {
+                            ctxt.gl.NamedFramebufferTexture(id, slot, tex_id, 0);
+                        },
+                        Attachment::RenderBuffer(buf_id) => {
+                            ctxt.gl.NamedFramebufferRenderbuffer(id, slot, gl::RENDERBUFFER,
+                                                                 buf_id);
+                        },
+                    }
 
                 } else if ctxt.extensions.gl_ext_direct_state_access &&
                           ctxt.extensions.gl_ext_geometry_shader4
                 {
-                    ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id, 0);
+                    match attachment {
+                        Attachment::Texture(tex_id) => {
+                            ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id, 0);
+                        },
+                        Attachment::RenderBuffer(buf_id) => {
+                            ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER,
+                                                                    buf_id);
+                        },
+                    }
 
                 } else if ctxt.version >= &GlVersion(3, 2) {
                     bind_framebuffer(ctxt, Some(id), true, false);
-                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
-                                               slot, tex_id, 0);
+
+                    match attachment {
+                        Attachment::Texture(tex_id) => {
+                            ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                       slot, tex_id, 0);
+                        },
+                        Attachment::RenderBuffer(buf_id) => {
+                            ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                            gl::RENDERBUFFER, buf_id);
+                        },
+                    }
 
                 } else if ctxt.version >= &GlVersion(3, 0) {
                     bind_framebuffer(ctxt, Some(id), true, false);
-                    ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
-                                                 slot, gl::TEXTURE_2D, tex_id, 0);
+
+                    match attachment {
+                        Attachment::Texture(tex_id) => {
+                            ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                         slot, gl::TEXTURE_2D, tex_id, 0);
+                        },
+                        Attachment::RenderBuffer(buf_id) => {
+                            ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                            gl::RENDERBUFFER, buf_id);
+                        },
+                    }
 
                 } else {
                     bind_framebuffer(ctxt, Some(id), true, true);
-                    ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
-                                                    slot, gl::TEXTURE_2D, tex_id, 0);
+
+                    match attachment {
+                        Attachment::Texture(tex_id) => {
+                            ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                            slot, gl::TEXTURE_2D, tex_id, 0);
+                        },
+                        Attachment::RenderBuffer(buf_id) => {
+                            ctxt.gl.FramebufferRenderbufferEXT(gl::DRAW_FRAMEBUFFER, slot,
+                                                               gl::RENDERBUFFER, buf_id);
+                        },
+                    }
                 }
             }
 
@@ -71,16 +119,16 @@ impl FrameBufferObject {
 
                 tx.send(id);
 
-                for &(slot, tex_id) in attachments.colors.iter() {
-                    attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, tex_id);
+                for &(slot, atchmnt) in attachments.colors.iter() {
+                    attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);
                 }
 
-                if let Some(tex_id) = attachments.depth {
-                    attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, tex_id);
+                if let Some(atchmnt) = attachments.depth {
+                    attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, atchmnt);
                 }
 
-                if let Some(tex_id) = attachments.stencil {
-                    attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, tex_id);
+                if let Some(atchmnt) = attachments.stencil {
+                    attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, atchmnt);
                 }
             }
         });

@@ -19,8 +19,7 @@ fn no_depth_buffer() {
 
     let texture = glium::texture::Texture2d::new_empty(&display,
                             glium::texture::UncompressedFloatFormat::U8U8U8U8, 128, 128);
-    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture, None,
-                                                                     None);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 
     let parameters = glium::DrawParameters {
         depth_function: glium::DepthFunction::IfLess,
@@ -39,7 +38,7 @@ fn simple_dimensions() {
                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
                                               128, 128);
 
-    let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture, None, None);
+    let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
     assert_eq!(framebuffer.get_dimensions(), (128, 128));
 
     display.assert_no_error();
@@ -57,8 +56,7 @@ fn simple_render_to_texture() {
                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
                                               128, 128);
 
-    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture,
-                                                                     None, None);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default());
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
@@ -106,8 +104,8 @@ fn depth_texture2d() {
     let depth = glium::texture::DepthTexture2d::new(&display, depth_data);
 
     // drawing with the `IfLess` depth test
-    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &color,
-                                                                     Some(&depth), None);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display,
+                                                                                   &color, &depth);
     let params = glium::DrawParameters {
         depth_function: glium::DepthFunction::IfLess,
         .. std::default::Default::default()
