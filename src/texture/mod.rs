@@ -572,6 +572,75 @@ impl ToGlEnum for CompressedFormat {
     }
 }
 
+/// List of formats available for depth textures.
+///
+/// `I16`, `I24` and `I32` are still treated as if they were floating points.
+/// Only the internal representation is integral.
+#[allow(missing_docs)]
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+pub enum DepthFormat {
+    I16,
+    I24,
+    /// May not be supported by all hardwares.
+    I32,
+    F32,
+}
+
+impl ToGlEnum for DepthFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            DepthFormat::I16 => gl::DEPTH_COMPONENT16,
+            DepthFormat::I24 => gl::DEPTH_COMPONENT24,
+            DepthFormat::I32 => gl::DEPTH_COMPONENT32,
+            DepthFormat::F32 => gl::DEPTH_COMPONENT32F,
+        }
+    }
+}
+
+/// List of formats available for depth-stencil textures.
+// TODO: If OpenGL 4.3 or ARB_stencil_texturing is not available, then depth/stencil
+//       textures are treated by samplers exactly like depth-only textures
+#[allow(missing_docs)]
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+pub enum DepthStencilFormat {
+    I24I8,
+    F32I8,
+}
+
+impl ToGlEnum for DepthStencilFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            DepthStencilFormat::I24I8 => gl::DEPTH24_STENCIL8,
+            DepthStencilFormat::F32I8 => gl::DEPTH32F_STENCIL8,
+        }
+    }
+}
+
+/// List of formats available for stencil textures.
+///
+/// You are strongly advised to only use `I8`.
+// TODO: Stencil only formats cannot be used for Textures, unless OpenGL 4.4 or
+//       ARB_texture_stencil8 is available.
+#[allow(missing_docs)]
+#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+pub enum StencilFormat {
+    I1,
+    I4,
+    I8,
+    I16,
+}
+
+impl ToGlEnum for StencilFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            StencilFormat::I1 => gl::STENCIL_INDEX1,
+            StencilFormat::I4 => gl::STENCIL_INDEX4,
+            StencilFormat::I8 => gl::STENCIL_INDEX8,
+            StencilFormat::I16 => gl::STENCIL_INDEX16,
+        }
+    }
+}
+
 /// Format of the internal representation of a texture.
 #[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum TextureFormat {
