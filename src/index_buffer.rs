@@ -27,22 +27,32 @@ use ToGlEnum;
 
 /// Can be used as a source of indices when drawing.
 pub trait ToIndicesSource<D> {
+    /// Builds the `IndicesSource`.
     fn to_indices_source<'a>(&'a self) -> IndicesSource<'a, D>;
 }
 
 /// Describes a source of indices used for drawing.
 #[deriving(Clone)]
 pub enum IndicesSource<'a, T: 'a> {
+    /// A buffer uploaded in video memory.
     IndexBuffer {
+        /// The buffer.
         buffer: &'a IndexBuffer,
+        /// Offset of the first element of the buffer to use.
         offset: uint,
+        /// Number of elements in the buffer to use.
         length: uint,
     },
 
+    /// A buffer in RAM.
     Buffer {
+        /// Slice of data to use.
         pointer: &'a [T],
+        /// Type of primitives contained in the buffer.
         primitives: PrimitiveType,
+        /// Offset of the first element of the buffer to use.
         offset: uint,
+        /// Number of elements in the buffer to use.
         length: uint,
     }
 }
