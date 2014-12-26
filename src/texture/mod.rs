@@ -1060,8 +1060,12 @@ impl Drop for TextureImplementation {
         // removing FBOs which contain this texture
         {
             let mut fbos = self.display.framebuffer_objects.lock();
-            let to_delete = fbos.keys().filter(|b| b.colors.iter().find(|&&(_, id)| id == self.id).is_some())
-                .map(|k| k.clone()).collect::<Vec<_>>();
+
+            let to_delete = fbos.keys().filter(|b| {
+                b.colors.iter().find(|&&(_, id)| id == self.id).is_some() ||
+                b.depth == Some(self.id) || b.stencil == Some(self.id)
+            }).map(|k| k.clone()).collect::<Vec<_>>();
+
             for k in to_delete.into_iter() {
                 fbos.remove(&k);
             }
