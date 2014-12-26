@@ -1,9 +1,13 @@
 use gl;
 use std::{fmt, mem, ptr};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
 use {Display, DisplayImpl, GlObject};
 use context::CommandContext;
+
+/// Some shader compilers have race-condition issues.
+/// We lock this mutex in the GL thread every time we compile a shader or link a program.
+static COMPILER_GLOBAL_LOCK: StaticMutex = MUTEX_INIT;
 
 struct Shader {
     display: Arc<DisplayImpl>,
@@ -140,8 +144,13 @@ impl Program {
                     ctxt.gl.AttachShader(id, sh.clone());
                 }
 
-                // linking and checking for errors
-                ctxt.gl.LinkProgram(id);
+                // linking
+                {
+                    let _lock = COMPILER_GLOBAL_LOCK.lock();
+                    ctxt.gl.LinkProgram(id);
+                }
+
+                // checking for errors
                 {   let mut link_success: gl::types::GLint = mem::uninitialized();
                     ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
                     if link_success == 0 {
@@ -319,7 +328,12 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
             }
 
             ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
-            ctxt.gl.CompileShader(id);
+
+            // compiling
+            {
+                let _lock = COMPILER_GLOBAL_LOCK.lock();
+                ctxt.gl.CompileShader(id);
+            }
 
             // checking compilation success
             let compilation_success = {
