@@ -212,12 +212,14 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
         // writing the `let format = ...` line
         match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => {
-                (writeln!(dest, "let format = data.get_format();")).unwrap();
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => {
+                (writeln!(dest, "let format = Texture1dData::get_format(None::<T>);")).unwrap();
             },
-            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => {
-                (writeln!(dest, "let format = data[0].get_format();")).unwrap();
+            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => {
+                (writeln!(dest, "let format = Texture2dData::get_format(None::<T>);")).unwrap();
+            },
+            TextureDimensions::Texture3d => {
+                (writeln!(dest, "let format = Texture3dData::get_format(None::<T>);")).unwrap();
             },
         }
         match ty {
@@ -240,12 +242,14 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
         // writing the `let (client_format, client_type) = ...` line
         match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => {
-                (writeln!(dest, "let client_format = data.get_format();")).unwrap();
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => {
+                (writeln!(dest, "let client_format = Texture1dData::get_format(None::<T>);")).unwrap();
             },
-            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => {
-                (writeln!(dest, "let client_format = data[0].get_format();")).unwrap();
+            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => {
+                (writeln!(dest, "let client_format = Texture2dData::get_format(None::<T>);")).unwrap();
+            },
+            TextureDimensions::Texture3d => {
+                (writeln!(dest, "let client_format = Texture3dData::get_format(None::<T>);")).unwrap();
             },
         }
         (write!(dest, "let (client_format, client_type) = ")).unwrap();

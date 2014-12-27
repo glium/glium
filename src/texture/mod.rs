@@ -103,6 +103,51 @@ pub enum ClientFormat {
 }
 
 impl ClientFormat {
+    /// Returns the size in bytes of a pixel of this type.
+    pub fn get_size(&self) -> uint {
+        use std::mem;
+
+        match *self {
+            ClientFormat::U8 => 1 * mem::size_of::<u8>(),
+            ClientFormat::U8U8 => 2 * mem::size_of::<u8>(),
+            ClientFormat::U8U8U8 => 3 * mem::size_of::<u8>(),
+            ClientFormat::U8U8U8U8 => 4 * mem::size_of::<u8>(),
+            ClientFormat::I8 => 1 * mem::size_of::<i8>(),
+            ClientFormat::I8I8 => 2 * mem::size_of::<i8>(),
+            ClientFormat::I8I8I8 => 3 * mem::size_of::<i8>(),
+            ClientFormat::I8I8I8I8 => 4 * mem::size_of::<i8>(),
+            ClientFormat::U16 => 1 * mem::size_of::<u16>(),
+            ClientFormat::U16U16 => 2 * mem::size_of::<u16>(),
+            ClientFormat::U16U16U16 => 3 * mem::size_of::<u16>(),
+            ClientFormat::U16U16U16U16 => 4 * mem::size_of::<u16>(),
+            ClientFormat::I16 => 1 * mem::size_of::<i16>(),
+            ClientFormat::I16I16 => 2 * mem::size_of::<i16>(),
+            ClientFormat::I16I16I16 => 3 * mem::size_of::<i16>(),
+            ClientFormat::I16I16I16I16 => 4 * mem::size_of::<i16>(),
+            ClientFormat::U32 => 1 * mem::size_of::<u32>(),
+            ClientFormat::U32U32 => 2 * mem::size_of::<u32>(),
+            ClientFormat::U32U32U32 => 3 * mem::size_of::<u32>(),
+            ClientFormat::U32U32U32U32 => 4 * mem::size_of::<u32>(),
+            ClientFormat::I32 => 1 * mem::size_of::<i32>(),
+            ClientFormat::I32I32 => 2 * mem::size_of::<i32>(),
+            ClientFormat::I32I32I32 => 3 * mem::size_of::<i32>(),
+            ClientFormat::I32I32I32I32 => 4 * mem::size_of::<i32>(),
+            ClientFormat::U3U3U2 => (3 + 3 + 2) / 8,
+            ClientFormat::U5U6U5 => (5 + 6 + 5) / 8,
+            ClientFormat::U4U4U4U4 => (4 + 4 + 4 + 4) / 8,
+            ClientFormat::U5U5U5U1 => (5 + 5 + 5 + 1) / 8,
+            ClientFormat::U10U10U10U2 => (10 + 10 + 10 + 2) / 2,
+            ClientFormat::F16 => 16 / 8,
+            ClientFormat::F16F16 => (16 + 16) / 8,
+            ClientFormat::F16F16F16 => (16 + 16 + 16) / 8,
+            ClientFormat::F16F16F16F16 => (16 + 16 + 16 + 16) / 8,
+            ClientFormat::F32 => 1 * mem::size_of::<f32>(),
+            ClientFormat::F32F32 => 2 * mem::size_of::<f32>(),
+            ClientFormat::F32F32F32 => 3 * mem::size_of::<f32>(),
+            ClientFormat::F32F32F32F32 => 4 * mem::size_of::<f32>(),
+        }
+    }
+
     /// Returns a (format, type) tuple.
     #[doc(hidden)]      // TODO: shouldn't be pub
     pub fn to_gl_enum(&self) -> (gl::types::GLenum, gl::types::GLenum) {
@@ -652,7 +697,7 @@ pub enum TextureFormat {
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture1dData<T> {
     /// Returns the format of the pixels.
-    fn get_format(&self) -> ClientFormat;
+    fn get_format(Option<Self>) -> ClientFormat;
 
     /// Returns a vec where each element is a pixel of the texture.
     fn into_vec(self) -> Vec<T>;
@@ -662,7 +707,7 @@ pub trait Texture1dData<T> {
 }
 
 impl<P: PixelValue> Texture1dData<P> for Vec<P> {
-    fn get_format(&self) -> ClientFormat {
+    fn get_format(_: Option<Vec<P>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
 
@@ -676,7 +721,7 @@ impl<P: PixelValue> Texture1dData<P> for Vec<P> {
 }
 
 impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
-    fn get_format(&self) -> ClientFormat {
+    fn get_format(_: Option<&'a [P]>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
 
@@ -693,7 +738,7 @@ impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture2dData<P> {
     /// Returns the format of the pixels.
-    fn get_format(&self) -> ClientFormat;
+    fn get_format(Option<Self>) -> ClientFormat;
 
     /// Returns the dimensions of the texture.
     fn get_dimensions(&self) -> (u32, u32);
@@ -706,7 +751,7 @@ pub trait Texture2dData<P> {
 }
 
 impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: remove Clone
-    fn get_format(&self) -> ClientFormat {
+    fn get_format(_: Option<Vec<Vec<P>>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
 
@@ -727,7 +772,7 @@ impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: rem
 impl<T, P> Texture2dData<T> for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
     P: PixelValue + image::Pixel<T> + Clone + Copy
 {
-    fn get_format(&self) -> ClientFormat {
+    fn get_format(_: Option<image::ImageBuffer<Vec<T>, T, P>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
 
@@ -742,6 +787,7 @@ impl<T, P> Texture2dData<T> for image::ImageBuffer<Vec<T>, T, P> where T: image:
 
         let raw_data = self.into_vec();
 
+        // the image library gives use rows from bottom to top, so we need to flip them
         raw_data
             .as_slice()
             .chunks(width as uint * image::Pixel::channel_count(None::<&P>) as uint)
@@ -751,14 +797,26 @@ impl<T, P> Texture2dData<T> for image::ImageBuffer<Vec<T>, T, P> where T: image:
             .collect()
     }
 
-    fn from_vec(_: Vec<T>, _: u32) -> image::ImageBuffer<Vec<T>, T, P> {
-        unimplemented!()        // TODO: 
+    fn from_vec(data: Vec<T>, width: u32) -> image::ImageBuffer<Vec<T>, T, P> {
+        let pixels_size = image::Pixel::channel_count(None::<&P>);
+        let height = data.len() as u32 / (width * pixels_size as u32);
+
+        // opengl gives use rows from bottom to top, so we need to flip them
+        let data = data
+            .as_slice()
+            .chunks(width as uint * image::Pixel::channel_count(None::<&P>) as uint)
+            .rev()
+            .flat_map(|row| row.iter())
+            .map(|p| p.clone())
+            .collect();
+
+        image::ImageBuffer::from_raw(width, height, data).unwrap()
     }
 }
 
 #[cfg(feature = "image")]
 impl Texture2dData<u8> for image::DynamicImage {
-    fn get_format(&self) -> ClientFormat {
+    fn get_format(_: Option<image::DynamicImage>) -> ClientFormat {
         ClientFormat::U8U8U8U8
     }
 
@@ -771,8 +829,8 @@ impl Texture2dData<u8> for image::DynamicImage {
         Texture2dData::into_vec(self.to_rgba())
     }
 
-    fn from_vec(_: Vec<u8>, _: u32) -> image::DynamicImage {
-        unimplemented!()        // TODO: 
+    fn from_vec(data: Vec<u8>, width: u32) -> image::DynamicImage {
+        image::DynamicImage::ImageRgba8(Texture2dData::from_vec(data, width))
     }
 }
 
@@ -780,7 +838,7 @@ impl Texture2dData<u8> for image::DynamicImage {
 #[experimental = "Will be rewritten to use an associated type"]
 pub trait Texture3dData<P> {
     /// Returns the format of the pixels.
-    fn get_format(&self) -> ClientFormat;
+    fn get_format(Option<Self>) -> ClientFormat;
 
     /// Returns the dimensions of the texture.
     fn get_dimensions(&self) -> (u32, u32, u32);
@@ -793,7 +851,7 @@ pub trait Texture3dData<P> {
 }
 
 impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
-    fn get_format(&self) -> ClientFormat {
+    fn get_format(_: Option<Vec<Vec<Vec<P>>>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
 
@@ -999,6 +1057,7 @@ impl TextureImplementation {
         let pixels_count = (self.width * self.height.unwrap_or(1) * self.depth.unwrap_or(1))
                             as uint;
 
+        // FIXME: WRONG
         let (format, gltype) = PixelValue::get_format(None::<P>).to_gl_enum();
         let my_id = self.id;
 
