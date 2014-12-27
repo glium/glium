@@ -3,7 +3,8 @@
 
 */
 
-use gl;
+use Display;
+use {context, gl};
 
 /// Severity of a debug message.
 #[deriving(Clone, Copy, Show, FromPrimitive, PartialEq, Eq)]
@@ -71,4 +72,103 @@ pub enum MessageType {
     PopGroup = gl::DEBUG_TYPE_POP_GROUP,
     ///
     Other = gl::DEBUG_TYPE_OTHER,
+}
+
+/// Allows you to obtain the timestamp inside the OpenGL commands queue.
+///
+/// When you call functions in glium, they are not instantly executed. Instead they are
+/// added in a commands queue that the backend executes asynchronously.
+///
+/// When you call `TimestampQuery::new`, a command is added to this list asking the
+/// backend to send us the current timestamp. Thanks to this, you can know how much time
+/// it takes to execute commands.
+///
+/// ## Example
+///
+/// ```no_run
+/// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+/// let before = glium::debug::TimestampQuery::new(&display);
+/// // do some stuff here
+/// let after = glium::debug::TimestampQuery::new(&display);
+///
+/// match (after, before) {
+///     (Some(after), Some(before)) => {
+///         let elapsed = after.get() - before.get();
+///         println!("Time it took to do stuff: {}", elapsed);
+///     },
+///     _ => ()
+/// }
+/// ```
+///
+pub struct TimestampQuery {
+    display: Display,
+    id: gl::types::GLuint,
+}
+
+impl TimestampQuery {
+    /// Creates a new `TimestampQuery`. Returns `None` if the backend doesn't support it.
+    pub fn new(display: &Display) -> Option<TimestampQuery> {
+        use std::mem;
+
+        let (tx, rx) = channel();
+        display.context.context.exec(move |: ctxt| {
+            if ctxt.opengl_es || ctxt.version <= &context::GlVersion(3, 2) {    // TODO: extension
+                tx.send(None);
+                return;
+            }
+
+            unsafe {
+                let mut id = mem::uninitialized();
+                ctxt.gl.GenQueries(1, &mut id);
+                tx.send(Some(id));
+
+                ctxt.gl.QueryCounter(id, gl::TIMESTAMP);
+            }
+        });
+
+        rx.recv().map(|q| TimestampQuery {
+            display: display.clone(),
+            id: q
+        })
+    }
+
+    /// Queries to counter to see if the timestamp is already available.
+    ///
+    /// It takes some time to retreive the value, during which you can execute other
+    /// functions.
+    pub fn is_ready(&self) -> bool {
+        use std::mem;
+
+        let id = self.id.clone();
+        let (tx, rx) = channel();
+        self.display.context.context.exec(move |: ctxt| {
+            unsafe {
+                let mut value = mem::uninitialized();
+                ctxt.gl.GetQueryObjectiv(id, gl::QUERY_RESULT_AVAILABLE, &mut value);
+                tx.send(if value != 0 { true } else { false });
+            }
+        });
+
+        rx.recv()
+    }
+
+    /// Returns the value of the timestamp. Blocks until it is available.
+    ///
+    /// This function doesn't block is `is_ready` returns true.
+    pub fn get(self) -> u64 {
+        use std::mem;
+
+        let id = self.id.clone();
+        let (tx, rx) = channel();
+        self.display.context.context.exec(move |: ctxt| {
+            unsafe {
+                let mut value = mem::uninitialized();
+                ctxt.gl.GetQueryObjectui64v(id, gl::QUERY_RESULT, &mut value);
+                tx.send(value);
+                ctxt.gl.DeleteQueries(1, [id].as_ptr())
+            }
+        });
+
+        rx.recv()
+    }
 }
