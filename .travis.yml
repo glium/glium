@@ -13,9 +13,6 @@ script:
     - cargo test --features "headless" --verbose
     - cargo test --no-default-features --features "headless" --verbose
 
-after_script:
-  - cargo bench
-
 after_success: |
     [ $TRAVIS_BRANCH = master ] &&
     [ $TRAVIS_PULL_REQUEST = false ] &&
