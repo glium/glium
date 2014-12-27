@@ -55,3 +55,21 @@ fn viewport_too_large() {
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
     display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
 }
+
+#[test]
+fn timestamp_query() {
+    let display = support::build_display();
+
+    let query1 = glium::debug::TimestampQuery::new(&display);
+    let query1 = query1.map(|q| q.get());
+
+    let query2 = glium::debug::TimestampQuery::new(&display);
+    let query2 = query2.map(|q| q.get());
+
+    match (query1, query2) {
+        (Some(q1), Some(q2)) => assert!(q2 >= q1 && q1 != 0),
+        _ => ()
+    };
+
+    display.assert_no_error();
+}
