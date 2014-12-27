@@ -318,21 +318,10 @@ impl Context {
 
                 // getting events
                 for event in window.poll_events() {
-                    // calling `glViewport` if the window has been resized
+                    // update the dimensions
                     if let &glutin::Event::Resized(width, height) = &event {
                         dimensions.0.store(width, Relaxed);
                         dimensions.1.store(height, Relaxed);
-
-                        if gl_state.viewport != (0, 0, width as gl::types::GLsizei,
-                                                 height as gl::types::GLsizei)
-                        {
-                            unsafe {
-                                gl.Viewport(0, 0, width as gl::types::GLsizei,
-                                    height as gl::types::GLsizei);
-                                gl_state.viewport = (0, 0, width as gl::types::GLsizei,
-                                    height as gl::types::GLsizei);
-                            }
-                        }
                     }
 
                     // sending the event outside
