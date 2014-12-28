@@ -68,9 +68,15 @@ pub enum VerticesSource<'a> {
 }
 
 /// Objects that can be used as vertex sources.
-pub trait ToVerticesSource {
+pub trait IntoVerticesSource<'a> {
     /// Builds the `VerticesSource`.
-    fn to_vertices_source(&self) -> VerticesSource;
+    fn into_vertices_source(self) -> VerticesSource<'a>;
+}
+
+impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
+        self
+    }
 }
 
 /// A list of vertices loaded in the graphics card's memory.
@@ -272,8 +278,8 @@ impl<T> GlObject for VertexBuffer<T> {
     }
 }
 
-impl<T> ToVerticesSource for VertexBuffer<T> {
-    fn to_vertices_source(&self) -> VerticesSource {
+impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(&self.buffer)
     }
 }
@@ -329,8 +335,8 @@ impl GlObject for VertexBufferAny {
     }
 }
 
-impl ToVerticesSource for VertexBufferAny {
-    fn to_vertices_source(&self) -> VerticesSource {
+impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self)
     }
 }

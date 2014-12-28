@@ -207,9 +207,9 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         self.stencil_buffer_bits
     }
 
-    fn draw<V, I, ID, U>(&mut self, vb: &V, ib: &I, program: &::Program,
+    fn draw<'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
-        U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::ToVerticesSource
+        U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
 
@@ -224,7 +224,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
                     as u32, "Viewport dimensions are too large");
         }
 
-        fbo::draw(&self.display, Some(&self.attachments), vb.to_vertices_source(),
+        fbo::draw(&self.display, Some(&self.attachments), vb.into_vertices_source(),
                   &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
