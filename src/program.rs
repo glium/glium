@@ -27,6 +27,50 @@ impl Drop for Shader {
     }
 }
 
+/// Input when creating a program.
+pub enum ProgramCreationInput<'a> {
+    /// Use GLSL source code.
+    SourceCode {
+        /// Source code of the vertex shader.
+        vertex_shader: &'a str,
+
+        /// Source code of the fragment shader.
+        fragment_shader: &'a str,
+
+        /// Source code of the optional geometry shader.
+        geometry_shader: Option<&'a str>,
+    }
+}
+
+/// Traits for objects that can be turned into `ProgramCreationInput`.
+pub trait IntoProgramCreationInput<'a> {
+    /// Builds the `ProgramCreationInput`.
+    fn into_program_creation_input(self) -> ProgramCreationInput<'a>;
+}
+
+/// Represents the source code of a program.
+pub struct SourceCode<'a> {
+    /// Source code of the vertex shader.
+    pub vertex_shader: &'a str,
+
+    /// Source code of the fragment shader.
+    pub fragment_shader: &'a str,
+
+    /// Source code of the optional geometry shader.
+    pub geometry_shader: Option<&'a str>,
+}
+
+impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
+    fn into_program_creation_input(self) -> ProgramCreationInput<'a> {
+        let SourceCode { vertex_shader, fragment_shader, geometry_shader } = self;
+        ProgramCreationInput::SourceCode {
+            vertex_shader: vertex_shader,
+            fragment_shader: fragment_shader,
+            geometry_shader: geometry_shader,
+        }
+    }
+}
+
 /// A combination of shaders linked together.
 pub struct Program {
     display: Arc<DisplayImpl>,
@@ -39,6 +83,8 @@ pub struct Program {
 }
 
 /// Information about a uniform (except its name).
+#[deriving(Show, Copy)]
+#[doc(hidden)]
 pub struct Uniform {
     /// The location of the uniform.
     ///
@@ -55,8 +101,9 @@ pub struct Uniform {
 /// Information about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
-#[derive(Show)]
-struct Attribute {
+#[deriving(Show, Copy)]
+#[doc(hidden)]
+pub struct Attribute {
     pub location: gl::types::GLint,
     pub ty: gl::types::GLenum,
     pub size: gl::types::GLint,
@@ -103,10 +150,11 @@ impl ::std::error::Error for ProgramCreationError {
 
 impl Program {
     /// Builds a new program.
-    #[deprecated = "Use Program::from_source. The `new` function will soon change its API."]
-    pub fn new(display: &Display, vertex_shader: &str, fragment_shader: &str,
-               geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
+    pub fn new<'a, I>(display: &Display, input: I) -> Result<Program, ProgramCreationError>
+                      where I: IntoProgramCreationInput<'a>
     {
+        let input = input.into_program_creation_input();
+        let ProgramCreationInput::SourceCode { vertex_shader, fragment_shader, geometry_shader } = input;
         Program::from_source(display, vertex_shader, fragment_shader, geometry_shader)
     }
 
@@ -283,12 +331,14 @@ impl GlObject for Program {
 }
 
 // TODO: remove this hack
+#[doc(hidden)]
 pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform>>
 {
     program.uniforms.clone()
 }
 
 // TODO: remove this hack
+#[doc(hidden)]
 pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute>>
 {
     program.attributes.clone()

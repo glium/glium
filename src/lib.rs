@@ -213,6 +213,7 @@ pub mod framebuffer;
 pub mod index_buffer;
 pub mod pixel_buffer;
 pub mod macros;
+pub mod program;
 pub mod render_buffer;
 pub mod uniforms;
 pub mod vertex_buffer;
@@ -222,7 +223,6 @@ mod buffer;
 mod context;
 mod fbo;
 mod ops;
-mod program;
 mod sync;
 mod vertex_array_object;
 
