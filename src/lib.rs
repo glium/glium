@@ -641,8 +641,8 @@ pub trait Surface {
     ///   vertex's attribute is not used by the program).
     /// - Panics if the viewport is larger than the dimensions supported by the hardware.
     ///
-    fn draw<V, I, ID, U>(&mut self, &V, &I, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters) where V: vertex_buffer::ToVerticesSource,
+    fn draw<'a, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: &U,
+        draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'a>,
         I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
@@ -733,11 +733,11 @@ impl<'t> Surface for Frame<'t> {
         self.display.context.capabilities().stencil_bits
     }
 
-    fn draw<V, I, ID, U>(&mut self, vertex_buffer: &V,
-                         index_buffer: &I, program: &Program, uniforms: &U,
-                         draw_parameters: &DrawParameters)
-                         where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
-                         ID: index_buffer::Index, V: vertex_buffer::ToVerticesSource
+    fn draw<'a, V, I, ID, U>(&mut self, vertex_buffer: V,
+                             index_buffer: &I, program: &Program, uniforms: &U,
+                             draw_parameters: &DrawParameters)
+                             where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
+                             ID: index_buffer::Index, V: vertex_buffer::IntoVerticesSource<'a>
     {
         use index_buffer::ToIndicesSource;
 
@@ -752,7 +752,7 @@ impl<'t> Surface for Frame<'t> {
                     as u32, "Viewport dimensions are too large");
         }
 
-        fbo::draw(&self.display, None, vertex_buffer.to_vertices_source(),
+        fbo::draw(&self.display, None, vertex_buffer.into_vertices_source(),
                   &index_buffer.to_indices_source(), program, uniforms, draw_parameters,
                   (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
