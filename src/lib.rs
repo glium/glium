@@ -79,7 +79,7 @@ The purpose of a program is to instruct the GPU how to process our mesh in order
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let program = glium::Program::new(&display, 
+let program = glium::Program::from_source(&display, 
     // vertex shader
     "   #version 110
 

@@ -29,7 +29,7 @@ fn uniforms_storage_single_value() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         "
             #version 110
 
@@ -75,7 +75,7 @@ fn uniforms_storage_multiple_values() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         "
             #version 110
 
@@ -123,7 +123,7 @@ fn uniforms_storage_ignore_inactive_uniforms() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         "
             #version 110
 

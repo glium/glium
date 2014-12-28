@@ -75,7 +75,7 @@ fn depth_texture2d() {
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
     // the program returns a Z coordinate between 0 (left of screen) and 1 (right of screen)
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         "
             #version 110
 

@@ -13,7 +13,7 @@ use glium::Surface;
 mod support;
 
 fn build_program(display: &glium::Display) -> glium::Program {
-    glium::Program::new(display,
+    glium::Program::from_source(display,
         "
             #version 110
 

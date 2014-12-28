@@ -23,7 +23,7 @@ fn magnify_nearest_filtering() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         "
             #version 110
 

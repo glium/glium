@@ -50,7 +50,7 @@ fn main() {
         glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
 
     // compiling shaders and linking them together
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         // vertex shader
         "
             #version 110
