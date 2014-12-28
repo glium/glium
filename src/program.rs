@@ -42,6 +42,12 @@ pub enum ProgramCreationInput<'a> {
     }
 }
 
+impl<'a> IntoProgramCreationInput<'a> for ProgramCreationInput<'a> {
+    fn into_program_creation_input(self) -> ProgramCreationInput<'a> {
+        self
+    }
+}
+
 /// Traits for objects that can be turned into `ProgramCreationInput`.
 pub trait IntoProgramCreationInput<'a> {
     /// Builds the `ProgramCreationInput`.
