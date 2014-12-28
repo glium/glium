@@ -55,7 +55,7 @@ fn main() {
         glium::index_buffer::TriangleStrip(vec![1 as u16, 2, 0, 3]));
 
     // compiling shaders and linking them together
-    let program = glium::Program::new(&display, r"
+    let program = glium::Program::from_source(&display, r"
         #version 110
 
         uniform mat4 matrix;

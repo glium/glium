@@ -96,6 +96,14 @@ impl ::std::error::Error for ProgramCreationError {
 
 impl Program {
     /// Builds a new program.
+    #[deprecated = "Use Program::from_source. The `new` function will soon change its API."]
+    pub fn new(display: &Display, vertex_shader: &str, fragment_shader: &str,
+               geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
+    {
+        Program::from_source(display, vertex_shader, fragment_shader, geometry_shader)
+    }
+
+    /// Builds a new program from GLSL source code.
     ///
     /// A program is a group of shaders linked together.
     ///
@@ -110,13 +118,13 @@ impl Program {
     /// ```no_run
     /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
     /// # let vertex_source = ""; let fragment_source = ""; let geometry_source = "";
-    /// let program = glium::Program::new(&display, vertex_source, fragment_source,
+    /// let program = glium::Program::from_source(&display, vertex_source, fragment_source,
     ///     Some(geometry_source));
     /// ```
     /// 
     #[experimental = "The list of shaders and the result error will probably change"]
-    pub fn new(display: &Display, vertex_shader: &str, fragment_shader: &str,
-               geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
+    pub fn from_source(display: &Display, vertex_shader: &str, fragment_shader: &str,
+                       geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
     {
         let mut shaders_store = Vec::new();
         shaders_store.push(try!(build_shader(display, gl::VERTEX_SHADER, vertex_shader)));

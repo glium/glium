@@ -87,7 +87,7 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
 
         glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
 
-        glium::Program::new(display,
+        glium::Program::from_source(display,
             "
                 #version 110
 

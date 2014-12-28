@@ -14,7 +14,7 @@ fn program_creation() {
     let display = support::build_display();
 
     // compiling shaders and linking them together
-    glium::Program::new(&display,
+    glium::Program::from_source(&display,
         // vertex shader
         "
             #version 110
@@ -53,7 +53,7 @@ fn program_compilation_error() {
     let display = support::build_display();
 
     // compiling shaders and linking them together
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         // vertex shader
         "invalid glsl code",
 
@@ -86,7 +86,7 @@ fn program_linking_error() {
     let display = support::build_display();
 
     // compiling shaders and linking them together
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         // vertex shader
         "
             #version 110
@@ -124,7 +124,7 @@ fn program_linking_error() {
 fn get_frag_data_location() {    
     let display = support::build_display();
 
-    let program = glium::Program::new(&display,
+    let program = glium::Program::from_source(&display,
         "
             #version 110
 
