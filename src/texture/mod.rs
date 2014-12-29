@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 use buffer::{mod, Buffer};
 use context::GlVersion;
-use uniforms::{UniformValue, UniformValueBinder};
+use uniforms::{UniformValue, IntoUniformValue, Sampler};
 use {Surface, GlObject, ToGlEnum};
 
 pub use self::pixel::PixelValue;
@@ -1173,8 +1173,8 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.get_stencil_buffer_bits()
     }
 
-    fn draw<'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters)
+    fn draw<'b, 'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
+        uniforms: U, draw_parameters: &::DrawParameters)
         where I: ::index_buffer::ToIndicesSource<ID>,
         U: ::uniforms::Uniforms, V: ::vertex_buffer::IntoVerticesSource<'v>
     {

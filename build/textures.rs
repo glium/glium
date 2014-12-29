@@ -130,13 +130,25 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ", name)).unwrap();
 
     // `UniformValue` trait impl
-    (writeln!(dest, "
-                impl<'a> UniformValue for &'a {} {{
-                    fn to_binder(&self) -> UniformValueBinder {{
-                        self.get_implementation().to_binder()
-                    }}
-                }}
-            ", name)).unwrap();
+    match ty {
+        TextureType::Regular | TextureType::Compressed |
+        TextureType::Integral | TextureType::Unsigned => {
+            (writeln!(dest, "
+                        impl<'a> IntoUniformValue<'a> for &'a {myname} {{
+                            fn into_uniform_value(self) -> UniformValue<'a> {{
+                                UniformValue::{myname}(self, None)
+                            }}
+                        }}
+
+                        impl<'a> IntoUniformValue<'a> for Sampler<'a, {myname}> {{
+                            fn into_uniform_value(self) -> UniformValue<'a> {{
+                                UniformValue::{myname}(self.0, Some(self.1))
+                            }}
+                        }}
+                    ", myname = name)).unwrap();
+        },
+        _ => ()
+    }
 
     // `ToXXXAttachment` trait impl
     if dimensions == TextureDimensions::Texture2d {
