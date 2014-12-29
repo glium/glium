@@ -979,11 +979,13 @@ impl TextureImplementation {
                                              height.unwrap() as gl::types::GLsizei,
                                              depth.unwrap() as gl::types::GLsizei);
 
-                        ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0,
-                                              width as gl::types::GLsizei,
-                                              height.unwrap() as gl::types::GLsizei,
-                                              depth.unwrap() as gl::types::GLsizei,
-                                              client_format, client_type, data_raw);
+                        if !data_raw.is_null() {
+                            ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0,
+                                                  width as gl::types::GLsizei,
+                                                  height.unwrap() as gl::types::GLsizei,
+                                                  depth.unwrap() as gl::types::GLsizei,
+                                                  client_format, client_type, data_raw);
+                        }
 
                     } else {
                         ctxt.gl.TexImage3D(texture_type, 0, format as i32, width as i32,
@@ -1001,9 +1003,11 @@ impl TextureImplementation {
                                              width as gl::types::GLsizei,
                                              height.unwrap() as gl::types::GLsizei);
 
-                        ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width as gl::types::GLsizei,
-                                              height.unwrap() as gl::types::GLsizei,
-                                              client_format, client_type, data_raw);
+                        if !data_raw.is_null() {
+                            ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width as gl::types::GLsizei,
+                                                  height.unwrap() as gl::types::GLsizei,
+                                                  client_format, client_type, data_raw);
+                        }
 
                     } else {
                         ctxt.gl.TexImage2D(texture_type, 0, format as i32, width as i32,
@@ -1017,8 +1021,10 @@ impl TextureImplementation {
                                              format as gl::types::GLenum,
                                              width as gl::types::GLsizei);
 
-                        ctxt.gl.TexSubImage1D(texture_type, 0, 0, width as gl::types::GLsizei,
-                                              client_format, client_type, data_raw);
+                        if !data_raw.is_null() {
+                            ctxt.gl.TexSubImage1D(texture_type, 0, 0, width as gl::types::GLsizei,
+                                                  client_format, client_type, data_raw);
+                        }
 
                     } else {
                         ctxt.gl.TexImage1D(texture_type, 0, format as i32, width as i32, 0,
