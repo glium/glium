@@ -110,5 +110,5 @@ fn main() {
     // reading the front buffer into an image
     let image: image::DynamicImage = display.read_front_buffer();
     let output = std::io::fs::File::create(&Path::new("glium-example-screenshot.png"));
-    image.save(output, image::ImageFormat::PNG).unwrap();
+    image.save(output, image::ImageFormat::PNG).unwrap().unwrap();
 }
