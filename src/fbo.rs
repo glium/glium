@@ -198,10 +198,10 @@ pub fn draw<I, U>(display: &Arc<DisplayImpl>,
     let vao_id = vertex_array_object::get_vertex_array_object(display, vertex_buffer.clone(),
                                                               indices, program);
 
-    let pointer = match indices {
-        &IndicesSource::IndexBuffer { .. } => ::std::ptr::null(),
-        &IndicesSource::Buffer { ref pointer, .. } => pointer.as_ptr() as *const ::libc::c_void,
-    };
+    let pointer = ::std::ptr::Unique(match indices {
+        &IndicesSource::IndexBuffer { .. } => ::std::ptr::null_mut(),
+        &IndicesSource::Buffer { ref pointer, .. } => pointer.as_ptr() as *mut ::libc::c_void,
+    });
 
     let primitives = indices.get_primitives_type().to_glenum();
     let data_type = indices.get_indices_type().to_glenum();
@@ -250,7 +250,7 @@ pub fn draw<I, U>(display: &Arc<DisplayImpl>,
             draw_parameters.sync(&mut ctxt, dimensions);
 
             // drawing
-            ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer);
+            ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer.0);
         }
     });
 }

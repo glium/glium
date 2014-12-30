@@ -202,13 +202,13 @@ impl Buffer {
             if ptr.is_null() {
                 tx.send(Err("glMapBuffer returned null"));
             } else {
-                tx.send(Ok(ptr as *mut D));
+                tx.send(Ok(ptr::Unique(ptr as *mut D)));
             }
         });
 
         Mapping {
             buffer: self,
-            data: unsafe { CVec::new(rx.recv().unwrap(), elements_count) },
+            data: unsafe { CVec::new(rx.recv().unwrap().0, elements_count) },
         }
     }
 
