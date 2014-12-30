@@ -49,7 +49,7 @@ let uniforms = glium::uniforms::UniformsStorage::new("texture",
 ```
 
 */
-pub use self::value::{UniformValue, IntoUniformValue};
+pub use self::value::{UniformValue, IntoUniformValue, UniformType};
 pub use self::sampler::*;
 
 mod sampler;
