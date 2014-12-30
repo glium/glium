@@ -21,6 +21,7 @@ struct Vertex {
     position: [f32, ..3],
     texcoords: [f32, ..2],
 }
+# }
 ```
 
 Then you must build a `Vec` of the vertices that you want to upload, and pass it to

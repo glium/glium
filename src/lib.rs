@@ -1031,7 +1031,7 @@ impl Display {
 
         // SAFETY NOTICE: we pass a raw pointer to the `DisplayImpl`
         let ptr: &DisplayImpl = self.context.deref();
-        let ptr = ptr as *const DisplayImpl;
+        let ptr = std::ptr::Unique(ptr as *const DisplayImpl as *mut DisplayImpl);
 
         // enabling the callback
         self.context.context.exec(move |: ctxt| {
@@ -1049,7 +1049,7 @@ impl Display {
 
                     // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
                     //       but with GL only, it doesn't have one
-                    ctxt.gl.DebugMessageCallback(callback_wrapper, ptr as *const libc::c_void);
+                    ctxt.gl.DebugMessageCallback(callback_wrapper, ptr.0 as *const libc::c_void);
                     ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                         std::ptr::null(), gl::TRUE);
 
