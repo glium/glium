@@ -23,7 +23,7 @@ fn main() {
         .unwrap();
 
     // building a texture with "OpenGL" drawn on it
-    let image = image::load(BufReader::new(include_bin!("../tests/fixture/opengl.png")),
+    let image = image::load(BufReader::new(include_bytes!("../tests/fixture/opengl.png")),
         image::PNG).unwrap();
     let opengl_texture = glium::Texture2d::new(&display, image);
 
