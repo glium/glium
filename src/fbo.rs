@@ -156,6 +156,12 @@ impl FrameBufferObject {
         context.exec(move |: mut ctxt| {
             use context::GlVersion;
 
+            // TODO: move outside of the gl thread
+            if attachments.colors.len() > ctxt.capabilities.max_draw_buffers as usize {
+                panic!("Trying to attach {} color buffers, but the hardware only supports {}",
+                       attachments.colors.len(), ctxt.capabilities.max_draw_buffers);
+            }
+
             unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
                              id: gl::types::GLuint, attachment: Attachment)
             {
@@ -237,8 +243,11 @@ impl FrameBufferObject {
 
                 tx.send(id).unwrap();
 
+                let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
+
                 for &(slot, atchmnt) in attachments.colors.iter() {
                     attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);
+                    raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
                 }
 
                 if let Some(atchmnt) = attachments.depth {
@@ -247,6 +256,16 @@ impl FrameBufferObject {
 
                 if let Some(atchmnt) = attachments.stencil {
                     attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, atchmnt);
+                }
+
+                if ctxt.version >= &GlVersion(4, 5) {
+                    ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
+                                                        as gl::types::GLsizei,
+                                                        raw_attachments.as_ptr());
+                } else {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
+                                        raw_attachments.as_ptr());
                 }
             }
         });
