@@ -208,9 +208,10 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// # Features
     ///
     /// Only available if the `gl_extensions` feature is enabled.
-    #[cfg(feature = "gl_extensions")]
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
-        Mapping(self.buffer.buffer.map::<buffer::ArrayBuffer, T>())
+        let len = self.buffer.buffer.get_elements_count();
+        let mapping = self.buffer.buffer.map::<buffer::ArrayBuffer, T>(0, len);
+        Mapping(mapping)
     }
 
     /// Reads the content of the buffer.
@@ -347,17 +348,14 @@ impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
 /// # Features
 ///
 /// Only available if the `gl_extensions` feature is enabled.
-#[cfg(feature = "gl_extensions")]
 pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::ArrayBuffer, T>);
 
-#[cfg(feature = "gl_extensions")]
 impl<'a, T> Deref<[T]> for Mapping<'a, T> {
     fn deref<'b>(&'b self) -> &'b [T] {
         self.0.deref()
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
         self.0.deref_mut()

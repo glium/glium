@@ -173,21 +173,26 @@ impl Buffer {
         self.elements_count * self.elements_size
     }
 
-    #[cfg(feature = "gl_extensions")]
-    pub fn map<'a, T, D>(&'a mut self) -> Mapping<'a, T, D> where T: BufferType, D: Send {
+    /// Offset and size are in number of elements
+    pub fn map<'a, T, D>(&'a mut self, offset: uint, size: uint)
+                         -> Mapping<'a, T, D> where T: BufferType, D: Send
+    {
         let (tx, rx) = channel();
         let id = self.id.clone();
-        let elements_count = self.elements_count.clone();
+
+        if offset > self.elements_count || (offset + size) > self.elements_count {
+            panic!("Trying to map out of range of buffer");
+        }
+
+        let offset_bytes = offset * self.elements_size;
+        let size_bytes = size * self.elements_size;
 
         self.display.context.exec(move |: ctxt| {
-            if ctxt.opengl_es {
-                tx.send(Err("OpenGL ES doesn't support glMapBuffer"));
-                return;
-            }
-
             let ptr = unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
-                    ctxt.gl.MapNamedBuffer(id, gl::READ_WRITE)
+                    ctxt.gl.MapNamedBufferRange(id, offset_bytes as gl::types::GLintptr,
+                                                size_bytes as gl::types::GLsizei,
+                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
 
                 } else {
                     let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
@@ -195,20 +200,18 @@ impl Buffer {
 
                     ctxt.gl.BindBuffer(bind, id);
                     *storage = id;
-                    ctxt.gl.MapBuffer(bind, gl::READ_WRITE)
+                    ctxt.gl.MapBufferRange(bind, offset_bytes as gl::types::GLintptr,
+                                           size_bytes as gl::types::GLsizeiptr,
+                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
                 }
             };
 
-            if ptr.is_null() {
-                tx.send(Err("glMapBuffer returned null"));
-            } else {
-                tx.send(Ok(ptr::Unique(ptr as *mut D)));
-            }
+            tx.send(ptr::Unique(ptr as *mut D));
         });
 
         Mapping {
             buffer: self,
-            data: unsafe { CVec::new(rx.recv().unwrap().0, elements_count) },
+            data: unsafe { CVec::new(rx.recv().0, size) },
         }
     }
 
@@ -322,13 +325,11 @@ pub trait VertexFormat: Copy {
 }
 
 /// A mapping of a buffer.
-#[cfg(feature = "gl_extensions")]
 pub struct Mapping<'b, T, D> {
     buffer: &'b mut Buffer,
     data: CVec<D>,
 }
 
-#[cfg(feature = "gl_extensions")]
 #[unsafe_destructor]
 impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     fn drop(&mut self) {
@@ -354,14 +355,12 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<'a, T, D> Deref<[D]> for Mapping<'a, T, D> {
     fn deref<'b>(&'b self) -> &'b [D] {
         self.data.as_slice()
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<'a, T, D> DerefMut<[D]> for Mapping<'a, T, D> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [D] {
         self.data.as_mut_slice()
