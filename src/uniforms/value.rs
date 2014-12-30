@@ -6,6 +6,7 @@ use nalgebra;
 
 /// Type of a uniform in a program.
 #[allow(missing_docs)]
+#[deriving(Copy, Clone, Show, PartialEq, Eq)]
 pub enum UniformType {
     Float,
     FloatVec2,
