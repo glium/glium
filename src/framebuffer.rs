@@ -39,18 +39,17 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 #![experimental]
 
 use std::kinds::marker::ContravariantLifetime;
-use std::sync::Arc;
 
 use texture::{Texture, Texture2d, DepthTexture2d, StencilTexture2d, DepthStencilTexture2d};
 use fbo::FramebufferAttachments;
 
-use {DisplayImpl, Program, Surface, GlObject};
+use {Display, Program, Surface, GlObject};
 
 use {fbo, gl};
 
 /// A framebuffer which has only one color attachment.
 pub struct SimpleFrameBuffer<'a> {
-    display: Arc<DisplayImpl>,
+    display: Display,
     attachments: FramebufferAttachments,
     marker: ContravariantLifetime<'a>,
     dimensions: (u32, u32),
@@ -61,7 +60,7 @@ pub struct SimpleFrameBuffer<'a> {
 impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
-    pub fn new<C>(display: &::Display, color: &'a C) -> SimpleFrameBuffer<'a>
+    pub fn new<C>(display: &Display, color: &'a C) -> SimpleFrameBuffer<'a>
                   where C: ToColorAttachment
     {
         use render_buffer;
@@ -72,7 +71,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth
     /// buffer, but no stencil buffer.
-    pub fn with_depth_buffer<C, D>(display: &::Display, color: &'a C, depth: &'a D)
+    pub fn with_depth_buffer<C, D>(display: &Display, color: &'a C, depth: &'a D)
                                    -> SimpleFrameBuffer<'a>
                                    where C: ToColorAttachment, D: ToDepthAttachment
     {
@@ -84,7 +83,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment, a depth
     /// buffer, and a stencil buffer.
-    pub fn with_depth_and_stencil_buffer<C, D, S>(display: &::Display, color: &'a C, depth: &'a D,
+    pub fn with_depth_and_stencil_buffer<C, D, S>(display: &Display, color: &'a C, depth: &'a D,
                                                   stencil: &'a S) -> SimpleFrameBuffer<'a>
                                                   where C: ToColorAttachment, D: ToDepthAttachment,
                                                   S: ToStencilAttachment
@@ -94,7 +93,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
     /// buffer, but no buffer buffer.
-    pub fn with_stencil_buffer<C, S>(display: &::Display, color: &'a C, stencil: &'a S)
+    pub fn with_stencil_buffer<C, S>(display: &Display, color: &'a C, stencil: &'a S)
                                      -> SimpleFrameBuffer<'a>
                                      where C: ToColorAttachment, S: ToStencilAttachment
     {
@@ -105,7 +104,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     }
 
 
-    fn new_impl<C, D, S>(display: &::Display, color: &'a C, depth: Option<&'a D>,
+    fn new_impl<C, D, S>(display: &Display, color: &'a C, depth: Option<&'a D>,
                          stencil: Option<&'a S>) -> SimpleFrameBuffer<'a>
                          where C: ToColorAttachment, D: ToDepthAttachment, S: ToStencilAttachment
     {
@@ -168,7 +167,7 @@ impl<'a> SimpleFrameBuffer<'a> {
         };
 
         SimpleFrameBuffer {
-            display: display.context.clone(),
+            display: display.clone(),
             attachments: FramebufferAttachments {
                 colors: vec![(0, color_attachment)],
                 depth: depth,
@@ -184,15 +183,15 @@ impl<'a> SimpleFrameBuffer<'a> {
 
 impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        fbo::clear_color(&self.display, Some(&self.attachments), red, green, blue, alpha)
+        fbo::clear_color(&self.display.context, Some(&self.attachments), red, green, blue, alpha)
     }
 
     fn clear_depth(&mut self, value: f32) {
-        fbo::clear_depth(&self.display, Some(&self.attachments), value)
+        fbo::clear_depth(&self.display.context, Some(&self.attachments), value)
     }
 
     fn clear_stencil(&mut self, value: int) {
-        fbo::clear_stencil(&self.display, Some(&self.attachments), value)
+        fbo::clear_stencil(&self.display.context, Some(&self.attachments), value)
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
@@ -207,8 +206,8 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         self.stencil_buffer_bits
     }
 
-    fn draw<'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
+    fn draw<'b, 'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
+        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
         U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
@@ -220,9 +219,9 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            assert!(viewport.width <= self.display.context.capabilities().max_viewport_dims.0
+            assert!(viewport.width <= self.display.context.context.capabilities().max_viewport_dims.0
                     as u32, "Viewport dimensions are too large");
-            assert!(viewport.height <= self.display.context.capabilities().max_viewport_dims.1
+            assert!(viewport.height <= self.display.context.context.capabilities().max_viewport_dims.1
                     as u32, "Viewport dimensions are too large");
         }
 
@@ -231,13 +230,13 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     fn get_blit_helper(&self) -> ::BlitHelper {
-        ::BlitHelper(&self.display, Some(&self.attachments))
+        ::BlitHelper(&self.display.context, Some(&self.attachments))
     }
 }
 
 /// This struct is useless for the moment.
 pub struct MultiOutputFrameBuffer<'a> {
-    display: Arc<DisplayImpl>,
+    display: Display,
     marker: ContravariantLifetime<'a>,
     dimensions: (u32, u32),
     color_attachments: Vec<(String, gl::types::GLuint)>,
@@ -250,7 +249,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     ///
-    pub fn new(display: &::Display, color_attachments: &[(&str, &'a Texture2d)])
+    pub fn new(display: &Display, color_attachments: &[(&str, &'a Texture2d)])
                -> MultiOutputFrameBuffer<'a>
     {
         let mut attachments = Vec::new();
@@ -276,7 +275,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         }
 
         MultiOutputFrameBuffer {
-            display: display.context.clone(),
+            display: display.clone(),
             marker: ContravariantLifetime,
             dimensions: dimensions.unwrap(),
             color_attachments: attachments,

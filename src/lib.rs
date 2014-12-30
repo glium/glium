@@ -674,8 +674,8 @@ pub trait Surface {
     /// - Panics if the viewport is larger than the dimensions supported by the hardware.
     /// - Panics if the depth range is outside of `(0, 1)`.
     ///
-    fn draw<'a, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'a>,
+    fn draw<'a, 'b, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: U,
+        draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'b>,
         I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
@@ -730,7 +730,7 @@ pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttac
 /// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
 /// instantaneous, even when vsync is enabled.
 pub struct Frame<'a> {
-    display: Arc<DisplayImpl>,
+    display: Display,
     marker: std::kinds::marker::ContravariantLifetime<'a>,
     dimensions: (uint, uint),
 }
@@ -743,15 +743,15 @@ impl<'t> Frame<'t> {
 
 impl<'t> Surface for Frame<'t> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        fbo::clear_color(&self.display, None, red, green, blue, alpha)
+        fbo::clear_color(&self.display.context, None, red, green, blue, alpha)
     }
 
     fn clear_depth(&mut self, value: f32) {
-        fbo::clear_depth(&self.display, None, value)
+        fbo::clear_depth(&self.display.context, None, value)
     }
 
     fn clear_stencil(&mut self, value: int) {
-        fbo::clear_stencil(&self.display, None, value)
+        fbo::clear_stencil(&self.display.context, None, value)
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
@@ -759,18 +759,18 @@ impl<'t> Surface for Frame<'t> {
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {
-        self.display.context.capabilities().depth_bits
+        self.display.context.context.capabilities().depth_bits
     }
 
     fn get_stencil_buffer_bits(&self) -> Option<u16> {
-        self.display.context.capabilities().stencil_bits
+        self.display.context.context.capabilities().stencil_bits
     }
 
-    fn draw<'a, V, I, ID, U>(&mut self, vertex_buffer: V,
-                             index_buffer: &I, program: &Program, uniforms: &U,
-                             draw_parameters: &DrawParameters)
-                             where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
-                             ID: index_buffer::Index, V: vertex_buffer::IntoVerticesSource<'a>
+    fn draw<'a, 'b, V, I, ID, U>(&mut self, vertex_buffer: V,
+                         index_buffer: &I, program: &Program, uniforms: U,
+                         draw_parameters: &DrawParameters)
+                         where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
+                         ID: index_buffer::Index, V: vertex_buffer::IntoVerticesSource<'b>
     {
         use index_buffer::ToIndicesSource;
 
@@ -781,9 +781,9 @@ impl<'t> Surface for Frame<'t> {
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            assert!(viewport.width <= self.display.context.capabilities().max_viewport_dims.0
+            assert!(viewport.width <= self.display.context.context.capabilities().max_viewport_dims.0
                     as u32, "Viewport dimensions are too large");
-            assert!(viewport.height <= self.display.context.capabilities().max_viewport_dims.1
+            assert!(viewport.height <= self.display.context.context.capabilities().max_viewport_dims.1
                     as u32, "Viewport dimensions are too large");
         }
 
@@ -793,14 +793,14 @@ impl<'t> Surface for Frame<'t> {
     }
 
     fn get_blit_helper(&self) -> BlitHelper {
-        BlitHelper(&self.display, None)
+        BlitHelper(&self.display.context, None)
     }
 }
 
 #[unsafe_destructor]
 impl<'t> Drop for Frame<'t> {
     fn drop(&mut self) {
-        self.display.context.swap_buffers();
+        self.display.context.context.swap_buffers();
     }
 }
 
@@ -936,7 +936,7 @@ impl Display {
     /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
     pub fn draw(&self) -> Frame {
         Frame {
-            display: self.context.clone(),
+            display: self.clone(),
             marker: std::kinds::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
         }
