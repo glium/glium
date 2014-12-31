@@ -114,8 +114,20 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     // `Texture` trait impl
     (writeln!(dest, "
                 impl Texture for {} {{
-                    fn get_implementation(&self) -> &TextureImplementation {{
-                        &self.0
+                    fn get_width(&self) -> u32 {{
+                        self.0.width.clone()
+                    }}
+
+                    fn get_height(&self) -> Option<u32> {{
+                        self.0.height.clone()
+                    }}
+
+                    fn get_depth(&self) -> Option<u32> {{
+                        self.0.depth.clone()
+                    }}
+
+                    fn get_array_size(&self) -> Option<u32> {{
+                        self.0.array_size.clone()
                     }}
                 }}
             ", name)).unwrap();
