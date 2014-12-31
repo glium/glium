@@ -33,7 +33,6 @@ fn vertex_buffer_creation() {
 }
 
 #[test]
-#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_mapping_read() {
     let display = support::build_display();
 
@@ -59,7 +58,6 @@ fn vertex_buffer_mapping_read() {
 }
 
 #[test]
-#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_mapping_write() {
     let display = support::build_display();
     
