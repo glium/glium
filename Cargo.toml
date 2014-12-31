@@ -17,9 +17,6 @@ headless = ["glutin/headless"]
 [dependencies.compile_msg]
 git = "https://github.com/huonw/compile_msg"
 
-[dependencies.gl_common]
-git = "http://github.com/bjz/gl-rs"
-
 [dependencies.glutin]
 git = "http://github.com/tomaka/glutin"
 features = ["window"]
@@ -34,8 +31,11 @@ git = "https://github.com/sebcrozet/nalgebra"
 git = "https://github.com/PistonDevelopers/image"
 optional = true
 
-[build-dependencies.gl_generator]
-git = "http://github.com/bjz/gl-rs"
+[dependencies]
+gl_common = "*"
+
+[build-dependencies]
+gl_generator = "*"
 
 [dev-dependencies.glium_macros]
 path = "macros"
