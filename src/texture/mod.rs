@@ -32,29 +32,17 @@ include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
 /// Trait that describes a texture.
 pub trait Texture {
-    /// Returns a reference to an opaque type necessary to make things work.
-    #[experimental = "May be changed to something totally different"]
-    fn get_implementation(&self) -> &TextureImplementation;
-
     /// Returns the width in pixels of the texture.
-    fn get_width(&self) -> u32 {
-        self.get_implementation().width
-    }
+    fn get_width(&self) -> u32;
 
     /// Returns the height in pixels of the texture, or `None` for one dimension textures.
-    fn get_height(&self) -> Option<u32> {
-        self.get_implementation().height.clone()
-    }
+    fn get_height(&self) -> Option<u32>;
 
     /// Returns the depth in pixels of the texture, or `None` for one or two dimension textures.
-    fn get_depth(&self) -> Option<u32> {
-        self.get_implementation().depth.clone()
-    }
+    fn get_depth(&self) -> Option<u32>;
 
     /// Returns the number of textures in the array, or `None` for non-arrays.
-    fn get_array_size(&self) -> Option<u32> {
-        self.get_implementation().array_size.clone()
-    }
+    fn get_array_size(&self) -> Option<u32>;
 }
 
 /// List of client-side pixel formats.
@@ -894,7 +882,7 @@ impl<T> PixelBuffer<T> where T: PixelValue {
 }
 
 /// Opaque type that is used to make things work.
-pub struct TextureImplementation {
+struct TextureImplementation {
     display: Arc<super::DisplayImpl>,
     id: gl::types::GLuint,
     bind_point: gl::types::GLenum,
