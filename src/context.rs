@@ -429,15 +429,15 @@ impl Context {
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
-        self.commands.lock().send(Message::Execute(box f));
+        self.commands.lock().unwrap().send(Message::Execute(box f));
     }
 
     pub fn swap_buffers(&self) {
-        self.commands.lock().send(Message::EndFrame);
+        self.commands.lock().unwrap().send(Message::EndFrame);
     }
 
     pub fn recv(&self) -> Vec<glutin::Event> {
-        let events = self.events.lock();
+        let events = self.events.lock().unwrap();
 
         let mut result = Vec::new();
         loop {

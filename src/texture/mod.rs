@@ -1112,7 +1112,7 @@ impl Drop for TextureImplementation {
 
         // removing FBOs which contain this texture
         {
-            let mut fbos = self.display.framebuffer_objects.lock();
+            let mut fbos = self.display.framebuffer_objects.lock().unwrap();
 
             let to_delete = fbos.keys().filter(|b| {
                 b.colors.iter().find(|&&(_, id)| id == fbo::Attachment::Texture(self.id)).is_some() ||

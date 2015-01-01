@@ -198,7 +198,7 @@ impl ToIndicesSource<u16> for IndexBuffer {      // TODO: u16?
 impl Drop for IndexBuffer {
     fn drop(&mut self) {
         // removing VAOs which contain this index buffer
-        let mut vaos = self.buffer.get_display().vertex_array_objects.lock();
+        let mut vaos = self.buffer.get_display().vertex_array_objects.lock().unwrap();
         let to_delete = vaos.keys().filter(|&&(_, i, _)| i == self.buffer.get_id())
             .map(|k| k.clone()).collect::<Vec<_>>();
         for k in to_delete.into_iter() {

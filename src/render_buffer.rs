@@ -220,7 +220,7 @@ impl Drop for RenderBufferImpl {
     fn drop(&mut self) {
         // removing FBOs which contain this buffer
         {
-            let mut fbos = self.display.framebuffer_objects.lock();
+            let mut fbos = self.display.framebuffer_objects.lock().unwrap();
 
             let to_delete = fbos.keys().filter(|b| {
                 b.colors.iter().find(|&&(_, id)| id == fbo::Attachment::RenderBuffer(self.id)).is_some() ||

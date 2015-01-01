@@ -322,7 +322,7 @@ impl VertexBufferAny {
 impl Drop for VertexBufferAny {
     fn drop(&mut self) {
         // removing VAOs which contain this vertex buffer
-        let mut vaos = self.buffer.get_display().vertex_array_objects.lock();
+        let mut vaos = self.buffer.get_display().vertex_array_objects.lock().unwrap();
         let to_delete = vaos.keys().filter(|&&(v, _, _)| v == self.buffer.get_id())
             .map(|k| k.clone()).collect::<Vec<_>>();
         for k in to_delete.into_iter() {

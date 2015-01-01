@@ -202,13 +202,13 @@ impl Drop for SamplerObject {
 
 #[doc(hidden)]      // TODO: hack
 pub fn get_sampler(display: &::Display, behavior: &SamplerBehavior) -> gl::types::GLuint {
-    match display.context.samplers.lock().get(behavior) {
+    match display.context.samplers.lock().unwrap().get(behavior) {
         Some(obj) => return obj.get_id(),
         None => ()
     };
 
     let sampler = SamplerObject::new(display, behavior);
     let id = sampler.get_id();
-    display.context.samplers.lock().insert(behavior.clone(), sampler);
+    display.context.samplers.lock().unwrap().insert(behavior.clone(), sampler);
     id
 }
