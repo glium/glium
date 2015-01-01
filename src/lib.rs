@@ -1030,7 +1030,7 @@ impl Display {
     {
         // changing the callback
         {
-            let mut cb = self.context.debug_callback.lock();
+            let mut cb = self.context.debug_callback.lock().unwrap();
             *cb = Some(box callback as Box<FnMut(String, debug::Source, debug::MessageType,
                                                  debug::Severity)
                                            + Send + Sync>);
@@ -1052,7 +1052,7 @@ impl Display {
                 let message = message.as_str().unwrap_or("<message was not utf-8>");
 
                 let ref mut callback = user_param.debug_callback;
-                let mut callback = callback.lock();
+                let mut callback = callback.lock().unwrap();
                 let callback = callback.deref_mut();
 
                 if let &Some(ref mut callback) = callback {
@@ -1212,17 +1212,17 @@ impl Drop for DisplayImpl {
         });
 
         {
-            let mut fbos = self.framebuffer_objects.lock();
+            let mut fbos = self.framebuffer_objects.lock().unwrap();
             fbos.clear();
         }
 
         {
-            let mut vaos = self.vertex_array_objects.lock();
+            let mut vaos = self.vertex_array_objects.lock().unwrap();
             vaos.clear();
         }
 
         {
-            let mut samplers = self.samplers.lock();
+            let mut samplers = self.samplers.lock().unwrap();
             samplers.clear();
         }
     }

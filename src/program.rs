@@ -238,7 +238,7 @@ impl Program {
     ///
     pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
         // looking for a cached value
-        if let Some(result) = self.frag_data_locations.lock().get(name) {
+        if let Some(result) = self.frag_data_locations.lock().unwrap().get(name) {
             return result.clone();
         }
 
@@ -258,7 +258,7 @@ impl Program {
             a => Some(a as u32),
         };
 
-        self.frag_data_locations.lock().insert(name.to_string(), location);
+        self.frag_data_locations.lock().unwrap().insert(name.to_string(), location);
         location
     }
 }
@@ -291,7 +291,7 @@ impl Drop for Program {
     fn drop(&mut self) {
         // removing VAOs which contain this program
         {
-            let mut vaos = self.display.vertex_array_objects.lock();
+            let mut vaos = self.display.vertex_array_objects.lock().unwrap();
             let to_delete = vaos.keys().filter(|&&(_, _, p)| p == self.id)
                 .map(|k| k.clone()).collect::<Vec<_>>();
             for k in to_delete.into_iter() {

@@ -414,7 +414,7 @@ fn get_framebuffer(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
     -> Option<gl::types::GLuint>
 {
     if let Some(framebuffer) = framebuffer {
-        let mut framebuffers = display.framebuffer_objects.lock();
+        let mut framebuffers = display.framebuffer_objects.lock().unwrap();
 
         if let Some(value) = framebuffers.get(framebuffer) {
             return Some(value.id);
