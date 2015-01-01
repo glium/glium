@@ -115,19 +115,19 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     (writeln!(dest, "
                 impl Texture for {} {{
                     fn get_width(&self) -> u32 {{
-                        self.0.width.clone()
+                        self.0.get_width()
                     }}
 
                     fn get_height(&self) -> Option<u32> {{
-                        self.0.height.clone()
+                        self.0.get_height()
                     }}
 
                     fn get_depth(&self) -> Option<u32> {{
-                        self.0.depth.clone()
+                        self.0.get_depth()
                     }}
 
                     fn get_array_size(&self) -> Option<u32> {{
-                        self.0.array_size.clone()
+                        self.0.get_array_size()
                     }}
                 }}
             ", name)).unwrap();
@@ -409,9 +409,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// FBO and re-use it. When the texture is destroyed, the FBO is destroyed too.
                 ///
                 pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
-                    // TODO: hacky, shouldn't recreate a Display
-                    let display = ::Display {{ context: self.0.display.clone() }};
-                    TextureSurface(framebuffer::SimpleFrameBuffer::new(&display, self))
+                    TextureSurface(framebuffer::SimpleFrameBuffer::new(self.0.get_display(), self))
                 }}
             ")).unwrap();
     }
