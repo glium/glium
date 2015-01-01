@@ -217,6 +217,7 @@ pub mod texture;
 mod buffer;
 mod context;
 mod fbo;
+mod ops;
 mod program;
 mod vertex_array_object;
 
@@ -697,7 +698,7 @@ pub trait Surface {
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
-        fbo::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
+        ops::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
             filter.to_glenum())
     }
 
@@ -743,15 +744,15 @@ impl<'t> Frame<'t> {
 
 impl<'t> Surface for Frame<'t> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        fbo::clear_color(&self.display.context, None, red, green, blue, alpha)
+        ops::clear_color(&self.display.context, None, red, green, blue, alpha)
     }
 
     fn clear_depth(&mut self, value: f32) {
-        fbo::clear_depth(&self.display.context, None, value)
+        ops::clear_depth(&self.display.context, None, value)
     }
 
     fn clear_stencil(&mut self, value: int) {
-        fbo::clear_stencil(&self.display.context, None, value)
+        ops::clear_stencil(&self.display.context, None, value)
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
@@ -787,7 +788,7 @@ impl<'t> Surface for Frame<'t> {
                     as u32, "Viewport dimensions are too large");
         }
 
-        fbo::draw(&self.display, None, vertex_buffer.into_vertices_source(),
+        ops::draw(&self.display, None, vertex_buffer.into_vertices_source(),
                   &index_buffer.to_indices_source(), program, uniforms, draw_parameters,
                   (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
