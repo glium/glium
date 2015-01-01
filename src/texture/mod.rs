@@ -1,16 +1,41 @@
 /*!
+A texture is an image loaded in video memory and that can be sampled in your shaders.
 
-A texture is an image available for drawing.
+Textures come in ten different dimensions:
 
-To create a texture, you must first create a struct that implements one of `Texture1dData`,
- `Texture2dData` or `Texture3dData`. Then call the appropriate `new` function of the type of
- texture that you desire.
+ - Textures with one dimension.
+ - Textures with two dimensions.
+ - Textures with two dimensions and multisampling enabled.
+ - Textures with three dimensions.
+ - Cube textures, which are arrays of six two-dimensional textures
+   corresponding to the six faces of a cube.
+ - Arrays of one-dimensional textures.
+ - Arrays of two-dimensional textures.
+ - Arrays of two-dimensional textures with multisampling enabled.
+ - Arrays of cube textures.
+ - Buffer textures, which are one-dimensional textures that are mapped to a buffer.
+
+In addition to this, there are six kinds of texture formats:
+
+ - The texture contains floating-point data,
+   with either the `Compressed` prefix or no prefix at all.
+ - The texture contains signed integers, with the `Integral` prefix.
+ - The texture contains unsigned integers, with the `Unsigned` prefix.
+ - The texture contains depth informations, with the `Depth` prefix.
+ - The texture contains stencil informations, with the `Stencil` prefix.
+ - The texture contains depth and stencil informations, with the `DepthStencil` prefix.
+
+Each combinaison of dimensions and format corresponds to a sampler type in GLSL. For example
+a `IntegralTexture3d` can only be binded to a `isampler3D` uniform in GLSL. Some combinaisons
+don't exist, like `DepthBufferTexture`.
+
+The difference between compressed textures and non-compressed textures is that you can't do
+render-to-texture on the former.
 
 The most common types of textures are `CompressedTexture2d` and `Texture2d` (the two dimensions
 being the width and height), it is what you will use most of the time.
 
 */
-
 use {gl, framebuffer};
 
 #[cfg(feature = "image")]
