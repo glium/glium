@@ -45,7 +45,7 @@ use fbo::FramebufferAttachments;
 
 use {Display, Program, Surface, GlObject};
 
-use {fbo, gl};
+use {fbo, gl, ops};
 
 /// A framebuffer which has only one color attachment.
 pub struct SimpleFrameBuffer<'a> {
@@ -183,15 +183,15 @@ impl<'a> SimpleFrameBuffer<'a> {
 
 impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        fbo::clear_color(&self.display.context, Some(&self.attachments), red, green, blue, alpha)
+        ops::clear_color(&self.display.context, Some(&self.attachments), red, green, blue, alpha)
     }
 
     fn clear_depth(&mut self, value: f32) {
-        fbo::clear_depth(&self.display.context, Some(&self.attachments), value)
+        ops::clear_depth(&self.display.context, Some(&self.attachments), value)
     }
 
     fn clear_stencil(&mut self, value: int) {
-        fbo::clear_stencil(&self.display.context, Some(&self.attachments), value)
+        ops::clear_stencil(&self.display.context, Some(&self.attachments), value)
     }
 
     fn get_dimensions(&self) -> (uint, uint) {
@@ -225,7 +225,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
                     as u32, "Viewport dimensions are too large");
         }
 
-        fbo::draw(&self.display, Some(&self.attachments), vb.into_vertices_source(),
+        ops::draw(&self.display, Some(&self.attachments), vb.into_vertices_source(),
                   &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
