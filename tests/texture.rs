@@ -12,19 +12,13 @@ use glium::{Texture, Surface};
 mod support;
 
 #[test]
-fn texture_1d_creation() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-    
+fn texture_1d_creation() {    
     let display = support::build_display();
 
     let texture = glium::texture::Texture1d::new(&display, vec![
-        (0.0, 0.0, 0.0, 0.0),
-        (0.0, 0.0, 0.0, 0.0),
-        (0.0, 0.0, 0.0, 0.0),
+        (0, 0, 0, 0),
+        (0, 0, 0, 0),
+        (0, 0, 0, 0u8),
     ]);
 
     assert_eq!(texture.get_width(), 3);
@@ -36,19 +30,13 @@ fn texture_1d_creation() {
 }
 
 #[test]
-fn texture_2d_creation() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-    
+fn texture_2d_creation() {    
     let display = support::build_display();
 
     let texture = glium::texture::Texture2d::new(&display, vec![
-        vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
-        vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
-        vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0f32)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0u8)],
     ]);
 
     assert_eq!(texture.get_width(), 2);
@@ -60,27 +48,21 @@ fn texture_2d_creation() {
 }
 
 #[test]
-fn texture_3d_creation() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
-        return;
-    }
-    
+fn texture_3d_creation() {    
     let display = support::build_display();
 
     let texture = glium::texture::Texture3d::new(&display, vec![
         vec![
-            vec![(0.0, 0.0, 0.0, 0.0)],
-            vec![(0.0, 0.0, 0.0, 0.0)],
+            vec![(0, 0, 0, 0)],
+            vec![(0, 0, 0, 0)],
         ],
         vec![
-            vec![(0.0, 0.0, 0.0, 0.0)],
-            vec![(0.0, 0.0, 0.0, 0.0)],
+            vec![(0, 0, 0, 0)],
+            vec![(0, 0, 0, 0)],
         ],
         vec![
-            vec![(0.0, 0.0, 0.0, 0.0)],
-            vec![(0.0, 0.0, 0.0, 0.0f32)],
+            vec![(0, 0, 0, 0)],
+            vec![(0, 0, 0, 0u8)],
         ],
     ]);
 
@@ -118,9 +100,9 @@ fn compressed_texture_2d_creation() {
     let display = support::build_display();
 
     let texture = glium::texture::CompressedTexture2d::new(&display, vec![
-        vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
-        vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)],
-        vec![(0.0, 0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0f32)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0u8)],
     ]);
 
     assert_eq!(texture.get_width(), 2);
@@ -162,11 +144,11 @@ fn render_to_texture2d() {
     let params = Default::default();
     texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
-    assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back[512][512], (1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back[1023][1023], (1.0, 0.0, 0.0, 1.0));
+    assert_eq!(read_back[0][0], (255, 0, 0, 255));
+    assert_eq!(read_back[512][512], (255, 0, 0, 255));
+    assert_eq!(read_back[1023][1023], (255, 0, 0, 255));
     
     display.assert_no_error();
 }
