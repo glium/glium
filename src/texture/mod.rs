@@ -74,19 +74,22 @@ pub trait Texture {
 }
 
 /// Trait that describes data for a one-dimensional texture.
-#[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture1dData<T> {
+pub trait Texture1dData {
+    type Data: Send + Copy;
+
     /// Returns the format of the pixels.
     fn get_format(Option<Self>) -> ClientFormat;
 
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec<T>;
+    fn into_vec(self) -> Vec< <Self as Texture1dData>::Data>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec<T>) -> Self;
+    fn from_vec(Vec< <Self as Texture1dData>::Data>) -> Self;
 }
 
-impl<P: PixelValue> Texture1dData<P> for Vec<P> {
+impl<P: PixelValue> Texture1dData for Vec<P> {
+    type Data = P;
+
     fn get_format(_: Option<Vec<P>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
@@ -100,7 +103,9 @@ impl<P: PixelValue> Texture1dData<P> for Vec<P> {
     }
 }
 
-impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
+impl<'a, P: PixelValue + Clone> Texture1dData for &'a [P] {
+    type Data = P;
+
     fn get_format(_: Option<&'a [P]>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
@@ -115,8 +120,9 @@ impl<'a, P: PixelValue + Clone> Texture1dData<P> for &'a [P] {
 }
 
 /// Trait that describes data for a two-dimensional texture.
-#[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture2dData<P> {
+pub trait Texture2dData {
+    type Data: Send + Copy;
+
     /// Returns the format of the pixels.
     fn get_format(Option<Self>) -> ClientFormat;
 
@@ -124,13 +130,15 @@ pub trait Texture2dData<P> {
     fn get_dimensions(&self) -> (u32, u32);
 
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec<P>;
+    fn into_vec(self) -> Vec< <Self as Texture2dData>::Data>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec<P>, width: u32) -> Self;
+    fn from_vec(Vec< <Self as Texture2dData>::Data>, width: u32) -> Self;
 }
 
-impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: remove Clone
+impl<P: PixelValue + Clone> Texture2dData for Vec<Vec<P>> {      // TODO: remove Clone
+    type Data = P;
+
     fn get_format(_: Option<Vec<Vec<P>>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
@@ -149,9 +157,11 @@ impl<P: PixelValue + Clone> Texture2dData<P> for Vec<Vec<P>> {      // TODO: rem
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2dData<T> for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
+impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
     P: PixelValue + image::Pixel<T> + Clone + Copy
 {
+    type Data = T;
+
     fn get_format(_: Option<image::ImageBuffer<Vec<T>, T, P>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }
@@ -195,7 +205,9 @@ impl<T, P> Texture2dData<T> for image::ImageBuffer<Vec<T>, T, P> where T: image:
 }
 
 #[cfg(feature = "image")]
-impl Texture2dData<u8> for image::DynamicImage {
+impl Texture2dData for image::DynamicImage {
+    type Data = u8;
+
     fn get_format(_: Option<image::DynamicImage>) -> ClientFormat {
         ClientFormat::U8U8U8U8
     }
@@ -215,8 +227,9 @@ impl Texture2dData<u8> for image::DynamicImage {
 }
 
 /// Trait that describes data for a three-dimensional texture.
-#[experimental = "Will be rewritten to use an associated type"]
-pub trait Texture3dData<P> {
+pub trait Texture3dData {
+    type Data: Send + Copy;
+
     /// Returns the format of the pixels.
     fn get_format(Option<Self>) -> ClientFormat;
 
@@ -224,13 +237,15 @@ pub trait Texture3dData<P> {
     fn get_dimensions(&self) -> (u32, u32, u32);
 
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec<P>;
+    fn into_vec(self) -> Vec< <Self as Texture3dData>::Data>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec<P>, width: u32, height: u32) -> Self;
+    fn from_vec(Vec< <Self as Texture3dData>::Data>, width: u32, height: u32) -> Self;
 }
 
-impl<P: PixelValue> Texture3dData<P> for Vec<Vec<Vec<P>>> {
+impl<P: PixelValue> Texture3dData for Vec<Vec<Vec<P>>> {
+    type Data = P;
+
     fn get_format(_: Option<Vec<Vec<Vec<P>>>>) -> ClientFormat {
         PixelValue::get_format(None::<P>)
     }

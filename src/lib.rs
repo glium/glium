@@ -1118,7 +1118,7 @@ impl Display {
     /// # }
     /// ```
     pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
-        where P: texture::PixelValue + Clone + Send, T: texture::Texture2dData<P>
+        where P: texture::PixelValue + Clone + Send, T: texture::Texture2dData<Data = P>
     {
         use std::mem;
 
