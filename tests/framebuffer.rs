@@ -71,6 +71,8 @@ fn simple_render_to_texture() {
 #[test]
 #[cfg(feature = "gl_extensions")]       // TODO: remove
 fn depth_texture2d() {
+    use std::iter;
+
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -100,7 +102,8 @@ fn depth_texture2d() {
                                             128, 128);
 
     // depth texture with a value of 0.5 everywhere
-    let depth_data = Vec::from_elem(128, Vec::from_elem(128, 0.5f32));
+    let depth_data = iter::repeat(iter::repeat(0.5f32).take(128).collect::<Vec<_>>())
+                                  .take(128).collect::<Vec<_>>();
     let depth = glium::texture::DepthTexture2d::new(&display, depth_data);
 
     // drawing with the `IfLess` depth test
