@@ -6,7 +6,7 @@ use syntax::ptr::P;
 /// Expand #[uniforms]
 pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
               _meta_item: &ast::MetaItem, item: &ast::Item,
-              push: |P<ast::Item>|)
+              mut push: Box<FnMut(P<ast::Item>)>)
 {
     let struct_name = &item.ident;
 
@@ -59,17 +59,17 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
         }
 
         if !found {
-            push(quote_item!(ecx,
+            push.call_mut((quote_item!(ecx,
                 impl $struct_generics Copy for $struct_name $struct_generics {}
-            ).unwrap());
+            ).unwrap(),));
         }
     }
 
-    push(quote_item!(ecx,
+    push.call_mut((quote_item!(ecx,
         impl $struct_generics ::glium::uniforms::Uniforms for $struct_name $struct_generics {
             fn visit_values<F: FnMut(&str, &::glium::uniforms::UniformValue)>(self, mut output: F) {
                 $statements
             }
         }
-    ).unwrap());
+    ).unwrap(),));
 }
