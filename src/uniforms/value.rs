@@ -1,7 +1,9 @@
 use texture;
 use uniforms::SamplerBehavior;
 
+#[cfg(feature = "cgmath")]
 use cgmath;
+#[cfg(feature = "nalgebra")]
 use nalgebra;
 
 /// Type of a uniform in a program.
@@ -284,6 +286,7 @@ impl IntoUniformValue<'static> for [f32, ..4] {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Mat2<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -291,6 +294,7 @@ impl IntoUniformValue<'static> for nalgebra::Mat2<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Mat3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -298,6 +302,7 @@ impl IntoUniformValue<'static> for nalgebra::Mat3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Mat4<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -305,6 +310,7 @@ impl IntoUniformValue<'static> for nalgebra::Mat4<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Ortho3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.to_mat(); // Bind to a Mat4
@@ -312,6 +318,7 @@ impl IntoUniformValue<'static> for nalgebra::Ortho3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::OrthoMat3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_mat(); // Bind to a Mat4
@@ -319,6 +326,7 @@ impl IntoUniformValue<'static> for nalgebra::OrthoMat3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Persp3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.to_mat(); // Bind to a Mat4
@@ -326,6 +334,7 @@ impl IntoUniformValue<'static> for nalgebra::Persp3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::PerspMat3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_mat(); // Bind to a Mat4
@@ -333,6 +342,7 @@ impl IntoUniformValue<'static> for nalgebra::PerspMat3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Pnt2<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -340,6 +350,7 @@ impl IntoUniformValue<'static> for nalgebra::Pnt2<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Pnt3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -347,6 +358,7 @@ impl IntoUniformValue<'static> for nalgebra::Pnt3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Pnt4<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -354,6 +366,7 @@ impl IntoUniformValue<'static> for nalgebra::Pnt4<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Quat<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -361,6 +374,7 @@ impl IntoUniformValue<'static> for nalgebra::Quat<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Rot2<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.submat(); // Bind to a Mat2
@@ -368,6 +382,7 @@ impl IntoUniformValue<'static> for nalgebra::Rot2<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Rot3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.submat(); // Bind to a Mat3
@@ -375,6 +390,7 @@ impl IntoUniformValue<'static> for nalgebra::Rot3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Rot4<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.submat(); // Bind to a Mat4
@@ -382,6 +398,7 @@ impl IntoUniformValue<'static> for nalgebra::Rot4<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::UnitQuat<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.quat(); // Bind to a Quat
@@ -389,6 +406,7 @@ impl IntoUniformValue<'static> for nalgebra::UnitQuat<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Vec2<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -396,6 +414,7 @@ impl IntoUniformValue<'static> for nalgebra::Vec2<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Vec3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -403,6 +422,7 @@ impl IntoUniformValue<'static> for nalgebra::Vec3<f32> {
     }
 }
 
+#[cfg(feature = "nalgebra")]
 impl IntoUniformValue<'static> for nalgebra::Vec4<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         let my_value = self.as_array();
@@ -411,6 +431,7 @@ impl IntoUniformValue<'static> for nalgebra::Vec4<f32> {
 }
 
 
+#[cfg(feature = "cgmath")]
 impl IntoUniformValue<'static> for cgmath::Matrix2<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         use cgmath::FixedArray;
@@ -419,6 +440,7 @@ impl IntoUniformValue<'static> for cgmath::Matrix2<f32> {
     }
 }
 
+#[cfg(feature = "cgmath")]
 impl IntoUniformValue<'static> for cgmath::Matrix3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         use cgmath::FixedArray;
@@ -427,6 +449,7 @@ impl IntoUniformValue<'static> for cgmath::Matrix3<f32> {
     }
 }
 
+#[cfg(feature = "cgmath")]
 impl IntoUniformValue<'static> for cgmath::Matrix4<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         use cgmath::FixedArray;
@@ -435,6 +458,7 @@ impl IntoUniformValue<'static> for cgmath::Matrix4<f32> {
     }
 }
 
+#[cfg(feature = "cgmath")]
 impl IntoUniformValue<'static> for cgmath::Vector2<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         use cgmath::FixedArray;
@@ -443,6 +467,7 @@ impl IntoUniformValue<'static> for cgmath::Vector2<f32> {
     }
 }
 
+#[cfg(feature = "cgmath")]
 impl IntoUniformValue<'static> for cgmath::Vector3<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         use cgmath::FixedArray;
@@ -451,6 +476,7 @@ impl IntoUniformValue<'static> for cgmath::Vector3<f32> {
     }
 }
 
+#[cfg(feature = "cgmath")]
 impl IntoUniformValue<'static> for cgmath::Vector4<f32> {
     fn into_uniform_value(self) -> UniformValue<'static> {
         use cgmath::FixedArray;
