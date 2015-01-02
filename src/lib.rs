@@ -260,18 +260,56 @@ pub enum BlendingFunction {
     LerpBySourceAlpha,
 }
 
-/// Culling mode.
-/// 
-/// Describes how triangles could be filtered before the fragment part.
+/// Describes how triangles should be filtered before the fragment processing. Backface culling
+/// is purely an optimization. If you don't know what this does, just use `CullingDisabled`.
+///
+/// # Backface culling
+///
+/// After the vertex shader stage, the GPU knows the 2D coordinates of each vertex of
+/// each triangle.
+///
+/// For a given triangle, there are only two situations:
+///
+/// - The vertices are arranged in a clock-wise way on the screen.
+/// - The vertices are arranged in a counter-clock-wise way on the screen.
+///
+/// If you wish so, you can ask the GPU to discard all the primitives that belong to one
+/// of these two categories.
+///
+/// ## Example
+///
+/// The vertices of this triangle are counter-clock-wise.
+///
+/// ```ignore
+///         /| 1
+///        / |
+///       /  |
+///      /   |
+///   2 /____|  3
+///
+/// ```
+///
+/// # Usage
+///
+/// The trick is that if you make a 180° rotation of a shape, all triangles that were
+/// clockwise become counterclockwise and vice versa.
+///
+/// Therefore you can arrange your model so that the triangles that are facing the screen
+/// are all either clockwise or counterclockwise, and all the triangle are *not* facing
+/// the screen are the other one.
+///
+/// By doing so you can use backface culling to discard all the triangles that are not,
+/// facing the screen, and increase your framerate.
+///
 #[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BackfaceCullingMode {
     /// All triangles are always drawn.
     CullingDisabled,
 
-    /// Triangles whose vertices are counter-clock-wise won't be drawn.
+    /// Triangles whose vertices are counterclockwise won't be drawn.
     CullCounterClockWise,
 
-    /// Triangles whose indices are clock-wise won't be drawn.
+    /// Triangles whose vertices are clockwise won't be drawn.
     CullClockWise
 }
 
