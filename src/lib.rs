@@ -314,7 +314,21 @@ pub enum BackfaceCullingMode {
 }
 
 /// The function that the GPU will use to determine whether to write over an existing pixel
-///  on the target.
+/// on the target.
+///
+/// # Depth buffers
+///
+/// After the fragment shader has been run, the GPU maps the output Z coordinates to the depth
+/// range (that you can specify in the draw parameters) in order to obtain the depth value in
+/// in window coordinates. This depth value is always between `0.0` and `1.0`.
+///
+/// In addition to the buffer where pixel colors are stored, you can also have a buffer
+/// which contains the depth value of each pixel. Whenever the GPU tries to write a pixel,
+/// it will first compare the depth value of the pixel to be written with the depth value that
+/// is stored at this location.
+///
+/// If you don't have a depth buffer available, you can only pass `Overwrite`. Glium detects if
+/// you pass any other value and reports an error.
 #[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
@@ -422,6 +436,8 @@ impl ToGlEnum for PolygonMode {
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target.
+    ///
+    /// See the documentation of `DepthFunction` for more details.
     ///
     /// The default is `Overwrite`.
     pub depth_function: DepthFunction,
