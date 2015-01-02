@@ -395,6 +395,21 @@ impl ToGlEnum for DepthFunction {
 ///
 /// The usual value is `Fill`, which fills the content of polygon with the color. However other
 /// values are sometimes useful, especially for debugging purposes.
+///
+/// # Example
+///
+/// The same triangle drawn respectively with `Fill`, `Line` and `Point` (barely visible).
+///
+/// <svg width="890.26135" height="282.59375" version="1.1">
+///  <g transform="translate(0,-769.9375)">
+///     <path style="fill:#ff0000;fill-opacity:1;stroke:none" d="M 124.24877,771.03979 258.59906,1051.8622 0,1003.3749 z" />
+///     <path style="fill:none;fill-opacity:1;stroke:#ff0000;stroke-opacity:1" d="M 444.46713,771.03979 578.81742,1051.8622 320.21836,1003.3749 z" />
+///     <path style="fill:#ff0000;fill-opacity:1;stroke:none" d="m 814.91074,385.7662 c 0,0.0185 -0.015,0.0335 -0.0335,0.0335 -0.0185,0 -0.0335,-0.015 -0.0335,-0.0335 0,-0.0185 0.015,-0.0335 0.0335,-0.0335 0.0185,0 0.0335,0.015 0.0335,0.0335 z" transform="matrix(18.833333,0,0,18.833333,-14715.306,-6262.0056)" />
+///     <path style="fill:#ff0000;fill-opacity:1;stroke:none" d="m 814.91074,385.7662 c 0,0.0185 -0.015,0.0335 -0.0335,0.0335 -0.0185,0 -0.0335,-0.015 -0.0335,-0.0335 0,-0.0185 0.015,-0.0335 0.0335,-0.0335 0.0185,0 0.0335,0.015 0.0335,0.0335 z" transform="matrix(18.833333,0,0,18.833333,-14591.26,-6493.994)" />
+///     <path style="fill:#ff0000;fill-opacity:1;stroke:none" d="m 814.91074,385.7662 c 0,0.0185 -0.015,0.0335 -0.0335,0.0335 -0.0185,0 -0.0335,-0.015 -0.0335,-0.0335 0,-0.0185 0.015,-0.0335 0.0335,-0.0335 0.0185,0 0.0335,0.015 0.0335,0.0335 z" transform="matrix(18.833333,0,0,18.833333,-14457.224,-6213.6135)" />
+///  </g>
+/// </svg>
+///
 #[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum PolygonMode {
     /// Only draw a single point at each vertex.
@@ -474,6 +489,8 @@ pub struct DrawParameters {
     pub backface_culling: BackfaceCullingMode,
 
     /// Sets how to render polygons. The default value is `Fill`.
+    ///
+    /// See the documentation of `PolygonMode` for more infos.
     pub polygon_mode: PolygonMode,
 
     /// Whether multisample antialiasing (MSAA) should be used. Default value is `true`.
