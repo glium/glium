@@ -270,8 +270,8 @@ pub enum BlendingFunction {
 ///
 /// For a given triangle, there are only two situations:
 ///
-/// - The vertices are arranged in a clock-wise way on the screen.
-/// - The vertices are arranged in a counter-clock-wise way on the screen.
+/// - The vertices are arranged in a clockwise way on the screen.
+/// - The vertices are arranged in a counterclockwise way on the screen.
 ///
 /// If you wish so, you can ask the GPU to discard all the primitives that belong to one
 /// of these two categories.
@@ -280,14 +280,14 @@ pub enum BlendingFunction {
 ///
 /// The vertices of this triangle are counter-clock-wise.
 ///
-/// ```ignore
-///         /| 1
-///        / |
-///       /  |
-///      /   |
-///   2 /____|  3
-///
-/// ```
+/// <svg width="556.84381" height="509.69049" version="1.1">
+///   <g transform="translate(-95.156215,-320.37201)">
+///     <path style="fill:none;stroke:#000000;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" d="M 324.25897,418.99654 539.42145,726.08292 212.13204,741.23521 z" />
+///     <text style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans" x="296.98483" y="400.81378"><tspan x="296.98483" y="400.81378">1</tspan></text>
+///     <text style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans" x="175.22902" y="774.8031"><tspan x="175.22902" y="774.8031">2</tspan></text>
+///     <text style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans" x="555.58386" y="748.30627"><tspan x="555.58386" y="748.30627">3</tspan></text>
+///   </g>
+/// </svg>
 ///
 /// # Usage
 ///
@@ -298,7 +298,7 @@ pub enum BlendingFunction {
 /// are all either clockwise or counterclockwise, and all the triangle are *not* facing
 /// the screen are the other one.
 ///
-/// By doing so you can use backface culling to discard all the triangles that are not,
+/// By doing so you can use backface culling to discard all the triangles that are not
 /// facing the screen, and increase your framerate.
 ///
 #[deriving(Clone, Copy, Show, PartialEq, Eq)]
@@ -485,7 +485,9 @@ pub struct DrawParameters {
     /// Whether or not the GPU should filter out some faces.
     ///
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
-    ///  the camera.
+    /// the camera.
+    ///
+    /// See the documentation of `BackfaceCullingMode` for more infos.
     pub backface_culling: BackfaceCullingMode,
 
     /// Sets how to render polygons. The default value is `Fill`.
