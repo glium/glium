@@ -190,11 +190,13 @@ target.finish();
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
+#[cfg(feature = "cgmath")]
 extern crate cgmath;
 extern crate glutin;
 #[cfg(feature = "image")]
 extern crate image;
 extern crate libc;
+#[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 
 pub use index_buffer::IndexBuffer;

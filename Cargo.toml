@@ -9,7 +9,7 @@ license = "Apache"
 build = "build/main.rs"
 
 [features]
-default = ["image", "gl_extensions"]
+default = ["image", "gl_extensions", "cgmath", "nalgebra"]
 gl_extensions = []
 gles_extensions = []
 headless = ["glutin/headless"]
@@ -23,9 +23,11 @@ features = ["window"]
 
 [dependencies.cgmath]
 git = "https://github.com/bjz/cgmath-rs"
+optional = true
 
 [dependencies.nalgebra]
 git = "https://github.com/sebcrozet/nalgebra"
+optional = true
 
 [dependencies.image]
 git = "https://github.com/PistonDevelopers/image"
