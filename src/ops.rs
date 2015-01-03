@@ -57,6 +57,22 @@ pub fn draw<'a, I, U>(display: &Display,
     let vb_id = vertex_buffer.get_id();
     let program_id = program.get_id();
 
+    // in some situations, we have to wait for the draw command to finish before returning
+    let (tx, rx) = {
+        let needs_sync = if let &IndicesSource::Buffer{..} = indices {
+            true
+        } else {
+            false
+        };
+
+        if needs_sync {
+            let (tx, rx) = channel();
+            (Some(tx), Some(rx))
+        } else {
+            (None, None)
+        }
+    };
+
     display.context.context.exec(move |: mut ctxt| {
         unsafe {
             fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
@@ -90,7 +106,17 @@ pub fn draw<'a, I, U>(display: &Display,
             // drawing
             ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer.0);
         }
+
+        // sync-ing if necessary
+        if let Some(tx) = tx {
+            tx.send(());
+        }
     });
+    
+    // sync-ing if necessary
+    if let Some(rx) = rx {
+        rx.recv();
+    }
 }
 
 pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
