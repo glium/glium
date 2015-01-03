@@ -1,5 +1,7 @@
 # glium
 
+[![Build Status](https://travis-ci.org/tomaka/glium.svg?branch=master)](https://travis-ci.org/tomaka/glium)
+
 High-level OpenGL wrapper for the Rust language.
 
 ```toml
