@@ -4,6 +4,8 @@ use gl;
 use GlObject;
 use context::GlVersion;
 
+use texture::PixelValue;
+
 use libc;
 use std::fmt;
 use std::mem;
@@ -206,7 +208,7 @@ impl TextureImplementation {
                 }
 
                 data.set_len(pixels_count);
-                tx.send(data);
+                tx.send(data).unwrap();
             }
         });
 
