@@ -81,10 +81,10 @@ pub trait Texture1dData {
     fn get_format(Option<Self>) -> ClientFormat;
 
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec< <Self as Texture1dData>::Data>;
+    fn into_vec(self) -> Vec<Self::Data>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec< <Self as Texture1dData>::Data>) -> Self;
+    fn from_vec(Vec<Self::Data>) -> Self;
 }
 
 impl<P: PixelValue> Texture1dData for Vec<P> {
@@ -130,10 +130,10 @@ pub trait Texture2dData {
     fn get_dimensions(&self) -> (u32, u32);
 
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec< <Self as Texture2dData>::Data>;
+    fn into_vec(self) -> Vec<Self::Data>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec< <Self as Texture2dData>::Data>, width: u32) -> Self;
+    fn from_vec(Vec<Self::Data>, width: u32) -> Self;
 }
 
 impl<P: PixelValue + Clone> Texture2dData for Vec<Vec<P>> {      // TODO: remove Clone
@@ -237,10 +237,10 @@ pub trait Texture3dData {
     fn get_dimensions(&self) -> (u32, u32, u32);
 
     /// Returns a vec where each element is a pixel of the texture.
-    fn into_vec(self) -> Vec< <Self as Texture3dData>::Data>;
+    fn into_vec(self) -> Vec<Self::Data>;
 
     /// Builds a new object from raw data.
-    fn from_vec(Vec< <Self as Texture3dData>::Data>, width: u32, height: u32) -> Self;
+    fn from_vec(Vec<Self::Data>, width: u32, height: u32) -> Self;
 }
 
 impl<P: PixelValue> Texture3dData for Vec<Vec<Vec<P>>> {
