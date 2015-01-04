@@ -20,7 +20,7 @@ However the most optimal way to draw something is to load the data in the video 
 creating an `IndexBuffer`.
 
 */
-use buffer::{mod, Buffer};
+use buffer::{self, Buffer};
 use gl;
 use GlObject;
 use ToGlEnum;
@@ -94,25 +94,25 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
 /// List of available primitives.
 #[deriving(Show, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
-    /// 
+    ///
     Points,
-    /// 
+    ///
     LinesList,
-    /// 
+    ///
     LinesListAdjacency,
-    /// 
+    ///
     LineStrip,
-    /// 
+    ///
     LineStripAdjacency,
-    /// 
+    ///
     TrianglesList,
-    /// 
+    ///
     TrianglesListAdjacency,
-    /// 
+    ///
     TriangleStrip,
-    /// 
+    ///
     TriangleStripAdjacency,
-    /// 
+    ///
     TriangleFan,
 }
 
@@ -344,7 +344,7 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
 }
 
 #[cfg(feature = "gl_extensions")]
-impl<T> ToIndicesSource<T> for LinesListAdjacency<T> where T: Index + Send + Copy {    
+impl<T> ToIndicesSource<T> for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -371,7 +371,7 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for LineStrip<T> where T: Index + Send + Copy {    
+impl<T> ToIndicesSource<T> for LineStrip<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -412,7 +412,7 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
 }
 
 #[cfg(feature = "gl_extensions")]
-impl<T> ToIndicesSource<T> for LineStripAdjacency<T> where T: Index + Send + Copy {    
+impl<T> ToIndicesSource<T> for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -439,7 +439,7 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for TrianglesList<T> where T: Index + Send + Copy {    
+impl<T> ToIndicesSource<T> for TrianglesList<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),

@@ -131,14 +131,14 @@ pub enum UniformValue<'a> {
     UnsignedInt(u32),
     Float(f32),
     /// 2x2 column-major matrix.
-    Mat2([[f32, ..2], ..2]),
+    Mat2([[f32; 2]; 2]),
     /// 3x3 column-major matrix.
-    Mat3([[f32, ..3], ..3]),
+    Mat3([[f32; 3]; 3]),
     /// 4x4 column-major matrix.
-    Mat4([[f32, ..4], ..4]),
-    Vec2([f32, ..2]),
-    Vec3([f32, ..3]),
-    Vec4([f32, ..4]),
+    Mat4([[f32; 4]; 4]),
+    Vec2([f32; 2]),
+    Vec3([f32; 3]),
+    Vec4([f32; 4]),
     Texture1d(&'a texture::Texture1d, Option<SamplerBehavior>),
     CompressedTexture1d(&'a texture::CompressedTexture1d, Option<SamplerBehavior>),
     IntegralTexture1d(&'a texture::IntegralTexture1d, Option<SamplerBehavior>),
@@ -232,19 +232,19 @@ impl IntoUniformValue<'static> for f32 {
     }
 }
 
-impl IntoUniformValue<'static> for [[f32, ..2], ..2] {
+impl IntoUniformValue<'static> for [[f32; 2]; 2] {
     fn into_uniform_value(self) -> UniformValue<'static> {
         UniformValue::Mat2(self)
     }
 }
 
-impl IntoUniformValue<'static> for [[f32, ..3], ..3] {
+impl IntoUniformValue<'static> for [[f32; 3]; 3] {
     fn into_uniform_value(self) -> UniformValue<'static> {
         UniformValue::Mat3(self)
     }
 }
 
-impl IntoUniformValue<'static> for [[f32, ..4], ..4] {
+impl IntoUniformValue<'static> for [[f32; 4]; 4] {
     fn into_uniform_value(self) -> UniformValue<'static> {
         UniformValue::Mat4(self)
     }
@@ -268,19 +268,19 @@ impl IntoUniformValue<'static> for (f32, f32, f32, f32) {
     }
 }
 
-impl IntoUniformValue<'static> for [f32, ..2] {
+impl IntoUniformValue<'static> for [f32; 2] {
     fn into_uniform_value(self) -> UniformValue<'static> {
         UniformValue::Vec2(self)
     }
 }
 
-impl IntoUniformValue<'static> for [f32, ..3] {
+impl IntoUniformValue<'static> for [f32; 3] {
     fn into_uniform_value(self) -> UniformValue<'static> {
         UniformValue::Vec3(self)
     }
 }
 
-impl IntoUniformValue<'static> for [f32, ..4] {
+impl IntoUniformValue<'static> for [f32; 4] {
     fn into_uniform_value(self) -> UniformValue<'static> {
         UniformValue::Vec4(self)
     }

@@ -2,6 +2,8 @@ use gl;
 use std::{fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
+use std::sync::mpsc::channel;
+use std::c_str::ToCStr;
 use {Display, DisplayImpl, GlObject};
 use context::CommandContext;
 
@@ -121,7 +123,7 @@ impl Program {
     /// let program = glium::Program::from_source(&display, vertex_source, fragment_source,
     ///     Some(geometry_source));
     /// ```
-    /// 
+    ///
     #[experimental = "The list of shaders and the result error will probably change"]
     pub fn from_source(display: &Display, vertex_shader: &str, fragment_shader: &str,
                        geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
@@ -201,7 +203,7 @@ impl Program {
             }
         });
 
-        let id = try!(rx.recv());
+        let id = try!(rx.recv().unwrap());
 
         let (tx, rx) = channel();
         display.context.context.exec(move |: mut ctxt| {
@@ -209,11 +211,11 @@ impl Program {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
                     reflect_attributes(&mut ctxt, id)
-                ))
+                ));
             }
         });
 
-        let (uniforms, attributes) = rx.recv();
+        let (uniforms, attributes) = rx.recv().unwrap();
 
         Ok(Program {
             display: display.context.clone(),
@@ -253,7 +255,7 @@ impl Program {
             }
         });
 
-        let location = match rx.recv() {
+        let location = match rx.recv().unwrap() {
             -1 => None,
             a => Some(a as u32),
         };
@@ -369,7 +371,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
         }
     });
 
-    rx.recv().map(|id| {
+    rx.recv().unwrap().map(|id| {
         Shader {
             display: display.context.clone(),
             id: id
@@ -401,8 +403,8 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
         let location = ctxt.gl.GetUniformLocation(program, uniform_name.to_c_str().into_inner());
 
         uniforms.insert(uniform_name, Uniform {
-            location: location, 
-            ty: data_type, 
+            location: location,
+            ty: data_type,
             size: data_size
         });
     }
@@ -433,8 +435,8 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
         let location = ctxt.gl.GetAttribLocation(program, attr_name.to_c_str().into_inner());
 
         attributes.insert(attr_name, Attribute {
-            location: location, 
-            ty: data_type, 
+            location: location,
+            ty: data_type,
             size: data_size
         });
     }

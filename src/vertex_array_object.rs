@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::sync::mpsc::channel;
 use std::mem;
 
 use program::Program;
@@ -8,14 +9,14 @@ use {DisplayImpl, GlObject};
 
 use {libc, gl};
 
-/// 
+///
 pub struct VertexArrayObject {
     display: Arc<DisplayImpl>,
     id: gl::types::GLuint,
 }
 
 impl VertexArrayObject {
-    /// 
+    ///
     fn new(display: Arc<DisplayImpl>, vertex_buffer: VerticesSource,
            ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
@@ -85,7 +86,7 @@ impl VertexArrayObject {
                                     elements_count as gl::types::GLint, data_type, 0,
                                     vb_elementssize as i32, offset as *const libc::c_void)
                         }
-                        
+
                         ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
                     }
                 }
@@ -94,7 +95,7 @@ impl VertexArrayObject {
 
         VertexArrayObject {
             display: display,
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
         }
     }
 }

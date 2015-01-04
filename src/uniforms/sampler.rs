@@ -2,6 +2,7 @@ use gl;
 
 use GlObject;
 use ToGlEnum;
+use std::sync::mpsc::channel;
 
 use Display;
 
@@ -71,7 +72,7 @@ pub enum MinifySamplerFilter {
     /// Same as `Linear` but from the nearest mipmap.
     NearestMipmapLinear,
 
-    /// 
+    ///
     LinearMipmapLinear,
 }
 
@@ -178,7 +179,7 @@ impl SamplerObject {
 
         SamplerObject {
             display: display.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
         }
     }
 }

@@ -1,5 +1,6 @@
 use std::mem;
 use std::sync::Arc;
+use std::sync::mpsc::channel;
 
 use DisplayImpl;
 use GlObject;
@@ -133,7 +134,7 @@ impl FrameBufferObject {
 
         FrameBufferObject {
             display: display,
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             current_read_buffer: gl::BACK,
         }
     }

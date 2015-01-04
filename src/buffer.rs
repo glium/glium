@@ -1,9 +1,11 @@
-use context::{mod, GlVersion};
+use context::{self, GlVersion};
 use gl;
 use libc;
 use std::c_vec::CVec;
 use std::{fmt, mem, ptr};
 use std::sync::Arc;
+use std::sync::mpsc::channel;
+use std::ops::{Deref, DerefMut};
 use GlObject;
 
 /// A buffer in the graphics card's memory.
@@ -114,7 +116,7 @@ impl Buffer {
 
         Buffer {
             display: display.context.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             elements_size: elements_size,
             elements_count: elements_count,
         }
@@ -151,7 +153,7 @@ impl Buffer {
 
         Buffer {
             display: display.context.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             elements_size: elements_size,
             elements_count: elements_count,
         }
@@ -211,7 +213,7 @@ impl Buffer {
 
         Mapping {
             buffer: self,
-            data: unsafe { CVec::new(rx.recv().0, size) },
+            data: unsafe { CVec::new(rx.recv().unwrap().0, size) },
         }
     }
 
@@ -255,11 +257,11 @@ impl Buffer {
                         data.as_mut_ptr() as *mut libc::c_void);
                 }
 
-                tx.send_opt(data).ok();
+                tx.send(data).ok();
             }
         });
 
-        rx.recv()
+        rx.recv().unwrap()
     }
 }
 
@@ -327,13 +329,14 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     }
 }
 
-impl<'a, T, D> Deref<[D]> for Mapping<'a, T, D> {
+impl<'a, T, D> Deref for Mapping<'a, T, D> {
+    type Target = [D];
     fn deref<'b>(&'b self) -> &'b [D] {
         self.data.as_slice()
     }
 }
 
-impl<'a, T, D> DerefMut<[D]> for Mapping<'a, T, D> {
+impl<'a, T, D> DerefMut for Mapping<'a, T, D> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [D] {
         self.data.as_mut_slice()
     }
