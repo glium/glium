@@ -187,7 +187,7 @@ impl RenderBufferImpl {
                     ctxt.gl.GenRenderbuffersEXT(1, mem::transmute(&id));
                 }
 
-                tx.send(id);
+                tx.send(id).unwrap();
 
                 // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
                 if ctxt.version >= &context::GlVersion(4, 5) {

@@ -9,8 +9,10 @@ extern crate glium;
 #[cfg(feature = "image")]
 extern crate image;
 
+#[cfg(feature = "image")]
 use std::io::BufReader;
 
+#[cfg(feature = "image")]
 use glium::{DisplayBuild, Surface};
 
 #[cfg(not(feature = "image"))]
@@ -34,10 +36,10 @@ fn main() {
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
+        #[derive(Copy)]
         struct Vertex {
-            position: [f32, ..2],
-            tex_coords: [f32, ..2],
+            position: [f32; 2],
+            tex_coords: [f32; 2],
         }
 
         glium::VertexBuffer::new(&display, 
@@ -82,7 +84,7 @@ fn main() {
     // creating the uniforms structure
     #[uniforms]
     struct Uniforms<'a> {
-        matrix: [[f32, ..4], ..4],
+        matrix: [[f32; 4]; 4],
         texture: &'a glium::texture::CompressedTexture2d,
     }
     

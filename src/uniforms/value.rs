@@ -8,7 +8,7 @@ use nalgebra;
 
 /// Type of a uniform in a program.
 #[allow(missing_docs)]
-#[deriving(Copy, Clone, Show, PartialEq, Eq)]
+#[derive(Copy, Clone, Show, PartialEq, Eq)]
 pub enum UniformType {
     Float,
     FloatVec2,
@@ -124,7 +124,7 @@ pub trait IntoUniformValue<'a> {
 }
 
 /// Represents a value to bind to a uniform.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 #[allow(missing_docs)]
 pub enum UniformValue<'a> {
     SignedInt(i32),

@@ -1,4 +1,4 @@
-#[deriving(PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 enum TextureType {
     Regular,
     Compressed,
@@ -9,7 +9,7 @@ enum TextureType {
     DepthStencil,
 }
 
-#[deriving(PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 enum TextureDimensions {
     Texture1d,
     Texture2d,

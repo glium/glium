@@ -17,9 +17,9 @@ fn cull_clockwise() {
 
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
+        #[derive(Copy)]
         struct Vertex {
-            position: [f32, ..2],
+            position: [f32; 2],
         }
 
         glium::VertexBuffer::new(&display, vec![
@@ -77,9 +77,9 @@ fn cull_counterclockwise() {
 
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
+        #[derive(Copy)]
         struct Vertex {
-            position: [f32, ..2],
+            position: [f32; 2],
         }
 
         glium::VertexBuffer::new(&display, vec![
@@ -137,9 +137,9 @@ fn cull_clockwise_trianglestrip() {
 
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
+        #[derive(Copy)]
         struct Vertex {
-            position: [f32, ..2],
+            position: [f32; 2],
         }
 
         glium::VertexBuffer::new(&display, vec![
@@ -196,9 +196,9 @@ fn cull_counterclockwise_trianglestrip() {
 
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
+        #[derive(Copy)]
         struct Vertex {
-            position: [f32, ..2],
+            position: [f32; 2],
         }
 
         glium::VertexBuffer::new(&display, vec![

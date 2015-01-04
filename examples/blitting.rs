@@ -4,9 +4,12 @@ extern crate glium;
 #[cfg(feature = "image")]
 extern crate image;
 
+#[cfg(feature = "image")]
 use std::io::BufReader;
+#[cfg(feature = "image")]
 use std::rand;
 
+#[cfg(feature = "image")]
 use glium::{DisplayBuild, Texture, Surface, Rect};
 
 #[cfg(not(feature = "image"))]

@@ -172,7 +172,7 @@ impl GLState {
 }
 
 /// Describes an OpenGL ctxt.version.
-#[deriving(Show, Clone, PartialEq, Eq)]
+#[derive(Show, Clone, PartialEq, Eq)]
 pub struct GlVersion(pub u8, pub u8);
 
 impl PartialOrd for GlVersion {
@@ -290,11 +290,11 @@ impl Context {
                 capabilities: &*capabilities,
             }) {
                 Err(e) => {
-                    tx_success.send(Err(e));
+                    tx_success.send(Err(e)).unwrap();
                     return;
                 },
                 Ok(_) => {
-                    tx_success.send(Ok(capabilities.clone()));
+                    tx_success.send(Ok(capabilities.clone())).unwrap();
                 }
             };
 
@@ -365,7 +365,7 @@ impl Context {
             let window = match window.build() {
                 Ok(w) => w,
                 Err(e) => {
-                    tx_success.send(Err(::std::error::FromError::from_error(e)));
+                    tx_success.send(Err(::std::error::FromError::from_error(e))).unwrap();
                     return;
                 }
             };
@@ -391,16 +391,16 @@ impl Context {
                 capabilities: &*capabilities,
             }) {
                 Err(e) => {
-                    tx_success.send(Err(e));
+                    tx_success.send(Err(e)).unwrap();
                     return;
                 },
                 Ok(_) => {
-                    tx_success.send(Ok(capabilities.clone()));
+                    tx_success.send(Ok(capabilities.clone())).unwrap();
                 }
             };
 
             loop {
-                match rx_commands.recv_opt() {
+                match rx_commands.recv() {
                     Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
                         gl: &gl,
                         state: &mut gl_state,
@@ -419,7 +419,7 @@ impl Context {
             commands: Mutex::new(tx_commands),
             events: Mutex::new(rx_events),
             dimensions: dimensions2,
-            capabilities: try!(rx_success.recv()),
+            capabilities: try!(rx_success.recv().unwrap()),
         })
     }
 
@@ -431,11 +431,11 @@ impl Context {
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
-        self.commands.lock().unwrap().send(Message::Execute(box f));
+        self.commands.lock().unwrap().send(Message::Execute(box f)).unwrap();
     }
 
     pub fn swap_buffers(&self) {
-        self.commands.lock().unwrap().send(Message::EndFrame);
+        self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
     }
 
     pub fn recv(&self) -> Vec<glutin::Event> {

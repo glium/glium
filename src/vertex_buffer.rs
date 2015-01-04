@@ -16,10 +16,10 @@ coming from `glium_macros` helps you doing that.
 # extern crate glutin;
 # fn main() {
 #[vertex_format]
-#[deriving(Copy)]
+#[derive(Copy)]
 struct Vertex {
-    position: [f32, 3],
-    texcoords: [f32, 2],
+    position: [f32; 3],
+    texcoords: [f32; 2],
 }
 # }
 ```
@@ -29,10 +29,10 @@ Then you must build a `Vec` of the vertices that you want to upload, and pass it
 
 ```no_run
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# #[deriving(Copy)]
+# #[derive(Copy)]
 # struct Vertex {
-#     position: [f32, 3],
-#     texcoords: [f32, 2],
+#     position: [f32; 3],
+#     texcoords: [f32; 2],
 # }
 # impl glium::vertex_buffer::Vertex for Vertex {
 #     fn build_bindings(_: Option<Vertex>) -> glium::vertex_buffer::VertexFormat {
@@ -63,7 +63,7 @@ use gl;
 use GlObject;
 
 /// Describes the source to use for the vertices when drawing.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 pub enum VerticesSource<'a> {
     /// A buffer uploaded in the video memory.
     VertexBuffer(&'a VertexBufferAny),
@@ -82,7 +82,7 @@ impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
 }
 
 /// A list of vertices loaded in the graphics card's memory.
-#[deriving(Show)]
+#[derive(Show)]
 pub struct VertexBuffer<T> {
     buffer: VertexBufferAny,
 }
@@ -100,10 +100,10 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// # extern crate glutin;
     /// # fn main() {
     /// #[vertex_format]
-    /// #[deriving(Copy)]
+    /// #[derive(Copy)]
     /// struct Vertex {
-    ///     position: [f32, 3],
-    ///     texcoords: [f32, 2],
+    ///     position: [f32; 3],
+    ///     texcoords: [f32; 2],
     /// }
     ///
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
@@ -294,7 +294,7 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
 ///
 /// This struct is provided for convenience, so that you can have a `Vec<VertexBufferAny>`,
 /// or return a `VertexBufferAny` instead of a `VertexBuffer<MyPrivateVertexType>`.
-#[deriving(Show)]
+#[derive(Show)]
 pub struct VertexBufferAny {
     buffer: Buffer,
     bindings: VertexFormat,
@@ -365,7 +365,7 @@ impl<'a, T> DerefMut for Mapping<'a, T> {
 }
 
 #[allow(missing_docs)]
-#[deriving(Copy, Clone, Show, PartialEq, Eq)]
+#[derive(Copy, Clone, Show, PartialEq, Eq)]
 pub enum AttributeType {
     I8,
     I8I8,

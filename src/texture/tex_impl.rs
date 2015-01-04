@@ -1,7 +1,5 @@
 use Display;
 
-use super::PixelValue;
-
 use gl;
 use GlObject;
 use context::GlVersion;
@@ -156,7 +154,7 @@ impl TextureImplementation {
                     ctxt.gl.GenerateMipmapEXT(texture_type);
                 }
 
-                tx.send(id);
+                tx.send(id).unwrap();
             }
         });
 

@@ -95,7 +95,7 @@ impl Buffer {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenBuffers(1, &mut id);
-                tx.send(id);
+                tx.send(id).unwrap();
 
                 let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
                 let bind = BufferType::get_bind_point(None::<T>);
@@ -147,7 +147,7 @@ impl Buffer {
                     panic!("Not enough available memory for buffer");
                 }
 
-                tx.send(id);
+                tx.send(id).unwrap();
             }
         });
 
@@ -208,7 +208,7 @@ impl Buffer {
                 }
             };
 
-            tx.send(ptr::Unique(ptr as *mut D));
+            tx.send(ptr::Unique(ptr as *mut D)).unwrap();
         });
 
         Mapping {

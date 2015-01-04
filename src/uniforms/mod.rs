@@ -18,7 +18,7 @@ extern crate glium_macros;
 #[uniforms]
 struct Uniforms<'a> {
     texture: &'a glium::Texture2d,
-    matrix: [[f32, ..4], ..4],
+    matrix: [[f32; 4]; 4],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };

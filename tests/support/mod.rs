@@ -6,7 +6,7 @@ Test supports module.
 #![allow(dead_code)]
 
 use glutin;
-use glium::{mod, DisplayBuild};
+use glium::{self, DisplayBuild};
 
 use std::os;
 
@@ -74,9 +74,9 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
     glium::IndexBuffer, glium::Program)
 {
     #[vertex_format]
-    #[deriving(Copy)]
+    #[derive(Copy)]
     struct Vertex {
-        position: [f32, ..2],
+        position: [f32; 2],
     }
 
     (
@@ -115,9 +115,9 @@ pub fn build_rectangle_vb_ib(display: &glium::Display)
     -> (glium::vertex_buffer::VertexBufferAny, glium::IndexBuffer)
 {
     #[vertex_format]
-    #[deriving(Copy)]
+    #[derive(Copy)]
     struct Vertex {
-        position: [f32, ..2],
+        position: [f32; 2],
     }
 
     (

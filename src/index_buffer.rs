@@ -32,7 +32,7 @@ pub trait ToIndicesSource<D> {
 }
 
 /// Describes a source of indices used for drawing.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub enum IndicesSource<'a, T: 'a> {
     /// A buffer uploaded in video memory.
     IndexBuffer {
@@ -92,7 +92,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
 }
 
 /// List of available primitives.
-#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Show, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
     ///
     Points,
@@ -134,7 +134,7 @@ impl ToGlEnum for PrimitiveType {
 }
 
 /// A list of indices loaded in the graphics card's memory.
-#[deriving(Show)]
+#[derive(Show)]
 pub struct IndexBuffer {
     buffer: Buffer,
     data_type: IndexType,
@@ -208,7 +208,7 @@ impl Drop for IndexBuffer {
 }
 
 /// Types of indices in an indices source.
-#[deriving(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Show, Clone, Copy, PartialEq, Eq)]
 pub enum IndexType {
     /// u8
     U8,
@@ -259,7 +259,7 @@ pub trait IntoIndexBuffer {
 }
 
 /// A list of points stored in RAM.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct PointsList<T>(pub Vec<T>);
 
 impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {

@@ -18,10 +18,10 @@ fn test() {
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
+        #[derive(Copy)]
         struct Vertex {
-            position: [f32, ..2],
-            color: [f32, ..3],
+            position: [f32; 2],
+            color: [f32; 3],
         }
 
         glium::VertexBuffer::new(&display, 
@@ -73,7 +73,7 @@ fn test() {
     // creating the uniforms structure
     #[uniforms]
     struct Uniforms {
-        matrix: [[f32, ..4], ..4],
+        matrix: [[f32; 4]; 4],
     }
     
     // building the uniforms

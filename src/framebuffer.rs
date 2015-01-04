@@ -303,7 +303,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 }
 
 /// Describes an attachment for a color buffer.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum ColorAttachment<'a> {
     /// A texture.
     Texture2d(&'a Texture2d),
@@ -318,7 +318,7 @@ pub trait ToColorAttachment {
 }
 
 /// Describes an attachment for a depth buffer.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum DepthAttachment<'a> {
     /// A texture.
     Texture2d(&'a DepthTexture2d),
@@ -333,7 +333,7 @@ pub trait ToDepthAttachment {
 }
 
 /// Describes an attachment for a stencil buffer.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum StencilAttachment<'a> {
     /// A texture.
     Texture2d(&'a StencilTexture2d),
@@ -348,7 +348,7 @@ pub trait ToStencilAttachment {
 }
 
 /// Describes an attachment for a depth and stencil buffer.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum DepthStencilAttachment<'a> {
     /// A texture.
     Texture2d(&'a DepthStencilTexture2d),
