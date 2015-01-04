@@ -5,6 +5,7 @@
 
 use Display;
 use {context, gl};
+use std::sync::mpsc::channel;
 
 /// Severity of a debug message.
 #[deriving(Clone, Copy, Show, FromPrimitive, PartialEq, Eq)]

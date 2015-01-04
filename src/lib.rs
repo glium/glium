@@ -79,7 +79,7 @@ The purpose of a program is to instruct the GPU how to process our mesh in order
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let program = glium::Program::from_source(&display, 
+let program = glium::Program::from_source(&display,
     // vertex shader
     "   #version 110
 
@@ -176,8 +176,8 @@ target.finish();
 ```
 
 */
-
 #![feature(associated_types)]
+#![feature(old_orphan_check)]
 #![feature(default_type_params)]
 #![feature(globs)]
 #![feature(slicing_syntax)]
@@ -207,6 +207,7 @@ pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::channel;
 
 pub mod debug;
 pub mod framebuffer;
@@ -332,7 +333,7 @@ pub enum BackfaceCullingMode {
 #[deriving(Clone, Copy, Show, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
-    /// 
+    ///
     /// This option doesn't really make sense, but is here for completeness.
     Ignore,
 
@@ -439,7 +440,7 @@ impl ToGlEnum for PolygonMode {
 /// Represents the parameters to use when drawing.
 ///
 /// Example:
-/// 
+///
 /// ```
 /// let params = glium::DrawParameters {
 ///     depth_function: glium::DepthFunction::IfLess,
@@ -533,7 +534,7 @@ impl DrawParameters {
     /// Checks parameters and panics if something is wrong.
     fn validate(&self) {
         if self.depth_range.0 < 0.0 || self.depth_range.0 > 1.0 ||
-           self.depth_range.1 < 0.0 || self.depth_range.1 > 1.0 
+           self.depth_range.1 < 0.0 || self.depth_range.1 > 1.0
         {
             panic!("Depth range must be between 0 and 1");
         }
@@ -1057,7 +1058,7 @@ impl Display {
         self.context.context.exec(move |: ctxt| {
             unsafe {
                 use std::mem;
-                let mut value: [gl::types::GLint, ..4] = mem::uninitialized();
+                let mut value: [gl::types::GLint; ..4] = mem::uninitialized();
 
                 let value = if ctxt.extensions.gl_nvx_gpu_memory_info {
                     ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,

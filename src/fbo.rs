@@ -1,5 +1,6 @@
 use std::mem;
 use std::sync::Arc;
+use std::sync::mpsc::channel;
 
 use DisplayImpl;
 use GlObject;

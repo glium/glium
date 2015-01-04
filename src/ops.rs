@@ -1,8 +1,9 @@
 use std::sync::Arc;
+use std::sync::mpsc::channel;
 
 use Display;
 
-use fbo::{mod, FramebufferAttachments};
+use fbo::{self, FramebufferAttachments};
 
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use {DisplayImpl, Program, DrawParameters, Rect, Surface, GlObject, ToGlEnum};
@@ -112,7 +113,7 @@ pub fn draw<'a, I, U>(display: &Display,
             tx.send(());
         }
     });
-    
+
     // sync-ing if necessary
     if let Some(rx) = rx {
         rx.recv();

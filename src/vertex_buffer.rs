@@ -18,8 +18,8 @@ coming from `glium_macros` helps you doing that.
 #[vertex_format]
 #[deriving(Copy)]
 struct Vertex {
-    position: [f32, ..3],
-    texcoords: [f32, ..2],
+    position: [f32, 3],
+    texcoords: [f32, 2],
 }
 # }
 ```
@@ -31,8 +31,8 @@ Then you must build a `Vec` of the vertices that you want to upload, and pass it
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
 # #[deriving(Copy)]
 # struct Vertex {
-#     position: [f32, ..3],
-#     texcoords: [f32, ..2],
+#     position: [f32, 3],
+#     texcoords: [f32, 2],
 # }
 # impl glium::vertex_buffer::Vertex for Vertex {
 #     fn build_bindings(_: Option<Vertex>) -> glium::vertex_buffer::VertexFormat {
@@ -57,7 +57,8 @@ let vertex_buffer = glium::vertex_buffer::VertexBuffer::new(&display, data);
 ```
 
 */
-use buffer::{mod, Buffer};
+use buffer::{self, Buffer};
+use std::ops::{Deref, DerefMut};
 use gl;
 use GlObject;
 
@@ -101,8 +102,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// #[vertex_format]
     /// #[deriving(Copy)]
     /// struct Vertex {
-    ///     position: [f32, ..3],
-    ///     texcoords: [f32, ..2],
+    ///     position: [f32, 3],
+    ///     texcoords: [f32, 2],
     /// }
     ///
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
@@ -112,7 +113,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// ]);
     /// # }
     /// ```
-    /// 
+    ///
     pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = Vertex::build_bindings(None::<T>);
 
@@ -350,13 +351,14 @@ impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
 /// Only available if the `gl_extensions` feature is enabled.
 pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::ArrayBuffer, T>);
 
-impl<'a, T> Deref<[T]> for Mapping<'a, T> {
+impl<'a, T> Deref for Mapping<'a, T> {
+    type Target = [T];
     fn deref<'b>(&'b self) -> &'b [T] {
         self.0.deref()
     }
 }
 
-impl<'a, T> DerefMut<[T]> for Mapping<'a, T> {
+impl<'a, T> DerefMut for Mapping<'a, T> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
         self.0.deref_mut()
     }
@@ -429,8 +431,8 @@ unsafe impl Attribute for (i8, i8) {
     }
 }
 
-unsafe impl Attribute for [i8, ..2] {
-    fn get_type(_: Option<[i8, ..2]>) -> AttributeType {
+unsafe impl Attribute for [i8; 2] {
+    fn get_type(_: Option<[i8; 2]>) -> AttributeType {
         AttributeType::I8I8
     }
 }
@@ -441,8 +443,8 @@ unsafe impl Attribute for (i8, i8, i8) {
     }
 }
 
-unsafe impl Attribute for [i8, ..3] {
-    fn get_type(_: Option<[i8, ..3]>) -> AttributeType {
+unsafe impl Attribute for [i8; 3] {
+    fn get_type(_: Option<[i8; 3]>) -> AttributeType {
         AttributeType::I8I8I8
     }
 }
@@ -453,8 +455,8 @@ unsafe impl Attribute for (i8, i8, i8, i8) {
     }
 }
 
-unsafe impl Attribute for [i8, ..4] {
-    fn get_type(_: Option<[i8, ..4]>) -> AttributeType {
+unsafe impl Attribute for [i8; 4] {
+    fn get_type(_: Option<[i8; 4]>) -> AttributeType {
         AttributeType::I8I8I8I8
     }
 }
@@ -471,8 +473,8 @@ unsafe impl Attribute for (u8, u8) {
     }
 }
 
-unsafe impl Attribute for [u8, ..2] {
-    fn get_type(_: Option<[u8, ..2]>) -> AttributeType {
+unsafe impl Attribute for [u8; 2] {
+    fn get_type(_: Option<[u8; 2]>) -> AttributeType {
         AttributeType::U8U8
     }
 }
@@ -483,8 +485,8 @@ unsafe impl Attribute for (u8, u8, u8) {
     }
 }
 
-unsafe impl Attribute for [u8, ..3] {
-    fn get_type(_: Option<[u8, ..3]>) -> AttributeType {
+unsafe impl Attribute for [u8; 3] {
+    fn get_type(_: Option<[u8; 3]>) -> AttributeType {
         AttributeType::U8U8U8
     }
 }
@@ -495,8 +497,8 @@ unsafe impl Attribute for (u8, u8, u8, u8) {
     }
 }
 
-unsafe impl Attribute for [u8, ..4] {
-    fn get_type(_: Option<[u8, ..4]>) -> AttributeType {
+unsafe impl Attribute for [u8; 4] {
+    fn get_type(_: Option<[u8; 4]>) -> AttributeType {
         AttributeType::U8U8U8U8
     }
 }
@@ -513,8 +515,8 @@ unsafe impl Attribute for (i16, i16) {
     }
 }
 
-unsafe impl Attribute for [i16, ..2] {
-    fn get_type(_: Option<[i16, ..2]>) -> AttributeType {
+unsafe impl Attribute for [i16; 2] {
+    fn get_type(_: Option<[i16; 2]>) -> AttributeType {
         AttributeType::I16I16
     }
 }
@@ -525,8 +527,8 @@ unsafe impl Attribute for (i16, i16, i16) {
     }
 }
 
-unsafe impl Attribute for [i16, ..3] {
-    fn get_type(_: Option<[i16, ..3]>) -> AttributeType {
+unsafe impl Attribute for [i16; 3] {
+    fn get_type(_: Option<[i16; 3]>) -> AttributeType {
         AttributeType::I16I16I16
     }
 }
@@ -537,8 +539,8 @@ unsafe impl Attribute for (i16, i16, i16, i16) {
     }
 }
 
-unsafe impl Attribute for [i16, ..4] {
-    fn get_type(_: Option<[i16, ..4]>) -> AttributeType {
+unsafe impl Attribute for [i16; 4] {
+    fn get_type(_: Option<[i16; 4]>) -> AttributeType {
         AttributeType::I16I16I16I16
     }
 }
@@ -555,8 +557,8 @@ unsafe impl Attribute for (u16, u16) {
     }
 }
 
-unsafe impl Attribute for [u16, ..2] {
-    fn get_type(_: Option<[u16, ..2]>) -> AttributeType {
+unsafe impl Attribute for [u16; 2] {
+    fn get_type(_: Option<[u16; 2]>) -> AttributeType {
         AttributeType::U16U16
     }
 }
@@ -567,8 +569,8 @@ unsafe impl Attribute for (u16, u16, u16) {
     }
 }
 
-unsafe impl Attribute for [u16, ..3] {
-    fn get_type(_: Option<[u16, ..3]>) -> AttributeType {
+unsafe impl Attribute for [u16; 3] {
+    fn get_type(_: Option<[u16; 3]>) -> AttributeType {
         AttributeType::U16U16U16
     }
 }
@@ -579,8 +581,8 @@ unsafe impl Attribute for (u16, u16, u16, u16) {
     }
 }
 
-unsafe impl Attribute for [u16, ..4] {
-    fn get_type(_: Option<[u16, ..4]>) -> AttributeType {
+unsafe impl Attribute for [u16; 4] {
+    fn get_type(_: Option<[u16; 4]>) -> AttributeType {
         AttributeType::U16U16U16U16
     }
 }
@@ -597,8 +599,8 @@ unsafe impl Attribute for (i32, i32) {
     }
 }
 
-unsafe impl Attribute for [i32, ..2] {
-    fn get_type(_: Option<[i32, ..2]>) -> AttributeType {
+unsafe impl Attribute for [i32; 2] {
+    fn get_type(_: Option<[i32; 2]>) -> AttributeType {
         AttributeType::I32I32
     }
 }
@@ -609,8 +611,8 @@ unsafe impl Attribute for (i32, i32, i32) {
     }
 }
 
-unsafe impl Attribute for [i32, ..3] {
-    fn get_type(_: Option<[i32, ..3]>) -> AttributeType {
+unsafe impl Attribute for [i32; 3] {
+    fn get_type(_: Option<[i32; 3]>) -> AttributeType {
         AttributeType::I32I32I32
     }
 }
@@ -621,8 +623,8 @@ unsafe impl Attribute for (i32, i32, i32, i32) {
     }
 }
 
-unsafe impl Attribute for [i32, ..4] {
-    fn get_type(_: Option<[i32, ..4]>) -> AttributeType {
+unsafe impl Attribute for [i32; 4] {
+    fn get_type(_: Option<[i32; 4]>) -> AttributeType {
         AttributeType::I32I32I32I32
     }
 }
@@ -639,8 +641,8 @@ unsafe impl Attribute for (u32, u32) {
     }
 }
 
-unsafe impl Attribute for [u32, ..2] {
-    fn get_type(_: Option<[u32, ..2]>) -> AttributeType {
+unsafe impl Attribute for [u32; 2] {
+    fn get_type(_: Option<[u32; 2]>) -> AttributeType {
         AttributeType::U32U32
     }
 }
@@ -651,8 +653,8 @@ unsafe impl Attribute for (u32, u32, u32) {
     }
 }
 
-unsafe impl Attribute for [u32, ..3] {
-    fn get_type(_: Option<[u32, ..3]>) -> AttributeType {
+unsafe impl Attribute for [u32; 3] {
+    fn get_type(_: Option<[u32; 3]>) -> AttributeType {
         AttributeType::U32U32U32
     }
 }
@@ -663,8 +665,8 @@ unsafe impl Attribute for (u32, u32, u32, u32) {
     }
 }
 
-unsafe impl Attribute for [u32, ..4] {
-    fn get_type(_: Option<[u32, ..4]>) -> AttributeType {
+unsafe impl Attribute for [u32; 4] {
+    fn get_type(_: Option<[u32; 4]>) -> AttributeType {
         AttributeType::U32U32U32U32
     }
 }
@@ -681,8 +683,8 @@ unsafe impl Attribute for (f32, f32) {
     }
 }
 
-unsafe impl Attribute for [f32, ..2] {
-    fn get_type(_: Option<[f32, ..2]>) -> AttributeType {
+unsafe impl Attribute for [f32; 2] {
+    fn get_type(_: Option<[f32; 2]>) -> AttributeType {
         AttributeType::F32F32
     }
 }
@@ -693,8 +695,8 @@ unsafe impl Attribute for (f32, f32, f32) {
     }
 }
 
-unsafe impl Attribute for [f32, ..3] {
-    fn get_type(_: Option<[f32, ..3]>) -> AttributeType {
+unsafe impl Attribute for [f32; 3] {
+    fn get_type(_: Option<[f32; 3]>) -> AttributeType {
         AttributeType::F32F32F32
     }
 }
@@ -705,8 +707,8 @@ unsafe impl Attribute for (f32, f32, f32, f32) {
     }
 }
 
-unsafe impl Attribute for [f32, ..4] {
-    fn get_type(_: Option<[f32, ..4]>) -> AttributeType {
+unsafe impl Attribute for [f32; 4] {
+    fn get_type(_: Option<[f32; 4]>) -> AttributeType {
         AttributeType::F32F32F32F32
     }
 }

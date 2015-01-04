@@ -2,6 +2,8 @@ use gl;
 use glutin;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{channel, Sender, Receiver};
+use std::cmp::Ordering;
 use GliumCreationError;
 
 enum Message {
@@ -373,7 +375,7 @@ impl Context {
             // TODO: call glViewport
 
             // building the GLState, version, and extensions
-            let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME: 
+            let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME:
             let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
             let version = get_gl_version(&gl);
             let extensions = get_extensions(&gl);
@@ -487,7 +489,7 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
     }
 
     if result.len() == 0 {
-        Ok(())   
+        Ok(())
     } else {
         Err(GliumCreationError::IncompatibleOpenGl(result.connect("\n")))
     }
@@ -645,7 +647,7 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsLis
         },
 
         max_viewport_dims: unsafe {
-            let mut val: [gl::types::GLint, .. 2] = [ 0, 0 ];
+            let mut val: [gl::types::GLint; .. 2] = [ 0, 0 ];
             gl.GetIntegerv(gl::MAX_VIEWPORT_DIMS, val.as_mut_ptr());
             (val[0], val[1])
         },

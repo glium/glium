@@ -10,6 +10,7 @@ use libc;
 use std::fmt;
 use std::mem;
 use std::ptr;
+use std::sync::mpsc::channel;
 
 pub struct TextureImplementation {
     display: Display,
@@ -129,7 +130,7 @@ impl TextureImplementation {
                     } else {
                         ctxt.gl.TexImage2D(texture_type, 0, format as i32, width as i32,
                                            height.unwrap() as i32, 0, client_format as u32,
-                                           client_type, data_raw);   
+                                           client_type, data_raw);
                     }
 
                 } else {
@@ -175,7 +176,7 @@ impl TextureImplementation {
     //       width/height need adjustements
     #[cfg(feature = "gl_extensions")]
     pub fn read<P>(&self, level: u32) -> Vec<P> where P: PixelValue {
-        assert_eq!(level, 0);   // TODO: 
+        assert_eq!(level, 0);   // TODO:
 
         let pixels_count = (self.width * self.height.unwrap_or(1) * self.depth.unwrap_or(1))
                             as uint;
