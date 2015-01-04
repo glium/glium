@@ -179,7 +179,7 @@ impl SamplerObject {
 
         SamplerObject {
             display: display.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
         }
     }
 }

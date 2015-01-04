@@ -46,8 +46,8 @@ extern crate glium_macros;
 #[vertex_format]
 #[deriving(Copy)]
 struct Vertex {
-    position: [f32, ..2],
-    color: [f32, ..3],
+    position: [f32, 2],
+    color: [f32, 3],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
@@ -131,7 +131,7 @@ extern crate glium_macros;
 # fn main() {
 #[uniforms]
 struct Uniforms {
-    matrix: [[f32, ..4], ..4],
+    matrix: [[f32, 4], 4],
 }
 
 let uniforms = Uniforms {
@@ -206,6 +206,7 @@ pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTy
 pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
+use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::channel;
 
@@ -444,7 +445,7 @@ impl ToGlEnum for PolygonMode {
 /// ```
 /// let params = glium::DrawParameters {
 ///     depth_function: glium::DepthFunction::IfLess,
-///     .. std::default::Default::default()
+///      std::default::Default::default()
 /// };
 /// ```
 ///
@@ -707,7 +708,7 @@ pub struct Rect {
 }
 
 /// Object which can be drawn upon.
-pub trait Surface {
+pub trait Surface: Sized {
     /// Clears the color components of the target.
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32);
 
@@ -1058,7 +1059,7 @@ impl Display {
         self.context.context.exec(move |: ctxt| {
             unsafe {
                 use std::mem;
-                let mut value: [gl::types::GLint; ..4] = mem::uninitialized();
+                let mut value: [gl::types::GLint; 4] = mem::uninitialized();
 
                 let value = if ctxt.extensions.gl_nvx_gpu_memory_info {
                     ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
@@ -1077,7 +1078,7 @@ impl Display {
             }
         });
 
-        rx.recv().map(|v| v as uint * 1024)
+        rx.recv().unwrap().map(|v| v as uint * 1024)
     }
 
     /// Sets the callback to use when an OpenGL debug message is generated.
@@ -1234,7 +1235,7 @@ impl Display {
             }
         });
 
-        let data = rx.recv();
+        let data = rx.recv().unwrap();
         texture::Texture2dData::from_vec(data, dimensions.0 as u32)
     }
 
@@ -1248,7 +1249,7 @@ impl Display {
             tx.send(get_gl_error(ctxt));
         });
 
-        match rx.recv() {
+        match rx.recv().unwrap() {
             Some(msg) => panic!("{}", msg),
             None => ()
         };

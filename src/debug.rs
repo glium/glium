@@ -127,7 +127,7 @@ impl TimestampQuery {
             }
         });
 
-        rx.recv().map(|q| TimestampQuery {
+        rx.recv().unwrap().map(|q| TimestampQuery {
             display: display.clone(),
             id: q
         })
@@ -150,7 +150,7 @@ impl TimestampQuery {
             }
         });
 
-        rx.recv()
+        rx.recv().unwrap()
     }
 
     /// Returns the value of the timestamp. Blocks until it is available.
@@ -170,6 +170,6 @@ impl TimestampQuery {
             }
         });
 
-        rx.recv()
+        rx.recv().unwrap()
     }
 }

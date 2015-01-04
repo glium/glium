@@ -95,7 +95,7 @@ impl VertexArrayObject {
 
         VertexArrayObject {
             display: display,
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
         }
     }
 }

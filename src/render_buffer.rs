@@ -210,7 +210,7 @@ impl RenderBufferImpl {
 
         RenderBufferImpl {
             display: display.context.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             width: width,
             height: height,
         }

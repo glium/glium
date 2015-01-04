@@ -203,7 +203,7 @@ impl Program {
             }
         });
 
-        let id = try!(rx.recv());
+        let id = try!(rx.recv().unwrap());
 
         let (tx, rx) = channel();
         display.context.context.exec(move |: mut ctxt| {
@@ -211,11 +211,11 @@ impl Program {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
                     reflect_attributes(&mut ctxt, id)
-                ))
+                ));
             }
         });
 
-        let (uniforms, attributes) = rx.recv();
+        let (uniforms, attributes) = rx.recv().unwrap();
 
         Ok(Program {
             display: display.context.clone(),
@@ -255,7 +255,7 @@ impl Program {
             }
         });
 
-        let location = match rx.recv() {
+        let location = match rx.recv().unwrap() {
             -1 => None,
             a => Some(a as u32),
         };
@@ -371,7 +371,7 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
         }
     });
 
-    rx.recv().map(|id| {
+    rx.recv().unwrap().map(|id| {
         Shader {
             display: display.context.clone(),
             id: id

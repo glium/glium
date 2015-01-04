@@ -3,7 +3,7 @@ use glutin;
 use std::sync::atomic::{AtomicUint, Relaxed};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender, Receiver};
-use std::cmp::Ordering;
+use std::cmp::Ordering::{self, Equal};
 use GliumCreationError;
 
 enum Message {
@@ -302,7 +302,7 @@ impl Context {
             'main: loop {
                 // processing commands
                 loop {
-                    match rx_commands.recv_opt() {
+                    match rx_commands.recv() {
                         Ok(Message::EndFrame) => break,
                         Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
                             gl: &gl,
@@ -331,7 +331,7 @@ impl Context {
                     }
 
                     // sending the event outside
-                    if tx_events.send_opt(event.clone()).is_err() {
+                    if tx_events.send(event.clone()).is_err() {
                         break 'main;
                     }
                 }
@@ -342,7 +342,7 @@ impl Context {
             commands: Mutex::new(tx_commands),
             events: Mutex::new(rx_events),
             dimensions: dimensions2,
-            capabilities: try!(rx_success.recv()),
+            capabilities: try!(rx_success.recv().unwrap()),
         })
     }
 
@@ -647,7 +647,7 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsLis
         },
 
         max_viewport_dims: unsafe {
-            let mut val: [gl::types::GLint; .. 2] = [ 0, 0 ];
+            let mut val: [gl::types::GLint; 2] = [ 0, 0 ];
             gl.GetIntegerv(gl::MAX_VIEWPORT_DIMS, val.as_mut_ptr());
             (val[0], val[1])
         },

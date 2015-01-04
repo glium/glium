@@ -162,7 +162,7 @@ impl TextureImplementation {
 
         TextureImplementation {
             display: display.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             bind_point: texture_type,
             width: width,
             height: height,
@@ -212,7 +212,7 @@ impl TextureImplementation {
             }
         });
 
-        rx.recv()
+        rx.recv().unwrap()
     }
 
     /// Returns the `Display` associated to this texture.

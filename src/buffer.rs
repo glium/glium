@@ -116,7 +116,7 @@ impl Buffer {
 
         Buffer {
             display: display.context.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             elements_size: elements_size,
             elements_count: elements_count,
         }
@@ -153,7 +153,7 @@ impl Buffer {
 
         Buffer {
             display: display.context.clone(),
-            id: rx.recv(),
+            id: rx.recv().unwrap(),
             elements_size: elements_size,
             elements_count: elements_count,
         }
@@ -213,7 +213,7 @@ impl Buffer {
 
         Mapping {
             buffer: self,
-            data: unsafe { CVec::new(rx.recv().0, size) },
+            data: unsafe { CVec::new(rx.recv().unwrap().0, size) },
         }
     }
 
@@ -257,11 +257,11 @@ impl Buffer {
                         data.as_mut_ptr() as *mut libc::c_void);
                 }
 
-                tx.send_opt(data).ok();
+                tx.send(data).ok();
             }
         });
 
-        rx.recv()
+        rx.recv().unwrap()
     }
 }
 
@@ -330,7 +330,7 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
 }
 
 impl<'a, T, D> Deref for Mapping<'a, T, D> {
-    type Target = [T];
+    type Target = [D];
     fn deref<'b>(&'b self) -> &'b [D] {
         self.data.as_slice()
     }
