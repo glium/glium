@@ -51,7 +51,7 @@ impl VertexArrayObject {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
-                tx.send(id);
+                tx.send(id).unwrap();
 
                 ctxt.gl.BindVertexArray(id);
                 ctxt.state.vertex_array = id;

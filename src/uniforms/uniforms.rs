@@ -1,7 +1,7 @@
 use uniforms::{Uniforms, UniformValue, IntoUniformValue};
 
 /// Object that can be used when you don't have any uniform.
-#[deriving(Show, Copy, Clone)]
+#[derive(Show, Copy, Clone)]
 pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {

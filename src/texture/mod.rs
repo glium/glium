@@ -41,7 +41,7 @@ use {gl, framebuffer};
 #[cfg(feature = "image")]
 use image;
 
-use buffer::{mod, Buffer};
+use buffer::{self, Buffer};
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
 use {Surface, GlObject, ToGlEnum};
 

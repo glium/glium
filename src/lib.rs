@@ -44,10 +44,10 @@ extern crate glium_macros;
 # extern crate glium;
 # fn main() {
 #[vertex_format]
-#[deriving(Copy)]
+#[derive(Copy)]
 struct Vertex {
-    position: [f32, 2],
-    color: [f32, 3],
+    position: [f32; 2],
+    color: [f32; 3],
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
@@ -131,7 +131,7 @@ extern crate glium_macros;
 # fn main() {
 #[uniforms]
 struct Uniforms {
-    matrix: [[f32, 4], 4],
+    matrix: [[f32; 4]; 4],
 }
 
 let uniforms = Uniforms {
@@ -242,7 +242,7 @@ trait ToGlEnum {
 }
 
 /// Function that the GPU will use for blending.
-#[deriving(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Always replace the destination pixel by the source.
     ///
@@ -303,7 +303,7 @@ pub enum BlendingFunction {
 /// By doing so you can use backface culling to discard all the triangles that are not
 /// facing the screen, and increase your framerate.
 ///
-#[deriving(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BackfaceCullingMode {
     /// All triangles are always drawn.
     CullingDisabled,
@@ -331,7 +331,7 @@ pub enum BackfaceCullingMode {
 ///
 /// If you don't have a depth buffer available, you can only pass `Overwrite`. Glium detects if
 /// you pass any other value and reports an error.
-#[deriving(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Show, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
     ///
@@ -412,7 +412,7 @@ impl ToGlEnum for DepthFunction {
 ///  </g>
 /// </svg>
 ///
-#[deriving(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Show, PartialEq, Eq)]
 pub enum PolygonMode {
     /// Only draw a single point at each vertex.
     ///
@@ -445,11 +445,11 @@ impl ToGlEnum for PolygonMode {
 /// ```
 /// let params = glium::DrawParameters {
 ///     depth_function: glium::DepthFunction::IfLess,
-///      std::default::Default::default()
+///     .. std::default::Default::default()
 /// };
 /// ```
 ///
-#[deriving(Clone, Copy, Show, PartialEq)]
+#[derive(Clone, Copy, Show, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target.
@@ -693,7 +693,7 @@ impl DrawParameters {
 /// Area of a surface in pixels.
 ///
 /// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
-#[deriving(Show, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Show, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Rect {
     /// Number of pixels between the left border of the surface and the left border of
     /// the rectangle.
@@ -892,7 +892,7 @@ pub trait DisplayBuild {
 }
 
 /// Error that can happen while creating a glium display.
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[derive(Clone, Show, PartialEq, Eq)]
 pub enum GliumCreationError {
     /// An error has happened while creating the glutin window or headless renderer.
     GlutinCreationError(glutin::CreationError),
@@ -968,7 +968,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 /// This object contains a smart pointer to the real implementation.
 /// Cloning the display allows you to easily share the `Display` object throughout
 ///  your program and between threads.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct Display {
     context: Arc<DisplayImpl>,
 }
@@ -1074,7 +1074,7 @@ impl Display {
                     None
                 };
 
-                tx.send(value);
+                tx.send(value).ok();
             }
         });
 
@@ -1231,7 +1231,7 @@ impl Display {
                     dimensions.1 as gl::types::GLint, format, gltype,
                     data.as_mut_ptr() as *mut libc::c_void);
                 data.set_len(total_data_size);
-                tx.send(data);
+                tx.send(data).ok();
             }
         });
 
@@ -1246,7 +1246,7 @@ impl Display {
         let (tx, rx) = channel();
 
         self.context.context.exec(move |: ctxt| {
-            tx.send(get_gl_error(ctxt));
+            tx.send(get_gl_error(ctxt)).ok();
         });
 
         match rx.recv().unwrap() {
@@ -1267,10 +1267,10 @@ impl Display {
 
         self.context.context.exec(move |: ctxt| {
             unsafe { ctxt.gl.Finish(); }
-            tx.send(());
+            tx.send(()).ok();
         });
 
-        rx.recv();
+        rx.recv().unwrap();
     }
 }
 

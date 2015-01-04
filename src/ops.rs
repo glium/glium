@@ -110,13 +110,13 @@ pub fn draw<'a, I, U>(display: &Display,
 
         // sync-ing if necessary
         if let Some(tx) = tx {
-            tx.send(());
+            tx.send(()).ok();
         }
     });
 
     // sync-ing if necessary
     if let Some(rx) = rx {
-        rx.recv();
+        rx.recv().unwrap();
     }
 }
 

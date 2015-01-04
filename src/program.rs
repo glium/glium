@@ -50,7 +50,7 @@ struct Uniform {
 /// Informations about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
-#[deriving(Show)]
+#[derive(Show)]
 struct Attribute {
     pub location: gl::types::GLint,
     pub ty: gl::types::GLenum,
@@ -58,7 +58,7 @@ struct Attribute {
 }
 
 /// Error that can be triggered when creating a `Program`.
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub enum ProgramCreationError {
     /// Error while compiling one of the shaders.
     CompilationError(String),
@@ -170,17 +170,17 @@ impl Program {
                             gl::NO_ERROR => (),
                             gl::INVALID_VALUE => {
                                 tx.send(Err(LinkingError(format!("glLinkProgram triggered \
-                                                                  GL_INVALID_VALUE"))));
+                                                                  GL_INVALID_VALUE")))).ok();
                                 return;
                             },
                             gl::INVALID_OPERATION => {
                                 tx.send(Err(LinkingError(format!("glLinkProgram triggered \
-                                                                  GL_INVALID_OPERATION"))));
+                                                                  GL_INVALID_OPERATION")))).ok();
                                 return;
                             },
                             _ => {
                                 tx.send(Err(LinkingError(format!("glLinkProgram triggered an \
-                                                                  unknown error"))));
+                                                                  unknown error")))).ok();
                                 return;
                             }
                         };
@@ -194,12 +194,12 @@ impl Program {
                         error_log.set_len(error_log_size as uint);
 
                         let msg = String::from_utf8(error_log).unwrap();
-                        tx.send(Err(LinkingError(msg)));
+                        tx.send(Err(LinkingError(msg))).ok();
                         return;
                     }
                 }
 
-                tx.send(Ok(id));
+                tx.send(Ok(id)).unwrap();
             }
         });
 
@@ -211,7 +211,7 @@ impl Program {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
                     reflect_attributes(&mut ctxt, id)
-                ));
+                )).ok();
             }
         });
 
@@ -251,7 +251,7 @@ impl Program {
         self.display.context.exec(move |: ctxt| {
             unsafe {
                 let value = ctxt.gl.GetFragDataLocation(id, name_c.as_ptr());
-                tx.send(value);
+                tx.send(value).ok();
             }
         });
 
@@ -326,14 +326,14 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
     display.context.context.exec(move |: ctxt| {
         unsafe {
             if shader_type == gl::GEOMETRY_SHADER && ctxt.opengl_es {
-                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
+                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported)).ok();
                 return;
             }
 
             let id = ctxt.gl.CreateShader(shader_type);
 
             if id == 0 {
-                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported));
+                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported)).ok();
                 return;
             }
 
@@ -363,11 +363,11 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
                 error_log.set_len(error_log_size as uint);
 
                 let msg = String::from_utf8(error_log).unwrap();
-                tx.send(Err(ProgramCreationError::CompilationError(msg)));
+                tx.send(Err(ProgramCreationError::CompilationError(msg))).ok();
                 return;
             }
 
-            tx.send(Ok(id));
+            tx.send(Ok(id)).unwrap();
         }
     });
 

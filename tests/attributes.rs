@@ -16,9 +16,9 @@ fn attribute_types_matching() {
     let display = support::build_display();
 
     #[vertex_format]
-    #[deriving(Copy)]
+    #[derive(Copy)]
     struct Vertex {
-        field1: [f32, ..2],
+        field1: [f32; 2],
     }
 
     let vertex_buffer = glium::VertexBuffer::new(&display, vec![
@@ -64,9 +64,9 @@ fn attribute_types_mismatch() {
     let display = support::build_display();
 
     #[vertex_format]
-    #[deriving(Copy)]
+    #[derive(Copy)]
     struct Vertex {
-        field1: [f32, ..4],
+        field1: [f32; 4],
     }
 
     let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
@@ -110,9 +110,9 @@ fn missing_attribute() {
     let display = support::build_display();
 
     #[vertex_format]
-    #[deriving(Copy)]
+    #[derive(Copy)]
     struct Vertex {
-        field1: [f32, ..4],
+        field1: [f32; 4],
     }
 
     let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new());

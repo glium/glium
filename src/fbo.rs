@@ -8,14 +8,14 @@ use GlObject;
 use gl;
 use context;
 
-#[deriving(Hash, Clone, PartialEq, Eq)]
+#[derive(Hash, Clone, PartialEq, Eq)]
 pub struct FramebufferAttachments {
     pub colors: Vec<(u32, Attachment)>,
     pub depth: Option<Attachment>,
     pub stencil: Option<Attachment>,
 }
 
-#[deriving(Hash, Copy, Clone, PartialEq, Eq)]
+#[derive(Hash, Copy, Clone, PartialEq, Eq)]
 pub enum Attachment {
     Texture(gl::types::GLuint),
     RenderBuffer(gl::types::GLuint),
@@ -116,7 +116,7 @@ impl FrameBufferObject {
                     ctxt.gl.GenFramebuffersEXT(1, mem::transmute(&id));
                 }
 
-                tx.send(id);
+                tx.send(id).unwrap();
 
                 for &(slot, atchmnt) in attachments.colors.iter() {
                     attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);

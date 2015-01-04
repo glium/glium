@@ -8,7 +8,7 @@ use {context, gl};
 use std::sync::mpsc::channel;
 
 /// Severity of a debug message.
-#[deriving(Clone, Copy, Show, FromPrimitive, PartialEq, Eq)]
+#[derive(Clone, Copy, Show, FromPrimitive, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Severity {
     /// Anything that isn't an error or performance issue.
@@ -27,7 +27,7 @@ pub enum Severity {
 }
 
 /// Source of a debug message.
-#[deriving(Clone, Copy, Show, FromPrimitive)]
+#[derive(Clone, Copy, Show, FromPrimitive)]
 #[repr(u32)]
 pub enum Source {
     /// Calls to the OpenGL API.
@@ -52,7 +52,7 @@ pub enum Source {
 }
 
 /// Type of a debug message.
-#[deriving(Clone, Copy, Show, FromPrimitive)]
+#[derive(Clone, Copy, Show, FromPrimitive)]
 #[repr(u32)]
 pub enum MessageType {
     /// An error, typically from the API
@@ -114,14 +114,14 @@ impl TimestampQuery {
         let (tx, rx) = channel();
         display.context.context.exec(move |: ctxt| {
             if ctxt.opengl_es || ctxt.version <= &context::GlVersion(3, 2) {    // TODO: extension
-                tx.send(None);
+                tx.send(None).ok();
                 return;
             }
 
             unsafe {
                 let mut id = mem::uninitialized();
                 ctxt.gl.GenQueries(1, &mut id);
-                tx.send(Some(id));
+                tx.send(Some(id)).unwrap();
 
                 ctxt.gl.QueryCounter(id, gl::TIMESTAMP);
             }
@@ -146,7 +146,7 @@ impl TimestampQuery {
             unsafe {
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectiv(id, gl::QUERY_RESULT_AVAILABLE, &mut value);
-                tx.send(if value != 0 { true } else { false });
+                tx.send(if value != 0 { true } else { false }).ok();
             }
         });
 
@@ -165,7 +165,7 @@ impl TimestampQuery {
             unsafe {
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectui64v(id, gl::QUERY_RESULT, &mut value);
-                tx.send(value);
+                tx.send(value).ok();
                 ctxt.gl.DeleteQueries(1, [id].as_ptr())
             }
         });
