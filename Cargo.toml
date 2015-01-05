@@ -26,7 +26,8 @@ git = "https://github.com/bjz/cgmath-rs"
 optional = true
 
 [dependencies.nalgebra]
-git = "https://github.com/sebcrozet/nalgebra"
+git = "https://github.com/tomaka/nalgebra"
+branch = "update-rustc"
 optional = true
 
 [dependencies.image]
