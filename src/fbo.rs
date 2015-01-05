@@ -1,8 +1,8 @@
+use std::collections::HashMap;
 use std::mem;
-use std::sync::Arc;
+use std::sync::Mutex;
 use std::sync::mpsc::channel;
 
-use DisplayImpl;
 use GlObject;
 
 use gl;
@@ -21,20 +21,118 @@ pub enum Attachment {
     RenderBuffer(gl::types::GLuint),
 }
 
+/// Manages all the framebuffer objects.
+///
+/// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
+pub struct FramebuffersContainer {
+    framebuffers: Mutex<HashMap<FramebufferAttachments, FrameBufferObject>>,
+}
+
 /// Frame buffer.
-pub struct FrameBufferObject {
-    display: Arc<DisplayImpl>,
+struct FrameBufferObject {
     id: gl::types::GLuint,
     current_read_buffer: gl::types::GLenum,
 }
 
+impl FramebuffersContainer {
+    pub fn new() -> FramebuffersContainer {
+        FramebuffersContainer {
+            framebuffers: Mutex::new(HashMap::new()),
+        }
+    }
+
+    pub fn purge_texture(&self, texture: gl::types::GLuint, context: &context::Context) {
+        self.purge_if(|a| a == &Attachment::Texture(texture), context);
+    }
+
+    pub fn purge_renderbuffer(&self, renderbuffer: gl::types::GLuint,
+                              context: &context::Context)
+    {
+        self.purge_if(|a| a == &Attachment::RenderBuffer(renderbuffer), context);
+    }
+
+    fn purge_if<F>(&self, condition: F, context: &context::Context)
+                   where F: Fn(&Attachment) -> bool
+    {
+        let mut framebuffers = self.framebuffers.lock().unwrap();
+
+        let mut attachments = Vec::new();
+        for (key, _) in framebuffers.iter() {
+            if let Some(ref depth) = key.depth {
+                if condition(depth) {
+                    attachments.push(key.clone());
+                    continue;
+                }
+            }
+
+            if let Some(ref stencil) = key.stencil {
+                if condition(stencil) {
+                    attachments.push(key.clone());
+                    continue;
+                }
+            }
+
+            if key.colors.iter().find(|&&(_, ref id)| condition(id)).is_some() {
+                attachments.push(key.clone());
+                continue;
+            }
+        }
+
+        for atch in attachments.into_iter() {
+            framebuffers.remove(&atch).unwrap().destroy(context);
+        }
+    }
+
+    pub fn cleanup(self, context: &context::Context) {
+        let mut other = HashMap::new();
+        mem::swap(&mut *self.framebuffers.lock().unwrap(), &mut other);
+
+        for (_, obj) in other.into_iter() {
+            obj.destroy(context);
+        }
+    }
+
+    pub fn get_framebuffer_for_drawing(&self, attachments: Option<&FramebufferAttachments>,
+                                       context: &context::Context) -> gl::types::GLuint
+    {
+        if let Some(attachments) = attachments {
+            self.get_framebuffer(attachments, context)
+        } else {
+            0
+        }
+    }
+
+    fn get_framebuffer(&self, framebuffer: &FramebufferAttachments,
+                       context: &context::Context) -> gl::types::GLuint
+    {
+        let mut framebuffers = self.framebuffers.lock().unwrap();
+
+        if let Some(value) = framebuffers.get(framebuffer) {
+            return value.id;
+        }
+
+        let new_fbo = FrameBufferObject::new(context, framebuffer);
+        let new_fbo_id = new_fbo.id.clone();
+        framebuffers.insert(framebuffer.clone(), new_fbo);
+        new_fbo_id
+    }
+}
+
+impl Drop for FramebuffersContainer {
+    fn drop(&mut self) {
+        if self.framebuffers.lock().unwrap().len() != 0 {
+            panic!()
+        }
+    }
+}
+
 impl FrameBufferObject {
     /// Builds a new FBO.
-    fn new(display: Arc<DisplayImpl>, attachments: &FramebufferAttachments) -> FrameBufferObject {
+    fn new(context: &context::Context, attachments: &FramebufferAttachments) -> FrameBufferObject {
         let (tx, rx) = channel();
         let attachments = attachments.clone();
 
-        display.context.exec(move |: mut ctxt| {
+        context.exec(move |: mut ctxt| {
             use context::GlVersion;
 
             unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
@@ -65,7 +163,7 @@ impl FrameBufferObject {
                     }
 
                 } else if ctxt.version >= &GlVersion(3, 2) {
-                    bind_framebuffer(ctxt, Some(id), true, false);
+                    bind_framebuffer(ctxt, id, true, false);
 
                     match attachment {
                         Attachment::Texture(tex_id) => {
@@ -79,7 +177,7 @@ impl FrameBufferObject {
                     }
 
                 } else if ctxt.version >= &GlVersion(3, 0) {
-                    bind_framebuffer(ctxt, Some(id), true, false);
+                    bind_framebuffer(ctxt, id, true, false);
 
                     match attachment {
                         Attachment::Texture(tex_id) => {
@@ -93,7 +191,7 @@ impl FrameBufferObject {
                     }
 
                 } else {
-                    bind_framebuffer(ctxt, Some(id), true, true);
+                    bind_framebuffer(ctxt, id, true, true);
 
                     match attachment {
                         Attachment::Texture(tex_id) => {
@@ -133,17 +231,15 @@ impl FrameBufferObject {
         });
 
         FrameBufferObject {
-            display: display,
             id: rx.recv().unwrap(),
             current_read_buffer: gl::BACK,
         }
     }
-}
 
-impl Drop for FrameBufferObject {
-    fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(move |: ctxt| {
+    fn destroy(self, context: &context::Context) {
+        let id = self.id;
+
+        context.exec(move |: ctxt| {
             unsafe {
                 // unbinding framebuffer
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -186,31 +282,9 @@ impl GlObject for FrameBufferObject {
     }
 }
 
-pub fn get_framebuffer(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>)
-    -> Option<gl::types::GLuint>
-{
-    if let Some(framebuffer) = framebuffer {
-        let mut framebuffers = display.framebuffer_objects.lock().unwrap();
-
-        if let Some(value) = framebuffers.get(framebuffer) {
-            return Some(value.id);
-        }
-
-        let new_fbo = FrameBufferObject::new(display.clone(), framebuffer);
-        let new_fbo_id = new_fbo.id.clone();
-        framebuffers.insert(framebuffer.clone(), new_fbo);
-        Some(new_fbo_id)
-
-    } else {
-        None
-    }
-}
-
-pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: Option<gl::types::GLuint>,
+pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::GLuint,
                         draw: bool, read: bool)
 {
-    let fbo_id = fbo_id.unwrap_or(0);
-
     if draw && ctxt.state.draw_framebuffer != fbo_id {
         unsafe {
             if ctxt.version >= &context::GlVersion(3, 0) {
