@@ -154,11 +154,10 @@ impl Program {
                     ctxt.gl.AttachShader(id, sh.clone());
                 }
 
+                let _lock = COMPILER_GLOBAL_LOCK.lock();
+
                 // linking
-                {
-                    let _lock = COMPILER_GLOBAL_LOCK.lock();
-                    ctxt.gl.LinkProgram(id);
-                }
+                ctxt.gl.LinkProgram(id);
 
                 // checking for errors
                 {   let mut link_success: gl::types::GLint = mem::uninitialized();
@@ -339,11 +338,11 @@ fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, so
 
             ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
 
+
+            let _lock = COMPILER_GLOBAL_LOCK.lock();
+
             // compiling
-            {
-                let _lock = COMPILER_GLOBAL_LOCK.lock();
-                ctxt.gl.CompileShader(id);
-            }
+            ctxt.gl.CompileShader(id);
 
             // checking compilation success
             let compilation_success = {
