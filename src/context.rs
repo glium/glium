@@ -1,9 +1,9 @@
 use gl;
 use glutin;
-use std::sync::atomic::{AtomicUint, Relaxed};
+use std::sync::atomic::{self, AtomicUint};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender, Receiver};
-use std::cmp::Ordering::{self, Equal};
+use std::cmp::Ordering;
 use GliumCreationError;
 
 enum Message {
@@ -184,7 +184,7 @@ impl PartialOrd for GlVersion {
 impl Ord for GlVersion {
     fn cmp(&self, other: &GlVersion) -> Ordering {
         match self.0.cmp(&other.0) {
-            Equal => self.1.cmp(&other.1),
+            Ordering::Equal => self.1.cmp(&other.1),
             a => a
         }
     }
@@ -265,8 +265,8 @@ impl Context {
             let mut gl_state = {
                 let viewport = {
                     let dim = window.get_inner_size().unwrap();
-                    dimensions.0.store(dim.0, Relaxed);
-                    dimensions.1.store(dim.1, Relaxed);
+                    dimensions.0.store(dim.0, atomic::Ordering::Relaxed);
+                    dimensions.1.store(dim.1, atomic::Ordering::Relaxed);
                     (0, 0, dim.0 as gl::types::GLsizei, dim.1 as gl::types::GLsizei)
                 };
 
@@ -326,8 +326,8 @@ impl Context {
                 for event in window.poll_events() {
                     // update the dimensions
                     if let &glutin::Event::Resized(width, height) = &event {
-                        dimensions.0.store(width, Relaxed);
-                        dimensions.1.store(height, Relaxed);
+                        dimensions.0.store(width, atomic::Ordering::Relaxed);
+                        dimensions.1.store(height, atomic::Ordering::Relaxed);
                     }
 
                     // sending the event outside
@@ -425,8 +425,8 @@ impl Context {
 
     pub fn get_framebuffer_dimensions(&self) -> (uint, uint) {
         (
-            self.dimensions.0.load(Relaxed),
-            self.dimensions.1.load(Relaxed),
+            self.dimensions.0.load(atomic::Ordering::Relaxed),
+            self.dimensions.1.load(atomic::Ordering::Relaxed),
         )
     }
 
