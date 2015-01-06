@@ -102,8 +102,16 @@ impl Buffer {
 
                 ctxt.gl.BindBuffer(bind, id);
                 *storage = id;
-                ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                                   data.as_ptr() as *const libc::c_void, usage);
+
+                if ctxt.version >= &GlVersion(4, 4) || ctxt.extensions.gl_arb_buffer_storage {
+                    ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
+                                          data.as_ptr() as *const libc::c_void,
+                                          gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
+                                          gl::MAP_WRITE_BIT);       // TODO: more specific flags
+                } else {
+                    ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
+                                       data.as_ptr() as *const libc::c_void, usage);
+                }
 
                 let mut obtained_size: gl::types::GLint = mem::uninitialized();
                 ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
@@ -138,7 +146,16 @@ impl Buffer {
 
                 ctxt.gl.BindBuffer(bind, id);
                 *storage = id;
-                ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr, ptr::null(), usage);
+
+                if ctxt.version >= &GlVersion(4, 4) || ctxt.extensions.gl_arb_buffer_storage {
+                    ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
+                                          ptr::null(),
+                                          gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
+                                          gl::MAP_WRITE_BIT);       // TODO: more specific flags
+                } else {
+                    ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
+                                       ptr::null(), usage);
+                }
 
                 let mut obtained_size: gl::types::GLint = mem::uninitialized();
                 ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);

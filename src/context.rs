@@ -218,6 +218,8 @@ pub struct ExtensionsList {
     pub gl_ext_texture_filter_anisotropic: bool,
     /// GL_ARB_texture_storage
     pub gl_arb_texture_storage: bool,
+    /// GL_ARB_buffer_storage
+    pub gl_arb_buffer_storage: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -561,6 +563,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_sampler_objects: false,
         gl_ext_texture_filter_anisotropic: false,
         gl_arb_texture_storage: false,
+        gl_arb_buffer_storage: false,
     };
 
     for extension in strings.into_iter() {
@@ -576,6 +579,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             "GL_ARB_texture_storage" => extensions.gl_arb_texture_storage = true,
+            "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = false,
             _ => ()
         }
     }
