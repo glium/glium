@@ -127,6 +127,9 @@ pub struct GLState {
 
     /// The latest value passed to `glPolygonMode`.
     pub polygon_mode: gl::types::GLenum,
+
+    /// The latest value passed to `glPixelStore` with `GL_UNPACK_ALIGNMENT`.
+    pub pixel_store_unpack_alignment: gl::types::GLint,
 }
 
 impl GLState {
@@ -167,6 +170,7 @@ impl GLState {
             line_width: 1.0,
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,
+            pixel_store_unpack_alignment: 4,
         }
     }
 }

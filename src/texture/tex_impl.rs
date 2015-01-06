@@ -66,7 +66,10 @@ impl TextureImplementation {
                     ptr::null()
                 };
 
-                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+                if ctxt.state.pixel_store_unpack_alignment != 1 {
+                    ctxt.state.pixel_store_unpack_alignment = 1;
+                    ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+                }
 
                 if ctxt.state.pixel_unpack_buffer_binding != 0 {
                     ctxt.state.pixel_unpack_buffer_binding = 0;
