@@ -332,110 +332,111 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
         },
         UniformValue::Texture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::CompressedTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::IntegralTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::UnsignedTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::DepthTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::Texture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::CompressedTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::IntegralTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::UnsignedTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::DepthTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::Texture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::CompressedTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::IntegralTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::UnsignedTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::DepthTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::Texture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::CompressedTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::IntegralTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::UnsignedTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::DepthTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::Texture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::CompressedTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::IntegralTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::UnsignedTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::DepthTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(display, texture, sampler, location, active_texture)
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
     }
 }
 
 fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
                         sampler: Option<SamplerBehavior>, location: gl::types::GLint,
-                        active_texture: &mut gl::types::GLenum)
+                        active_texture: &mut gl::types::GLenum,
+                        bind_point: gl::types::GLenum)
                         -> Box<Fn(&mut context::CommandContext) + Send>
 {
     assert!(*active_texture < display.context.context.capabilities()
@@ -449,7 +450,7 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
     box move |&: ctxt| {
         unsafe {
             ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
-            ctxt.gl.BindTexture(gl::TEXTURE_2D, texture);      // FIXME: check bind point
+            ctxt.gl.BindTexture(bind_point, texture);
             ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
 
             if let Some(sampler) = sampler {
