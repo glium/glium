@@ -9,8 +9,8 @@ and implement the `glium::vertex_buffer::Vertex` trait on it. The `#[vertex_form
 coming from `glium_macros` helps you doing that.
 
 ```
-# #![feature(phase)]
-# #[phase(plugin)]
+# #![feature(plugin)]
+# #[plugin]
 # extern crate glium_macros;
 # extern crate glium;
 # extern crate glutin;
@@ -93,8 +93,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// # Example
     ///
     /// ```no_run
-    /// # #![feature(phase)]
-    /// # #[phase(plugin)]
+    /// # #![feature(plugin)]
+    /// # #[plugin]
     /// # extern crate glium_macros;
     /// # extern crate glium;
     /// # extern crate glutin;
@@ -155,8 +155,8 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// # Example
     ///
     /// ```no_run
-    /// # #![feature(phase)]
-    /// # #[phase(plugin)]
+    /// # #![feature(plugin)]
+    /// # #[plugin]
     /// # extern crate glium_macros;
     /// # extern crate glium;
     /// # extern crate glutin;

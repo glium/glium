@@ -1,9 +1,8 @@
 use gl;
-use std::{fmt, mem, ptr};
+use std::{ffi, fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
 use std::sync::mpsc::channel;
-use std::c_str::ToCStr;
 use {Display, DisplayImpl, GlObject};
 use context::CommandContext;
 
@@ -246,11 +245,11 @@ impl Program {
 
         // querying opengl
         let id = self.id.clone();
-        let name_c = name.to_c_str();
+        let name_c = ffi::CString::from_slice(name.as_bytes());
         let (tx, rx) = channel();
         self.display.context.exec(move |: ctxt| {
             unsafe {
-                let value = ctxt.gl.GetFragDataLocation(id, name_c.as_ptr());
+                let value = ctxt.gl.GetFragDataLocation(id, name_c.as_slice_with_nul().as_ptr());
                 tx.send(value).ok();
             }
         });
@@ -317,10 +316,10 @@ impl Drop for Program {
 }
 
 /// Builds an individual shader.
-fn build_shader<S: ToCStr>(display: &Display, shader_type: gl::types::GLenum, source_code: S)
-    -> Result<Shader, ProgramCreationError>
+fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: &str)
+                -> Result<Shader, ProgramCreationError>
 {
-    let source_code = source_code.to_c_str();
+    let source_code = ffi::CString::from_slice(source_code.as_bytes());
 
     let (tx, rx) = channel();
     display.context.context.exec(move |: ctxt| {
@@ -400,7 +399,7 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
         uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
 
         let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
-        let location = ctxt.gl.GetUniformLocation(program, uniform_name.to_c_str().into_inner());
+        let location = ctxt.gl.GetUniformLocation(program, ffi::CString::from_slice(uniform_name.as_bytes()).as_slice_with_nul().as_ptr());
 
         uniforms.insert(uniform_name, Uniform {
             location: location,
@@ -432,7 +431,7 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
         attr_name_tmp.set_len(attr_name_tmp_len as uint);
 
         let attr_name = String::from_utf8(attr_name_tmp).unwrap();
-        let location = ctxt.gl.GetAttribLocation(program, attr_name.to_c_str().into_inner());
+        let location = ctxt.gl.GetAttribLocation(program, ffi::CString::from_slice(attr_name.as_bytes()).as_slice_with_nul().as_ptr());
 
         attributes.insert(attr_name, Attribute {
             location: location,

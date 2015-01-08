@@ -37,8 +37,8 @@ and adding the `#[vertex_format]` attribute to it.
 You can check the documentation of the `vertex_buffer` module for more informations.
 
 ```no_run
-# #![feature(phase)]
-#[phase(plugin)]
+# #![feature(plugin)]
+#[plugin]
 extern crate glium_macros;
 
 # extern crate glium;
@@ -123,8 +123,8 @@ Similarly to the vertex buffer and vertex format, we can do so by creating a cus
 adding the `#[uniforms]` attribute to it.
 
 ```no_run
-# #![feature(phase)]
-#[phase(plugin)]
+# #![feature(plugin)]
+#[plugin]
 extern crate glium_macros;
 
 # extern crate glium;
@@ -176,10 +176,7 @@ target.finish();
 ```
 
 */
-#![feature(associated_types)]
 #![feature(old_orphan_check)]
-#![feature(default_type_params)]
-#![feature(globs)]
 #![feature(slicing_syntax)]
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
@@ -1119,15 +1116,14 @@ impl Display {
             id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
             message: *const gl::types::GLchar, user_param: *mut libc::c_void)
         {
-            use std::c_str::CString;
             use std::num::FromPrimitive;
 
             unsafe {
                 let user_param = user_param as *mut DisplayImpl;
                 let user_param = user_param.as_mut().unwrap();
 
-                let message = CString::new(message, false);
-                let message = message.as_str().unwrap_or("<message was not utf-8>");
+                let message = String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec())
+                                  .unwrap();
 
                 let ref mut callback = user_param.debug_callback;
                 let mut callback = callback.lock().unwrap();

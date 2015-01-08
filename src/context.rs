@@ -1,5 +1,6 @@
 use gl;
 use glutin;
+use std::ffi;
 use std::sync::atomic::{self, AtomicUint};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender, Receiver};
@@ -502,12 +503,9 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
 }
 
 fn get_gl_version(gl: &gl::Gl) -> GlVersion {
-    use std::c_str::CString;
-
     unsafe {
-        let version = gl.GetString(gl::VERSION);
-        let version = CString::new(version as *const i8, false);
-        let version = version.as_str().expect("OpenGL version contains non-utf8 characters");
+        let version = gl.GetString(gl::VERSION) as *const i8;
+        let version = String::from_utf8(ffi::c_str_to_bytes(&version).to_vec()).unwrap();
 
         let version = version.words().next().expect("glGetString(GL_VERSION) returned an empty \
                                                      string");
@@ -524,8 +522,6 @@ fn get_gl_version(gl: &gl::Gl) -> GlVersion {
 }
 
 fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
-    use std::c_str::CString;
-
     unsafe {
         let list = gl.GetString(gl::EXTENSIONS);
 
@@ -535,14 +531,11 @@ fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
 
             range(0, num_extensions).map(|num| {
                 let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
-                let ext = CString::new(ext as *const i8, false);
-                ext.as_str().expect("OpenGL extension contains non-utf8 characters").to_string()
+                String::from_utf8(ffi::c_str_to_bytes(&(ext as *const i8)).to_vec()).unwrap()
             }).collect()
 
         } else {
-            let list = CString::new(list as *const i8, false);
-            let list = list.as_str()
-                           .expect("List of OpenGL extensions contains non-utf8 characters");
+            let list = String::from_utf8(ffi::c_str_to_bytes(&(list as *const i8)).to_vec()).unwrap();
             list.words().map(|e| e.to_string()).collect()
         }
     }
