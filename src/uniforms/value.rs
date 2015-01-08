@@ -69,6 +69,7 @@ pub enum UniformType {
     Sampler2dRect,
     ISampler2dRect,
     USampler2dRect,
+    Sampler2dRectShadow,
     SamplerCubeArray,
     ISamplerCubeArray,
     USamplerCubeArray,
@@ -78,6 +79,9 @@ pub enum UniformType {
     Sampler2dMultisample,
     ISampler2dMultisample,
     USampler2dMultisample,
+    Sampler2dMultisampleArray,
+    ISampler2dMultisampleArray,
+    USampler2dMultisampleArray,
     Sampler1dShadow,
     Sampler2dShadow,
     SamplerCubeShadow,
@@ -124,7 +128,7 @@ pub trait IntoUniformValue<'a> {
 }
 
 /// Represents a value to bind to a uniform.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Show)]
 #[allow(missing_docs)]
 pub enum UniformValue<'a> {
     SignedInt(i32),
@@ -167,30 +171,44 @@ pub enum UniformValue<'a> {
 }
 
 impl<'a> UniformValue<'a> {
-    /// Returns the corresponding `UniformType`.
-    pub fn get_type(&self) -> UniformType {
-        match *self {
-            UniformValue::Texture1d(_, _) => UniformType::Sampler1d,
-            UniformValue::CompressedTexture1d(_, _) => UniformType::Sampler1d,
-            UniformValue::IntegralTexture1d(_, _) => UniformType::ISampler1d,
-            UniformValue::UnsignedTexture1d(_, _) => UniformType::USampler1d,
-            UniformValue::Texture2d(_, _) => UniformType::Sampler2d,
-            UniformValue::CompressedTexture2d(_, _) => UniformType::Sampler2d,
-            UniformValue::IntegralTexture2d(_, _) => UniformType::ISampler2d,
-            UniformValue::UnsignedTexture2d(_, _) => UniformType::USampler2d,
-            UniformValue::Texture3d(_, _) => UniformType::Sampler3d,
-            UniformValue::CompressedTexture3d(_, _) => UniformType::Sampler3d,
-            UniformValue::IntegralTexture3d(_, _) => UniformType::ISampler3d,
-            UniformValue::UnsignedTexture3d(_, _) => UniformType::USampler3d,
-            UniformValue::Texture1dArray(_, _) => UniformType::Sampler1dArray,
-            UniformValue::CompressedTexture1dArray(_, _) => UniformType::Sampler1dArray,
-            UniformValue::IntegralTexture1dArray(_, _) => UniformType::ISampler1dArray,
-            UniformValue::UnsignedTexture1dArray(_, _) => UniformType::USampler1dArray,
-            UniformValue::Texture2dArray(_, _) => UniformType::Sampler2dArray,
-            UniformValue::CompressedTexture2dArray(_, _) => UniformType::Sampler2dArray,
-            UniformValue::IntegralTexture2dArray(_, _) => UniformType::ISampler2dArray,
-            UniformValue::UnsignedTexture2dArray(_, _) => UniformType::USampler2dArray,
-            _ => unimplemented!()
+    /// Returns true if this value can be used with a uniform of the given type.
+    pub fn is_usable_with(&self, ty: &UniformType) -> bool {
+        match (*self, *ty) {
+            (UniformValue::SignedInt(_), UniformType::Int) => true,
+            (UniformValue::UnsignedInt(_), UniformType::UnsignedInt) => true,
+            (UniformValue::Float(_), UniformType::Float) => true,
+            (UniformValue::Mat2(_), UniformType::FloatMat2) => true,
+            (UniformValue::Mat3(_), UniformType::FloatMat3) => true,
+            (UniformValue::Mat4(_), UniformType::FloatMat4) => true,
+            (UniformValue::Vec2(_), UniformType::FloatVec2) => true,
+            (UniformValue::Vec3(_), UniformType::FloatVec3) => true,
+            (UniformValue::Vec4(_), UniformType::FloatVec4) => true,
+            (UniformValue::Texture1d(_, _), UniformType::Sampler1d) => true,
+            (UniformValue::CompressedTexture1d(_, _), UniformType::Sampler1d) => true,
+            (UniformValue::IntegralTexture1d(_, _), UniformType::ISampler1d) => true,
+            (UniformValue::UnsignedTexture1d(_, _), UniformType::USampler1d) => true,
+            (UniformValue::DepthTexture1d(_, _), UniformType::Sampler1d) => true,
+            (UniformValue::Texture2d(_, _), UniformType::Sampler2d) => true,
+            (UniformValue::CompressedTexture2d(_, _), UniformType::Sampler2d) => true,
+            (UniformValue::IntegralTexture2d(_, _), UniformType::ISampler2d) => true,
+            (UniformValue::UnsignedTexture2d(_, _), UniformType::USampler2d) => true,
+            (UniformValue::DepthTexture2d(_, _), UniformType::Sampler2d) => true,
+            (UniformValue::Texture3d(_, _), UniformType::Sampler3d) => true,
+            (UniformValue::CompressedTexture3d(_, _), UniformType::Sampler3d) => true,
+            (UniformValue::IntegralTexture3d(_, _), UniformType::ISampler3d) => true,
+            (UniformValue::UnsignedTexture3d(_, _), UniformType::USampler3d) => true,
+            (UniformValue::DepthTexture3d(_, _), UniformType::Sampler3d) => true,
+            (UniformValue::Texture1dArray(_, _), UniformType::Sampler1dArray) => true,
+            (UniformValue::CompressedTexture1dArray(_, _), UniformType::Sampler1dArray) => true,
+            (UniformValue::IntegralTexture1dArray(_, _), UniformType::ISampler1dArray) => true,
+            (UniformValue::UnsignedTexture1dArray(_, _), UniformType::USampler1dArray) => true,
+            (UniformValue::DepthTexture1dArray(_, _), UniformType::Sampler1dArray) => true,
+            (UniformValue::Texture2dArray(_, _), UniformType::Sampler2dArray) => true,
+            (UniformValue::CompressedTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
+            (UniformValue::IntegralTexture2dArray(_, _), UniformType::ISampler2dArray) => true,
+            (UniformValue::UnsignedTexture2dArray(_, _), UniformType::USampler2dArray) => true,
+            (UniformValue::DepthTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
+            _ => false,
         }
     }
 }

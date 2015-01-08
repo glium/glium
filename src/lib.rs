@@ -939,6 +939,7 @@ pub trait Surface: Sized {
     ///   vertex's attribute is not used by the program).
     /// - Panics if the viewport is larger than the dimensions supported by the hardware.
     /// - Panics if the depth range is outside of `(0, 1)`.
+    /// - Panics if a value in the uniforms doesn't match the type requested by the program.
     ///
     fn draw<'a, 'b, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: U,
         draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'b>,

@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
 use std::sync::mpsc::channel;
 use {Display, DisplayImpl, GlObject};
 use context::CommandContext;
+use uniforms::UniformType;
 
 /// Some shader compilers have race-condition issues.
 /// We lock this mutex in the GL thread every time we compile a shader or link a program.
@@ -38,12 +39,17 @@ pub struct Program {
 }
 
 /// Informations about a uniform (except its name).
-///
-/// Internal struct. Not public.
-struct Uniform {
-    pub location: gl::types::GLint,
-    pub ty: gl::types::GLenum,
-    pub size: gl::types::GLint,
+pub struct Uniform {
+    /// The location of the uniform.
+    ///
+    /// This is an internal information, and you probably don't need to use it.
+    pub location: i32,
+
+    /// Type of the uniform.
+    pub ty: UniformType,
+
+    /// If it is an array, the number of elements.
+    pub size: Option<uint>,
 }
 
 /// Informations about an attribute of a program (except its name).
@@ -402,9 +408,9 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
         let location = ctxt.gl.GetUniformLocation(program, ffi::CString::from_slice(uniform_name.as_bytes()).as_slice_with_nul().as_ptr());
 
         uniforms.insert(uniform_name, Uniform {
-            location: location,
-            ty: data_type,
-            size: data_size
+            location: location as i32,
+            ty: glenum_to_uniform_type(data_type),
+            size: if data_size == 1 { None } else { Some(data_size as uint) },
         });
     }
 
@@ -441,4 +447,115 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
     }
 
     attributes
+}
+
+fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
+    match ty {
+        gl::FLOAT => UniformType::Float,
+        gl::FLOAT_VEC2 => UniformType::FloatVec2,
+        gl::FLOAT_VEC3 => UniformType::FloatVec3,
+        gl::FLOAT_VEC4 => UniformType::FloatVec4,
+        gl::DOUBLE => UniformType::Double,
+        gl::DOUBLE_VEC2 => UniformType::DoubleVec2,
+        gl::DOUBLE_VEC3 => UniformType::DoubleVec3,
+        gl::DOUBLE_VEC4 => UniformType::DoubleVec4,
+        gl::INT => UniformType::Int,
+        gl::INT_VEC2 => UniformType::IntVec2,
+        gl::INT_VEC3 => UniformType::IntVec3,
+        gl::INT_VEC4 => UniformType::IntVec4,
+        gl::UNSIGNED_INT => UniformType::UnsignedInt,
+        gl::UNSIGNED_INT_VEC2 => UniformType::UnsignedIntVec2,
+        gl::UNSIGNED_INT_VEC3 => UniformType::UnsignedIntVec3,
+        gl::UNSIGNED_INT_VEC4 => UniformType::UnsignedIntVec4,
+        gl::BOOL => UniformType::Bool,
+        gl::BOOL_VEC2 => UniformType::BoolVec2,
+        gl::BOOL_VEC3 => UniformType::BoolVec3,
+        gl::BOOL_VEC4 => UniformType::BoolVec4,
+        gl::FLOAT_MAT2 => UniformType::FloatMat2,
+        gl::FLOAT_MAT3 => UniformType::FloatMat3,
+        gl::FLOAT_MAT4 => UniformType::FloatMat4,
+        gl::FLOAT_MAT2x3 => UniformType::FloatMat2x3,
+        gl::FLOAT_MAT2x4 => UniformType::FloatMat2x4,
+        gl::FLOAT_MAT3x2 => UniformType::FloatMat3x2,
+        gl::FLOAT_MAT3x4 => UniformType::FloatMat3x4,
+        gl::FLOAT_MAT4x2 => UniformType::FloatMat4x2,
+        gl::FLOAT_MAT4x3 => UniformType::FloatMat4x3,
+        gl::DOUBLE_MAT2 => UniformType::DoubleMat2,
+        gl::DOUBLE_MAT3 => UniformType::DoubleMat3,
+        gl::DOUBLE_MAT4 => UniformType::DoubleMat4,
+        gl::DOUBLE_MAT2x3 => UniformType::DoubleMat2x3,
+        gl::DOUBLE_MAT2x4 => UniformType::DoubleMat2x4,
+        gl::DOUBLE_MAT3x2 => UniformType::DoubleMat3x2,
+        gl::DOUBLE_MAT3x4 => UniformType::DoubleMat3x4,
+        gl::DOUBLE_MAT4x2 => UniformType::DoubleMat4x2,
+        gl::DOUBLE_MAT4x3 => UniformType::DoubleMat4x3,
+        gl::SAMPLER_1D => UniformType::Sampler1d,
+        gl::SAMPLER_2D => UniformType::Sampler2d,
+        gl::SAMPLER_3D => UniformType::Sampler3d,
+        gl::SAMPLER_CUBE => UniformType::SamplerCube,
+        gl::SAMPLER_1D_SHADOW => UniformType::Sampler1dShadow,
+        gl::SAMPLER_2D_SHADOW => UniformType::Sampler2dShadow,
+        gl::SAMPLER_1D_ARRAY => UniformType::Sampler1dArray,
+        gl::SAMPLER_2D_ARRAY => UniformType::Sampler2dArray,
+        gl::SAMPLER_1D_ARRAY_SHADOW => UniformType::Sampler1dArrayShadow,
+        gl::SAMPLER_2D_ARRAY_SHADOW => UniformType::Sampler2dArrayShadow,
+        gl::SAMPLER_2D_MULTISAMPLE => UniformType::Sampler2dMultisample,
+        gl::SAMPLER_2D_MULTISAMPLE_ARRAY => UniformType::Sampler2dMultisampleArray,
+        gl::SAMPLER_CUBE_SHADOW => UniformType::SamplerCubeShadow,
+        gl::SAMPLER_BUFFER => UniformType::SamplerBuffer,
+        gl::SAMPLER_2D_RECT => UniformType::Sampler2dRect,
+        gl::SAMPLER_2D_RECT_SHADOW => UniformType::Sampler2dRectShadow,
+        gl::INT_SAMPLER_1D => UniformType::ISampler1d,
+        gl::INT_SAMPLER_2D => UniformType::ISampler2d,
+        gl::INT_SAMPLER_3D => UniformType::ISampler3d,
+        gl::INT_SAMPLER_CUBE => UniformType::ISamplerCube,
+        gl::INT_SAMPLER_1D_ARRAY => UniformType::ISampler1dArray,
+        gl::INT_SAMPLER_2D_ARRAY => UniformType::ISampler2dArray,
+        gl::INT_SAMPLER_2D_MULTISAMPLE => UniformType::ISampler2dMultisample,
+        gl::INT_SAMPLER_2D_MULTISAMPLE_ARRAY => UniformType::ISampler2dMultisampleArray,
+        gl::INT_SAMPLER_BUFFER => UniformType::ISamplerBuffer,
+        gl::INT_SAMPLER_2D_RECT => UniformType::ISampler2dRect,
+        gl::UNSIGNED_INT_SAMPLER_1D => UniformType::USampler1d,
+        gl::UNSIGNED_INT_SAMPLER_2D => UniformType::USampler2d,
+        gl::UNSIGNED_INT_SAMPLER_3D => UniformType::USampler3d,
+        gl::UNSIGNED_INT_SAMPLER_CUBE => UniformType::USamplerCube,
+        gl::UNSIGNED_INT_SAMPLER_1D_ARRAY => UniformType::USampler2dArray,
+        gl::UNSIGNED_INT_SAMPLER_2D_ARRAY => UniformType::USampler2dArray,
+        gl::UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE => UniformType::USampler2dMultisample,
+        gl::UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY => UniformType::USampler2dMultisampleArray,
+        gl::UNSIGNED_INT_SAMPLER_BUFFER => UniformType::USamplerBuffer,
+        gl::UNSIGNED_INT_SAMPLER_2D_RECT => UniformType::USampler2dRect,
+        gl::IMAGE_1D => UniformType::Image1d,
+        gl::IMAGE_2D => UniformType::Image2d,
+        gl::IMAGE_3D => UniformType::Image3d,
+        gl::IMAGE_2D_RECT => UniformType::Image2dRect,
+        gl::IMAGE_CUBE => UniformType::ImageCube,
+        gl::IMAGE_BUFFER => UniformType::ImageBuffer,
+        gl::IMAGE_1D_ARRAY => UniformType::Image1dArray,
+        gl::IMAGE_2D_ARRAY => UniformType::Image2dArray,
+        gl::IMAGE_2D_MULTISAMPLE => UniformType::Image2dMultisample,
+        gl::IMAGE_2D_MULTISAMPLE_ARRAY => UniformType::Image2dMultisampleArray,
+        gl::INT_IMAGE_1D => UniformType::IImage1d,
+        gl::INT_IMAGE_2D => UniformType::IImage2d,
+        gl::INT_IMAGE_3D => UniformType::IImage3d,
+        gl::INT_IMAGE_2D_RECT => UniformType::IImage2dRect,
+        gl::INT_IMAGE_CUBE => UniformType::IImageCube,
+        gl::INT_IMAGE_BUFFER => UniformType::IImageBuffer,
+        gl::INT_IMAGE_1D_ARRAY => UniformType::IImage1dArray,
+        gl::INT_IMAGE_2D_ARRAY => UniformType::IImage2dArray,
+        gl::INT_IMAGE_2D_MULTISAMPLE => UniformType::IImage2dMultisample,
+        gl::INT_IMAGE_2D_MULTISAMPLE_ARRAY => UniformType::IImage2dMultisampleArray,
+        gl::UNSIGNED_INT_IMAGE_1D => UniformType::UImage1d,
+        gl::UNSIGNED_INT_IMAGE_2D => UniformType::UImage2d,
+        gl::UNSIGNED_INT_IMAGE_3D => UniformType::UImage3d,
+        gl::UNSIGNED_INT_IMAGE_2D_RECT => UniformType::UImage2dRect,
+        gl::UNSIGNED_INT_IMAGE_CUBE => UniformType::UImageCube,
+        gl::UNSIGNED_INT_IMAGE_BUFFER => UniformType::UImageBuffer,
+        gl::UNSIGNED_INT_IMAGE_1D_ARRAY => UniformType::UImage1dArray,
+        gl::UNSIGNED_INT_IMAGE_2D_ARRAY => UniformType::UImage2dArray,
+        gl::UNSIGNED_INT_IMAGE_2D_MULTISAMPLE => UniformType::UImage2dMultisample,
+        gl::UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY => UniformType::UImage2dMultisampleArray,
+        gl::UNSIGNED_INT_ATOMIC_COUNTER => UniformType::AtomicCounterUint,
+        v => panic!("Unknown value returned by OpenGL uniform type: {}", v)
+    }
 }
