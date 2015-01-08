@@ -144,7 +144,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     // `UniformValue` trait impl
     match ty {
         TextureType::Regular | TextureType::Compressed |
-        TextureType::Integral | TextureType::Unsigned => {
+        TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
             (writeln!(dest, "
                         impl<'a> IntoUniformValue<'a> for &'a {myname} {{
                             fn into_uniform_value(self) -> UniformValue<'a> {{
