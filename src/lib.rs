@@ -501,6 +501,11 @@ pub struct DrawParameters {
     /// creating the window.
     pub multisampling: bool,
 
+    /// Whether dithering is activated. Default value is `true`.
+    ///
+    /// Dithering will smoothen the transition between colors in your color buffer.
+    pub dithering: bool,
+
     /// Specifies the viewport to use when drawing.
     ///
     /// The x and y positions of your vertices are mapped to the viewport so that `(-1, -1)`
@@ -523,6 +528,7 @@ impl std::default::Default for DrawParameters {
             backface_culling: BackfaceCullingMode::CullingDisabled,
             polygon_mode: PolygonMode::Fill,
             multisampling: true,
+            dithering: true,
             viewport: None,
         }
     }
@@ -650,6 +656,19 @@ impl DrawParameters {
                 } else {
                     ctxt.gl.Disable(gl::MULTISAMPLE);
                     ctxt.state.enabled_multisample = false;
+                }
+            }
+        }
+
+        // dithering
+        if ctxt.state.enabled_dither != self.dithering {
+            unsafe {
+                if self.dithering {
+                    ctxt.gl.Enable(gl::DITHER);
+                    ctxt.state.enabled_dither = true;
+                } else {
+                    ctxt.gl.Disable(gl::DITHER);
+                    ctxt.state.enabled_dither = false;
                 }
             }
         }
