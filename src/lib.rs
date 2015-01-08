@@ -724,6 +724,176 @@ pub struct Rect {
 }
 
 /// Object which can be drawn upon.
+///
+/// # What does the GPU do when you draw?
+///
+/// This is a summary of everything that happens when you call the `draw` function. Note that
+/// this is not necessarly *exactly* what happens. Backends are free to do whatever they want
+/// as long as it always matches the expected outcome.
+///
+/// ## Step 1: Vertex shader
+///
+/// For each vertex in the vertices source, the GPU invokes the vertex shader that is part
+/// of the program, and passes the corresponding vertex's attributes to it.
+///
+/// The vertex shader *must* write the special `gl_Position` variable in order to indicate
+/// the four-dimensions coordinates of the vertex. In order to understand what these coordinates
+/// mean, see the "vertex post-processing" step below.
+///
+/// In addition to the position of the vertex, the vertex shader can also specify the values of
+/// various vertex attributes.
+///
+/// ## Step 2: Tessellation (optional)
+///
+/// It is possible to use tessellation shaders, but glium does not support them yet.
+///
+/// ## Step 3: Geometry shader (optional)
+///
+/// If you specify a geometry shader, then the GPU will invoke it once for each primitive.
+///
+/// The geometry shader can output multiple primitives.
+///
+/// ## Step 4: Transform feedback (optional)
+///
+/// Transform feedback is not supported by glium for the moment.
+///
+/// ## Step 5: Vertex post-processing
+///
+/// The vertex shader step told the GPU what the coordinates of each vertex are, but these
+/// coordinates have four dimensions, named `x`, `y`, `z` and `w`.
+///
+/// The GPU then computes the position of the vertex on the 2D surface you are drawing on, and
+/// the depth of this vertex:
+///
+/// ```notrust
+/// window_x = viewport_left + viewport_width * ((x / w) + 1.0) / 2.0
+/// window_y = viewport_bottom + viewport_height * ((y / w) + 1.0) / 2.0
+/// depth = depth_near + (depth_far - depth_near) * ((z / w) + 1.0) / 2.0
+/// ```
+///
+/// *`viewport_left`, `viewport_width`, `viewport_bottom` and `viewport_height` correspond to
+/// the `viewport` member of the draw parameters, and `depth_near` and `depth_far` correspond
+/// to the `depth_range` member*.
+///
+/// This means that if `x / w`, `y / w` or `z / w` are equal to `-1.0`, then the result will be
+/// `viewport_left`, `viewport_bottom` or `depth_near`. If they are equal to `1.0`, the result
+/// will be `viewport_left + viewport_width` (the right of the viewport),
+/// `viewport_bottom + viewport_height` (the top of the viewport) or `depth_far`.
+///
+/// For example if you want to draw a rectangle that covers the whole screen, it should be made
+/// of four vertices whose coordinates are `(-1.0, -1.0, 0.0, 1.0)` (bottom-left corner),
+/// `(-1.0, 1.0, 0.0, 1.0)` (top-left corner), `(1.0, 1.0, 0.0, 1.0)` (top-right corner) and
+/// `(1.0, -1.0, 0.0, 1.0)` (bottom-right corner).
+///
+/// ## Step 6: Primitive assembly
+///
+/// The next step consists in building the primitives. Triangle strips, triangle fans and line
+/// strips are turned into individual triangles or lines.
+///
+/// Triangle strips obey certain rules for the order of indices. For example the triangle strip
+/// `0, 1, 2, 3, 4, 5` does *not* correspond to `0, 1, 2`, `1, 2, 3`, `2, 3, 4`, `3, 4, 5` as you
+/// would expect, but to `0, 1, 2`, `1, 3, 2`, `2, 3, 4`, `3, 5, 4` (some indices are reversed).
+/// This is important in regards to the face culling step below.
+///
+/// Then if you did specify `PrimitiveMode`, it is used. If you specified `Line`, triangles are
+/// turned into lines. If specified `Point`, triangles and lines are turned into points.
+///
+/// The GPU then looks at the screen coordinates of each primitive, and discards primitives that
+/// are entirely outside of the window.
+///
+/// Note that points whose center are outside of the viewport are discarded, even if the point
+/// width would be big enough for the point to be visible. However this standard behavior is not
+/// respected by nVidia drivers who show the points anyway.
+///
+/// ## Step 7: Face culling (triangles only)
+///
+/// This step is purely an optimization step and only concerns triangles.
+///
+/// If you specify a value for `backface_culling` different from `CullingDisabled`, the GPU will
+/// discard triangles depending on the way that the vertices are arranged on the window. You can
+/// either discard triangles whose vertices are clockwise or counterclockwise.
+///
+/// For more informations, see the documentation of `BackfaceCullingMode`.
+///
+/// ## Step 8: Rasterization
+///
+/// Now that the GPU knows where on the window the various triangles, points or lines are, it will
+/// determine which pixels of the surface are part of each primitive.
+///
+/// For points and lines, this step depends on the points width and line width that you specified
+/// in the draw parameters.
+///
+/// <img alt="" src="data:image/png;base64,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" />
+///
+/// The attributes of each vertex are being interpolated, and the GPU assigns a value for each
+/// attribute for each pixel.
+///
+/// ## Step 9: Fragment shader
+///
+/// The GPU now executes the fragment shader once for each pixel of each primitive.
+///
+/// The vertex attributes that were interpolated at the previous step are passed to the fragment
+/// shader.
+///
+/// The fragment shader must return the color to write by setting the value of `gl_FragColor`.
+///
+/// ## Step 10: Pixel ownership
+///
+/// This step is mostly an implementation detail. If the window you are drawing on is not on the
+/// foreground, or if it is partially obstructed, then the pixels that are not on the
+/// foreground will be discarded.
+///
+/// This is only relevant if you draw to the default framebuffer.
+///
+/// ## Step 11: Scissor test
+///
+/// This is not yet supported by glium.
+///
+/// ## Step 12: Multisampling
+///
+/// ## Step 13: Stencil test
+///
+/// Stencil tests are currently not supported by glium.
+///
+/// ## Step 14: Depth test
+///
+/// In addition to the colors, surfaces can also have a depth buffer attached to it. In this
+/// situation, just like each pixel has a color, each pixel of the surface also has an associated
+/// depth value.
+///
+/// If a depth buffer is present, the GPU will compare the depth value of the pixel currently
+/// being processed and the existing depth value. Depending on the value of `depth_function`
+/// in the draw parameters, the depth test will either pass, in which case the pipeline
+/// continues, or fail, in which case the pixel is discarded.
+///
+/// The purpose of this test is to avoid drawing elements that are in the background of the
+/// scene over elements that are in the foreground.
+///
+/// See the documentation of `DepthFunction` for more informations.
+///
+/// ## Step 15: Blending
+///
+/// For each pixel to write, the GPU takes the RGBA color that the fragment shader has returned
+/// and the existing RGBA color already written on the surface, and merges the two.
+///
+/// The way they are merged depends on the value of `blending_function`. This allows you to choose
+/// how alpha colors are merged together.
+///
+/// See the documentation of `BlendingFunction` fore more informations.
+///
+/// ## Step 16: Dithering (optional)
+///
+/// ## Step 17: End
+///
+/// This is finally the step where colors are being written.
+///
+/// ## Missing steps
+///
+/// Some steps are missing because they are not supported by glium for the moment: dithering,
+/// occlusion query updating, logic operations, sRGB conversion, write masks.
+///
+/// Instancing and multiple viewports are also missing because not supported.
+///
 pub trait Surface: Sized {
     /// Clears the color components of the target.
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32);
@@ -758,6 +928,8 @@ pub trait Surface: Sized {
     }
 
     /// Draws.
+    ///
+    /// See above for what happens exactly when you draw.
     ///
     /// # Panic
     ///
