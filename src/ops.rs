@@ -346,6 +346,10 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
+        UniformValue::DepthTexture1d(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture)
+        },
         UniformValue::Texture2d(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
@@ -359,6 +363,10 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
         UniformValue::UnsignedTexture2d(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture)
+        },
+        UniformValue::DepthTexture2d(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
@@ -378,6 +386,10 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
+        UniformValue::DepthTexture3d(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture)
+        },
         UniformValue::Texture1dArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
@@ -394,6 +406,10 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
+        UniformValue::DepthTexture1dArray(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture)
+        },
         UniformValue::Texture2dArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
@@ -407,6 +423,10 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
         UniformValue::UnsignedTexture2dArray(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture)
+        },
+        UniformValue::DepthTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture)
         },
