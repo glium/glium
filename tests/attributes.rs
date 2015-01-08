@@ -1,7 +1,7 @@
-#![feature(phase)]
+#![feature(plugin)]
 #![feature(unboxed_closures)]
 
-#[phase(plugin)]
+#[plugin]
 extern crate glium_macros;
 
 extern crate glutin;

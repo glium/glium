@@ -47,7 +47,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                                 token::InternedString::new("unused_assignments"))]
                     ))
                 ],
-                combine_substructure: generic::combine_substructure(body),
+                combine_substructure: generic::combine_substructure(box body),
             },
         ],
     }.expand(ecx, meta_item, item, |i| push.call_mut((i,)));

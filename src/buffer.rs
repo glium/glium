@@ -1,8 +1,7 @@
 use context::{self, GlVersion};
 use gl;
 use libc;
-use std::c_vec::CVec;
-use std::{fmt, mem, ptr};
+use std::{fmt, mem, ptr, slice};
 use std::sync::Arc;
 use std::sync::mpsc::channel;
 use std::ops::{Deref, DerefMut};
@@ -230,7 +229,8 @@ impl Buffer {
 
         Mapping {
             buffer: self,
-            data: unsafe { CVec::new(rx.recv().unwrap().0, size) },
+            data: rx.recv().unwrap().0,
+            len: size,
         }
     }
 
@@ -318,7 +318,8 @@ impl GlObject for Buffer {
 /// A mapping of a buffer.
 pub struct Mapping<'b, T, D> {
     buffer: &'b mut Buffer,
-    data: CVec<D>,
+    data: *mut D,
+    len: uint,
 }
 
 #[unsafe_destructor]
@@ -349,12 +350,16 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
 impl<'a, T, D> Deref for Mapping<'a, T, D> {
     type Target = [D];
     fn deref<'b>(&'b self) -> &'b [D] {
-        self.data.as_slice()
+        unsafe {
+            slice::from_raw_mut_buf(&self.data, self.len)
+        }
     }
 }
 
 impl<'a, T, D> DerefMut for Mapping<'a, T, D> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [D] {
-        self.data.as_mut_slice()
+        unsafe {
+            slice::from_raw_mut_buf(&self.data, self.len)
+        }
     }
 }

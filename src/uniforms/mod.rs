@@ -9,8 +9,8 @@ The recommended way to is to create your own structure and put the `#[uniforms]`
 For example:
 
 ```no_run
-# #![feature(phase)]
-#[phase(plugin)]
+# #![feature(plugin)]
+#[plugin]
 extern crate glium_macros;
 # extern crate glium;
 # fn main() {
