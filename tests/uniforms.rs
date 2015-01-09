@@ -141,3 +141,37 @@ fn uniforms_storage_ignore_inactive_uniforms() {
     
     display.assert_no_error();
 }
+
+#[test]
+#[should_fail]
+fn uniform_wrong_type() {    
+    let display = support::build_display();
+    let (vb, ib) = support::build_rectangle_vb_ib(&display);
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            attribute vec2 position;
+
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 110
+
+            uniform vec4 color;
+
+            void main() {
+                gl_FragColor = color;
+            }
+        ",
+        None).unwrap();
+
+    let uniforms = glium::uniforms::UniformsStorage::new("color", 1.0f32);
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 0.0, 0.0);
+    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+}

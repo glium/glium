@@ -42,7 +42,13 @@ pub fn draw<'a, I, U>(display: &Display,
         let mut uniforms_storage = Vec::new();
         uniforms.visit_values(|&mut: name, value| {
             if let Some(uniform) = uniforms_locations.get(name) {
-                // TODO: check uniform types
+                assert!(uniform.size.is_none());     // TODO: arrays not supported
+
+                if !value.is_usable_with(&uniform.ty) {
+                    panic!("Uniform value of type `{}` can't be bind to type `{}`",
+                           value, uniform.ty);
+                }
+
                 let binder = uniform_to_binder(display, *value, uniform.location, &mut active_texture);
                 uniforms_storage.push(binder);
             }
