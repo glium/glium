@@ -31,7 +31,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                     generic::ty::Literal(generic::ty::Path {
                         path: vec!["Option"],
                         lifetime: None,
-                        params: vec![box generic::ty::Self],
+                        params: vec![Box::new(generic::ty::Self)],
                         global: false,
                     })
                 ],
@@ -47,7 +47,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                                 token::InternedString::new("unused_assignments"))]
                     ))
                 ],
-                combine_substructure: generic::combine_substructure(box body),
+                combine_substructure: generic::combine_substructure(Box::new(body)),
             },
         ],
     }.expand(ecx, meta_item, item, |i| push.call_mut((i,)));

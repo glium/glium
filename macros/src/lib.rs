@@ -13,7 +13,7 @@ mod vertex;
 pub fn registrar(registry: &mut rustc::plugin::Registry) {
     use syntax::parse::token;
     registry.register_syntax_extension(token::intern("uniforms"),
-        syntax::ext::base::Decorator(box uniforms::expand));
+        syntax::ext::base::Decorator(Box::new(uniforms::expand)));
     registry.register_syntax_extension(token::intern("vertex_format"),
-        syntax::ext::base::Decorator(box vertex::expand));
+        syntax::ext::base::Decorator(Box::new(vertex::expand)));
 }

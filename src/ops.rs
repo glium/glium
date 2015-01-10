@@ -45,7 +45,7 @@ pub fn draw<'a, I, U>(display: &Display,
                 assert!(uniform.size.is_none());     // TODO: arrays not supported
 
                 if !value.is_usable_with(&uniform.ty) {
-                    panic!("Uniform value of type `{}` can't be bind to type `{}`",
+                    panic!("Uniform value of type `{:?}` can't be bind to type `{:?}`",
                            value, uniform.ty);
                 }
 
@@ -274,67 +274,67 @@ fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types
 {
     match value {
         UniformValue::SignedInt(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform1i(location, val)
                 }
-            }
+            })
         },
         UniformValue::UnsignedInt(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform1ui(location, val)
                 }
-            }
+            })
         },
         UniformValue::Float(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform1f(location, val)
                 }
-            }
+            })
         },
         UniformValue::Mat2(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.UniformMatrix2fv(location, 1, 0, val.as_ptr() as *const f32)
                 }
-            }
+            })
         },
         UniformValue::Mat3(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.UniformMatrix3fv(location, 1, 0, val.as_ptr() as *const f32)
                 }
-            }
+            })
         },
         UniformValue::Mat4(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.UniformMatrix4fv(location, 1, 0, val.as_ptr() as *const f32)
                 }
-            }
+            })
         },
         UniformValue::Vec2(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform2fv(location, 1, val.as_ptr() as *const f32)
                 }
-            }
+            })
         },
         UniformValue::Vec3(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform3fv(location, 1, val.as_ptr() as *const f32)
                 }
-            }
+            })
         },
         UniformValue::Vec4(val) => {
-            box move |&: ctxt| {
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform4fv(location, 1, val.as_ptr() as *const f32)
                 }
-            }
+            })
         },
         UniformValue::Texture1d(texture, sampler) => {
             let texture = texture.get_id();
@@ -453,7 +453,7 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
     let current_texture = *active_texture;
     *active_texture += 1;
 
-    box move |&: ctxt| {
+    Box::new(move |&: ctxt: &mut context::CommandContext| {
         unsafe {
             ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
             ctxt.gl.BindTexture(bind_point, texture);
@@ -465,5 +465,5 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
                 ctxt.gl.BindSampler(current_texture, 0);
             }
         }
-    }
+    })
 }
