@@ -343,7 +343,7 @@ impl Context {
                     }
                 }
             }
-        }).detach();
+        });
 
         Ok(Context {
             commands: Mutex::new(tx_commands),
@@ -420,7 +420,7 @@ impl Context {
                     Err(_) => break
                 }
             }
-        }).detach();
+        });
 
         Ok(Context {
             commands: Mutex::new(tx_commands),
@@ -438,7 +438,7 @@ impl Context {
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
-        self.commands.lock().unwrap().send(Message::Execute(box f)).unwrap();
+        self.commands.lock().unwrap().send(Message::Execute(Box::new(f))).unwrap();
     }
 
     pub fn swap_buffers(&self) {

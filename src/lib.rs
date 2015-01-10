@@ -17,7 +17,7 @@ fn main() {
 
     let display = glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
-        .with_title("Hello world".to_string())
+        .with_title(format!("Hello world"))
         .build_glium().unwrap();
 }
 ```
@@ -176,11 +176,13 @@ target.finish();
 ```
 
 */
+#![feature(int_uint)]
 #![feature(old_orphan_check)]
 #![feature(slicing_syntax)]
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
+#![allow(unstable)]
 #![warn(missing_docs)]
 
 // TODO: remove these when everything is implemented
@@ -998,7 +1000,7 @@ pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttac
 /// instantaneous, even when vsync is enabled.
 pub struct Frame<'a> {
     display: Display,
-    marker: std::kinds::marker::ContravariantLifetime<'a>,
+    marker: std::marker::ContravariantLifetime<'a>,
     dimensions: (uint, uint),
 }
 
@@ -1204,7 +1206,7 @@ impl Display {
     pub fn draw(&self) -> Frame {
         Frame {
             display: self.clone(),
-            marker: std::kinds::marker::ContravariantLifetime,
+            marker: std::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
         }
     }
@@ -1298,9 +1300,9 @@ impl Display {
         // changing the callback
         {
             let mut cb = self.context.debug_callback.lock().unwrap();
-            *cb = Some(box callback as Box<FnMut(String, debug::Source, debug::MessageType,
-                                                 debug::Severity)
-                                           + Send + Sync>);
+            *cb = Some(Box::new(callback) as Box<FnMut(String, debug::Source, debug::MessageType,
+                                                      debug::Severity)
+                                                + Send + Sync>);
         }
 
         // this is the C callback
@@ -1321,7 +1323,7 @@ impl Display {
                 let mut callback = callback.lock().unwrap();
                 let callback = callback.deref_mut();
 
-                if let &Some(ref mut callback) = callback {
+                if let &mut Some(ref mut callback) = callback {
                     callback.call_mut((message.to_string(),
                         FromPrimitive::from_uint(source as uint).unwrap_or(debug::Source::OtherSource),
                         FromPrimitive::from_uint(ty as uint).unwrap_or(debug::MessageType::Other),

@@ -38,7 +38,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 */
 #![experimental]
 
-use std::kinds::marker::ContravariantLifetime;
+use std::marker::ContravariantLifetime;
 
 use texture::{Texture, Texture2d, DepthTexture2d, StencilTexture2d, DepthStencilTexture2d};
 use fbo::FramebufferAttachments;

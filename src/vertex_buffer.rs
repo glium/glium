@@ -162,10 +162,10 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// # extern crate glutin;
     /// # fn main() {
     /// let bindings = vec![(
-    ///         "position".to_string(), 0,
+    ///         format!("position"), 0,
     ///         glium::vertex_buffer::AttributeType::F32F32,
     ///     ), (
-    ///         "color".to_string(), 2 * ::std::mem::size_of::<f32>(),
+    ///         format!("color"), 2 * ::std::mem::size_of::<f32>(),
     ///         glium::vertex_buffer::AttributeType::F32,
     ///     ),
     /// ];

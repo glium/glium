@@ -1,3 +1,5 @@
+#![allow(unstable)]
+
 extern crate gl_generator;
 extern crate khronos_api;
 
