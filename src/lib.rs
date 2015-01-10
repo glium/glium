@@ -212,6 +212,7 @@ pub mod debug;
 pub mod framebuffer;
 pub mod index_buffer;
 pub mod pixel_buffer;
+pub mod macros;
 pub mod render_buffer;
 pub mod uniforms;
 pub mod vertex_buffer;
