@@ -75,7 +75,6 @@ fn texture_3d_creation() {
 }
 
 #[test]
-#[cfg(feature = "gl_extensions")]
 fn texture_2d_read() {
     let display = support::build_display();
 

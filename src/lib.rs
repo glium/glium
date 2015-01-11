@@ -1382,50 +1382,10 @@ impl Display {
     /// # }
     /// ```
     pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
-        where P: texture::PixelValue + Clone + Send, T: texture::Texture2dData<Data = P>
+                                   where P: texture::PixelValue + Clone + Send,
+                                   T: texture::Texture2dData<Data = P>
     {
-        use std::mem;
-
-        let dimensions = self.get_framebuffer_dimensions();
-        let pixels_count = dimensions.0 * dimensions.1;
-
-        let pixels_size = texture::Texture2dData::get_format(None::<T>).get_size();
-        let (format, gltype) = texture::Texture2dData::get_format(None::<T>).to_gl_enum();
-
-        let (tx, rx) = channel();
-        self.context.context.exec(move |: ctxt| {
-            unsafe {
-                // unbinding framebuffers
-                if ctxt.state.read_framebuffer != 0 {
-                    if ctxt.version >= &context::GlVersion(3, 0) {
-                        ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                        ctxt.state.read_framebuffer = 0;
-                    } else {
-                        ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                        ctxt.state.draw_framebuffer = 0;
-                        ctxt.state.read_framebuffer = 0;
-                    }
-                }
-
-                // adjusting glReadBuffer
-                if ctxt.state.default_framebuffer_read != Some(gl::FRONT_LEFT) {
-                    ctxt.gl.ReadBuffer(gl::FRONT_LEFT);
-                    ctxt.state.default_framebuffer_read = Some(gl::FRONT_LEFT);
-                }
-
-                // reading
-                let total_data_size = pixels_count * pixels_size / mem::size_of::<P>();
-                let mut data: Vec<P> = Vec::with_capacity(total_data_size);
-                ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
-                    dimensions.1 as gl::types::GLint, format, gltype,
-                    data.as_mut_ptr() as *mut libc::c_void);
-                data.set_len(total_data_size);
-                tx.send(data).ok();
-            }
-        });
-
-        let data = rx.recv().unwrap();
-        texture::Texture2dData::from_vec(data, dimensions.0 as u32)
+        ops::read_from_default_fb(gl::FRONT_LEFT, self)
     }
 
     /// Asserts that there are no OpenGL error pending.

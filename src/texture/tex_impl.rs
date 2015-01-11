@@ -4,13 +4,16 @@ use gl;
 use GlObject;
 use context::GlVersion;
 
-use texture::PixelValue;
+use texture::{Texture2dData, PixelValue};
 
 use libc;
 use std::fmt;
 use std::mem;
 use std::ptr;
 use std::sync::mpsc::channel;
+
+use ops;
+use fbo;
 
 pub struct TextureImplementation {
     display: Display,
@@ -177,45 +180,14 @@ impl TextureImplementation {
     /// Reads the content of a mipmap level of the texture.
     // TODO: this function only works for level 0 right now
     //       width/height need adjustements
-    #[cfg(feature = "gl_extensions")]
-    pub fn read<P>(&self, level: u32) -> Vec<P> where P: PixelValue {
+    pub fn read<P, T>(&self, level: u32) -> T
+                      where P: PixelValue + Clone + Send,
+                      T: Texture2dData<Data = P>
+            // TODO: remove Clone for P
+    {
         assert_eq!(level, 0);   // TODO:
-
-        let pixels_count = (self.width * self.height.unwrap_or(1) * self.depth.unwrap_or(1))
-                            as uint;
-
-        // FIXME: WRONG
-        let (format, gltype) = PixelValue::get_format(None::<P>).to_gl_enum();
-        let my_id = self.id;
-
-        let (tx, rx) = channel();
-        self.display.context.context.exec(move |: ctxt| {
-            unsafe {
-                let mut data: Vec<P> = Vec::with_capacity(pixels_count);
-
-                ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
-
-                if ctxt.version >= &GlVersion(4, 5) {
-                    ctxt.gl.GetTextureImage(my_id, level as gl::types::GLint, format, gltype,
-                        (pixels_count * mem::size_of::<P>()) as gl::types::GLsizei,
-                        data.as_mut_ptr() as *mut libc::c_void);
-
-                } else if ctxt.extensions.gl_ext_direct_state_access {
-                    ctxt.gl.GetTextureImageEXT(my_id, gl::TEXTURE_2D, level as gl::types::GLint,
-                        format, gltype, data.as_mut_ptr() as *mut libc::c_void);
-
-                } else {
-                    ctxt.gl.BindTexture(gl::TEXTURE_2D, my_id);
-                    ctxt.gl.GetTexImage(gl::TEXTURE_2D, level as gl::types::GLint, format, gltype,
-                        data.as_mut_ptr() as *mut libc::c_void);
-                }
-
-                data.set_len(pixels_count);
-                tx.send(data).unwrap();
-            }
-        });
-
-        rx.recv().unwrap()
+        ops::read_attachment(&fbo::Attachment::Texture(self.id), (self.width,
+                             self.height.unwrap_or(1)), &self.display)
     }
 
     /// Returns the `Display` associated to this texture.
