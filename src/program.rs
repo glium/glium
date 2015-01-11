@@ -322,6 +322,11 @@ impl Program {
         self.frag_data_locations.lock().unwrap().insert(name.to_string(), location);
         location
     }
+
+    /// Returns informations about a uniform variable, if it exists.
+    pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
+        self.uniforms.get(name)
+    }
 }
 
 impl fmt::Show for Program {
