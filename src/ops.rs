@@ -19,7 +19,8 @@ pub fn draw<'a, I, U>(display: &Display,
     indices: &IndicesSource<I>, program: &Program, uniforms: U, draw_parameters: &DrawParameters,
     dimensions: (u32, u32)) where U: Uniforms, I: ::index_buffer::Index
 {
-    let fbo_id = fbo::get_framebuffer(&display.context, framebuffer);
+    let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
     let vao_id = vertex_array_object::get_vertex_array_object(&display.context, vertex_buffer.clone(),
                                                               indices, program);
@@ -129,7 +130,8 @@ pub fn draw<'a, I, U>(display: &Display,
 pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
     red: f32, green: f32, blue: f32, alpha: f32)
 {
-    let fbo_id = fbo::get_framebuffer(display, framebuffer);
+    let fbo_id = display.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(framebuffer, &display.context);
 
     let (red, green, blue, alpha) = (
         red as gl::types::GLclampf,
@@ -156,7 +158,9 @@ pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
     value: f32)
 {
     let value = value as gl::types::GLclampf;
-    let fbo_id = fbo::get_framebuffer(display, framebuffer);
+    
+    let fbo_id = display.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(framebuffer, &display.context);
 
     display.context.exec(move |: mut ctxt| {
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
@@ -176,7 +180,9 @@ pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&Framebuffe
     value: int)
 {
     let value = value as gl::types::GLint;
-    let fbo_id = fbo::get_framebuffer(display, framebuffer);
+
+    let fbo_id = display.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(framebuffer, &display.context);
 
     display.context.exec(move |: mut ctxt| {
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
@@ -201,14 +207,17 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
     let src_rect = src_rect.clone();
     let target_rect = target_rect.clone();
 
-    let source = fbo::get_framebuffer(display, source);
-    let target = fbo::get_framebuffer(display, target);
+    // FIXME: we don't draw on it
+    let source = display.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(source, &display.context);
+    let target = display.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(target, &display.context);
 
     display.context.exec(move |: ctxt| {
         unsafe {
             // trying to do a named blit if possible
             if ctxt.version >= &context::GlVersion(4, 5) {
-                ctxt.gl.BlitNamedFramebuffer(source.unwrap_or(0), target.unwrap_or(0),
+                ctxt.gl.BlitNamedFramebuffer(source, target,
                     src_rect.left as gl::types::GLint,
                     src_rect.bottom as gl::types::GLint,
                     (src_rect.left + src_rect.width) as gl::types::GLint,
@@ -221,26 +230,26 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
             }
 
             // binding source framebuffer
-            if ctxt.state.read_framebuffer != source.unwrap_or(0) {
+            if ctxt.state.read_framebuffer != source {
                 if ctxt.version >= &context::GlVersion(3, 0) {
-                    ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, source.unwrap_or(0));
-                    ctxt.state.read_framebuffer = source.unwrap_or(0);
+                    ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, source);
+                    ctxt.state.read_framebuffer = source;
 
                 } else {
-                    ctxt.gl.BindFramebufferEXT(gl::READ_FRAMEBUFFER_EXT, source.unwrap_or(0));
-                    ctxt.state.read_framebuffer = source.unwrap_or(0);
+                    ctxt.gl.BindFramebufferEXT(gl::READ_FRAMEBUFFER_EXT, source);
+                    ctxt.state.read_framebuffer = source;
                 }
             }
 
             // binding target framebuffer
-            if ctxt.state.draw_framebuffer != target.unwrap_or(0) {
+            if ctxt.state.draw_framebuffer != target {
                 if ctxt.version >= &context::GlVersion(3, 0) {
-                    ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, target.unwrap_or(0));
-                    ctxt.state.draw_framebuffer = target.unwrap_or(0);
+                    ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, target);
+                    ctxt.state.draw_framebuffer = target;
 
                 } else {
-                    ctxt.gl.BindFramebufferEXT(gl::DRAW_FRAMEBUFFER_EXT, target.unwrap_or(0));
-                    ctxt.state.draw_framebuffer = target.unwrap_or(0);
+                    ctxt.gl.BindFramebufferEXT(gl::DRAW_FRAMEBUFFER_EXT, target);
+                    ctxt.state.draw_framebuffer = target;
                 }
             }
 

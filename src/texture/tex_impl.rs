@@ -259,22 +259,11 @@ impl fmt::Show for TextureImplementation {
 
 impl Drop for TextureImplementation {
     fn drop(&mut self) {
-        use fbo;
-
         // removing FBOs which contain this texture
-        {
-            let mut fbos = self.display.context.framebuffer_objects.lock().unwrap();
+        self.display.context.framebuffer_objects.as_ref().unwrap()
+                    .purge_texture(self.id, &self.display.context.context);
 
-            let to_delete = fbos.keys().filter(|b| {
-                b.colors.iter().find(|&&(_, id)| id == fbo::Attachment::Texture(self.id)).is_some() ||
-                b.depth == Some(fbo::Attachment::Texture(self.id)) || b.stencil == Some(fbo::Attachment::Texture(self.id))
-            }).map(|k| k.clone()).collect::<Vec<_>>();
-
-            for k in to_delete.into_iter() {
-                fbos.remove(&k);
-            }
-        }
-
+        // destroying the texture
         let id = self.id.clone();
         self.display.context.context.exec(move |: ctxt| {
             unsafe { ctxt.gl.DeleteTextures(1, [ id ].as_ptr()); }

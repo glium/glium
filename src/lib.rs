@@ -1129,7 +1129,7 @@ impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
             context: Arc::new(DisplayImpl {
                 context: context,
                 debug_callback: Mutex::new(None),
-                framebuffer_objects: Mutex::new(HashMap::new()),
+                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
                 vertex_array_objects: Mutex::new(HashMap::new()),
                 samplers: Mutex::new(HashMap::new()),
             }),
@@ -1146,7 +1146,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
             context: Arc::new(DisplayImpl {
                 context: context,
                 debug_callback: Mutex::new(None),
-                framebuffer_objects: Mutex::new(HashMap::new()),
+                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
                 vertex_array_objects: Mutex::new(HashMap::new()),
                 samplers: Mutex::new(HashMap::new()),
             }),
@@ -1173,9 +1173,8 @@ struct DisplayImpl {
                                      + Send + Sync>>>,
 
     // we maintain a list of FBOs
-    // when something requirering a FBO is drawn, we look for an existing one in this hashmap
-    framebuffer_objects: Mutex<HashMap<fbo::FramebufferAttachments,
-                                       fbo::FrameBufferObject>>,
+    // the option is here to destroy the container
+    framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (vertexbuffer, program)
@@ -1480,8 +1479,8 @@ impl Drop for DisplayImpl {
         });
 
         {
-            let mut fbos = self.framebuffer_objects.lock().unwrap();
-            fbos.clear();
+            let fbos = self.framebuffer_objects.take();
+            fbos.unwrap().cleanup(&self.context);
         }
 
         {

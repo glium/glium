@@ -17,7 +17,7 @@ use framebuffer::{StencilAttachment, ToStencilAttachment};
 use framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
 use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat};
 
-use {fbo, gl, context};
+use {gl, context};
 use {GlObject, DisplayImpl, ToGlEnum};
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
@@ -220,19 +220,10 @@ impl RenderBufferImpl {
 impl Drop for RenderBufferImpl {
     fn drop(&mut self) {
         // removing FBOs which contain this buffer
-        {
-            let mut fbos = self.display.framebuffer_objects.lock().unwrap();
+        self.display.framebuffer_objects.as_ref().unwrap()
+                    .purge_renderbuffer(self.id, &self.display.context);
 
-            let to_delete = fbos.keys().filter(|b| {
-                b.colors.iter().find(|&&(_, id)| id == fbo::Attachment::RenderBuffer(self.id)).is_some() ||
-                b.depth == Some(fbo::Attachment::RenderBuffer(self.id)) || b.stencil == Some(fbo::Attachment::RenderBuffer(self.id))
-            }).map(|k| k.clone()).collect::<Vec<_>>();
-
-            for k in to_delete.into_iter() {
-                fbos.remove(&k);
-            }
-        }
-
+        // destroying
         let id = self.id.clone();
         self.display.context.exec(move |: ctxt| {
             unsafe {
