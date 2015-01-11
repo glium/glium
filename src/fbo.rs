@@ -102,6 +102,27 @@ impl FramebuffersContainer {
         }
     }
 
+    pub fn get_framebuffer_for_reading(&self, attachment: &Attachment, context: &context::Context)
+                                       -> (gl::types::GLuint, gl::types::GLenum)
+    {
+        for (attachments, fbo) in self.framebuffers.lock().unwrap().iter() {
+            for &(key, ref atc) in attachments.colors.iter() {
+                if atc == attachment {
+                    return (fbo.get_id(), gl::COLOR_ATTACHMENT0 + key);
+                }
+            }
+        }
+
+        let attachments = FramebufferAttachments {
+            colors: vec![(0, attachment.clone())],
+            depth: None,
+            stencil: None,
+        };
+
+        let framebuffer = self.get_framebuffer_for_drawing(Some(&attachments), context);
+        (framebuffer, gl::COLOR_ATTACHMENT0)
+    }
+
     fn get_framebuffer(&self, framebuffer: &FramebufferAttachments,
                        context: &context::Context) -> gl::types::GLuint
     {

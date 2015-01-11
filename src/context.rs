@@ -131,6 +131,9 @@ pub struct GLState {
 
     /// The latest value passed to `glPixelStore` with `GL_UNPACK_ALIGNMENT`.
     pub pixel_store_unpack_alignment: gl::types::GLint,
+
+    /// The latest value passed to `glPixelStore` with `GL_PACK_ALIGNMENT`.
+    pub pixel_store_pack_alignment: gl::types::GLint,
 }
 
 impl GLState {
@@ -172,6 +175,7 @@ impl GLState {
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,
             pixel_store_unpack_alignment: 4,
+            pixel_store_pack_alignment: 4,
         }
     }
 }

@@ -425,36 +425,22 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `read` function
-    // TODO: implement for arrays too
-    if dimensions != TextureDimensions::Texture1dArray && dimensions != TextureDimensions::Texture2dArray {
-        let (data_type, constructor) = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => (
-                    "Texture1dData",
-                    "Texture1dData::from_vec(data)"
-                ),
-            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => (
-                    "Texture2dData",
-                    "Texture2dData::from_vec(data, self.get_width() as u32)"
-                ),
-            TextureDimensions::Texture3d => (
-                    "Texture3dData",
-                    "Texture3dData::from_vec(data, self.get_width() as u32, \
-                                             self.get_height().unwrap() as u32)"
-                ),
-        };
+    // TODO: implement for other types too
+    if dimensions == TextureDimensions::Texture2d &&
+       (ty == TextureType::Regular || ty == TextureType::Compressed)
+    {
+        /*let data_type = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dData",
+            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dData",
+            TextureDimensions::Texture3d => "Texture3dData",
+        };*/
 
         (write!(dest, r#"
                 /// Reads the content of the texture.
-                ///
-                /// # Features
-                ///
-                /// This method is always only if the `gl_extensions` feature is enabled.
-                #[cfg(feature = "gl_extensions")]
-                pub fn read<P, T>(&self) -> T where T: {data_type}<Data = P>, P: PixelValue {{
-                    let data = self.0.read::<P>(0);
-                    {constructor}
+                pub fn read<P, T>(&self) -> T where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
+                    self.0.read(0)
                 }}
-            "#, data_type = data_type, constructor = constructor)).unwrap();
+            "#)).unwrap();
     }
 
     // closing `impl Texture` block
