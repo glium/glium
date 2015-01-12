@@ -96,7 +96,7 @@ Performances:
 
  - Just like Rust is theoretically slower than C because of additional safety checks, Glium is
    theoretically slower than perfectly-optimized raw OpenGL calls. However in practice the
-   the difference is very low, if not negligable.
+   the difference is very low, if not negligible.
 
 ## Features
 
