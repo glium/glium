@@ -240,7 +240,9 @@ pub struct MultiOutputFrameBuffer<'a> {
     marker: ContravariantLifetime<'a>,
     dimensions: (u32, u32),
     color_attachments: Vec<(String, gl::types::GLuint)>,
+    depth_attachment: Option<fbo::Attachment>,
     depth_buffer_bits: Option<u16>,
+    stencil_attachment: Option<fbo::Attachment>,
     stencil_buffer_bits: Option<u16>,
 }
 
@@ -254,6 +256,29 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     pub fn new(display: &Display, color_attachments: &[(&str, &'a Texture2d)])
                -> MultiOutputFrameBuffer<'a>
     {
+        use render_buffer;
+
+        MultiOutputFrameBuffer::new_impl(display, color_attachments,
+                                         None::<&render_buffer::DepthRenderBuffer>,
+                                         None::<&render_buffer::StencilRenderBuffer>)
+    }
+
+    pub fn with_depth_buffer<D>(display: &Display, color_attachments: &[(&str, &'a Texture2d)],
+                                depth: &'a D) -> MultiOutputFrameBuffer<'a>
+                                where D: ToDepthAttachment
+    {
+        use render_buffer;
+        
+        MultiOutputFrameBuffer::new_impl(display, color_attachments, Some(depth),
+                                         None::<&render_buffer::StencilRenderBuffer>)
+    }
+
+    fn new_impl<D, S>(display: &Display, color_attachments: &[(&str, &'a Texture2d)],
+                      depth: Option<&'a D>, stencil: Option<&'a S>)
+                      -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment
+    {
+        assert!(stencil.is_none());     // not implemented yet
+
         let mut attachments = Vec::new();
         let mut dimensions = None;
 
@@ -271,17 +296,42 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             attachments.push((name.to_string(), texture.get_id()));
         }
 
-        if dimensions.is_none() {
-            panic!("Cannot pass an empty color_attachments when \
-                    creating a MultiOutputFrameBuffer");
-        }
+        let dimensions = match dimensions {
+            None => panic!("Cannot pass an empty color_attachments when \
+                            creating a MultiOutputFrameBuffer"),
+            Some(d) => d
+        };
+
+        let (depth, depth_bits) = if let Some(depth) = depth {
+            match depth.to_depth_attachment() {
+                DepthAttachment::Texture2d(tex) => {
+                    if (tex.get_width(), tex.get_height().unwrap()) != dimensions {
+                        panic!("The depth attachment must have the same dimensions \
+                                as the color attachment");
+                    }
+
+                    (Some(fbo::Attachment::Texture(tex.get_id())), Some(32))      // FIXME: wrong number
+                },
+
+                DepthAttachment::RenderBuffer(buffer) => {
+                    // TODO: dimensions
+
+                    (Some(fbo::Attachment::RenderBuffer(buffer.get_id())), Some(32))      // FIXME: wrong number
+                },
+            }
+
+        } else {
+            (None, None)
+        };
 
         MultiOutputFrameBuffer {
             display: display.clone(),
             marker: ContravariantLifetime,
-            dimensions: dimensions.unwrap(),
+            dimensions: dimensions,
             color_attachments: attachments,
-            depth_buffer_bits: None,
+            depth_attachment: depth,
+            depth_buffer_bits: depth_bits,
+            stencil_attachment: None,
             stencil_buffer_bits: None,
         }
     }
@@ -300,7 +350,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         FramebufferAttachments {
             colors: colors,
-            depth: None,
+            depth: self.depth_attachment,
             stencil: None,
         }
     }
