@@ -254,6 +254,9 @@ pub struct Capabilities {
 
     /// Maximum width and height of `glViewport`.
     pub max_viewport_dims: (gl::types::GLint, gl::types::GLint),
+
+    /// Maximum number of elements that can be passed with `glDrawBuffers`.
+    pub max_draw_buffers: gl::types::GLint,
 }
 
 impl Context {
@@ -659,6 +662,12 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsLis
             let mut val: [gl::types::GLint; 2] = [ 0, 0 ];
             gl.GetIntegerv(gl::MAX_VIEWPORT_DIMS, val.as_mut_ptr());
             (val[0], val[1])
+        },
+
+        max_draw_buffers: unsafe {
+            let mut val = 1;
+            gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);
+            val
         },
 
     }

@@ -240,6 +240,8 @@ pub struct MultiOutputFrameBuffer<'a> {
     marker: ContravariantLifetime<'a>,
     dimensions: (u32, u32),
     color_attachments: Vec<(String, gl::types::GLuint)>,
+    depth_buffer_bits: Option<u16>,
+    stencil_buffer_bits: Option<u16>,
 }
 
 impl<'a> MultiOutputFrameBuffer<'a> {
@@ -279,6 +281,8 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             marker: ContravariantLifetime,
             dimensions: dimensions.unwrap(),
             color_attachments: attachments,
+            depth_buffer_bits: None,
+            stencil_buffer_bits: None,
         }
     }
 
@@ -299,6 +303,59 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             depth: None,
             stencil: None,
         }
+    }
+}
+
+impl<'a> Surface for MultiOutputFrameBuffer<'a> {
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        unimplemented!()
+    }
+
+    fn clear_depth(&mut self, value: f32) {
+        unimplemented!()
+    }
+
+    fn clear_stencil(&mut self, value: i32) {
+        unimplemented!()
+    }
+
+    fn get_blit_helper(&self) -> ::BlitHelper {
+        unimplemented!()
+    }
+
+    fn get_dimensions(&self) -> (uint, uint) {
+        (self.dimensions.0 as uint, self.dimensions.1 as uint)
+    }
+
+    fn get_depth_buffer_bits(&self) -> Option<u16> {
+        self.depth_buffer_bits
+    }
+
+    fn get_stencil_buffer_bits(&self) -> Option<u16> {
+        self.stencil_buffer_bits
+    }
+
+    fn draw<'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
+        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
+        U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::IntoVerticesSource<'v>
+    {
+        use index_buffer::ToIndicesSource;
+        
+        draw_parameters.validate();
+
+        if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
+            panic!("Requested a depth function but no depth buffer is attached");
+        }
+
+        if let Some(viewport) = draw_parameters.viewport {
+            assert!(viewport.width <= self.display.context.context.capabilities().max_viewport_dims.0
+                    as u32, "Viewport dimensions are too large");
+            assert!(viewport.height <= self.display.context.context.capabilities().max_viewport_dims.1
+                    as u32, "Viewport dimensions are too large");
+        }
+
+        ops::draw(&self.display, Some(&self.build_attachments(program)), vb.into_vertices_source(),
+                  &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 }
 
