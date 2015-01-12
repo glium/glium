@@ -424,7 +424,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ")).unwrap();
     }
 
-    // writing the `read` function
+    // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
        (ty == TextureType::Regular || ty == TextureType::Compressed)
@@ -436,9 +436,24 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         };*/
 
         (write!(dest, r#"
-                /// Reads the content of the texture.
+                /// Reads the content of the texture to the RAM.
+                ///
+                /// You should avoid doing this at all cost during performance-critical
+                /// operations (for example, while you're drawing).
+                /// Use `read_to_pixel_buffer` instead.
                 pub fn read<P, T>(&self) -> T where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
                     self.0.read(0)
+                }}
+            "#)).unwrap();
+
+        (write!(dest, r#"
+                /// Reads the content of the texture into a buffer in video memory.
+                ///
+                /// This operation copies the texture's data into a buffer in video memory
+                /// (a pixel buffer). Contrary to the `read` function, this operation is
+                /// done asynchronously and doesn't need a synchronization.
+                pub fn read_to_pixel_buffer<P, T>(&self) -> PixelBuffer<T> where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
+                    self.0.read_to_pixel_buffer(0)
                 }}
             "#)).unwrap();
     }
