@@ -190,7 +190,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         ops::clear_depth(&self.display.context, Some(&self.attachments), value)
     }
 
-    fn clear_stencil(&mut self, value: int) {
+    fn clear_stencil(&mut self, value: i32) {
         ops::clear_stencil(&self.display.context, Some(&self.attachments), value)
     }
 

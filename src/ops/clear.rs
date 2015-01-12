@@ -20,13 +20,13 @@ pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferA
 }
 
 pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
-                     value: isize)
+                     value: i32)
 {
     clear_impl(display, framebuffer, None, None, Some(value))
 }
 
 fn clear_impl(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
-              color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<isize>)
+              color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<i32>)
 {
     let color = color.map(|(red, green, blue, alpha)| (
         red as gl::types::GLclampf,
