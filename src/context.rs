@@ -120,6 +120,9 @@ pub struct GLState {
     /// The latest values passed to `glViewport`.
     pub viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei),
 
+    /// The latest values passed to `glScissor`.
+    pub scissor: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei),
+
     /// The latest value passed to `glLineWidth`.
     pub line_width: gl::types::GLfloat,
 
@@ -171,6 +174,7 @@ impl GLState {
             depth_range: (0.0, 1.0),
             blend_func: (0, 0),     // no default specified
             viewport: viewport,
+            scissor: viewport,
             line_width: 1.0,
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,

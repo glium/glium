@@ -87,3 +87,40 @@ fn wrong_depth_range() {
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
     display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
 }
+
+#[test]
+fn scissor() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        scissor: Some(glium::Rect {
+            left: 0,
+            bottom: 0,
+            width: 1,
+            height: 1,
+        }),
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 0.0, 0.0);
+    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    target.finish();
+
+    let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
+
+    assert_eq!(data[0][0], (1.0, 0.0, 0.0));
+    assert_eq!(data[1][0], (0.0, 0.0, 0.0));
+    assert_eq!(data[0][1], (0.0, 0.0, 0.0));
+    assert_eq!(data[1][1], (0.0, 0.0, 0.0));
+
+    for row in data.iter().skip(1) {
+        for pixel in row.iter().skip(1) {
+            assert_eq!(pixel, &(0.0, 0.0, 0.0));
+        }
+    }
+
+    display.assert_no_error();
+}
