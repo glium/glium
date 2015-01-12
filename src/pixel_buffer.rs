@@ -5,8 +5,9 @@ Pixel buffers are buffer that contain two-dimensional texture data.
 
 */
 use Display;
-use texture::PixelValue;
+use texture::Texture2dData;
 
+use GlObject;
 use buffer::{self, Buffer};
 use gl;
 
@@ -19,7 +20,7 @@ pub struct PixelBuffer<T> {
     buffer: Buffer,
 }
 
-impl<T> PixelBuffer<T> where T: PixelValue {
+impl<T> PixelBuffer<T> where T: Texture2dData {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty(display: &Display, capacity: usize) -> PixelBuffer<T> {
         PixelBuffer {
@@ -28,8 +29,14 @@ impl<T> PixelBuffer<T> where T: PixelValue {
         }
     }
 
-    /// Turns a `PixelBuffer<T>` into a `PixelBuffer<U>` without any check.
-    pub unsafe fn transmute<U>(self) -> PixelBuffer<U> where U: PixelValue {
-        PixelBuffer { buffer: self.buffer }
+    /// Returns the size in bytes of the buffer.
+    pub fn get_size(&self) -> usize {
+        self.buffer.get_total_size()
+    }
+}
+
+impl<T> GlObject for PixelBuffer<T> {
+    fn get_id(&self) -> gl::types::GLuint {
+        self.buffer.get_id()
     }
 }

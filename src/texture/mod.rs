@@ -42,6 +42,7 @@ use {gl, framebuffer};
 use image;
 
 use buffer::{self, Buffer};
+use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
 use {Surface, GlObject, ToGlEnum};
 

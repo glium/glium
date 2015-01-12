@@ -424,7 +424,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ")).unwrap();
     }
 
-    // writing the `read` function
+    // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
        (ty == TextureType::Regular || ty == TextureType::Compressed)
@@ -439,6 +439,13 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// Reads the content of the texture.
                 pub fn read<P, T>(&self) -> T where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
                     self.0.read(0)
+                }}
+            "#)).unwrap();
+
+        (write!(dest, r#"
+                /// Reads the content of the texture.
+                pub fn read_to_pixel_buffer<P, T>(&self) -> PixelBuffer<T> where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
+                    self.0.read_to_pixel_buffer(0)
                 }}
             "#)).unwrap();
     }

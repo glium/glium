@@ -4,6 +4,7 @@ use gl;
 use GlObject;
 use context::GlVersion;
 
+use pixel_buffer::PixelBuffer;
 use texture::{Texture2dData, PixelValue};
 
 use libc;
@@ -188,6 +189,25 @@ impl TextureImplementation {
         assert_eq!(level, 0);   // TODO:
         ops::read_attachment(&fbo::Attachment::Texture(self.id), (self.width,
                              self.height.unwrap_or(1)), &self.display)
+    }
+
+    /// Reads the content of a mipmap level of the texture to a pixel buffer.
+    // TODO: this function only works for level 0 right now
+    //       width/height need adjustements
+    pub fn read_to_pixel_buffer<P, T>(&self, level: u32) -> PixelBuffer<T>
+                                      where P: PixelValue + Clone + Send,
+                                      T: Texture2dData<Data = P>
+            // TODO: remove Clone for P
+    {
+        assert_eq!(level, 0);   // TODO:
+
+        let size = self.width as usize * self.height.unwrap_or(1) as usize *
+                   Texture2dData::get_format(None::<T>).get_size();
+
+        let mut pb = PixelBuffer::new_empty(&self.display, size);
+        ops::read_attachment_to_pb(&fbo::Attachment::Texture(self.id), (self.width,
+                                   self.height.unwrap_or(1)), &mut pb, &self.display);
+        pb
     }
 
     /// Returns the `Display` associated to this texture.
