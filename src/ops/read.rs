@@ -2,7 +2,7 @@ use std::ptr;
 use std::sync::mpsc;
 
 use Display;
-use pixel_buffer::PixelBuffer;
+use pixel_buffer::{self, PixelBuffer};
 
 use fbo;
 use texture;
@@ -77,8 +77,9 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
 
     let pixel_buffer = target.as_ref().map(|buf| buf.get_id()).unwrap_or(0);
 
-    if let Some(ref pb) = target {
-        assert!(pb.get_size() >= total_data_size);
+    if let Some(pixel_buffer) = target {
+        assert!(pixel_buffer.get_size() >= total_data_size);
+        pixel_buffer::store_width(pixel_buffer, dimensions.0);
     }
 
     context.exec(move |: mut ctxt| {
