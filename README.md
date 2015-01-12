@@ -15,12 +15,12 @@ Its objectives:
  - Be 100 % safe to use.
  - Avoid all GL errors. If a GL error is triggered, then it's a bug.
  - Provide all the features that core OpenGL provides.
- - Be compatible with the lowest OpenGL version possible, but still use 4.5 functionalities if they are available.
+ - Be compatible with the lowest OpenGL version possible, but still use 4.5 features if they are available.
  - Be compatible with both OpenGL and OpenGL ES.
 
 ## [Link to the documentation](http://tomaka.github.io/glium)
 
-The documentation contains examples about how to use it.
+The documentation contains examples showing how to use Glium.
 
 ## Why should I use Glium instead of raw OpenGL calls?
 
@@ -34,13 +34,13 @@ Easy to use:
 
  - Glium is designed to be very easy to setup.
 
- - Glium should allow you to do everything that OpenGL allows you to do through high-level
+ - Glium should allow you to do everything that OpenGL allows you to do, just through high-level
    functions. If something is missing, please open an issue.
 
  - Glium provides easier ways to do common tasks. For example the `VertexBuffer` struct
-   holds informations about the vertex bindings, because you usually don't use several different
+   contains information about the vertex bindings, because you usually don't use several different
    bindings with the same vertex buffer. Creating a program doesn't require creating shaders,
-   attaching them, and linking. Instead it is one single function call. Drawing on a texture
+   attaching them, and linking - instead it is one single function call. Drawing on a texture
    is as easy as drawing on the backbuffer.
 
  - Glium is stateless. There are no `set_something()` functions in the entire library, and
@@ -65,7 +65,7 @@ Safety:
 
  - High-level functions are much easier to use and thus less error-prone. For example there is
    no risk of making a mistake while specifying the names and offsets of your vertex attributes,
-   since Glium automatically generates these informations for you.
+   since Glium automatically generates this data for you.
 
  - You can access the same Glium context from multiple threads simultaneously without
    having to worry about thread-safety.
@@ -76,7 +76,7 @@ Compatibility:
    doesn't work on OpenGL ES, please open an issue.
 
  - During initialization, Glium detects whether the context provides all the required
-   functionnalities, and returns an `Err` if the device is too old. Glium tries to be as tolerant
+   functionality, and returns an `Err` if the device is too old. Glium tries to be as tolerant
    as possible, and should work with the majority of the OpenGL2-era devices.
 
  - Glium will attempt to use the latest, optimized versions of OpenGL functions. This includes
@@ -84,15 +84,14 @@ Compatibility:
    to older functions if they are not available.
 
  - Glium comes with a set of tests that you can run with `cargo test`. If your project/game
-   doesn't work on a specific hardware, you can try running Glium's tests on it to see what
-   is wrong.
+   doesn't work on specific hardware, you can try running Glium's tests on it to see what is wrong.
 
 Performances:
 
  - State changes are optimized. The OpenGL state is only modified if the state actually differs.
    For example if you call `draw` with the `IfLess` depth test twice in a row, then
    `glDepthFunc(GL_LESS)` and `glEnable(GL_DEPTH_TEST)` will only be called the first time. If
-   then you call `draw` with `IfGreater`, then only `glDepthFunc(GL_GREATER)` will be called.
+   you then call `draw` with `IfGreater`, then only `glDepthFunc(GL_GREATER)` will be called.
 
  - Just like Rust is theoretically slower than C because of additional safety checks, Glium is
    theoretically slower than perfectly-optimized raw OpenGL calls. However in practice the
@@ -108,10 +107,8 @@ Glium has six features:
  - `gl_extensions`
  - `gles_extensions`
 
-If you disable both `gl_extensions` and `gles_extensions`, then only
-the functionalities that are available in both OpenGL 3 and OpenGL ES 2 will be
-available at compile-time.
+If you disable both `gl_extensions` and `gles_extensions`, then only the functionality that
+is available in both OpenGL 3 and OpenGL ES 2 will be available at compile-time.
 
-Enabling either `gl_extensions` or `gles_extensions` will unlock these
-functionalities, but they will trigger a `panic!` if used when they are
-not available on the target hardware.
+Enabling either `gl_extensions` or `gles_extensions` will unlock this functionality, but will
+trigger a `panic!` if used when not available on the target hardware.
