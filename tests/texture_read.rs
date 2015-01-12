@@ -33,6 +33,7 @@ fn texture_2d_read() {
 
 #[test]
 #[should_fail]
+#[cfg(feature = "gl_extensions")]       // TODO: remove
 fn empty_pixel_buffer() {
     let display = support::build_display();
 
