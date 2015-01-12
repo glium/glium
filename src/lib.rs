@@ -519,6 +519,12 @@ pub struct DrawParameters {
     ///
     /// `None` means "use the whole surface".
     pub viewport: Option<Rect>,
+
+    /// If specified, only pixels in this rect will be displayed. Default is `None`.
+    ///
+    /// This is different from a viewport. The image will stretch to fill the viewport, but
+    /// not the scissor box.
+    pub scissor: Option<Rect>,
 }
 
 impl std::default::Default for DrawParameters {
@@ -533,6 +539,7 @@ impl std::default::Default for DrawParameters {
             multisampling: true,
             dithering: true,
             viewport: None,
+            scissor: None,
         }
     }
 }
@@ -706,6 +713,32 @@ impl DrawParameters {
                 ctxt.state.viewport = viewport;
             }
         }
+
+        // scissor
+        if let Some(scissor) = self.scissor {
+            let scissor = (scissor.left as gl::types::GLint, scissor.bottom as gl::types::GLint,
+                           scissor.width as gl::types::GLsizei,
+                           scissor.height as gl::types::GLsizei);
+
+            unsafe {
+                if ctxt.state.scissor != scissor {
+                    ctxt.gl.Scissor(scissor.0, scissor.1, scissor.2, scissor.3);
+                    ctxt.state.scissor = scissor;
+                }
+
+                if !ctxt.state.enabled_scissor_test {
+                    ctxt.gl.Enable(gl::SCISSOR_TEST);
+                    ctxt.state.enabled_scissor_test = true;
+                }
+            }
+        } else {
+            unsafe {
+                if ctxt.state.enabled_scissor_test {
+                    ctxt.gl.Disable(gl::SCISSOR_TEST);
+                    ctxt.state.enabled_scissor_test = false;
+                }
+            }
+        }
     }
 }
 
@@ -850,7 +883,8 @@ pub struct Rect {
 ///
 /// ## Step 11: Scissor test
 ///
-/// This is not yet supported by glium.
+/// If `scissor` has been specified, then all the pixels that are outside of this rect
+/// are discarded.
 ///
 /// ## Step 12: Multisampling
 ///
