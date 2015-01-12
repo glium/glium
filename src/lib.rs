@@ -1001,7 +1001,6 @@ pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttac
 /// instantaneous, even when vsync is enabled.
 pub struct Frame<'a> {
     display: Display,
-    marker: std::marker::ContravariantLifetime<'a>,
     dimensions: (uint, uint),
 }
 
@@ -1206,7 +1205,6 @@ impl Display {
     pub fn draw(&self) -> Frame {
         Frame {
             display: self.clone(),
-            marker: std::marker::ContravariantLifetime,
             dimensions: self.get_framebuffer_dimensions(),
         }
     }
