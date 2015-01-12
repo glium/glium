@@ -939,7 +939,7 @@ pub trait Surface: Sized {
     fn clear_depth(&mut self, value: f32);
 
     /// Clears the stencil component of the target.
-    fn clear_stencil(&mut self, value: int);
+    fn clear_stencil(&mut self, value: i32);
 
     /// Returns the dimensions in pixels of the target.
     fn get_dimensions(&self) -> (uint, uint);
@@ -1053,7 +1053,7 @@ impl<'t> Surface for Frame<'t> {
         ops::clear_depth(&self.display.context, None, value)
     }
 
-    fn clear_stencil(&mut self, value: int) {
+    fn clear_stencil(&mut self, value: i32) {
         ops::clear_stencil(&self.display.context, None, value)
     }
 

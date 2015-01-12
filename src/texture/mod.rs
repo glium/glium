@@ -278,7 +278,7 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.clear_depth(value)
     }
 
-    fn clear_stencil(&mut self, value: int) {
+    fn clear_stencil(&mut self, value: i32) {
         self.0.clear_stencil(value)
     }
 
