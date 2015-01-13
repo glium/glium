@@ -153,7 +153,7 @@ impl<P: PixelValue + Clone> Texture2dData for Vec<Vec<P>> {      // TODO: remove
     }
 
     fn from_vec(data: Vec<P>, width: u32) -> Vec<Vec<P>> {
-        data.as_slice().chunks(width as uint).map(|e| e.to_vec()).collect()
+        data.as_slice().chunks(width as usize).map(|e| e.to_vec()).collect()
     }
 }
 
@@ -181,7 +181,7 @@ impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Pr
         // the image library gives use rows from bottom to top, so we need to flip them
         raw_data
             .as_slice()
-            .chunks(width as uint * image::Pixel::channel_count(None::<&P>) as uint)
+            .chunks(width as usize * image::Pixel::channel_count(None::<&P>) as usize)
             .rev()
             .flat_map(|row| row.iter())
             .map(|p| p.clone())
@@ -195,7 +195,7 @@ impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Pr
         // opengl gives use rows from bottom to top, so we need to flip them
         let data = data
             .as_slice()
-            .chunks(width as uint * image::Pixel::channel_count(None::<&P>) as uint)
+            .chunks(width as usize * image::Pixel::channel_count(None::<&P>) as usize)
             .rev()
             .flat_map(|row| row.iter())
             .map(|p| p.clone())
@@ -283,7 +283,7 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.clear_stencil(value)
     }
 
-    fn get_dimensions(&self) -> (uint, uint) {
+    fn get_dimensions(&self) -> (u32, u32) {
         self.0.get_dimensions()
     }
 

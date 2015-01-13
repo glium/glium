@@ -283,8 +283,8 @@ impl Context {
             let mut gl_state = {
                 let viewport = {
                     let dim = window.get_inner_size().unwrap();
-                    dimensions.0.store(dim.0, atomic::Ordering::Relaxed);
-                    dimensions.1.store(dim.1, atomic::Ordering::Relaxed);
+                    dimensions.0.store(dim.0 as usize, atomic::Ordering::Relaxed);
+                    dimensions.1.store(dim.1 as usize, atomic::Ordering::Relaxed);
                     (0, 0, dim.0 as gl::types::GLsizei, dim.1 as gl::types::GLsizei)
                 };
 
@@ -344,8 +344,8 @@ impl Context {
                 for event in window.poll_events() {
                     // update the dimensions
                     if let &glutin::Event::Resized(width, height) = &event {
-                        dimensions.0.store(width, atomic::Ordering::Relaxed);
-                        dimensions.1.store(height, atomic::Ordering::Relaxed);
+                        dimensions.0.store(width as usize, atomic::Ordering::Relaxed);
+                        dimensions.1.store(height as usize, atomic::Ordering::Relaxed);
                     }
 
                     // sending the event outside
@@ -441,10 +441,10 @@ impl Context {
         })
     }
 
-    pub fn get_framebuffer_dimensions(&self) -> (uint, uint) {
+    pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         (
-            self.dimensions.0.load(atomic::Ordering::Relaxed),
-            self.dimensions.1.load(atomic::Ordering::Relaxed),
+            self.dimensions.0.load(atomic::Ordering::Relaxed) as u32,
+            self.dimensions.1.load(atomic::Ordering::Relaxed) as u32,
         )
     }
 

@@ -194,8 +194,8 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         ops::clear_stencil(&self.display.context, Some(&self.attachments), value)
     }
 
-    fn get_dimensions(&self) -> (uint, uint) {
-        (self.dimensions.0 as uint, self.dimensions.1 as uint)
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.dimensions.0 as u32, self.dimensions.1 as u32)
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {
@@ -373,8 +373,8 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         unimplemented!()
     }
 
-    fn get_dimensions(&self) -> (uint, uint) {
-        (self.dimensions.0 as uint, self.dimensions.1 as uint)
+    fn get_dimensions(&self) -> (u32, u32) {
+        (self.dimensions.0 as u32, self.dimensions.1 as u32)
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {

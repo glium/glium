@@ -176,7 +176,6 @@ target.finish();
 ```
 
 */
-#![feature(int_uint)]
 #![feature(old_orphan_check)]
 #![feature(slicing_syntax)]
 #![feature(unboxed_closures)]
@@ -942,7 +941,7 @@ pub trait Surface: Sized {
     fn clear_stencil(&mut self, value: i32);
 
     /// Returns the dimensions in pixels of the target.
-    fn get_dimensions(&self) -> (uint, uint);
+    fn get_dimensions(&self) -> (u32, u32);
 
     /// Returns the number of bits of each pixel of the depth buffer.
     ///
@@ -1035,7 +1034,7 @@ pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttac
 /// instantaneous, even when vsync is enabled.
 pub struct Frame<'a> {
     display: Display,
-    dimensions: (uint, uint),
+    dimensions: (u32, u32),
 }
 
 impl<'t> Frame<'t> {
@@ -1057,7 +1056,7 @@ impl<'t> Surface for Frame<'t> {
         ops::clear_stencil(&self.display.context, None, value)
     }
 
-    fn get_dimensions(&self) -> (uint, uint) {
+    fn get_dimensions(&self) -> (u32, u32) {
         self.dimensions
     }
 
@@ -1226,7 +1225,7 @@ impl Display {
     }
 
     /// Returns the dimensions of the main framebuffer.
-    pub fn get_framebuffer_dimensions(&self) -> (uint, uint) {
+    pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.context.context.get_framebuffer_dimensions()
     }
 
@@ -1276,7 +1275,7 @@ impl Display {
     /// Returns an estimate of the amount of video memory available in bytes.
     ///
     /// Returns `None` if no estimate is available.
-    pub fn get_free_video_memory(&self) -> Option<uint> {
+    pub fn get_free_video_memory(&self) -> Option<usize> {
         let (tx, rx) = channel();
 
         self.context.context.exec(move |: ctxt| {
@@ -1301,7 +1300,7 @@ impl Display {
             }
         });
 
-        rx.recv().unwrap().map(|v| v as uint * 1024)
+        rx.recv().unwrap().map(|v| v as usize * 1024)
     }
 
     /// Sets the callback to use when an OpenGL debug message is generated.
@@ -1357,9 +1356,9 @@ impl Display {
 
                 if let &mut Some(ref mut callback) = callback {
                     callback.call_mut((message.to_string(),
-                        FromPrimitive::from_uint(source as uint).unwrap_or(debug::Source::OtherSource),
-                        FromPrimitive::from_uint(ty as uint).unwrap_or(debug::MessageType::Other),
-                        FromPrimitive::from_uint(severity as uint).unwrap_or(debug::Severity::Notification)));
+                        FromPrimitive::from_uint(source as usize).unwrap_or(debug::Source::OtherSource),
+                        FromPrimitive::from_uint(ty as usize).unwrap_or(debug::MessageType::Other),
+                        FromPrimitive::from_uint(severity as usize).unwrap_or(debug::Severity::Notification)));
                 }
             }
         }
