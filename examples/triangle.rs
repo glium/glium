@@ -6,8 +6,6 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::Surface;
-
 fn main() {
     use glium::DisplayBuild;
 
@@ -19,7 +17,6 @@ fn main() {
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
         struct Vertex {
             position: [f32, ..2],
             color: [f32, ..3],
@@ -35,8 +32,8 @@ fn main() {
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
+    let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
+        &[ 0u16, 1, 2 ]);
 
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,
@@ -73,7 +70,6 @@ fn main() {
 
     // creating the uniforms structure
     #[uniforms]
-    #[deriving(Copy)]
     struct Uniforms {
         matrix: [[f32, ..4], ..4],
     }
@@ -96,8 +92,7 @@ fn main() {
 
         // drawing a frame
         let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
+        target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
         target.finish();
 
         // sleeping for some time in order not to use up too much CPU
@@ -106,7 +101,7 @@ fn main() {
         // polling and handling the events received by the window
         for event in display.poll_events().into_iter() {
             match event {
-                glutin::Event::Closed => break 'main,
+                glutin::Closed => break 'main,
                 _ => ()
             }
         }
