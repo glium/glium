@@ -183,3 +183,33 @@ fn vertex_buffer_any() {
 
     display.assert_no_error();
 }
+
+#[test]
+#[cfg(feature = "gl_extensions")]
+fn vertex_buffer_write() {
+    let display = support::build_display();
+    
+    #[vertex_format]
+    #[derive(Copy)]
+    struct Vertex {
+        field1: [u8; 2],
+        field2: [u8; 2],
+    }
+
+    let mut vb = glium::VertexBuffer::new(&display, 
+        vec![
+            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
+            Vertex { field1: [ 0,  0], field2: [ 0,  0] },
+        ]
+    );
+
+    vb.write(1, vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
+
+    let data = vb.read();
+    assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
+    assert_eq!(data[0].field2.as_slice(), [5, 7].as_slice());
+    assert_eq!(data[1].field1.as_slice(), [12, 13].as_slice());
+    assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
+
+    display.assert_no_error();
+}

@@ -256,6 +256,14 @@ impl<T: Send + Copy> VertexBuffer<T> {
     pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
         self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
     }
+
+    /// Writes some vertices in the buffer.
+    ///
+    /// Replaces some vertices in the buffer by others.
+    /// The `offset` represents a number of vertices, not a number of bytes.
+    pub fn write(&mut self, offset: usize, data: Vec<T>) {
+        self.buffer.buffer.upload::<buffer::ArrayBuffer, _>(offset, data)
+    }
 }
 
 impl<T> VertexBuffer<T> {
