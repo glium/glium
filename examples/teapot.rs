@@ -48,9 +48,9 @@ fn main() {
 
         // fragment shader
         "
-            #version 330
+            #version 110
 
-            in vec3 v_normal;
+            varying vec3 v_normal;
 
             const vec3 LIGHT = vec3(-0.2, 0.8, 0.1);
 
