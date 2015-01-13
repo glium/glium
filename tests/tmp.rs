@@ -1,5 +1,4 @@
 #![feature(phase)]
-#![feature(unboxed_closures)]
 
 #[phase(plugin)]
 extern crate glium_macros;
@@ -7,18 +6,16 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::Surface;
-
-mod support;
-
 #[test]
 fn test() {
-    let display = support::build_display();
+    use glium::DisplayBuild;
+
+    let display = glutin::HeadlessRendererBuilder::new(1024, 768)
+        .build_glium().unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
         #[vertex_format]
-        #[deriving(Copy)]
         struct Vertex {
             position: [f32, ..2],
             color: [f32, ..3],
@@ -34,8 +31,8 @@ fn test() {
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
+    let index_buffer = glium::IndexBuffer::new(&display, glium::TrianglesList,
+        &[ 0u16, 1, 2 ]);
 
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,
@@ -88,8 +85,6 @@ fn test() {
 
     // drawing a frame
     let mut target = display.draw();
-    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
+    target.draw(glium::BasicDraw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()));
     target.finish();
-    
-    display.assert_no_error();
 }

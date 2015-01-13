@@ -3,10 +3,7 @@ name = "glium_macros"
 version = "0.0.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 
-[lib]
+[[lib]]
 name = "glium_macros"
 path = "src/lib.rs"
 plugin = true
-
-[dependencies.glium]
-path = ".."
