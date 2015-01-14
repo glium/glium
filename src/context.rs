@@ -587,7 +587,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             "GL_ARB_texture_storage" => extensions.gl_arb_texture_storage = true,
-            "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = false,
+            "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = true,
             _ => ()
         }
     }
