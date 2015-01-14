@@ -240,6 +240,8 @@ pub struct ExtensionsList {
     pub gl_arb_buffer_storage: bool,
     /// GL_ARB_uniform_buffer_object
     pub gl_arb_uniform_buffer_object: bool,
+    /// GL_ARB_sync
+    pub gl_arb_sync: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -541,6 +543,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         {
             result.push("OpenGL implementation doesn't support uniform blocks");
         }
+
+        if cfg!(feature = "gl_sync") && ctxt.version < &GlVersion(3, 2) &&
+            !ctxt.extensions.gl_arb_sync
+        {
+            result.push("OpenGL implementation doesn't support synchronization objects");
+        }
     }
 
     if result.len() == 0 {
@@ -606,6 +614,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_texture_storage: false,
         gl_arb_buffer_storage: false,
         gl_arb_uniform_buffer_object: false,
+        gl_arb_sync: false,
     };
 
     for extension in strings.into_iter() {
@@ -623,6 +632,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_texture_storage" => extensions.gl_arb_texture_storage = true,
             "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = true,
             "GL_ARB_uniform_buffer_object" => extensions.gl_arb_uniform_buffer_object = true,
+            "GL_ARB_sync" => extensions.gl_arb_sync = true,
             _ => ()
         }
     }
