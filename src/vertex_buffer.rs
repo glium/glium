@@ -198,16 +198,6 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     /// **Warning**: using this function can slow things down a lot, because it
     /// waits for all the previous commands to be executed before returning.
-    ///
-    /// # Panic
-    ///
-    /// OpenGL ES doesn't support mapping buffers. Using this function will thus panic.
-    /// If you want to be compatible with all platforms, it is preferable to disable the
-    /// `gl_extensions` feature.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_extensions` feature is enabled.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
         let len = self.buffer.buffer.get_elements_count();
         let mapping = self.buffer.buffer.map::<buffer::ArrayBuffer, T>(0, len);
@@ -219,18 +209,20 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// This function is usually better if are just doing one punctual read, while `map`
     /// is better if you want to have multiple small reads.
     ///
-    /// # Panic
-    ///
-    /// OpenGL ES doesn't support reading buffers. Using this function will thus panic.
-    /// If you want to be compatible with all platforms, it is preferable to disable the
-    /// `gl_extensions` feature.
-    ///
     /// # Features
     ///
-    /// Only available if the `gl_extensions` feature is enabled.
-    #[cfg(feature = "gl_extensions")]
+    /// Only available if the `gl_read_buffer` feature is enabled.
+    #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> Vec<T> {
         self.buffer.buffer.read::<buffer::ArrayBuffer, T>()
+    }
+
+    /// Reads the content of the buffer.
+    ///
+    /// This function is usually better if are just doing one punctual read, while `map`
+    /// is better if you want to have multiple small reads.
+    pub fn read_if_supported(&self) -> Option<Vec<T>> {
+        self.buffer.buffer.read_if_supported::<buffer::ArrayBuffer, T>()
     }
 
     /// Reads the content of the buffer.
@@ -244,16 +236,26 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
     ///
-    /// OpenGL ES doesn't support reading buffers. Using this function will thus panic.
-    /// If you want to be compatible with all platforms, it is preferable to disable the
-    /// `gl_extensions` feature.
-    ///
     /// # Features
     ///
-    /// Only available if the `gl_extensions` feature is enabled.
-    #[cfg(feature = "gl_extensions")]
+    /// Only available if the `gl_read_buffer` feature is enabled.
+    #[cfg(feature = "gl_read_buffer")]
     pub fn read_slice(&self, offset: usize, size: usize) -> Vec<T> {
         self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
+    }
+
+    /// Reads the content of the buffer.
+    ///
+    /// This function is usually better if are just doing one punctual read, while `map`
+    /// is better if you want to have multiple small reads.
+    ///
+    /// The offset and size are expressed in number of elements.
+    ///
+    /// ## Panic
+    ///
+    /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
+    pub fn read_slice_if_supported(&self, offset: usize, size: usize) -> Option<Vec<T>> {
+        self.buffer.buffer.read_slice_if_supported::<buffer::ArrayBuffer, T>(offset, size)
     }
 
     /// Writes some vertices to the buffer.
@@ -352,10 +354,6 @@ impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
 }
 
 /// A mapping of a buffer.
-///
-/// # Features
-///
-/// Only available if the `gl_extensions` feature is enabled.
 pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::ArrayBuffer, T>);
 
 impl<'a, T> Deref for Mapping<'a, T> {

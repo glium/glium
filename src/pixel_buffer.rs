@@ -41,10 +41,31 @@ impl<T> PixelBuffer<T> where T: Texture2dData {
     /// ## Panic
     ///
     /// Panics if the pixel buffer is empty.
-    #[cfg(feature = "gl_extensions")]       // TODO: remove
+    ///
+    /// ## Features
+    ///
+    /// This function is only available if the `gl_read_buffer` feature is enabled.
+    /// Otherwise, you should use `read_if_supported`.
+    #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> T {
         let data = self.buffer.read::<buffer::PixelPackBuffer, _>();
         Texture2dData::from_vec(data, self.width.expect("The pixel buffer is empty"))
+    }
+
+    /// Copies the content of the pixel buffer to RAM.
+    ///
+    /// This operation is slow and should be done outside of the rendering loop.
+    ///
+    /// ## Panic
+    ///
+    /// Panics if the pixel buffer is empty.
+    pub fn read_if_supported(&self) -> Option<T> {
+        let data = match self.buffer.read_if_supported::<buffer::PixelPackBuffer, _>() {
+            Some(d) => d,
+            None => return None
+        };
+
+        Some(Texture2dData::from_vec(data, self.width.expect("The pixel buffer is empty")))
     }
 }
 

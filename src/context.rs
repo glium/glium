@@ -482,6 +482,10 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
             result.push("OpenGL ES version inferior to 3.0");
         }
 
+        if cfg!(feature = "gl_read_buffer") {
+            result.push("OpenGL ES doesn't support gl_read_buffer");
+        }
+
     } else {
         if ctxt.version < &GlVersion(2, 0) {
             result.push("OpenGL version inferior to 2.0 is not supported");
