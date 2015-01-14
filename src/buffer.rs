@@ -191,7 +191,7 @@ impl Buffer {
         self.elements_count * self.elements_size
     }
 
-    /// Offset and size are in number of elements
+    /// Offset and size should be specified as number of elements
     pub fn map<'a, T, D>(&'a mut self, offset: uint, size: uint)
                          -> Mapping<'a, T, D> where T: BufferType, D: Send
     {

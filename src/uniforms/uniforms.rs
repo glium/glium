@@ -1,6 +1,6 @@
 use uniforms::{Uniforms, UniformValue, IntoUniformValue};
 
-/// Object that can be used when you don't have any uniform.
+/// Object that can be used when you don't have any uniforms.
 #[derive(Show, Copy, Clone)]
 pub struct EmptyUniforms;
 
@@ -26,7 +26,7 @@ impl Uniforms for EmptyUniforms {
 /// # let texture: glium::Texture2d = unsafe { ::std::mem::uninitialized() };
 /// let uniforms = uniforms.add("name3", &texture);
 ///
-/// // the final type is `UniformsStorage<&Texture2d, UniformsStorage<f32, UniformsStorage<f32, EmptyUniforms>>>`
+/// // the final type is `UniformsStorage<&Texture2d, UniformsStorage<f32, UniformsStorage<f32, EmptyUniforms>>>`,
 /// // but you shouldn't care about it
 /// ```
 ///

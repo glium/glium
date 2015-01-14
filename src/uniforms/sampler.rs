@@ -11,13 +11,13 @@ use Display;
 /// This is how GL must handle samples that are outside the texture.
 #[derive(Show, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SamplerWrapFunction {
-    /// Samples at coord `x + 1` are mapped to coord `x`.
+    /// Samples at coord `x + 1` map to coord `x`.
     Repeat,
 
-    /// Samples at coord `x + 1` are mapped to coord `1 - x`.
+    /// Samples at coord `x + 1` map to coord `1 - x`.
     Mirror,
 
-    /// Samples at coord `x + 1` are mapped to coord `1`.
+    /// Samples at coord `x + 1` map to coord `1`.
     Clamp
 }
 
@@ -69,10 +69,10 @@ pub enum MinifySamplerFilter {
     /// Takes the nearest texel from the two nearest mipmaps, and merges them.
     LinearMipmapNearest,
 
-    /// Same as `Linear` but from the nearest mipmap.
+    /// Same as `Linear`, but from the nearest mipmap.
     NearestMipmapLinear,
 
-    ///
+    /// Same as `Linear`, but from the two nearest mipmaps.
     LinearMipmapLinear,
 }
 
@@ -99,11 +99,11 @@ pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
     pub wrap_function: (SamplerWrapFunction, SamplerWrapFunction, SamplerWrapFunction),
-    /// Filter to use when mignifying the texture.
+    /// Filter to use when minifying the texture.
     pub minify_filter: MinifySamplerFilter,
     /// Filter to use when magnifying the texture.
     pub magnify_filter: MagnifySamplerFilter,
-    /// `1` means no anisotropic filtering, any value superior to `1` does.
+    /// `1` means no anisotropic filtering, any value above `1` sets the max anisotropy.
     ///
     /// ## Compatibility
     ///
