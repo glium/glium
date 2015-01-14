@@ -2,7 +2,7 @@
 In order to draw, you need to provide a source of indices which is used to link the vertices
 together into *primitives*.
 
-There are height types of primitives, each one with a corresponding struct:
+There are ten types of primitives, each one with a corresponding struct:
  - `PointsList`
  - `LinesList`
  - `LinesListAdjacency`
@@ -58,7 +58,7 @@ pub enum IndicesSource<'a, T: 'a> {
 }
 
 impl<'a, T> IndicesSource<'a, T> where T: Index {
-    /// Returns the types of primitives.
+    /// Returns the type of the primitives.
     pub fn get_primitives_type(&self) -> PrimitiveType {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_primitives_type(),
@@ -66,7 +66,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
         }
     }
 
-    /// Returns the types of indices.
+    /// Returns the type of the indices.
     pub fn get_indices_type(&self) -> IndexType {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_indices_type(),
@@ -82,7 +82,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
         }
     }
 
-    /// Returns the lgnth of the buffer to use.
+    /// Returns the length of the buffer.
     pub fn get_length(&self) -> usize {
         match self {
             &IndicesSource::IndexBuffer { length, .. } => length,
@@ -158,8 +158,8 @@ impl IndexBuffer {
     ///
     /// # Panic
     ///
-    /// Attempting to draw with an index buffer that uses an indices format with adjacency infos
-    /// on OpenGL ES will trigger a panic.
+    /// On OpenGL ES, attempting to draw with an index buffer that uses an index
+    /// format with adjacency information will trigger a panic .
     ///
     /// If you want to be compatible with all platforms, it is preferable to disable the
     /// `gl_extensions` feature, which prevents you from accidentally using them.
@@ -207,7 +207,7 @@ impl Drop for IndexBuffer {
     }
 }
 
-/// Types of indices in an indices source.
+/// Type of the indices in an index source.
 #[derive(Show, Clone, Copy, PartialEq, Eq)]
 pub enum IndexType {
     /// u8
@@ -252,7 +252,7 @@ unsafe impl Index for u32 {
     }
 }
 
-/// Object is convertible to an index buffer.
+/// Object that is convertible to an index buffer.
 pub trait IntoIndexBuffer {
     /// Creates a new `IndexBuffer` with the list of indices.
     fn into_index_buffer(self, &super::Display) -> IndexBuffer;
@@ -314,11 +314,11 @@ impl<T> ToIndicesSource<T> for LinesList<T> where T: Index + Send + Copy {
     }
 }
 
-/// A list of lines with adjacency infos stored in RAM.
+/// A list of lines, with adjacency information, stored in RAM.
 ///
 /// # Panic
 ///
-/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
 /// If you want to be compatible with all platforms, it is preferable to disable the
 /// `gl_extensions` feature.
@@ -382,11 +382,11 @@ impl<T> ToIndicesSource<T> for LineStrip<T> where T: Index + Send + Copy {
     }
 }
 
-/// A list of lines connected together with adjacency infos stored in RAM.
+/// A list of lines connected together, with adjacency information, stored in RAM.
 ///
 /// # Panic
 ///
-/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
 /// If you want to be compatible with all platforms, it is preferable to disable the
 /// `gl_extensions` feature.
@@ -450,11 +450,11 @@ impl<T> ToIndicesSource<T> for TrianglesList<T> where T: Index + Send + Copy {
     }
 }
 
-/// A list of triangles with adjacency infos stored in RAM.
+/// A list of triangles, with adjacency information, stored in RAM.
 ///
 /// # Panic
 ///
-/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
 /// If you want to be compatible with all platforms, it is preferable to disable the
 /// `gl_extensions` feature.
@@ -518,11 +518,11 @@ impl<T> ToIndicesSource<T> for TriangleStrip<T> where T: Index + Send + Copy {
     }
 }
 
-/// A list of triangles connected together with adjacency infos stored in RAM.
+/// A list of triangles connected together, with adjacency information, stored in RAM.
 ///
 /// # Panic
 ///
-/// OpenGL ES doesn't support adjacency infos. Attempting to use this type while
+/// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
 /// If you want to be compatible with all platforms, it is preferable to disable the
 /// `gl_extensions` feature.

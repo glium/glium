@@ -233,7 +233,7 @@ pub struct ExtensionsList {
 
 /// Represents the capabilities of the context.
 pub struct Capabilities {
-    /// True if the context supports left and right buffers.
+    /// Whether the context supports left and right buffers.
     pub stereo: bool,
 
     /// Number of bits in the default framebuffer's depth buffer
@@ -242,7 +242,7 @@ pub struct Capabilities {
     /// Number of bits in the default framebuffer's stencil buffer
     pub stencil_bits: Option<u16>,
 
-    /// Maximum number of textures that can be bind to a program.
+    /// Maximum number of textures that can be bound to a program.
     ///
     /// `glActiveTexture` must be between `GL_TEXTURE0` and `GL_TEXTURE0` + this value - 1.
     pub max_combined_texture_image_units: gl::types::GLint,

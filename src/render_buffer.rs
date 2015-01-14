@@ -57,8 +57,7 @@ impl GlObject for RenderBuffer {
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
 ///
-/// Contrary to a texture, you can't sample or modify the content of the
-/// `DepthRenderBuffer` directly.
+/// Contrary to a texture, you can't sample or modify the content of the `DepthRenderBuffer` directly.
 pub struct DepthRenderBuffer {
     buffer: RenderBufferImpl,
 }
@@ -93,8 +92,7 @@ impl GlObject for DepthRenderBuffer {
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
 ///
-/// Contrary to a texture, you can't sample or modify the content of the
-/// `StencilRenderBuffer` directly.
+/// Contrary to a texture, you can't sample or modify the content of the `StencilRenderBuffer` directly.
 pub struct StencilRenderBuffer {
     buffer: RenderBufferImpl,
 }
@@ -129,8 +127,7 @@ impl GlObject for StencilRenderBuffer {
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
 ///
-/// Contrary to a texture, you can't sample or modify the content of the
-/// `DepthStencilRenderBuffer` directly.
+/// Contrary to a texture, you can't sample or modify the content of the `DepthStencilRenderBuffer` directly.
 pub struct DepthStencilRenderBuffer {
     buffer: RenderBufferImpl,
 }

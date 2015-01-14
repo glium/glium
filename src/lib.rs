@@ -1,5 +1,5 @@
 /*!
-Easy-to-use high-level OpenGL3+ wrapper.
+Easy-to-use, high-level, OpenGL3+ wrapper.
 
 # Initialization
 
@@ -24,17 +24,17 @@ fn main() {
 
 The `display` object is the most important object of this library.
 
-The window where you are drawing on will produce events. They can be received by calling
+The window you are drawing on will produce events. They can be received by calling
 `display.poll_events()`.
 
 ## Complete example
 
-We start by creating the vertex buffer, which contains the list of all the points that are part
-of our mesh. The elements that we pass to `VertexBuffer::new` must implement the
+We start by creating the vertex buffer, which contains the list of all the points that make up
+our mesh. The elements that we pass to `VertexBuffer::new` must implement the
 `glium::vertex_buffer::VertexFormat` trait. We can easily do this by creating a custom struct
 and adding the `#[vertex_format]` attribute to it.
 
-You can check the documentation of the `vertex_buffer` module for more informations.
+See the `vertex_buffer` module documentation for more informations.
 
 ```no_run
 # #![feature(plugin)]
@@ -59,7 +59,7 @@ let vertex_buffer = glium::VertexBuffer::new(&display, vec![
 # }
 ```
 
-Then we create the index buffer, which contains informations about the primitives (triangles,
+We then create the index buffer, which contains information about the primitives (triangles,
 lines, etc.) that compose our mesh.
 
 The last parameter is a list of indices that represent the positions of our points in the
@@ -71,11 +71,11 @@ let index_buffer = glium::IndexBuffer::new(&display,
     glium::index_buffer::TrianglesList(vec![ 0u16, 1, 2 ]));
 ```
 
-Then we create the program, which is composed of a *vertex shader*, a program executed once for
+Next, we create the program, which is composed of a *vertex shader*, a program executed once for
 each element in our vertex buffer, and a *fragment shader*, a program executed once for each
 pixel before it is written on the final image.
 
-The purpose of a program is to instruct the GPU how to process our mesh in order to obtain pixels.
+The purpose of a program is to instruct the GPU how to process our mesh, in order to obtain pixels.
 
 ```no_run
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
@@ -113,7 +113,7 @@ let program = glium::Program::from_source(&display,
 *Note: Teaching you the GLSL language is not covered by this guide.*
 
 You may notice that the `attribute` declarations in the vertex shader match the field names and
-types of the elements in the vertex buffer. This is required, or drawing will result in an error.
+types of the elements in the vertex buffer. This is required, otherwise drawing will result in an error.
 
 In the example above, you may notice `uniform mat4 matrix;`. This is a *uniform*, in other words
 a global variable in our program. We will need to tell glium what the value of `matrix` is by
@@ -145,22 +145,22 @@ let uniforms = Uniforms {
 # }
 ```
 
-Vertex buffers, index buffers and program should be stored between draws in order to avoid wasting
+Vertex buffers, index buffers, and the program should be stored between draws in order to avoid wasting
 time, but objects that implement the `glium::uniforms::Uniforms` trait are usually constructed
 every time you draw.
 
-Fields of our `Uniforms` object can be any object that implements `glium::uniforms::UniformValue`.
-This includes textures and samplers (not covered here). You can check the documentation of the
-`uniforms` module for more informations.
+The fields of our `Uniforms` object can be any object that implements `glium::uniforms::UniformValue`.
+This includes textures and samplers (not covered here). See the `uniforms` module documentation 
+for more informations.
 
 Now that everything is initialized, we can finally draw something. To do so, call `display.draw()`
 in order to obtain a `Frame` object. Note that it is also possible to draw on a texture by
 calling `texture.as_surface()`, but this is not covered here.
 
-The `Frame` object has a `draw` function which you can use to draw things.
-Its arguments are the vertex buffer, index buffer, program, uniforms, and an object of type
-`DrawParameters` which contains miscellaneous informations about how everything should be rendered
-(depth test, blending, backface culling, etc.).
+The `Frame` object has a `draw` function, which you can use to draw things. Its arguments are the
+vertex buffer, index buffer, program, uniforms, and an object of type `DrawParameters`, which 
+contains miscellaneous information specifying how everything should be rendered (depth test, blending,
+backface culling, etc.).
 
 ```no_run
 use glium::Surface;
@@ -244,12 +244,12 @@ trait ToGlEnum {
 /// Function that the GPU will use for blending.
 #[derive(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
-    /// Always replace the destination pixel by the source.
+    /// Always replace the destination pixel with the source pixel.
     ///
     /// The alpha channels are simply ignored. This is the default mode.
     AlwaysReplace,
 
-    /// Linear interpolation of the source pixel by the source pixel's alpha.
+    /// Linear interpolation of the source pixel according to the source pixel's alpha.
     ///
     /// If the source's alpha is 0, the destination's color will stay the same. If the source's
     ///  alpha is 1, the destination's color will be replaced by the source's. If the source's
@@ -272,8 +272,8 @@ pub enum BlendingFunction {
 ///
 /// For a given triangle, there are only two situations:
 ///
-/// - The vertices are arranged in a clockwise way on the screen.
-/// - The vertices are arranged in a counterclockwise way on the screen.
+/// - The vertices are arranged in a clockwise direction on the screen.
+/// - The vertices are arranged in a counterclockwise direction on the screen.
 ///
 /// If you wish so, you can ask the GPU to discard all the primitives that belong to one
 /// of these two categories.
@@ -321,7 +321,7 @@ pub enum BackfaceCullingMode {
 /// # Depth buffers
 ///
 /// After the fragment shader has been run, the GPU maps the output Z coordinates to the depth
-/// range (that you can specify in the draw parameters) in order to obtain the depth value in
+/// range (which you can specify in the draw parameters) in order to obtain the depth value in
 /// in window coordinates. This depth value is always between `0.0` and `1.0`.
 ///
 /// In addition to the buffer where pixel colors are stored, you can also have a buffer
@@ -352,13 +352,13 @@ pub enum DepthFunction {
     /// Replace if the z-value of the source is more than the destination.
     IfMore,
 
-    /// Replace if the z-value of the source is more or equal to the destination.
+    /// Replace if the z-value of the source is more than, or equal to the destination.
     IfMoreOrEqual,
 
     /// Replace if the z-value of the source is less than the destination.
     IfLess,
 
-    /// Replace if the z-value of the source is less or equal to the destination.
+    /// Replace if the z-value of the source is less than, or equal to the destination.
     IfLessOrEqual
 }
 
@@ -454,12 +454,12 @@ pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target.
     ///
-    /// See the documentation of `DepthFunction` for more details.
+    /// See the `DepthFunction` documentation for more details.
     ///
     /// The default is `Overwrite`.
     pub depth_function: DepthFunction,
 
-    /// The range of Z coordinates in surface coordinates.
+    /// The range of possible Z values in surface coordinates.
     ///
     /// Just like OpenGL turns X and Y coordinates between `-1.0` and `1.0` into surface
     /// coordinates, it will also map your Z coordinates to a certain range which you can
@@ -489,10 +489,10 @@ pub struct DrawParameters {
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
     /// the camera.
     ///
-    /// See the documentation of `BackfaceCullingMode` for more infos.
+    /// See the `BackfaceCullingMode` documentation for more infos.
     pub backface_culling: BackfaceCullingMode,
 
-    /// Sets how to render polygons. The default value is `Fill`.
+    /// How to render polygons. The default value is `Fill`.
     ///
     /// See the documentation of `PolygonMode` for more infos.
     pub polygon_mode: PolygonMode,
@@ -509,9 +509,9 @@ pub struct DrawParameters {
     /// Dithering will smoothen the transition between colors in your color buffer.
     pub dithering: bool,
 
-    /// Specifies the viewport to use when drawing.
+    /// The viewport to use when drawing.
     ///
-    /// The x and y positions of your vertices are mapped to the viewport so that `(-1, -1)`
+    /// The X and Y positions of your vertices are mapped to the viewport so that `(-1, -1)`
     /// corresponds to the lower-left hand corner and `(1, 1)` corresponds to the top-right
     /// hand corner. Any pixel outside of the viewport is discarded.
     ///
@@ -554,7 +554,7 @@ impl DrawParameters {
         }
     }
 
-    /// Synchronizes the parmaeters with the current ctxt.state.
+    /// Synchronizes the parameters with the current ctxt.state.
     fn sync(&self, ctxt: &mut context::CommandContext, surface_dimensions: (u32, u32)) {
         // depth function
         match self.depth_function {
@@ -759,7 +759,7 @@ pub struct Rect {
     pub height: u32,
 }
 
-/// Object which can be drawn upon.
+/// Object that can be drawn upon.
 ///
 /// # What does the GPU do when you draw?
 ///
@@ -829,27 +829,27 @@ pub struct Rect {
 /// Triangle strips obey certain rules for the order of indices. For example the triangle strip
 /// `0, 1, 2, 3, 4, 5` does *not* correspond to `0, 1, 2`, `1, 2, 3`, `2, 3, 4`, `3, 4, 5` as you
 /// would expect, but to `0, 1, 2`, `1, 3, 2`, `2, 3, 4`, `3, 5, 4` (some indices are reversed).
-/// This is important in regards to the face culling step below.
+/// This is important with regards to the face culling step below.
 ///
-/// Then if you did specify `PrimitiveMode`, it is used. If you specified `Line`, triangles are
+/// Then, if you did specify `PrimitiveMode`, it is used. If you specified `Line`, triangles are
 /// turned into lines. If specified `Point`, triangles and lines are turned into points.
 ///
 /// The GPU then looks at the screen coordinates of each primitive, and discards primitives that
 /// are entirely outside of the window.
 ///
-/// Note that points whose center are outside of the viewport are discarded, even if the point
+/// Note that points whose centers are outside of the viewport are discarded, even if the point
 /// width would be big enough for the point to be visible. However this standard behavior is not
-/// respected by nVidia drivers who show the points anyway.
+/// respected by nVidia drivers, which show the points anyway.
 ///
 /// ## Step 7: Face culling (triangles only)
 ///
 /// This step is purely an optimization step and only concerns triangles.
 ///
-/// If you specify a value for `backface_culling` different from `CullingDisabled`, the GPU will
+/// If you specify a value for `backface_culling` other than `CullingDisabled`, the GPU will
 /// discard triangles depending on the way that the vertices are arranged on the window. You can
 /// either discard triangles whose vertices are clockwise or counterclockwise.
 ///
-/// For more informations, see the documentation of `BackfaceCullingMode`.
+/// For more information, see the `BackfaceCullingMode` documentation.
 ///
 /// ## Step 8: Rasterization
 ///
@@ -899,7 +899,7 @@ pub struct Rect {
 /// depth value.
 ///
 /// If a depth buffer is present, the GPU will compare the depth value of the pixel currently
-/// being processed and the existing depth value. Depending on the value of `depth_function`
+/// being processed, with the existing depth value. Depending on the value of `depth_function`
 /// in the draw parameters, the depth test will either pass, in which case the pipeline
 /// continues, or fail, in which case the pixel is discarded.
 ///
@@ -929,7 +929,7 @@ pub struct Rect {
 /// Some steps are missing because they are not supported by glium for the moment: dithering,
 /// occlusion query updating, logic operations, sRGB conversion, write masks.
 ///
-/// Instancing and multiple viewports are also missing because not supported.
+/// Instancing and multiple viewports are also missing, as they are not supported.
 ///
 pub trait Surface: Sized {
     /// Clears the color components of the target.
@@ -995,8 +995,8 @@ pub trait Surface: Sized {
     /// It is possible for the source and the target to be the same surface. However if the
     /// rectangles overlap, then the behavior is undefined.
     ///
-    /// Note that there is no alpha blending, depth/stencil checking, etc. or anything ; this
-    /// function just copies pixels.
+    /// Note that there is no alpha blending, depth/stencil checking, etc. This function just
+    /// copies pixels.
     #[experimental = "The name will likely change"]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
@@ -1029,7 +1029,7 @@ pub trait Surface: Sized {
 #[doc(hidden)]
 pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
 
-/// Implementation of `Surface` targetting the default framebuffer.
+/// Implementation of `Surface`, targeting the default framebuffer.
 ///
 /// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
 /// instantaneous, even when vsync is enabled.
@@ -1039,7 +1039,7 @@ pub struct Frame<'a> {
 }
 
 impl<'t> Frame<'t> {
-    /// Stop drawing and swap the buffers.
+    /// Stop drawing, and swap the buffers.
     pub fn finish(self) {
     }
 }
@@ -1111,7 +1111,7 @@ impl<'t> Drop for Frame<'t> {
 pub trait DisplayBuild {
     /// Build a context and a `Display` to draw on it.
     ///
-    /// Performances a compatibility check to make sure that all core elements of glium
+    /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
     fn build_glium(self) -> Result<Display, GliumCreationError>;
 }
@@ -1192,7 +1192,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 ///
 /// This object contains a smart pointer to the real implementation.
 /// Cloning the display allows you to easily share the `Display` object throughout
-///  your program and between threads.
+/// your program and between threads.
 #[derive(Clone)]
 pub struct Display {
     context: Arc<DisplayImpl>,
@@ -1232,7 +1232,7 @@ impl Display {
 
     /// Start drawing on the backbuffer.
     ///
-    /// This function returns a `Frame` which can be used to draw on it. When the `Frame` is
+    /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
     /// destroyed, the buffers are swapped.
     ///
     /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
@@ -1249,9 +1249,9 @@ impl Display {
         self.context.context.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
     }
 
-    /// Returns the maximum dimensions of the viewport that you can pass when drawing.
+    /// Returns the maximum dimensions of the viewport.
     ///
-    /// Glium will panic if you request a larger viewport.
+    /// Glium will panic if you request a larger viewport than this when drawing.
     pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
         let d = self.context.context.capabilities().max_viewport_dims;
         (d.0 as u32, d.1 as u32)
@@ -1405,7 +1405,7 @@ impl Display {
     ///
     /// ## Example
     ///
-    /// ```noçrun
+    /// ```no_run
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # use glium::DisplayBuild;
@@ -1421,9 +1421,9 @@ impl Display {
         ops::read_from_default_fb(gl::FRONT_LEFT, self)
     }
 
-    /// Asserts that there are no OpenGL error pending.
+    /// Asserts that there are no OpenGL errors pending.
     ///
-    /// This function is supposed to be used in tests.
+    /// This function should be used in tests.
     pub fn assert_no_error(&self) {
         let (tx, rx) = channel();
 
@@ -1439,8 +1439,8 @@ impl Display {
 
     /// Waits until all the previous commands have finished being executed.
     ///
-    /// When you execute OpenGL functions, they are not executed immediatly. Instead they are
-    /// put in a queue. This function waits until all commands have finished being executed and
+    /// When you execute OpenGL functions, they are not executed immediately. Instead they are
+    /// put in a queue. This function waits until all commands have finished being executed, and
     /// the queue is empty.
     ///
     /// **You don't need to call this function manually, except when running benchmarks.**

@@ -210,7 +210,7 @@ impl TextureImplementation {
         pb
     }
 
-    /// Returns the `Display` associated to this texture.
+    /// Returns the `Display` associated with this texture.
     pub fn get_display(&self) -> &Display {
         &self.display
     }
@@ -230,7 +230,7 @@ impl TextureImplementation {
         self.depth.clone()
     }
 
-    /// Returns the size of array of the texture.
+    /// Returns the array size of the texture.
     pub fn get_array_size(&self) -> Option<u32> {
         self.array_size.clone()
     }

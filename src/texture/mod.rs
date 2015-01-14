@@ -1,5 +1,5 @@
 /*!
-A texture is an image loaded in video memory and that can be sampled in your shaders.
+A texture is an image loaded in video memory, which can be sampled in your shaders.
 
 Textures come in ten different dimensions:
 
@@ -21,19 +21,19 @@ In addition to this, there are six kinds of texture formats:
    with either the `Compressed` prefix or no prefix at all.
  - The texture contains signed integers, with the `Integral` prefix.
  - The texture contains unsigned integers, with the `Unsigned` prefix.
- - The texture contains depth informations, with the `Depth` prefix.
- - The texture contains stencil informations, with the `Stencil` prefix.
- - The texture contains depth and stencil informations, with the `DepthStencil` prefix.
+ - The texture contains depth information, with the `Depth` prefix.
+ - The texture contains stencil information, with the `Stencil` prefix.
+ - The texture contains depth and stencil information, with the `DepthStencil` prefix.
 
-Each combinaison of dimensions and format corresponds to a sampler type in GLSL. For example
-a `IntegralTexture3d` can only be binded to a `isampler3D` uniform in GLSL. Some combinaisons
+Each combination of dimensions and format corresponds to a sampler type in GLSL. For example,
+an `IntegralTexture3d` can only be bound to an `isampler3D` uniform in GLSL. Some combinations
 don't exist, like `DepthBufferTexture`.
 
-The difference between compressed textures and non-compressed textures is that you can't do
+The difference between compressed textures and uncompressed textures is that you can't do
 render-to-texture on the former.
 
 The most common types of textures are `CompressedTexture2d` and `Texture2d` (the two dimensions
-being the width and height), it is what you will use most of the time.
+being the width and height). These are what you will use most of the time.
 
 */
 use {gl, framebuffer};
@@ -64,10 +64,10 @@ pub trait Texture {
     /// Returns the width in pixels of the texture.
     fn get_width(&self) -> u32;
 
-    /// Returns the height in pixels of the texture, or `None` for one dimension textures.
+    /// Returns the height in pixels of the texture, or `None` for one dimensional textures.
     fn get_height(&self) -> Option<u32>;
 
-    /// Returns the depth in pixels of the texture, or `None` for one or two dimension textures.
+    /// Returns the depth in pixels of the texture, or `None` for one or two dimensional textures.
     fn get_depth(&self) -> Option<u32>;
 
     /// Returns the number of textures in the array, or `None` for non-arrays.
@@ -178,7 +178,7 @@ impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Pr
 
         let raw_data = self.into_vec();
 
-        // the image library gives use rows from bottom to top, so we need to flip them
+        // the image library gives us rows from bottom to top, so we need to flip them
         raw_data
             .as_slice()
             .chunks(width as usize * image::Pixel::channel_count(None::<&P>) as usize)
@@ -192,7 +192,7 @@ impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Pr
         let pixels_size = image::Pixel::channel_count(None::<&P>);
         let height = data.len() as u32 / (width * pixels_size as u32);
 
-        // opengl gives use rows from bottom to top, so we need to flip them
+        // opengl gives us rows from bottom to top, so we need to flip them
         let data = data
             .as_slice()
             .chunks(width as usize * image::Pixel::channel_count(None::<&P>) as usize)

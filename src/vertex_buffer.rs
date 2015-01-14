@@ -1,12 +1,12 @@
 /*!
 Contains everything related to vertex buffers.
 
-The main struct is the `VertexBuffer`, which represents a buffer in the video memory
+The main struct is the `VertexBuffer`, which represents a buffer in the video memory,
 containing a list of vertices.
 
-In order to create a vertex buffer, you must first create a struct that represents each vertex
+In order to create a vertex buffer, you must first create a struct that represents each vertex,
 and implement the `glium::vertex_buffer::Vertex` trait on it. The `#[vertex_format]` attribute
-coming from `glium_macros` helps you doing that.
+located in `glium_macros` helps you with that.
 
 ```
 # #![feature(plugin)]
@@ -24,7 +24,7 @@ struct Vertex {
 # }
 ```
 
-Then you must build a `Vec` of the vertices that you want to upload, and pass it to
+Next, build a `Vec` of the vertices that you want to upload, and pass it to
 `VertexBuffer::new`.
 
 ```no_run
@@ -131,8 +131,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
 
     /// Builds a new vertex buffer.
     ///
-    /// This function will create a buffer that has better performances when it is modified
-    ///  frequently.
+    /// This function will create a buffer that has better performance when it is modified frequently.
     pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = Vertex::build_bindings(None::<T>);
 
@@ -150,7 +149,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
 }
 
 impl<T: Send + Copy> VertexBuffer<T> {
-    /// Builds a new vertex buffer from an undeterminate data type and bindings.
+    /// Builds a new vertex buffer from an indeterminate data type and bindings.
     ///
     /// # Example
     ///
@@ -197,7 +196,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
 
     /// Maps the buffer to allow write access to it.
     ///
-    /// **Warning**: using this function can slow things down a lot because the function
+    /// **Warning**: using this function can slow things down a lot, because it
     /// waits for all the previous commands to be executed before returning.
     ///
     /// # Panic
@@ -217,8 +216,8 @@ impl<T: Send + Copy> VertexBuffer<T> {
 
     /// Reads the content of the buffer.
     ///
-    /// This function is usually better if are just doing one punctual read, while `map` is better
-    /// if you want to have multiple small reads.
+    /// This function is usually better if are just doing one punctual read, while `map`
+    /// is better if you want to have multiple small reads.
     ///
     /// # Panic
     ///
@@ -236,8 +235,8 @@ impl<T: Send + Copy> VertexBuffer<T> {
 
     /// Reads the content of the buffer.
     ///
-    /// This function is usually better if are just doing one punctual read, while `map` is better
-    /// if you want to have multiple small reads.
+    /// This function is usually better if are just doing one punctual read, while `map`
+    /// is better if you want to have multiple small reads.
     ///
     /// The offset and size are expressed in number of elements.
     ///
@@ -257,9 +256,9 @@ impl<T: Send + Copy> VertexBuffer<T> {
         self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
     }
 
-    /// Writes some vertices in the buffer.
+    /// Writes some vertices to the buffer.
     ///
-    /// Replaces some vertices in the buffer by others.
+    /// Replaces some vertices in the buffer with others.
     /// The `offset` represents a number of vertices, not a number of bytes.
     pub fn write(&mut self, offset: usize, data: Vec<T>) {
         self.buffer.buffer.upload::<buffer::ArrayBuffer, _>(offset, data)
@@ -277,7 +276,7 @@ impl<T> VertexBuffer<T> {
         &self.buffer.bindings
     }
 
-    /// Lose the type informations and turn the vertex buffer into a `VertexBufferAny`.
+    /// Discard the type information and turn the vertex buffer into a `VertexBufferAny`.
     pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
         self.buffer
     }

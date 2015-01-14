@@ -1,10 +1,10 @@
 /*!
 A uniform is a global variable in your program. In order to draw something, you will need to
- tell `glium` what the values of all your uniforms are. Objects that implement the `Uniform`
- trait are here to do that.
+ give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are 
+ here to do that.
 
 The recommended way to is to create your own structure and put the `#[uniforms]` attribute
- to it.
+ on it.
 
 For example:
 

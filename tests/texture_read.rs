@@ -15,7 +15,7 @@ mod support;
 fn texture_2d_read() {
     let display = support::build_display();
 
-    // we use only powers of two in order to avoid float rounding errors
+    // we use only powers of two, in order to avoid float rounding errors
     let texture = glium::texture::Texture2d::new(&display, vec![
         vec![(0u8, 1u8, 2u8), (4u8, 8u8, 16u8)],
         vec![(32u8, 64u8, 128u8), (32u8, 16u8, 4u8)],
@@ -48,7 +48,7 @@ fn empty_pixel_buffer() {
 fn texture_2d_read_pixelbuffer() {
     let display = support::build_display();
 
-    // we use only powers of two in order to avoid float rounding errors
+    // we use only powers of two, in order to avoid float rounding errors
     let texture = glium::texture::Texture2d::new(&display, vec![
         vec![(0u8, 1u8, 2u8), (4u8, 8u8, 16u8)],
         vec![(32u8, 64u8, 128u8), (32u8, 16u8, 4u8)],

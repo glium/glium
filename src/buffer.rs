@@ -227,7 +227,7 @@ impl Buffer {
         });
     }
 
-    /// Offset and size are in number of elements
+    /// Offset and size should be specified as number of elements
     pub fn map<'a, T, D>(&'a mut self, offset: usize, size: usize)
                          -> Mapping<'a, T, D> where T: BufferType, D: Send
     {

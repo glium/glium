@@ -1,5 +1,5 @@
 /*!
-Framebuffers allows you to customize the color, depth and stencil buffers you will draw on.
+Framebuffers allow you to customize the color, depth and stencil buffers you will draw on.
 
 In order to draw on a texture, use a `SimpleFrameBuffer`. This framebuffer is compatible with
 shaders that write to `gl_FragColor`.
@@ -11,7 +11,7 @@ let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture)
 // framebuffer.draw(...);    // draws over `texture`
 ```
 
-Instead if your shader wants to write to multiple color buffers at once, you must use
+If, however, your shader wants to write to multiple color buffers at once, you must use
 a `MultiOutputFrameBuffer`.
 
 ```no_run
@@ -92,7 +92,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
-    /// buffer, but no buffer buffer.
+    /// buffer, but no depth buffer.
     pub fn with_stencil_buffer<C, S>(display: &Display, color: &'a C, stencil: &'a S)
                                      -> SimpleFrameBuffer<'a>
                                      where C: ToColorAttachment, S: ToStencilAttachment
