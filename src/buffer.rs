@@ -270,14 +270,24 @@ impl Buffer {
         }
     }
 
-    #[cfg(feature = "gl_extensions")]
+    #[cfg(feature = "gl_read_buffer")]
     pub fn read<T, D>(&self) -> Vec<D> where T: BufferType, D: Send {
-        self.read_slice::<T, D>(0, self.elements_count)
+        self.read_if_supported::<T, D>().unwrap()
     }
 
-    #[cfg(feature = "gl_extensions")]
+    pub fn read_if_supported<T, D>(&self) -> Option<Vec<D>> where T: BufferType, D: Send {
+        self.read_slice_if_supported::<T, D>(0, self.elements_count)
+    }
+
+    #[cfg(feature = "gl_read_buffer")]
     pub fn read_slice<T, D>(&self, offset: usize, size: usize)
                             -> Vec<D> where T: BufferType, D: Send
+    {
+        self.read_slice_if_supported::<T, D>(offset, size).unwrap()
+    }
+
+    pub fn read_slice_if_supported<T, D>(&self, offset: usize, size: usize)
+                                         -> Option<Vec<D>> where T: BufferType, D: Send
     {
         assert!(offset + size <= self.elements_count);
 
@@ -287,7 +297,8 @@ impl Buffer {
 
         self.display.context.exec(move |: ctxt| {
             if ctxt.opengl_es {
-                panic!("OpenGL ES doesn't support glGetBufferSubData");
+                tx.send(None).ok();
+                return;
             }
 
             unsafe {
@@ -310,7 +321,7 @@ impl Buffer {
                         data.as_mut_ptr() as *mut libc::c_void);
                 }
 
-                tx.send(data).ok();
+                tx.send(Some(data)).ok();
             }
         });
 

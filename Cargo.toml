@@ -9,9 +9,8 @@ license = "Apache"
 build = "build/main.rs"
 
 [features]
-default = ["image", "gl_extensions", "cgmath", "nalgebra"]
-gl_extensions = []
-gles_extensions = []
+default = ["image", "cgmath", "nalgebra", "gl_read_buffer"]
+gl_read_buffer = []
 headless = ["glutin/headless"]
 
 [dependencies.compile_msg]

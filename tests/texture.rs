@@ -110,7 +110,6 @@ fn empty_texture2d() {
 
 #[test]
 #[ignore]  // FIXME: FAILING TEST
-#[cfg(feature = "gl_extensions")]
 fn render_to_texture2d() {
     use std::default::Default;
 

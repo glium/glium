@@ -99,16 +99,16 @@ Performances:
 
 ## Features
 
-Glium has six features:
+Glium has four Cargo features:
 
  - `image` allows support for the `image` library, which allows easy creation of textures from different image formats.
  - `cgmath` and `nalgebra` add support for these libraries' matrices and vectors.
  - `headless`, which enables headless building and testing.
- - `gl_extensions`
- - `gles_extensions`
 
-If you disable both `gl_extensions` and `gles_extensions`, then only the functionality that
-is available in both OpenGL 3 and OpenGL ES 2 will be available at compile-time.
+In addition to this, it has the following OpenGL-related features:
 
-Enabling either `gl_extensions` or `gles_extensions` will unlock this functionality, but will
-trigger a `panic!` if used when not available on the target hardware.
+ - `gl_read_buffer` (read the content of a buffer)
+
+Enabling each of these features adds more restrictions towards the backend and increases the
+likehood that `build_glium` will return an `Err`. However, it also gives you access to more
+functions with different signatures.

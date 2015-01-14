@@ -88,7 +88,6 @@ fn vertex_buffer_mapping_write() {
 }
 
 #[test]
-#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_read() {
     let display = support::build_display();
 
@@ -106,7 +105,11 @@ fn vertex_buffer_read() {
         ]
     );
 
-    let data = vb.read();
+    let data = match vb.read_if_supported() {
+        Some(d) => d,
+        None => return
+    };
+
     assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
     assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
 
@@ -114,7 +117,6 @@ fn vertex_buffer_read() {
 }
 
 #[test]
-#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_read_slice() {
     let display = support::build_display();
 
@@ -132,7 +134,11 @@ fn vertex_buffer_read_slice() {
         ]
     );
 
-    let data = vb.read_slice(1, 1);
+    let data = match vb.read_slice_if_supported(1, 1) {
+        Some(d) => d,
+        None => return
+    };
+
     assert_eq!(data[0].field2.as_slice(), [15, 17].as_slice());
     
     display.assert_no_error();
@@ -140,7 +146,6 @@ fn vertex_buffer_read_slice() {
 
 #[test]
 #[should_fail]
-#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_read_slice_out_of_bounds() {
     let display = support::build_display();
 
@@ -158,7 +163,7 @@ fn vertex_buffer_read_slice_out_of_bounds() {
         ]
     );
 
-    vb.read_slice(0, 3);
+    vb.read_slice_if_supported(0, 3).unwrap();
 }
 
 #[test]
@@ -185,7 +190,6 @@ fn vertex_buffer_any() {
 }
 
 #[test]
-#[cfg(feature = "gl_extensions")]
 fn vertex_buffer_write() {
     let display = support::build_display();
     
@@ -205,7 +209,11 @@ fn vertex_buffer_write() {
 
     vb.write(1, vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
 
-    let data = vb.read();
+    let data = match vb.read_if_supported() {
+        Some(d) => d,
+        None => return
+    };
+
     assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
     assert_eq!(data[0].field2.as_slice(), [5, 7].as_slice());
     assert_eq!(data[1].field1.as_slice(), [12, 13].as_slice());

@@ -159,11 +159,7 @@ impl IndexBuffer {
     /// # Panic
     ///
     /// On OpenGL ES, attempting to draw with an index buffer that uses an index
-    /// format with adjacency information will trigger a panic .
-    ///
-    /// If you want to be compatible with all platforms, it is preferable to disable the
-    /// `gl_extensions` feature, which prevents you from accidentally using them.
-    ///
+    /// format with adjacency information will trigger a panic.
     pub fn new<T: IntoIndexBuffer>(display: &super::Display, data: T) -> IndexBuffer {
         data.into_index_buffer(display)
     }
@@ -320,16 +316,8 @@ impl<T> ToIndicesSource<T> for LinesList<T> where T: Index + Send + Copy {
 ///
 /// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
-/// If you want to be compatible with all platforms, it is preferable to disable the
-/// `gl_extensions` feature.
-///
-/// # Features
-///
-/// Only available if the `gl_extensions` feature is enabled.
-#[cfg(feature = "gl_extensions")]
 pub struct LinesListAdjacency<T>(pub Vec<T>);
 
-#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -343,7 +331,6 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<T> ToIndicesSource<T> for LinesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
@@ -388,16 +375,8 @@ impl<T> ToIndicesSource<T> for LineStrip<T> where T: Index + Send + Copy {
 ///
 /// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
-/// If you want to be compatible with all platforms, it is preferable to disable the
-/// `gl_extensions` feature.
-///
-/// # Features
-///
-/// Only available if the `gl_extensions` feature is enabled.
-#[cfg(feature = "gl_extensions")]
 pub struct LineStripAdjacency<T>(pub Vec<T>);
 
-#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -411,7 +390,6 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<T> ToIndicesSource<T> for LineStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
@@ -456,16 +434,8 @@ impl<T> ToIndicesSource<T> for TrianglesList<T> where T: Index + Send + Copy {
 ///
 /// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
-/// If you want to be compatible with all platforms, it is preferable to disable the
-/// `gl_extensions` feature.
-///
-/// # Features
-///
-/// Only available if the `gl_extensions` feature is enabled.
-#[cfg(feature = "gl_extensions")]
 pub struct TrianglesListAdjacency<T>(pub Vec<T>);
 
-#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -479,7 +449,6 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<T> ToIndicesSource<T> for TrianglesListAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
@@ -524,16 +493,8 @@ impl<T> ToIndicesSource<T> for TriangleStrip<T> where T: Index + Send + Copy {
 ///
 /// OpenGL ES doesn't support adjacency information. Attempting to use this type while
 /// drawing will thus panic.
-/// If you want to be compatible with all platforms, it is preferable to disable the
-/// `gl_extensions` feature.
-///
-/// # Features
-///
-/// Only available if the `gl_extensions` feature is enabled.
-#[cfg(feature = "gl_extensions")]
 pub struct TriangleStripAdjacency<T>(pub Vec<T>);
 
-#[cfg(feature = "gl_extensions")]
 impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Copy {
     fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
         use std::mem;
@@ -547,7 +508,6 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
     }
 }
 
-#[cfg(feature = "gl_extensions")]
 impl<T> ToIndicesSource<T> for TriangleStripAdjacency<T> where T: Index + Send + Copy {
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {

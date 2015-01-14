@@ -1407,7 +1407,6 @@ impl Display {
     /// ```no_run
     /// # extern crate glium;
     /// # extern crate glutin;
-    /// # use glium::DisplayBuild;
     /// # fn main() {
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
