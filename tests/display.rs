@@ -124,3 +124,13 @@ fn scissor() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn sync() {    
+    let display = support::build_display();
+
+    let fence = glium::SyncFence::new_if_supported(&display);
+    fence.map(|f| f.wait());
+
+    display.assert_no_error();
+}
