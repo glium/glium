@@ -247,12 +247,11 @@ pub struct MultiOutputFrameBuffer<'a> {
 }
 
 impl<'a> MultiOutputFrameBuffer<'a> {
-    /// Creates a new `MultiOutputFramebuffer`.
+    /// Creates a new `MultiOutputFrameBuffer`.
     ///
     /// # Panic
     ///
     /// Panics if all attachments don't have the same dimensions.
-    ///
     pub fn new(display: &Display, color_attachments: &[(&str, &'a Texture2d)])
                -> MultiOutputFrameBuffer<'a>
     {
@@ -263,6 +262,11 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                                          None::<&render_buffer::StencilRenderBuffer>)
     }
 
+    /// Creates a `MultiOutputFrameBuffer` with a depth buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if all attachments don't have the same dimensions.
     pub fn with_depth_buffer<D>(display: &Display, color_attachments: &[(&str, &'a Texture2d)],
                                 depth: &'a D) -> MultiOutputFrameBuffer<'a>
                                 where D: ToDepthAttachment
