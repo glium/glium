@@ -933,14 +933,44 @@ pub struct Rect {
 /// Instancing and multiple viewports are also missing, as they are not supported.
 ///
 pub trait Surface: Sized {
-    /// Clears the color components of the target.
-    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32);
+    /// Clears some attachments of the target.
+    fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
+             stencil: Option<i32>);
 
-    /// Clears the depth component of the target.
-    fn clear_depth(&mut self, value: f32);
+    /// Clears the color attachment of the target.
+    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.clear(Some((red, green, blue, alpha)), None, None);
+    }
 
-    /// Clears the stencil component of the target.
-    fn clear_stencil(&mut self, value: i32);
+    /// Clears the depth attachment of the target.
+    fn clear_depth(&mut self, value: f32) {
+        self.clear(None, Some(value), None);
+    }
+
+    /// Clears the stencil attachment of the target.
+    fn clear_stencil(&mut self, value: i32) {
+        self.clear(None, None, Some(value));
+    }
+
+    /// Clears the color and depth attachments of the target.
+    fn clear_color_and_depth(&mut self, color: (f32, f32, f32, f32), depth: f32) {
+        self.clear(Some(color), Some(depth), None);
+    }
+
+    /// Clears the color and stencil attachments of the target.
+    fn clear_color_and_stencil(&mut self, color: (f32, f32, f32, f32), stencil: i32) {
+        self.clear(Some(color), None, Some(stencil));
+    }
+
+    /// Clears the depth and stencil attachments of the target.
+    fn clear_depth_and_stencil(&mut self, depth: f32, stencil: i32) {
+        self.clear(None, Some(depth), Some(stencil));
+    }
+
+    /// Clears the color, depth and stencil attachments of the target.
+    fn clear_all(&mut self, color: (f32, f32, f32, f32), depth: f32, stencil: i32) {
+        self.clear(Some(color), Some(depth), Some(stencil));
+    }
 
     /// Returns the dimensions in pixels of the target.
     fn get_dimensions(&self) -> (u32, u32);
@@ -1046,16 +1076,10 @@ impl<'t> Frame<'t> {
 }
 
 impl<'t> Surface for Frame<'t> {
-    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        ops::clear_color(&self.display.context, None, red, green, blue, alpha)
-    }
-
-    fn clear_depth(&mut self, value: f32) {
-        ops::clear_depth(&self.display.context, None, value)
-    }
-
-    fn clear_stencil(&mut self, value: i32) {
-        ops::clear_stencil(&self.display.context, None, value)
+    fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
+             stencil: Option<i32>)
+    {
+        ops::clear(&self.display.context, None, color, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
