@@ -69,6 +69,21 @@ impl BufferType for PixelUnpackBuffer {
     }
 }
 
+/// Used for uniform buffers.
+pub struct UniformBuffer;
+
+impl BufferType for UniformBuffer {
+    fn get_storage_point(_: Option<UniformBuffer>, state: &mut context::GLState)
+        -> &mut gl::types::GLuint
+    {
+        &mut state.uniform_buffer_binding
+    }
+
+    fn get_bind_point(_: Option<UniformBuffer>) -> gl::types::GLenum {
+        gl::UNIFORM_BUFFER
+    }
+}
+
 impl Buffer {
     pub fn new<T, D>(display: &super::Display, data: Vec<D>, usage: gl::types::GLenum)
         -> Buffer where T: BufferType, D: Send + Copy
@@ -109,7 +124,8 @@ impl Buffer {
                 ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
                 if buffer_size != obtained_size as usize {
                     ctxt.gl.DeleteBuffers(1, [id].as_ptr());
-                    panic!("Not enough available memory for buffer");
+                    panic!("Not enough available memory for buffer (required: {} bytes, \
+                            obtained: {})", buffer_size, obtained_size);
                 }
             }
         });

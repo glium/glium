@@ -49,6 +49,7 @@ let uniforms = glium::uniforms::UniformsStorage::new("texture",
 ```
 
 */
+pub use self::buffer::UniformBuffer;
 pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter};
 pub use self::sampler::{Sampler, SamplerBehavior};
 pub use self::uniforms::{EmptyUniforms, UniformsStorage};
@@ -57,6 +58,7 @@ pub use self::value::{UniformValue, IntoUniformValue, UniformType};
 // TODO: remove
 pub use self::sampler::{SamplerObject, get_sampler};
 
+mod buffer;
 mod sampler;
 mod uniforms;
 mod value;
