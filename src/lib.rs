@@ -1496,8 +1496,8 @@ fn get_gl_error(ctxt: context::CommandContext) -> Option<&'static str> {
         gl::INVALID_OPERATION => Some("GL_INVALID_OPERATION"),
         gl::INVALID_FRAMEBUFFER_OPERATION => Some("GL_INVALID_FRAMEBUFFER_OPERATION"),
         gl::OUT_OF_MEMORY => Some("GL_OUT_OF_MEMORY"),
-        /*gl::STACK_UNDERFLOW => Some("GL_STACK_UNDERFLOW"),
-        gl::STACK_OVERFLOW => Some("GL_STACK_OVERFLOW"),*/
+        gl::STACK_UNDERFLOW => Some("GL_STACK_UNDERFLOW"),
+        gl::STACK_OVERFLOW => Some("GL_STACK_OVERFLOW"),
         _ => Some("Unknown glGetError return value")
     }
 }
