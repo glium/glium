@@ -270,16 +270,10 @@ impl<P: PixelValue> Texture3dData for Vec<Vec<Vec<P>>> {
 pub struct TextureSurface<'a>(framebuffer::SimpleFrameBuffer<'a>);
 
 impl<'a> Surface for TextureSurface<'a> {
-    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.0.clear_color(red, green, blue, alpha)
-    }
-
-    fn clear_depth(&mut self, value: f32) {
-        self.0.clear_depth(value)
-    }
-
-    fn clear_stencil(&mut self, value: i32) {
-        self.0.clear_stencil(value)
+    fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
+             stencil: Option<i32>)
+    {
+        self.0.clear(color, depth, stencil)
     }
 
     fn get_dimensions(&self) -> (u32, u32) {

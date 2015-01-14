@@ -7,26 +7,9 @@ use Surface;
 
 use gl;
 
-pub fn clear_color(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
-                   red: f32, green: f32, blue: f32, alpha: f32)
-{
-    clear_impl(display, framebuffer, Some((red, green, blue, alpha)), None, None)
-}
 
-pub fn clear_depth(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
-                   value: f32)
-{
-    clear_impl(display, framebuffer, None, Some(value), None)
-}
-
-pub fn clear_stencil(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
-                     value: i32)
-{
-    clear_impl(display, framebuffer, None, None, Some(value))
-}
-
-fn clear_impl(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
-              color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<i32>)
+pub fn clear(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
+             color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<i32>)
 {
     let color = color.map(|(red, green, blue, alpha)| (
         red as gl::types::GLclampf,

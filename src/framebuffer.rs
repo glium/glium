@@ -182,16 +182,10 @@ impl<'a> SimpleFrameBuffer<'a> {
 }
 
 impl<'a> Surface for SimpleFrameBuffer<'a> {
-    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        ops::clear_color(&self.display.context, Some(&self.attachments), red, green, blue, alpha)
-    }
-
-    fn clear_depth(&mut self, value: f32) {
-        ops::clear_depth(&self.display.context, Some(&self.attachments), value)
-    }
-
-    fn clear_stencil(&mut self, value: i32) {
-        ops::clear_stencil(&self.display.context, Some(&self.attachments), value)
+    fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
+             stencil: Option<i32>)
+    {
+        ops::clear(&self.display.context, Some(&self.attachments), color, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -361,15 +355,9 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 }
 
 impl<'a> Surface for MultiOutputFrameBuffer<'a> {
-    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        unimplemented!()
-    }
-
-    fn clear_depth(&mut self, value: f32) {
-        unimplemented!()
-    }
-
-    fn clear_stencil(&mut self, value: i32) {
+    fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
+             stencil: Option<i32>)
+    {
         unimplemented!()
     }
 
