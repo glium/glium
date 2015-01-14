@@ -49,7 +49,7 @@ pub enum ClientFormat {
 
 impl ClientFormat {
     /// Returns the size in bytes of a pixel of this type.
-    pub fn get_size(&self) -> uint {
+    pub fn get_size(&self) -> usize {
         use std::mem;
 
         match *self {

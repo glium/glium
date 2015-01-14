@@ -36,14 +36,14 @@ impl TextureImplementation {
         use std::num::Float;
 
         if let Some(ref data) = data {
-            if width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
-                array_size.unwrap_or(1) as uint != data.len() &&
-               width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
-                array_size.unwrap_or(1) as uint * 2 != data.len() &&
-               width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
-                array_size.unwrap_or(1) as uint * 3 != data.len() &&
-               width as uint * height.unwrap_or(1) as uint * depth.unwrap_or(1) as uint *
-                array_size.unwrap_or(1) as uint * 4 != data.len()
+            if width as usize * height.unwrap_or(1) as usize * depth.unwrap_or(1) as usize *
+                array_size.unwrap_or(1) as usize != data.len() &&
+               width as usize * height.unwrap_or(1) as usize * depth.unwrap_or(1) as usize *
+                array_size.unwrap_or(1) as usize * 2 != data.len() &&
+               width as usize * height.unwrap_or(1) as usize * depth.unwrap_or(1) as usize *
+                array_size.unwrap_or(1) as usize * 3 != data.len() &&
+               width as usize * height.unwrap_or(1) as usize * depth.unwrap_or(1) as usize *
+                array_size.unwrap_or(1) as usize * 4 != data.len()
             {
                 panic!("Texture data size mismatch");
             }

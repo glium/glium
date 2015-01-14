@@ -49,7 +49,7 @@ pub struct Uniform {
     pub ty: UniformType,
 
     /// If it is an array, the number of elements.
-    pub size: Option<uint>,
+    pub size: Option<usize>,
 }
 
 /// Informations about an attribute of a program (except its name).
@@ -193,10 +193,10 @@ impl Program {
                         let mut error_log_size: gl::types::GLint = mem::uninitialized();
                         ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
-                        let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
+                        let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as usize);
                         ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
                             error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
-                        error_log.set_len(error_log_size as uint);
+                        error_log.set_len(error_log_size as usize);
 
                         let msg = String::from_utf8(error_log).unwrap();
                         tx.send(Err(LinkingError(msg))).ok();
@@ -362,10 +362,10 @@ fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: 
                 let mut error_log_size: gl::types::GLint = mem::uninitialized();
                 ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
 
-                let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as uint);
+                let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as usize);
                 ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
                     error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
-                error_log.set_len(error_log_size as uint);
+                error_log.set_len(error_log_size as usize);
 
                 let msg = String::from_utf8(error_log).unwrap();
                 tx.send(Err(ProgramCreationError::CompilationError(msg))).ok();
@@ -402,7 +402,7 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
         ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
             &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
             uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
-        uniform_name_tmp.set_len(uniform_name_tmp_len as uint);
+        uniform_name_tmp.set_len(uniform_name_tmp_len as usize);
 
         let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
         let location = ctxt.gl.GetUniformLocation(program, ffi::CString::from_slice(uniform_name.as_bytes()).as_slice_with_nul().as_ptr());
@@ -410,7 +410,7 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
         uniforms.insert(uniform_name, Uniform {
             location: location as i32,
             ty: glenum_to_uniform_type(data_type),
-            size: if data_size == 1 { None } else { Some(data_size as uint) },
+            size: if data_size == 1 { None } else { Some(data_size as usize) },
         });
     }
 
@@ -434,7 +434,7 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
         ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint, attr_name_tmp_len,
             &mut attr_name_tmp_len, &mut data_size, &mut data_type,
             attr_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
-        attr_name_tmp.set_len(attr_name_tmp_len as uint);
+        attr_name_tmp.set_len(attr_name_tmp_len as usize);
 
         let attr_name = String::from_utf8(attr_name_tmp).unwrap();
         let location = ctxt.gl.GetAttribLocation(program, ffi::CString::from_slice(attr_name.as_bytes()).as_slice_with_nul().as_ptr());

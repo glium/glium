@@ -11,8 +11,8 @@ use GlObject;
 pub struct Buffer {
     display: Arc<super::DisplayImpl>,
     id: gl::types::GLuint,
-    elements_size: uint,
-    elements_count: uint,
+    elements_size: usize,
+    elements_count: usize,
 }
 
 /// Type of a buffer.
@@ -75,16 +75,9 @@ impl Buffer {
     {
         use std::mem;
 
-        let elements_size = if data.len() <= 1 {
-            mem::size_of::<D>()
-        } else {
-            let d0: *const D = &data[0];
-            let d1: *const D = &data[1];
-            (d1 as uint) - (d0 as uint)
-        };
-
+        let elements_size = get_elements_size(&data);
         let elements_count = data.len();
-        let buffer_size = elements_count * elements_size as uint;
+        let buffer_size = elements_count * elements_size as usize;
 
         let (tx, rx) = channel();
 
@@ -114,7 +107,7 @@ impl Buffer {
 
                 let mut obtained_size: gl::types::GLint = mem::uninitialized();
                 ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
-                if buffer_size != obtained_size as uint {
+                if buffer_size != obtained_size as usize {
                     ctxt.gl.DeleteBuffers(1, [id].as_ptr());
                     panic!("Not enough available memory for buffer");
                 }
@@ -129,10 +122,10 @@ impl Buffer {
         }
     }
 
-    pub fn new_empty<T>(display: &super::Display, elements_size: uint, elements_count: uint,
+    pub fn new_empty<T>(display: &super::Display, elements_size: usize, elements_count: usize,
                         usage: gl::types::GLenum) -> Buffer where T: BufferType
     {
-        let buffer_size = elements_count * elements_size as uint;
+        let buffer_size = elements_count * elements_size as usize;
 
         let (tx, rx) = channel();
         display.context.context.exec(move |: ctxt| {
@@ -158,7 +151,7 @@ impl Buffer {
 
                 let mut obtained_size: gl::types::GLint = mem::uninitialized();
                 ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
-                if buffer_size != obtained_size as uint {
+                if buffer_size != obtained_size as usize {
                     ctxt.gl.DeleteBuffers(1, [id].as_ptr());
                     panic!("Not enough available memory for buffer");
                 }
@@ -179,20 +172,63 @@ impl Buffer {
         &self.display
     }
 
-    pub fn get_elements_size(&self) -> uint {
+    pub fn get_elements_size(&self) -> usize {
         self.elements_size
     }
 
-    pub fn get_elements_count(&self) -> uint {
+    pub fn get_elements_count(&self) -> usize {
         self.elements_count
     }
 
-    pub fn get_total_size(&self) -> uint {
+    pub fn get_total_size(&self) -> usize {
         self.elements_count * self.elements_size
     }
 
+    /// Uploads data in the buffer.
+    ///
+    /// This function considers that the buffer is filled of elements of type `D`. The offset
+    /// is a number of elements, not a number of bytes.
+    pub fn upload<T, D>(&mut self, offset: usize, data: Vec<D>)
+                        where D: Copy + Send, T: BufferType
+    {
+        let offset = offset * get_elements_size(&data);
+        let buffer_size = get_elements_size(&data) * data.len();
+
+        assert!(offset <= self.get_total_size());
+        assert!(offset + buffer_size <= self.get_total_size());
+
+        let id = self.get_id();
+
+        self.display.context.exec(move |: ctxt| {
+            let data = data;
+
+            unsafe {
+                if ctxt.version >= &GlVersion(4, 5) {
+                    ctxt.gl.NamedBufferSubData(id, offset as gl::types::GLintptr,
+                                               buffer_size as gl::types::GLsizei,
+                                               data.as_ptr() as *const libc::c_void)
+
+                } else if ctxt.extensions.gl_ext_direct_state_access {
+                    ctxt.gl.NamedBufferSubDataEXT(id, offset as gl::types::GLintptr,
+                                                  buffer_size as gl::types::GLsizeiptr,
+                                                  data.as_ptr() as *const libc::c_void)
+
+                } else {
+                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
+                    let bind = BufferType::get_bind_point(None::<T>);
+
+                    ctxt.gl.BindBuffer(bind, id);
+                    *storage = id;
+                    ctxt.gl.BufferSubData(bind, offset as gl::types::GLintptr,
+                                          buffer_size as gl::types::GLsizeiptr,
+                                          data.as_ptr() as *const libc::c_void)
+                }
+            }
+        });
+    }
+
     /// Offset and size should be specified as number of elements
-    pub fn map<'a, T, D>(&'a mut self, offset: uint, size: uint)
+    pub fn map<'a, T, D>(&'a mut self, offset: usize, size: usize)
                          -> Mapping<'a, T, D> where T: BufferType, D: Send
     {
         let (tx, rx) = channel();
@@ -240,7 +276,7 @@ impl Buffer {
     }
 
     #[cfg(feature = "gl_extensions")]
-    pub fn read_slice<T, D>(&self, offset: uint, size: uint)
+    pub fn read_slice<T, D>(&self, offset: usize, size: usize)
                             -> Vec<D> where T: BufferType, D: Send
     {
         assert!(offset + size <= self.elements_count);
@@ -319,7 +355,7 @@ impl GlObject for Buffer {
 pub struct Mapping<'b, T, D> {
     buffer: &'b mut Buffer,
     data: *mut D,
-    len: uint,
+    len: usize,
 }
 
 #[unsafe_destructor]
@@ -361,5 +397,16 @@ impl<'a, T, D> DerefMut for Mapping<'a, T, D> {
         unsafe {
             slice::from_raw_mut_buf(&self.data, self.len)
         }
+    }
+}
+
+/// Returns the size of each element inside the vec.
+fn get_elements_size<T>(data: &Vec<T>) -> usize {
+    if data.len() <= 1 {
+        mem::size_of::<T>()
+    } else {
+        let d0: *const T = &data[0];
+        let d1: *const T = &data[1];
+        (d1 as usize) - (d0 as usize)
     }
 }

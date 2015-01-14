@@ -39,9 +39,9 @@ pub enum IndicesSource<'a, T: 'a> {
         /// The buffer.
         buffer: &'a IndexBuffer,
         /// Offset of the first element of the buffer to use.
-        offset: uint,
+        offset: usize,
         /// Number of elements in the buffer to use.
-        length: uint,
+        length: usize,
     },
 
     /// A buffer in RAM.
@@ -51,9 +51,9 @@ pub enum IndicesSource<'a, T: 'a> {
         /// Type of primitives contained in the buffer.
         primitives: PrimitiveType,
         /// Offset of the first element of the buffer to use.
-        offset: uint,
+        offset: usize,
         /// Number of elements in the buffer to use.
-        length: uint,
+        length: usize,
     }
 }
 
@@ -75,7 +75,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
     }
 
     /// Returns the first element to use from the buffer.
-    pub fn get_offset(&self) -> uint {
+    pub fn get_offset(&self) -> usize {
         match self {
             &IndicesSource::IndexBuffer { offset, .. } => offset,
             &IndicesSource::Buffer { offset, .. } => offset,
@@ -83,7 +83,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
     }
 
     /// Returns the length of the buffer.
-    pub fn get_length(&self) -> uint {
+    pub fn get_length(&self) -> usize {
         match self {
             &IndicesSource::IndexBuffer { length, .. } => length,
             &IndicesSource::Buffer { length, .. } => length,
@@ -190,7 +190,7 @@ impl ToIndicesSource<u16> for IndexBuffer {      // TODO: u16?
         IndicesSource::IndexBuffer {
             buffer: self,
             offset: 0,
-            length: self.buffer.get_elements_count() as uint,
+            length: self.buffer.get_elements_count() as usize,
         }
     }
 }

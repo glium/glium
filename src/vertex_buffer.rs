@@ -184,7 +184,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     #[experimental]
     pub unsafe fn new_raw(display: &super::Display, data: Vec<T>,
-                          bindings: VertexFormat, elements_size: uint) -> VertexBuffer<T>
+                          bindings: VertexFormat, elements_size: usize) -> VertexBuffer<T>
     {
         VertexBuffer {
             buffer: VertexBufferAny {
@@ -253,14 +253,22 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     /// Only available if the `gl_extensions` feature is enabled.
     #[cfg(feature = "gl_extensions")]
-    pub fn read_slice(&self, offset: uint, size: uint) -> Vec<T> {
+    pub fn read_slice(&self, offset: usize, size: usize) -> Vec<T> {
         self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
+    }
+
+    /// Writes some vertices in the buffer.
+    ///
+    /// Replaces some vertices in the buffer by others.
+    /// The `offset` represents a number of vertices, not a number of bytes.
+    pub fn write(&mut self, offset: usize, data: Vec<T>) {
+        self.buffer.buffer.upload::<buffer::ArrayBuffer, _>(offset, data)
     }
 }
 
 impl<T> VertexBuffer<T> {
     /// Returns the number of bytes between two consecutive elements in the buffer.
-    pub fn get_elements_size(&self) -> uint {
+    pub fn get_elements_size(&self) -> usize {
         self.buffer.elements_size
     }
 
@@ -298,12 +306,12 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
 pub struct VertexBufferAny {
     buffer: Buffer,
     bindings: VertexFormat,
-    elements_size: uint,
+    elements_size: usize,
 }
 
 impl VertexBufferAny {
     /// Returns the number of bytes between two consecutive elements in the buffer.
-    pub fn get_elements_size(&self) -> uint {
+    pub fn get_elements_size(&self) -> usize {
         self.elements_size
     }
 
@@ -401,7 +409,7 @@ pub enum AttributeType {
 ///
 /// The first element is the name of the binding, the second element is the offset
 /// from the start of each vertex to this element, and the third element is the type.
-pub type VertexFormat = Vec<(String, uint, AttributeType)>;
+pub type VertexFormat = Vec<(String, usize, AttributeType)>;
 
 /// Trait for structures that represent a vertex.
 ///
