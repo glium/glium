@@ -234,7 +234,7 @@ trait GlObject {
     fn get_id(&self) -> gl::types::GLuint;
 }
 
-/// Internal trait for enums that can be turned into GLEnum.
+/// Internal trait for enums that can be turned into GLenum.
 trait ToGlEnum {
     /// Returns the value.
     fn to_glenum(&self) -> gl::types::GLenum;

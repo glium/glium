@@ -7,8 +7,8 @@ use {Display, DisplayImpl, GlObject};
 use context::CommandContext;
 use uniforms::UniformType;
 
-/// Some shader compilers have race-condition issues.
-/// We lock this mutex in the GL thread every time we compile a shader or link a program.
+/// Some shader compilers have race-condition issues, so we lock this mutex
+/// in the GL thread every time we compile a shader or link a program.
 static COMPILER_GLOBAL_LOCK: StaticMutex = MUTEX_INIT;
 
 struct Shader {
@@ -27,7 +27,7 @@ impl Drop for Shader {
     }
 }
 
-/// A combinaison of shaders linked together.
+/// A combination of shaders linked together.
 pub struct Program {
     display: Arc<DisplayImpl>,
     #[allow(dead_code)]
@@ -38,11 +38,11 @@ pub struct Program {
     frag_data_locations: Mutex<HashMap<String, Option<u32>>>,
 }
 
-/// Informations about a uniform (except its name).
+/// Information about a uniform (except its name).
 pub struct Uniform {
     /// The location of the uniform.
     ///
-    /// This is an internal information, and you probably don't need to use it.
+    /// This is internal information, you probably don't need to use it.
     pub location: i32,
 
     /// Type of the uniform.
@@ -52,7 +52,7 @@ pub struct Uniform {
     pub size: Option<usize>,
 }
 
-/// Informations about an attribute of a program (except its name).
+/// Information about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
 #[derive(Show)]
@@ -71,9 +71,9 @@ pub enum ProgramCreationError {
     /// Error while linking the program.
     LinkingError(String),
 
-    /// One of the request shader type is not supported by the backend.
+    /// One of the requested shader types is not supported by the backend.
     ///
-    /// Usually the case of geometry shaders.
+    /// Usually the case for geometry shaders.
     ShaderTypeNotSupported,
 }
 
@@ -234,7 +234,7 @@ impl Program {
 
     /// Returns the *location* of an output fragment, if it exists.
     ///
-    /// The *location* is a low-level information that is used internally by glium.
+    /// The *location* is low-level information that is used internally by glium.
     /// You probably don't need to call this function.
     ///
     /// You can declare output fragments in your shaders by writing:
