@@ -99,6 +99,9 @@ pub struct GLState {
     /// The latest buffer bound to `GL_PIXEL_UNPACK_BUFFER`.
     pub pixel_unpack_buffer_binding: gl::types::GLuint,
 
+    /// The latest buffer bound to `GL_UNIFORM_BUFFER`.
+    pub uniform_buffer_binding: gl::types::GLuint,
+
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: gl::types::GLuint,
 
@@ -170,6 +173,7 @@ impl GLState {
             array_buffer_binding: 0,
             pixel_pack_buffer_binding: 0,
             pixel_unpack_buffer_binding: 0,
+            uniform_buffer_binding: 0,
             read_framebuffer: 0,
             draw_framebuffer: 0,
             default_framebuffer_read: None,
@@ -234,6 +238,8 @@ pub struct ExtensionsList {
     pub gl_arb_texture_storage: bool,
     /// GL_ARB_buffer_storage
     pub gl_arb_buffer_storage: bool,
+    /// GL_ARB_uniform_buffer_object
+    pub gl_arb_uniform_buffer_object: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -529,6 +535,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
                 result.push("OpenGL implementation doesn't support sampler objects");
             }
         }
+
+        if cfg!(feature = "gl_uniform_blocks") && ctxt.version < &GlVersion(3, 1) &&
+            !ctxt.extensions.gl_arb_uniform_buffer_object
+        {
+            result.push("OpenGL implementation doesn't support uniform blocks");
+        }
     }
 
     if result.len() == 0 {
@@ -593,6 +605,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_texture_filter_anisotropic: false,
         gl_arb_texture_storage: false,
         gl_arb_buffer_storage: false,
+        gl_arb_uniform_buffer_object: false,
     };
 
     for extension in strings.into_iter() {
@@ -609,6 +622,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             "GL_ARB_texture_storage" => extensions.gl_arb_texture_storage = true,
             "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = true,
+            "GL_ARB_uniform_buffer_object" => extensions.gl_arb_uniform_buffer_object = true,
             _ => ()
         }
     }

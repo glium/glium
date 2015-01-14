@@ -11,6 +11,7 @@ build = "build/main.rs"
 [features]
 default = ["image", "cgmath", "nalgebra", "gl_read_buffer"]
 gl_read_buffer = []
+gl_uniform_blocks = []
 headless = ["glutin/headless"]
 
 [dependencies.compile_msg]
