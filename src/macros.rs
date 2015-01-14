@@ -1,3 +1,5 @@
+//! Defines useful macros for glium usage.
+
 /// Returns an implementation-defined type which implements the `Uniform` trait.
 ///
 /// ## Example

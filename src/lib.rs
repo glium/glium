@@ -176,7 +176,6 @@ target.finish();
 ```
 
 */
-#![feature(old_orphan_check)]
 #![feature(slicing_syntax)]
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
