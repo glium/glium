@@ -20,6 +20,10 @@ pub struct Context {
     dimensions: Arc<(AtomicUint, AtomicUint)>,
 
     capabilities: Arc<Capabilities>,
+
+    version: GlVersion,
+
+    extensions: ExtensionsList,
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -204,6 +208,7 @@ impl Ord for GlVersion {
 }
 
 /// Contains data about the list of extensions
+#[derive(Show, Clone, Copy)]
 pub struct ExtensionsList {
     /// GL_EXT_direct_state_access
     pub gl_ext_direct_state_access: bool,
@@ -312,7 +317,8 @@ impl Context {
                     return;
                 },
                 Ok(_) => {
-                    tx_success.send(Ok(capabilities.clone())).unwrap();
+                    let ret = (capabilities.clone(), version.clone(), extensions.clone());
+                    tx_success.send(Ok(ret)).unwrap();
                 }
             };
 
@@ -356,11 +362,14 @@ impl Context {
             }
         });
 
+        let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
         Ok(Context {
             commands: Mutex::new(tx_commands),
             events: Mutex::new(rx_events),
             dimensions: dimensions2,
-            capabilities: try!(rx_success.recv().unwrap()),
+            capabilities: capabilities,
+            version: version,
+            extensions: extensions,
         })
     }
 
@@ -413,7 +422,8 @@ impl Context {
                     return;
                 },
                 Ok(_) => {
-                    tx_success.send(Ok(capabilities.clone())).unwrap();
+                    let ret = (capabilities.clone(), version.clone(), extensions.clone());
+                    tx_success.send(Ok(ret)).unwrap();
                 }
             };
 
@@ -433,11 +443,14 @@ impl Context {
             }
         });
 
+        let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
         Ok(Context {
             commands: Mutex::new(tx_commands),
             events: Mutex::new(rx_events),
             dimensions: dimensions2,
-            capabilities: try!(rx_success.recv().unwrap()),
+            capabilities: capabilities,
+            version: version,
+            extensions: extensions,
         })
     }
 
@@ -471,6 +484,14 @@ impl Context {
 
     pub fn capabilities(&self) -> &Capabilities {
         &*self.capabilities
+    }
+
+    pub fn get_version(&self) -> &GlVersion {
+        &self.version
+    }
+
+    pub fn get_extensions(&self) -> &ExtensionsList {
+        &self.extensions
     }
 }
 
