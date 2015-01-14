@@ -220,7 +220,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         }
 
         ops::draw(&self.display, Some(&self.attachments), vb.into_vertices_source(),
-                  &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
+                  ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
     fn get_blit_helper(&self) -> ::BlitHelper {
@@ -397,7 +397,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         }
 
         ops::draw(&self.display, Some(&self.build_attachments(program)), vb.into_vertices_source(),
-                  &ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
+                  ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 }
 

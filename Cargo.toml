@@ -13,6 +13,7 @@ default = ["image", "cgmath", "nalgebra", "gl_read_buffer"]
 gl_read_buffer = []
 gl_uniform_blocks = []
 gl_sync = []
+gl_persistent_mapping = ["gl_sync"]
 headless = ["glutin/headless"]
 
 [dependencies.compile_msg]

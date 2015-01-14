@@ -200,7 +200,7 @@ pub use index_buffer::IndexBuffer;
 pub use vertex_buffer::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
-pub use sync::SyncFence;
+pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
@@ -1116,7 +1116,7 @@ impl<'t> Surface for Frame<'t> {
         }
 
         ops::draw(&self.display, None, vertex_buffer.into_vertices_source(),
-                  &index_buffer.to_indices_source(), program, uniforms, draw_parameters,
+                  index_buffer.to_indices_source(), program, uniforms, draw_parameters,
                   (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
@@ -1451,8 +1451,8 @@ impl Display {
     pub fn assert_no_error(&self) {
         let (tx, rx) = channel();
 
-        self.context.context.exec(move |: ctxt| {
-            tx.send(get_gl_error(ctxt)).ok();
+        self.context.context.exec(move |: mut ctxt| {
+            tx.send(get_gl_error(&mut ctxt)).ok();
         });
 
         match rx.recv().unwrap() {
@@ -1513,7 +1513,7 @@ impl Drop for DisplayImpl {
 }
 
 #[allow(dead_code)]
-fn get_gl_error(ctxt: context::CommandContext) -> Option<&'static str> {
+fn get_gl_error(ctxt: &mut context::CommandContext) -> Option<&'static str> {
     match unsafe { ctxt.gl.GetError() } {
         gl::NO_ERROR => None,
         gl::INVALID_ENUM => Some("GL_INVALID_ENUM"),

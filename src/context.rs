@@ -549,6 +549,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         {
             result.push("OpenGL implementation doesn't support synchronization objects");
         }
+
+        if cfg!(feature = "gl_persistent_mapping") && ctxt.version < &GlVersion(4, 4) &&
+            !ctxt.extensions.gl_arb_buffer_storage
+        {
+            result.push("OpenGL implementation doesn't support persistent mapping");
+        }
     }
 
     if result.len() == 0 {

@@ -6,8 +6,8 @@ use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
 use std::ops::{Deref, DerefMut};
 
 use GlObject;
-use context;
 use gl;
+use context;
 
 /// Buffer that contains a uniform block.
 #[derive(Show)]
@@ -30,7 +30,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send {
     #[cfg(feature = "gl_uniform_blocks")]
     pub fn new(display: &Display, data: T) -> UniformBuffer<T> {
         let buffer = Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
-                                                             gl::STATIC_DRAW);
+                                                             false);
 
         UniformBuffer {
             buffer: TypelessUniformBuffer {
@@ -41,14 +41,41 @@ impl<T> UniformBuffer<T> where T: Copy + Send {
 
     /// Uploads data in the uniforms buffer.
     pub fn new_if_supported(display: &Display, data: T) -> Option<UniformBuffer<T>> {
+        UniformBuffer::new_impl(display, data, false)
+    }
+
+    /// Builds a new uniform buffer with persistent mapping.
+    ///
+    /// ## Features
+    ///
+    /// Only available if the `gl_uniform_blocks` and `gl_persistent_mapping` features are
+    /// both enabled.
+    #[cfg(all(feature = "gl_persistent_mapping", feature = "gl_uniform_blocks"))]
+    pub fn new_persistent(display: &Display, data: T) -> UniformBuffer<T> {
+        UniformBuffer::new_persistent_if_supported(display, data).unwrap()
+    }
+
+    /// Builds a new uniform buffer with persistent mapping, or `None` if this is not supported.
+    pub fn new_persistent_if_supported(display: &Display, data: T) -> Option<UniformBuffer<T>> {
+        UniformBuffer::new_impl(display, data, true)
+    }
+
+    /// Implementation of `new`.
+    fn new_impl(display: &Display, data: T, persistent: bool) -> Option<UniformBuffer<T>> {
         if display.context.context.get_version() < &context::GlVersion(3, 1) &&
            !display.context.context.get_extensions().gl_arb_uniform_buffer_object
         {
             None
 
         } else {
+            if persistent && display.context.context.get_version() < &context::GlVersion(4, 4) &&
+               !display.context.context.get_extensions().gl_arb_buffer_storage
+            {
+                return None;
+            }
+
             let buffer = Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
-                                                                 gl::STATIC_DRAW);
+                                                                 persistent);
 
             Some(UniformBuffer {
                 buffer: TypelessUniformBuffer {
@@ -65,8 +92,8 @@ impl<T> UniformBuffer<T> where T: Copy + Send {
 
     /// Maps the buffer to allow write access to it.
     ///
-    /// **Warning**: using this function can slow things down a lot, because it
-    /// waits for all the previous commands to be executed before returning.
+    /// This function will block until the buffer stops being used by the backend.
+    /// This operation is much faster if the buffer is persistent.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
         Mapping(self.buffer.buffer.map::<buffer::UniformBuffer, T>(0, 1))
     }
@@ -121,8 +148,14 @@ impl<'a, T> DerefMut for Mapping<'a, T> {
 
 impl<'a, T> IntoUniformValue<'a> for &'a UniformBuffer<T> where T: UniformBlock {
     fn into_uniform_value(self) -> UniformValue<'a> {
+        let fence = if self.buffer.buffer.is_persistent() {
+            Some(self.buffer.buffer.add_fence())
+        } else {
+            None
+        };
+
         UniformValue::Block(&self.buffer, Box::new(move |&: block: &program::UniformBlock| -> bool {
             UniformBlock::matches(None::<T>, block)
-        }))
+        }), fence)
     }
 }

@@ -1,18 +1,25 @@
+use Display;
 use context::{self, GlVersion};
 use gl;
 use libc;
 use std::{fmt, mem, ptr, slice};
-use std::sync::Arc;
-use std::sync::mpsc::channel;
+use std::sync::Mutex;
+use std::sync::mpsc::{channel, Sender, Receiver};
 use std::ops::{Deref, DerefMut};
 use GlObject;
 
+use sync;
+
 /// A buffer in the graphics card's memory.
 pub struct Buffer {
-    display: Arc<super::DisplayImpl>,
+    display: Display,
     id: gl::types::GLuint,
     elements_size: usize,
     elements_count: usize,
+    persistent_mapping: Option<*mut libc::c_void>,
+
+    /// Fences that the buffer must wait on before locking the permanent mapping.
+    fences: Mutex<Vec<Receiver<sync::LinearSyncFence>>>,
 }
 
 /// Type of a buffer.
@@ -85,10 +92,16 @@ impl BufferType for UniformBuffer {
 }
 
 impl Buffer {
-    pub fn new<T, D>(display: &super::Display, data: Vec<D>, usage: gl::types::GLenum)
-        -> Buffer where T: BufferType, D: Send + Copy
+    pub fn new<T, D>(display: &Display, data: Vec<D>, persistent: bool)
+                     -> Buffer where T: BufferType, D: Send + Copy
     {
         use std::mem;
+
+        if persistent && display.context.context.get_version() < &context::GlVersion(4, 4) &&
+           !display.context.context.get_extensions().gl_arb_buffer_storage
+        {
+            panic!("Persistent storage is not supported by the backend");
+        }
 
         let elements_size = get_elements_size(&data);
         let elements_count = data.len();
@@ -96,28 +109,34 @@ impl Buffer {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(move |: ctxt| {
+        display.context.context.exec(move |: mut ctxt| {
             let data = data;
 
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
-                ctxt.gl.GenBuffers(1, &mut id);
-                tx.send(id).unwrap();
+                ctxt.gl.GenBuffers(1, &mut id);;
 
-                let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
                 let bind = BufferType::get_bind_point(None::<T>);
 
                 ctxt.gl.BindBuffer(bind, id);
-                *storage = id;
+                *BufferType::get_storage_point(None::<T>, ctxt.state) = id;
 
                 if ctxt.version >= &GlVersion(4, 4) || ctxt.extensions.gl_arb_buffer_storage {
+                    let mut flags = gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
+                                    gl::MAP_WRITE_BIT;       // TODO: more specific flags
+
+                    if persistent {
+                        flags = flags | gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT;
+                    }
+
                     ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
                                           data.as_ptr() as *const libc::c_void,
-                                          gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
-                                          gl::MAP_WRITE_BIT);       // TODO: more specific flags
+                                          flags);
+
                 } else {
+                    debug_assert!(!persistent);
                     ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                                       data.as_ptr() as *const libc::c_void, usage);
+                                       data.as_ptr() as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
                 }
 
                 let mut obtained_size: gl::types::GLint = mem::uninitialized();
@@ -127,18 +146,41 @@ impl Buffer {
                     panic!("Not enough available memory for buffer (required: {} bytes, \
                             obtained: {})", buffer_size, obtained_size);
                 }
+
+                let persistent_mapping = if persistent {
+                    let ptr = ctxt.gl.MapBufferRange(bind, 0,
+                                                     buffer_size as gl::types::GLsizeiptr,
+                                                     gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                                     gl::MAP_PERSISTENT_BIT |
+                                                     gl::MAP_COHERENT_BIT);
+                    if ptr.is_null() {
+                        let error = ::get_gl_error(&mut ctxt);
+                        panic!("glMapBufferRange returned null (error: {:?})", error);
+                    }
+
+                    Some(ptr::Unique(ptr))
+
+                } else {
+                    None
+                };
+
+                tx.send((id, persistent_mapping)).unwrap();
             }
         });
 
+        let (id, persistent_mapping) = rx.recv().unwrap();
+
         Buffer {
-            display: display.context.clone(),
-            id: rx.recv().unwrap(),
+            display: display.clone(),
+            id: id,
             elements_size: elements_size,
             elements_count: elements_count,
+            persistent_mapping: persistent_mapping.map(|ptr::Unique(p)| p),
+            fences: Mutex::new(Vec::new()),
         }
     }
 
-    pub fn new_empty<T>(display: &super::Display, elements_size: usize, elements_count: usize,
+    pub fn new_empty<T>(display: &Display, elements_size: usize, elements_count: usize,
                         usage: gl::types::GLenum) -> Buffer where T: BufferType
     {
         let buffer_size = elements_count * elements_size as usize;
@@ -177,14 +219,16 @@ impl Buffer {
         });
 
         Buffer {
-            display: display.context.clone(),
+            display: display.clone(),
             id: rx.recv().unwrap(),
             elements_size: elements_size,
             elements_count: elements_count,
+            persistent_mapping: None,
+            fences: Mutex::new(Vec::new()),
         }
     }
 
-    pub fn get_display(&self) -> &Arc<super::DisplayImpl> {
+    pub fn get_display(&self) -> &Display {
         &self.display
     }
 
@@ -198,6 +242,21 @@ impl Buffer {
 
     pub fn get_total_size(&self) -> usize {
         self.elements_count * self.elements_size
+    }
+
+    pub fn is_persistent(&self) -> bool {
+        self.persistent_mapping.is_some()
+    }
+
+    /// Adds a new fence that must be waited on before being able to access the
+    /// persistent mapping.
+    ///
+    /// Panics if not a persistent buffer.
+    pub fn add_fence(&self) -> Sender<sync::LinearSyncFence> {
+        assert!(self.is_persistent());
+        let (tx, rx) = channel();
+        self.fences.lock().unwrap().push(rx);
+        tx
     }
 
     /// Uploads data in the buffer.
@@ -215,7 +274,7 @@ impl Buffer {
 
         let id = self.get_id();
 
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |: ctxt| {
             let data = data;
 
             unsafe {
@@ -239,6 +298,8 @@ impl Buffer {
                                           buffer_size as gl::types::GLsizeiptr,
                                           data.as_ptr() as *const libc::c_void)
                 }
+
+                // TODO: fence in case of persistent mapping
             }
         });
     }
@@ -247,17 +308,30 @@ impl Buffer {
     pub fn map<'a, T, D>(&'a mut self, offset: usize, size: usize)
                          -> Mapping<'a, T, D> where T: BufferType, D: Send
     {
-        let (tx, rx) = channel();
-        let id = self.id.clone();
-
         if offset > self.elements_count || (offset + size) > self.elements_count {
             panic!("Trying to map out of range of buffer");
         }
 
+        if let Some(existing_mapping) = self.persistent_mapping.clone() {
+            // we have a `&mut self`, so there's no risk of deadlock when locking `fences`
+            for fence in self.fences.lock().unwrap().drain() {
+                fence.recv().unwrap().into_sync_fence(&self.display).wait();
+            }
+
+            return Mapping {
+                buffer: self,
+                data: unsafe { (existing_mapping as *mut D).offset(offset as isize) },
+                len: size,
+            };
+        }
+
+        let (tx, rx) = channel();
+        let id = self.id.clone();
+
         let offset_bytes = offset * self.elements_size;
         let size_bytes = size * self.elements_size;
 
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |: ctxt| {
             let ptr = unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.MapNamedBufferRange(id, offset_bytes as gl::types::GLintptr,
@@ -311,7 +385,7 @@ impl Buffer {
         let elements_size = self.elements_size.clone();
         let (tx, rx) = channel();
 
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |: ctxt| {
             if ctxt.opengl_es {
                 tx.send(None).ok();
                 return;
@@ -354,7 +428,7 @@ impl fmt::Show for Buffer {
 impl Drop for Buffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |: ctxt| {
             if ctxt.state.array_buffer_binding == id {
                 ctxt.state.array_buffer_binding = 0;
             }
@@ -388,8 +462,13 @@ pub struct Mapping<'b, T, D> {
 #[unsafe_destructor]
 impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
     fn drop(&mut self) {
+        // don't unmap if the buffer is persistent
+        if self.buffer.is_persistent() {
+            return;
+        }
+
         let id = self.buffer.id.clone();
-        self.buffer.display.context.exec(move |: ctxt| {
+        self.buffer.display.context.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.UnmapNamedBuffer(id);

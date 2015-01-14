@@ -25,6 +25,9 @@ use gl;
 use GlObject;
 use ToGlEnum;
 
+use sync::LinearSyncFence;
+use std::sync::mpsc::Sender;
+
 /// Can be used as a source of indices when drawing.
 pub trait ToIndicesSource<D> {
     /// Builds the `IndicesSource`.
@@ -38,6 +41,9 @@ pub enum IndicesSource<'a, T: 'a> {
     IndexBuffer {
         /// The buffer.
         buffer: &'a IndexBuffer,
+        /// Sender which must be used to send back a fence that is signaled when the buffer has
+        /// finished being used.
+        fence: Option<Sender<LinearSyncFence>>,
         /// Offset of the first element of the buffer to use.
         offset: usize,
         /// Number of elements in the buffer to use.
@@ -183,8 +189,15 @@ impl GlObject for IndexBuffer {
 
 impl ToIndicesSource<u16> for IndexBuffer {      // TODO: u16?
     fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: ?
+        let fence = if self.buffer.is_persistent() {
+            Some(self.buffer.add_fence())
+        } else {
+            None
+        };
+
         IndicesSource::IndexBuffer {
             buffer: self,
+            fence: fence,
             offset: 0,
             length: self.buffer.get_elements_count() as usize,
         }
@@ -194,7 +207,7 @@ impl ToIndicesSource<u16> for IndexBuffer {      // TODO: u16?
 impl Drop for IndexBuffer {
     fn drop(&mut self) {
         // removing VAOs which contain this index buffer
-        let mut vaos = self.buffer.get_display().vertex_array_objects.lock().unwrap();
+        let mut vaos = self.buffer.get_display().context.vertex_array_objects.lock().unwrap();
         let to_delete = vaos.keys().filter(|&&(_, i, _)| i == self.buffer.get_id())
             .map(|k| k.clone()).collect::<Vec<_>>();
         for k in to_delete.into_iter() {
@@ -265,7 +278,7 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
                                                               packed in memory");
 
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::Points,
         }
@@ -292,7 +305,7 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::LinesList,
         }
@@ -324,7 +337,7 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::LinesListAdjacency,
         }
@@ -351,7 +364,7 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::LineStrip,
         }
@@ -383,7 +396,7 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::LineStripAdjacency,
         }
@@ -410,7 +423,7 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::TrianglesList,
         }
@@ -442,7 +455,7 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::TrianglesListAdjacency,
         }
@@ -469,7 +482,7 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::TriangleStrip,
         }
@@ -501,7 +514,7 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::TriangleStripAdjacency,
         }
@@ -528,7 +541,7 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, gl::STATIC_DRAW),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
             data_type: Index::get_type(None::<T>),
             primitives: PrimitiveType::TriangleFan,
         }
