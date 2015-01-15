@@ -9,14 +9,17 @@ use {DisplayImpl, GlObject};
 
 use {libc, gl};
 
-///
+/// Stores informations about how to bind a vertex buffer, an index buffer and a program.
 pub struct VertexArrayObject {
     display: Arc<DisplayImpl>,
     id: gl::types::GLuint,
 }
 
 impl VertexArrayObject {
+    /// Builds a new `VertexArrayObject`.
     ///
+    /// The vertex buffer, index buffer and program must not outlive the
+    /// VAO, and the VB & program attributes must not change.
     fn new(display: Arc<DisplayImpl>, vertex_buffer: VerticesSource,
            ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
@@ -49,20 +52,25 @@ impl VertexArrayObject {
 
         display.context.exec(move |: ctxt| {
             unsafe {
+                // building the VAO
                 let id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
                 tx.send(id).unwrap();
 
+                // we don't use DSA as we're going to make multiple calls for this VAO
+                // and we're likely going to use the VAO right after it's been created
                 ctxt.gl.BindVertexArray(id);
                 ctxt.state.vertex_array = id;
 
-                // binding vertex buffer
+                // binding vertex buffer because glVertexAttribPointer uses the current
+                // array buffer
                 if ctxt.state.array_buffer_binding != vertex_buffer {
                     ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
                     ctxt.state.array_buffer_binding = vertex_buffer;
                 }
 
                 // binding index buffer
+                // the ELEMENT_ARRAY_BUFFER is part of the state of the VAO
                 ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
 
                 // binding attributes
@@ -124,6 +132,8 @@ impl GlObject for VertexArrayObject {
     }
 }
 
+/// Obtains the id of the VAO corresponding to the vertex buffer, index buffer and program
+/// passed as parameters. Creates a new VAO if no existing one matches these.
 pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: VerticesSource,
                                   indices: &IndicesSource<I>, program: &Program)
                                   -> gl::types::GLuint where I: ::index_buffer::Index
