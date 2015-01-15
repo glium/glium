@@ -34,7 +34,7 @@ impl SyncFence {
     /// Only available if the `gl_sync` feature is enabled.
     #[cfg(feature = "gl_sync")]
     pub fn new(display: &Display) -> SyncFence {
-        FenceSync::new_if_supported().unwrap()
+        SyncFence::new_if_supported(display).unwrap()
     }
 
     /// Builds a new `SyncFence` that is injected in the server.
@@ -106,7 +106,9 @@ unsafe impl Send for SyncFencePrototype {}
 impl SyncFencePrototype {
     #[cfg(feature = "gl_sync")]
     pub unsafe fn new(ctxt: &mut context::CommandContext) -> SyncFencePrototype {
-        ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)
+        SyncFencePrototype {
+            id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
+        }
     }
 
     pub unsafe fn new_if_supported(ctxt: &mut context::CommandContext) -> Option<SyncFencePrototype> {
