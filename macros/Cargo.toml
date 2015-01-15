@@ -7,3 +7,7 @@ authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 name = "glium_macros"
 path = "src/lib.rs"
 plugin = true
+
+[dependencies.glslang]
+git = "https://github.com/tomaka/glslang-rs"
+optional = true
