@@ -61,8 +61,6 @@ pub fn draw<'a, I, U>(display: &Display,
 
     let draw_parameters = draw_parameters.clone();
 
-    let VerticesSource::VertexBuffer(vertex_buffer) = vertex_buffer;
-    let vb_id = vertex_buffer.get_id();
     let program_id = program.get_id();
 
     // in some situations, we have to wait for the draw command to finish before returning
@@ -100,12 +98,6 @@ pub fn draw<'a, I, U>(display: &Display,
             if ctxt.state.vertex_array != vao_id {
                 ctxt.gl.BindVertexArray(vao_id);
                 ctxt.state.vertex_array = vao_id;
-            }
-
-            // binding vertex buffer
-            if ctxt.state.array_buffer_binding != vb_id {
-                ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vb_id);
-                ctxt.state.array_buffer_binding = vb_id;
             }
 
             // sync-ing parameters
