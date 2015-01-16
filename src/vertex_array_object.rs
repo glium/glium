@@ -4,7 +4,7 @@ use std::mem;
 
 use program::Program;
 use index_buffer::IndicesSource;
-use vertex_buffer::{VerticesSource, AttributeType};
+use vertex::{VerticesSource, AttributeType};
 use {DisplayImpl, GlObject};
 
 use {libc, gl};

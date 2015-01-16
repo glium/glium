@@ -5,7 +5,7 @@ The main struct is the `VertexBuffer`, which represents a buffer in the video me
 containing a list of vertices.
 
 In order to create a vertex buffer, you must first create a struct that represents each vertex,
-and implement the `glium::vertex_buffer::Vertex` trait on it. The `#[vertex_format]` attribute
+and implement the `glium::vertex::Vertex` trait on it. The `#[vertex_format]` attribute
 located in `glium_macros` helps you with that.
 
 ```
@@ -34,8 +34,8 @@ Next, build a `Vec` of the vertices that you want to upload, and pass it to
 #     position: [f32; 3],
 #     texcoords: [f32; 2],
 # }
-# impl glium::vertex_buffer::Vertex for Vertex {
-#     fn build_bindings(_: Option<Vertex>) -> glium::vertex_buffer::VertexFormat {
+# impl glium::vertex::Vertex for Vertex {
+#     fn build_bindings(_: Option<Vertex>) -> glium::vertex::VertexFormat {
 #         unimplemented!() }
 # }
 let data = vec![
@@ -53,7 +53,7 @@ let data = vec![
     },
 ];
 
-let vertex_buffer = glium::vertex_buffer::VertexBuffer::new(&display, data);
+let vertex_buffer = glium::vertex::VertexBuffer::new(&display, data);
 ```
 
 */
@@ -202,10 +202,10 @@ impl<T: Send + Copy> VertexBuffer<T> {
     /// # fn main() {
     /// let bindings = vec![(
     ///         format!("position"), 0,
-    ///         glium::vertex_buffer::AttributeType::F32F32,
+    ///         glium::vertex::AttributeType::F32F32,
     ///     ), (
     ///         format!("color"), 2 * ::std::mem::size_of::<f32>(),
-    ///         glium::vertex_buffer::AttributeType::F32,
+    ///         glium::vertex::AttributeType::F32,
     ///     ),
     /// ];
     ///

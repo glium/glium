@@ -31,10 +31,10 @@ The window you are drawing on will produce events. They can be received by calli
 
 We start by creating the vertex buffer, which contains the list of all the points that make up
 our mesh. The elements that we pass to `VertexBuffer::new` must implement the
-`glium::vertex_buffer::VertexFormat` trait. We can easily do this by creating a custom struct
+`glium::vertex::VertexFormat` trait. We can easily do this by creating a custom struct
 and adding the `#[vertex_format]` attribute to it.
 
-See the `vertex_buffer` module documentation for more informations.
+See the `vertex` module documentation for more informations.
 
 ```no_run
 # #![feature(plugin)]
@@ -51,7 +51,7 @@ struct Vertex {
 }
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
-let vertex_buffer = glium::VertexBuffer::new(&display, vec![
+let vertex = glium::VertexBuffer::new(&display, vec![
     Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
     Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
     Vertex { position: [ 0.5, -0.5], color: [1.0, 0.0, 0.0] },
@@ -197,7 +197,7 @@ extern crate libc;
 extern crate nalgebra;
 
 pub use index_buffer::IndexBuffer;
-pub use vertex_buffer::{VertexBuffer, Vertex, VertexFormat};
+pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
 pub use sync::{LinearSyncFence, SyncFence};
@@ -216,7 +216,7 @@ pub mod macros;
 pub mod program;
 pub mod render_buffer;
 pub mod uniforms;
-pub mod vertex_buffer;
+pub mod vertex;
 pub mod texture;
 
 mod buffer;
@@ -1010,7 +1010,7 @@ pub trait Surface: Sized {
     /// - Panics if a value in the uniforms doesn't match the type requested by the program.
     ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: U,
-        draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'b>,
+        draw_parameters: &DrawParameters) where V: vertex::IntoVerticesSource<'b>,
         I: index_buffer::ToIndicesSource, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
@@ -1098,7 +1098,7 @@ impl<'t> Surface for Frame<'t> {
                          index_buffer: &I, program: &Program, uniforms: U,
                          draw_parameters: &DrawParameters)
                          where I: index_buffer::ToIndicesSource, U: uniforms::Uniforms,
-                         V: vertex_buffer::IntoVerticesSource<'b>
+                         V: vertex::IntoVerticesSource<'b>
     {
         use index_buffer::ToIndicesSource;
 
