@@ -85,7 +85,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 }).collect::<Vec<P<ast::Expr>>>();
 
             quote_expr!(ecx, {
-                use glium::vertex_buffer::Attribute;
+                use glium::vertex::Attribute;
                 use std::mem;
 
                 let mut bindings = Vec::new();

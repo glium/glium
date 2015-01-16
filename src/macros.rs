@@ -50,8 +50,8 @@ macro_rules! attributes {
             ),+
         }
 
-        impl $crate::vertex_buffer::Vertex for $struct_name {
-            fn build_bindings(_: Option<Self>) -> $crate::vertex_buffer::VertexFormat {
+        impl $crate::vertex::Vertex for $struct_name {
+            fn build_bindings(_: Option<Self>) -> $crate::vertex::VertexFormat {
                 vec![
                     $(
                         (
@@ -62,7 +62,7 @@ macro_rules! attributes {
                                 let dummy_field: usize = unsafe { ::std::mem::transmute(dummy_field) };
                                 dummy_field
                             },
-                            $crate::vertex_buffer::Attribute::get_type(None::<$t>)
+                            $crate::vertex::Attribute::get_type(None::<$t>)
                         )
                     )+
                 ]

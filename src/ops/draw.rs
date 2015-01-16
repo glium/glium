@@ -9,7 +9,7 @@ use sync;
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use {Program, DrawParameters, GlObject, ToGlEnum};
 use index_buffer::IndicesSource;
-use vertex_buffer::VerticesSource;
+use vertex::VerticesSource;
 
 use {program, vertex_array_object};
 use {gl, context};

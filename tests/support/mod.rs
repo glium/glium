@@ -70,7 +70,7 @@ pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, 
 }
 
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
-pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex_buffer::VertexBufferAny,
+pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex::VertexBufferAny,
     glium::IndexBuffer, glium::Program)
 {
     #[vertex_format]
@@ -112,7 +112,7 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
 ///
 /// The vertex buffer has the "position" attribute of type "vec2".
 pub fn build_rectangle_vb_ib(display: &glium::Display)
-    -> (glium::vertex_buffer::VertexBufferAny, glium::IndexBuffer)
+    -> (glium::vertex::VertexBufferAny, glium::IndexBuffer)
 {
     #[vertex_format]
     #[derive(Copy)]
