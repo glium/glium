@@ -200,9 +200,9 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         self.stencil_buffer_bits
     }
 
-    fn draw<'b, 'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
-        U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::IntoVerticesSource<'v>
+    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
+        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource,
+        U: ::uniforms::Uniforms, V: ::vertex_buffer::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
         
@@ -377,9 +377,9 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         self.stencil_buffer_bits
     }
 
-    fn draw<'v, V, I, ID, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource<ID>,
-        U: ::uniforms::Uniforms, ID: ::index_buffer::Index, V: ::vertex_buffer::IntoVerticesSource<'v>
+    fn draw<'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
+        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource,
+        U: ::uniforms::Uniforms, V: ::vertex_buffer::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
         

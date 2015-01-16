@@ -29,9 +29,12 @@ use sync::LinearSyncFence;
 use std::sync::mpsc::Sender;
 
 /// Can be used as a source of indices when drawing.
-pub trait ToIndicesSource<D> {
+pub trait ToIndicesSource {
+    /// The type of data.
+    type Data: Index;
+
     /// Builds the `IndicesSource`.
-    fn to_indices_source<'a>(&'a self) -> IndicesSource<'a, D>;
+    fn to_indices_source<'a>(&'a self) -> IndicesSource<'a, Self::Data>;
 }
 
 /// Describes a source of indices used for drawing.
@@ -187,8 +190,10 @@ impl GlObject for IndexBuffer {
     }
 }
 
-impl ToIndicesSource<u16> for IndexBuffer {      // TODO: u16?
-    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: ?
+impl ToIndicesSource for IndexBuffer {
+    type Data = u16;      // TODO: u16?
+
+    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
         let fence = if self.buffer.is_persistent() {
             Some(self.buffer.add_fence())
         } else {
@@ -285,7 +290,9 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for PointsList<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for PointsList<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -312,7 +319,9 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for LinesList<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for LinesList<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -344,7 +353,9 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for LinesListAdjacency<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -371,7 +382,9 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for LineStrip<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for LineStrip<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -403,7 +416,9 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for LineStripAdjacency<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -430,7 +445,9 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for TrianglesList<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for TrianglesList<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -462,7 +479,9 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
     }
 }
 
-impl<T> ToIndicesSource<T> for TrianglesListAdjacency<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -489,7 +508,9 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for TriangleStrip<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -521,7 +542,9 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
     }
 }
 
-impl<T> ToIndicesSource<T> for TriangleStripAdjacency<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
@@ -548,7 +571,9 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
     }
 }
 
-impl<T> ToIndicesSource<T> for TriangleFan<T> where T: Index + Send + Copy {
+impl<T> ToIndicesSource for TriangleFan<T> where T: Index + Send + Copy {
+    type Data = T;
+
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),

@@ -1009,9 +1009,9 @@ pub trait Surface: Sized {
     /// - Panics if the depth range is outside of `(0, 1)`.
     /// - Panics if a value in the uniforms doesn't match the type requested by the program.
     ///
-    fn draw<'a, 'b, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: U,
+    fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: U,
         draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'b>,
-        I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms, ID: index_buffer::Index;
+        I: index_buffer::ToIndicesSource, U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
     fn get_blit_helper(&self) -> BlitHelper;
@@ -1094,11 +1094,11 @@ impl<'t> Surface for Frame<'t> {
         self.display.context.context.capabilities().stencil_bits
     }
 
-    fn draw<'a, 'b, V, I, ID, U>(&mut self, vertex_buffer: V,
+    fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
                          index_buffer: &I, program: &Program, uniforms: U,
                          draw_parameters: &DrawParameters)
-                         where I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms,
-                         ID: index_buffer::Index, V: vertex_buffer::IntoVerticesSource<'b>
+                         where I: index_buffer::ToIndicesSource, U: uniforms::Uniforms,
+                         V: vertex_buffer::IntoVerticesSource<'b>
     {
         use index_buffer::ToIndicesSource;
 
