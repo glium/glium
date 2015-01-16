@@ -58,6 +58,8 @@ pub use self::value::{UniformValue, IntoUniformValue, UniformType};
 // TODO: remove
 pub use self::sampler::{SamplerObject, get_sampler};
 
+use program;
+
 mod buffer;
 mod sampler;
 mod uniforms;
@@ -67,6 +69,12 @@ mod value;
 pub trait Uniforms {
     /// Calls the parameter once with the name and value of each uniform.
     fn visit_values<F: FnMut(&str, &UniformValue)>(self, F);
+}
+
+/// Objects that are suitable for being binded to a uniform block.
+pub trait UniformBlock: Copy {
+    /// Checks whether the uniforms' layout matches the given block.
+    fn matches(Option<Self>, &program::UniformBlock) -> bool;
 }
 
 // TODO: hacky (see #189)

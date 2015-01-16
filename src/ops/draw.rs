@@ -25,6 +25,8 @@ pub fn draw<'a, I, U>(display: &Display,
     let vao_id = vertex_array_object::get_vertex_array_object(&display.context, vertex_buffer.clone(),
                                                               indices, program);
 
+    let program_id = program.get_id();
+
     let pointer = ::std::ptr::Unique(match indices {
         &IndicesSource::IndexBuffer { .. } => ::std::ptr::null_mut(),
         &IndicesSource::Buffer { ref pointer, .. } => pointer.as_ptr() as *mut ::libc::c_void,
@@ -39,6 +41,7 @@ pub fn draw<'a, I, U>(display: &Display,
     let uniforms: Vec<Box<Fn(&mut context::CommandContext) + Send>> = {
         let uniforms_locations = program::get_uniforms_locations(program);
         let mut active_texture = 0;
+        let mut active_buffer_binding = 0;
 
         let mut uniforms_storage = Vec::new();
         uniforms.visit_values(|&mut: name, value| {
@@ -46,11 +49,19 @@ pub fn draw<'a, I, U>(display: &Display,
                 assert!(uniform.size.is_none());     // TODO: arrays not supported
 
                 if !value.is_usable_with(&uniform.ty) {
-                    panic!("Uniform value of type `{:?}` can't be bind to type `{:?}`",
-                           value, uniform.ty);
+                    panic!("Uniform value `{}` can't be bind to type `{:?}`",
+                           name, uniform.ty);
                 }
 
-                let binder = uniform_to_binder(display, *value, uniform.location, &mut active_texture);
+                let binder = uniform_to_binder(display, value, uniform.location,
+                                               &mut active_texture);
+                uniforms_storage.push(binder);
+
+            } else if let Some(block) = program.get_uniform_blocks().get(name) {
+                // TODO: check the type
+
+                let binder = block_to_binder(display, value, block,
+                                             program_id, &mut active_buffer_binding);
                 uniforms_storage.push(binder);
             }
         });
@@ -60,8 +71,6 @@ pub fn draw<'a, I, U>(display: &Display,
     // TODO: panick if uniforms of the program are not found in the parameter
 
     let draw_parameters = draw_parameters.clone();
-
-    let program_id = program.get_id();
 
     // in some situations, we have to wait for the draw command to finish before returning
     let (tx, rx) = {
@@ -120,11 +129,46 @@ pub fn draw<'a, I, U>(display: &Display,
 }
 
 // TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
-fn uniform_to_binder(display: &Display, value: UniformValue, location: gl::types::GLint,
+fn block_to_binder(display: &Display, value: &UniformValue, block: &program::UniformBlock,
+                   program: gl::types::GLuint, current_bind_point: &mut gl::types::GLuint)
+                   -> Box<Fn(&mut context::CommandContext) + Send>
+{
+    match value {
+        &UniformValue::Block(ref buffer, ref layout) => {
+            if !layout.call((block,)) {
+                panic!("The content of the uniform buffer does not match the layout of the block")
+            }
+
+            let bind_point = *current_bind_point;
+            *current_bind_point += 1;
+
+            let buffer = buffer.get_id();
+            let binding = block.binding as gl::types::GLuint;
+
+            Box::new(move |&: ctxt: &mut context::CommandContext| {
+                unsafe {
+                    ctxt.gl.BindBufferBase(gl::UNIFORM_BUFFER, bind_point as gl::types::GLuint,
+                                           buffer);
+                    ctxt.gl.UniformBlockBinding(program, binding,
+                                                bind_point as gl::types::GLuint);
+                }
+            })
+        },
+        _ => {
+            panic!("Can only bind uniform buffers to uniform blocks");
+        }
+    }
+}
+
+// TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
+fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::types::GLint,
                      active_texture: &mut gl::types::GLenum)
                      -> Box<Fn(&mut context::CommandContext) + Send>
 {
-    match value {
+    match *value {
+        UniformValue::Block(_, _) => {
+            panic!("Can't bind a buffer to a single uniform value");
+        },
         UniformValue::SignedInt(val) => {
             Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
