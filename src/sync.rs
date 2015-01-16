@@ -44,7 +44,7 @@ impl SyncFence {
         let (tx, rx) = mpsc::channel();
 
         display.context.context.exec(move |: mut ctxt| {
-            tx.send(unsafe { SyncFencePrototype::new_if_supported(&mut ctxt) }).unwrap();
+            tx.send(unsafe { new_linear_sync_fence_if_supported(&mut ctxt) }).unwrap();
         });
 
         rx.recv().unwrap().map(|f| f.into_sync_fence(display))
@@ -90,37 +90,18 @@ impl Drop for SyncFence {
     }
 }
 
-/// Prototype for a `SyncFence`. Internal type of glium.
+/// Prototype for a `SyncFence`.
 ///
-/// Can be built on the commands queue, then sent to the client and turned into a `SyncFence`.
-///
-/// The fence must be consumed with either `into_sync_fence` or `wait_and_drop`. Otherwise
+/// The fence must be consumed with either `into_sync_fence`, otherwise
 /// the destructor will panic.
 #[must_use]
-pub struct SyncFencePrototype {
+pub struct LinearSyncFence {
     id: Option<gl::types::GLsync>,
 }
 
-unsafe impl Send for SyncFencePrototype {}
+unsafe impl Send for LinearSyncFence {}
 
-impl SyncFencePrototype {
-    #[cfg(feature = "gl_sync")]
-    pub unsafe fn new(ctxt: &mut context::CommandContext) -> SyncFencePrototype {
-        SyncFencePrototype {
-            id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
-        }
-    }
-
-    pub unsafe fn new_if_supported(ctxt: &mut context::CommandContext) -> Option<SyncFencePrototype> {
-        if ctxt.version < &context::GlVersion(3, 2) && !ctxt.extensions.gl_arb_sync {
-            return None;
-        }
-
-        Some(SyncFencePrototype {
-            id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
-        })
-    }
-
+impl LinearSyncFence {
     /// Turns the prototype into a real fence.
     pub fn into_sync_fence(mut self, display: &Display) -> SyncFence {
         SyncFence {
@@ -128,18 +109,35 @@ impl SyncFencePrototype {
             id: self.id.take()
         }
     }
-
-    /// Waits for this fence and destroys it, from within the commands context.
-    pub unsafe fn wait_and_drop(mut self, ctxt: &mut context::CommandContext) {
-        let fence = self.id.take().unwrap();
-        ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
-                               365 * 24 * 3600 * 1000 * 1000 * 1000);
-        ctxt.gl.DeleteSync(fence);
-    }
 }
 
-impl Drop for SyncFencePrototype {
+impl Drop for LinearSyncFence {
     fn drop(&mut self) {
         assert!(self.id.is_none());
     }
+}
+
+#[cfg(feature = "gl_sync")]
+pub unsafe fn new_linear_sync_fence(ctxt: &mut context::CommandContext) -> LinearSyncFence {
+    LinearSyncFence {
+        id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
+    }
+}
+
+pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut context::CommandContext) -> Option<LinearSyncFence> {
+    if ctxt.version < &context::GlVersion(3, 2) && !ctxt.extensions.gl_arb_sync {
+        return None;
+    }
+
+    Some(LinearSyncFence {
+        id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
+    })
+}
+
+/// Waits for this fence and destroys it, from within the commands context.
+pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence, ctxt: &mut context::CommandContext) {
+    let fence = fence.id.take().unwrap();
+    ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
+                           365 * 24 * 3600 * 1000 * 1000 * 1000);
+    ctxt.gl.DeleteSync(fence);
 }

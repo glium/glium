@@ -110,6 +110,7 @@ In addition to this, it has the following OpenGL-related features:
  - `gl_read_buffer` (read the content of a buffer)
  - `gl_uniform_blocks` (bind buffers to uniform blocks)
  - `gl_sync` (synchronization objects)
+ - `gl_persistent_mapping` (buffers permanently mapped in memory)
 
 Enabling each of these features adds more restrictions towards the backend and increases the
 likehood that `build_glium` will return an `Err`. However, it also gives you access to more

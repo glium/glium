@@ -20,10 +20,10 @@ impl VertexArrayObject {
     ///
     /// The vertex buffer, index buffer and program must not outlive the
     /// VAO, and the VB & program attributes must not change.
-    fn new(display: Arc<DisplayImpl>, vertex_buffer: VerticesSource,
+    fn new(display: Arc<DisplayImpl>, vertex_buffer: &VerticesSource,
            ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
-        let VerticesSource::VertexBuffer(vertex_buffer) = vertex_buffer;
+        let &VerticesSource::VertexBuffer(vertex_buffer, _) = vertex_buffer;
         let bindings = vertex_buffer.get_bindings().clone();
         let vb_elementssize = vertex_buffer.get_elements_size();
         let vertex_buffer = GlObject::get_id(vertex_buffer);
@@ -134,7 +134,7 @@ impl GlObject for VertexArrayObject {
 
 /// Obtains the id of the VAO corresponding to the vertex buffer, index buffer and program
 /// passed as parameters. Creates a new VAO if no existing one matches these.
-pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: VerticesSource,
+pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: &VerticesSource,
                                   indices: &IndicesSource<I>, program: &Program)
                                   -> gl::types::GLuint where I: ::index_buffer::Index
 {
@@ -144,7 +144,7 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: Ver
     };
 
     let vb_id = match vertex_buffer {
-        VerticesSource::VertexBuffer(vb) => vb.get_id(),
+        &VerticesSource::VertexBuffer(ref vb, _) => vb.get_id(),
     };
 
     let program_id = program.get_id();
@@ -155,7 +155,7 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: Ver
     }
 
     // we create the new VAO without the mutex locked
-    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer.clone(), ib_id, program);
+    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, ib_id, program);
     let new_vao_id = new_vao.id;
     display.vertex_array_objects.lock().unwrap().insert((vb_id, ib_id, program_id), new_vao);
     new_vao_id

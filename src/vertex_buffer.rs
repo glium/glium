@@ -58,15 +58,21 @@ let vertex_buffer = glium::vertex_buffer::VertexBuffer::new(&display, data);
 
 */
 use buffer::{self, Buffer};
+use sync::LinearSyncFence;
 use std::ops::{Deref, DerefMut};
+use std::sync::mpsc::Sender;
 use gl;
+use context;
 use GlObject;
 
 /// Describes the source to use for the vertices when drawing.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum VerticesSource<'a> {
     /// A buffer uploaded in the video memory.
-    VertexBuffer(&'a VertexBufferAny),
+    ///
+    /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
+    /// when the buffer stops being used.
+    VertexBuffer(&'a VertexBufferAny, Option<Sender<LinearSyncFence>>),
 }
 
 /// Objects that can be used as vertex sources.
@@ -117,7 +123,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     pub fn new(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = Vertex::build_bindings(None::<T>);
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW);
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false);
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -135,7 +141,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     pub fn new_dynamic(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = Vertex::build_bindings(None::<T>);
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::DYNAMIC_DRAW);
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false);
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -145,6 +151,40 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
                 elements_size: elements_size,
             }
         }
+    }
+
+    /// Builds a new vertex buffer with persistent mapping.
+    ///
+    /// ## Features
+    ///
+    /// Only available if the `gl_persistent_mapping` feature is enabled.
+    #[cfg(feature = "gl_persistent_mapping")]
+    pub fn new_persistent(display: &super::Display, data: Vec<T>) -> VertexBuffer<T> {
+        VertexBuffer::new_persistent_if_supported(display, data).unwrap()
+    }
+
+    /// Builds a new vertex buffer with persistent mapping, or `None` if this is not supported.
+    pub fn new_persistent_if_supported(display: &super::Display, data: Vec<T>)
+                                       -> Option<VertexBuffer<T>>
+    {
+        if display.context.context.get_version() < &context::GlVersion(4, 4) &&
+           !display.context.context.get_extensions().gl_arb_buffer_storage
+        {
+            return None;
+        }
+
+        let bindings = Vertex::build_bindings(None::<T>);
+
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, true);
+        let elements_size = buffer.get_elements_size();
+
+        Some(VertexBuffer {
+            buffer: VertexBufferAny {
+                buffer: buffer,
+                bindings: bindings,
+                elements_size: elements_size,
+            }
+        })
     }
 }
 
@@ -187,7 +227,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     {
         VertexBuffer {
             buffer: VertexBufferAny {
-                buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, gl::STATIC_DRAW),
+                buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, false),
                 bindings: bindings,
                 elements_size: elements_size,
             }
@@ -196,8 +236,8 @@ impl<T: Send + Copy> VertexBuffer<T> {
 
     /// Maps the buffer to allow write access to it.
     ///
-    /// **Warning**: using this function can slow things down a lot, because it
-    /// waits for all the previous commands to be executed before returning.
+    /// This function will block until the buffer stops being used by the backend.
+    /// This operation is much faster if the buffer is persistent.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
         let len = self.buffer.buffer.get_elements_count();
         let mapping = self.buffer.buffer.map::<buffer::ArrayBuffer, T>(0, len);
@@ -268,6 +308,11 @@ impl<T: Send + Copy> VertexBuffer<T> {
 }
 
 impl<T> VertexBuffer<T> {
+    /// Returns true if the buffer is mapped in a permanent way in memory.
+    pub fn is_persistent(&self) -> bool {
+        self.buffer.buffer.is_persistent()
+    }
+
     /// Returns the number of bytes between two consecutive elements in the buffer.
     pub fn get_elements_size(&self) -> usize {
         self.buffer.elements_size
@@ -292,7 +337,7 @@ impl<T> GlObject for VertexBuffer<T> {
 
 impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(&self.buffer)
+        (&self.buffer).into_vertices_source()
     }
 }
 
@@ -332,7 +377,7 @@ impl VertexBufferAny {
 impl Drop for VertexBufferAny {
     fn drop(&mut self) {
         // removing VAOs which contain this vertex buffer
-        let mut vaos = self.buffer.get_display().vertex_array_objects.lock().unwrap();
+        let mut vaos = self.buffer.get_display().context.vertex_array_objects.lock().unwrap();
         let to_delete = vaos.keys().filter(|&&(v, _, _)| v == self.buffer.get_id())
             .map(|k| k.clone()).collect::<Vec<_>>();
         for k in to_delete.into_iter() {
@@ -349,7 +394,13 @@ impl GlObject for VertexBufferAny {
 
 impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self)
+        let fence = if self.buffer.is_persistent() {
+            Some(self.buffer.add_fence())
+        } else {
+            None
+        };
+
+        VerticesSource::VertexBuffer(self, fence)
     }
 }
 
