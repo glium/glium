@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
 use std::sync::mpsc::channel;
 use {Display, DisplayImpl, GlObject};
-use context::CommandContext;
+use context::{self, CommandContext};
 use uniforms::UniformType;
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
@@ -84,12 +84,13 @@ pub struct Program {
     shaders: Vec<Shader>,
     id: gl::types::GLuint,
     uniforms: Arc<HashMap<String, Uniform>>,
+    uniform_blocks: Arc<HashMap<String, UniformBlock>>,
     attributes: Arc<HashMap<String, Attribute>>,
     frag_data_locations: Mutex<HashMap<String, Option<u32>>>,
 }
 
 /// Information about a uniform (except its name).
-#[deriving(Show, Copy)]
+#[derive(Show, Copy)]
 #[doc(hidden)]
 pub struct Uniform {
     /// The location of the uniform.
@@ -104,10 +105,43 @@ pub struct Uniform {
     pub size: Option<usize>,
 }
 
+/// Information about a uniform block (except its name).
+#[derive(Show, Clone)]
+#[doc(hidden)]
+pub struct UniformBlock {
+    /// The binding point of the uniform.
+    ///
+    /// This is internal information, you probably don't need to use it.
+    pub binding: i32,
+
+    /// Size in bytes of the data in the block.
+    pub size: usize,
+
+    /// List of elements in the block.
+    pub members: Vec<UniformBlockMember>,
+}
+
+/// Information about a uniform inside a block.
+#[derive(Show, Clone)]
+#[doc(hidden)]
+pub struct UniformBlockMember {
+    /// Name of the member.
+    pub name: String,
+
+    /// Offset of the member in the block.
+    pub offset: usize,
+
+    /// Type of the uniform.
+    pub ty: UniformType,
+
+    /// If it is an array, the number of elements.
+    pub size: Option<usize>,
+}
+
 /// Information about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
-#[deriving(Show, Copy)]
+#[derive(Show, Copy)]
 #[doc(hidden)]
 pub struct Attribute {
     pub location: gl::types::GLint,
@@ -269,18 +303,20 @@ impl Program {
             unsafe {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
-                    reflect_attributes(&mut ctxt, id)
+                    reflect_attributes(&mut ctxt, id),
+                    reflect_uniform_blocks(&mut ctxt, id),
                 )).ok();
             }
         });
 
-        let (uniforms, attributes) = rx.recv().unwrap();
+        let (uniforms, attributes, blocks) = rx.recv().unwrap();
 
         Ok(Program {
             display: display.context.clone(),
             shaders: shaders_store,
             id: id,
             uniforms: Arc::new(uniforms),
+            uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
             frag_data_locations: Mutex::new(HashMap::new()),
         })
@@ -326,6 +362,11 @@ impl Program {
     /// Returns informations about a uniform variable, if it exists.
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
+    }
+    
+    /// Returns a list of uniform blocks.
+    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+        &*self.uniform_blocks
     }
 }
 
@@ -508,6 +549,121 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
     }
 
     attributes
+}
+
+unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: gl::types::GLuint)
+                                 -> HashMap<String, UniformBlock>
+{
+    // uniform blocks are not supported, so there's none
+    if ctxt.version < &context::GlVersion(3, 1) {
+        return HashMap::new();
+    }
+
+    let mut blocks = HashMap::new();
+
+    let mut active_blocks: gl::types::GLint = mem::uninitialized();
+    ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCKS, &mut active_blocks);
+
+    let mut active_blocks_max_name_len: gl::types::GLint = mem::uninitialized();
+    ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH,
+                         &mut active_blocks_max_name_len);
+
+    for block_id in range(0, active_blocks) {
+        // getting the name of the block
+        let name = {
+            let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + active_blocks_max_name_len
+                                                           as usize);
+            let mut name_tmp_len = active_blocks_max_name_len;
+
+            ctxt.gl.GetActiveUniformBlockName(program, block_id as gl::types::GLuint,
+                                              name_tmp_len, &mut name_tmp_len,
+                                              name_tmp.as_mut_slice().as_mut_ptr()
+                                              as *mut gl::types::GLchar);
+            name_tmp.set_len(name_tmp_len as usize);
+            String::from_utf8(name_tmp).unwrap()
+        };
+
+        // binding point for this block
+        let mut binding: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveUniformBlockiv(program, block_id as gl::types::GLuint,
+                                        gl::UNIFORM_BLOCK_BINDING, &mut binding);
+
+        // number of bytes
+        let mut block_size: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveUniformBlockiv(program, block_id as gl::types::GLuint,
+                                        gl::UNIFORM_BLOCK_DATA_SIZE, &mut block_size);
+
+        // number of members
+        let mut num_members: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetActiveUniformBlockiv(program, block_id as gl::types::GLuint,
+                                        gl::UNIFORM_BLOCK_ACTIVE_UNIFORMS, &mut num_members);
+
+        // indices of the members
+        let mut members_indices = ::std::iter::repeat(0).take(num_members as usize)
+                                                        .collect::<Vec<gl::types::GLuint>>();
+        ctxt.gl.GetActiveUniformBlockiv(program, block_id as gl::types::GLuint,
+                                        gl::UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES,
+                                        members_indices.as_mut_ptr() as *mut gl::types::GLint);
+
+        // getting the offsets of the members
+        let mut member_offsets = ::std::iter::repeat(0).take(num_members as usize)
+                                                       .collect::<Vec<gl::types::GLint>>();
+        ctxt.gl.GetActiveUniformsiv(program, num_members, members_indices.as_ptr(),
+                                    gl::UNIFORM_OFFSET, member_offsets.as_mut_ptr());
+
+        // getting the types of the members
+        let mut member_types = ::std::iter::repeat(0).take(num_members as usize)
+                                                     .collect::<Vec<gl::types::GLint>>();
+        ctxt.gl.GetActiveUniformsiv(program, num_members, members_indices.as_ptr(),
+                                    gl::UNIFORM_TYPE, member_types.as_mut_ptr());
+
+        // getting the array sizes of the members
+        let mut member_size = ::std::iter::repeat(0).take(num_members as usize)
+                                                    .collect::<Vec<gl::types::GLint>>();
+        ctxt.gl.GetActiveUniformsiv(program, num_members, members_indices.as_ptr(),
+                                    gl::UNIFORM_SIZE, member_size.as_mut_ptr());
+
+        // getting the length of the names of the members
+        let mut member_name_len = ::std::iter::repeat(0).take(num_members as usize)
+                                                         .collect::<Vec<gl::types::GLint>>();
+        ctxt.gl.GetActiveUniformsiv(program, num_members, members_indices.as_ptr(),
+                                    gl::UNIFORM_NAME_LENGTH, member_name_len.as_mut_ptr());
+
+        // getting the names of the members
+        let member_names = member_name_len.iter().zip(members_indices.iter())
+                                          .map(|(&name_len, &index)|
+        {
+            let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + name_len as usize);
+            let mut name_len_tmp = name_len;
+            ctxt.gl.GetActiveUniformName(program, index, name_len, &mut name_len_tmp,
+                                         name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
+            name_tmp.set_len(name_len_tmp as usize);
+
+            String::from_utf8(name_tmp).unwrap()
+        }).collect::<Vec<_>>();
+
+        // now computing the list of members
+        let members = member_names.into_iter().enumerate().map(|(index, name)| {
+            UniformBlockMember {
+                name: name,
+                offset: member_offsets[index] as usize,
+                ty: glenum_to_uniform_type(member_types[index] as gl::types::GLenum),
+                size: match member_size[index] {
+                    1 => None,
+                    a => Some(a as usize),
+                },
+            }
+        }).collect::<Vec<_>>();
+
+        // finally inserting into the blocks list
+        blocks.insert(name, UniformBlock {
+            binding: binding as i32,
+            size: block_size as usize,
+            members: members,
+        });
+    }
+
+    blocks
 }
 
 fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
