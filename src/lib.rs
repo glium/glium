@@ -1011,7 +1011,7 @@ pub trait Surface: Sized {
     ///
     fn draw<'a, 'b, V, I, ID, U>(&mut self, V, &I, program: &Program, uniforms: U,
         draw_parameters: &DrawParameters) where V: vertex_buffer::IntoVerticesSource<'b>,
-        I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms;
+        I: index_buffer::ToIndicesSource<ID>, U: uniforms::Uniforms, ID: index_buffer::Index;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
     fn get_blit_helper(&self) -> BlitHelper;
