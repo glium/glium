@@ -1,5 +1,10 @@
+use program;
 use texture;
+use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
+use uniforms::buffer::TypelessUniformBuffer;
+
+use std::default::Default;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
@@ -128,9 +133,11 @@ pub trait IntoUniformValue<'a> {
 }
 
 /// Represents a value to bind to a uniform.
-#[derive(Clone, Copy, Show)]
 #[allow(missing_docs)]
 pub enum UniformValue<'a> {
+    /// Contains a handle to the buffer, and a function that indicates whether this buffer
+    /// can be binded on a block with the given layout.
+    Block(&'a TypelessUniformBuffer, Box<Fn(&program::UniformBlock) -> bool + 'static>),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),
@@ -173,43 +180,75 @@ pub enum UniformValue<'a> {
 impl<'a> UniformValue<'a> {
     /// Returns true if this value can be used with a uniform of the given type.
     pub fn is_usable_with(&self, ty: &UniformType) -> bool {
-        match (*self, *ty) {
-            (UniformValue::SignedInt(_), UniformType::Int) => true,
-            (UniformValue::UnsignedInt(_), UniformType::UnsignedInt) => true,
-            (UniformValue::Float(_), UniformType::Float) => true,
-            (UniformValue::Mat2(_), UniformType::FloatMat2) => true,
-            (UniformValue::Mat3(_), UniformType::FloatMat3) => true,
-            (UniformValue::Mat4(_), UniformType::FloatMat4) => true,
-            (UniformValue::Vec2(_), UniformType::FloatVec2) => true,
-            (UniformValue::Vec3(_), UniformType::FloatVec3) => true,
-            (UniformValue::Vec4(_), UniformType::FloatVec4) => true,
-            (UniformValue::Texture1d(_, _), UniformType::Sampler1d) => true,
-            (UniformValue::CompressedTexture1d(_, _), UniformType::Sampler1d) => true,
-            (UniformValue::IntegralTexture1d(_, _), UniformType::ISampler1d) => true,
-            (UniformValue::UnsignedTexture1d(_, _), UniformType::USampler1d) => true,
-            (UniformValue::DepthTexture1d(_, _), UniformType::Sampler1d) => true,
-            (UniformValue::Texture2d(_, _), UniformType::Sampler2d) => true,
-            (UniformValue::CompressedTexture2d(_, _), UniformType::Sampler2d) => true,
-            (UniformValue::IntegralTexture2d(_, _), UniformType::ISampler2d) => true,
-            (UniformValue::UnsignedTexture2d(_, _), UniformType::USampler2d) => true,
-            (UniformValue::DepthTexture2d(_, _), UniformType::Sampler2d) => true,
-            (UniformValue::Texture3d(_, _), UniformType::Sampler3d) => true,
-            (UniformValue::CompressedTexture3d(_, _), UniformType::Sampler3d) => true,
-            (UniformValue::IntegralTexture3d(_, _), UniformType::ISampler3d) => true,
-            (UniformValue::UnsignedTexture3d(_, _), UniformType::USampler3d) => true,
-            (UniformValue::DepthTexture3d(_, _), UniformType::Sampler3d) => true,
-            (UniformValue::Texture1dArray(_, _), UniformType::Sampler1dArray) => true,
-            (UniformValue::CompressedTexture1dArray(_, _), UniformType::Sampler1dArray) => true,
-            (UniformValue::IntegralTexture1dArray(_, _), UniformType::ISampler1dArray) => true,
-            (UniformValue::UnsignedTexture1dArray(_, _), UniformType::USampler1dArray) => true,
-            (UniformValue::DepthTexture1dArray(_, _), UniformType::Sampler1dArray) => true,
-            (UniformValue::Texture2dArray(_, _), UniformType::Sampler2dArray) => true,
-            (UniformValue::CompressedTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
-            (UniformValue::IntegralTexture2dArray(_, _), UniformType::ISampler2dArray) => true,
-            (UniformValue::UnsignedTexture2dArray(_, _), UniformType::USampler2dArray) => true,
-            (UniformValue::DepthTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
+        match (self, *ty) {
+            (&UniformValue::SignedInt(_), UniformType::Int) => true,
+            (&UniformValue::UnsignedInt(_), UniformType::UnsignedInt) => true,
+            (&UniformValue::Float(_), UniformType::Float) => true,
+            (&UniformValue::Mat2(_), UniformType::FloatMat2) => true,
+            (&UniformValue::Mat3(_), UniformType::FloatMat3) => true,
+            (&UniformValue::Mat4(_), UniformType::FloatMat4) => true,
+            (&UniformValue::Vec2(_), UniformType::FloatVec2) => true,
+            (&UniformValue::Vec3(_), UniformType::FloatVec3) => true,
+            (&UniformValue::Vec4(_), UniformType::FloatVec4) => true,
+            (&UniformValue::Texture1d(_, _), UniformType::Sampler1d) => true,
+            (&UniformValue::CompressedTexture1d(_, _), UniformType::Sampler1d) => true,
+            (&UniformValue::IntegralTexture1d(_, _), UniformType::ISampler1d) => true,
+            (&UniformValue::UnsignedTexture1d(_, _), UniformType::USampler1d) => true,
+            (&UniformValue::DepthTexture1d(_, _), UniformType::Sampler1d) => true,
+            (&UniformValue::Texture2d(_, _), UniformType::Sampler2d) => true,
+            (&UniformValue::CompressedTexture2d(_, _), UniformType::Sampler2d) => true,
+            (&UniformValue::IntegralTexture2d(_, _), UniformType::ISampler2d) => true,
+            (&UniformValue::UnsignedTexture2d(_, _), UniformType::USampler2d) => true,
+            (&UniformValue::DepthTexture2d(_, _), UniformType::Sampler2d) => true,
+            (&UniformValue::Texture3d(_, _), UniformType::Sampler3d) => true,
+            (&UniformValue::CompressedTexture3d(_, _), UniformType::Sampler3d) => true,
+            (&UniformValue::IntegralTexture3d(_, _), UniformType::ISampler3d) => true,
+            (&UniformValue::UnsignedTexture3d(_, _), UniformType::USampler3d) => true,
+            (&UniformValue::DepthTexture3d(_, _), UniformType::Sampler3d) => true,
+            (&UniformValue::Texture1dArray(_, _), UniformType::Sampler1dArray) => true,
+            (&UniformValue::CompressedTexture1dArray(_, _), UniformType::Sampler1dArray) => true,
+            (&UniformValue::IntegralTexture1dArray(_, _), UniformType::ISampler1dArray) => true,
+            (&UniformValue::UnsignedTexture1dArray(_, _), UniformType::USampler1dArray) => true,
+            (&UniformValue::DepthTexture1dArray(_, _), UniformType::Sampler1dArray) => true,
+            (&UniformValue::Texture2dArray(_, _), UniformType::Sampler2dArray) => true,
+            (&UniformValue::CompressedTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
+            (&UniformValue::IntegralTexture2dArray(_, _), UniformType::ISampler2dArray) => true,
+            (&UniformValue::UnsignedTexture2dArray(_, _), UniformType::USampler2dArray) => true,
+            (&UniformValue::DepthTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
             _ => false,
         }
+    }
+}
+
+// TODO: implement for each type individually instead
+impl<'a, T> UniformBlock for T where T: IntoUniformValue<'a> + Copy + Send + Default {
+    fn matches(_: Option<T>, block: &program::UniformBlock) -> bool {
+        use std::mem;
+
+        if block.members.len() != 1 {
+            return false;
+        }
+
+        if block.size != mem::size_of::<T>() {
+            return false;
+        }
+
+        let ref member = block.members[0];
+
+        if member.offset != 0 {
+            return false;
+        }
+
+        let me: T = Default::default();
+        if !me.into_uniform_value().is_usable_with(&member.ty) {
+            return false;
+        }
+
+        if member.size.is_some() {
+            return false;
+        }
+
+        true
     }
 }
 
