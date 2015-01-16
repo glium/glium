@@ -1,4 +1,5 @@
 use gl;
+use libc;
 use std::{ffi, fmt, mem, ptr};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
@@ -39,7 +40,7 @@ pub enum ProgramCreationInput<'a> {
 
         /// Source code of the optional geometry shader.
         geometry_shader: Option<&'a str>,
-    }
+    },
 }
 
 impl<'a> IntoProgramCreationInput<'a> for ProgramCreationInput<'a> {
@@ -75,6 +76,15 @@ impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
             geometry_shader: geometry_shader,
         }
     }
+}
+
+/// Represents the compiled binary data of a program.
+pub struct Binary {
+    /// An implementation-defined format.
+    pub format: u32,
+
+    /// The binary data.
+    pub content: Vec<u8>,
 }
 
 /// A combination of shaders linked together.
@@ -319,6 +329,57 @@ impl Program {
             uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
             frag_data_locations: Mutex::new(HashMap::new()),
+        })
+    }
+
+    /// Returns the program's compiled binary.
+    ///
+    /// You can store the result in a file, then reload it later. This avoids having to compile
+    /// the source code every time.
+    ///
+    /// ## Features
+    ///
+    /// Only available if the `gl_program_binary` feature is enabled.
+    #[cfg(feature = "gl_program_binary")]
+    pub fn get_binary(&self) -> Binary {
+        self.get_binary_if_supported().unwrap()
+    }
+
+    /// Returns the program's compiled binary.
+    ///
+    /// Same as `get_binary` but always available. Returns `None` if the backend doesn't support
+    /// getting or reloading the program's binary.
+    pub fn get_binary_if_supported(&self) -> Option<Binary> {
+        let id = self.get_id();
+
+        let (tx, rx) = channel();
+        self.display.context.exec(move |: ctxt| {
+            unsafe {
+                if ctxt.version >= &context::GlVersion(4, 1) ||
+                   ctxt.extensions.gl_arb_get_programy_binary
+                {
+                    let mut buf_len = mem::uninitialized();
+                    ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
+
+                    let mut format = mem::uninitialized();
+                    let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
+                    ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
+                                             storage.as_mut_ptr() as *mut libc::c_void);
+                    storage.set_len(buf_len as usize);
+
+                    tx.send(Some((format, storage))).ok();
+
+                } else {
+                    tx.send(None).ok();
+                }
+            }
+        });
+
+        rx.recv().unwrap().map(|(format, storage)| {
+            Binary {
+                format: format,
+                content: storage,
+            }
         })
     }
 
