@@ -242,6 +242,8 @@ pub struct ExtensionsList {
     pub gl_arb_uniform_buffer_object: bool,
     /// GL_ARB_sync
     pub gl_arb_sync: bool,
+    /// GL_ARB_get_program_binary
+    pub gl_arb_get_programy_binary: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -555,6 +557,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         {
             result.push("OpenGL implementation doesn't support persistent mapping");
         }
+
+        if cfg!(feature = "gl_program_binary") && ctxt.version < &GlVersion(4, 1) &&
+            !ctxt.extensions.gl_arb_get_programy_binary
+        {
+            result.push("OpenGL implementation doesn't support program binary");
+        }
     }
 
     if result.len() == 0 {
@@ -621,6 +629,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_buffer_storage: false,
         gl_arb_uniform_buffer_object: false,
         gl_arb_sync: false,
+        gl_arb_get_programy_binary: false,
     };
 
     for extension in strings.into_iter() {
@@ -639,6 +648,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = true,
             "GL_ARB_uniform_buffer_object" => extensions.gl_arb_uniform_buffer_object = true,
             "GL_ARB_sync" => extensions.gl_arb_sync = true,
+            "GL_ARB_get_program_binary" => extensions.gl_arb_get_programy_binary = true,
             _ => ()
         }
     }

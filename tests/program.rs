@@ -213,3 +213,43 @@ fn get_uniform_blocks() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn get_program_binary() {
+    let display = support::build_display();
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            uniform mat4 matrix;
+
+            attribute vec2 position;
+            attribute vec3 color;
+
+            varying vec3 vColor;
+
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                vColor = color;
+            }
+        ",
+        "
+            #version 110
+            varying vec3 vColor;
+
+            void main() {
+                gl_FragColor = vec4(vColor, 1.0);
+            }
+        ",
+        None).unwrap();
+
+    let binary = match program.get_binary_if_supported() {
+        None => return,
+        Some(bin) => bin
+    };
+
+    assert!(binary.content.len() >= 1);
+
+    display.assert_no_error();
+}
