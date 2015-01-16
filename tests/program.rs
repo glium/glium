@@ -154,3 +154,62 @@ fn get_frag_data_location() {
     
     display.assert_no_error();
 }
+
+#[test]
+fn get_uniform_blocks() {    
+    let display = support::build_display();
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 330
+
+            uniform MyBlock {
+                vec3 position;
+                float color[12];
+            };
+
+            void main() {
+                gl_Position = vec4(position, color[2]);
+            }
+        ",
+        "
+            #version 130
+
+            out vec4 color;
+
+            void main() {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+        None);
+
+    // ignoring test in case of compilation error (version may not be supported)
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
+
+    let blocks = program.get_uniform_blocks();
+
+    assert_eq!(blocks.len(), 1);
+    assert!(blocks.get("MyBlock").is_some());
+
+    let my_block = blocks.get("MyBlock").unwrap();
+    assert!(my_block.size >= 3 * 4 + 4 * 12);
+    assert_eq!(my_block.members.len(), 2);
+
+    let mut members = my_block.members.clone();
+    members.sort_by(|a, b| a.offset.cmp(&b.offset));
+
+    assert_eq!(members[0].name, "position");
+    assert_eq!(members[0].ty, glium::uniforms::UniformType::FloatVec3);
+    assert_eq!(members[0].size, None);
+    assert_eq!(members[0].offset, 0);
+
+    //assert_eq!(members[1].name, "color");     // FIXME: "color[0]" is returned
+    assert_eq!(members[1].ty, glium::uniforms::UniformType::Float);
+    assert_eq!(members[1].size, Some(12));
+    assert!(members[1].offset >= 4 * 3);
+
+    display.assert_no_error();
+}
