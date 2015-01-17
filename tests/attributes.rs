@@ -52,7 +52,7 @@ fn attribute_types_matching() {
     // drawing a frame
     let mut target = display.draw();
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-                &std::default::Default::default());
+                &std::default::Default::default()).unwrap();
     target.finish();
     
     display.assert_no_error();
@@ -98,7 +98,7 @@ fn attribute_types_mismatch() {
     // drawing a frame
     let mut target = display.draw();
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-                &std::default::Default::default());
+                &std::default::Default::default()).unwrap();
     target.finish();
     
     display.assert_no_error();
@@ -144,7 +144,7 @@ fn missing_attribute() {
     // drawing a frame
     let mut target = display.draw();
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-                &std::default::Default::default());
+                &std::default::Default::default()).unwrap();
     target.finish();
     
     display.assert_no_error();

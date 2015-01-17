@@ -329,7 +329,7 @@ fn main() {
             model_matrix: *fixed_model_matrix,
             texture: &opengl_texture
         };
-        framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &std::default::Default::default());
+        framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &std::default::Default::default()).unwrap();
 
         // lighting
         let draw_params = glium::DrawParameters {
@@ -351,7 +351,7 @@ fn main() {
                 light_color: light.color,
                 light_radius: light.radius
             };
-            light_buffer.draw(&quad_vertex_buffer, &quad_index_buffer, &lighting_program, &uniforms, &draw_params);
+            light_buffer.draw(&quad_vertex_buffer, &quad_index_buffer, &lighting_program, &uniforms, &draw_params).unwrap();
         }
 
         // composition
@@ -362,7 +362,7 @@ fn main() {
         };
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &std::default::Default::default());
+        target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &std::default::Default::default()).unwrap();
         target.finish();
 
         // sleeping for some time in order not to use up too much CPU

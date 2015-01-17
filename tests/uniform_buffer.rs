@@ -144,7 +144,7 @@ fn block() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    target.draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
@@ -158,7 +158,6 @@ fn block() {
 }
 
 #[test]
-#[should_fail(expected = "The content of the uniform buffer does not match the layout of the block")]
 fn block_wrong_type() {
     let display = support::build_display();
 
@@ -191,13 +190,11 @@ fn block_wrong_type() {
     // ignoring test in case of compilation error (version may not be supported)
     let program = match program {
         Ok(p) => p,
-        // yeah, that's hacky
-        Err(_) => panic!("The content of the uniform buffer does not match the layout of the block")
+        Err(_) => return
     };
 
     let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, 2) {
-        // hacky too
-        None => panic!("The content of the uniform buffer does not match the layout of the block"),
+        None => return,
         Some(b) => b
     };
 
@@ -207,7 +204,14 @@ fn block_wrong_type() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    
+    match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
+        Err(glium::DrawError::UniformBlockLayoutMismatch { ref name })
+            if name.as_slice() == "MyBlock" => (),
+        a => panic!("{:?}", a)
+    }
+
+    display.assert_no_error();
 }
 
 fn persistent_uniform_buffer_write() {
@@ -283,7 +287,7 @@ fn persistent_block_race_condition() {
 
         target.draw(&vb, &ib, &program, &uniform!{
             MyBlock: &buffer
-        }, &Default::default());
+        }, &Default::default()).unwrap();
     }
     {
         let mut mapping = buffer.map();
@@ -293,7 +297,7 @@ fn persistent_block_race_condition() {
     }
     target.draw(&vb, &ib, &program, &uniform!{
         MyBlock: &buffer
-    }, &Default::default());
+    }, &Default::default()).unwrap();
     {
         let mut mapping = buffer.map();
         (*mapping).0 = 0.0;

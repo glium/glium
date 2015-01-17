@@ -120,7 +120,7 @@ fn render_to_texture2d() {
                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
                                               1024, 1024);
     let params = Default::default();
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 

@@ -88,7 +88,7 @@ fn test() {
 
     // drawing a frame
     let mut target = display.draw();
-    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
+    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()).unwrap();
     target.finish();
     
     display.assert_no_error();
