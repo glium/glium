@@ -48,7 +48,7 @@ fn uniforms_storage_single_value() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    target.draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -90,7 +90,7 @@ fn uniforms_storage_multiple_values() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    target.draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -132,7 +132,7 @@ fn uniforms_storage_ignore_inactive_uniforms() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    target.draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -143,7 +143,6 @@ fn uniforms_storage_ignore_inactive_uniforms() {
 }
 
 #[test]
-#[should_fail]
 fn uniform_wrong_type() {    
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
@@ -173,5 +172,11 @@ fn uniform_wrong_type() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
+        Err(glium::DrawError::UniformTypeMismatch { .. }) => (),
+        a => panic!("{:?}", a)
+    };
+    target.finish();
+
+    display.assert_no_error();
 }

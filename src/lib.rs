@@ -171,7 +171,8 @@ use glium::Surface;
 # let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
-target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default());
+target.draw(&vertex_buffer, &index_buffer, &program, &uniforms,
+            &std::default::Default::default()).unwrap();
 target.finish();
 ```
 
@@ -661,12 +662,14 @@ impl std::default::Default for DrawParameters {
 
 impl DrawParameters {
     /// Checks parameters and panics if something is wrong.
-    fn validate(&self) {
+    fn validate(&self) -> Result<(), DrawError> {
         if self.depth_range.0 < 0.0 || self.depth_range.0 > 1.0 ||
            self.depth_range.1 < 0.0 || self.depth_range.1 > 1.0
         {
-            panic!("Depth range must be between 0 and 1");
+            return Err(DrawError::InvalidDepthRange);
         }
+
+        Ok(())
     }
 
     /// Synchronizes the parameters with the current ctxt.state.
@@ -1179,8 +1182,9 @@ pub trait Surface: Sized {
     /// - Panics if a value in the uniforms doesn't match the type requested by the program.
     ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: U,
-        draw_parameters: &DrawParameters) where V: vertex::IntoVerticesSource<'b>,
-        I: index_buffer::ToIndicesSource, U: uniforms::Uniforms;
+        draw_parameters: &DrawParameters) -> Result<(), DrawError> where
+        V: vertex::IntoVerticesSource<'b>, I: index_buffer::ToIndicesSource,
+        U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
     fn get_blit_helper(&self) -> BlitHelper;
@@ -1226,6 +1230,55 @@ pub trait Surface: Sized {
     }
 }
 
+/// Error that can happen while drawing.
+#[derive(Clone, Show)]
+pub enum DrawError {
+    /// A depth function has been requested but no depth buffer is available.
+    NoDepthBuffer,
+
+    /// The type of a vertex attribute in the vertices source doesn't match what the
+    /// program requires.
+    AttributeTypeMismatch,
+
+    /// One of the attributes required by the program is missing from the vertex format.
+    ///
+    /// Note that it is perfectly valid to have an attribute in the vertex format that is
+    /// not used by the program.
+    AttributeMissing,
+
+    /// The viewport's dimensions are not supported by the backend.
+    ViewportTooLarge,
+
+    /// The depth range is outside of the `(0, 1)` range.
+    InvalidDepthRange,
+
+    /// The type of a uniform doesn't match what the program requires.
+    UniformTypeMismatch {
+        /// Name of the uniform you are trying to bind.
+        name: String,
+        /// The expected type.
+        expected: uniforms::UniformType,
+    },
+
+    /// Tried to bind a uniform buffer to a single uniform value.
+    UniformBufferToValue {
+        /// Name of the uniform you are trying to bind.
+        name: String,
+    },
+
+    /// Tried to bind a single uniform value to a uniform block.
+    UniformValueToBlock {
+        /// Name of the uniform you are trying to bind.
+        name: String,
+    },
+
+    /// The layout of the content of the uniform buffer does not match the layout of the block.
+    UniformBlockLayoutMismatch {
+        /// Name of the block you are trying to bind.
+        name: String,
+    },
+}
+
 #[doc(hidden)]
 pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
 
@@ -1265,23 +1318,27 @@ impl<'t> Surface for Frame<'t> {
 
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
                          index_buffer: &I, program: &Program, uniforms: U,
-                         draw_parameters: &DrawParameters)
+                         draw_parameters: &DrawParameters) -> Result<(), DrawError>
                          where I: index_buffer::ToIndicesSource, U: uniforms::Uniforms,
                          V: vertex::IntoVerticesSource<'b>
     {
         use index_buffer::ToIndicesSource;
 
-        draw_parameters.validate();
-
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
-            panic!("Requested a depth function but no depth buffer is attached");
+            return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            assert!(viewport.width <= self.display.context.context.capabilities().max_viewport_dims.0
-                    as u32, "Viewport dimensions are too large");
-            assert!(viewport.height <= self.display.context.context.capabilities().max_viewport_dims.1
-                    as u32, "Viewport dimensions are too large");
+            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
+            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
         }
 
         ops::draw(&self.display, None, vertex_buffer.into_vertices_source(),

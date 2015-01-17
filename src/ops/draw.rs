@@ -2,6 +2,7 @@ use libc;
 use std::sync::mpsc::{channel, Sender};
 
 use Display;
+use DrawError;
 
 use fbo::{self, FramebufferAttachments};
 
@@ -18,8 +19,10 @@ use {gl, context};
 pub fn draw<'a, I, U>(display: &Display,
     framebuffer: Option<&FramebufferAttachments>, mut vertex_buffer: VerticesSource,
     mut indices: IndicesSource<I>, program: &Program, uniforms: U, draw_parameters: &DrawParameters,
-    dimensions: (u32, u32)) where U: Uniforms, I: ::index_buffer::Index
+    dimensions: (u32, u32)) -> Result<(), DrawError> where U: Uniforms, I: ::index_buffer::Index
 {
+    try!(draw_parameters.validate());
+
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
@@ -47,24 +50,45 @@ pub fn draw<'a, I, U>(display: &Display,
         let mut uniforms_storage = Vec::new();
         let mut fences = Vec::new();
 
+        let mut visiting_result = Ok(());
         uniforms.visit_values(|&mut: name, value| {
+            if visiting_result.is_err() { return; }
+
             if let Some(uniform) = uniforms_locations.get(name) {
-                assert!(uniform.size.is_none());     // TODO: arrays not supported
+                assert!(uniform.size.is_none(), "Uniform arrays not supported yet");
 
                 if !value.is_usable_with(&uniform.ty) {
-                    panic!("Uniform value `{}` can't be bind to type `{:?}`",
-                           name, uniform.ty);
+                    visiting_result = Err(DrawError::UniformTypeMismatch {
+                        name: name.to_string(),
+                        expected: uniform.ty,
+                    });
+                    return;
                 }
 
-                let binder = uniform_to_binder(display, value, uniform.location,
-                                               &mut active_texture);
+                let binder = match uniform_to_binder(display, value, uniform.location,
+                                                     &mut active_texture, name)
+                {
+                    Ok(b) => b,
+                    Err(e) => {
+                        visiting_result = Err(e);
+                        return;
+                    }
+                };
+
                 uniforms_storage.push(binder);
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
-                // TODO: check the type
+                let (binder, fence) = match block_to_binder(display, value, block,
+                                                            program_id,
+                                                            &mut active_buffer_binding, name)
+                {
+                    Ok(b) => b,
+                    Err(e) => {
+                        visiting_result = Err(e);
+                        return;
+                    }
+                };
 
-                let (binder, fence) = block_to_binder(display, value, block,
-                                                      program_id, &mut active_buffer_binding);
                 uniforms_storage.push(binder);
 
                 if let Some(fence) = fence {
@@ -72,6 +96,10 @@ pub fn draw<'a, I, U>(display: &Display,
                 }
             }
         });
+
+        if let Err(e) = visiting_result {
+            return Err(e);
+        }
 
         // adding the vertex buffer and index buffer to the list of fences
         match &mut vertex_buffer {
@@ -156,18 +184,21 @@ pub fn draw<'a, I, U>(display: &Display,
     if let Some(rx) = rx {
         rx.recv().unwrap();
     }
+
+    Ok(())
 }
 
 // TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
 fn block_to_binder(display: &Display, value: &UniformValue, block: &program::UniformBlock,
-                   program: gl::types::GLuint, current_bind_point: &mut gl::types::GLuint)
-                   -> (Box<Fn(&mut context::CommandContext) + Send>,
-                       Option<Sender<sync::LinearSyncFence>>)
+                   program: gl::types::GLuint, current_bind_point: &mut gl::types::GLuint,
+                   name: &str)
+                   -> Result<(Box<Fn(&mut context::CommandContext) + Send>,
+                       Option<Sender<sync::LinearSyncFence>>), DrawError>
 {
-    match value {
+    Ok(match value {
         &UniformValue::Block(ref buffer, ref layout, ref fence) => {
             if !layout.call((block,)) {
-                panic!("The content of the uniform buffer does not match the layout of the block")
+                return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
             }
 
             let bind_point = *current_bind_point;
@@ -188,19 +219,21 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
             (bind_fn, fence.clone())
         },
         _ => {
-            panic!("Can only bind uniform buffers to uniform blocks");
+            return Err(DrawError::UniformValueToBlock { name: name.to_string() });
         }
-    }
+    })
 }
 
 // TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
 fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::types::GLint,
-                     active_texture: &mut gl::types::GLenum)
-                     -> Box<Fn(&mut context::CommandContext) + Send>
+                     active_texture: &mut gl::types::GLenum, name: &str)
+                     -> Result<Box<Fn(&mut context::CommandContext) + Send>, DrawError>
 {
-    match *value {
+    Ok(match *value {
         UniformValue::Block(_, _, _) => {
-            panic!("Can't bind a buffer to a single uniform value");
+            return Err(DrawError::UniformBufferToValue {
+                name: name.to_string(),
+            })
         },
         UniformValue::SignedInt(val) => {
             Box::new(move |&: ctxt: &mut context::CommandContext| {
@@ -365,7 +398,7 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
-    }
+    })
 }
 
 fn build_texture_binder(display: &Display, texture: gl::types::GLuint,

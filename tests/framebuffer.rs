@@ -12,7 +12,6 @@ use glium::Surface;
 mod support;
 
 #[test]
-#[should_fail(expected="Requested a depth function but no depth buffer is attached")]
 fn no_depth_buffer() {
     let display = support::build_display();
     let (vertex_buffer, index_buffer, program) = support::build_fullscreen_red_pipeline(&display);
@@ -26,8 +25,14 @@ fn no_depth_buffer() {
         .. std::default::Default::default()
     };
 
-    framebuffer.draw(&vertex_buffer, &index_buffer, &program,
-                     &glium::uniforms::EmptyUniforms, &parameters);
+    match framebuffer.draw(&vertex_buffer, &index_buffer, &program,
+                           &glium::uniforms::EmptyUniforms, &parameters)
+    {
+        Err(glium::DrawError::NoDepthBuffer) => (),
+        a => panic!("{:?}", a)
+    };
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -56,7 +61,7 @@ fn simple_render_to_texture() {
                                               128, 128);
 
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
-    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
 
@@ -113,7 +118,7 @@ fn depth_texture2d() {
     };
 
     framebuffer.clear_color(0.0, 0.0, 0.0, 1.0);
-    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
     // reading back the color
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = color.read();
@@ -174,7 +179,8 @@ fn multioutput() {
     let mut framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display,
                                              &[("color1", &color1), ("color2", &color2)]);
 
-    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &std::default::Default::default());
+    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
+                     &std::default::Default::default()).unwrap();
 
     // checking color1
     let read_back1: Vec<Vec<(f32, f32, f32, f32)>> = color1.read();

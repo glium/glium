@@ -44,6 +44,7 @@ use texture::{Texture, Texture2d, DepthTexture2d, StencilTexture2d, DepthStencil
 use fbo::FramebufferAttachments;
 
 use {Display, Program, Surface, GlObject};
+use DrawError;
 
 use {fbo, gl, ops};
 
@@ -201,22 +202,27 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource,
-        U: ::uniforms::Uniforms, V: ::vertex::IntoVerticesSource<'v>
+        uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
+        where I: ::index_buffer::ToIndicesSource, U: ::uniforms::Uniforms,
+        V: ::vertex::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
-        
-        draw_parameters.validate();
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
-            panic!("Requested a depth function but no depth buffer is attached");
+            return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            assert!(viewport.width <= self.display.context.context.capabilities().max_viewport_dims.0
-                    as u32, "Viewport dimensions are too large");
-            assert!(viewport.height <= self.display.context.context.capabilities().max_viewport_dims.1
-                    as u32, "Viewport dimensions are too large");
+            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
+            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
         }
 
         ops::draw(&self.display, Some(&self.attachments), vb.into_vertices_source(),
@@ -378,22 +384,27 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     }
 
     fn draw<'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) where I: ::index_buffer::ToIndicesSource,
+        uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
+        where I: ::index_buffer::ToIndicesSource,
         U: ::uniforms::Uniforms, V: ::vertex::IntoVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
-        
-        draw_parameters.validate();
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
-            panic!("Requested a depth function but no depth buffer is attached");
+            return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            assert!(viewport.width <= self.display.context.context.capabilities().max_viewport_dims.0
-                    as u32, "Viewport dimensions are too large");
-            assert!(viewport.height <= self.display.context.context.capabilities().max_viewport_dims.1
-                    as u32, "Viewport dimensions are too large");
+            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
+            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
         }
 
         ops::draw(&self.display, Some(&self.build_attachments(program)), vb.into_vertices_source(),

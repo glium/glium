@@ -61,7 +61,7 @@ fn cull_clockwise() {
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullClockWise,
             .. std::default::Default::default()
-        });
+        }).unwrap();
     target.finish();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
@@ -121,7 +121,7 @@ fn cull_counterclockwise() {
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
             .. std::default::Default::default()
-        });
+        }).unwrap();
     target.finish();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
@@ -180,7 +180,7 @@ fn cull_clockwise_trianglestrip() {
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullClockWise,
             .. std::default::Default::default()
-        });
+        }).unwrap();
     target.finish();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
@@ -239,7 +239,7 @@ fn cull_counterclockwise_trianglestrip() {
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
             .. std::default::Default::default()
-        });
+        }).unwrap();
     target.finish();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();

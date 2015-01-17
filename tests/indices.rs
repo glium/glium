@@ -53,7 +53,7 @@ fn triangles_list_cpu() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -78,7 +78,7 @@ fn triangle_strip_cpu() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -104,7 +104,7 @@ fn triangle_fan_cpu() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -130,7 +130,7 @@ fn triangles_list_gpu() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -156,7 +156,7 @@ fn triangle_strip_gpu() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
@@ -183,7 +183,7 @@ fn triangle_fan_gpu() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default());
+    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();

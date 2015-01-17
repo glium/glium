@@ -38,7 +38,6 @@ fn release_shader_compiler() {
 }
 
 #[test]
-#[should_fail(expected = "Viewport dimensions are too large")]
 fn viewport_too_large() {
     let display = support::build_display();
 
@@ -53,7 +52,13 @@ fn viewport_too_large() {
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
-    display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    
+    match display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+        Err(glium::DrawError::ViewportTooLarge) => (),
+        a => panic!("{:?}", a)
+    };
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -75,7 +80,6 @@ fn timestamp_query() {
 }
 
 #[test]
-#[should_fail(expected = "Depth range must be between 0 and 1")]
 fn wrong_depth_range() {
     let display = support::build_display();
 
@@ -85,7 +89,13 @@ fn wrong_depth_range() {
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
-    display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    
+    match display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+        Err(glium::DrawError::InvalidDepthRange) => (),
+        a => panic!("{:?}", a)
+    };
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -106,7 +116,7 @@ fn scissor() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
     target.finish();
 
     let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();

@@ -55,7 +55,7 @@ fn magnify_nearest_filtering() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default());
+    target.draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
