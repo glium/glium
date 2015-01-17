@@ -12,14 +12,13 @@ use glium::Surface;
 mod support;
 
 #[test]
-fn display_clear_color() {
+fn clear_color() {
     let display = support::build_display();
 
-    let mut target = display.draw();
-    target.clear_color(1.0, 0.0, 0.0, 1.0);
-    target.finish();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(1.0, 0.0, 0.0, 1.0);
 
-    let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
 
     for row in data.iter() {
         for pixel in row.iter() {
@@ -114,12 +113,11 @@ fn scissor() {
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
-    target.finish();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
 
     assert_eq!(data[0][0], (1.0, 0.0, 0.0));
     assert_eq!(data[1][0], (0.0, 0.0, 0.0));

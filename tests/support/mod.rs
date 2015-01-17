@@ -129,3 +129,10 @@ pub fn build_rectangle_vb_ib(display: &glium::Display)
         glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
     )
 }
+
+/// Builds a texture suitable for rendering.
+pub fn build_renderable_texture(display: &glium::Display) -> glium::Texture2d {
+    glium::Texture2d::new_empty(display,
+                                glium::texture::UncompressedFloatFormat::U8U8U8U8,
+                                1024, 1024)
+}

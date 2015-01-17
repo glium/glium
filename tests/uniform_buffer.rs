@@ -142,12 +142,11 @@ fn block() {
         MyBlock: &buffer
     };
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
-    target.finish();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
             assert_eq!(pixel, &(1.0, 1.0, 0.0));
@@ -275,7 +274,8 @@ fn persistent_block_race_condition() {
     };
 
     // checking for synchronization issues by quickly drawing and modifying the buffer
-    let mut target = display.draw();
+    let texture = support::build_renderable_texture(&display);
+    let mut target = texture.as_surface();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     for _ in range(0, 1000) {
         {
@@ -304,9 +304,8 @@ fn persistent_block_race_condition() {
         (*mapping).1 = 0.0;
         (*mapping).2 = 0.0;
     }
-    target.finish();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
             assert_eq!(pixel, &(1.0, 1.0, 1.0));
