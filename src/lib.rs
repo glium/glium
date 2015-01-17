@@ -243,24 +243,138 @@ trait ToGlEnum {
 }
 
 /// Function that the GPU will use for blending.
+///
+/// Blending happens at the end of the rendering process, when the GPU wants to write the
+/// pixels over pixels that already exist in the framebuffer. The blending function allows
+/// you to choose how it should merge the two.
+///
+/// If you want to add transparent objects one over another, the usual value
+/// is `Addition { source: Alpha, destination: OneMinusAlpha }`.
 #[derive(Clone, Copy, Show, PartialEq, Eq)]
 pub enum BlendingFunction {
-    /// Always replace the destination pixel with the source pixel.
+    /// Simply overwrite the destination pixel with the source pixel.
     ///
     /// The alpha channels are simply ignored. This is the default mode.
+    ///
+    /// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will
+    /// result in `(0.5, 0.9, 0.4, 0.2)`.
     AlwaysReplace,
 
-    /// Linear interpolation of the source pixel according to the source pixel's alpha.
+    /// For each individual component (red, green, blue, and alpha), the minimum value is chosen
+    /// between the source and the destination.
     ///
-    /// If the source's alpha is 0, the destination's color will stay the same. If the source's
-    ///  alpha is 1, the destination's color will be replaced by the source's. If the source's
-    ///  alpha is 0.5, the destination's color is the average between the source's and the
-    ///  destination's color.
+    /// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will
+    /// result in `(0.5, 0.1, 0.4, 0.2)`.
+    Min,
+
+    /// For each individual component (red, green, blue, and alpha), the maximum value is chosen
+    /// between the source and the destination.
     ///
-    /// This is the mode that you usually use for transparency.
+    /// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will
+    /// result in `(0.9, 0.9, 0.4, 0.3)`.
+    Max,
+
+    /// For each individual component (red, green, blue, and alpha), a weighted addition
+    /// between the source and the destination.
     ///
-    /// Means `(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` in Openctxt.gl.
-    LerpBySourceAlpha,
+    /// The result is equal to `source_component * source_factor + dest_component * dest_factor`,
+    /// where `source_factor` and `dest_factor` are the values of `source` and `destination` of
+    /// this enum.
+    Addition {
+        /// The factor to apply to the source pixel.
+        source: LinearBlendingFactor,
+
+        /// The factor to apply to the destination pixel.
+        destination: LinearBlendingFactor,
+    },
+
+    /// For each individual component (red, green, blue, and alpha), a weighted substraction
+    /// of the source by the destination.
+    ///
+    /// The result is equal to `source_component * source_factor - dest_component * dest_factor`,
+    /// where `source_factor` and `dest_factor` are the values of `source` and `destination` of
+    /// this enum.
+    Subtraction {
+        /// The factor to apply to the source pixel.
+        source: LinearBlendingFactor,
+
+        /// The factor to apply to the destination pixel.
+        destination: LinearBlendingFactor,
+    },
+
+    /// For each individual component (red, green, blue, and alpha), a weighted substraction
+    /// of the destination by the source.
+    ///
+    /// The result is equal to `-source_component * source_factor + dest_component * dest_factor`,
+    /// where `source_factor` and `dest_factor` are the values of `source` and `destination` of
+    /// this enum.
+    ReverseSubtraction {
+        /// The factor to apply to the source pixel.
+        source: LinearBlendingFactor,
+
+        /// The factor to apply to the destination pixel.
+        destination: LinearBlendingFactor,
+    },
+}
+
+/// Indicates which value to multiply each component with.
+#[derive(Clone, Copy, Show, PartialEq, Eq)]
+pub enum LinearBlendingFactor {
+    /// Multiply the source or destination component by zero, which always
+    /// gives `0.0`.
+    Zero,
+
+    /// Multiply the source or destination component by one, which always
+    /// gives you the original value.
+    One,
+
+    /// Multiply the source or destination component by its corresponding value
+    /// in the source.
+    ///
+    /// If you apply this to the source components, you get the values squared.
+    SourceColor,
+
+    /// Equivalent to `1 - SourceColor`.
+    OneMinusSourceColor,
+
+    /// Multiply the source or destination component by its corresponding value
+    /// in the destination.
+    ///
+    /// If you apply this to the destination components, you get the values squared.
+    DestinationColor,
+
+    /// Equivalent to `1 - DestinationColor`.
+    OneMinusDestinationColor,
+
+    /// Multiply the source or destination component by the alpha value of the source.
+    SourceAlpha,
+
+    /// Multiply the source or destination component by `1.0` minus the alpha value of the source.
+    OneMinusSourceAlpha,
+
+    /// Multiply the source or destination component by the alpha value of the destination.
+    DestinationAlpha,
+
+    /// Multiply the source or destination component by `1.0` minus the alpha value of the
+    /// destination.
+    OneMinusDestinationAlpha,
+}
+
+impl ToGlEnum for LinearBlendingFactor {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            LinearBlendingFactor::Zero => gl::ZERO,
+            LinearBlendingFactor::One => gl::ONE,
+            LinearBlendingFactor::SourceColor => gl::SRC_COLOR,
+            LinearBlendingFactor::OneMinusSourceColor => gl::ONE_MINUS_SRC_COLOR,
+            LinearBlendingFactor::DestinationColor => gl::DST_COLOR,
+            LinearBlendingFactor::OneMinusDestinationColor => gl::ONE_MINUS_DST_COLOR,
+            LinearBlendingFactor::SourceAlpha => gl::SRC_ALPHA,
+            LinearBlendingFactor::OneMinusSourceAlpha => gl::ONE_MINUS_SRC_ALPHA,
+            LinearBlendingFactor::DestinationAlpha => gl::DST_ALPHA,
+            LinearBlendingFactor::OneMinusDestinationAlpha => gl::ONE_MINUS_DST_ALPHA,
+        }
+    }
 }
 
 /// Describes how triangles should be filtered before the fragment processing. Backface culling
@@ -587,25 +701,80 @@ impl DrawParameters {
         }
 
         // blending function
-        match self.blending_function {
+        let blend_factors = match self.blending_function {
             Some(BlendingFunction::AlwaysReplace) => unsafe {
                 if ctxt.state.enabled_blend {
                     ctxt.gl.Disable(gl::BLEND);
                     ctxt.state.enabled_blend = false;
                 }
+                None
             },
-            Some(BlendingFunction::LerpBySourceAlpha) => unsafe {
-                if ctxt.state.blend_func != (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA) {
-                    ctxt.gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
-                    ctxt.state.blend_func = (gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+            Some(BlendingFunction::Min) => unsafe {
+                if ctxt.state.blend_equation != gl::MIN {
+                    ctxt.gl.BlendEquation(gl::MIN);
+                    ctxt.state.blend_equation = gl::MIN;
                 }
                 if !ctxt.state.enabled_blend {
                     ctxt.gl.Enable(gl::BLEND);
                     ctxt.state.enabled_blend = true;
                 }
+                None
             },
-            _ => ()
-        }
+            Some(BlendingFunction::Max) => unsafe {
+                if ctxt.state.blend_equation != gl::MAX {
+                    ctxt.gl.BlendEquation(gl::MAX);
+                    ctxt.state.blend_equation = gl::MAX;
+                }
+                if !ctxt.state.enabled_blend {
+                    ctxt.gl.Enable(gl::BLEND);
+                    ctxt.state.enabled_blend = true;
+                }
+                None
+            },
+            Some(BlendingFunction::Addition { source, destination }) => unsafe {
+                if ctxt.state.blend_equation != gl::FUNC_ADD {
+                    ctxt.gl.BlendEquation(gl::FUNC_ADD);
+                    ctxt.state.blend_equation = gl::FUNC_ADD;
+                }
+                if !ctxt.state.enabled_blend {
+                    ctxt.gl.Enable(gl::BLEND);
+                    ctxt.state.enabled_blend = true;
+                }
+                Some((source, destination))
+            },
+            Some(BlendingFunction::Subtraction { source, destination }) => unsafe {
+                if ctxt.state.blend_equation != gl::FUNC_SUBTRACT {
+                    ctxt.gl.BlendEquation(gl::FUNC_SUBTRACT);
+                    ctxt.state.blend_equation = gl::FUNC_SUBTRACT;
+                }
+                if !ctxt.state.enabled_blend {
+                    ctxt.gl.Enable(gl::BLEND);
+                    ctxt.state.enabled_blend = true;
+                }
+                Some((source, destination))
+            },
+            Some(BlendingFunction::ReverseSubtraction { source, destination }) => unsafe {
+                if ctxt.state.blend_equation != gl::FUNC_REVERSE_SUBTRACT {
+                    ctxt.gl.BlendEquation(gl::FUNC_REVERSE_SUBTRACT);
+                    ctxt.state.blend_equation = gl::FUNC_REVERSE_SUBTRACT;
+                }
+                if !ctxt.state.enabled_blend {
+                    ctxt.gl.Enable(gl::BLEND);
+                    ctxt.state.enabled_blend = true;
+                }
+                Some((source, destination))
+            },
+            _ => None
+        };
+        if let Some((source, destination)) = blend_factors {
+            let source = source.to_glenum();
+            let destination = destination.to_glenum();
+
+            if ctxt.state.blend_func != (source, destination) {
+                unsafe { ctxt.gl.BlendFunc(source, destination) };
+                ctxt.state.blend_func = (source, destination);
+            }
+        };
 
         // line width
         if let Some(line_width) = self.line_width {

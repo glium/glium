@@ -115,6 +115,9 @@ pub struct GLState {
     /// The latest render buffer bound with `glBindRenderbuffer`.
     pub renderbuffer: gl::types::GLuint,
 
+    /// The latest values passed to `glBlendEquation`.
+    pub blend_equation: gl::types::GLenum,
+
     /// The latest values passed to `glBlendFunc`.
     pub blend_func: (gl::types::GLenum, gl::types::GLenum),
 
@@ -180,6 +183,7 @@ impl GLState {
             renderbuffer: 0,
             depth_func: gl::LESS,
             depth_range: (0.0, 1.0),
+            blend_equation: gl::FUNC_ADD,
             blend_func: (0, 0),     // no default specified
             viewport: viewport,
             scissor: viewport,
