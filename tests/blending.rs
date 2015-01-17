@@ -24,7 +24,7 @@ fn min_blending() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.2, 0.3, 1.0);
-    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
@@ -50,7 +50,7 @@ fn max_blending() {
 
     let mut target = display.draw();
     target.clear_color(0.4, 1.0, 1.0, 0.2);
-    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
@@ -79,7 +79,7 @@ fn one_plus_one() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 1.0, 1.0, 0.0);
-    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
+    target.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
     target.finish();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
