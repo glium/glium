@@ -41,6 +41,7 @@ gl_common = "*"
 
 [build-dependencies]
 gl_generator = "*"
+khronos_api = "*"
 
 [dev-dependencies.glium_macros]
 path = "macros"
