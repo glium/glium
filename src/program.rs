@@ -40,6 +40,12 @@ pub enum ProgramCreationInput<'a> {
 
         /// Source code of the optional geometry shader.
         geometry_shader: Option<&'a str>,
+
+        /// Source code of the optional tessellation control shader.
+        tessellation_control_shader: Option<&'a str>,
+
+        /// Source code of the optional tessellation evaluation shader.
+        tessellation_evaluation_shader: Option<&'a str>,
     },
 }
 
@@ -65,15 +71,25 @@ pub struct SourceCode<'a> {
 
     /// Source code of the optional geometry shader.
     pub geometry_shader: Option<&'a str>,
+
+    /// Source code of the optional tessellation control shader.
+    pub tessellation_control_shader: Option<&'a str>,
+
+    /// Source code of the optional tessellation evaluation shader.
+    pub tessellation_evaluation_shader: Option<&'a str>,
 }
 
 impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
     fn into_program_creation_input(self) -> ProgramCreationInput<'a> {
-        let SourceCode { vertex_shader, fragment_shader, geometry_shader } = self;
+        let SourceCode { vertex_shader, fragment_shader, geometry_shader,
+                         tessellation_control_shader, tessellation_evaluation_shader } = self;
+
         ProgramCreationInput::SourceCode {
             vertex_shader: vertex_shader,
             fragment_shader: fragment_shader,
             geometry_shader: geometry_shader,
+            tessellation_control_shader: tessellation_control_shader,
+            tessellation_evaluation_shader: tessellation_evaluation_shader,
         }
     }
 }
@@ -97,6 +113,7 @@ pub struct Program {
     uniform_blocks: Arc<HashMap<String, UniformBlock>>,
     attributes: Arc<HashMap<String, Attribute>>,
     frag_data_locations: Mutex<HashMap<String, Option<u32>>>,
+    has_tessellation_shaders: bool,
 }
 
 /// Information about a uniform (except its name).
@@ -235,6 +252,8 @@ impl Program {
             vertex_shader: vertex_shader,
             fragment_shader: fragment_shader,
             geometry_shader: geometry_shader,
+            tessellation_control_shader: None,
+            tessellation_evaluation_shader: None,
         })
     }
 
@@ -245,9 +264,13 @@ impl Program {
     fn from_source_impl(display: &Display, input: ProgramCreationInput)
                         -> Result<Program, ProgramCreationError>
     {
+        let mut has_tessellation_shaders = false;
+
         // getting an array of the source codes and their type
         let shaders: Vec<(&str, gl::types::GLenum)> = {
-            let ProgramCreationInput::SourceCode { vertex_shader, fragment_shader, geometry_shader } = input;
+            let ProgramCreationInput::SourceCode { vertex_shader, fragment_shader,
+                                                   geometry_shader, tessellation_control_shader,
+                                                   tessellation_evaluation_shader } = input;
 
             let mut shaders = vec![
                 (vertex_shader, gl::VERTEX_SHADER),
@@ -256,6 +279,16 @@ impl Program {
 
             if let Some(gs) = geometry_shader {
                 shaders.push((gs, gl::GEOMETRY_SHADER));
+            }
+
+            if let Some(ts) = tessellation_control_shader {
+                has_tessellation_shaders = true;
+                shaders.push((ts, gl::TESS_CONTROL_SHADER));
+            }
+
+            if let Some(ts) = tessellation_evaluation_shader {
+                has_tessellation_shaders = true;
+                shaders.push((ts, gl::TESS_EVALUATION_SHADER));
             }
 
             shaders
@@ -359,6 +392,7 @@ impl Program {
             uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
             frag_data_locations: Mutex::new(HashMap::new()),
+            has_tessellation_shaders: has_tessellation_shaders,
         })
     }
 
@@ -458,6 +492,11 @@ impl Program {
     /// Returns a list of uniform blocks.
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         &*self.uniform_blocks
+    }
+
+    /// Returns true if the program contains a tessellation stage.
+    pub fn has_tessellation_shaders(&self) -> bool {
+        self.has_tessellation_shaders
     }
 }
 

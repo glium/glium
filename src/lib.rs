@@ -1277,6 +1277,15 @@ pub enum DrawError {
         /// Name of the block you are trying to bind.
         name: String,
     },
+
+    /// The number of vertices per patch that has been requested is not supported.
+    UnsupportedVerticesPerPatch,
+
+    /// Trying to use tessellation, but this is not supported by the underlying hardware.
+    TessellationNotSupported,
+
+    /// Using a program which contains tessellation shaders, but without submitting patches.
+    TessellationWithoutPatches,
 }
 
 #[doc(hidden)]
