@@ -445,7 +445,7 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
     assert!(*active_texture < display.context.context.capabilities()
                                      .max_combined_texture_image_units as gl::types::GLenum);
 
-    let sampler = sampler.map(|b| ::uniforms::get_sampler(display, &b));
+    let sampler = sampler.map(|b| ::sampler_object::get_sampler(display, &b));
 
     let current_texture = *active_texture;
     *active_texture += 1;

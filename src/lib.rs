@@ -224,6 +224,7 @@ mod buffer;
 mod context;
 mod fbo;
 mod ops;
+mod sampler_object;
 mod sync;
 mod vertex_array_object;
 
@@ -1476,7 +1477,7 @@ struct DisplayImpl {
                                         vertex_array_object::VertexArrayObject>>,
 
     // we maintain a list of samplers for each possible behavior
-    samplers: Mutex<HashMap<uniforms::SamplerBehavior, uniforms::SamplerObject>>,
+    samplers: Mutex<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
 }
 
 impl Display {
