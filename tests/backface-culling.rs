@@ -55,18 +55,17 @@ fn cull_clockwise() {
         None)
         .unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullClockWise,
             .. std::default::Default::default()
         }).unwrap();
-    target.finish();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
-    assert_eq!(read_back[0][0], (0.0, 0.0, 0.0, 0.0));
-    assert_eq!(read_back.last().unwrap().last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    assert_eq!(read_back[0].last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
+    assert_eq!(read_back.last().unwrap()[0], (0.0, 0.0, 0.0, 0.0));
     
     display.assert_no_error();
 }
@@ -115,18 +114,17 @@ fn cull_counterclockwise() {
         None)
         .unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
             .. std::default::Default::default()
         }).unwrap();
-    target.finish();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
-    assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back.last().unwrap().last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    assert_eq!(read_back[0].last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
+    assert_eq!(read_back.last().unwrap()[0], (1.0, 0.0, 0.0, 1.0));
     
     display.assert_no_error();
 }
@@ -174,16 +172,15 @@ fn cull_clockwise_trianglestrip() {
         None)
         .unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullClockWise,
             .. std::default::Default::default()
         }).unwrap();
-    target.finish();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     assert_eq!(read_back[0][0], (0.0, 0.0, 0.0, 0.0));
     assert_eq!(read_back.last().unwrap().last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
     
@@ -233,16 +230,15 @@ fn cull_counterclockwise_trianglestrip() {
         None)
         .unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
             .. std::default::Default::default()
         }).unwrap();
-    target.finish();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = display.read_front_buffer();
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back.last().unwrap().last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
     
