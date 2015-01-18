@@ -184,7 +184,7 @@ impl GLState {
             depth_func: gl::LESS,
             depth_range: (0.0, 1.0),
             blend_equation: gl::FUNC_ADD,
-            blend_func: (0, 0),     // no default specified
+            blend_func: (gl::ONE, gl::ZERO),
             viewport: viewport,
             scissor: viewport,
             line_width: 1.0,
