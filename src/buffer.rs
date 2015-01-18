@@ -22,6 +22,9 @@ pub struct Buffer {
     fences: Mutex<Vec<Receiver<sync::LinearSyncFence>>>,
 }
 
+// we need to do this because `*mut libc::c_void*` is not Send
+unsafe impl Send for Buffer {}
+
 /// Type of a buffer.
 pub trait BufferType {
     /// Should return `&mut ctxt.state.something`.
