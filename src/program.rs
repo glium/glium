@@ -204,8 +204,7 @@ impl Program {
                       where I: IntoProgramCreationInput<'a>
     {
         let input = input.into_program_creation_input();
-        let ProgramCreationInput::SourceCode { vertex_shader, fragment_shader, geometry_shader } = input;
-        Program::from_source(display, vertex_shader, fragment_shader, geometry_shader)
+        Program::from_source_impl(display, input)
     }
 
     /// Builds a new program from GLSL source code.
@@ -228,16 +227,47 @@ impl Program {
     /// ```
     ///
     #[experimental = "The list of shaders and the result error will probably change"]
-    pub fn from_source(display: &Display, vertex_shader: &str, fragment_shader: &str,
-                       geometry_shader: Option<&str>) -> Result<Program, ProgramCreationError>
+    pub fn from_source<'a>(display: &Display, vertex_shader: &'a str, fragment_shader: &'a str,
+                           geometry_shader: Option<&'a str>)
+                           -> Result<Program, ProgramCreationError>
     {
-        let mut shaders_store = Vec::new();
-        shaders_store.push(try!(build_shader(display, gl::VERTEX_SHADER, vertex_shader)));
-        match geometry_shader {
-            Some(gs) => shaders_store.push(try!(build_shader(display, gl::GEOMETRY_SHADER, gs))),
-            None => ()
-        }
-        shaders_store.push(try!(build_shader(display, gl::FRAGMENT_SHADER, fragment_shader)));
+        Program::from_source_impl(display, ProgramCreationInput::SourceCode {
+            vertex_shader: vertex_shader,
+            fragment_shader: fragment_shader,
+            geometry_shader: geometry_shader,
+        })
+    }
+
+    /// Compiles a program from source.
+    ///
+    /// Must only be called if `input` is a `ProgramCreationInput::SourceCode`, will
+    /// panic otherwise.
+    fn from_source_impl(display: &Display, input: ProgramCreationInput)
+                        -> Result<Program, ProgramCreationError>
+    {
+        // getting an array of the source codes and their type
+        let shaders: Vec<(&str, gl::types::GLenum)> = {
+            let ProgramCreationInput::SourceCode { vertex_shader, fragment_shader, geometry_shader } = input;
+
+            let mut shaders = vec![
+                (vertex_shader, gl::VERTEX_SHADER),
+                (fragment_shader, gl::FRAGMENT_SHADER)
+            ];
+
+            if let Some(gs) = geometry_shader {
+                shaders.push((gs, gl::GEOMETRY_SHADER));
+            }
+
+            shaders
+        };
+
+        let shaders_store = {
+            let mut shaders_store = Vec::new();
+            for (src, ty) in shaders.into_iter() {
+                shaders_store.push(try!(build_shader(display, ty, src)));
+            }
+            shaders_store
+        };
 
         let mut shaders_ids = Vec::new();
         for sh in shaders_store.iter() {
