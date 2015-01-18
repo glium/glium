@@ -55,9 +55,6 @@ pub use self::sampler::{Sampler, SamplerBehavior};
 pub use self::uniforms::{EmptyUniforms, UniformsStorage};
 pub use self::value::{UniformValue, IntoUniformValue, UniformType};
 
-// TODO: remove
-pub use self::sampler::{SamplerObject, get_sampler};
-
 use program;
 
 mod buffer;
