@@ -47,12 +47,16 @@ Easy to use:
    everything is done by parameter passing. The same set of function calls will always produce
    the same results.
 
+ - Glium handles framebuffer objects, samplers, and vertex array objects for you. You no longer
+   need to create them explicitely as they are automatically created when needed and destroyed
+   when their corresponding object is destroyed.
+
 Safety:
 
  - Glium detects what would normally be errors or undefined behaviors in OpenGL, and panics,
-   without calling `glGetError`. Examples include requesting a depth test when you don't have a
-   depth buffer available, not binding any value to an attribute or uniform, or binding textures
-   with different dimensions to the same framebuffer.
+   without calling `glGetError` which would be too slow. Examples include requesting a depth test
+   when you don't have a depth buffer available, not binding any value to an attribute or uniform,
+   or binding multiple textures with different dimensions to the same framebuffer.
 
  - If the OpenGL context triggers an error, then you have found a bug in Glium. Please open
    an issue. Just like Rust does everything it can to avoid crashes, Glium does everything
@@ -94,7 +98,7 @@ Performances:
    you then call `draw` with `IfGreater`, then only `glDepthFunc(GL_GREATER)` will be called.
 
  - Just like Rust is theoretically slower than C because of additional safety checks, Glium is
-   theoretically slower than perfectly-optimized raw OpenGL calls. However in practice the
+   theoretically slower than well-prepared and optimized raw OpenGL calls. However in practice
    the difference is very low, if not negligible.
 
 ## Features
@@ -111,6 +115,8 @@ In addition to this, it has the following OpenGL-related features:
  - `gl_uniform_blocks` (bind buffers to uniform blocks)
  - `gl_sync` (synchronization objects)
  - `gl_persistent_mapping` (buffers permanently mapped in memory)
+ - `gl_program_binary` (cache a compiled program in order to reload it faster next time)
+ - `gl_tessellation` (ask the GPU to split primitives into multiple sub-primitives when rendering)
 
 Enabling each of these features adds more restrictions towards the backend and increases the
 likehood that `build_glium` will return an `Err`. However, it also gives you access to more
