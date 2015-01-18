@@ -147,6 +147,9 @@ pub struct GLState {
 
     /// The latest value passed to `glPixelStore` with `GL_PACK_ALIGNMENT`.
     pub pixel_store_pack_alignment: gl::types::GLint,
+
+    /// The latest value passed to `glPatchParameter` with `GL_PATCH_VERTICES`.
+    pub patch_patch_vertices: gl::types::GLint,
 }
 
 impl GLState {
@@ -192,6 +195,7 @@ impl GLState {
             polygon_mode: gl::FILL,
             pixel_store_unpack_alignment: 4,
             pixel_store_pack_alignment: 4,
+            patch_patch_vertices: 3,
         }
     }
 }
@@ -248,6 +252,8 @@ pub struct ExtensionsList {
     pub gl_arb_sync: bool,
     /// GL_ARB_get_program_binary
     pub gl_arb_get_programy_binary: bool,
+    /// GL_ARB_tessellation_shader
+    pub gl_arb_tessellation_shader: bool,
 }
 
 /// Represents the capabilities of the context.
@@ -276,6 +282,9 @@ pub struct Capabilities {
 
     /// Maximum number of elements that can be passed with `glDrawBuffers`.
     pub max_draw_buffers: gl::types::GLint,
+
+    /// Maximum number of vertices per patch. `None` if tessellation is not supported.
+    pub max_patch_vertices: Option<gl::types::GLint>,
 }
 
 impl Context {
@@ -567,6 +576,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         {
             result.push("OpenGL implementation doesn't support program binary");
         }
+
+        if cfg!(feature = "gl_tessellation") && ctxt.version < &GlVersion(4, 0) &&
+            !ctxt.extensions.gl_arb_tessellation_shader
+        {
+            result.push("OpenGL implementation doesn't support tessellation");
+        }
     }
 
     if result.len() == 0 {
@@ -634,6 +649,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_uniform_buffer_object: false,
         gl_arb_sync: false,
         gl_arb_get_programy_binary: false,
+        gl_arb_tessellation_shader: false,
     };
 
     for extension in strings.into_iter() {
@@ -653,6 +669,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_uniform_buffer_object" => extensions.gl_arb_uniform_buffer_object = true,
             "GL_ARB_sync" => extensions.gl_arb_sync = true,
             "GL_ARB_get_program_binary" => extensions.gl_arb_get_programy_binary = true,
+            "GL_ARB_tessellation_shader" => extensions.gl_arb_tessellation_shader = true,
             _ => ()
         }
     }
@@ -737,6 +754,17 @@ fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsLis
             let mut val = 1;
             gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);
             val
+        },
+
+        max_patch_vertices: if version < &GlVersion(4, 0) && !extensions.gl_arb_tessellation_shader {
+            None
+
+        } else {
+            Some(unsafe {
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::MAX_PATCH_VERTICES, &mut val);
+                val
+            })
         },
 
     }

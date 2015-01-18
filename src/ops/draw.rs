@@ -9,7 +9,7 @@ use fbo::{self, FramebufferAttachments};
 use sync;
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use {Program, DrawParameters, GlObject, ToGlEnum};
-use index_buffer::IndicesSource;
+use index_buffer::{self, IndicesSource};
 use vertex::VerticesSource;
 
 use {program, vertex_array_object};
@@ -40,6 +40,32 @@ pub fn draw<'a, I, U>(display: &Display,
     let data_type = indices.get_indices_type().to_glenum();
     assert!(indices.get_offset() == 0); // not yet implemented
     let indices_count = indices.get_length();
+
+    // handling tessellation
+    let vertices_per_patch = match indices.get_primitives_type() {
+        index_buffer::PrimitiveType::Patches { vertices_per_patch } => {
+            if let Some(max) = display.context.context.capabilities().max_patch_vertices {
+                if vertices_per_patch == 0 || vertices_per_patch as gl::types::GLint > max {
+                    return Err(DrawError::UnsupportedVerticesPerPatch);
+                }
+            } else {
+                return Err(DrawError::TessellationNotSupported);
+            }
+
+            if !program.has_tessellation_shaders() {    // TODO: 
+                panic!("Default tessellation level is not supported yet");
+            }
+
+            Some(vertices_per_patch)
+        },
+        _ => {
+            if program.has_tessellation_shaders() {
+                return Err(DrawError::TessellationWithoutPatches);
+            }
+
+            None
+        },
+    };
 
     // building the list of uniforms binders and the fences that must be fulfilled
     let (uniforms, fences): (Vec<Box<Fn(&mut context::CommandContext) + Send>>, _) = {
@@ -164,6 +190,15 @@ pub fn draw<'a, I, U>(display: &Display,
 
             // sync-ing parameters
             draw_parameters.sync(&mut ctxt, dimensions);
+
+            // vertices per patch
+            if let Some(vertices_per_patch) = vertices_per_patch {
+                let vertices_per_patch = vertices_per_patch as gl::types::GLint;
+                if ctxt.state.patch_patch_vertices != vertices_per_patch {
+                    ctxt.gl.PatchParameteri(gl::PATCH_VERTICES, vertices_per_patch);
+                    ctxt.state.patch_patch_vertices = vertices_per_patch;
+                }
+            }
 
             // drawing
             ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer.0);

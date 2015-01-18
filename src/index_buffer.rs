@@ -123,6 +123,11 @@ pub enum PrimitiveType {
     TriangleStripAdjacency,
     ///
     TriangleFan,
+    ///
+    Patches {
+        /// Number of vertices per patch.
+        vertices_per_patch: u16,
+    },
 }
 
 impl ToGlEnum for PrimitiveType {
@@ -138,6 +143,7 @@ impl ToGlEnum for PrimitiveType {
             &PrimitiveType::TriangleStrip => gl::TRIANGLE_STRIP,
             &PrimitiveType::TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
             &PrimitiveType::TriangleFan => gl::TRIANGLE_FAN,
+            &PrimitiveType::Patches { .. } => gl::PATCHES,
         }
     }
 }
@@ -578,6 +584,37 @@ impl<T> ToIndicesSource for TriangleFan<T> where T: Index + Send + Copy {
         IndicesSource::Buffer {
             pointer: self.0.as_slice(),
             primitives: PrimitiveType::TriangleFan,
+            offset: 0,
+            length: self.0.len(),
+        }
+    }
+}
+
+/// A list of patches stored in RAM.
+///
+/// The second parameter is the number of vertices per patch.
+pub struct Patches<T>(pub Vec<T>, pub u16);
+
+impl<T> IntoIndexBuffer for Patches<T> where T: Index + Send + Copy {
+    fn into_index_buffer(self, display: &super::Display) -> IndexBuffer {
+        use std::mem;
+        assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
+                                                              packed in memory");
+        IndexBuffer {
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
+            data_type: Index::get_type(None::<T>),
+            primitives: PrimitiveType::Patches { vertices_per_patch: self.1 },
+        }
+    }
+}
+
+impl<T> ToIndicesSource for Patches<T> where T: Index + Send + Copy {
+    type Data = T;
+
+    fn to_indices_source(&self) -> IndicesSource<T> {
+        IndicesSource::Buffer {
+            pointer: self.0.as_slice(),
+            primitives: PrimitiveType::Patches { vertices_per_patch: self.1 },
             offset: 0,
             length: self.0.len(),
         }

@@ -15,6 +15,7 @@ gl_uniform_blocks = []
 gl_sync = []
 gl_persistent_mapping = ["gl_sync"]
 gl_program_binary = []
+gl_tessellation = []
 headless = ["glutin/headless"]
 
 [dependencies.compile_msg]
