@@ -1296,18 +1296,18 @@ pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttac
 ///
 /// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
 /// instantaneous, even when vsync is enabled.
-pub struct Frame<'a> {
+pub struct Frame {
     display: Display,
     dimensions: (u32, u32),
 }
 
-impl<'t> Frame<'t> {
+impl Frame {
     /// Stop drawing, and swap the buffers.
     pub fn finish(self) {
     }
 }
 
-impl<'t> Surface for Frame<'t> {
+impl Surface for Frame {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
@@ -1362,7 +1362,7 @@ impl<'t> Surface for Frame<'t> {
 }
 
 #[unsafe_destructor]
-impl<'t> Drop for Frame<'t> {
+impl Drop for Frame {
     fn drop(&mut self) {
         self.display.context.context.swap_buffers();
     }
