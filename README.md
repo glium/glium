@@ -18,7 +18,7 @@ Its objectives:
  - Be compatible with the lowest OpenGL version possible, but still use 4.5 features if they are available.
  - Be compatible with both OpenGL and OpenGL ES.
 
-## [Link to the documentation](http://tomaka.github.io/glium)
+## [Link to the documentation](http://tomaka.github.io/glium/glium/index.html)
 
 The documentation contains examples showing how to use Glium.
 
