@@ -18,7 +18,7 @@ after_success: |
     [ $TRAVIS_BRANCH = master ] &&
     [ $TRAVIS_PULL_REQUEST = false ] &&
     cargo doc --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation" &&
-    echo '<meta http-equiv=refresh content=0;url=glium/index.html>' > target/doc/index.html &&
+    cp -R doc/* target/doc &&
     sudo pip install ghp-import &&
     ghp-import -n target/doc &&
     git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
