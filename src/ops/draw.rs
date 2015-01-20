@@ -30,7 +30,7 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
     // the vertex array object to bind
-    let vao_id = vertex_array_object::get_vertex_array_object(&display.context, &vertex_buffer,
+    let vao_id = vertex_array_object::get_vertex_array_object(&display.context, &[&vertex_buffer],
                                                               &indices, program);
 
     // list of the commands that can be executed
