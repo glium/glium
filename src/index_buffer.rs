@@ -229,22 +229,19 @@ impl Drop for IndexBuffer {
 
 /// Type of the indices in an index source.
 #[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]    // GLenum
 pub enum IndexType {
     /// u8
-    U8,
+    U8 = gl::UNSIGNED_BYTE,
     /// u16
-    U16,
+    U16 = gl::UNSIGNED_SHORT,
     /// u32
-    U32,
+    U32 = gl::UNSIGNED_INT,
 }
 
 impl ToGlEnum for IndexType {
     fn to_glenum(&self) -> gl::types::GLenum {
-        match self {
-            &IndexType::U8 => gl::UNSIGNED_BYTE,
-            &IndexType::U16 => gl::UNSIGNED_SHORT,
-            &IndexType::U32 => gl::UNSIGNED_INT,
-        }
+        *self as gl::types::GLenum
     }
 }
 
