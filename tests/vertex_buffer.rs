@@ -9,6 +9,8 @@ extern crate glutin;
 #[macro_use]
 extern crate glium;
 
+use glium::Surface;
+
 mod support;
 
 #[test]
@@ -237,9 +239,10 @@ fn multiple_buffers_source() {
 
         glium::VertexBuffer::new(&display, 
             vec![
-                Vertex { position: [-0.5, -0.5] },
-                Vertex { position: [ 0.0,  0.5] },
-                Vertex { position: [ 0.5, -0.5] },
+                Vertex { position: [-1.0,  1.0] },
+                Vertex { position: [ 1.0,  1.0] },
+                Vertex { position: [-1.0, -1.0] },
+                Vertex { position: [ 1.0, -1.0] },
             ]
         )
     };
@@ -256,12 +259,13 @@ fn multiple_buffers_source() {
                 Vertex { color: [1.0, 0.0, 0.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
+                Vertex { color: [1.0, 0.0, 0.0] },
             ]
         )
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
+        glium::index_buffer::TriangleStrip(vec![0u16, 1, 2, 3]));
 
     let program = glium::Program::from_source(&display,
         "
@@ -288,16 +292,15 @@ fn multiple_buffers_source() {
         None)
         .unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(vec![&buffer1, &buffer2], &index_buffer, &program, &uniform!{},
-                &std::default::Default::default()).unwrap();
-    target.finish();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
+                              &std::default::Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0));
+            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
         }
     }
     
