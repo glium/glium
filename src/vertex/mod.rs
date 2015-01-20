@@ -88,6 +88,24 @@ impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
     }
 }
 
+/// Objects that describe multiple vertex sources.
+pub trait MultiVerticesSource<'a> {
+    /// Builds a list of `VerticesSource`.
+    fn build_vertices_source(self) -> Vec<VerticesSource<'a>>;
+}
+
+impl<'a, T> MultiVerticesSource<'a> for T where T: IntoVerticesSource<'a> {
+    fn build_vertices_source(self) -> Vec<VerticesSource<'a>> {
+        vec![self.into_vertices_source()]
+    }
+}
+
+impl<'a, T> MultiVerticesSource<'a> for Vec<T> where T: IntoVerticesSource<'a> {
+    fn build_vertices_source(self) -> Vec<VerticesSource<'a>> {
+        self.into_iter().map(|src| src.into_vertices_source()).collect()
+    }
+}
+
 /// Trait for structures that represent a vertex.
 ///
 /// Instead of implementing this trait yourself, it is recommended to use the `#[vertex_format]`

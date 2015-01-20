@@ -204,7 +204,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
         uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
         where I: ::index_buffer::ToIndicesSource, U: ::uniforms::Uniforms,
-        V: ::vertex::IntoVerticesSource<'v>
+        V: ::vertex::MultiVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
 
@@ -225,7 +225,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
             }
         }
 
-        ops::draw(&self.display, Some(&self.attachments), vb.into_vertices_source(),
+        ops::draw(&self.display, Some(&self.attachments), vb.build_vertices_source().as_mut_slice(),
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
@@ -386,7 +386,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     fn draw<'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
         uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
         where I: ::index_buffer::ToIndicesSource,
-        U: ::uniforms::Uniforms, V: ::vertex::IntoVerticesSource<'v>
+        U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {
         use index_buffer::ToIndicesSource;
 
@@ -407,7 +407,8 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
             }
         }
 
-        ops::draw(&self.display, Some(&self.build_attachments(program)), vb.into_vertices_source(),
+        ops::draw(&self.display, Some(&self.build_attachments(program)),
+                  vb.build_vertices_source().as_mut_slice(),
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 }
