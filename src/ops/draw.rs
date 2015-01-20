@@ -1,4 +1,5 @@
 use libc;
+use std::ptr;
 use std::sync::mpsc::{channel, Sender};
 
 use Display;
@@ -16,30 +17,49 @@ use {program, vertex_array_object};
 use {gl, context};
 
 /// Draws everything.
-pub fn draw<'a, I, U>(display: &Display,
-    framebuffer: Option<&FramebufferAttachments>, mut vertex_buffer: VerticesSource,
-    mut indices: IndicesSource<I>, program: &Program, uniforms: U, draw_parameters: &DrawParameters,
-    dimensions: (u32, u32)) -> Result<(), DrawError> where U: Uniforms, I: ::index_buffer::Index
+pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
+                      mut vertex_buffer: VerticesSource, mut indices: IndicesSource<I>,
+                      program: &Program, uniforms: U, draw_parameters: &DrawParameters,
+                      dimensions: (u32, u32)) -> Result<(), DrawError>
+                      where U: Uniforms, I: index_buffer::Index
 {
     try!(draw_parameters.validate());
 
+    // obtaining the identifier of the FBO to draw upon
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
+    // the vertex array object to bind
     let vao_id = vertex_array_object::get_vertex_array_object(&display.context, &vertex_buffer,
                                                               &indices, program);
 
-    let program_id = program.get_id();
+    // list of the commands that can be executed
+    enum DrawCommand {
+        DrawElements(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
+                     ptr::Unique<gl::types::GLvoid>),
+    }
 
-    let pointer = ::std::ptr::Unique(match &indices {
-        &IndicesSource::IndexBuffer { .. } => ::std::ptr::null_mut(),
-        &IndicesSource::Buffer { ref pointer, .. } => pointer.as_ptr() as *mut ::libc::c_void,
-    });
-
-    let primitives = indices.get_primitives_type().to_glenum();
-    let data_type = indices.get_indices_type().to_glenum();
-    assert!(indices.get_offset() == 0); // not yet implemented
-    let indices_count = indices.get_length();
+    // choosing the right command
+    let must_sync;
+    let draw_command = {
+        match &indices {
+            &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
+                assert!(offset == 0);       // not yet implemented
+                must_sync = false;
+                DrawCommand::DrawElements(buffer.get_primitives_type().to_glenum(),
+                                          length as gl::types::GLsizei,
+                                          buffer.get_indices_type().to_glenum(),
+                                          ptr::Unique::null())
+            },
+            &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
+                assert!(offset == 0);       // not yet implemented
+                must_sync = true;
+                DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
+                                          index_buffer::Index::get_type(None::<I>).to_glenum(),
+                                          ptr::Unique(pointer.as_ptr() as *mut gl::types::GLvoid))
+            },
+        }
+    };
 
     // handling tessellation
     let vertices_per_patch = match indices.get_primitives_type() {
@@ -68,6 +88,7 @@ pub fn draw<'a, I, U>(display: &Display,
     };
 
     // building the list of uniforms binders and the fences that must be fulfilled
+    // TODO: panic if uniforms of the program are not found in the parameter
     let (uniforms, fences): (Vec<Box<Fn(&mut context::CommandContext) + Send>>, _) = {
         let uniforms_locations = program::get_uniforms_locations(program);
         let mut active_texture = 0;
@@ -105,7 +126,7 @@ pub fn draw<'a, I, U>(display: &Display,
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
                 let (binder, fence) = match block_to_binder(display, value, block,
-                                                            program_id,
+                                                            program.get_id(),
                                                             &mut active_buffer_binding, name)
                 {
                     Ok(b) => b,
@@ -147,26 +168,21 @@ pub fn draw<'a, I, U>(display: &Display,
         (uniforms_storage, fences)
     };
 
-    // TODO: panick if uniforms of the program are not found in the parameter
-
-    let draw_parameters = draw_parameters.clone();
-
-    // in some situations, we have to wait for the draw command to finish before returning
-    let (tx, rx) = {
-        let needs_sync = if let &IndicesSource::Buffer{..} = &indices {
-            true
-        } else {
-            false
-        };
-
-        if needs_sync {
-            let (tx, rx) = channel();
-            (Some(tx), Some(rx))
-        } else {
-            (None, None)
-        }
+    // if the command uses data in the RAM, we have to wait for the draw command to
+    // finish before returning
+    // if so, we build a channel for this purpose
+    let (tx, rx) = if must_sync {
+        let (tx, rx) = channel();
+        (Some(tx), Some(rx))
+    } else {
+        (None, None)
     };
 
+    // copying some stuff in order to send them
+    let program_id = program.get_id();
+    let draw_parameters = draw_parameters.clone();
+
+    // sending the command
     display.context.context.exec(move |: mut ctxt| {
         unsafe {
             fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
@@ -201,7 +217,11 @@ pub fn draw<'a, I, U>(display: &Display,
             }
 
             // drawing
-            ctxt.gl.DrawElements(primitives, indices_count as i32, data_type, pointer.0);
+            match draw_command {
+                DrawCommand::DrawElements(a, b, c, d) => {
+                    ctxt.gl.DrawElements(a, b, c, d.0);
+                },
+            }
 
             // fulfilling the fences
             for fence in fences.into_iter() {
