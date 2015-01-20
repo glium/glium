@@ -1472,8 +1472,8 @@ struct DisplayImpl {
     framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
-    // the key is a (vertexbuffer, program)
-    vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint, gl::types::GLuint),
+    // the key is a (buffers-list, program) ; the buffers list must be sorted
+    vertex_array_objects: Mutex<HashMap<(Vec<gl::types::GLuint>, gl::types::GLuint),
                                         vertex_array_object::VertexArrayObject>>,
 
     // we maintain a list of samplers for each possible behavior

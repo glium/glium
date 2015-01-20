@@ -531,7 +531,7 @@ impl Drop for Program {
         // removing VAOs which contain this program
         {
             let mut vaos = self.display.vertex_array_objects.lock().unwrap();
-            let to_delete = vaos.keys().filter(|&&(_, _, p)| p == self.id)
+            let to_delete = vaos.keys().filter(|&&(_, p)| p == self.id)
                 .map(|k| k.clone()).collect::<Vec<_>>();
             for k in to_delete.into_iter() {
                 vaos.remove(&k);

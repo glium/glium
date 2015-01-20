@@ -147,17 +147,20 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffer: &Ve
         &VerticesSource::VertexBuffer(ref vb, _) => vb.get_id(),
     };
 
+    let mut buffers_list = vec![ib_id, vb_id];
+    buffers_list.sort();
+
     let program_id = program.get_id();
 
     if let Some(value) = display.vertex_array_objects.lock().unwrap()
-                                .get(&(vb_id, ib_id, program_id)) {
+                                .get(&(buffers_list.clone(), program_id)) {
         return value.id;
     }
 
     // we create the new VAO without the mutex locked
     let new_vao = VertexArrayObject::new(display.clone(), vertex_buffer, ib_id, program);
     let new_vao_id = new_vao.id;
-    display.vertex_array_objects.lock().unwrap().insert((vb_id, ib_id, program_id), new_vao);
+    display.vertex_array_objects.lock().unwrap().insert((buffers_list, program_id), new_vao);
     new_vao_id
 }
 
