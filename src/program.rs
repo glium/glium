@@ -35,17 +35,17 @@ pub enum ProgramCreationInput<'a> {
         /// Source code of the vertex shader.
         vertex_shader: &'a str,
 
-        /// Source code of the fragment shader.
-        fragment_shader: &'a str,
-
-        /// Source code of the optional geometry shader.
-        geometry_shader: Option<&'a str>,
-
         /// Source code of the optional tessellation control shader.
         tessellation_control_shader: Option<&'a str>,
 
         /// Source code of the optional tessellation evaluation shader.
         tessellation_evaluation_shader: Option<&'a str>,
+
+        /// Source code of the optional geometry shader.
+        geometry_shader: Option<&'a str>,
+
+        /// Source code of the fragment shader.
+        fragment_shader: &'a str,
     },
 }
 
@@ -66,17 +66,17 @@ pub struct SourceCode<'a> {
     /// Source code of the vertex shader.
     pub vertex_shader: &'a str,
 
-    /// Source code of the fragment shader.
-    pub fragment_shader: &'a str,
-
-    /// Source code of the optional geometry shader.
-    pub geometry_shader: Option<&'a str>,
-
     /// Source code of the optional tessellation control shader.
     pub tessellation_control_shader: Option<&'a str>,
 
     /// Source code of the optional tessellation evaluation shader.
     pub tessellation_evaluation_shader: Option<&'a str>,
+
+    /// Source code of the optional geometry shader.
+    pub geometry_shader: Option<&'a str>,
+
+    /// Source code of the fragment shader.
+    pub fragment_shader: &'a str,
 }
 
 impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
@@ -86,10 +86,10 @@ impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
 
         ProgramCreationInput::SourceCode {
             vertex_shader: vertex_shader,
-            fragment_shader: fragment_shader,
-            geometry_shader: geometry_shader,
             tessellation_control_shader: tessellation_control_shader,
             tessellation_evaluation_shader: tessellation_evaluation_shader,
+            geometry_shader: geometry_shader,
+            fragment_shader: fragment_shader,
         }
     }
 }
