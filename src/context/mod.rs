@@ -260,6 +260,8 @@ pub struct ExtensionsList {
     pub gl_arb_tessellation_shader: bool,
     /// GL_APPLE_vertex_array_object
     pub gl_apple_vertex_array_object: bool,
+    /// GL_ARB_instanced_arrays
+    pub gl_arb_instanced_arrays: bool,
 }
 
 impl Context {
@@ -556,6 +558,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         {
             result.push("OpenGL implementation doesn't support tessellation");
         }
+
+        if cfg!(feature = "gl_instancing") && ctxt.version < &GlVersion(3, 3) &&
+            !ctxt.extensions.gl_arb_instanced_arrays
+        {
+            result.push("OpenGL implementation doesn't support instancing");
+        }
     }
 
     if result.len() == 0 {
@@ -625,6 +633,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_get_programy_binary: false,
         gl_arb_tessellation_shader: false,
         gl_apple_vertex_array_object: false,
+        gl_arb_instanced_arrays: false,
     };
 
     for extension in strings.into_iter() {
@@ -646,6 +655,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_get_program_binary" => extensions.gl_arb_get_programy_binary = true,
             "GL_ARB_tessellation_shader" => extensions.gl_arb_tessellation_shader = true,
             "GL_APPLE_vertex_array_object" => extensions.gl_apple_vertex_array_object = true,
+            "GL_ARB_instanced_arrays" => extensions.gl_arb_instanced_arrays = true,
             _ => ()
         }
     }

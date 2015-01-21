@@ -29,6 +29,26 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
+    // getting the number of instances to draw
+    let instances_count = {
+        let mut instances_count: Option<usize> = None;
+        for src in vertex_buffers.iter() {
+            match src {
+                &VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                    if let Some(curr) = instances_count {
+                        if curr != buffer.len() {
+                            return Err(DrawError::InstancesCountMismatch);
+                        }
+                    } else {
+                        instances_count = Some(buffer.len());
+                    }
+                },
+                _ => ()
+            }
+        }
+        instances_count
+    };
+
     // the vertex array object to bind
     let vao_id = vertex_array_object::get_vertex_array_object(&display.context,
                                                               vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
@@ -38,12 +58,14 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
     enum DrawCommand {
         DrawElements(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
                      ptr::Unique<gl::types::GLvoid>),
+        DrawElementsInstanced(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
+                              ptr::Unique<gl::types::GLvoid>, gl::types::GLsizei),
     }
 
     // choosing the right command
     let must_sync;
     let draw_command = {
-        match &indices {
+        let cmd = match &indices {
             &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
                 assert!(offset == 0);       // not yet implemented
                 must_sync = false;
@@ -59,6 +81,13 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
                                           <I as index_buffer::Index>::get_type().to_glenum(),
                                           ptr::Unique(pointer.as_ptr() as *mut gl::types::GLvoid))
             },
+        };
+
+        match (cmd, instances_count) {
+            (DrawCommand::DrawElements(a, b, c, d), Some(e)) => {
+                DrawCommand::DrawElementsInstanced(a, b, c, d, e as gl::types::GLsizei)
+            },
+            (a, _) => a
         }
     };
 
@@ -157,6 +186,11 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
                         fences.push(fence);
                     }
                 }
+                &mut VerticesSource::PerInstanceBuffer(_, ref mut fence) => {
+                    if let Some(fence) = fence.take() {
+                        fences.push(fence);
+                    }
+                }
             };
         }
         match &mut indices {
@@ -232,6 +266,9 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
             match draw_command {
                 DrawCommand::DrawElements(a, b, c, d) => {
                     ctxt.gl.DrawElements(a, b, c, d.0);
+                },
+                DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
+                    ctxt.gl.DrawElementsInstanced(a, b, c, d.0, e);
                 },
             }
 

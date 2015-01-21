@@ -62,9 +62,12 @@ use sync::LinearSyncFence;
 
 pub use self::buffer::{VertexBuffer, VertexBufferAny, Mapping};
 pub use self::format::{AttributeType, VertexFormat};
+pub use self::per_instance::{PerInstanceAttributesBuffer, PerInstanceAttributesBufferAny};
+pub use self::per_instance::Mapping as PerInstanceAttributesBufferMapping;
 
 mod buffer;
 mod format;
+mod per_instance;
 
 /// Describes the source to use for the vertices when drawing.
 #[derive(Clone)]
@@ -74,6 +77,12 @@ pub enum VerticesSource<'a> {
     /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
     /// when the buffer stops being used.
     VertexBuffer(&'a VertexBufferAny, Option<Sender<LinearSyncFence>>),
+
+    /// A buffer uploaded in the video memory.
+    ///
+    /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
+    /// when the buffer stops being used.
+    PerInstanceBuffer(&'a PerInstanceAttributesBufferAny, Option<Sender<LinearSyncFence>>),
 }
 
 /// Objects that can be used as vertex sources.

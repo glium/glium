@@ -27,8 +27,16 @@ impl VertexArrayObject {
 
         // checking the attributes types
         for vertex_buffer in vertex_buffers.iter() {
-            let &&VerticesSource::VertexBuffer(ref vertex_buffer, _) = vertex_buffer;
-            for &(ref name, _, ty) in vertex_buffer.get_bindings().iter() {
+            let bindings = match vertex_buffer {
+                &&VerticesSource::VertexBuffer(ref vertex_buffer, _) => {
+                    vertex_buffer.get_bindings()
+                },
+                &&VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                    buffer.get_bindings()
+                },
+            };
+
+            for &(ref name, _, ty) in bindings.iter() {
                 let attribute = match attributes.get(name) {
                     Some(a) => a,
                     None => continue
@@ -44,8 +52,16 @@ impl VertexArrayObject {
         for (&ref name, _) in attributes.iter() {
             let mut found = false;
             for vertex_buffer in vertex_buffers.iter() {
-                let &&VerticesSource::VertexBuffer(ref vertex_buffer, _) = vertex_buffer;
-                if vertex_buffer.get_bindings().iter().find(|&&(ref n, _, _)| n == name).is_some() {
+                let bindings = match vertex_buffer {
+                    &&VerticesSource::VertexBuffer(ref vertex_buffer, _) => {
+                        vertex_buffer.get_bindings()
+                    },
+                    &&VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                        buffer.get_bindings()
+                    },
+                };
+
+                if bindings.iter().find(|&&(ref n, _, _)| n == name).is_some() {
                     found = true;
                     break;
                 }
@@ -59,11 +75,24 @@ impl VertexArrayObject {
 
         // building the values that will be sent to the other thread
         let data = vertex_buffers.iter().map(|vertex_buffer| {
-            let &&VerticesSource::VertexBuffer(ref vertex_buffer, _) = vertex_buffer;
-            let bindings = vertex_buffer.get_bindings().clone();
-            let vb_elementssize = vertex_buffer.get_elements_size();
-            let vertex_buffer = GlObject::get_id(*vertex_buffer);
-            (vertex_buffer, bindings, vb_elementssize)
+            match vertex_buffer {
+                &&VerticesSource::VertexBuffer(ref vertex_buffer, _) => {
+                    (
+                        GlObject::get_id(*vertex_buffer),
+                        vertex_buffer.get_bindings().clone(),
+                        vertex_buffer.get_elements_size(),
+                        0 as u32
+                    )
+                },
+                &&VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                    (
+                        GlObject::get_id(*buffer),
+                        buffer.get_bindings().clone(),
+                        buffer.get_elements_size(),
+                        1 as u32
+                    )
+                },
+            }
         }).collect::<Vec<_>>();
 
         let (tx, rx) = channel();
@@ -100,7 +129,7 @@ impl VertexArrayObject {
                 // the ELEMENT_ARRAY_BUFFER is part of the state of the VAO
                 ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
 
-                for (vertex_buffer, bindings, vb_elementssize) in data.into_iter() {
+                for (vertex_buffer, bindings, vb_elementssize, divisor) in data.into_iter() {
                     // binding vertex buffer because glVertexAttribPointer uses the current
                     // array buffer
                     if ctxt.state.array_buffer_binding != vertex_buffer {
@@ -128,6 +157,10 @@ impl VertexArrayObject {
                                 _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
                                         elements_count as gl::types::GLint, data_type, 0,
                                         vb_elementssize as i32, offset as *const libc::c_void)
+                            }
+
+                            if divisor != 0 {
+                                ctxt.gl.VertexAttribDivisor(attribute.location as u32, divisor);
                             }
 
                             ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
@@ -204,6 +237,7 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffers: &[
         for vertex_buffer in vertex_buffers.iter() {
             buffers_list.push(match vertex_buffer {
                 &&VerticesSource::VertexBuffer(ref vb, _) => vb.get_id(),
+                &&VerticesSource::PerInstanceBuffer(ref buf, _) => buf.get_id(),
             });
         }
         buffers_list.sort();
