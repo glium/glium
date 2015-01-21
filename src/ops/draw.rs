@@ -18,7 +18,7 @@ use {gl, context};
 
 /// Draws everything.
 pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
-                      mut vertex_buffer: VerticesSource, mut indices: IndicesSource<I>,
+                      mut vertex_buffers: &mut [VerticesSource], mut indices: IndicesSource<I>,
                       program: &Program, uniforms: U, draw_parameters: &DrawParameters,
                       dimensions: (u32, u32)) -> Result<(), DrawError>
                       where U: Uniforms, I: index_buffer::Index
@@ -30,7 +30,8 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
     // the vertex array object to bind
-    let vao_id = vertex_array_object::get_vertex_array_object(&display.context, &vertex_buffer,
+    let vao_id = vertex_array_object::get_vertex_array_object(&display.context,
+                                                              vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
                                                               &indices, program);
 
     // list of the commands that can be executed
@@ -149,13 +150,15 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
         }
 
         // adding the vertex buffer and index buffer to the list of fences
-        match &mut vertex_buffer {
-            &mut VerticesSource::VertexBuffer(_, ref mut fence) => {
-                if let Some(fence) = fence.take() {
-                    fences.push(fence);
+        for vertex_buffer in vertex_buffers.iter_mut() {
+            match vertex_buffer {
+                &mut VerticesSource::VertexBuffer(_, ref mut fence) => {
+                    if let Some(fence) = fence.take() {
+                        fences.push(fence);
+                    }
                 }
-            }
-        };
+            };
+        }
         match &mut indices {
             &mut IndicesSource::IndexBuffer { ref mut fence, .. } => {
                 if let Some(fence) = fence.take() {

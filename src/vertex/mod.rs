@@ -88,6 +88,43 @@ impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
     }
 }
 
+/// Objects that describe multiple vertex sources.
+pub trait MultiVerticesSource<'a> {
+    /// Builds a list of `VerticesSource`.
+    fn build_vertices_source(self) -> Vec<VerticesSource<'a>>;
+}
+
+impl<'a, T> MultiVerticesSource<'a> for T where T: IntoVerticesSource<'a> {
+    fn build_vertices_source(self) -> Vec<VerticesSource<'a>> {
+        vec![self.into_vertices_source()]
+    }
+}
+
+impl<'a, T> MultiVerticesSource<'a> for Vec<T> where T: IntoVerticesSource<'a> {
+    fn build_vertices_source(self) -> Vec<VerticesSource<'a>> {
+        self.into_iter().map(|src| src.into_vertices_source()).collect()
+    }
+}
+
+macro_rules! impl_for_tuple(
+    ($($name:ident: $t:ident),+) => (
+        impl<'a, $($t),+> MultiVerticesSource<'a> for ($($t),+)
+            where $($t: IntoVerticesSource<'a>),+
+        {
+            fn build_vertices_source(self) -> Vec<VerticesSource<'a>> {
+                let ($($name),+) = self;
+                vec![$($name.into_vertices_source()),+]
+            }
+        }
+    )
+);
+
+impl_for_tuple!(a: A, b: B);
+impl_for_tuple!(a: A, b: B, c: C);
+impl_for_tuple!(a: A, b: B, c: C, d: D);
+impl_for_tuple!(a: A, b: B, c: C, d: D, e: E);
+impl_for_tuple!(a: A, b: B, c: C, d: D, e: E, f: F);
+
 /// Trait for structures that represent a vertex.
 ///
 /// Instead of implementing this trait yourself, it is recommended to use the `#[vertex_format]`

@@ -1184,7 +1184,7 @@ pub trait Surface: Sized {
     ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
-        V: vertex::IntoVerticesSource<'b>, I: index_buffer::ToIndicesSource,
+        V: vertex::MultiVerticesSource<'b>, I: index_buffer::ToIndicesSource,
         U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
@@ -1330,7 +1330,7 @@ impl Surface for Frame {
                          index_buffer: &I, program: &Program, uniforms: U,
                          draw_parameters: &DrawParameters) -> Result<(), DrawError>
                          where I: index_buffer::ToIndicesSource, U: uniforms::Uniforms,
-                         V: vertex::IntoVerticesSource<'b>
+                         V: vertex::MultiVerticesSource<'b>
     {
         use index_buffer::ToIndicesSource;
 
@@ -1351,7 +1351,7 @@ impl Surface for Frame {
             }
         }
 
-        ops::draw(&self.display, None, vertex_buffer.into_vertices_source(),
+        ops::draw(&self.display, None, vertex_buffer.build_vertices_source().as_mut_slice(),
                   index_buffer.to_indices_source(), program, uniforms, draw_parameters,
                   (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
@@ -1472,8 +1472,8 @@ struct DisplayImpl {
     framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
-    // the key is a (vertexbuffer, program)
-    vertex_array_objects: Mutex<HashMap<(gl::types::GLuint, gl::types::GLuint, gl::types::GLuint),
+    // the key is a (buffers-list, program) ; the buffers list must be sorted
+    vertex_array_objects: Mutex<HashMap<(Vec<gl::types::GLuint>, gl::types::GLuint),
                                         vertex_array_object::VertexArrayObject>>,
 
     // we maintain a list of samplers for each possible behavior

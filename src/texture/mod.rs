@@ -291,7 +291,7 @@ impl<'a> Surface for TextureSurface<'a> {
     fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
         uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), ::DrawError>
         where I: ::index_buffer::ToIndicesSource,
-        U: ::uniforms::Uniforms, V: ::vertex::IntoVerticesSource<'v>
+        U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {
         self.0.draw(vb, ib, program, uniforms, draw_parameters)
     }
