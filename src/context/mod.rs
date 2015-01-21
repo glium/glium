@@ -258,6 +258,8 @@ pub struct ExtensionsList {
     pub gl_arb_get_programy_binary: bool,
     /// GL_ARB_tessellation_shader
     pub gl_arb_tessellation_shader: bool,
+    /// GL_APPLE_vertex_array_object
+    pub gl_apple_vertex_array_object: bool,
 }
 
 impl Context {
@@ -518,7 +520,10 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
             result.push("OpenGL implementation doesn't support blitting framebuffers");
         }
 
-        if !ctxt.extensions.gl_arb_vertex_array_object && ctxt.version < &GlVersion(3, 0) {
+        if !ctxt.extensions.gl_arb_vertex_array_object &&
+            !ctxt.extensions.gl_apple_vertex_array_object &&
+            ctxt.version < &GlVersion(3, 0)
+        {
             result.push("OpenGL implementation doesn't support vertex array objects");
         }
 
@@ -625,6 +630,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_sync: false,
         gl_arb_get_programy_binary: false,
         gl_arb_tessellation_shader: false,
+        gl_apple_vertex_array_object: false,
     };
 
     for extension in strings.into_iter() {
@@ -645,6 +651,7 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_sync" => extensions.gl_arb_sync = true,
             "GL_ARB_get_program_binary" => extensions.gl_arb_get_programy_binary = true,
             "GL_ARB_tessellation_shader" => extensions.gl_arb_tessellation_shader = true,
+            "GL_APPLE_vertex_array_object" => extensions.gl_apple_vertex_array_object = true,
             _ => ()
         }
     }

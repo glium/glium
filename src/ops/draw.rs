@@ -203,7 +203,16 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
 
             // binding VAO
             if ctxt.state.vertex_array != vao_id {
-                ctxt.gl.BindVertexArray(vao_id);
+                if ctxt.version >= &context::GlVersion(3, 0) ||
+                    ctxt.extensions.gl_arb_vertex_array_object
+                {
+                    ctxt.gl.BindVertexArray(vao_id);
+                } else if ctxt.extensions.gl_apple_vertex_array_object {
+                    ctxt.gl.BindVertexArrayAPPLE(vao_id);
+                } else {
+                    unreachable!()
+                }
+                
                 ctxt.state.vertex_array = vao_id;
             }
 
