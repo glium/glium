@@ -296,74 +296,74 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
                      active_texture: &mut gl::types::GLenum, name: &str)
                      -> Result<Box<Fn(&mut context::CommandContext) + Send>, DrawError>
 {
-    Ok(match *value {
+    match *value {
         UniformValue::Block(_, _, _) => {
             return Err(DrawError::UniformBufferToValue {
                 name: name.to_string(),
-            })
+            });
         },
         UniformValue::SignedInt(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform1i(location, val)
                 }
-            })
+            }))
         },
         UniformValue::UnsignedInt(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform1ui(location, val)
                 }
-            })
+            }))
         },
         UniformValue::Float(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform1f(location, val)
                 }
-            })
+            }))
         },
         UniformValue::Mat2(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.UniformMatrix2fv(location, 1, 0, val.as_ptr() as *const f32)
                 }
-            })
+            }))
         },
         UniformValue::Mat3(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.UniformMatrix3fv(location, 1, 0, val.as_ptr() as *const f32)
                 }
-            })
+            }))
         },
         UniformValue::Mat4(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.UniformMatrix4fv(location, 1, 0, val.as_ptr() as *const f32)
                 }
-            })
+            }))
         },
         UniformValue::Vec2(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform2fv(location, 1, val.as_ptr() as *const f32)
                 }
-            })
+            }))
         },
         UniformValue::Vec3(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform3fv(location, 1, val.as_ptr() as *const f32)
                 }
-            })
+            }))
         },
         UniformValue::Vec4(val) => {
-            Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.Uniform4fv(location, 1, val.as_ptr() as *const f32)
                 }
-            })
+            }))
         },
         UniformValue::Texture1d(texture, sampler) => {
             let texture = texture.get_id();
@@ -465,24 +465,28 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
-    })
+    }
 }
 
 fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
                         sampler: Option<SamplerBehavior>, location: gl::types::GLint,
                         active_texture: &mut gl::types::GLenum,
                         bind_point: gl::types::GLenum)
-                        -> Box<Fn(&mut context::CommandContext) + Send>
+                        -> Result<Box<Fn(&mut context::CommandContext) + Send>, DrawError>
 {
     assert!(*active_texture < display.context.context.capabilities()
                                      .max_combined_texture_image_units as gl::types::GLenum);
 
-    let sampler = sampler.map(|b| ::sampler_object::get_sampler(display, &b));
+    let sampler = if let Some(sampler) = sampler {
+        Some(try!(::sampler_object::get_sampler(display, &sampler)))
+    } else {
+        None
+    };
 
     let current_texture = *active_texture;
     *active_texture += 1;
 
-    Box::new(move |&: ctxt: &mut context::CommandContext| {
+    Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
         unsafe {
             ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
             ctxt.gl.BindTexture(bind_point, texture);
@@ -494,5 +498,5 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
                 ctxt.gl.BindSampler(current_texture, 0);
             }
         }
-    })
+    }))
 }

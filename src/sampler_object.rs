@@ -1,4 +1,5 @@
 use Display;
+use DrawError;
 
 use std::sync::mpsc;
 use uniforms::SamplerBehavior;
@@ -77,14 +78,22 @@ impl Drop for SamplerObject {
     }
 }
 
-pub fn get_sampler(display: &Display, behavior: &SamplerBehavior) -> gl::types::GLuint {
+pub fn get_sampler(display: &Display, behavior: &SamplerBehavior)
+                   -> Result<gl::types::GLuint, DrawError>
+{
+    if display.context.context.get_version() <= &context::GlVersion(3, 3) &&
+        !display.context.context.get_extensions().gl_arb_sampler_objects
+    {
+        return Err(DrawError::SamplersNotSupported);
+    }
+
     match display.context.samplers.lock().unwrap().get(behavior) {
-        Some(obj) => return obj.get_id(),
+        Some(obj) => return Ok(obj.get_id()),
         None => ()
     };
 
     let sampler = SamplerObject::new(display, behavior);
     let id = sampler.get_id();
     display.context.samplers.lock().unwrap().insert(behavior.clone(), sampler);
-    id
+    Ok(id)
 }
