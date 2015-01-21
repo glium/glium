@@ -358,13 +358,28 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             stencil: None,
         }
     }
+
+    fn build_attachments_any(&self) -> FramebufferAttachments {
+        let mut colors = Vec::new();
+
+        for (id, &(ref name, texture)) in self.color_attachments.iter().enumerate() {
+            colors.push((id as u32, fbo::Attachment::Texture(texture)));
+        }
+
+        FramebufferAttachments {
+            colors: colors,
+            depth: self.depth_attachment,
+            stencil: None,
+        }
+    }
 }
 
 impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        unimplemented!()
+        ops::clear(&self.display.context, Some(&self.build_attachments_any()),
+                   color, depth, stencil);
     }
 
     fn get_blit_helper(&self) -> ::BlitHelper {
