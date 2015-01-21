@@ -27,14 +27,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
                 name: "build_bindings",
                 generics: generic::ty::LifetimeBounds::empty(),
                 explicit_self: None,
-                args: vec![
-                    generic::ty::Literal(generic::ty::Path {
-                        path: vec!["Option"],
-                        lifetime: None,
-                        params: vec![Box::new(generic::ty::Self)],
-                        global: false,
-                    })
-                ],
+                args: vec![],
                 ret_ty: generic::ty::Literal(
                     generic::ty::Path::new(
                         vec!["glium", "VertexFormat"]
@@ -78,7 +71,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                         bindings.push((
                             $ident_str.to_string(),
                             offset,
-                            Attribute::get_type(None::<$elem_type>),
+                            <$elem_type as Attribute>::get_type(),
                         ));
                     })
 

@@ -226,7 +226,7 @@ impl<'a> UniformValue<'a> {
 
 // TODO: implement for each type individually instead
 impl<'a, T> UniformBlock for T where T: IntoUniformValue<'a> + Copy + Send + Default {
-    fn matches(_: Option<T>, block: &program::UniformBlock) -> bool {
+    fn matches(block: &program::UniformBlock) -> bool {
         use std::mem;
 
         if block.members.len() != 1 {
