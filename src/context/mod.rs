@@ -522,12 +522,6 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
             result.push("OpenGL implementation doesn't support vertex array objects");
         }
 
-        if option_env!("TRAVIS").is_none() {        // TODO: ultra-hacky stuff to make tests pass
-            if !ctxt.extensions.gl_arb_sampler_objects && ctxt.version < &GlVersion(3, 3) {
-                result.push("OpenGL implementation doesn't support sampler objects");
-            }
-        }
-
         if cfg!(feature = "gl_uniform_blocks") && ctxt.version < &GlVersion(3, 1) &&
             !ctxt.extensions.gl_arb_uniform_buffer_object
         {

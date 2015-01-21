@@ -1287,6 +1287,9 @@ pub enum DrawError {
 
     /// Using a program which contains tessellation shaders, but without submitting patches.
     TessellationWithoutPatches,
+
+    /// Trying to use a sampler, but they are not supported by the backend.
+    SamplersNotSupported,
 }
 
 #[doc(hidden)]
