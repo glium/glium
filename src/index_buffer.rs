@@ -79,7 +79,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
     pub fn get_indices_type(&self) -> IndexType {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_indices_type(),
-            &IndicesSource::Buffer { .. } => Index::get_type(None::<T>),
+            &IndicesSource::Buffer { .. } => <T as Index>::get_type(),
         }
     }
 
@@ -251,23 +251,23 @@ impl ToGlEnum for IndexType {
 /// An index from the index buffer.
 pub unsafe trait Index: Copy + Send {
     /// Returns the `IndexType` corresponding to this type.
-    fn get_type(Option<Self>) -> IndexType;
+    fn get_type() -> IndexType;
 }
 
 unsafe impl Index for u8 {
-    fn get_type(_: Option<u8>) -> IndexType {
+    fn get_type() -> IndexType {
         IndexType::U8
     }
 }
 
 unsafe impl Index for u16 {
-    fn get_type(_: Option<u16>) -> IndexType {
+    fn get_type() -> IndexType {
         IndexType::U16
     }
 }
 
 unsafe impl Index for u32 {
-    fn get_type(_: Option<u32>) -> IndexType {
+    fn get_type() -> IndexType {
         IndexType::U32
     }
 }
@@ -290,7 +290,7 @@ impl<T> IntoIndexBuffer for PointsList<T> where T: Index + Send + Copy {
 
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::Points,
         }
     }
@@ -319,7 +319,7 @@ impl<T> IntoIndexBuffer for LinesList<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::LinesList,
         }
     }
@@ -353,7 +353,7 @@ impl<T> IntoIndexBuffer for LinesListAdjacency<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::LinesListAdjacency,
         }
     }
@@ -382,7 +382,7 @@ impl<T> IntoIndexBuffer for LineStrip<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::LineStrip,
         }
     }
@@ -416,7 +416,7 @@ impl<T> IntoIndexBuffer for LineStripAdjacency<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::LineStripAdjacency,
         }
     }
@@ -445,7 +445,7 @@ impl<T> IntoIndexBuffer for TrianglesList<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::TrianglesList,
         }
     }
@@ -479,7 +479,7 @@ impl<T> IntoIndexBuffer for TrianglesListAdjacency<T> where T: Index + Send + Co
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::TrianglesListAdjacency,
         }
     }
@@ -508,7 +508,7 @@ impl<T> IntoIndexBuffer for TriangleStrip<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::TriangleStrip,
         }
     }
@@ -542,7 +542,7 @@ impl<T> IntoIndexBuffer for TriangleStripAdjacency<T> where T: Index + Send + Co
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::TriangleStripAdjacency,
         }
     }
@@ -571,7 +571,7 @@ impl<T> IntoIndexBuffer for TriangleFan<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::TriangleFan,
         }
     }
@@ -602,7 +602,7 @@ impl<T> IntoIndexBuffer for Patches<T> where T: Index + Send + Copy {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, self.0, false),
-            data_type: Index::get_type(None::<T>),
+            data_type: <T as Index>::get_type(),
             primitives: PrimitiveType::Patches { vertices_per_patch: self.1 },
         }
     }

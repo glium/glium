@@ -71,7 +71,7 @@ pub trait Uniforms {
 /// Objects that are suitable for being binded to a uniform block.
 pub trait UniformBlock: Copy {
     /// Checks whether the uniforms' layout matches the given block.
-    fn matches(Option<Self>, &program::UniformBlock) -> bool;
+    fn matches(&program::UniformBlock) -> bool;
 }
 
 // TODO: hacky (see #189)

@@ -202,7 +202,7 @@ impl TextureImplementation {
         assert_eq!(level, 0);   // TODO:
 
         let size = self.width as usize * self.height.unwrap_or(1) as usize *
-                   Texture2dData::get_format(None::<T>).get_size();
+                   <T as Texture2dData>::get_format().get_size();
 
         let mut pb = PixelBuffer::new_empty(&self.display, size);
         ops::read_attachment_to_pb(&fbo::Attachment::Texture(self.id), (self.width,

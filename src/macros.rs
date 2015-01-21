@@ -51,7 +51,7 @@ macro_rules! attributes {
         }
 
         impl $crate::vertex::Vertex for $struct_name {
-            fn build_bindings(_: Option<Self>) -> $crate::vertex::VertexFormat {
+            fn build_bindings() -> $crate::vertex::VertexFormat {
                 vec![
                     $(
                         (

@@ -155,7 +155,7 @@ impl<'a, T> IntoUniformValue<'a> for &'a UniformBuffer<T> where T: UniformBlock 
         };
 
         UniformValue::Block(&self.buffer, Box::new(move |&: block: &program::UniformBlock| -> bool {
-            UniformBlock::matches(None::<T>, block)
+            <T as UniformBlock>::matches(block)
         }), fence)
     }
 }

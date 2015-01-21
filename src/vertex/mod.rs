@@ -35,7 +35,7 @@ Next, build a `Vec` of the vertices that you want to upload, and pass it to
 #     texcoords: [f32; 2],
 # }
 # impl glium::vertex::Vertex for Vertex {
-#     fn build_bindings(_: Option<Vertex>) -> glium::vertex::VertexFormat {
+#     fn build_bindings() -> glium::vertex::VertexFormat {
 #         unimplemented!() }
 # }
 let data = vec![
@@ -132,11 +132,11 @@ impl_for_tuple!(a: A, b: B, c: C, d: D, e: E, f: F);
 // TODO: this should be `unsafe`, but that would break the syntax extension
 pub trait Vertex: Copy {
     /// Builds the `VertexFormat` representing the layout of this element.
-    fn build_bindings(Option<Self>) -> VertexFormat;
+    fn build_bindings() -> VertexFormat;
 }
 
 /// Trait for types that can be used as vertex attributes.
 pub unsafe trait Attribute {
     /// Get the type of data.
-    fn get_type(_: Option<Self>) -> AttributeType;
+    fn get_type() -> AttributeType;
 }

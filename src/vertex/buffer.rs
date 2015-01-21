@@ -44,7 +44,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// ```
     ///
     pub fn new(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
-        let bindings = Vertex::build_bindings(None::<T>);
+        let bindings = <T as Vertex>::build_bindings();
 
         let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false);
         let elements_size = buffer.get_elements_size();
@@ -62,7 +62,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     ///
     /// This function will create a buffer that has better performance when it is modified frequently.
     pub fn new_dynamic(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
-        let bindings = Vertex::build_bindings(None::<T>);
+        let bindings = <T as Vertex>::build_bindings();
 
         let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false);
         let elements_size = buffer.get_elements_size();
@@ -96,7 +96,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
             return None;
         }
 
-        let bindings = Vertex::build_bindings(None::<T>);
+        let bindings = <T as Vertex>::build_bindings();
 
         let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, true);
         let elements_size = buffer.get_elements_size();

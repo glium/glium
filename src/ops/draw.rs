@@ -56,7 +56,7 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
                 assert!(offset == 0);       // not yet implemented
                 must_sync = true;
                 DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
-                                          index_buffer::Index::get_type(None::<I>).to_glenum(),
+                                          <I as index_buffer::Index>::get_type().to_glenum(),
                                           ptr::Unique(pointer.as_ptr() as *mut gl::types::GLvoid))
             },
         }

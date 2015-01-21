@@ -63,8 +63,8 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
 
     let pixels_count = dimensions.0 * dimensions.1;
 
-    let pixels_size = texture::Texture2dData::get_format(None::<T>).get_size();
-    let (format, gltype) = texture::Texture2dData::get_format(None::<T>).to_gl_enum();
+    let pixels_size = <T as texture::Texture2dData>::get_format().get_size();
+    let (format, gltype) = <T as texture::Texture2dData>::get_format().to_gl_enum();
 
     let total_data_size = pixels_count as usize * pixels_size;
 

@@ -28,23 +28,20 @@ unsafe impl Send for Buffer {}
 /// Type of a buffer.
 pub trait BufferType {
     /// Should return `&mut ctxt.state.something`.
-    fn get_storage_point(Option<Self>, &mut context::GLState)
-        -> &mut gl::types::GLuint;
+    fn get_storage_point(&mut context::GLState) -> &mut gl::types::GLuint;
     /// Should return `gl::SOMETHING_BUFFER`.
-    fn get_bind_point(Option<Self>) -> gl::types::GLenum;
+    fn get_bind_point() -> gl::types::GLenum;
 }
 
 /// Used for vertex buffers.
 pub struct ArrayBuffer;
 
 impl BufferType for ArrayBuffer {
-    fn get_storage_point(_: Option<ArrayBuffer>, state: &mut context::GLState)
-        -> &mut gl::types::GLuint
-    {
+    fn get_storage_point(state: &mut context::GLState) -> &mut gl::types::GLuint {
         &mut state.array_buffer_binding
     }
 
-    fn get_bind_point(_: Option<ArrayBuffer>) -> gl::types::GLenum {
+    fn get_bind_point() -> gl::types::GLenum {
         gl::ARRAY_BUFFER
     }
 }
@@ -53,13 +50,11 @@ impl BufferType for ArrayBuffer {
 pub struct PixelPackBuffer;
 
 impl BufferType for PixelPackBuffer {
-    fn get_storage_point(_: Option<PixelPackBuffer>, state: &mut context::GLState)
-        -> &mut gl::types::GLuint
-    {
+    fn get_storage_point(state: &mut context::GLState) -> &mut gl::types::GLuint {
         &mut state.pixel_pack_buffer_binding
     }
 
-    fn get_bind_point(_: Option<PixelPackBuffer>) -> gl::types::GLenum {
+    fn get_bind_point() -> gl::types::GLenum {
         gl::PIXEL_PACK_BUFFER
     }
 }
@@ -68,13 +63,11 @@ impl BufferType for PixelPackBuffer {
 pub struct PixelUnpackBuffer;
 
 impl BufferType for PixelUnpackBuffer {
-    fn get_storage_point(_: Option<PixelUnpackBuffer>, state: &mut context::GLState)
-        -> &mut gl::types::GLuint
-    {
+    fn get_storage_point(state: &mut context::GLState) -> &mut gl::types::GLuint {
         &mut state.pixel_unpack_buffer_binding
     }
 
-    fn get_bind_point(_: Option<PixelUnpackBuffer>) -> gl::types::GLenum {
+    fn get_bind_point() -> gl::types::GLenum {
         gl::PIXEL_UNPACK_BUFFER
     }
 }
@@ -83,13 +76,11 @@ impl BufferType for PixelUnpackBuffer {
 pub struct UniformBuffer;
 
 impl BufferType for UniformBuffer {
-    fn get_storage_point(_: Option<UniformBuffer>, state: &mut context::GLState)
-        -> &mut gl::types::GLuint
-    {
+    fn get_storage_point(state: &mut context::GLState) -> &mut gl::types::GLuint {
         &mut state.uniform_buffer_binding
     }
 
-    fn get_bind_point(_: Option<UniformBuffer>) -> gl::types::GLenum {
+    fn get_bind_point() -> gl::types::GLenum {
         gl::UNIFORM_BUFFER
     }
 }
@@ -119,10 +110,10 @@ impl Buffer {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenBuffers(1, &mut id);;
 
-                let bind = BufferType::get_bind_point(None::<T>);
+                let bind = <T as BufferType>::get_bind_point();
 
                 ctxt.gl.BindBuffer(bind, id);
-                *BufferType::get_storage_point(None::<T>, ctxt.state) = id;
+                *<T as BufferType>::get_storage_point(ctxt.state) = id;
 
                 if ctxt.version >= &GlVersion(4, 4) || ctxt.extensions.gl_arb_buffer_storage {
                     let mut flags = gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
@@ -194,8 +185,8 @@ impl Buffer {
                 let mut id: gl::types::GLuint = mem::uninitialized();
                 ctxt.gl.GenBuffers(1, &mut id);
 
-                let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                let bind = BufferType::get_bind_point(None::<T>);
+                let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                let bind = <T as BufferType>::get_bind_point();
 
                 ctxt.gl.BindBuffer(bind, id);
                 *storage = id;
@@ -292,8 +283,8 @@ impl Buffer {
                                                   data.as_ptr() as *const libc::c_void)
 
                 } else {
-                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                    let bind = BufferType::get_bind_point(None::<T>);
+                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let bind = <T as BufferType>::get_bind_point();
 
                     ctxt.gl.BindBuffer(bind, id);
                     *storage = id;
@@ -342,8 +333,8 @@ impl Buffer {
                                                 gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
 
                 } else {
-                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                    let bind = BufferType::get_bind_point(None::<T>);
+                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let bind = <T as BufferType>::get_bind_point();
 
                     ctxt.gl.BindBuffer(bind, id);
                     *storage = id;
@@ -404,8 +395,8 @@ impl Buffer {
                         data.as_mut_ptr() as *mut libc::c_void);
 
                 } else {
-                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                    let bind = BufferType::get_bind_point(None::<T>);
+                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let bind = <T as BufferType>::get_bind_point();
 
                     ctxt.gl.BindBuffer(bind, id);
                     *storage = id;
@@ -477,8 +468,8 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
                     ctxt.gl.UnmapNamedBuffer(id);
 
                 } else {
-                    let storage = BufferType::get_storage_point(None::<T>, ctxt.state);
-                    let bind = BufferType::get_bind_point(None::<T>);
+                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
                         ctxt.gl.BindBuffer(bind, id);
