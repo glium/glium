@@ -16,6 +16,7 @@ gl_sync = []
 gl_persistent_mapping = ["gl_sync"]
 gl_program_binary = []
 gl_tessellation = []
+gl_instancing = []
 headless = ["glutin/headless"]
 
 [dependencies.compile_msg]

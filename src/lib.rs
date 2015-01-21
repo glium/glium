@@ -1290,6 +1290,9 @@ pub enum DrawError {
 
     /// Trying to use a sampler, but they are not supported by the backend.
     SamplersNotSupported,
+
+    /// When you use instancing, all vertices sources must have the same size.
+    InstancesCountMismatch,
 }
 
 #[doc(hidden)]

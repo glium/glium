@@ -669,6 +669,10 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
         attr_name_tmp.set_len(attr_name_tmp_len as usize);
 
         let attr_name = String::from_utf8(attr_name_tmp).unwrap();
+        if attr_name.starts_with("gl_") {   // ignoring everything built-in
+            continue;
+        }
+
         let location = ctxt.gl.GetAttribLocation(program, ffi::CString::from_slice(attr_name.as_bytes()).as_slice_with_nul().as_ptr());
 
         attributes.insert(attr_name, Attribute {
