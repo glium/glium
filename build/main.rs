@@ -26,6 +26,7 @@ fn main() {
                                         "GL_ATI_meminfo".to_string(),
                                         "GL_EXT_texture_filter_anisotropic".to_string(),
                                         "GL_ARB_buffer_storage".to_string(),
+                                        "GL_APPLE_vertex_array_object".to_string(),
                                     ],
                                     "4.5", "compatibility", &mut gl_bindings).unwrap();
 }

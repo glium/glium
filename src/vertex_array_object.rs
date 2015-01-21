@@ -7,7 +7,7 @@ use index_buffer::IndicesSource;
 use vertex::{VerticesSource, AttributeType};
 use {DisplayImpl, GlObject};
 
-use {libc, gl};
+use {libc, gl, context};
 
 /// Stores informations about how to bind a vertex buffer, an index buffer and a program.
 pub struct VertexArrayObject {
@@ -72,12 +72,28 @@ impl VertexArrayObject {
             unsafe {
                 // building the VAO
                 let id: gl::types::GLuint = mem::uninitialized();
-                ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
+                if ctxt.version >= &context::GlVersion(3, 0) ||
+                    ctxt.extensions.gl_arb_vertex_array_object
+                {
+                    ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
+                } else if ctxt.extensions.gl_apple_vertex_array_object {
+                    ctxt.gl.GenVertexArraysAPPLE(1, mem::transmute(&id));
+                } else {
+                    unreachable!()
+                }
                 tx.send(id).unwrap();
 
                 // we don't use DSA as we're going to make multiple calls for this VAO
                 // and we're likely going to use the VAO right after it's been created
-                ctxt.gl.BindVertexArray(id);
+                if ctxt.version >= &context::GlVersion(3, 0) ||
+                    ctxt.extensions.gl_arb_vertex_array_object
+                {
+                    ctxt.gl.BindVertexArray(id);
+                } else if ctxt.extensions.gl_apple_vertex_array_object {
+                    ctxt.gl.BindVertexArrayAPPLE(id);
+                } else {
+                    unreachable!()
+                }
                 ctxt.state.vertex_array = id;
 
                 // binding index buffer
@@ -135,12 +151,29 @@ impl Drop for VertexArrayObject {
             unsafe {
                 // unbinding
                 if ctxt.state.vertex_array == id {
-                    ctxt.gl.BindVertexArray(0);
+                    if ctxt.version >= &context::GlVersion(3, 0) ||
+                        ctxt.extensions.gl_arb_vertex_array_object
+                    {
+                        ctxt.gl.BindVertexArray(0);
+                    } else if ctxt.extensions.gl_apple_vertex_array_object {
+                        ctxt.gl.BindVertexArrayAPPLE(0);
+                    } else {
+                        unreachable!()
+                    }
+
                     ctxt.state.vertex_array = 0;
                 }
 
                 // deleting
-                ctxt.gl.DeleteVertexArrays(1, [ id ].as_ptr());
+                if ctxt.version >= &context::GlVersion(3, 0) ||
+                    ctxt.extensions.gl_arb_vertex_array_object
+                {
+                    ctxt.gl.DeleteVertexArrays(1, [ id ].as_ptr());
+                } else if ctxt.extensions.gl_apple_vertex_array_object {
+                    ctxt.gl.DeleteVertexArraysAPPLE(1, [ id ].as_ptr());
+                } else {
+                    unreachable!()
+                }
             }
         });
     }
