@@ -135,6 +135,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     // `GlObject` trait impl
     (writeln!(dest, "
                 impl GlObject for {} {{
+                    type Id = gl::types::GLuint;
                     fn get_id(&self) -> gl::types::GLuint {{
                         self.0.get_id()
                     }}

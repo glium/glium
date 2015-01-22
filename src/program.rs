@@ -507,6 +507,7 @@ impl fmt::Show for Program {
 }
 
 impl GlObject for Program {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

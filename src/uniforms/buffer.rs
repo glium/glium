@@ -119,12 +119,14 @@ impl<T> UniformBuffer<T> where T: Copy + Send {
 }
 
 impl<T> GlObject for UniformBuffer<T> {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
 }
 
 impl GlObject for TypelessUniformBuffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }

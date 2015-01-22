@@ -558,6 +558,7 @@ impl Drop for Buffer {
 }
 
 impl GlObject for Buffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

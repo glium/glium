@@ -50,6 +50,7 @@ impl ToColorAttachment for RenderBuffer {
 }
 
 impl GlObject for RenderBuffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -85,6 +86,7 @@ impl ToDepthAttachment for DepthRenderBuffer {
 }
 
 impl GlObject for DepthRenderBuffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -120,6 +122,7 @@ impl ToStencilAttachment for StencilRenderBuffer {
 }
 
 impl GlObject for StencilRenderBuffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -155,6 +158,7 @@ impl ToDepthStencilAttachment for DepthStencilRenderBuffer {
 }
 
 impl GlObject for DepthStencilRenderBuffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -240,6 +244,7 @@ impl Drop for RenderBufferImpl {
 }
 
 impl GlObject for RenderBufferImpl {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

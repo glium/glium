@@ -70,6 +70,7 @@ impl<T> PixelBuffer<T> where T: Texture2dData {
 }
 
 impl<T> GlObject for PixelBuffer<T> {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }

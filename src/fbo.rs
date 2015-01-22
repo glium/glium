@@ -317,6 +317,7 @@ impl FrameBufferObject {
 }
 
 impl GlObject for FrameBufferObject {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

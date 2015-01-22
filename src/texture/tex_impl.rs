@@ -237,6 +237,7 @@ impl TextureImplementation {
 }
 
 impl GlObject for TextureImplementation {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }
