@@ -5,8 +5,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
 use std::sync::mpsc::channel;
 use {Display, DisplayImpl, GlObject};
-use context::{self, CommandContext};
+use context::{self, CommandContext, GlVersion};
 use uniforms::UniformType;
+use Handle;
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
 /// in the GL thread every time we compile a shader or link a program.
@@ -14,7 +15,7 @@ static COMPILER_GLOBAL_LOCK: StaticMutex = MUTEX_INIT;
 
 struct Shader {
     display: Arc<DisplayImpl>,
-    id: gl::types::GLuint,
+    id: Handle,
 }
 
 impl Drop for Shader {
@@ -22,7 +23,16 @@ impl Drop for Shader {
         let id = self.id.clone();
         self.display.context.exec(move |: ctxt| {
             unsafe {
-                ctxt.gl.DeleteShader(id);
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.DeleteShader(id);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.DeleteObjectARB(id);
+                    }
+                }
             }
         });
     }
@@ -108,7 +118,7 @@ pub struct Program {
     display: Arc<DisplayImpl>,
     #[allow(dead_code)]
     shaders: Vec<Shader>,
-    id: gl::types::GLuint,
+    id: Handle,
     uniforms: Arc<HashMap<String, Uniform>>,
     uniform_blocks: Arc<HashMap<String, UniformBlock>>,
     attributes: Arc<HashMap<String, Attribute>>,
@@ -310,25 +320,64 @@ impl Program {
         let (tx, rx) = channel();
         display.context.context.exec(move |: ctxt| {
             unsafe {
-                let id = ctxt.gl.CreateProgram();
-                if id == 0 {
+                let id = if ctxt.version >= &GlVersion(2, 0) {
+                    Handle::Id(ctxt.gl.CreateProgram())
+                } else if ctxt.extensions.gl_arb_shader_objects {
+                    Handle::Handle(ctxt.gl.CreateProgramObjectARB())
+                } else {
+                    unreachable!()
+                };
+
+                if id == Handle::Id(0) || id == Handle::Handle(0 as gl::types::GLhandleARB) {
                     panic!("glCreateProgram failed");
                 }
 
                 // attaching shaders
                 for sh in shaders_ids.iter() {
-                    ctxt.gl.AttachShader(id, sh.clone());
+                    match (id, sh) {
+                        (Handle::Id(id), &Handle::Id(sh)) => {
+                            assert!(ctxt.version >= &GlVersion(2, 0));
+                            ctxt.gl.AttachShader(id, sh);
+                        },
+                        (Handle::Handle(id), &Handle::Handle(sh)) => {
+                            assert!(ctxt.extensions.gl_arb_shader_objects);
+                            ctxt.gl.AttachObjectARB(id, sh);
+                        },
+                        _ => unreachable!()
+                    }
                 }
 
                 // linking
                 {
                     let _lock = COMPILER_GLOBAL_LOCK.lock();
-                    ctxt.gl.LinkProgram(id);
+                    match id {
+                        Handle::Id(id) => {
+                            assert!(ctxt.version >= &GlVersion(2, 0));
+                            ctxt.gl.LinkProgram(id);
+                        },
+                        Handle::Handle(id) => {
+                            assert!(ctxt.extensions.gl_arb_shader_objects);
+                            ctxt.gl.LinkProgramARB(id);
+                        }
+                    }
                 }
 
                 // checking for errors
-                {   let mut link_success: gl::types::GLint = mem::uninitialized();
-                    ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
+                {
+                    let mut link_success: gl::types::GLint = mem::uninitialized();
+
+                    match id {
+                        Handle::Id(id) => {
+                            assert!(ctxt.version >= &GlVersion(2, 0));
+                            ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
+                        },
+                        Handle::Handle(id) => {
+                            assert!(ctxt.extensions.gl_arb_shader_objects);
+                            ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_LINK_STATUS_ARB,
+                                                            &mut link_success);
+                        }
+                    }
+
                     if link_success == 0 {
                         use ProgramCreationError::LinkingError;
 
@@ -352,11 +401,36 @@ impl Program {
                         };
 
                         let mut error_log_size: gl::types::GLint = mem::uninitialized();
-                        ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+
+                        match id {
+                            Handle::Id(id) => {
+                                assert!(ctxt.version >= &GlVersion(2, 0));
+                                ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+                            },
+                            Handle::Handle(id) => {
+                                assert!(ctxt.extensions.gl_arb_shader_objects);
+                                ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_INFO_LOG_LENGTH_ARB,
+                                                                &mut error_log_size);
+                            }
+                        }
 
                         let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as usize);
-                        ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
-                            error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+
+                        match id {
+                            Handle::Id(id) => {
+                                assert!(ctxt.version >= &GlVersion(2, 0));
+                                ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
+                                                          error_log.as_mut_slice().as_mut_ptr()
+                                                            as *mut gl::types::GLchar);
+                            },
+                            Handle::Handle(id) => {
+                                assert!(ctxt.extensions.gl_arb_shader_objects);
+                                ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
+                                                      error_log.as_mut_slice().as_mut_ptr()
+                                                        as *mut gl::types::GLchar);
+                            }
+                        }
+
                         error_log.set_len(error_log_size as usize);
 
                         let msg = String::from_utf8(error_log).unwrap();
@@ -422,6 +496,11 @@ impl Program {
                 if ctxt.version >= &context::GlVersion(4, 1) ||
                    ctxt.extensions.gl_arb_get_programy_binary
                 {
+                    let id = match id {
+                        Handle::Id(id) => id,
+                        Handle::Handle(_) => unreachable!()
+                    };
+
                     let mut buf_len = mem::uninitialized();
                     ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
@@ -470,7 +549,17 @@ impl Program {
         let (tx, rx) = channel();
         self.display.context.exec(move |: ctxt| {
             unsafe {
-                let value = ctxt.gl.GetFragDataLocation(id, name_c.as_slice_with_nul().as_ptr());
+                let value = match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.GetFragDataLocation(id, name_c.as_slice_with_nul().as_ptr())
+                    },
+                    Handle::Handle(id) => {
+                        // not supported
+                        -1
+                    }
+                };
+
                 tx.send(value).ok();
             }
         });
@@ -502,13 +591,13 @@ impl Program {
 
 impl fmt::Show for Program {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        (format!("Program #{}", self.id)).fmt(formatter)
+        (format!("Program #{:?}", self.id)).fmt(formatter)
     }
 }
 
 impl GlObject for Program {
-    type Id = gl::types::GLuint;
-    fn get_id(&self) -> gl::types::GLuint {
+    type Id = Handle;
+    fn get_id(&self) -> Handle {
         self.id
     }
 }
@@ -543,12 +632,28 @@ impl Drop for Program {
         let id = self.id.clone();
         self.display.context.exec(move |: ctxt| {
             unsafe {
-                if ctxt.state.program == id {
-                    ctxt.gl.UseProgram(0);
-                    ctxt.state.program = 0;
-                }
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
 
-                ctxt.gl.DeleteProgram(id);
+                        if ctxt.state.program == Handle::Id(id) {
+                            ctxt.gl.UseProgram(0);
+                            ctxt.state.program = Handle::Id(0);
+                        }
+
+                        ctxt.gl.DeleteProgram(id);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+
+                        if ctxt.state.program == Handle::Handle(id) {
+                            ctxt.gl.UseProgramObjectARB(0 as gl::types::GLhandleARB);
+                            ctxt.state.program = Handle::Handle(0 as gl::types::GLhandleARB);
+                        }
+
+                        ctxt.gl.DeleteObjectARB(id);
+                    }
+                }
             }
         });
     }
@@ -568,36 +673,96 @@ fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: 
                 return;
             }
 
-            let id = ctxt.gl.CreateShader(shader_type);
+            let id = if ctxt.version >= &GlVersion(2, 0) {
+                Handle::Id(ctxt.gl.CreateShader(shader_type))
+            } else if ctxt.extensions.gl_arb_shader_objects {
+                Handle::Handle(ctxt.gl.CreateShaderObjectARB(shader_type))
+            } else {
+                unreachable!()
+            };
 
-            if id == 0 {
+            if id == Handle::Id(0) || id == Handle::Handle(0 as gl::types::GLhandleARB) {
                 tx.send(Err(ProgramCreationError::ShaderTypeNotSupported)).ok();
                 return;
             }
 
-            ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
+            match id {
+                Handle::Id(id) => {
+                    assert!(ctxt.version >= &GlVersion(2, 0));
+                    ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
+                },
+                Handle::Handle(id) => {
+                    assert!(ctxt.extensions.gl_arb_shader_objects);
+                    ctxt.gl.ShaderSourceARB(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
+                }
+            }
 
             // compiling
             {
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
-                ctxt.gl.CompileShader(id);
+
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.CompileShader(id);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.CompileShaderARB(id);
+                    }
+                }
             }
 
             // checking compilation success
             let compilation_success = {
                 let mut compilation_success: gl::types::GLint = mem::uninitialized();
-                ctxt.gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_COMPILE_STATUS_ARB,
+                                                        &mut compilation_success);
+                    }
+                }
                 compilation_success
             };
 
             if compilation_success == 0 {
                 // compilation error
                 let mut error_log_size: gl::types::GLint = mem::uninitialized();
-                ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_INFO_LOG_LENGTH_ARB,
+                                                        &mut error_log_size);
+                    }
+                }
 
                 let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as usize);
-                ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
-                    error_log.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
+                                                 error_log.as_mut_slice().as_mut_ptr()
+                                                   as *mut gl::types::GLchar);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
+                                              error_log.as_mut_slice().as_mut_ptr()
+                                                as *mut gl::types::GLchar);
+                    }
+                }
+
                 error_log.set_len(error_log_size as usize);
 
                 let msg = String::from_utf8(error_log).unwrap();
@@ -617,14 +782,28 @@ fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: 
     })
 }
 
-unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint)
-    -> HashMap<String, Uniform>
+unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
+                           -> HashMap<String, Uniform>
 {
     // reflecting program uniforms
     let mut uniforms = HashMap::new();
 
-    let mut active_uniforms: gl::types::GLint = mem::uninitialized();
-    ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
+    // number of active uniforms
+    let active_uniforms = {
+        let mut active_uniforms: gl::types::GLint = mem::uninitialized();
+        match program {
+            Handle::Id(program) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
+            },
+            Handle::Handle(program) => {
+                assert!(ctxt.extensions.gl_arb_shader_objects);
+                ctxt.gl.GetObjectParameterivARB(program, gl::OBJECT_ACTIVE_UNIFORMS_ARB,
+                                                &mut active_uniforms);
+            }
+        };
+        active_uniforms
+    };
 
     for uniform_id in range(0, active_uniforms) {
         let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -632,13 +811,43 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
 
         let mut data_type: gl::types::GLenum = mem::uninitialized();
         let mut data_size: gl::types::GLint = mem::uninitialized();
-        ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint, uniform_name_tmp_len,
-            &mut uniform_name_tmp_len, &mut data_size, &mut data_type,
-            uniform_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+
+        match program {
+            Handle::Id(program) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint,
+                                         uniform_name_tmp_len, &mut uniform_name_tmp_len,
+                                         &mut data_size, &mut data_type,
+                                         uniform_name_tmp.as_mut_slice().as_mut_ptr()
+                                           as *mut gl::types::GLchar);
+            },
+            Handle::Handle(program) => {
+                assert!(ctxt.extensions.gl_arb_shader_objects);
+                ctxt.gl.GetActiveUniformARB(program, uniform_id as gl::types::GLuint,
+                                            uniform_name_tmp_len, &mut uniform_name_tmp_len,
+                                            &mut data_size, &mut data_type,
+                                            uniform_name_tmp.as_mut_slice().as_mut_ptr()
+                                              as *mut gl::types::GLchar);
+            }
+        };
+
         uniform_name_tmp.set_len(uniform_name_tmp_len as usize);
 
         let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
-        let location = ctxt.gl.GetUniformLocation(program, ffi::CString::from_slice(uniform_name.as_bytes()).as_slice_with_nul().as_ptr());
+        let location = match program {
+            Handle::Id(program) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetUniformLocation(program,
+                                           ffi::CString::from_slice(uniform_name.as_bytes())
+                                             .as_slice_with_nul().as_ptr())
+            },
+            Handle::Handle(program) => {
+                assert!(ctxt.extensions.gl_arb_shader_objects);
+                ctxt.gl.GetUniformLocationARB(program,
+                                              ffi::CString::from_slice(uniform_name.as_bytes())
+                                                .as_slice_with_nul().as_ptr())
+            }
+        };
 
         uniforms.insert(uniform_name, Uniform {
             location: location as i32,
@@ -650,13 +859,27 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: gl::types::GLuint
     uniforms
 }
 
-unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLuint)
-    -> HashMap<String, Attribute>
+unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
+                             -> HashMap<String, Attribute>
 {
     let mut attributes = HashMap::new();
 
-    let mut active_attributes: gl::types::GLint = mem::uninitialized();
-    ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
+    // number of active attributes
+    let active_attributes = {
+        let mut active_attributes: gl::types::GLint = mem::uninitialized();
+        match program {
+            Handle::Id(program) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
+            },
+            Handle::Handle(program) => {
+                assert!(ctxt.extensions.gl_arb_vertex_shader);
+                ctxt.gl.GetObjectParameterivARB(program, gl::OBJECT_ACTIVE_ATTRIBUTES_ARB,
+                                                &mut active_attributes);
+            }
+        };
+        active_attributes
+    };
 
     for attribute_id in range(0, active_attributes) {
         let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -664,9 +887,24 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
 
         let mut data_type: gl::types::GLenum = mem::uninitialized();
         let mut data_size: gl::types::GLint = mem::uninitialized();
-        ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint, attr_name_tmp_len,
-            &mut attr_name_tmp_len, &mut data_size, &mut data_type,
-            attr_name_tmp.as_mut_slice().as_mut_ptr() as *mut gl::types::GLchar);
+
+        match program {
+            Handle::Id(program) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint,
+                                        attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
+                                        &mut data_type, attr_name_tmp.as_mut_slice().as_mut_ptr()
+                                          as *mut gl::types::GLchar);
+            },
+            Handle::Handle(program) => {
+                assert!(ctxt.extensions.gl_arb_vertex_shader);
+                ctxt.gl.GetActiveAttribARB(program, attribute_id as gl::types::GLuint,
+                                           attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
+                                           &mut data_type, attr_name_tmp.as_mut_slice().as_mut_ptr()
+                                             as *mut gl::types::GLchar);
+            }
+        };
+
         attr_name_tmp.set_len(attr_name_tmp_len as usize);
 
         let attr_name = String::from_utf8(attr_name_tmp).unwrap();
@@ -674,7 +912,20 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
             continue;
         }
 
-        let location = ctxt.gl.GetAttribLocation(program, ffi::CString::from_slice(attr_name.as_bytes()).as_slice_with_nul().as_ptr());
+        let location = match program {
+            Handle::Id(program) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetAttribLocation(program,
+                                          ffi::CString::from_slice(attr_name.as_bytes())
+                                            .as_slice_with_nul().as_ptr())
+            },
+            Handle::Handle(program) => {
+                assert!(ctxt.extensions.gl_arb_vertex_shader);
+                ctxt.gl.GetAttribLocationARB(program,
+                                             ffi::CString::from_slice(attr_name.as_bytes())
+                                               .as_slice_with_nul().as_ptr())
+            }
+        };
 
         attributes.insert(attr_name, Attribute {
             location: location,
@@ -686,13 +937,18 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: gl::types::GLui
     attributes
 }
 
-unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: gl::types::GLuint)
+unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
                                  -> HashMap<String, UniformBlock>
 {
     // uniform blocks are not supported, so there's none
     if ctxt.version < &context::GlVersion(3, 1) {
         return HashMap::new();
     }
+
+    let program = match program {
+        Handle::Id(id) => id,
+        _ => unreachable!()
+    };
 
     let mut blocks = HashMap::new();
 

@@ -28,6 +28,8 @@ fn main() {
                                         "GL_ARB_buffer_storage".to_string(),
                                         "GL_APPLE_vertex_array_object".to_string(),
                                         "GL_ARB_vertex_buffer_object".to_string(),
+                                        "GL_ARB_shader_objects".to_string(),
+                                        "GL_ARB_vertex_shader".to_string(),
                                     ],
                                     "4.5", "compatibility", &mut gl_bindings).unwrap();
 }

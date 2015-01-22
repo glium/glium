@@ -4,6 +4,7 @@ use std::sync::mpsc::{channel, Sender};
 
 use Display;
 use DrawError;
+use Handle;
 
 use fbo::{self, FramebufferAttachments};
 
@@ -226,7 +227,10 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
 
             // binding program
             if ctxt.state.program != program_id {
-                ctxt.gl.UseProgram(program_id);
+                match program_id {
+                    Handle::Id(id) => ctxt.gl.UseProgram(id),
+                    Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
+                }
                 ctxt.state.program = program_id;
             }
 
@@ -294,8 +298,7 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
 
 // TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
 fn block_to_binder(display: &Display, value: &UniformValue, block: &program::UniformBlock,
-                   program: gl::types::GLuint, current_bind_point: &mut gl::types::GLuint,
-                   name: &str)
+                   program: Handle, current_bind_point: &mut gl::types::GLuint, name: &str)
                    -> Result<(Box<Fn(&mut context::CommandContext) + Send>,
                        Option<Sender<sync::LinearSyncFence>>), DrawError>
 {
@@ -310,6 +313,11 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
 
             let buffer = buffer.get_id();
             let binding = block.binding as gl::types::GLuint;
+
+            let program = match program {
+                Handle::Id(id) => id,
+                _ => unreachable!()
+            };
 
             let bind_fn = Box::new(move |&: ctxt: &mut context::CommandContext| {
                 unsafe {
@@ -333,6 +341,19 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
                      active_texture: &mut gl::types::GLenum, name: &str)
                      -> Result<Box<Fn(&mut context::CommandContext) + Send>, DrawError>
 {
+    macro_rules! uniform(
+        ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
+            unsafe {
+                if $ctxt.version >= &context::GlVersion(1, 5) {
+                    $ctxt.gl.$uniform($($params),+)
+                } else {
+                    assert!($ctxt.extensions.gl_arb_shader_objects);
+                    $ctxt.gl.$uniform_arb($($params),+)
+                }
+            }
+        )
+    );
+
     match *value {
         UniformValue::Block(_, _, _) => {
             return Err(DrawError::UniformBufferToValue {
@@ -341,65 +362,58 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
         },
         UniformValue::SignedInt(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.Uniform1i(location, val)
-                }
+                uniform!(ctxt, Uniform1i, Uniform1iARB, location, val);
             }))
         },
         UniformValue::UnsignedInt(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+                // Uniform1uiARB doesn't exist
                 unsafe {
-                    ctxt.gl.Uniform1ui(location, val)
+                    if ctxt.version >= &context::GlVersion(1, 5) {
+                        ctxt.gl.Uniform1ui(location, val)
+                    } else {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.Uniform1iARB(location, val as gl::types::GLint)
+                    }
                 }
             }))
         },
         UniformValue::Float(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.Uniform1f(location, val)
-                }
+                uniform!(ctxt, Uniform1f, Uniform1fARB, location, val);
             }))
         },
         UniformValue::Mat2(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.UniformMatrix2fv(location, 1, 0, val.as_ptr() as *const f32)
-                }
+                uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
+                         location, 1, 0, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Mat3(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.UniformMatrix3fv(location, 1, 0, val.as_ptr() as *const f32)
-                }
+                uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
+                         location, 1, 0, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Mat4(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.UniformMatrix4fv(location, 1, 0, val.as_ptr() as *const f32)
-                }
+                uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
+                         location, 1, 0, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec2(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.Uniform2fv(location, 1, val.as_ptr() as *const f32)
-                }
+                uniform!(ctxt, Uniform2fv, Uniform2fvARB, location, 1, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec3(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.Uniform3fv(location, 1, val.as_ptr() as *const f32)
-                }
+                uniform!(ctxt, Uniform3fv, Uniform3fvARB, location, 1, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec4(val) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.Uniform4fv(location, 1, val.as_ptr() as *const f32)
-                }
+                uniform!(ctxt, Uniform4fv, Uniform4fvARB, location, 1, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Texture1d(texture, sampler) => {
@@ -525,13 +539,25 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
 
     Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
         unsafe {
+            // TODO: what if it's not supported?
             ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
+
             ctxt.gl.BindTexture(bind_point, texture);
-            ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
+
+            if ctxt.version >= &context::GlVersion(1, 5) {
+                ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
+            } else {
+                assert!(ctxt.extensions.gl_arb_shader_objects);
+                ctxt.gl.Uniform1iARB(location, current_texture as gl::types::GLint);
+            }
 
             if let Some(sampler) = sampler {
+                assert!(ctxt.version >= &context::GlVersion(3, 3) ||
+                        ctxt.extensions.gl_arb_sampler_objects);
                 ctxt.gl.BindSampler(current_texture, sampler);
-            } else {
+            } else if ctxt.version >= &context::GlVersion(3, 3) ||
+                ctxt.extensions.gl_arb_sampler_objects
+            {
                 ctxt.gl.BindSampler(current_texture, 0);
             }
         }

@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::cmp::Ordering;
 use GliumCreationError;
+use Handle;
 
 pub use self::capabilities::Capabilities;
 
@@ -112,7 +113,7 @@ pub struct GLState {
     pub enabled_stencil_test: bool,
 
     // The latest value passed to `glUseProgram`.
-    pub program: gl::types::GLuint,
+    pub program: Handle,
 
     // The latest value passed to `glBindVertexArray`.
     pub vertex_array: gl::types::GLuint,
@@ -208,7 +209,7 @@ impl GLState {
             enabled_scissor_test: false,
             enabled_stencil_test: false,
 
-            program: 0,
+            program: Handle::Id(0),
             vertex_array: 0,
             clear_color: (0.0, 0.0, 0.0, 0.0),
             clear_depth: 1.0,
@@ -299,6 +300,12 @@ pub struct ExtensionsList {
     pub gl_arb_vertex_buffer_object: bool,
     /// GL_ARB_map_buffer_range
     pub gl_arb_map_buffer_range: bool,
+    /// GL_ARB_shader_objects
+    pub gl_arb_shader_objects: bool,
+    /// GL_ARB_vertex_shader
+    pub gl_arb_vertex_shader: bool,
+    /// GL_ARB_fragment_shader
+    pub gl_arb_fragment_shader: bool,
 }
 
 impl Context {
@@ -547,6 +554,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
             result.push("OpenGL implementation doesn't support buffer objects");
         }
 
+        if ctxt.version < &GlVersion(2, 0) && (!ctxt.extensions.gl_arb_shader_objects ||
+            !ctxt.extensions.gl_arb_vertex_shader || !ctxt.extensions.gl_arb_fragment_shader)
+        {
+            result.push("OpenGL implementation doesn't support vertex/fragment shaders");
+        }
+
         if !ctxt.extensions.gl_ext_framebuffer_object && ctxt.version < &GlVersion(3, 0) {
             result.push("OpenGL implementation doesn't support framebuffers");
         }
@@ -669,6 +682,9 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_instanced_arrays: false,
         gl_arb_vertex_buffer_object: false,
         gl_arb_map_buffer_range: false,
+        gl_arb_shader_objects: false,
+        gl_arb_vertex_shader: false,
+        gl_arb_fragment_shader: false,
     };
 
     for extension in strings.into_iter() {
@@ -693,6 +709,9 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_instanced_arrays" => extensions.gl_arb_instanced_arrays = true,
             "GL_ARB_vertex_buffer_object" => extensions.gl_arb_vertex_buffer_object = true,
             "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
+            "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
+            "GL_ARB_vertex_shader" => extensions.gl_arb_vertex_shader = true,
+            "GL_ARB_fragment_shader" => extensions.gl_arb_fragment_shader = true,
             _ => ()
         }
     }

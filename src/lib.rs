@@ -241,6 +241,16 @@ trait GlObject {
     fn get_id(&self) -> Self::Id;
 }
 
+/// Handle to a shader or a program.
+// TODO: Handle(null()) is equal to Id(0)
+#[derive(PartialEq, Eq, Copy, Clone, Show, Hash)]
+enum Handle {
+    Id(gl::types::GLuint),
+    Handle(gl::types::GLhandleARB),
+}
+
+unsafe impl Send for Handle {}
+
 /// Internal trait for enums that can be turned into GLenum.
 trait ToGlEnum {
     /// Returns the value.
@@ -1482,7 +1492,7 @@ struct DisplayImpl {
 
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (buffers-list, program) ; the buffers list must be sorted
-    vertex_array_objects: Mutex<HashMap<(Vec<gl::types::GLuint>, gl::types::GLuint),
+    vertex_array_objects: Mutex<HashMap<(Vec<gl::types::GLuint>, Handle),
                                         vertex_array_object::VertexArrayObject>>,
 
     // we maintain a list of samplers for each possible behavior
