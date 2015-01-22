@@ -14,6 +14,7 @@ mod capabilities;
 enum Message {
     EndFrame,
     Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>),
+    NextEvent(Sender<glutin::Event>),
 }
 
 pub struct Context {
@@ -37,6 +38,38 @@ pub struct CommandContext<'a, 'b> {
     pub extensions: &'a ExtensionsList,
     pub opengl_es: bool,
     pub capabilities: &'a Capabilities,
+}
+
+/// Iterator for all the events received by the window.
+pub struct EventsIter<'a> {
+    context: &'a Context,
+    current_rx: Option<Receiver<glutin::Event>>,
+}
+
+impl<'a> Iterator for EventsIter<'a> {
+    type Item = glutin::Event;
+
+    fn next(&mut self) -> Option<glutin::Event> {
+        if let Some(ref mut current_rx) = self.current_rx {
+            match current_rx.recv() {
+                Ok(ev) => return Some(ev),
+                Err(_) => ()
+            };
+        }
+
+        let (tx, rx) = channel();
+        self.context.commands.lock().unwrap().send(Message::NextEvent(tx));
+
+        match rx.recv() {
+            Ok(ev) => {
+                self.current_rx = Some(rx);
+                return Some(ev);
+            },
+            Err(_) => {
+                return None;
+            }
+        };
+    }
 }
 
 /// Represents the current OpenGL ctxt.state.
@@ -324,41 +357,36 @@ impl Context {
             };
 
             // main loop
-            'main: loop {
-                // processing commands
-                loop {
-                    match rx_commands.recv() {
-                        Ok(Message::EndFrame) => break,
-                        Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
-                            gl: &gl,
-                            state: &mut gl_state,
-                            version: &version,
-                            extensions: &extensions,
-                            opengl_es: opengl_es,
-                            capabilities: &*capabilities,
-                        }),
-                        Err(_) => break 'main
-                    }
-                }
+            loop {
+                match rx_commands.recv() {
+                    Ok(Message::EndFrame) => {
+                        // this is necessary on Windows 8, or nothing is being displayed
+                        unsafe { gl.Flush(); }
 
-                // this is necessary on Windows 8, or nothing is being displayed
-                unsafe { gl.Flush(); }
+                        // swapping
+                        window.swap_buffers();
+                    },
+                    Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
+                        gl: &gl,
+                        state: &mut gl_state,
+                        version: &version,
+                        extensions: &extensions,
+                        opengl_es: opengl_es,
+                        capabilities: &*capabilities,
+                    }),
+                    Ok(Message::NextEvent(notify)) => {
+                        for event in window.poll_events() {
+                            // update the dimensions
+                            if let &glutin::Event::Resized(width, height) = &event {
+                                dimensions.0.store(width as usize, atomic::Ordering::Relaxed);
+                                dimensions.1.store(height as usize, atomic::Ordering::Relaxed);
+                            }
 
-                // swapping
-                window.swap_buffers();
-
-                // getting events
-                for event in window.poll_events() {
-                    // update the dimensions
-                    if let &glutin::Event::Resized(width, height) = &event {
-                        dimensions.0.store(width as usize, atomic::Ordering::Relaxed);
-                        dimensions.1.store(height as usize, atomic::Ordering::Relaxed);
-                    }
-
-                    // sending the event outside
-                    if tx_events.send(event.clone()).is_err() {
-                        break 'main;
-                    }
+                            // sending back
+                            notify.send(event).ok();
+                        }
+                    },
+                    Err(_) => break
                 }
             }
         });
@@ -439,7 +467,8 @@ impl Context {
                         opengl_es: opengl_es,
                         capabilities: &*capabilities,
                     }),
-                    Ok(Message::EndFrame) => (),     // ignoring buffer swapping
+                    Ok(Message::EndFrame) => (),        // ignoring buffer swapping
+                    Ok(Message::NextEvent(_)) => (),    // ignoring events
                     Err(_) => break
                 }
             }
@@ -471,17 +500,11 @@ impl Context {
         self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
     }
 
-    pub fn recv(&self) -> Vec<glutin::Event> {
-        let events = self.events.lock().unwrap();
-
-        let mut result = Vec::new();
-        loop {
-            match events.try_recv() {
-                Ok(ev) => result.push(ev),
-                Err(_) => break
-            }
+    pub fn events(&self) -> EventsIter {
+        EventsIter {
+            context: self,
+            current_rx: None,
         }
-        result
     }
 
     pub fn capabilities(&self) -> &Capabilities {
