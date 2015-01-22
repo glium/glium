@@ -262,6 +262,10 @@ pub struct ExtensionsList {
     pub gl_apple_vertex_array_object: bool,
     /// GL_ARB_instanced_arrays
     pub gl_arb_instanced_arrays: bool,
+    /// GL_ARB_vertex_buffer_object
+    pub gl_arb_vertex_buffer_object: bool,
+    /// GL_ARB_map_buffer_range
+    pub gl_arb_map_buffer_range: bool,
 }
 
 impl Context {
@@ -514,6 +518,12 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
             result.push("OpenGL version inferior to 2.0 is not supported");
         }
 
+        if ctxt.version < &GlVersion(1, 5) && (!ctxt.extensions.gl_arb_vertex_buffer_object ||
+            !ctxt.extensions.gl_arb_map_buffer_range)
+        {
+            result.push("OpenGL implementation doesn't support buffer objects");
+        }
+
         if !ctxt.extensions.gl_ext_framebuffer_object && ctxt.version < &GlVersion(3, 0) {
             result.push("OpenGL implementation doesn't support framebuffers");
         }
@@ -634,6 +644,8 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_tessellation_shader: false,
         gl_apple_vertex_array_object: false,
         gl_arb_instanced_arrays: false,
+        gl_arb_vertex_buffer_object: false,
+        gl_arb_map_buffer_range: false,
     };
 
     for extension in strings.into_iter() {
@@ -656,6 +668,8 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_tessellation_shader" => extensions.gl_arb_tessellation_shader = true,
             "GL_APPLE_vertex_array_object" => extensions.gl_apple_vertex_array_object = true,
             "GL_ARB_instanced_arrays" => extensions.gl_arb_instanced_arrays = true,
+            "GL_ARB_vertex_buffer_object" => extensions.gl_arb_vertex_buffer_object = true,
+            "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
             _ => ()
         }
     }
