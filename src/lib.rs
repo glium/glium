@@ -197,7 +197,7 @@ extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 
-pub use context::EventsIter;
+pub use context::{PollEventsIter, WaitEventsIter};
 pub use index_buffer::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
@@ -1491,8 +1491,15 @@ struct DisplayImpl {
 
 impl Display {
     /// Reads all events received by the window.
-    pub fn poll_events(&self) -> EventsIter {
-        self.context.context.events()
+    ///
+    /// This iterator polls for events and can be exhausted.
+    pub fn poll_events(&self) -> PollEventsIter {
+        self.context.context.poll_events()
+    }
+
+    /// Reads all events received by the window.
+    pub fn wait_events(&self) -> WaitEventsIter {
+        self.context.context.wait_events()
     }
 
     /// Returns the dimensions of the main framebuffer.

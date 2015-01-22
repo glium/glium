@@ -41,12 +41,12 @@ pub struct CommandContext<'a, 'b> {
 }
 
 /// Iterator for all the events received by the window.
-pub struct EventsIter<'a> {
+pub struct PollEventsIter<'a> {
     context: &'a Context,
     current_rx: Option<Receiver<glutin::Event>>,
 }
 
-impl<'a> Iterator for EventsIter<'a> {
+impl<'a> Iterator for PollEventsIter<'a> {
     type Item = glutin::Event;
 
     fn next(&mut self) -> Option<glutin::Event> {
@@ -69,6 +69,59 @@ impl<'a> Iterator for EventsIter<'a> {
                 return None;
             }
         };
+    }
+}
+
+/// Blocking iterator over all the events received by the window.
+///
+/// This iterator polls for events, until the window associated with its context
+/// is closed.
+pub struct WaitEventsIter<'a> {
+    context: &'a Context,
+    current_rx: Option<Receiver<glutin::Event>>,
+    closing: bool,
+}
+
+impl<'a> WaitEventsIter<'a> {
+    fn new(context: &'a Context) -> WaitEventsIter<'a> {
+        WaitEventsIter {
+            context: context,
+            current_rx: None,
+            closing: false,
+        }
+    }
+}
+
+impl<'a> Iterator for WaitEventsIter<'a> {
+    type Item = glutin::Event;
+
+    fn next(&mut self) -> Option<glutin::Event> {
+        if self.closing {
+            return None;
+        }
+        if let Some(ref mut current_rx) = self.current_rx {
+            match current_rx.recv() {
+                Ok(ev) => return Some(ev),
+                Err(_) => ()
+            };
+        }
+
+        loop {
+            let (tx, rx) = channel();
+            self.context.commands.lock().unwrap().send(Message::NextEvent(tx));
+
+            match rx.recv() {
+                Ok(ev @ glutin::Event::Closed) => {
+                    self.closing = true;
+                    return Some(ev);
+                },
+                Ok(ev) => {
+                    self.current_rx = Some(rx);
+                    return Some(ev);
+                },
+                Err(_) => (),
+            };
+        }
     }
 }
 
@@ -504,11 +557,15 @@ impl Context {
         self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
     }
 
-    pub fn events(&self) -> EventsIter {
-        EventsIter {
+    pub fn poll_events(&self) -> PollEventsIter {
+        PollEventsIter {
             context: self,
             current_rx: None,
         }
+    }
+
+    pub fn wait_events(&self) -> WaitEventsIter {
+        WaitEventsIter::new(self)
     }
 
     pub fn capabilities(&self) -> &Capabilities {
