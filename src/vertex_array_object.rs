@@ -213,6 +213,7 @@ impl Drop for VertexArrayObject {
 }
 
 impl GlObject for VertexArrayObject {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

@@ -235,8 +235,10 @@ mod gl {
 
 /// Internal trait for objects that are OpenGL objects.
 trait GlObject {
+    type Id;
+
     /// Returns the id of the object.
-    fn get_id(&self) -> gl::types::GLuint;
+    fn get_id(&self) -> Self::Id;
 }
 
 /// Internal trait for enums that can be turned into GLenum.

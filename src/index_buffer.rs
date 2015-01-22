@@ -191,6 +191,7 @@ impl IndexBuffer {
 }
 
 impl GlObject for IndexBuffer {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }

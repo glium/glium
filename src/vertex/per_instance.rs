@@ -273,6 +273,7 @@ impl<T> PerInstanceAttributesBuffer<T> {
 }
 
 impl<T> GlObject for PerInstanceAttributesBuffer<T> {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -338,6 +339,7 @@ impl Drop for PerInstanceAttributesBufferAny {
 }
 
 impl GlObject for PerInstanceAttributesBufferAny {
+    type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
