@@ -104,7 +104,7 @@ fn main() {
         timer::sleep(Duration::milliseconds(17));
 
         // polling and handling the events received by the window
-        for event in display.poll_events().into_iter() {
+        for event in display.poll_events() {
             match event {
                 glutin::Event::Closed => break 'main,
                 _ => ()
