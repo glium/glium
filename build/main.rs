@@ -30,6 +30,11 @@ fn main() {
                                         "GL_ARB_vertex_buffer_object".to_string(),
                                         "GL_ARB_shader_objects".to_string(),
                                         "GL_ARB_vertex_shader".to_string(),
+                                        "GL_ARB_texture_rg".to_string(),
+                                        "GL_EXT_texture_integer".to_string(),
+                                        "GL_ARB_texture_rgb10_a2ui".to_string(),
+                                        "GL_ARB_texture_float".to_string(),
+                                        "GL_EXT_packed_depth_stencil".to_string(),
                                     ],
                                     "4.5", "compatibility", &mut gl_bindings).unwrap();
 }
