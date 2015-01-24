@@ -10,13 +10,13 @@ use gl;
 use context;
 
 /// Buffer that contains a uniform block.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct UniformBuffer<T> {
     buffer: TypelessUniformBuffer,
 }
 
 /// Same as `UniformBuffer` but doesn't contain any information about the type.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct TypelessUniformBuffer {
     buffer: Buffer,
 }

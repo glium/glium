@@ -101,7 +101,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
 }
 
 /// List of available primitives.
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
     ///
     Points,
@@ -149,7 +149,7 @@ impl ToGlEnum for PrimitiveType {
 }
 
 /// A list of indices loaded in the graphics card's memory.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct IndexBuffer {
     buffer: Buffer,
     data_type: IndexType,
@@ -232,7 +232,7 @@ impl Drop for IndexBuffer {
 }
 
 /// Type of the indices in an index source.
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]    // GLenum
 pub enum IndexType {
     /// u8

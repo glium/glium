@@ -2,7 +2,7 @@ use uniforms::{Uniforms, UniformValue, IntoUniformValue};
 use program::UniformBlock;
 
 /// Object that can be used when you don't have any uniforms.
-#[derive(Show, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {
