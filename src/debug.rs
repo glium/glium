@@ -8,7 +8,7 @@ use {context, gl};
 use std::sync::mpsc::channel;
 
 /// Severity of a debug message.
-#[derive(Clone, Copy, Show, FromPrimitive, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, FromPrimitive, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Severity {
     /// Anything that isn't an error or performance issue.
@@ -27,7 +27,7 @@ pub enum Severity {
 }
 
 /// Source of a debug message.
-#[derive(Clone, Copy, Show, FromPrimitive)]
+#[derive(Clone, Copy, Debug, FromPrimitive)]
 #[repr(u32)]
 pub enum Source {
     /// Calls to the OpenGL API.
@@ -52,7 +52,7 @@ pub enum Source {
 }
 
 /// Type of a debug message.
-#[derive(Clone, Copy, Show, FromPrimitive)]
+#[derive(Clone, Copy, Debug, FromPrimitive)]
 #[repr(u32)]
 pub enum MessageType {
     /// An error, typically from the API

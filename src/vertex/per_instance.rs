@@ -11,7 +11,7 @@ use context;
 use gl;
 
 /// A list of vertices loaded in the graphics card's memory.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct PerInstanceAttributesBuffer<T> {
     buffer: PerInstanceAttributesBufferAny,
 }
@@ -292,7 +292,7 @@ impl<'a, T> IntoVerticesSource<'a> for &'a PerInstanceAttributesBuffer<T> {
 ///
 /// This struct is provided for convenience, so that you can have a `Vec<PerInstanceAttributesBufferAny>`,
 /// or return a `PerInstanceAttributesBufferAny` instead of a `PerInstanceAttributesBuffer<MyPrivateVertexType>`.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct PerInstanceAttributesBufferAny {
     buffer: Buffer,
     bindings: VertexFormat,

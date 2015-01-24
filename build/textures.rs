@@ -142,9 +142,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 }}
             ", name)).unwrap();
 
-    // `Show` trait impl
+    // `Debug` trait impl
     (writeln!(dest, "
-                impl ::std::fmt::Show for {} {{
+                impl ::std::fmt::Debug for {} {{
                     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error>
                     {{
                         self.0.fmt(f)

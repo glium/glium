@@ -243,7 +243,7 @@ trait GlObject {
 
 /// Handle to a shader or a program.
 // TODO: Handle(null()) is equal to Id(0)
-#[derive(PartialEq, Eq, Copy, Clone, Show, Hash)]
+#[derive(PartialEq, Eq, Copy, Clone, Debug, Hash)]
 enum Handle {
     Id(gl::types::GLuint),
     Handle(gl::types::GLhandleARB),
@@ -265,7 +265,7 @@ trait ToGlEnum {
 ///
 /// If you want to add transparent objects one over another, the usual value
 /// is `Addition { source: Alpha, destination: OneMinusAlpha }`.
-#[derive(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Simply overwrite the destination pixel with the source pixel.
     ///
@@ -333,7 +333,7 @@ pub enum BlendingFunction {
 }
 
 /// Indicates which value to multiply each component with.
-#[derive(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LinearBlendingFactor {
     /// Multiply the source or destination component by zero, which always
     /// gives `0.0`.
@@ -433,7 +433,7 @@ impl ToGlEnum for LinearBlendingFactor {
 /// By doing so you can use backface culling to discard all the triangles that are not
 /// facing the screen, and increase your framerate.
 ///
-#[derive(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BackfaceCullingMode {
     /// All triangles are always drawn.
     CullingDisabled,
@@ -461,7 +461,7 @@ pub enum BackfaceCullingMode {
 ///
 /// If you don't have a depth buffer available, you can only pass `Overwrite`. Glium detects if
 /// you pass any other value and reports an error.
-#[derive(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DepthFunction {
     /// Never replace the target pixel.
     ///
@@ -542,7 +542,7 @@ impl ToGlEnum for DepthFunction {
 ///  </g>
 /// </svg>
 ///
-#[derive(Clone, Copy, Show, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PolygonMode {
     /// Only draw a single point at each vertex.
     ///
@@ -579,7 +579,7 @@ impl ToGlEnum for PolygonMode {
 /// };
 /// ```
 ///
-#[derive(Clone, Copy, Show, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target.
@@ -932,7 +932,7 @@ impl DrawParameters {
 /// Area of a surface in pixels.
 ///
 /// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
-#[derive(Show, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Rect {
     /// Number of pixels between the left border of the surface and the left border of
     /// the rectangle.
@@ -1245,7 +1245,7 @@ pub trait Surface: Sized {
 }
 
 /// Error that can happen while drawing.
-#[derive(Clone, Show)]
+#[derive(Clone, Debug)]
 pub enum DrawError {
     /// A depth function has been requested but no depth buffer is available.
     NoDepthBuffer,
@@ -1397,7 +1397,7 @@ pub trait DisplayBuild {
 }
 
 /// Error that can happen while creating a glium display.
-#[derive(Clone, Show, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GliumCreationError {
     /// An error has happened while creating the glutin window or headless renderer.
     GlutinCreationError(glutin::CreationError),
@@ -1406,18 +1406,18 @@ pub enum GliumCreationError {
     IncompatibleOpenGl(String),
 }
 
+impl std::fmt::Display for GliumCreationError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        let self_error = self as &std::error::Error;
+        formatter.write_str(self_error.description())
+    }
+}
+
 impl std::error::Error for GliumCreationError {
     fn description(&self) -> &str {
         match self {
             &GliumCreationError::GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
             &GliumCreationError::IncompatibleOpenGl(_) => "The OpenGL implementation is too old to work with glium",
-        }
-    }
-
-    fn detail(&self) -> Option<String> {
-        match self {
-            &GliumCreationError::GlutinCreationError(_) => None,
-            &GliumCreationError::IncompatibleOpenGl(ref e) => Some(e.clone()),
         }
     }
 

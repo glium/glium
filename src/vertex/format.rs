@@ -1,7 +1,7 @@
 use vertex::Attribute;
 
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Show, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum AttributeType {
     I8,
     I8I8,

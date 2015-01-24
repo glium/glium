@@ -5,7 +5,7 @@ use gl;
 /// Function to use for out-of-bounds samples.
 ///
 /// This is how GL must handle samples that are outside the texture.
-#[derive(Show, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SamplerWrapFunction {
     /// Samples at coord `x + 1` map to coord `x`.
     Repeat,
@@ -28,7 +28,7 @@ impl ToGlEnum for SamplerWrapFunction {
 }
 
 /// The function that the GPU will use when loading the value of a texel.
-#[derive(Show, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum MagnifySamplerFilter {
     /// The nearest texel will be loaded.
     Nearest,
@@ -47,7 +47,7 @@ impl ToGlEnum for MagnifySamplerFilter {
 }
 
 /// The function that the GPU will use when loading the value of a texel.
-#[derive(Show, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum MinifySamplerFilter {
     /// The nearest texel will be loaded.
     ///
@@ -91,7 +91,7 @@ pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
 /// Behavior of a sampler.
 // TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS,
 //       GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
-#[derive(Show, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
     pub wrap_function: (SamplerWrapFunction, SamplerWrapFunction, SamplerWrapFunction),

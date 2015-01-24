@@ -292,7 +292,7 @@ impl GLState {
 }
 
 /// Describes an OpenGL ctxt.version.
-#[derive(Show, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GlVersion(pub u8, pub u8);
 
 impl PartialOrd for GlVersion {
@@ -311,7 +311,7 @@ impl Ord for GlVersion {
 }
 
 /// Contains data about the list of extensions
-#[derive(Show, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct ExtensionsList {
     /// GL_EXT_direct_state_access
     pub gl_ext_direct_state_access: bool,

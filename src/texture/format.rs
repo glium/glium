@@ -6,7 +6,7 @@ use ToGlEnum;
 ///
 /// These are all the possible formats of data when uploading to a texture.
 #[allow(missing_docs)]
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClientFormat {
     U8,
     U8U8,
@@ -291,7 +291,7 @@ impl ClientFormat {
 /// Some formats are marked as "guaranteed to be supported". What this means is that you are
 /// certain that the backend will use exactly these formats. If you try to use a format that
 /// is not supported by the backend, it will automatically fall back to a larger format.
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
     /// 
     ///
@@ -458,7 +458,7 @@ impl ToGlEnum for UncompressedFloatFormat {
 
 /// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedIntFormat {
     I8,
     I16,
@@ -498,7 +498,7 @@ impl ToGlEnum for UncompressedIntFormat {
 
 /// List of uncompressed pixel formats that contain unsigned integral data.
 #[allow(missing_docs)]
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedUintFormat {
     U8,
     U16,
@@ -541,7 +541,7 @@ impl ToGlEnum for UncompressedUintFormat {
 /// List of compressed texture formats.
 ///
 /// TODO: many formats are missing
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompressedFormat {
     /// Red/green compressed texture with one unsigned component.
     RGTCFormatU,
@@ -569,7 +569,7 @@ impl ToGlEnum for CompressedFormat {
 /// `I16`, `I24` and `I32` are still treated as if they were floating points.
 /// Only the internal representation is integral.
 #[allow(missing_docs)]
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DepthFormat {
     I16,
     I24,
@@ -593,7 +593,7 @@ impl ToGlEnum for DepthFormat {
 // TODO: If OpenGL 4.3 or ARB_stencil_texturing is not available, then depth/stencil
 //       textures are treated by samplers exactly like depth-only textures
 #[allow(missing_docs)]
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DepthStencilFormat {
     I24I8,
     F32I8,
@@ -614,7 +614,7 @@ impl ToGlEnum for DepthStencilFormat {
 // TODO: Stencil only formats cannot be used for Textures, unless OpenGL 4.4 or
 //       ARB_texture_stencil8 is available.
 #[allow(missing_docs)]
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StencilFormat {
     I1,
     I4,
@@ -634,7 +634,7 @@ impl ToGlEnum for StencilFormat {
 }
 
 /// Format of the internal representation of a texture.
-#[derive(Show, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextureFormat {
     /// 
     UncompressedFloat(UncompressedFloatFormat),
