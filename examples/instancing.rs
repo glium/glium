@@ -44,8 +44,8 @@ fn main() {
         }
 
         let mut data = Vec::new();
-        for x in (0 .. 104) {
-            for y in (0 .. 82) {
+        for x in (0u32 .. 104) {
+            for y in (0u32 .. 82) {
                 data.push(Attr {
                     world_position: [((x as f32) / 50.0) - 1.0, ((y as f32) / 40.0) - 1.0],
                 });

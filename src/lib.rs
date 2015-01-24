@@ -1308,6 +1308,52 @@ pub enum DrawError {
     InstancesCountMismatch,
 }
 
+impl std::fmt::Display for DrawError {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        match self {
+            &DrawError::NoDepthBuffer => write!(fmt, "A depth function has been requested but no \
+                                                      depth buffer is available."),
+            &DrawError::AttributeTypeMismatch => write!(fmt, "The type of a vertex attribute in \
+                                                              the vertices source doesn't match \
+                                                              what the program requires."),
+            &DrawError::AttributeMissing => write!(fmt, "One of the attributes required by the \
+                                                         program is missing from the vertex \
+                                                         format."),
+            &DrawError::ViewportTooLarge => write!(fmt, "The viewport's dimensions are not \
+                                                         supported by the backend."),
+            &DrawError::InvalidDepthRange => write!(fmt, "The depth range is outside of the \
+                                                          `(0, 1)` range."),
+            &DrawError::UniformTypeMismatch { ref name, ref expected } => {
+                write!(fmt, "The type of a uniform doesn't match what the program requires.")
+            },
+            &DrawError::UniformBufferToValue { ref name } => write!(fmt, "Tried to bind a uniform \
+                                                                          buffer to a single \
+                                                                          uniform value."),
+            &DrawError::UniformValueToBlock { ref name } => {
+                write!(fmt, "Tried to bind a single uniform value to a uniform block.")
+            },
+            &DrawError::UniformBlockLayoutMismatch { ref name } => {
+                write!(fmt, "The layout of the content of the uniform buffer does not match \
+                             the layout of the block.")
+            },
+            &DrawError::UnsupportedVerticesPerPatch => write!(fmt, "The number of vertices per \
+                                                                    patch that has been requested \
+                                                                    is not supported."),
+            &DrawError::TessellationNotSupported => write!(fmt, "Trying to use tessellation, but \
+                                                                 this is not supported by the \
+                                                                 underlying hardware."),
+            &DrawError::TessellationWithoutPatches => write!(fmt, "Using a program which contains \
+                                                                   tessellation shaders, but \
+                                                                   without submitting patches."),
+            &DrawError::SamplersNotSupported => write!(fmt, "Trying to use a sampler, but they are \
+                                                             not supported by the backend."),
+            &DrawError::InstancesCountMismatch => write!(fmt, "When you use instancing, all \
+                                                               vertices sources must have the \
+                                                               same size"),
+        }
+    }
+}
+
 #[doc(hidden)]
 pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
 
