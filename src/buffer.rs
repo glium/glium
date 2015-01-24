@@ -522,7 +522,7 @@ impl Buffer {
     }
 }
 
-impl fmt::Show for Buffer {
+impl fmt::Debug for Buffer {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "Buffer #{}", self.id)
     }

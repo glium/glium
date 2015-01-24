@@ -11,7 +11,7 @@ use context;
 use gl;
 
 /// A list of vertices loaded in the graphics card's memory.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct VertexBuffer<T> {
     buffer: VertexBufferAny,
 }
@@ -272,7 +272,7 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
 ///
 /// This struct is provided for convenience, so that you can have a `Vec<VertexBufferAny>`,
 /// or return a `VertexBufferAny` instead of a `VertexBuffer<MyPrivateVertexType>`.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct VertexBufferAny {
     buffer: Buffer,
     bindings: VertexFormat,

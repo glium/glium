@@ -127,7 +127,7 @@ pub struct Program {
 }
 
 /// Information about a uniform (except its name).
-#[derive(Show, Copy)]
+#[derive(Debug, Copy)]
 #[doc(hidden)]
 pub struct Uniform {
     /// The location of the uniform.
@@ -143,7 +143,7 @@ pub struct Uniform {
 }
 
 /// Information about a uniform block (except its name).
-#[derive(Show, Clone)]
+#[derive(Debug, Clone)]
 #[doc(hidden)]
 pub struct UniformBlock {
     /// The binding point of the uniform.
@@ -159,7 +159,7 @@ pub struct UniformBlock {
 }
 
 /// Information about a uniform inside a block.
-#[derive(Show, Clone)]
+#[derive(Debug, Clone)]
 #[doc(hidden)]
 pub struct UniformBlockMember {
     /// Name of the member.
@@ -178,7 +178,7 @@ pub struct UniformBlockMember {
 /// Information about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
-#[derive(Show, Copy)]
+#[derive(Debug, Copy)]
 #[doc(hidden)]
 pub struct Attribute {
     pub location: gl::types::GLint,
@@ -187,7 +187,7 @@ pub struct Attribute {
 }
 
 /// Error that can be triggered when creating a `Program`.
-#[derive(Clone, Show)]
+#[derive(Clone, Debug)]
 pub enum ProgramCreationError {
     /// Error while compiling one of the shaders.
     CompilationError(String),
@@ -201,6 +201,20 @@ pub enum ProgramCreationError {
     ShaderTypeNotSupported,
 }
 
+impl ::std::fmt::Display for ProgramCreationError {
+    fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+        match self {
+            &ProgramCreationError::CompilationError(ref s) =>
+                formatter.write_fmt(format_args!("Compilation error in one of the shaders: {}", s)),
+            &ProgramCreationError::LinkingError(ref s) =>
+                formatter.write_fmt(format_args!("Error while linking shaders together: {}", s)),
+            &ProgramCreationError::ShaderTypeNotSupported =>
+                formatter.write_str("One of the request shader type is \
+                                    not supported by the backend"),
+        }
+    }
+}
+
 impl ::std::error::Error for ProgramCreationError {
     fn description(&self) -> &str {
         match self {
@@ -209,14 +223,6 @@ impl ::std::error::Error for ProgramCreationError {
             &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
             &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
                                                               not supported by the backend",
-        }
-    }
-
-    fn detail(&self) -> Option<String> {
-        match self {
-            &ProgramCreationError::CompilationError(ref s) => Some(s.clone()),
-            &ProgramCreationError::LinkingError(ref s) => Some(s.clone()),
-            &ProgramCreationError::ShaderTypeNotSupported => None,
         }
     }
 
@@ -589,7 +595,7 @@ impl Program {
     }
 }
 
-impl fmt::Show for Program {
+impl fmt::Debug for Program {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         (format!("Program #{:?}", self.id)).fmt(formatter)
     }

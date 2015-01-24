@@ -243,7 +243,7 @@ impl GlObject for TextureImplementation {
     }
 }
 
-impl fmt::Show for TextureImplementation {
+impl fmt::Debug for TextureImplementation {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "Texture #{} (dimensions: {}x{}x{}x{})", self.id,
                self.width, self.height.unwrap_or(1), self.depth.unwrap_or(1),
