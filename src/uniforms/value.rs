@@ -139,7 +139,7 @@ pub trait IntoUniformValue<'a> {
 pub enum UniformValue<'a> {
     /// Contains a handle to the buffer, and a function that indicates whether this buffer
     /// can be binded on a block with the given layout.
-    /// The first parameter is a sender which must be used to send a `SyncFence` that expires when
+    /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
     Block(&'a TypelessUniformBuffer, Box<Fn(&program::UniformBlock) -> bool + 'static>, Option<Sender<LinearSyncFence>>),
     SignedInt(i32),
