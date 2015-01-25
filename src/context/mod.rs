@@ -241,6 +241,9 @@ pub struct GLState {
 
     /// The latest value passed to `glPatchParameter` with `GL_PATCH_VERTICES`.
     pub patch_patch_vertices: gl::types::GLint,
+
+    /// The latest value passed to `glActiveTexture`.
+    pub active_texture: gl::types::GLenum,
 }
 
 impl GLState {
@@ -287,6 +290,7 @@ impl GLState {
             pixel_store_unpack_alignment: 4,
             pixel_store_pack_alignment: 4,
             patch_patch_vertices: 3,
+            active_texture: gl::TEXTURE0,
         }
     }
 }
