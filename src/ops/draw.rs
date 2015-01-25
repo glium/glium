@@ -540,7 +540,11 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
     Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
         unsafe {
             // TODO: what if it's not supported?
-            ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
+            let active_tex_enum = current_texture + gl::TEXTURE0;
+            if ctxt.state.active_texture != active_tex_enum {
+                ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
+                ctxt.state.active_texture = active_tex_enum;
+            }
 
             ctxt.gl.BindTexture(bind_point, texture);
 
