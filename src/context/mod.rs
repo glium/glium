@@ -556,10 +556,6 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         }
 
     } else {
-        if ctxt.version < &GlVersion(2, 0) {
-            result.push("OpenGL version inferior to 2.0 is not supported");
-        }
-
         if ctxt.version < &GlVersion(1, 5) && (!ctxt.extensions.gl_arb_vertex_buffer_object ||
             !ctxt.extensions.gl_arb_map_buffer_range)
         {
