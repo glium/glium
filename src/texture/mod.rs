@@ -157,8 +157,8 @@ impl<P: PixelValue + Clone> Texture2dData for Vec<Vec<P>> {      // TODO: remove
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Primitive + Send,
-    P: PixelValue + image::Pixel<T> + Clone + Copy
+impl<T, P> Texture2dData for image::ImageBuffer<P, Vec<T>> where T: image::Primitive + Send,
+    P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
 {
     type Data = T;
 
@@ -180,21 +180,21 @@ impl<T, P> Texture2dData for image::ImageBuffer<Vec<T>, T, P> where T: image::Pr
         // the image library gives us rows from bottom to top, so we need to flip them
         raw_data
             .as_slice()
-            .chunks(width as usize * image::Pixel::channel_count(None::<&P>) as usize)
+            .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
             .rev()
             .flat_map(|row| row.iter())
             .map(|p| p.clone())
             .collect()
     }
 
-    fn from_vec(data: Vec<T>, width: u32) -> image::ImageBuffer<Vec<T>, T, P> {
-        let pixels_size = image::Pixel::channel_count(None::<&P>);
+    fn from_vec(data: Vec<T>, width: u32) -> image::ImageBuffer<P, Vec<T>> {
+        let pixels_size = <P as image::Pixel>::channel_count();
         let height = data.len() as u32 / (width * pixels_size as u32);
 
         // opengl gives us rows from bottom to top, so we need to flip them
         let data = data
             .as_slice()
-            .chunks(width as usize * image::Pixel::channel_count(None::<&P>) as usize)
+            .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
             .rev()
             .flat_map(|row| row.iter())
             .map(|p| p.clone())
