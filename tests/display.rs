@@ -142,3 +142,67 @@ fn sync() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn scissor_followed_by_clear() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        scissor: Some(glium::Rect {
+            left: 2,
+            bottom: 2,
+            width: 2,
+            height: 2,
+        }),
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
+                              &params).unwrap();
+    texture.as_surface().clear_color(1.0, 0.0, 1.0, 1.0);
+
+    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(1.0, 0.0, 1.0, 1.0));
+        }
+    }
+
+    display.assert_no_error();
+}
+
+#[test]
+fn viewport_followed_by_clear() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        viewport: Some(glium::Rect {
+            left: 2,
+            bottom: 2,
+            width: 2,
+            height: 2,
+        }),
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
+                              &params).unwrap();
+    texture.as_surface().clear_color(1.0, 0.0, 1.0, 1.0);
+
+    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(1.0, 0.0, 1.0, 1.0));
+        }
+    }
+
+    display.assert_no_error();
+}

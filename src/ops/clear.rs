@@ -32,6 +32,11 @@ pub fn clear(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachm
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         unsafe {
+            if ctxt.state.enabled_scissor_test {
+                ctxt.gl.Disable(gl::SCISSOR_TEST);
+                ctxt.state.enabled_scissor_test = false;
+            }
+
             if let Some(color) = color {
                 if ctxt.state.clear_color != color {
                     ctxt.gl.ClearColor(color.0, color.1, color.2, color.3);
