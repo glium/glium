@@ -57,6 +57,15 @@ impl TextureImplementation {
             }
         }
 
+        let do_not_use_texstorage = match format {
+            TextureFormatRequest::AnyCompressed | TextureFormatRequest::AnyFloatingPoint |
+            TextureFormatRequest::AnyIntegral | TextureFormatRequest::AnyUnsigned |
+            TextureFormatRequest::AnyDepth | TextureFormatRequest::AnyStencil |
+            TextureFormatRequest::AnyDepthStencil |
+            TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) => true,
+            _ => false
+        };
+
         let texture_type = if height.is_none() && depth.is_none() {
             if array_size.is_none() { gl::TEXTURE_1D } else { gl::TEXTURE_1D_ARRAY }
         } else if depth.is_none() {
@@ -108,7 +117,9 @@ impl TextureImplementation {
                     gl::LINEAR_MIPMAP_LINEAR as i32);
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    if ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage {
+                    if !do_not_use_texstorage && (ctxt.version >= &GlVersion(4, 2) ||
+                        ctxt.extensions.gl_arb_texture_storage)
+                    {
                         ctxt.gl.TexStorage3D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
@@ -133,7 +144,9 @@ impl TextureImplementation {
                     }
 
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    if ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage {
+                    if !do_not_use_texstorage && (ctxt.version >= &GlVersion(4, 2) ||
+                        ctxt.extensions.gl_arb_texture_storage)
+                    {
                         ctxt.gl.TexStorage2D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
@@ -152,7 +165,9 @@ impl TextureImplementation {
                     }
 
                 } else {
-                    if ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage {
+                    if !do_not_use_texstorage && ctxt.version >= &GlVersion(4, 2) ||
+                        ctxt.extensions.gl_arb_texture_storage
+                    {
                         ctxt.gl.TexStorage1D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei);
