@@ -24,16 +24,6 @@ pub fn build_display() -> glium::Display {
         glutin::WindowBuilder::new().with_visibility(false).build_glium().unwrap()
     };
 
-    unsafe {
-        display.set_debug_callback_sync(|&mut: msg: String, _, _, severity: glium::debug::Severity| {
-            if severity == glium::debug::Severity::Medium ||
-               severity == glium::debug::Severity::High
-            {
-                panic!("{}", msg);
-            }
-        })
-    };
-
     display
 }
 
@@ -41,20 +31,7 @@ pub fn build_display() -> glium::Display {
 #[cfg(not(feature = "headless"))]
 pub fn build_display() -> glium::Display {
     assert!(!is_headless());
-
-    let display = glutin::WindowBuilder::new().with_visibility(false).build_glium().unwrap();
-
-    unsafe {
-        display.set_debug_callback_sync(|&mut: msg: String, _, _, severity: glium::debug::Severity| {
-            if severity == glium::debug::Severity::Medium ||
-               severity == glium::debug::Severity::High
-            {
-                panic!("{}", msg);
-            }
-        })
-    };
-
-    display
+    glutin::WindowBuilder::new().with_visibility(false).build_glium().unwrap()
 }
 
 /// Builds a 2x2 unicolor texture.
