@@ -175,7 +175,7 @@ impl<T, P> Texture2dData for image::ImageBuffer<P, Vec<T>> where T: image::Primi
         use image::GenericImage;
         let (width, _) = self.dimensions();
 
-        let raw_data = self.into_vec();
+        let raw_data = self.into_raw();
 
         // the image library gives us rows from bottom to top, so we need to flip them
         raw_data
