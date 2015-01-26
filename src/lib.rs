@@ -1671,17 +1671,26 @@ impl Display {
         // enabling the callback
         self.context.context.exec(move |: ctxt| {
             unsafe {
-                if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug ||
+                    ctxt.extensions.gl_arb_debug_output
+                {
                     if ctxt.state.enabled_debug_output_synchronous != true {
                         ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
                         ctxt.state.enabled_debug_output_synchronous = true;
                     }
 
-                    // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
-                    //       but with GL only, it doesn't have one
-                    ctxt.gl.DebugMessageCallback(callback_wrapper, std::ptr::null());
-                    ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
-                                                std::ptr::null(), gl::TRUE);
+                    if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                        // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
+                        //       but with GL only, it doesn't have one
+                        ctxt.gl.DebugMessageCallback(callback_wrapper, std::ptr::null());
+                        ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                                                    std::ptr::null(), gl::TRUE);
+
+                    } else {
+                        ctxt.gl.DebugMessageCallbackARB(callback_wrapper, std::ptr::null());
+                        ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
+                                                       0, std::ptr::null(), gl::TRUE);
+                    }
 
                     if ctxt.state.enabled_debug_output != Some(true) {
                         ctxt.gl.Enable(gl::DEBUG_OUTPUT);
