@@ -284,6 +284,49 @@ impl ClientFormat {
             ClientFormat::F32F32F32F32 => gl::COMPRESSED_RGBA,
         }
     }
+
+    /// Returns the number of components of this client format.
+    pub fn get_num_components(&self) -> u8 {
+        match *self {
+            ClientFormat::U8 => 1,
+            ClientFormat::U8U8 => 2,
+            ClientFormat::U8U8U8 => 3,
+            ClientFormat::U8U8U8U8 => 4,
+            ClientFormat::I8 => 1,
+            ClientFormat::I8I8 => 2,
+            ClientFormat::I8I8I8 => 3,
+            ClientFormat::I8I8I8I8 => 4,
+            ClientFormat::U16 => 1,
+            ClientFormat::U16U16 => 2,
+            ClientFormat::U16U16U16 => 3,
+            ClientFormat::U16U16U16U16 => 4,
+            ClientFormat::I16 => 1,
+            ClientFormat::I16I16 => 2,
+            ClientFormat::I16I16I16 => 3,
+            ClientFormat::I16I16I16I16 => 4,
+            ClientFormat::U32 => 1,
+            ClientFormat::U32U32 => 2,
+            ClientFormat::U32U32U32 => 3,
+            ClientFormat::U32U32U32U32 => 4,
+            ClientFormat::I32 => 1,
+            ClientFormat::I32I32 => 2,
+            ClientFormat::I32I32I32 => 3,
+            ClientFormat::I32I32I32I32 => 4,
+            ClientFormat::U3U3U2 => 3,
+            ClientFormat::U5U6U5 => 3,
+            ClientFormat::U4U4U4U4 => 4,
+            ClientFormat::U5U5U5U1 => 4,
+            ClientFormat::U10U10U10U2 => 4,
+            ClientFormat::F16 => 1,
+            ClientFormat::F16F16 => 2,
+            ClientFormat::F16F16F16 => 3,
+            ClientFormat::F16F16F16F16 => 4,
+            ClientFormat::F32 => 1,
+            ClientFormat::F32F32 => 2,
+            ClientFormat::F32F32F32 => 3,
+            ClientFormat::F32F32F32F32 => 4,
+        }
+    }
 }
 
 /// List of uncompressed pixel formats that contain floating-point-like data.
@@ -415,6 +458,12 @@ pub enum UncompressedFloatFormat {
     F9F9F9,
 }
 
+impl UncompressedFloatFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::UncompressedFloat(self)
+    }
+}
+
 impl ToGlEnum for UncompressedFloatFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -477,6 +526,12 @@ pub enum UncompressedIntFormat {
     I32I32I32I32,
 }
 
+impl UncompressedIntFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::UncompressedIntegral(self)
+    }
+}
+
 impl ToGlEnum for UncompressedIntFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -518,6 +573,12 @@ pub enum UncompressedUintFormat {
     U10U10U10U2,
 }
 
+impl UncompressedUintFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::UncompressedUnsigned(self)
+    }
+}
+
 impl ToGlEnum for UncompressedUintFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -553,6 +614,12 @@ pub enum CompressedFormat {
     RGTCFormatII,
 }
 
+impl CompressedFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::CompressedFormat(self)
+    }
+}
+
 impl ToGlEnum for CompressedFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -578,6 +645,12 @@ pub enum DepthFormat {
     F32,
 }
 
+impl DepthFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::DepthFormat(self)
+    }
+}
+
 impl ToGlEnum for DepthFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -597,6 +670,12 @@ impl ToGlEnum for DepthFormat {
 pub enum DepthStencilFormat {
     I24I8,
     F32I8,
+}
+
+impl DepthStencilFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::DepthStencilFormat(self)
+    }
 }
 
 impl ToGlEnum for DepthStencilFormat {
@@ -622,6 +701,12 @@ pub enum StencilFormat {
     I16,
 }
 
+impl StencilFormat {
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::StencilFormat(self)
+    }
+}
+
 impl ToGlEnum for StencilFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
@@ -636,8 +721,11 @@ impl ToGlEnum for StencilFormat {
 /// Format of the internal representation of a texture.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextureFormat {
-    /// 
     UncompressedFloat(UncompressedFloatFormat),
-    /// 
     UncompressedIntegral(UncompressedIntFormat),
+    UncompressedUnsigned(UncompressedUintFormat),
+    CompressedFormat(CompressedFormat),
+    DepthFormat(DepthFormat),
+    StencilFormat(StencilFormat),
+    DepthStencilFormat(DepthStencilFormat),
 }

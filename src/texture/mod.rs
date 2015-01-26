@@ -45,7 +45,7 @@ use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
 use {Surface, GlObject, ToGlEnum};
 
-use self::tex_impl::TextureImplementation;
+use self::tex_impl::{TextureImplementation, TextureFormatRequest};
 
 pub use self::format::{ClientFormat, TextureFormat};
 pub use self::format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};

@@ -363,6 +363,16 @@ pub struct ExtensionsList {
     pub gl_arb_vertex_shader: bool,
     /// GL_ARB_fragment_shader
     pub gl_arb_fragment_shader: bool,
+    /// GL_ARB_texture_rg
+    pub gl_arb_texture_rg: bool,
+    /// GL_EXT_texture_integer
+    pub gl_ext_texture_integer: bool,
+    /// GL_ARB_texture_rgb10_a2ui
+    pub gl_arb_texture_rgb10_a2ui: bool,
+    /// GL_ARB_texture_float
+    pub gl_arb_texture_float: bool,
+    /// GL_EXT_packed_depth_stencil
+    pub gl_ext_packed_depth_stencil: bool,
 }
 
 impl Context {
@@ -746,6 +756,11 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_shader_objects: false,
         gl_arb_vertex_shader: false,
         gl_arb_fragment_shader: false,
+        gl_arb_texture_rg: false,
+        gl_ext_texture_integer: false,
+        gl_arb_texture_rgb10_a2ui: false,
+        gl_arb_texture_float: false,
+        gl_ext_packed_depth_stencil: false,
     };
 
     for extension in strings.into_iter() {
@@ -773,6 +788,11 @@ fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
             "GL_ARB_vertex_shader" => extensions.gl_arb_vertex_shader = true,
             "GL_ARB_fragment_shader" => extensions.gl_arb_fragment_shader = true,
+            "GL_ARB_texture_rg" => extensions.gl_arb_texture_rg = true,
+            "GL_EXT_texture_integer" => extensions.gl_ext_texture_integer = true,
+            "GL_ARB_texture_rgb10_a2ui" => extensions.gl_arb_texture_rgb10_a2ui = true,
+            "GL_ARB_texture_float" => extensions.gl_arb_texture_float = true,
+            "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
             _ => ()
         }
     }
