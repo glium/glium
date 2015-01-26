@@ -206,3 +206,39 @@ fn viewport_followed_by_clear() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn viewport() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        viewport: Some(glium::Rect {
+            left: 0,
+            bottom: 0,
+            width: 1,
+            height: 1,
+        }),
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
+
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+
+    assert_eq!(data[0][0], (1.0, 0.0, 0.0));
+    assert_eq!(data[1][0], (0.0, 0.0, 0.0));
+    assert_eq!(data[0][1], (0.0, 0.0, 0.0));
+    assert_eq!(data[1][1], (0.0, 0.0, 0.0));
+
+    for row in data.iter().skip(1) {
+        for pixel in row.iter().skip(1) {
+            assert_eq!(pixel, &(0.0, 0.0, 0.0));
+        }
+    }
+
+    display.assert_no_error();
+}
