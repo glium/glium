@@ -63,7 +63,14 @@ pub enum IndicesSource<'a, T: 'a> {
         offset: usize,
         /// Number of elements in the buffer to use.
         length: usize,
-    }
+    },
+
+    /// Don't use indices. Assemble primitives by using the order in which the vertices are in
+    /// the vertices source.
+    NoIndices {
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
 }
 
 impl<'a, T> IndicesSource<'a, T> where T: Index {
@@ -72,30 +79,7 @@ impl<'a, T> IndicesSource<'a, T> where T: Index {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_primitives_type(),
             &IndicesSource::Buffer { primitives, .. } => primitives,
-        }
-    }
-
-    /// Returns the type of the indices.
-    pub fn get_indices_type(&self) -> IndexType {
-        match self {
-            &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_indices_type(),
-            &IndicesSource::Buffer { .. } => <T as Index>::get_type(),
-        }
-    }
-
-    /// Returns the first element to use from the buffer.
-    pub fn get_offset(&self) -> usize {
-        match self {
-            &IndicesSource::IndexBuffer { offset, .. } => offset,
-            &IndicesSource::Buffer { offset, .. } => offset,
-        }
-    }
-
-    /// Returns the length of the buffer.
-    pub fn get_length(&self) -> usize {
-        match self {
-            &IndicesSource::IndexBuffer { length, .. } => length,
-            &IndicesSource::Buffer { length, .. } => length,
+            &IndicesSource::NoIndices { primitives } => primitives,
         }
     }
 }
@@ -144,6 +128,22 @@ impl ToGlEnum for PrimitiveType {
             &PrimitiveType::TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
             &PrimitiveType::TriangleFan => gl::TRIANGLE_FAN,
             &PrimitiveType::Patches { .. } => gl::PATCHES,
+        }
+    }
+}
+
+/// Marker that can be used as an indices source when you don't need indices.
+///
+/// If you use this, then the primitives will be constructed using the order in which the
+/// vertices are in the vertices sources.
+pub struct NoIndices(pub PrimitiveType);
+
+impl ToIndicesSource for NoIndices {
+    type Data = u16;      // TODO: u16?
+
+    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
+        IndicesSource::NoIndices {
+            primitives: self.0,
         }
     }
 }
