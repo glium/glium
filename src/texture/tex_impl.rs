@@ -65,8 +65,22 @@ impl TextureImplementation {
             gl::TEXTURE_3D
         };
 
-        let texture_levels = 1 + (::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
-                                 depth.unwrap_or(1))) as f32).log2() as gl::types::GLsizei;
+        let generate_mipmaps = match format {
+            TextureFormatRequest::AnyFloatingPoint |
+            TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
+            TextureFormatRequest::AnyIntegral |
+            TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) |
+            TextureFormatRequest::AnyUnsigned |
+            TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) => true,
+            _ => false,
+        };
+
+        let texture_levels = if generate_mipmaps {
+            1 + (::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
+                                 depth.unwrap_or(1))) as f32).log2() as gl::types::GLsizei
+        } else {
+            1
+        };
 
         let (internal_format, can_use_texstorage) =
             format_request_to_glenum(display, data.as_ref().map(|&(c, _)| c), format);
@@ -173,10 +187,13 @@ impl TextureImplementation {
                     }
                 }
 
-                if ctxt.version >= &GlVersion(3, 0) {
-                    ctxt.gl.GenerateMipmap(texture_type);
-                } else {
-                    ctxt.gl.GenerateMipmapEXT(texture_type);
+                // only generate mipmaps for color textures
+                if generate_mipmaps {
+                    if ctxt.version >= &GlVersion(3, 0) {
+                        ctxt.gl.GenerateMipmap(texture_type);
+                    } else {
+                        ctxt.gl.GenerateMipmapEXT(texture_type);
+                    }
                 }
 
                 tx.send(id).unwrap();
