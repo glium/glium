@@ -6,7 +6,7 @@ use ToGlEnum;
 use context::GlVersion;
 
 use pixel_buffer::PixelBuffer;
-use texture::{Texture2dData, PixelValue, TextureFormat, ClientFormat};
+use texture::{format, Texture2dData, PixelValue, TextureFormat, ClientFormat};
 
 use libc;
 use std::fmt;
@@ -68,7 +68,8 @@ impl TextureImplementation {
         let texture_levels = 1 + (::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
                                  depth.unwrap_or(1))) as f32).log2() as gl::types::GLsizei;
 
-        let internal_format = format_request_to_glenum(display, client_format, format);
+        let (internal_format, can_use_texstorage) = format_request_to_glenum(display, client_format,
+                                                                             format);
         let (client_format, client_type) = client_format_to_glenum(display, client_format, format);
 
         let (tx, rx) = channel();
@@ -108,7 +109,7 @@ impl TextureImplementation {
                     gl::LINEAR_MIPMAP_LINEAR as i32);
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    if ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage3D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
@@ -133,7 +134,7 @@ impl TextureImplementation {
                     }
 
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    if ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage2D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
@@ -152,7 +153,7 @@ impl TextureImplementation {
                     }
 
                 } else {
-                    if ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage1D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei);
@@ -278,9 +279,10 @@ impl Drop for TextureImplementation {
 
 /// Checks that the texture format is supported and compatible with the client format.
 ///
-/// Returns a GLenum suitable for the internal format of `glTexImage#D` and `glTexStorage*D`.
+/// Returns a GLenum suitable for the internal format of `glTexImage#D`. If the second element of
+/// the returned tuple is `true`, it is also suitable for `glTexStorage*D`.
 fn format_request_to_glenum(display: &Display, client: ClientFormat, format: TextureFormatRequest)
-                            -> gl::types::GLenum
+                            -> (gl::types::GLenum, bool)
 {
     let version = display.context.context.get_version();
     let extensions = display.context.context.get_extensions();
@@ -291,55 +293,58 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
             if version >= &GlVersion(3, 0) {
                 match size {
-                    1 => gl::RED,
-                    2 => gl::RG,
-                    3 => gl::RGB,
-                    4 => gl::RGBA,
+                    1 => (gl::RED, false),
+                    2 => (gl::RG, false),
+                    3 => (gl::RGB, false),
+                    4 => (gl::RGBA, false),
                     _ => unreachable!(),
                 }
 
             } else {
-                size as gl::types::GLenum
+                (size as gl::types::GLenum, false)
             }
         },
 
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(f)) => {
             let value = f.to_glenum();
             match value {
-                gl::RGB | gl::RGB4 | gl::RGB5 | gl::RGB8 | gl::RGB10 | gl::RGB12 | gl::RGB16 |
-                gl::RGBA | gl::RGBA2 | gl::RGBA4 | gl::RGB5_A1 | gl::RGBA8 | gl::RGB10_A2 |
+                gl::RGB | gl::RGBA => {
+                    (value, false)
+                },
+                gl::RGB4 | gl::RGB5 | gl::RGB8 | gl::RGB10 | gl::RGB12 | gl::RGB16 |
+                gl::RGBA2 | gl::RGBA4 | gl::RGB5_A1 | gl::RGBA8 | gl::RGB10_A2 |
                 gl::RGBA12 | gl::RGBA16 | gl::R3_G3_B2 => {
-                    value
+                    (value, true)
                 },
                 _ => {
                     assert!(version >= &GlVersion(3, 0));       // FIXME: 
-                    value
+                    (value, true)
                 }
             }
         },
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(f)) => {
             assert!(version >= &GlVersion(3, 0));       // FIXME: 
-            f.to_glenum()
+            (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(f)) => {
             assert!(version >= &GlVersion(3, 0));       // FIXME: 
-            f.to_glenum()
+            (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(f)) => {
             assert!(version >= &GlVersion(3, 0));       // FIXME: 
-            f.to_glenum()
+            (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::DepthFormat(f)) => {
             assert!(version >= &GlVersion(3, 0));       // FIXME: 
-            f.to_glenum()
+            (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(f)) => {
             assert!(version >= &GlVersion(3, 0));       // FIXME: 
-            f.to_glenum()
+            (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(f)) => {
             assert!(version >= &GlVersion(3, 0));       // FIXME: 
-            f.to_glenum()
+            (f.to_glenum(), true)
         },
 
         TextureFormatRequest::AnyCompressed => {
@@ -348,26 +353,26 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
             if version >= &GlVersion(1, 1) {
                 match size {
                     1 => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
-                        gl::COMPRESSED_RED
+                        (gl::COMPRESSED_RED, false)
                     } else {
                         // format not supported
-                        1
+                        (1, false)
                     },
                     2 => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
-                        gl::COMPRESSED_RG
+                        (gl::COMPRESSED_RG, false)
                     } else {
                         // format not supported
-                        2
+                        (2, false)
                     },
-                    3 => gl::COMPRESSED_RGB,
-                    4 => gl::COMPRESSED_RGBA,
+                    3 => (gl::COMPRESSED_RGB, false),
+                    4 => (gl::COMPRESSED_RGBA, false),
                     _ => unreachable!(),
                 }
 
             } else {
                 // OpenGL 1.0 doesn't support compressed textures, so we use a
                 // regular float format instead
-                size as gl::types::GLenum
+                (size as gl::types::GLenum, false)
             }
         },
 
@@ -376,10 +381,10 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
             if version >= &GlVersion(3, 0) {
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    1 => gl::R32I,
-                    2 => gl::RG32I,
-                    3 => gl::RGB32I,
-                    4 => gl::RGBA32I,
+                    1 => (gl::R32I, true),
+                    2 => (gl::RG32I, true),
+                    3 => (gl::RGB32I, true),
+                    4 => (gl::RGBA32I, true),
                     _ => unreachable!(),
                 }
 
@@ -389,17 +394,17 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     1 => if extensions.gl_arb_texture_rg {
-                        gl::R32I
+                        (gl::R32I, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
                     2 => if extensions.gl_arb_texture_rg {
-                        gl::RG32I
+                        (gl::RG32I, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
-                    3 => gl::RGB32I_EXT,
-                    4 => gl::RGBA32I_EXT,
+                    3 => (gl::RGB32I_EXT, true),
+                    4 => (gl::RGBA32I_EXT, true),
                     _ => unreachable!(),
                 }
             }
@@ -410,10 +415,10 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
             if version >= &GlVersion(3, 0) {
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    1 => gl::R32UI,
-                    2 => gl::RG32UI,
-                    3 => gl::RGB32UI,
-                    4 => gl::RGBA32UI,
+                    1 => (gl::R32UI, true),
+                    2 => (gl::RG32UI, true),
+                    3 => (gl::RGB32UI, true),
+                    4 => (gl::RGBA32UI, true),
                     _ => unreachable!(),
                 }
 
@@ -423,17 +428,17 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     1 => if extensions.gl_arb_texture_rg {
-                        gl::R32UI
+                        (gl::R32UI, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
                     2 => if extensions.gl_arb_texture_rg {
-                        gl::RG32UI
+                        (gl::RG32UI, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
-                    3 => gl::RGB32UI_EXT,
-                    4 => gl::RGBA32UI_EXT,
+                    3 => (gl::RGB32UI_EXT, true),
+                    4 => (gl::RGBA32UI_EXT, true),
                     _ => unreachable!(),
                 }
             }
@@ -441,7 +446,7 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
         TextureFormatRequest::AnyDepth => {
             assert!(version >= &GlVersion(1, 1), "OpenGL 1.0 doesn't support depth textures");
-            gl::DEPTH_COMPONENT
+            (gl::DEPTH_COMPONENT, false)
         },
 
         TextureFormatRequest::AnyStencil => {
@@ -454,7 +459,7 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
         TextureFormatRequest::AnyDepthStencil => {
             assert!(version >= &GlVersion(3, 0));
-            gl::DEPTH_STENCIL
+            (gl::DEPTH_STENCIL, false)
         },
     }
 }
@@ -467,33 +472,197 @@ fn client_format_to_glenum(display: &Display, client: ClientFormat, format: Text
 {
     match format {
         TextureFormatRequest::AnyFloatingPoint | TextureFormatRequest::AnyCompressed |
-        TextureFormatRequest::AnyDepth |
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
-        TextureFormatRequest::Specific(TextureFormat::DepthFormat(_)) |
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) =>
         {
-            client.to_gl_enum()
+            client_format_to_gl_enum(&client)
         },
 
-        TextureFormatRequest::AnyIntegral | TextureFormatRequest::AnyStencil |
-        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) |
-        TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) =>
+        TextureFormatRequest::AnyIntegral |
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) =>
         {
-            client.to_gl_enum_int().expect("Client format must \
-                                            have an integral format")
+            client_format_to_gl_enum_int(&client).expect("Client format must \
+                                                          have an integral format")
         },
 
         TextureFormatRequest::AnyUnsigned |
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) =>
         {
-            client.to_gl_enum_uint().expect("Client format must \
-                                             have an integral format")
+            client_format_to_gl_enum_uint(&client).expect("Client format must \
+                                                           have an integral format")
         },
+
+        TextureFormatRequest::AnyDepth |
+        TextureFormatRequest::Specific(TextureFormat::DepthFormat(_)) =>
+        {
+            if client != ClientFormat::F32 {
+                panic!("Only ClientFormat::F32 can be used to upload on a depth texture");
+            }
+
+            (gl::DEPTH_COMPONENT, gl::FLOAT)
+        }
+
+        TextureFormatRequest::AnyStencil |
+        TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) =>
+        {
+            let (format, ty) = client_format_to_gl_enum_int(&client).expect("Client format must \
+                                                                             have an integral \
+                                                                             format");
+
+            if format != gl::RED_INTEGER {
+                panic!("Can only have one component when uploading a stencil texture");
+            }
+
+            (gl::STENCIL_INDEX, ty)
+        }
 
         TextureFormatRequest::AnyDepthStencil |
         TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(_)) =>
         {
             unimplemented!();
         },
+    }
+}
+
+/// Returns the two `GLenum`s corresponding to this client format.
+fn client_format_to_gl_enum(format: &ClientFormat) -> (gl::types::GLenum, gl::types::GLenum) {
+    match *format {
+        ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
+        ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
+        ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
+        ClientFormat::U8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
+        ClientFormat::I8 => (gl::RED, gl::BYTE),
+        ClientFormat::I8I8 => (gl::RG, gl::BYTE),
+        ClientFormat::I8I8I8 => (gl::RGB, gl::BYTE),
+        ClientFormat::I8I8I8I8 => (gl::RGBA, gl::BYTE),
+        ClientFormat::U16 => (gl::RED, gl::UNSIGNED_SHORT),
+        ClientFormat::U16U16 => (gl::RG, gl::UNSIGNED_SHORT),
+        ClientFormat::U16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
+        ClientFormat::U16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
+        ClientFormat::I16 => (gl::RED, gl::SHORT),
+        ClientFormat::I16I16 => (gl::RG, gl::SHORT),
+        ClientFormat::I16I16I16 => (gl::RGB, gl::SHORT),
+        ClientFormat::I16I16I16I16 => (gl::RGBA, gl::SHORT),
+        ClientFormat::U32 => (gl::RED, gl::UNSIGNED_INT),
+        ClientFormat::U32U32 => (gl::RG, gl::UNSIGNED_INT),
+        ClientFormat::U32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
+        ClientFormat::U32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
+        ClientFormat::I32 => (gl::RED, gl::INT),
+        ClientFormat::I32I32 => (gl::RG, gl::INT),
+        ClientFormat::I32I32I32 => (gl::RGB, gl::INT),
+        ClientFormat::I32I32I32I32 => (gl::RGBA, gl::INT),
+        ClientFormat::U3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
+        ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
+        ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
+        ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
+        ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
+        ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
+        ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
+        ClientFormat::F16F16F16 => (gl::RGB, gl::HALF_FLOAT),
+        ClientFormat::F16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
+        ClientFormat::F32 => (gl::RED, gl::FLOAT),
+        ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
+        ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
+        ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
+    }
+}
+
+/// Returns the two `GLenum`s corresponding to this client format for the "signed integer" format,
+/// if possible
+fn client_format_to_gl_enum_int(format: &ClientFormat)
+                                -> Option<(gl::types::GLenum, gl::types::GLenum)>
+{
+    let (components, format) = client_format_to_gl_enum(format);
+
+    let components = match components {
+        gl::RED => gl::RED_INTEGER,
+        gl::RG => gl::RG_INTEGER,
+        gl::RGB => gl::RGB_INTEGER,
+        gl::RGBA => gl::RGBA_INTEGER,
+        _ => return None
+    };
+
+    match format {
+        gl::BYTE => (),
+        gl::SHORT => (),
+        gl::INT => (),
+        _ => return None
+    };
+
+    Some((components, format))
+}
+
+/// Returns the two `GLenum`s corresponding to this client format for the "unsigned integer" format,
+/// if possible
+fn client_format_to_gl_enum_uint(format: &ClientFormat)
+                                 -> Option<(gl::types::GLenum, gl::types::GLenum)>
+{
+    let (components, format) = client_format_to_gl_enum(format);
+
+    let components = match components {
+        gl::RED => gl::RED_INTEGER,
+        gl::RG => gl::RG_INTEGER,
+        gl::RGB => gl::RGB_INTEGER,
+        gl::RGBA => gl::RGBA_INTEGER,
+        _ => return None
+    };
+
+    match format {
+        gl::UNSIGNED_BYTE => (),
+        gl::UNSIGNED_SHORT => (),
+        gl::UNSIGNED_INT => (),
+        gl::UNSIGNED_BYTE_3_3_2 => (),
+        gl::UNSIGNED_SHORT_5_6_5 => (),
+        gl::UNSIGNED_SHORT_4_4_4_4 => (),
+        gl::UNSIGNED_SHORT_5_5_5_1 => (),
+        gl::UNSIGNED_INT_10_10_10_2 => (),
+        _ => return None
+    };
+
+    Some((components, format))
+}
+
+/// Returns the `UncompressedFloatFormat` most suitable for the `ClientFormat`.
+fn to_float_internal_format(format: &ClientFormat) -> Option<format::UncompressedFloatFormat> {
+    use texture::format::UncompressedFloatFormat;
+
+    match *format {
+        ClientFormat::U8 => Some(UncompressedFloatFormat::U8),
+        ClientFormat::U8U8 => Some(UncompressedFloatFormat::U8U8),
+        ClientFormat::U8U8U8 => Some(UncompressedFloatFormat::U8U8U8),
+        ClientFormat::U8U8U8U8 => Some(UncompressedFloatFormat::U8U8U8U8),
+        ClientFormat::I8 => Some(UncompressedFloatFormat::I8),
+        ClientFormat::I8I8 => Some(UncompressedFloatFormat::I8I8),
+        ClientFormat::I8I8I8 => Some(UncompressedFloatFormat::I8I8I8),
+        ClientFormat::I8I8I8I8 => Some(UncompressedFloatFormat::I8I8I8I8),
+        ClientFormat::U16 => Some(UncompressedFloatFormat::U16),
+        ClientFormat::U16U16 => Some(UncompressedFloatFormat::U16U16),
+        ClientFormat::U16U16U16 => None,
+        ClientFormat::U16U16U16U16 => Some(UncompressedFloatFormat::U16U16U16U16),
+        ClientFormat::I16 => Some(UncompressedFloatFormat::I16),
+        ClientFormat::I16I16 => Some(UncompressedFloatFormat::I16I16),
+        ClientFormat::I16I16I16 => Some(UncompressedFloatFormat::I16I16I16),
+        ClientFormat::I16I16I16I16 => None,
+        ClientFormat::U32 => None,
+        ClientFormat::U32U32 => None,
+        ClientFormat::U32U32U32 => None,
+        ClientFormat::U32U32U32U32 => None,
+        ClientFormat::I32 => None,
+        ClientFormat::I32I32 => None,
+        ClientFormat::I32I32I32 => None,
+        ClientFormat::I32I32I32I32 => None,
+        ClientFormat::U3U3U2 => None,
+        ClientFormat::U5U6U5 => None,
+        ClientFormat::U4U4U4U4 => Some(UncompressedFloatFormat::U4U4U4U4),
+        ClientFormat::U5U5U5U1 => Some(UncompressedFloatFormat::U5U5U5U1),
+        ClientFormat::U10U10U10U2 => Some(UncompressedFloatFormat::U10U10U10U2),
+        ClientFormat::F16 => Some(UncompressedFloatFormat::F16),
+        ClientFormat::F16F16 => Some(UncompressedFloatFormat::F16F16),
+        ClientFormat::F16F16F16 => Some(UncompressedFloatFormat::F16F16F16),
+        ClientFormat::F16F16F16F16 => Some(UncompressedFloatFormat::F16F16F16F16),
+        ClientFormat::F32 => Some(UncompressedFloatFormat::F32),
+        ClientFormat::F32F32 => Some(UncompressedFloatFormat::F32F32),
+        ClientFormat::F32F32F32 => Some(UncompressedFloatFormat::F32F32F32),
+        ClientFormat::F32F32F32F32 => Some(UncompressedFloatFormat::F32F32F32F32),
     }
 }
