@@ -30,6 +30,28 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
+    // getting the number of vertices in the vertices sources, or `None` if there is a
+    // mismatch
+    let vertices_count = {
+        let mut vertices_count: Option<usize> = None;
+        for src in vertex_buffers.iter() {
+            match src {
+                &VerticesSource::VertexBuffer(ref buffer, _) => {
+                    if let Some(curr) = vertices_count {
+                        if curr != buffer.len() {
+                            vertices_count = None;
+                            break;
+                        }
+                    } else {
+                        vertices_count = Some(buffer.len());
+                    }
+                },
+                _ => ()
+            }
+        }
+        vertices_count
+    };
+
     // getting the number of instances to draw
     let instances_count = {
         let mut instances_count: Option<usize> = None;
@@ -57,6 +79,9 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
 
     // list of the commands that can be executed
     enum DrawCommand {
+        DrawArrays(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei),
+        DrawArraysInstanced(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei,
+                            gl::types::GLsizei),
         DrawElements(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
                      ptr::Unique<gl::types::GLvoid>),
         DrawElementsInstanced(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
@@ -82,11 +107,25 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
                                           <I as index_buffer::Index>::get_type().to_glenum(),
                                           ptr::Unique(pointer.as_ptr() as *mut gl::types::GLvoid))
             },
+            &IndicesSource::NoIndices { primitives } => {
+                must_sync = false;
+
+                let vertices_count = match vertices_count {
+                    Some(c) => c,
+                    None => return Err(DrawError::VerticesSourcesLengthMismatch)
+                };
+
+                DrawCommand::DrawArrays(primitives.to_glenum(), 0,
+                                        vertices_count as gl::types::GLsizei)
+            },
         };
 
         match (cmd, instances_count) {
             (DrawCommand::DrawElements(a, b, c, d), Some(e)) => {
                 DrawCommand::DrawElementsInstanced(a, b, c, d, e as gl::types::GLsizei)
+            },
+            (DrawCommand::DrawArrays(a, b, c), Some(d)) => {
+                DrawCommand::DrawArraysInstanced(a, b, c, d as gl::types::GLsizei)
             },
             (a, _) => a
         }
@@ -268,6 +307,12 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
 
             // drawing
             match draw_command {
+                DrawCommand::DrawArrays(a, b, c) => {
+                    ctxt.gl.DrawArrays(a, b, c);
+                },
+                DrawCommand::DrawArraysInstanced(a, b, c, d) => {
+                    ctxt.gl.DrawArraysInstanced(a, b, c, d);
+                },
                 DrawCommand::DrawElements(a, b, c, d) => {
                     ctxt.gl.DrawElements(a, b, c, d.0);
                 },

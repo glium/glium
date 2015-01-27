@@ -227,7 +227,8 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffers: &[
 {
     let ib_id = match indices {
         &IndicesSource::Buffer { .. } => 0,
-        &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id()
+        &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
+        &IndicesSource::NoIndices { .. } => 0,
     };
 
     let buffers_list = {

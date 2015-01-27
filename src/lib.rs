@@ -1306,6 +1306,9 @@ pub enum DrawError {
 
     /// When you use instancing, all vertices sources must have the same size.
     InstancesCountMismatch,
+
+    /// If you don't use indices, then all vertices sources must have the same size.
+    VerticesSourcesLengthMismatch,
 }
 
 impl std::fmt::Display for DrawError {
@@ -1350,6 +1353,9 @@ impl std::fmt::Display for DrawError {
             &DrawError::InstancesCountMismatch => write!(fmt, "When you use instancing, all \
                                                                vertices sources must have the \
                                                                same size"),
+            &DrawError::VerticesSourcesLengthMismatch => write!(fmt, "If you don't use indices, \
+                                                                      then all vertices sources \
+                                                                      must have the same size."),
         }
     }
 }

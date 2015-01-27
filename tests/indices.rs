@@ -8,7 +8,7 @@ extern crate glutin;
 extern crate glium;
 
 use std::default::Default;
-use glium::Surface;
+use glium::{index_buffer, Surface};
 
 mod support;
 
@@ -238,6 +238,88 @@ fn get_indices_type_u32() {
     let indices = glium::IndexBuffer::new(&display, indices);
 
     assert_eq!(indices.get_indices_type(), glium::index_buffer::IndexType::U32);
+
+    display.assert_no_error();
+}
+
+#[test]
+fn triangles_list_noindices() {    
+    let display = support::build_display();
+    let program = build_program(&display);
+
+    let vb = glium::VertexBuffer::new(&display, vec![
+        Vertex { position: [-1.0,  1.0] },
+        Vertex { position: [ 1.0,  1.0] },
+        Vertex { position: [-1.0, -1.0] },
+        Vertex { position: [-1.0, -1.0] },
+        Vertex { position: [ 1.0,  1.0] },
+        Vertex { position: [ 1.0, -1.0] },
+    ]);
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 0.0, 0.0);
+    target.draw(&vb, &index_buffer::NoIndices(index_buffer::PrimitiveType::TrianglesList),
+                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    target.finish();
+
+    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+
+    assert_eq!(data[0][0], (255, 0, 0));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+
+    display.assert_no_error();
+}
+
+#[test]
+fn triangle_strip_noindices() {
+    let display = support::build_display();
+    let program = build_program(&display);
+
+    let vb = glium::VertexBuffer::new(&display, vec![
+        Vertex { position: [-1.0,  1.0] },
+        Vertex { position: [ 1.0,  1.0] },
+        Vertex { position: [-1.0, -1.0] },
+        Vertex { position: [ 1.0, -1.0] },
+    ]);
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 0.0, 0.0);
+    target.draw(&vb, &index_buffer::NoIndices(index_buffer::PrimitiveType::TriangleStrip),
+                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    target.finish();
+
+    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+
+    assert_eq!(data[0][0], (255, 0, 0));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+
+    display.assert_no_error();
+}
+
+#[test]
+fn triangle_fan_noindices() {
+    let display = support::build_display();
+    let program = build_program(&display);
+
+    let vb = glium::VertexBuffer::new(&display, vec![
+        Vertex { position: [ 0.0,  0.0] },
+        Vertex { position: [-1.0,  1.0] },
+        Vertex { position: [ 1.0,  1.0] },
+        Vertex { position: [ 1.0, -1.0] },
+        Vertex { position: [-1.0, -1.0] },
+        Vertex { position: [-1.0,  1.0] },
+    ]);
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 0.0, 0.0);
+    target.draw(&vb, &index_buffer::NoIndices(index_buffer::PrimitiveType::TriangleFan),
+                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    target.finish();
+
+    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+
+    assert_eq!(data[0][0], (255, 0, 0));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
     display.assert_no_error();
 }
