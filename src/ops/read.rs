@@ -3,6 +3,7 @@ use std::sync::mpsc;
 
 use Display;
 use pixel_buffer::{self, PixelBuffer};
+use texture::ClientFormat;
 
 use fbo;
 use texture;
@@ -64,7 +65,7 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
     let pixels_count = dimensions.0 * dimensions.1;
 
     let pixels_size = <T as texture::Texture2dData>::get_format().get_size();
-    let (format, gltype) = <T as texture::Texture2dData>::get_format().to_gl_enum();
+    let (format, gltype) = client_format_to_gl_enum(&<T as texture::Texture2dData>::get_format());
 
     let total_data_size = pixels_count as usize * pixels_size;
 
@@ -124,4 +125,46 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
         let data = rx.recv().unwrap();
         texture::Texture2dData::from_vec(data, dimensions.0 as u32)
     })
+}
+
+fn client_format_to_gl_enum(format: &ClientFormat) -> (gl::types::GLenum, gl::types::GLenum) {
+    match *format {
+        ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
+        ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
+        ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
+        ClientFormat::U8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
+        ClientFormat::I8 => (gl::RED, gl::BYTE),
+        ClientFormat::I8I8 => (gl::RG, gl::BYTE),
+        ClientFormat::I8I8I8 => (gl::RGB, gl::BYTE),
+        ClientFormat::I8I8I8I8 => (gl::RGBA, gl::BYTE),
+        ClientFormat::U16 => (gl::RED, gl::UNSIGNED_SHORT),
+        ClientFormat::U16U16 => (gl::RG, gl::UNSIGNED_SHORT),
+        ClientFormat::U16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
+        ClientFormat::U16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
+        ClientFormat::I16 => (gl::RED, gl::SHORT),
+        ClientFormat::I16I16 => (gl::RG, gl::SHORT),
+        ClientFormat::I16I16I16 => (gl::RGB, gl::SHORT),
+        ClientFormat::I16I16I16I16 => (gl::RGBA, gl::SHORT),
+        ClientFormat::U32 => (gl::RED, gl::UNSIGNED_INT),
+        ClientFormat::U32U32 => (gl::RG, gl::UNSIGNED_INT),
+        ClientFormat::U32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
+        ClientFormat::U32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
+        ClientFormat::I32 => (gl::RED, gl::INT),
+        ClientFormat::I32I32 => (gl::RG, gl::INT),
+        ClientFormat::I32I32I32 => (gl::RGB, gl::INT),
+        ClientFormat::I32I32I32I32 => (gl::RGBA, gl::INT),
+        ClientFormat::U3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
+        ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
+        ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
+        ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
+        ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
+        ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
+        ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
+        ClientFormat::F16F16F16 => (gl::RGB, gl::HALF_FLOAT),
+        ClientFormat::F16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
+        ClientFormat::F32 => (gl::RED, gl::FLOAT),
+        ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
+        ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
+        ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
+    }
 }
