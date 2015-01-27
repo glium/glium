@@ -137,11 +137,11 @@ let display = glutin::WindowBuilder::new().build_glium().unwrap();</code></pre>
         <h3>Loading an image into a texture</h3>
 
         <pre><code>let image_data = File::open(&amp;Path::new("image.png")).unwrap().read_to_end().unwrap();
-let image = image::load(data, image::PNG).unwrap();
+let image = image::load(image_data, image::PNG).unwrap();
 let texture = glium::texture::CompressedTexture2d::new(&amp;display, image);</code></pre>
 
-        <p>Glium interacts well with the image library, allowing one to easily load
-        images.</p>
+        <p>Glium interacts well with the <a href="https://github.com/PistonDevelopers/image">image library</a>,
+        allowing one to easily load images.</p>
 
         <p>You don't need to worry about client formats, data alignment, immutable storage,
         etc. Everything is handled automatically.</p>
@@ -176,15 +176,20 @@ let mut buffer = glium::UniformBuffer::new_persistent(&amp;display, UniformBlock
 loop {
   buffer.map().light[0] += 0.1;   // `map()` returns the existing mapping
 
+  // the mapping must be released before using the buffer
   texture.as_surface().draw(&amp;vertex_buffer, &amp;index_buffer, &amp;program,
                             uniforms! { MyBlock: &amp;buffer }, &amp;params).unwrap();
+
+  // at the next cycle, the call to `buffer.map()` will block until the GPU has finished
+  // its draw call
 }</code></pre>
 
         <p>High-performance OpenGL applications need to reduce driver overhead by using
         techniques such as persistent mapping, indirect calls or bindless textures.</p>
 
-        <p>Glium automatically uses sync fences to prevents the buffer from being accessed
-        at the same time by the CPU and by the GPU.</p>
+        <p>With raw OpenGL you need to take care not to write to a buffer while is is
+        being used by the GPU, or it may result in a data race. Glium automatically
+        handles this for you thanks to Rust's borrow checker and OpenGL's sync fences.</p>
       </div>
     </div>
 
