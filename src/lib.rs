@@ -1686,14 +1686,16 @@ impl Display {
                         ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                                     std::ptr::null(), gl::TRUE);
 
+                        if ctxt.state.enabled_debug_output != Some(true) {
+                            ctxt.gl.Enable(gl::DEBUG_OUTPUT);
+                            ctxt.state.enabled_debug_output = Some(true);
+                        }
+
                     } else {
                         ctxt.gl.DebugMessageCallbackARB(callback_wrapper, std::ptr::null());
                         ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
                                                        0, std::ptr::null(), gl::TRUE);
-                    }
 
-                    if ctxt.state.enabled_debug_output != Some(true) {
-                        ctxt.gl.Enable(gl::DEBUG_OUTPUT);
                         ctxt.state.enabled_debug_output = Some(true);
                     }
                 }
