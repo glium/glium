@@ -137,11 +137,11 @@ let display = glutin::WindowBuilder::new().build_glium().unwrap();</code></pre>
         <h3>Loading an image into a texture</h3>
 
         <pre><code>let image_data = File::open(&amp;Path::new("image.png")).unwrap().read_to_end().unwrap();
-let image = image::load(data, image::PNG).unwrap();
+let image = image::load(image_data, image::PNG).unwrap();
 let texture = glium::texture::CompressedTexture2d::new(&amp;display, image);</code></pre>
 
-        <p>Glium interacts well with the image library, allowing one to easily load
-        images.</p>
+        <p>Glium interacts well with the <a href="https://github.com/PistonDevelopers/image">image library</a>,
+        allowing one to easily load images.</p>
 
         <p>You don't need to worry about client formats, data alignment, immutable storage,
         etc. Everything is handled automatically.</p>
@@ -176,106 +176,28 @@ let mut buffer = glium::UniformBuffer::new_persistent(&amp;display, UniformBlock
 loop {
   buffer.map().light[0] += 0.1;   // `map()` returns the existing mapping
 
+  // the mapping must be released before using the buffer
   texture.as_surface().draw(&amp;vertex_buffer, &amp;index_buffer, &amp;program,
                             uniforms! { MyBlock: &amp;buffer }, &amp;params).unwrap();
+
+  // at the next cycle, the call to `buffer.map()` will block until the GPU has finished
+  // its draw call
 }</code></pre>
 
         <p>High-performance OpenGL applications need to reduce driver overhead by using
         techniques such as persistent mapping, indirect calls or bindless textures.</p>
 
-        <p>Glium automatically uses sync fences to prevents the buffer from being accessed
-        at the same time by the CPU and by the GPU.</p>
+        <p>With raw OpenGL you need to take care not to write to a buffer while is is
+        being used by the GPU, or it may result in a data race. Glium automatically
+        handles this for you thanks to Rust's borrow checker and OpenGL's sync fences.</p>
       </div>
     </div>
 
-    <div id="features" class="section">
+    <div id="getting-started" class="section">
       <div>
-        <h2>Features</h2>
+        <h2>Getting started</h2>
 
-        <h3>Easy to use</h3>
-
-        <p><ul>
-        <li>Functions are higher level in Glium than in OpenGL. Glium's API tries to be as Rusty as
-           possible, and shouldn't be much different than using any other Rust library.</li>
-
-        <li>You can directly pass vectors, matrices and images to Glium instead of manipulating low-level
-           data.</li>
-
-        <li>Glium is designed to be very easy to setup.</li>
-
-        <li>Glium should allow you to do everything that OpenGL allows you to do, just through high-level
-           functions. If something is missing, please open an issue.</li>
-
-        <li>Glium provides easier ways to do common tasks. For example the `VertexBuffer` struct
-           contains information about the vertex bindings, because you usually don't use several different
-           bindings with the same vertex buffer. Creating a program doesn't require creating shaders,
-           attaching them, and linking - instead it is one single function call. Drawing on a texture
-           is as easy as drawing on the backbuffer.</li>
-
-        <li>Glium is stateless. There are no `set_something()` functions in the entire library, and
-           everything is done by parameter passing. The same set of function calls will always produce
-           the same results.</li>
-
-        <li>Glium handles framebuffer objects, samplers, and vertex array objects for you. You no longer
-           need to create them explicitely as they are automatically created when needed and destroyed
-           when their corresponding object is destroyed.</li>
-        </ul></p>
-
-        <h3>Safety</h3>
-
-        <p><ul>
-        <li>Glium detects what would normally be errors or undefined behaviors in OpenGL, and panics,
-           without calling `glGetError` which would be too slow. Examples include requesting a depth test
-           when you don't have a depth buffer available, not binding any value to an attribute or uniform,
-           or binding multiple textures with different dimensions to the same framebuffer.</li>
-
-        <li>If the OpenGL context triggers an error, then you have found a bug in Glium. Please open
-           an issue. Just like Rust does everything it can to avoid crashes, Glium does everything
-           it can to avoid OpenGL errors.</li>
-
-        <li>Glium uses RAII. Creating a `Texture2d` struct creates a texture, and destroying the struct
-           destroys the texture. It also uses Rust's lifetime system to ensure that objects are still
-           alive when you use them. Glium provides the same guarantees with OpenGL objects that you have
-           with regular objects in Rust.</li>
-
-        <li>High-level functions are much easier to use and thus less error-prone. For example there is
-           no risk of making a mistake while specifying the names and offsets of your vertex attributes,
-           since Glium automatically generates this data for you.</li>
-
-        <li>You can access the same Glium context from multiple threads simultaneously without
-           having to worry about thread-safety.</li>
-        </ul></p>
-
-        <h3>Compatibility</h3>
-
-        <p><ul>
-        <li>In its default mode, Glium should be compatible with both OpenGL and OpenGL ES. If something
-           doesn't work on OpenGL ES, please open an issue.</li>
-
-        <li>During initialization, Glium detects whether the context provides all the required
-           functionality, and returns an `Err` if the device is too old. Glium tries to be as tolerant
-           as possible, and should work with the majority of the OpenGL2-era devices.</li>
-
-        <li>Glium will attempt to use the latest, optimized versions of OpenGL functions. This includes
-           buffer and texture immutable storage and direct state access. It will automatically fall back
-           to older functions if they are not available.</li>
-
-        <li>Glium comes with a set of tests that you can run with `cargo test`. If your project/game
-           doesn't work on specific hardware, you can try running Glium's tests on it to see what is wrong.</li>
-        </ul></p>
-
-        <h3>Performances</h3>
-
-        <p><ul>
-        <li>State changes are optimized. The OpenGL state is only modified if the state actually differs.
-           For example if you call `draw` with the `IfLess` depth test twice in a row, then
-           `glDepthFunc(GL_LESS)` and `glEnable(GL_DEPTH_TEST)` will only be called the first time. If
-           you then call `draw` with `IfGreater`, then only `glDepthFunc(GL_GREATER)` will be called.</li>
-
-        <li>Just like Rust is theoretically slower than C because of additional safety checks, Glium is
-           theoretically slower than well-prepared and optimized raw OpenGL calls. However in practice
-           the difference is very low, if not negligible.</li>
-        </ul></p>
+        <p><a href="http://tomaka.github.io/glium/glium/index.html">Link to the documentation</a>.</p>
 
       </div>
     </div>
