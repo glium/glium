@@ -321,8 +321,8 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
         }
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new(display, format, Some(data), \
-                       client_format, ", name)).unwrap();
+        (write!(dest, "{}(TextureImplementation::new(display, format, \
+                       Some((client_format, data)), ", name)).unwrap();
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
             TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
@@ -367,8 +367,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ", format = format, dim_params = dim_params, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, \
-                       ClientFormat::U8U8U8U8, ", name)).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, ", name)).unwrap();
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
             TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),

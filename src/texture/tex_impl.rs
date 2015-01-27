@@ -41,14 +41,14 @@ pub struct TextureImplementation {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    pub fn new<P>(display: &Display, format: TextureFormatRequest, data: Option<Vec<P>>,
-                  client_format: ClientFormat, width: u32, height: Option<u32>,
+    pub fn new<P>(display: &Display, format: TextureFormatRequest,
+                  data: Option<(ClientFormat, Vec<P>)>, width: u32, height: Option<u32>,
                   depth: Option<u32>, array_size: Option<u32>)
                   -> TextureImplementation where P: Send
     {
         use std::num::Float;
 
-        if let Some(ref data) = data {
+        if let Some((client_format, ref data)) = data {
             if width as usize * height.unwrap_or(1) as usize * depth.unwrap_or(1) as usize *
                 array_size.unwrap_or(1) as usize * client_format.get_size() !=
                 data.len() * mem::size_of::<P>()
@@ -68,15 +68,19 @@ impl TextureImplementation {
         let texture_levels = 1 + (::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
                                  depth.unwrap_or(1))) as f32).log2() as gl::types::GLsizei;
 
-        let (internal_format, can_use_texstorage) = format_request_to_glenum(display, client_format,
-                                                                             format);
-        let (client_format, client_type) = client_format_to_glenum(display, client_format, format);
+        let (internal_format, can_use_texstorage) =
+            format_request_to_glenum(display, data.as_ref().map(|&(c, _)| c), format);
+
+        let (client_format, client_type) = match data {
+            Some((client_format, _)) => client_format_to_glenum(display, client_format, format),
+            None => (gl::RGBA, gl::UNSIGNED_BYTE),
+        };
 
         let (tx, rx) = channel();
         display.context.context.exec(move |: ctxt| {
             unsafe {
                 let data = data;
-                let data_raw = if let Some(ref data) = data {
+                let data_raw = if let Some((_, ref data)) = data {
                     data.as_ptr() as *const libc::c_void
                 } else {
                     ptr::null()
@@ -281,7 +285,8 @@ impl Drop for TextureImplementation {
 ///
 /// Returns a GLenum suitable for the internal format of `glTexImage#D`. If the second element of
 /// the returned tuple is `true`, it is also suitable for `glTexStorage*D`.
-fn format_request_to_glenum(display: &Display, client: ClientFormat, format: TextureFormatRequest)
+fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
+                            format: TextureFormatRequest)
                             -> (gl::types::GLenum, bool)
 {
     let version = display.context.context.get_version();
@@ -289,19 +294,20 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
 
     match format {
         TextureFormatRequest::AnyFloatingPoint => {
-            let size = client.get_num_components();
+            let size = client.map(|c| c.get_num_components());
 
             if version >= &GlVersion(3, 0) {
                 match size {
-                    1 => (gl::RED, false),
-                    2 => (gl::RG, false),
-                    3 => (gl::RGB, false),
-                    4 => (gl::RGBA, false),
+                    Some(1) => (gl::RED, false),
+                    Some(2) => (gl::RG, false),
+                    Some(3) => (gl::RGB, false),
+                    Some(4) => (gl::RGBA, false),
+                    None => (gl::RGBA, false),
                     _ => unreachable!(),
                 }
 
             } else {
-                (size as gl::types::GLenum, false)
+                (size.unwrap_or(4) as gl::types::GLenum, false)
             }
         },
 
@@ -348,43 +354,45 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
         },
 
         TextureFormatRequest::AnyCompressed => {
-            let size = client.get_num_components();
+            let size = client.map(|c| c.get_num_components());
 
             if version >= &GlVersion(1, 1) {
                 match size {
-                    1 => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
+                    Some(1) => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
                         (gl::COMPRESSED_RED, false)
                     } else {
                         // format not supported
                         (1, false)
                     },
-                    2 => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
+                    Some(2) => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
                         (gl::COMPRESSED_RG, false)
                     } else {
                         // format not supported
                         (2, false)
                     },
-                    3 => (gl::COMPRESSED_RGB, false),
-                    4 => (gl::COMPRESSED_RGBA, false),
+                    Some(3) => (gl::COMPRESSED_RGB, false),
+                    Some(4) => (gl::COMPRESSED_RGBA, false),
+                    None => (gl::COMPRESSED_RGBA, false),
                     _ => unreachable!(),
                 }
 
             } else {
                 // OpenGL 1.0 doesn't support compressed textures, so we use a
                 // regular float format instead
-                (size as gl::types::GLenum, false)
+                (size.unwrap_or(4) as gl::types::GLenum, false)
             }
         },
 
         TextureFormatRequest::AnyIntegral => {
-            let size = client.get_num_components();
+            let size = client.map(|c| c.get_num_components());
 
             if version >= &GlVersion(3, 0) {
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    1 => (gl::R32I, true),
-                    2 => (gl::RG32I, true),
-                    3 => (gl::RGB32I, true),
-                    4 => (gl::RGBA32I, true),
+                    Some(1) => (gl::R32I, true),
+                    Some(2) => (gl::RG32I, true),
+                    Some(3) => (gl::RGB32I, true),
+                    Some(4) => (gl::RGBA32I, true),
+                    None => (gl::RGBA32I, true),
                     _ => unreachable!(),
                 }
 
@@ -393,32 +401,34 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
                                                             by the backend");
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    1 => if extensions.gl_arb_texture_rg {
+                    Some(1) => if extensions.gl_arb_texture_rg {
                         (gl::R32I, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
-                    2 => if extensions.gl_arb_texture_rg {
+                    Some(2) => if extensions.gl_arb_texture_rg {
                         (gl::RG32I, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
-                    3 => (gl::RGB32I_EXT, true),
-                    4 => (gl::RGBA32I_EXT, true),
+                    Some(3) => (gl::RGB32I_EXT, true),
+                    Some(4) => (gl::RGBA32I_EXT, true),
+                    None => (gl::RGBA32I_EXT, true),
                     _ => unreachable!(),
                 }
             }
         },
 
         TextureFormatRequest::AnyUnsigned => {
-            let size = client.get_num_components();
+            let size = client.map(|c| c.get_num_components());
 
             if version >= &GlVersion(3, 0) {
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    1 => (gl::R32UI, true),
-                    2 => (gl::RG32UI, true),
-                    3 => (gl::RGB32UI, true),
-                    4 => (gl::RGBA32UI, true),
+                    Some(1) => (gl::R32UI, true),
+                    Some(2) => (gl::RG32UI, true),
+                    Some(3) => (gl::RGB32UI, true),
+                    Some(4) => (gl::RGBA32UI, true),
+                    None => (gl::RGBA32UI, true),
                     _ => unreachable!(),
                 }
 
@@ -427,18 +437,19 @@ fn format_request_to_glenum(display: &Display, client: ClientFormat, format: Tex
                                                             by the backend");
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    1 => if extensions.gl_arb_texture_rg {
+                    Some(1) => if extensions.gl_arb_texture_rg {
                         (gl::R32UI, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
-                    2 => if extensions.gl_arb_texture_rg {
+                    Some(2) => if extensions.gl_arb_texture_rg {
                         (gl::RG32UI, true)
                     } else {
                         panic!("The backend doesn't support one-component integral textures");
                     },
-                    3 => (gl::RGB32UI_EXT, true),
-                    4 => (gl::RGBA32UI_EXT, true),
+                    Some(3) => (gl::RGB32UI_EXT, true),
+                    Some(4) => (gl::RGBA32UI_EXT, true),
+                    None => (gl::RGBA32UI_EXT, true),
                     _ => unreachable!(),
                 }
             }
