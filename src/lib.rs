@@ -1765,11 +1765,17 @@ impl Display {
 // which would lead to a leak
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
-        // disabling callback, to avoid
+        // disabling callback
         self.context.exec(move |: ctxt| {
             unsafe {
                 if ctxt.state.enabled_debug_output != Some(false) {
-                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
+                    if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                        ctxt.gl.Disable(gl::DEBUG_OUTPUT);
+                    } else if ctxt.extensions.gl_arb_debug_output {
+                        ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0us),
+                                                        std::ptr::null());
+                    }
+
                     ctxt.state.enabled_debug_output = Some(false);
                     ctxt.gl.Finish();
                 }
