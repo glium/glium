@@ -1,19 +1,19 @@
 use gl;
 use glutin;
-use std::ffi;
 use std::sync::atomic::{self, AtomicUint};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender, Receiver};
-use std::cmp::Ordering;
 use GliumCreationError;
 
 pub use self::capabilities::Capabilities;
 pub use self::extensions::ExtensionsList;
 pub use self::state::GLState;
+pub use self::version::GlVersion;
 
 mod capabilities;
 mod extensions;
 mod state;
+mod version;
 
 enum Message {
     EndFrame,
@@ -129,25 +129,6 @@ impl<'a> Iterator for WaitEventsIter<'a> {
     }
 }
 
-/// Describes an OpenGL ctxt.version.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GlVersion(pub u8, pub u8);
-
-impl PartialOrd for GlVersion {
-    fn partial_cmp(&self, other: &GlVersion) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for GlVersion {
-    fn cmp(&self, other: &GlVersion) -> Ordering {
-        match self.0.cmp(&other.0) {
-            Ordering::Equal => self.1.cmp(&other.1),
-            a => a
-        }
-    }
-}
-
 impl Context {
     pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
         -> Result<Context, GliumCreationError>
@@ -183,7 +164,7 @@ impl Context {
 
             // getting the GL version and extensions
             let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
-            let version = get_gl_version(&gl);
+            let version = version::get_gl_version(&gl);
             let extensions = extensions::get_extensions(&gl);
             let capabilities = Arc::new(capabilities::get_capabilities(&gl, &version,
                                                                        &extensions, opengl_es));
@@ -284,7 +265,7 @@ impl Context {
             // building the GLState, version, and extensions
             let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME:
             let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
-            let version = get_gl_version(&gl);
+            let version = version::get_gl_version(&gl);
             let extensions = extensions::get_extensions(&gl);
             let capabilities = Arc::new(capabilities::get_capabilities(&gl, &version,
                                                                        &extensions, opengl_es));
@@ -456,24 +437,5 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         Ok(())
     } else {
         Err(GliumCreationError::IncompatibleOpenGl(result.connect("\n")))
-    }
-}
-
-fn get_gl_version(gl: &gl::Gl) -> GlVersion {
-    unsafe {
-        let version = gl.GetString(gl::VERSION) as *const i8;
-        let version = String::from_utf8(ffi::c_str_to_bytes(&version).to_vec()).unwrap();
-
-        let version = version.words().next().expect("glGetString(GL_VERSION) returned an empty \
-                                                     string");
-
-        let mut iter = version.split(move |&mut: c: char| c == '.');
-        let major = iter.next().unwrap();
-        let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
-
-        GlVersion(
-            major.parse().expect("failed to parse GL major version"),
-            minor.parse().expect("failed to parse GL minor version"),
-        )
     }
 }
