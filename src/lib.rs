@@ -63,7 +63,7 @@ We will also need to tell glium how the vertices must be linked together. We cou
 buffer, but since we only have a single triangle the simpler solution here is not to use indices.
 
 ```no_run
-use glium::index_buffer;
+use glium::index;
 let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
 ```
 
