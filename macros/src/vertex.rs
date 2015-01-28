@@ -21,6 +21,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
             global: true,
         },
         additional_bounds: Vec::new(),
+        associated_types: Vec::new(),
         generics: generic::ty::LifetimeBounds::empty(),
         methods: vec![
             generic::MethodDef {

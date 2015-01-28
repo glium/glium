@@ -13,7 +13,7 @@ use glium::Surface;
 use glium::DisplayBuild;
 #[cfg(feature = "cgmath")]
 use cgmath::FixedArray;
-use std::io::BufReader;
+use std::old_io::BufReader;
 
 #[cfg(not(all(feature = "cgmath", feature = "image")))]
 fn main() {
@@ -319,7 +319,7 @@ fn main() {
     // the main loop
     // each cycle will draw once
     'main: loop {
-        use std::io::timer;
+        use std::old_io::timer;
         use std::time::Duration;
 
         // prepass

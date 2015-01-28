@@ -132,7 +132,7 @@ fn main() {
     // the main loop
     // each cycle will draw once
     'main: loop {
-        use std::io::timer;
+        use std::old_io::timer;
         use std::time::Duration;
 
         // building the uniforms

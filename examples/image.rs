@@ -10,7 +10,7 @@ extern crate glium;
 extern crate image;
 
 #[cfg(feature = "image")]
-use std::io::BufReader;
+use std::old_io::BufReader;
 
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Surface};
@@ -91,7 +91,7 @@ fn main() {
     // the main loop
     // each cycle will draw once
     'main: loop {
-        use std::io::timer;
+        use std::old_io::timer;
         use std::time::Duration;
 
         // building the uniforms
