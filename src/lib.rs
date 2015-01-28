@@ -201,6 +201,12 @@ pub mod uniforms;
 pub mod vertex;
 pub mod texture;
 
+#[deprecated = "`index_buffer` has been renamed to `index`"]
+#[allow(missing_docs)]
+pub mod index_buffer {
+    pub use index::*;
+}
+
 mod buffer;
 mod context;
 mod fbo;
