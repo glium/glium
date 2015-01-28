@@ -11,8 +11,8 @@ install:
 script:
     # We run everything with `-j 1` or travis runs out of memory
     - cargo build -j 1 --verbose
-    - cargo test -j 1 --features "headless" --verbose
-    - cargo test -j 1 --no-default-features --features "headless" --verbose
+    - cargo test -j 1 --features "headless" --verbose -- --nocapture
+    - cargo test -j 1 --no-default-features --features "headless" --verbose -- --nocapture
     - cargo build -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing" --verbose
 
 after_success: |
