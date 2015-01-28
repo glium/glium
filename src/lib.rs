@@ -27,12 +27,12 @@ The `display` object is the most important object of this library.
 The window you are drawing on will produce events. They can be received by calling
 `display.poll_events()`.
 
-## Complete example
+# Complete example
 
-We start by creating the vertex buffer, which contains the list of all the points that make up
-our mesh. The elements that we pass to `VertexBuffer::new` must implement the
-`glium::vertex::VertexFormat` trait. We can easily do this by creating a custom struct
-and adding the `#[vertex_format]` attribute to it.
+The first step is to create the vertex buffer, which contains the list of all the points that
+make up our mesh. The elements that we pass to `VertexBuffer::new` must implement the
+`glium::vertex::VertexFormat` trait, which can be easily added for any custom struct thanks to the
+`#[vertex_format]` attribute.
 
 See the `vertex` module documentation for more informations.
 
@@ -59,16 +59,12 @@ let vertex = glium::VertexBuffer::new(&display, vec![
 # }
 ```
 
-We then create the index buffer, which contains information about the primitives (triangles,
-lines, etc.) that compose our mesh.
-
-The last parameter is a list of indices that represent the positions of our points in the
-vertex buffer.
+We will also need to tell glium how the vertices must be linked together. We could create an index
+buffer, but since we only have a single triangle the simpler solution here is not to use indices.
 
 ```no_run
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-let index_buffer = glium::IndexBuffer::new(&display,
-    glium::index_buffer::TrianglesList(vec![ 0u16, 1, 2 ]));
+use glium::index_buffer;
+let indices = index_buffer::NoIndices(index_buffer::PrimitiveType::TrianglesList);
 ```
 
 Next, we create the program, which is composed of a *vertex shader*, a program executed once for
@@ -110,68 +106,52 @@ let program = glium::Program::from_source(&display,
 ).unwrap();
 ```
 
-*Note: Teaching you the GLSL language is not covered by this guide.*
+*Note: teaching you the GLSL language is not covered by this guide.*
 
 You may notice that the `attribute` declarations in the vertex shader match the field names and
-types of the elements in the vertex buffer. This is required, otherwise drawing will result in an error.
+types of the elements in the vertex buffer. This is required, otherwise drawing will result in
+an error.
 
-In the example above, you may notice `uniform mat4 matrix;`. This is a *uniform*, in other words
-a global variable in our program. We will need to tell glium what the value of `matrix` is by
-creating an object that implements the `glium::uniforms::Uniforms` trait.
-
-Similarly to the vertex buffer and vertex format, we can do so by creating a custom struct  and
-adding the `#[uniforms]` attribute to it.
+In the example above, one of our shaders contains `uniform mat4 matrix;`. Uniforms are global
+variables in our program whose values are chosen by the application.
 
 ```no_run
-# #![feature(plugin)]
-#[plugin]
-extern crate glium_macros;
-
+# #[macro_use]
 # extern crate glium;
 # fn main() {
-#[uniforms]
-struct Uniforms {
-    matrix: [[f32; 4]; 4],
-}
-
-let uniforms = Uniforms {
+let uniforms = uniform! {
     matrix: [
         [ 1.0, 0.0, 0.0, 0.0 ],
         [ 0.0, 1.0, 0.0, 0.0 ],
         [ 0.0, 0.0, 1.0, 0.0 ],
         [ 0.0, 0.0, 0.0, 1.0 ]
-    ],
+    ]
 };
 # }
 ```
 
-Vertex buffers, index buffers, and the program should be stored between draws in order to avoid wasting
-time, but objects that implement the `glium::uniforms::Uniforms` trait are usually constructed
-every time you draw.
-
-The fields of our `Uniforms` object can be any object that implements `glium::uniforms::UniformValue`.
+The value of uniforms can be of any type that implements `glium::uniforms::UniformValue`.
 This includes textures and samplers (not covered here). See the `uniforms` module documentation 
 for more informations.
 
-Now that everything is initialized, we can finally draw something. To do so, call `display.draw()`
-in order to obtain a `Frame` object. Note that it is also possible to draw on a texture by
-calling `texture.as_surface()`, but this is not covered here.
+Now that everything is initialized, we can finally draw something. The `display.draw()` function
+will start drawing a new frame and return a `Frame` object. This `Frame` object has a `draw`
+function, which you can use to draw things.
 
-The `Frame` object has a `draw` function, which you can use to draw things. Its arguments are the
-vertex buffer, index buffer, program, uniforms, and an object of type `DrawParameters`, which 
-contains miscellaneous information specifying how everything should be rendered (depth test, blending,
-backface culling, etc.).
+Its arguments are the source of vertices, source of indices, program, uniforms, and an object of
+type `DrawParameters` which  contains miscellaneous information specifying how everything should
+be rendered (depth test, blending, backface culling, etc.).
 
 ```no_run
 use glium::Surface;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let vertex_buffer: glium::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
-# let index_buffer: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
+# let indices: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
 # let program: glium::Program = unsafe { std::mem::uninitialized() };
 # let uniforms = glium::uniforms::EmptyUniforms;
 let mut target = display.draw();
 target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
-target.draw(&vertex_buffer, &index_buffer, &program, &uniforms,
+target.draw(&vertex_buffer, &indices, &program, &uniforms,
             &std::default::Default::default()).unwrap();
 target.finish();
 ```
