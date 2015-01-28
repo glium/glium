@@ -54,7 +54,7 @@ fn main() {
     };
 
     let floor_index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
+        glium::index::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
 
     let quad_vertex_buffer = {
         #[vertex_format]
@@ -75,7 +75,7 @@ fn main() {
     };
 
     let quad_index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
+        glium::index::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
 
     // compiling shaders and linking them together
     let prepass_program = glium::Program::from_source(&display,

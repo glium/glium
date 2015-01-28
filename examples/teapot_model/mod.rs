@@ -12,7 +12,7 @@ pub struct Vertex {
     normal: [f32; 3],
 }
 
-pub fn build_model() -> (Vec<Vertex>, glium::index_buffer::TrianglesList<u16>) {
+pub fn build_model() -> (Vec<Vertex>, glium::index::TrianglesList<u16>) {
     let vertices = vec![
         [5.929688, 4.125, 0.0],
         [5.387188, 4.125, 2.7475],
@@ -1048,5 +1048,5 @@ pub fn build_model() -> (Vec<Vertex>, glium::index_buffer::TrianglesList<u16>) {
         })
     }
 
-    (output, glium::index_buffer::TrianglesList(ib))
+    (output, glium::index::TrianglesList(ib))
 }

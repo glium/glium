@@ -56,7 +56,7 @@ fn main() {
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
+        glium::index::TrianglesList(vec![0u16, 1, 2]));
 
     let program = glium::Program::from_source(&display,
         "

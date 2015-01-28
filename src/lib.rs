@@ -64,7 +64,7 @@ buffer, but since we only have a single triangle the simpler solution here is no
 
 ```no_run
 use glium::index_buffer;
-let indices = index_buffer::NoIndices(index_buffer::PrimitiveType::TrianglesList);
+let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
 ```
 
 Next, we create the program, which is composed of a *vertex shader*, a program executed once for
@@ -178,7 +178,7 @@ extern crate libc;
 extern crate nalgebra;
 
 pub use context::{PollEventsIter, WaitEventsIter};
-pub use index_buffer::IndexBuffer;
+pub use index::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
@@ -192,7 +192,7 @@ use std::sync::mpsc::channel;
 
 pub mod debug;
 pub mod framebuffer;
-pub mod index_buffer;
+pub mod index;
 pub mod pixel_buffer;
 pub mod macros;
 pub mod program;
@@ -1177,7 +1177,7 @@ pub trait Surface: Sized {
     ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
-        V: vertex::MultiVerticesSource<'b>, I: index_buffer::ToIndicesSource,
+        V: vertex::MultiVerticesSource<'b>, I: index::ToIndicesSource,
         U: uniforms::Uniforms;
 
     /// Returns an opaque type that is used by the implementation of blit functions.
@@ -1380,10 +1380,10 @@ impl Surface for Frame {
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
                          index_buffer: &I, program: &Program, uniforms: U,
                          draw_parameters: &DrawParameters) -> Result<(), DrawError>
-                         where I: index_buffer::ToIndicesSource, U: uniforms::Uniforms,
+                         where I: index::ToIndicesSource, U: uniforms::Uniforms,
                          V: vertex::MultiVerticesSource<'b>
     {
-        use index_buffer::ToIndicesSource;
+        use index::ToIndicesSource;
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             return Err(DrawError::NoDepthBuffer);

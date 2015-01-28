@@ -33,7 +33,7 @@ fn cull_clockwise() {
     // first triangle covers the top-left side of the screen and is clockwise
     // second triangle covers the bottom-right side of the screen and is ccw
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2, 1, 2, 3]));
+        glium::index::TrianglesList(vec![0u16, 1, 2, 1, 2, 3]));
 
     let program = glium::Program::from_source(&display,
         "
@@ -92,7 +92,7 @@ fn cull_counterclockwise() {
     // first triangle covers the top-left side of the screen and is clockwise
     // second triangle covers the bottom-right side of the screen and is ccw
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2, 1, 2, 3]));
+        glium::index::TrianglesList(vec![0u16, 1, 2, 1, 2, 3]));
 
     let program = glium::Program::from_source(&display,
         "
@@ -150,7 +150,7 @@ fn cull_clockwise_trianglestrip() {
 
     // both triangles are clockwise
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TriangleStrip(vec![0u16, 1, 2, 3]));
+        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
     let program = glium::Program::from_source(&display,
         "
@@ -208,7 +208,7 @@ fn cull_counterclockwise_trianglestrip() {
 
     // both triangles are clockwise
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TriangleStrip(vec![0u16, 1, 2, 3]));
+        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
     let program = glium::Program::from_source(&display,
         "

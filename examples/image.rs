@@ -54,7 +54,7 @@ fn main() {
 
     // building the index buffer
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TriangleStrip(vec![1 as u16, 2, 0, 3]));
+        glium::index::TriangleStrip(vec![1 as u16, 2, 0, 3]));
 
     // compiling shaders and linking them together
     let program = glium::Program::from_source(&display, r"

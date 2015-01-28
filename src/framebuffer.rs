@@ -203,10 +203,10 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
 
     fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
         uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: ::index_buffer::ToIndicesSource, U: ::uniforms::Uniforms,
+        where I: ::index::ToIndicesSource, U: ::uniforms::Uniforms,
         V: ::vertex::MultiVerticesSource<'v>
     {
-        use index_buffer::ToIndicesSource;
+        use index::ToIndicesSource;
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             return Err(DrawError::NoDepthBuffer);
@@ -400,10 +400,10 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
 
     fn draw<'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
         uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: ::index_buffer::ToIndicesSource,
+        where I: ::index::ToIndicesSource,
         U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {
-        use index_buffer::ToIndicesSource;
+        use index::ToIndicesSource;
 
         if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
             return Err(DrawError::NoDepthBuffer);

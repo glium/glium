@@ -25,7 +25,7 @@ fn attribute_types_matching() {
             Vertex { field1: [0.0, 0.0] }
         ]);
     let index_buffer = glium::IndexBuffer::new(&display,
-                            glium::index_buffer::PointsList(vec![0u16]));
+                            glium::index::PointsList(vec![0u16]));
 
     let program = glium::Program::from_source(&display,
         // vertex shader
@@ -71,7 +71,7 @@ fn attribute_types_mismatch() {
 
     let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
     let index_buffer = glium::IndexBuffer::new(&display,
-                            glium::index_buffer::PointsList(Vec::<u16>::new()));
+                            glium::index::PointsList(Vec::<u16>::new()));
 
     let program = glium::Program::from_source(&display,
         // vertex shader
@@ -117,7 +117,7 @@ fn missing_attribute() {
 
     let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
     let index_buffer = glium::IndexBuffer::new(&display,
-                            glium::index_buffer::PointsList(Vec::<u16>::new()));
+                            glium::index::PointsList(Vec::<u16>::new()));
 
     let program = glium::Program::from_source(&display,
         // vertex shader
