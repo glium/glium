@@ -99,12 +99,21 @@ impl Buffer {
 
         let elements_size = get_elements_size(&data);
         let elements_count = data.len();
-        let buffer_size = elements_count * elements_size as usize;
+
+        let buffer_size = match elements_count * elements_size as usize {
+            0 => 1,     // use size 1 instead of 0, or nvidia drivers complain
+            a => a
+        };
 
         let (tx, rx) = channel();
 
         display.context.context.exec(move |: mut ctxt| {
             let data = data;
+            let data_ptr = if data.len() == 0 {
+                ptr::null()
+            } else {
+                data.as_ptr()
+            };
 
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
@@ -138,18 +147,18 @@ impl Buffer {
                     }
 
                     ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
-                                          data.as_ptr() as *const libc::c_void,
+                                          data_ptr as *const libc::c_void,
                                           flags);
 
                 } else if ctxt.version >= &GlVersion(1, 5) {
                     debug_assert!(!persistent);
                     ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                                       data.as_ptr() as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
+                                       data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
 
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
                     debug_assert!(!persistent);
                     ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
-                                          data.as_ptr() as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
+                                          data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
 
                 } else {
                     unreachable!()

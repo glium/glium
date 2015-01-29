@@ -306,3 +306,20 @@ fn multiple_buffers_source() {
     
     display.assert_no_error();
 }
+
+#[test]
+fn zero_sized_vertex_buffer() {
+    let display = support::build_display();
+
+    #[vertex_format]
+    #[allow(dead_code)]
+    #[derive(Copy)]
+    struct Vertex {
+        field1: [f32; 3],
+        field2: [f32; 3],
+    }
+
+    glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
+
+    display.assert_no_error();
+}
