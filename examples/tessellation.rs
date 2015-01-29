@@ -37,7 +37,7 @@ fn main() {
 
     // building the index buffer
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::Patches(vec![0u16, 1, 2], 3));
+        glium::index::Patches(vec![0u16, 1, 2], 3));
 
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,

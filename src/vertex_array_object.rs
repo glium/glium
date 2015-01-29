@@ -3,7 +3,7 @@ use std::sync::mpsc::channel;
 use std::mem;
 
 use program::Program;
-use index_buffer::IndicesSource;
+use index::IndicesSource;
 use vertex::{VerticesSource, AttributeType};
 use {DisplayImpl, GlObject};
 
@@ -223,7 +223,7 @@ impl GlObject for VertexArrayObject {
 /// passed as parameters. Creates a new VAO if no existing one matches these.
 pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
                                   indices: &IndicesSource<I>, program: &Program)
-                                  -> gl::types::GLuint where I: ::index_buffer::Index
+                                  -> gl::types::GLuint where I: ::index::Index
 {
     let ib_id = match indices {
         &IndicesSource::Buffer { .. } => 0,

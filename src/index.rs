@@ -167,7 +167,7 @@ impl IndexBuffer {
     /// # fn main() {
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let index_buffer = glium::IndexBuffer::new(&display,
-    ///     glium::index_buffer::TrianglesList(vec![0u8, 1, 2, 1, 3, 4, 2, 4, 3]));
+    ///     glium::index::TrianglesList(vec![0u8, 1, 2, 1, 3, 4, 2, 4, 3]));
     /// # }
     /// ```
     ///

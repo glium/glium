@@ -62,7 +62,7 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
+        glium::IndexBuffer::new(display, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
 
         glium::Program::from_source(display,
             "
@@ -103,7 +103,7 @@ pub fn build_rectangle_vb_ib(display: &glium::Display)
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(display, glium::index_buffer::TriangleStrip(vec![0u8, 1, 2, 3])),
+        glium::IndexBuffer::new(display, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
     )
 }
 

@@ -38,7 +38,7 @@ fn main() {
 
     // building the index buffer
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TrianglesList(vec![0u16, 1, 2]));
+        glium::index::TrianglesList(vec![0u16, 1, 2]));
 
     // compiling shaders and linking them together
     let program = glium::Program::from_source(&display,

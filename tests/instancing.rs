@@ -55,7 +55,7 @@ fn instancing() {
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TriangleStrip(vec![0u16, 1, 2, 3]));
+        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
     let program = match glium::Program::from_source(&display,
         "
@@ -167,7 +167,7 @@ fn per_instance_length_mismatch() {
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index_buffer::TriangleStrip(vec![0u16, 1, 2, 3]));
+        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
     let program = glium::Program::from_source(&display,
         "
