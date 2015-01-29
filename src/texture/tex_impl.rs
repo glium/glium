@@ -85,6 +85,15 @@ impl TextureImplementation {
         let (internal_format, can_use_texstorage) =
             format_request_to_glenum(display, data.as_ref().map(|&(c, _)| c), format);
 
+        // don't use glTexStorage for compressed textures if it has data
+        let can_use_texstorage = match format {
+            TextureFormatRequest::AnyCompressed |
+            TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) => {
+                can_use_texstorage && data.is_none()
+            },
+            _ => can_use_texstorage,
+        };
+
         let (client_format, client_type) = match data {
             Some((client_format, _)) => client_format_to_glenum(display, client_format, format),
             None => (gl::RGBA, gl::UNSIGNED_BYTE),
