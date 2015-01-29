@@ -5,7 +5,7 @@ extern crate glium;
 extern crate image;
 
 #[cfg(feature = "image")]
-use std::io::BufReader;
+use std::old_io::BufReader;
 #[cfg(feature = "image")]
 use std::rand;
 

@@ -4,7 +4,7 @@ extern crate gl_generator;
 extern crate khronos_api;
 
 use std::os;
-use std::io::File;
+use std::old_io::File;
 
 mod textures;
 
