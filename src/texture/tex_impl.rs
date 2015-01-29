@@ -132,8 +132,18 @@ impl TextureImplementation {
                     ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
                 }
                 ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
-                    gl::LINEAR_MIPMAP_LINEAR as i32);
+                if generate_mipmaps {
+                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+                                          gl::LINEAR_MIPMAP_LINEAR as i32);
+                } else {
+                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+                                          gl::LINEAR as i32);
+                }
+
+                if !generate_mipmaps {
+                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_BASE_LEVEL, 0);
+                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAX_LEVEL, 0);
+                }
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
                     if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
