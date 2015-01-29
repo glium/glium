@@ -314,3 +314,15 @@ fn persistent_block_race_condition() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn empty_uniform_buffer() {
+    let display = support::build_display();
+
+    let _ = match glium::uniforms::UniformBuffer::new_if_supported(&display, ()) {
+        None => return,
+        Some(b) => b
+    };
+
+    display.assert_no_error();
+}
