@@ -43,7 +43,7 @@ use image;
 
 use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
-use {Surface, GlObject, ToGlEnum};
+use {Surface, GlObject, ToGlEnum, Rect};
 
 use self::tex_impl::{TextureImplementation, TextureFormatRequest};
 

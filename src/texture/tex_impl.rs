@@ -1,6 +1,7 @@
 use Display;
 
 use gl;
+use Rect;
 use GlObject;
 use ToGlEnum;
 use context::GlVersion;
@@ -32,11 +33,15 @@ pub enum TextureFormatRequest {
 pub struct TextureImplementation {
     display: Display,
     id: gl::types::GLuint,
+    requested_format: TextureFormatRequest,
     bind_point: gl::types::GLenum,
     width: u32,
     height: Option<u32>,
     depth: Option<u32>,
     array_size: Option<u32>,
+
+    /// Number of mipmap levels (`1` means just the main texture, `0` is not valid)
+    levels: u32,
 }
 
 impl TextureImplementation {
@@ -222,11 +227,13 @@ impl TextureImplementation {
         TextureImplementation {
             display: display.clone(),
             id: rx.recv().unwrap(),
+            requested_format: format,
             bind_point: texture_type,
             width: width,
             height: height,
             depth: depth,
             array_size: array_size,
+            levels: texture_levels as u32,
         }
     }
 
@@ -260,6 +267,70 @@ impl TextureImplementation {
         ops::read_attachment_to_pb(&fbo::Attachment::Texture(self.id), (self.width,
                                    self.height.unwrap_or(1)), &mut pb, &self.display);
         pb
+    }
+
+    /// Changes some parts of the texture.
+    pub fn upload<P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
+                     (format, data): (ClientFormat, Vec<P>), width: u32, height: Option<u32>,
+                     depth: Option<u32>) where P: Send + Copy
+    {
+        let id = self.id;
+        let bind_point = self.bind_point;
+        let levels = self.levels;
+
+        assert!(x_offset <= self.width);
+        assert!(y_offset <= self.height.unwrap_or(1));
+        assert!(z_offset <= self.depth.unwrap_or(1));
+        assert!(x_offset + width <= self.width);
+        assert!(y_offset + height.unwrap_or(1) <= self.height.unwrap_or(1));
+        assert!(z_offset + depth.unwrap_or(1) <= self.depth.unwrap_or(1));
+
+        let (client_format, client_type) = client_format_to_glenum(&self.display, format,
+                                                                   self.requested_format);
+
+        self.display.context.context.exec(move |: ctxt| {
+            unsafe {
+                if ctxt.state.pixel_store_unpack_alignment != 1 {
+                    ctxt.state.pixel_store_unpack_alignment = 1;
+                    ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+                }
+
+                if ctxt.state.pixel_unpack_buffer_binding != 0 {
+                    ctxt.state.pixel_unpack_buffer_binding = 0;
+                    ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
+                }
+
+                ctxt.gl.BindTexture(bind_point, id);
+
+                if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
+                    unimplemented!();
+
+                } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
+                    assert!(z_offset == 0);
+                    ctxt.gl.TexSubImage2D(bind_point, 0, x_offset as gl::types::GLint,
+                                          y_offset as gl::types::GLint,
+                                          width as gl::types::GLsizei,
+                                          height.unwrap_or(1) as gl::types::GLsizei,
+                                          client_format, client_type,
+                                          data.as_ptr() as *const libc::c_void);
+
+                } else {
+                    assert!(z_offset == 0);
+                    assert!(y_offset == 0);
+
+                    unimplemented!();
+                }
+
+                // regenerate mipmaps if there are some
+                if levels >= 2 {
+                    if ctxt.version >= &GlVersion(3, 0) {
+                        ctxt.gl.GenerateMipmap(bind_point);
+                    } else {
+                        ctxt.gl.GenerateMipmapEXT(bind_point);
+                    }
+                }
+            }
+        });
     }
 
     /// Returns the `Display` associated with this texture.
