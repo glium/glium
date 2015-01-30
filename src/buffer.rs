@@ -109,7 +109,7 @@ impl Buffer {
 
         display.context.context.exec(move |: mut ctxt| {
             let data = data;
-            let data_ptr = if data.len() == 0 {
+            let data_ptr = if elements_count * elements_size as usize == 0 {
                 ptr::null()
             } else {
                 data.as_ptr()
