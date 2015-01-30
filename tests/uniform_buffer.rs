@@ -213,6 +213,7 @@ fn block_wrong_type() {
     display.assert_no_error();
 }
 
+#[test]
 fn persistent_uniform_buffer_write() {
     let display = support::build_display();
 
