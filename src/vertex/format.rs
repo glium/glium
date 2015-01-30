@@ -31,6 +31,59 @@ pub enum AttributeType {
     F32F32,
     F32F32F32,
     F32F32F32F32,
+    /// 2x2 matrix of `f32`s
+    F32x2x2,
+    /// 2x3 matrix of `f32`s
+    F32x2x3,
+    /// 2x3 matrix of `f32`s
+    F32x2x4,
+    /// 3x2 matrix of `f32`s
+    F32x3x2,
+    /// 3x3 matrix of `f32`s
+    F32x3x3,
+    /// 3x4 matrix of `f32`s
+    F32x3x4,
+    /// 4x2 matrix of `f32`s
+    F32x4x2,
+    /// 4x3 matrix of `f32`s
+    F32x4x3,
+    /// 4x4 matrix of `f32`s
+    F32x4x4,
+    /// Warning: using `f64`s can be very slow.
+    F64,
+    /// Warning: using `f64`s can be very slow.
+    F64F64,
+    /// Warning: using `f64`s can be very slow.
+    F64F64F64,
+    /// Warning: using `f64`s can be very slow.
+    F64F64F64F64,
+    /// 2x2 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x2x2,
+    /// 2x3 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x2x3,
+    /// 2x3 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x2x4,
+    /// 3x2 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x3x2,
+    /// 3x3 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x3x3,
+    /// 3x4 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x3x4,
+    /// 4x2 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x4x2,
+    /// 4x3 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x4x3,
+    /// 4x4 matrix of `f64`s
+    /// Warning: using `f64`s can be very slow.
+    F64x4x4,
 }
 
 /// Describes the layout of each vertex in a vertex buffer.
@@ -330,5 +383,83 @@ unsafe impl Attribute for (f32, f32, f32, f32) {
 unsafe impl Attribute for [f32; 4] {
     fn get_type() -> AttributeType {
         AttributeType::F32F32F32F32
+    }
+}
+
+unsafe impl Attribute for [[f32; 2]; 2] {
+    fn get_type() -> AttributeType {
+        AttributeType::F32x2x2
+    }
+}
+
+unsafe impl Attribute for [[f32; 3]; 3] {
+    fn get_type() -> AttributeType {
+        AttributeType::F32x3x3
+    }
+}
+
+unsafe impl Attribute for [[f32; 4]; 4] {
+    fn get_type() -> AttributeType {
+        AttributeType::F32x4x4
+    }
+}
+
+unsafe impl Attribute for f64 {
+    fn get_type() -> AttributeType {
+        AttributeType::F64
+    }
+}
+
+unsafe impl Attribute for (f64, f64) {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64
+    }
+}
+
+unsafe impl Attribute for [f64; 2] {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64
+    }
+}
+
+unsafe impl Attribute for (f64, f64, f64) {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64
+    }
+}
+
+unsafe impl Attribute for [f64; 3] {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64
+    }
+}
+
+unsafe impl Attribute for (f64, f64, f64, f64) {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64F64
+    }
+}
+
+unsafe impl Attribute for [f64; 4] {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64F64
+    }
+}
+
+unsafe impl Attribute for [[f64; 2]; 2] {
+    fn get_type() -> AttributeType {
+        AttributeType::F64x2x2
+    }
+}
+
+unsafe impl Attribute for [[f64; 3]; 3] {
+    fn get_type() -> AttributeType {
+        AttributeType::F64x3x3
+    }
+}
+
+unsafe impl Attribute for [[f64; 4]; 4] {
+    fn get_type() -> AttributeType {
+        AttributeType::F64x4x4
     }
 }
