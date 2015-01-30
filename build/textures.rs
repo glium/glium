@@ -435,6 +435,42 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             "#)).unwrap();
     }
 
+    // writing the `write` function
+    // TODO: implement for other types too
+    if dimensions == TextureDimensions::Texture2d &&
+       (ty == TextureType::Regular || ty == TextureType::Compressed)
+    {
+        let data_type = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dData",
+            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dData",
+            TextureDimensions::Texture3d => "Texture3dData",
+        };
+
+        (write!(dest, r#"
+                /// Uploads some data in the texture.
+                ///
+                /// Note that this may cause a synchronization if you use the texture right before
+                /// or right after this call. Prefer creating a whole new texture if you change a
+                /// huge part of it.
+                ///
+                /// ## Panic
+                ///
+                /// Panics if the the dimensions of `data` don't match the `Rect`.
+                pub fn write<T>(&self, rect: Rect, data: T) where T: {data} {{
+                    let client_format = <T as {data}>::get_format();
+                    let (width, height) = data.get_dimensions();
+                    let width = width as u32; let height = height as u32;
+
+                    assert_eq!(width, rect.width);
+                    assert_eq!(height, rect.height);
+
+                    let data = data.into_vec();
+                    self.0.upload(rect.left, rect.bottom, 0, (client_format, data), width,
+                                  Some(height), None);
+                }}
+            "#, data = data_type)).unwrap();
+    }
+
     // closing `impl Texture` block
     (writeln!(dest, "}}")).unwrap();
 }
