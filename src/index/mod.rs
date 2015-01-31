@@ -3,6 +3,7 @@ In order to draw, you need to provide a source of indices which is used to link 
 together into *primitives*.
 
 There are ten types of primitives, each one with a corresponding struct:
+
  - `PointsList`
  - `LinesList`
  - `LinesListAdjacency`
@@ -14,10 +15,20 @@ There are ten types of primitives, each one with a corresponding struct:
  - `TriangleStripAdjacency`
  - `TriangleFan`
 
-Each struct contains a vector with the indices and can be used as an `IndicesSource`.
+These structs can be turned into an `IndexBuffer`, which uploads the data in video memory.
 
-However the most optimal way to draw something is to load the data in the video memory by
-creating an `IndexBuffer`.
+There are three ways to specify the indices that must be used:
+
+ - Passing a reference to one of these structs.
+ - Passing a reference to an `IndexBuffer`.
+ - `NoIndices`, which is equivalent to `(0, 1, 2, 3, 4, 5, 6, 7, ..)`.
+
+For performances it is highly recommended to use either an `IndexBuffer` or `NoIndices`, and to
+avoid passing indices in RAM.
+
+When you draw something, a draw command is sent to the GPU and the execution continues immediatly
+after. But if you pass indices in RAM, the execution has to block until the GPU has finished
+drawing in order to make sure that the indices are not free'd.
 
 */
 use buffer::{self, Buffer};
