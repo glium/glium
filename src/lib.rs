@@ -1655,8 +1655,6 @@ impl Display {
             {
                 panic!("Debug message with high or medium severity: `{}`.\n\
                         Please report this error: https://github.com/tomaka/glium/issues", message);
-            } else {
-                println!("Debug message: `{}`", message);
             }
         }
 
