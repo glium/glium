@@ -1,8 +1,7 @@
 use gl;
 use glutin;
-use std::sync::atomic::{self, AtomicUint};
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc::{channel, Sender, Receiver};
+use std::sync::mpsc::Sender;
 use GliumCreationError;
 
 pub use self::capabilities::Capabilities;
@@ -22,15 +21,12 @@ mod version;
 enum Message {
     EndFrame,
     Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>),
-    NextEvent(Sender<glutin::Event>),
 }
 
 pub struct Context {
     commands: Mutex<Sender<Message>>,
-    events: Mutex<Receiver<glutin::Event>>,
 
-    /// Dimensions of the frame buffer.
-    dimensions: Arc<(AtomicUint, AtomicUint)>,
+    window: Option<Arc<glutin::Window>>,
 
     capabilities: Arc<Capabilities>,
 
@@ -50,33 +46,18 @@ pub struct CommandContext<'a, 'b> {
 
 /// Iterator for all the events received by the window.
 pub struct PollEventsIter<'a> {
-    context: &'a Context,
-    current_rx: Option<Receiver<glutin::Event>>,
+    iter: Option<glutin::PollEventsIterator<'a>>,
 }
 
 impl<'a> Iterator for PollEventsIter<'a> {
     type Item = glutin::Event;
 
     fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(ref mut current_rx) = self.current_rx {
-            match current_rx.recv() {
-                Ok(ev) => return Some(ev),
-                Err(_) => ()
-            };
+        if let Some(iter) = self.iter.as_mut() {
+            iter.next()
+        } else {
+            None
         }
-
-        let (tx, rx) = channel();
-        self.context.commands.lock().unwrap().send(Message::NextEvent(tx));
-
-        match rx.recv() {
-            Ok(ev) => {
-                self.current_rx = Some(rx);
-                return Some(ev);
-            },
-            Err(_) => {
-                return None;
-            }
-        };
     }
 }
 
@@ -85,60 +66,25 @@ impl<'a> Iterator for PollEventsIter<'a> {
 /// This iterator polls for events, until the window associated with its context
 /// is closed.
 pub struct WaitEventsIter<'a> {
-    context: &'a Context,
-    current_rx: Option<Receiver<glutin::Event>>,
-    closing: bool,
-}
-
-impl<'a> WaitEventsIter<'a> {
-    fn new(context: &'a Context) -> WaitEventsIter<'a> {
-        WaitEventsIter {
-            context: context,
-            current_rx: None,
-            closing: false,
-        }
-    }
+    iter: Option<glutin::WaitEventsIterator<'a>>,
 }
 
 impl<'a> Iterator for WaitEventsIter<'a> {
     type Item = glutin::Event;
 
     fn next(&mut self) -> Option<glutin::Event> {
-        if self.closing {
-            return None;
-        }
-        if let Some(ref mut current_rx) = self.current_rx {
-            match current_rx.recv() {
-                Ok(ev) => return Some(ev),
-                Err(_) => ()
-            };
-        }
-
-        loop {
-            let (tx, rx) = channel();
-            self.context.commands.lock().unwrap().send(Message::NextEvent(tx));
-
-            match rx.recv() {
-                Ok(ev @ glutin::Event::Closed) => {
-                    self.closing = true;
-                    return Some(ev);
-                },
-                Ok(ev) => {
-                    self.current_rx = Some(rx);
-                    return Some(ev);
-                },
-                Err(_) => (),
-            };
+        if let Some(iter) = self.iter.as_mut() {
+            iter.next()
+        } else {
+            None
         }
     }
 }
 
 impl Context {
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        (
-            self.dimensions.0.load(atomic::Ordering::Relaxed) as u32,
-            self.dimensions.1.load(atomic::Ordering::Relaxed) as u32,
-        )
+        // FIXME: 800x600?
+        self.window.as_ref().and_then(|w| w.get_inner_size()).unwrap_or((800, 600))
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
@@ -147,17 +93,6 @@ impl Context {
 
     pub fn swap_buffers(&self) {
         self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
-    }
-
-    pub fn poll_events(&self) -> PollEventsIter {
-        PollEventsIter {
-            context: self,
-            current_rx: None,
-        }
-    }
-
-    pub fn wait_events(&self) -> WaitEventsIter {
-        WaitEventsIter::new(self)
     }
 
     pub fn capabilities(&self) -> &Capabilities {
@@ -170,6 +105,18 @@ impl Context {
 
     pub fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
+    }
+
+    pub fn poll_events(&self) -> PollEventsIter {
+        PollEventsIter {
+            iter: self.window.as_ref().map(|w| w.poll_events())
+        }
+    }
+
+    pub fn wait_events(&self) -> WaitEventsIter {
+        WaitEventsIter {
+            iter: self.window.as_ref().map(|w| w.wait_events())
+        }
     }
 }
 
