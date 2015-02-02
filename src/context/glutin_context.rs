@@ -4,22 +4,18 @@ use context::{Context, Message, CommandContext, GLState, check_gl_compatibility}
 use context::{capabilities, extensions, version};
 use GliumCreationError;
 
-use std::sync::atomic::{self, AtomicUint};
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc::{channel, Sender, Receiver};
+use std::sync::mpsc::channel;
 
 pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     -> Result<Context, GliumCreationError>
 {
     use std::thread::Builder;
 
-    let (tx_events, rx_events) = channel();
     let (tx_commands, rx_commands) = channel();
 
-    let dimensions = Arc::new((AtomicUint::new(800), AtomicUint::new(600)));
-    let dimensions2 = dimensions.clone();
-
-    let window = try!(window.build());
+    let org_window = Arc::new(try!(window.build()));
+    let window = org_window.clone();
     let (tx_success, rx_success) = channel();
 
     Builder::new().name("glium rendering thread".to_string()).spawn(move || {
@@ -31,8 +27,6 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
         let mut gl_state = {
             let viewport = {
                 let dim = window.get_inner_size().unwrap();
-                dimensions.0.store(dim.0 as usize, atomic::Ordering::Relaxed);
-                dimensions.1.store(dim.1 as usize, atomic::Ordering::Relaxed);
                 (0, 0, dim.0 as gl::types::GLsizei, dim.1 as gl::types::GLsizei)
             };
 
@@ -84,18 +78,6 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
-                Ok(Message::NextEvent(notify)) => {
-                    for event in window.poll_events() {
-                        // update the dimensions
-                        if let &glutin::Event::Resized(width, height) = &event {
-                            dimensions.0.store(width as usize, atomic::Ordering::Relaxed);
-                            dimensions.1.store(height as usize, atomic::Ordering::Relaxed);
-                        }
-
-                        // sending back
-                        notify.send(event).ok();
-                    }
-                },
                 Err(_) => break
             }
         }
@@ -104,8 +86,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
         commands: Mutex::new(tx_commands),
-        events: Mutex::new(rx_events),
-        dimensions: dimensions2,
+        window: Some(org_window),
         capabilities: capabilities,
         version: version,
         extensions: extensions,
@@ -118,12 +99,7 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
 {
     use std::thread::Builder;
 
-    let (_, rx_events) = channel();
     let (tx_commands, rx_commands) = channel();
-
-    // TODO: fixme
-    let dimensions = Arc::new((AtomicUint::new(800), AtomicUint::new(600)));
-    let dimensions2 = dimensions.clone();
 
     let (tx_success, rx_success) = channel();
 
@@ -178,7 +154,6 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
                     capabilities: &*capabilities,
                 }),
                 Ok(Message::EndFrame) => (),        // ignoring buffer swapping
-                Ok(Message::NextEvent(_)) => (),    // ignoring events
                 Err(_) => break
             }
         }
@@ -187,8 +162,7 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
         commands: Mutex::new(tx_commands),
-        events: Mutex::new(rx_events),
-        dimensions: dimensions2,
+        window: None,
         capabilities: capabilities,
         version: version,
         extensions: extensions,
