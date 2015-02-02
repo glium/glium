@@ -144,7 +144,6 @@ pub struct Uniform {
 
 /// Information about a uniform block (except its name).
 #[derive(Debug, Clone)]
-#[doc(hidden)]
 pub struct UniformBlock {
     /// The binding point of the uniform.
     ///
@@ -160,7 +159,6 @@ pub struct UniformBlock {
 
 /// Information about a uniform inside a block.
 #[derive(Debug, Clone)]
-#[doc(hidden)]
 pub struct UniformBlockMember {
     /// Name of the member.
     pub name: String,
