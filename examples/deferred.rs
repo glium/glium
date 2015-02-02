@@ -329,6 +329,7 @@ fn main() {
             model_matrix: *fixed_model_matrix,
             texture: &opengl_texture
         };
+        framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
         framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &std::default::Default::default()).unwrap();
 
         // lighting
