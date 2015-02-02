@@ -147,7 +147,7 @@ impl VertexArrayObject {
                         };
 
                         if attribute.location != -1 {
-                            match data_type {
+                            match attribute.ty {
                                 gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
                                 gl::INT | gl::UNSIGNED_INT =>
                                     ctxt.gl.VertexAttribIPointer(attribute.location as u32,
