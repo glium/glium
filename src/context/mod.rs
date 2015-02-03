@@ -1,7 +1,7 @@
 use gl;
 use glutin;
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Sender, SyncSender};
 use GliumCreationError;
 
 pub use self::capabilities::Capabilities;
@@ -21,10 +21,12 @@ mod version;
 enum Message {
     EndFrame,
     Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>),
+    Sync
 }
 
 pub struct Context {
     commands: Mutex<Sender<Message>>,
+    sync: Mutex<SyncSender<()>>,
 
     window: Option<Arc<glutin::Window>>,
 
@@ -89,6 +91,15 @@ impl Context {
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
         self.commands.lock().unwrap().send(Message::Execute(Box::new(f))).unwrap();
+    }
+    pub fn exec_sync<'a, F>(&self, f: F) where F: FnOnce(CommandContext) + 'a {
+        use std::thunk::Invoke;
+        use std::mem::transmute;
+        let f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>>> = Box::new(f);
+        let pretend_sync_f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>> + Send> = unsafe{ transmute(f) };
+        self.commands.lock().unwrap().send(Message::Execute(pretend_sync_f)).unwrap();
+        self.commands.lock().unwrap().send(Message::Sync).unwrap();
+        self.sync.lock().unwrap().send(());
     }
 
     pub fn swap_buffers(&self) {

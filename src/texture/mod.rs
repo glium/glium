@@ -38,6 +38,8 @@ being the width and height). These are what you will use most of the time.
 */
 use {gl, framebuffer};
 
+use std::borrow::Cow;
+
 #[cfg(feature = "image")]
 use image;
 
@@ -75,15 +77,15 @@ pub trait Texture {
 
 /// Trait that describes data for a one-dimensional texture.
 pub trait Texture1dDataSource {
-    type Data: Send + Copy;
+    type Data: Send + Copy + Clone;
 
     /// Returns the raw representation of the data.
-    fn into_raw(self) -> RawImage1d<Self::Data>;
+    fn as_raw<'a>(&'a self) -> RawImage1d<'a, Self::Data>;
 }
 
 /// Trait that describes data for a one-dimensional texture.
 pub trait Texture1dDataSink {
-    type Data: Send + Copy;
+    type Data: Send + Copy + Clone;
 
     /// Returns the list of accepted formats.
     fn get_preferred_formats() -> Vec<ClientFormat>;
@@ -93,13 +95,13 @@ pub trait Texture1dDataSink {
 }
 
 /// Represents raw data for a two-dimensional image.
-pub struct RawImage1d<T> {
+pub struct RawImage1d<'a, T> where T: Clone + 'a {
     /// A contiguous array of pixel data.
     ///
     /// The data must start by the left pixel and progress left-to-right.
     ///
     /// `data.len()` must be equal to `width * format.get_size() / mem::size_of::<T>()`.
-    pub data: Vec<T>,
+    pub data: Cow<'a, Vec<T>, [T]>,
 
     /// Number of pixels per column.
     pub width: u32,
@@ -111,11 +113,11 @@ pub struct RawImage1d<T> {
 impl<P: PixelValue> Texture1dDataSource for Vec<P> where P: Copy + Clone + Send {
     type Data = P;
 
-    fn into_raw(self) -> RawImage1d<P> {
+    fn as_raw<'a>(&'a self) -> RawImage1d<'a, P> {
         let width = self.len() as u32;
 
         RawImage1d {
-            data: self,
+            data: Cow::Borrowed(&self[]),
             width: width,
             format: <P as PixelValue>::get_format(),
         }
@@ -131,18 +133,18 @@ impl<P: PixelValue> Texture1dDataSink for Vec<P> where P: Copy + Clone + Send {
 
     fn from_raw(data: RawImage1d<P>) -> Self {
         assert_eq!(data.format, <P as PixelValue>::get_format());
-        data.data
+        data.data.into_owned()
     }
 }
 
-impl<'a, P: PixelValue> Texture1dDataSource for &'a [P] where P: Copy + Clone + Send {
+impl<P: PixelValue> Texture1dDataSource for [P] where P: Copy + Clone + Send {
     type Data = P;
 
-    fn into_raw(self) -> RawImage1d<P> {
+    fn as_raw<'a>(&'a self) -> RawImage1d<'a, P> {
         let width = self.len();
 
         RawImage1d {
-            data: self.to_vec(),
+            data: Cow::Borrowed(self),
             width: width as u32,
             format: <P as PixelValue>::get_format(),
         }
@@ -151,15 +153,15 @@ impl<'a, P: PixelValue> Texture1dDataSource for &'a [P] where P: Copy + Clone + 
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture2dDataSource {
-    type Data: Send + Copy;
+    type Data: Send + Copy + Clone;
 
     /// Returns the raw representation of the data.
-    fn into_raw(self) -> RawImage2d<Self::Data>;
+    fn as_raw<'a>(&'a self) -> RawImage2d<'a, Self::Data>;
 }
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture2dDataSink {
-    type Data: Send + Copy;
+    type Data: Send + Copy + Clone;
 
     /// Returns the list of accepted formats.
     fn get_preferred_formats() -> Vec<ClientFormat>;
@@ -169,14 +171,14 @@ pub trait Texture2dDataSink {
 }
 
 /// Represents raw data for a two-dimensional image.
-pub struct RawImage2d<T> {
+pub struct RawImage2d<'a, T> where T : Clone + 'a {
     /// A contiguous array of pixel data.
     ///
     /// The data must start by the bottom-left hand corner pixel and progress left-to-right and
     /// bottom-to-top.
     ///
     /// `data.len()` must be equal to `width * height * format.get_size() / mem::size_of::<T>()`.
-    pub data: Vec<T>,
+    pub data: Cow<'a, Vec<T>, [T]>,
 
     /// Number of pixels per column.
     pub width: u32,
@@ -188,15 +190,15 @@ pub struct RawImage2d<T> {
     pub format: ClientFormat,
 }
 
-impl<P: PixelValue> Texture2dDataSource for Vec<Vec<P>> {
+impl<P: PixelValue> Texture2dDataSource for Vec<Vec<P>> where P: Clone {
     type Data = P;
 
-    fn into_raw(self) -> RawImage2d<P> {
+    fn as_raw<'a>(&'a self) -> RawImage2d<'a, P> {
         let width = self.iter().next().map(|e| e.len()).unwrap_or(0) as u32;
         let height = self.len() as u32;
 
         RawImage2d {
-            data: self.into_iter().flat_map(|e| e.into_iter()).collect(),
+            data: Cow::Owned(self.iter().flat_map(|e| e.iter().map(|x| x.clone())).collect()),
             width: width,
             height: height,
             format: <P as PixelValue>::get_format(),
@@ -225,19 +227,18 @@ impl<T, P> Texture2dDataSource for image::ImageBuffer<P, Vec<T>>
 {
     type Data = T;
 
-    fn into_raw(self) -> RawImage2d<T> {
+    fn as_raw<'a>(&'a self) -> RawImage2d<'a, T> {
         use image::GenericImage;
 
         let (width, height) = self.dimensions();
 
         // the image library gives us rows from bottom to top, so we need to flip them
-        let data = self.into_raw()
-            .as_slice()
+        let data = Cow::Owned(self.as_slice()
             .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
             .rev()
             .flat_map(|row| row.iter())
             .map(|p| p.clone())
-            .collect();
+            .collect());
 
         RawImage2d {
             data: data,
@@ -281,8 +282,15 @@ impl<T, P> Texture2dDataSink for image::ImageBuffer<P, Vec<T>>
 impl Texture2dDataSource for image::DynamicImage {
     type Data = u8;
 
-    fn into_raw(self) -> RawImage2d<u8> {
-        Texture2dDataSource::into_raw(self.to_rgba())
+    fn as_raw<'a>(&'a self) -> RawImage2d<'a, u8> {
+        let temp = self.to_rgba();
+        let raw = Texture2dDataSource::as_raw(&temp);
+        RawImage2d {
+            data: Cow::Owned(raw.data.into_owned()),
+            width: raw.width,
+            height: raw.height,
+            format: raw.format
+        }
     }
 }
 
@@ -301,15 +309,15 @@ impl Texture2dDataSink for image::DynamicImage {
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture3dDataSource {
-    type Data: Send + Copy;
+    type Data: Send + Copy + Clone;
 
     /// Returns the raw representation of the data.
-    fn into_raw(self) -> RawImage3d<Self::Data>;
+    fn as_raw<'a>(&'a self) -> RawImage3d<'a, Self::Data>;
 }
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture3dDataSink {
-    type Data: Send + Copy;
+    type Data: Send + Copy + Clone;
 
     /// Returns the list of accepted formats.
     fn get_preferred_formats() -> Vec<ClientFormat>;
@@ -319,11 +327,11 @@ pub trait Texture3dDataSink {
 }
 
 /// Represents raw data for a two-dimensional image.
-pub struct RawImage3d<T> {
+pub struct RawImage3d<'a, T> where T: Clone + 'a {
     /// A contiguous array of pixel data.
     ///
     /// `data.len()` must be equal to `width * height * depth * format.get_size() / mem::size_of::<T>()`.
-    pub data: Vec<T>,
+    pub data: Cow<'a, Vec<T>, [T]>,
 
     /// Number of pixels per column.
     pub width: u32,
@@ -338,18 +346,18 @@ pub struct RawImage3d<T> {
     pub format: ClientFormat,
 }
 
-impl<P: PixelValue> Texture3dDataSource for Vec<Vec<Vec<P>>> {
+impl<P: PixelValue> Texture3dDataSource for Vec<Vec<Vec<P>>> where P: Clone {
     type Data = P;
 
-    fn into_raw(self) -> RawImage3d<P> {
+    fn as_raw<'a>(&'a self) -> RawImage3d<'a, P> {
         let width = self.iter().next().and_then(|e| e.iter().next()).map(|e| e.len()).unwrap_or(0)
                     as u32;
         let height = self.iter().next().map(|e| e.len()).unwrap_or(0) as u32;
         let depth = self.len() as u32;
 
         RawImage3d {
-            data: self.into_iter().flat_map(|e| e.into_iter()).flat_map(|e| e.into_iter())
-                      .collect(),
+            data: Cow::Owned(self.iter().flat_map(|e| e.iter()).flat_map(|e| e.iter().map(|x| x.clone()))
+                      .collect()),
             width: width,
             height: height,
             depth: depth,
@@ -358,7 +366,7 @@ impl<P: PixelValue> Texture3dDataSource for Vec<Vec<Vec<P>>> {
     }
 }
 
-impl<P: PixelValue> Texture3dDataSink for Vec<Vec<Vec<P>>> {
+impl<P: PixelValue> Texture3dDataSink for Vec<Vec<Vec<P>>> where P: Clone {
     type Data = P;
 
     fn get_preferred_formats() -> Vec<ClientFormat> {

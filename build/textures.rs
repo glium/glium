@@ -239,7 +239,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// Builds a new texture by uploading data.
                 ///
                 /// This function will automatically generate all mipmaps of the texture.
-                pub fn new<T>(display: &::Display, data: {param})
+                pub fn new<T>(display: &::Display, data: &{param})
                               -> {name} where T: {data_type}
                 {{
             ", data_type = data_type, param = param, name = name)).unwrap();
@@ -272,17 +272,17 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "
-                    let RawImage1d {{ data, width, format: client_format }} = data.into_raw();
+                    let RawImage1d {{ data, width, format: client_format }} = data.as_raw();
                 ")).unwrap(),
 
             TextureDimensions::Texture2d => (write!(dest, "
                     let RawImage2d {{ data, width, height, format: client_format }} =
-                                            data.into_raw();
+                                            data.as_raw();
                 ")).unwrap(),
 
             TextureDimensions::Texture3d => (write!(dest, "
                     let RawImage3d {{ data, width, height, depth, format: client_format }} =
-                                            data.into_raw();
+                                            data.as_raw();
                 ")).unwrap(),
 
             TextureDimensions::Texture1dArray => (write!(dest, "
@@ -304,7 +304,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         }
         // writing the constructor
         (write!(dest, "{}(TextureImplementation::new(display, format, \
-                       Some((client_format, data)), ", name)).unwrap();
+                       Some((client_format, &*data)), ", name)).unwrap();
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
             TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
@@ -435,14 +435,14 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// ## Panic
                 ///
                 /// Panics if the the dimensions of `data` don't match the `Rect`.
-                pub fn write<T>(&self, rect: Rect, data: T) where T: {data} {{
+                pub fn write<T>(&self, rect: Rect, data: &T) where T: {data} {{
                     let RawImage2d {{ data, width, height, format: client_format }} =
-                                            data.into_raw();
+                                            data.as_raw();
 
                     assert_eq!(width, rect.width);
                     assert_eq!(height, rect.height);
 
-                    self.0.upload(rect.left, rect.bottom, 0, (client_format, data), width,
+                    self.0.upload(rect.left, rect.bottom, 0, (client_format, &*data), width,
                                   Some(height), None);
                 }}
             "#, data = data_type)).unwrap();

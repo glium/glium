@@ -5,7 +5,7 @@ use context::{capabilities, extensions, version};
 use GliumCreationError;
 
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, sync_channel};
 
 pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     -> Result<Context, GliumCreationError>
@@ -13,6 +13,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     use std::thread::Builder;
 
     let (tx_commands, rx_commands) = channel();
+    let (tx_sync, rx_sync) = sync_channel(0);
 
     let org_window = Arc::new(try!(window.build()));
     let window = org_window.clone();
@@ -78,6 +79,11 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
+                Ok(Message::Sync) => {
+                    if let Err(_) = rx_sync.recv() {
+                        break
+                    }
+                },
                 Err(_) => break
             }
         }
@@ -86,6 +92,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
         commands: Mutex::new(tx_commands),
+        sync: Mutex::new(tx_sync),
         window: Some(org_window),
         capabilities: capabilities,
         version: version,
