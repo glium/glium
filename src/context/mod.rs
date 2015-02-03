@@ -1,7 +1,7 @@
 use gl;
 use glutin;
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Sender, Receiver, channel};
 use GliumCreationError;
 
 pub use self::capabilities::Capabilities;
@@ -20,11 +20,13 @@ mod version;
 
 enum Message {
     EndFrame,
-    Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>),
+    Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>)
 }
 
 pub struct Context {
     commands: Mutex<Sender<Message>>,
+
+    frame_ended: Mutex<Receiver<()>>,
 
     window: Option<Arc<glutin::Window>>,
 
@@ -41,7 +43,7 @@ pub struct CommandContext<'a, 'b> {
     pub version: &'a GlVersion,
     pub extensions: &'a ExtensionsList,
     pub opengl_es: bool,
-    pub capabilities: &'a Capabilities,
+    pub capabilities: &'a Capabilities
 }
 
 /// Iterator for all the events received by the window.
@@ -90,9 +92,23 @@ impl Context {
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
         self.commands.lock().unwrap().send(Message::Execute(Box::new(f))).unwrap();
     }
+    pub fn exec_sync<'a, F, T: Send>(&self, f: F) -> T where F: FnOnce(CommandContext) -> T + 'a {
+        use std::thunk::Invoke;
+        use std::mem::transmute;
+        let (tx, rx) = channel();
+        let f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>>> = Box::new(
+            move |:c:CommandContext| {
+                tx.send(f(c)).unwrap();
+            });
+        let pretend_send_f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>> + Send>
+            = unsafe{ transmute(f) };
+        self.commands.lock().unwrap().send(Message::Execute(pretend_send_f)).unwrap();
+        rx.recv().unwrap()
+    }
 
     pub fn swap_buffers(&self) {
         self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
+        self.frame_ended.lock().unwrap().recv().unwrap();
     }
 
     pub fn capabilities(&self) -> &Capabilities {

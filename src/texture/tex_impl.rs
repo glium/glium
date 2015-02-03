@@ -48,7 +48,7 @@ pub struct TextureImplementation {
 impl TextureImplementation {
     /// Builds a new texture.
     pub fn new<P>(display: &Display, format: TextureFormatRequest,
-                  data: Option<(ClientFormat, Vec<P>)>, width: u32, height: Option<u32>,
+                  data: Option<(ClientFormat, &[P])>, width: u32, height: Option<u32>,
                   depth: Option<u32>, array_size: Option<u32>)
                   -> TextureImplementation where P: Send
     {
@@ -106,7 +106,8 @@ impl TextureImplementation {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: ctxt| {
+        display.context.context.exec_sync(move |: ctxt| {
+            use std::mem::drop;
             unsafe {
                 let data = data;
                 let data_raw = if let Some((_, ref data)) = data {
@@ -211,7 +212,7 @@ impl TextureImplementation {
                                            0, client_format as u32, client_type, data_raw);
                     }
                 }
-
+                drop(data);
                 // only generate mipmaps for color textures
                 if generate_mipmaps {
                     if ctxt.version >= &GlVersion(3, 0) {
@@ -272,7 +273,7 @@ impl TextureImplementation {
 
     /// Changes some parts of the texture.
     pub fn upload<P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
-                     (format, data): (ClientFormat, Vec<P>), width: u32, height: Option<u32>,
+                     (format, data): (ClientFormat, &[P]), width: u32, height: Option<u32>,
                      depth: Option<u32>) where P: Send + Copy
     {
         let id = self.id;
@@ -289,7 +290,8 @@ impl TextureImplementation {
         let (client_format, client_type) = client_format_to_glenum(&self.display, format,
                                                                    self.requested_format);
 
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec_sync(move |: ctxt| {
+            use std::mem::drop;
             unsafe {
                 if ctxt.state.pixel_store_unpack_alignment != 1 {
                     ctxt.state.pixel_store_unpack_alignment = 1;
@@ -331,6 +333,7 @@ impl TextureImplementation {
                     }
                 }
             }
+            drop(data);
         });
     }
 
@@ -431,33 +434,33 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                     (value, true)
                 },
                 _ => {
-                    assert!(version >= &GlVersion(3, 0));       // FIXME: 
+                    assert!(version >= &GlVersion(3, 0));       // FIXME:
                     (value, true)
                 }
             }
         },
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::DepthFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
 

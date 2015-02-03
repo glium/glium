@@ -19,7 +19,7 @@ fn magnify_nearest_filtering() {
     if ::std::os::getenv("TRAVIS").is_some() {
         return;
     }
-    
+
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -45,7 +45,7 @@ fn magnify_nearest_filtering() {
         None).unwrap();
 
     let texture_data = vec![vec![(0u8, 0, 0), (255, 255, 255)]];
-    let texture = glium::texture::Texture2d::new(&display, texture_data);
+    let texture = glium::texture::Texture2d::new(&display, &texture_data);
 
     let uniforms = glium::uniforms::UniformsStorage::new("texture",
         glium::uniforms::Sampler(&texture, glium::uniforms::SamplerBehavior {

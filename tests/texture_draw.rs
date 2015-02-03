@@ -15,11 +15,11 @@ use glium::Surface;
 mod support;
 
 #[test]
-fn texture_2d_draw() {    
+fn texture_2d_draw() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let texture = glium::texture::Texture2d::new(&display, vec![
+    let texture = glium::texture::Texture2d::new(&display, &vec![
         vec![(255, 0, 0, 255), (255, 0, 0, 255)],
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
     ]);
@@ -61,11 +61,11 @@ fn texture_2d_draw() {
 }
 
 #[test]
-fn compressed_texture_2d_draw() {    
+fn compressed_texture_2d_draw() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let texture = glium::texture::CompressedTexture2d::new(&display, vec![
+    let texture = glium::texture::CompressedTexture2d::new(&display, &vec![
         vec![(255, 0, 0, 255), (255, 0, 0, 255)],
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
     ]);

@@ -31,7 +31,7 @@ fn main() {
     // building a texture with "OpenGL" drawn on it
     let image = image::load(BufReader::new(include_bytes!("../tests/fixture/opengl.png")),
         image::PNG).unwrap();
-    let opengl_texture = glium::texture::CompressedTexture2d::new(&display, image);
+    let opengl_texture = glium::texture::CompressedTexture2d::new(&display, &image);
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -42,7 +42,7 @@ fn main() {
             tex_coords: [f32; 2],
         }
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 0.0] },
                 Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 1.0] },
@@ -87,7 +87,7 @@ fn main() {
         matrix: [[f32; 4]; 4],
         texture: &'a glium::texture::CompressedTexture2d,
     }
-    
+
     // the main loop
     // each cycle will draw once
     'main: loop {
