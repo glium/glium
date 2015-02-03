@@ -250,7 +250,7 @@ trait ToGlEnum {
 /// you to choose how it should merge the two.
 ///
 /// If you want to add transparent objects one over another, the usual value
-/// is `Addition { source: Alpha, destination: OneMinusAlpha }`.
+/// is `Addition { source: SourceAlpha, destination: OneMinusSourceAlpha }`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Simply overwrite the destination pixel with the source pixel.
