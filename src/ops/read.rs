@@ -16,7 +16,7 @@ use gl;
 pub fn read_attachment<P, T>(attachment: &fbo::Attachment, dimensions: (u32, u32),
                              display: &Display) -> T          // TODO: remove Clone for P
                              where P: texture::PixelValue + Clone + Send,
-                             T: texture::Texture2dData<Data = P>
+                             T: texture::Texture2dDataSink<Data = P>
 {
     let (fbo, atch) = display.context.framebuffer_objects.as_ref().unwrap()
                              .get_framebuffer_for_reading(attachment, &display.context.context);
@@ -27,7 +27,7 @@ pub fn read_attachment<P, T>(attachment: &fbo::Attachment, dimensions: (u32, u32
 pub fn read_attachment_to_pb<P, T>(attachment: &fbo::Attachment, dimensions: (u32, u32),
                                    dest: &mut PixelBuffer<T>, display: &Display)          // TODO: remove Clone for P
                                    where P: texture::PixelValue + Clone + Send,
-                                   T: texture::Texture2dData<Data = P>
+                                   T: texture::Texture2dDataSink<Data = P>
 {
     let (fbo, atch) = display.context.framebuffer_objects.as_ref().unwrap()
                              .get_framebuffer_for_reading(attachment, &display.context.context);
@@ -36,7 +36,7 @@ pub fn read_attachment_to_pb<P, T>(attachment: &fbo::Attachment, dimensions: (u3
 
 pub fn read_from_default_fb<P, T>(attachment: gl::types::GLenum, display: &Display) -> T          // TODO: remove Clone for P
                                   where P: texture::PixelValue + Clone + Send,
-                                  T: texture::Texture2dData<Data = P>
+                                  T: texture::Texture2dDataSink<Data = P>
 {
     let (w, h) = display.get_framebuffer_dimensions();
     let (w, h) = (w as u32, h as u32);      // TODO: remove this conversion
@@ -47,7 +47,7 @@ pub fn read_from_default_fb<P, T>(attachment: gl::types::GLenum, display: &Displ
 pub fn read_from_default_fb_to_pb<P, T>(attachment: gl::types::GLenum,
                                         dest: &mut PixelBuffer<T>, display: &Display)          // TODO: remove Clone for P
                                         where P: texture::PixelValue + Clone + Send,
-                                        T: texture::Texture2dData<Data = P>
+                                        T: texture::Texture2dDataSink<Data = P>
 {
     let (w, h) = display.get_framebuffer_dimensions();
     let (w, h) = (w as u32, h as u32);      // TODO: remove this conversion
@@ -58,14 +58,15 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
                    dimensions: (u32, u32), target: Option<&mut PixelBuffer<T>>,
                    context: &context::Context) -> Option<T>          // TODO: remove Clone for P
                    where P: texture::PixelValue + Clone + Send,
-                   T: texture::Texture2dData<Data = P>
+                   T: texture::Texture2dDataSink<Data = P>
 {
     use std::mem;
 
     let pixels_count = dimensions.0 * dimensions.1;
 
-    let pixels_size = <T as texture::Texture2dData>::get_format().get_size();
-    let (format, gltype) = client_format_to_gl_enum(&<T as texture::Texture2dData>::get_format());
+    let chosen_format = <T as texture::Texture2dDataSink>::get_preferred_formats()[0];
+    let pixels_size = chosen_format.get_size();
+    let (format, gltype) = client_format_to_gl_enum(&chosen_format);
 
     let total_data_size = pixels_count as usize * pixels_size;
 
@@ -80,7 +81,7 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
 
     if let Some(pixel_buffer) = target {
         assert!(pixel_buffer.get_size() >= total_data_size);
-        pixel_buffer::store_width(pixel_buffer, dimensions.0);
+        pixel_buffer::store_infos(pixel_buffer, dimensions, chosen_format);
     }
 
     context.exec(move |: mut ctxt| {
@@ -122,8 +123,14 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
     });
 
     rx.map(|rx| {
-        let data = rx.recv().unwrap();
-        texture::Texture2dData::from_vec(data, dimensions.0 as u32)
+        let data = texture::RawImage2d {
+            data: rx.recv().unwrap(),
+            width: dimensions.0 as u32,
+            height: dimensions.1 as u32,
+            format: chosen_format,
+        };
+
+        texture::Texture2dDataSink::from_raw(data)
     })
 }
 
