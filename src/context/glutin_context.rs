@@ -80,8 +80,23 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
                     capabilities: &*capabilities,
                 }),
                 Ok(Message::Sync) => {
-                    if let Err(_) = rx_sync.recv() {
-                        break
+                    match rx_sync.recv() {
+                        Ok(cmd) => {
+                            //For some reason the explicit type of cmd is required.
+                            let cmd: Box<
+                                for<'a,'b>
+                                ::std::thunk::Invoke<::context::CommandContext<'a, 'b>
+                                > + Send> = cmd;
+                            cmd.invoke(CommandContext {
+                                gl: &gl,
+                                state: &mut gl_state,
+                                version: &version,
+                                extensions: &extensions,
+                                opengl_es: opengl_es,
+                                capabilities: &*capabilities,
+                            })
+                        },
+                        Err(_) => break
                     }
                 },
                 Err(_) => break
@@ -91,8 +106,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
 
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
-        commands: Mutex::new(tx_commands),
-        sync: Mutex::new(tx_sync),
+        senders: Mutex::new((tx_commands, tx_sync)),
         window: Some(org_window),
         capabilities: capabilities,
         version: version,

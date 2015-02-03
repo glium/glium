@@ -25,8 +25,9 @@ enum Message {
 }
 
 pub struct Context {
-    commands: Mutex<Sender<Message>>,
-    sync: Mutex<SyncSender<()>>,
+    senders: Mutex<(
+        Sender<Message>,
+        SyncSender<Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>>)>,
 
     window: Option<Arc<glutin::Window>>,
 
@@ -90,20 +91,21 @@ impl Context {
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
-        self.commands.lock().unwrap().send(Message::Execute(Box::new(f))).unwrap();
+        self.senders.lock().unwrap().0.send(Message::Execute(Box::new(f))).unwrap();
     }
     pub fn exec_sync<'a, F>(&self, f: F) where F: FnOnce(CommandContext) + 'a {
         use std::thunk::Invoke;
         use std::mem::transmute;
         let f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>>> = Box::new(f);
         let pretend_sync_f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>> + Send> = unsafe{ transmute(f) };
-        self.commands.lock().unwrap().send(Message::Execute(pretend_sync_f)).unwrap();
-        self.commands.lock().unwrap().send(Message::Sync).unwrap();
-        self.sync.lock().unwrap().send(());
+        let guard = self.senders.lock().unwrap();
+        let (ref commands, ref sync) = *guard;
+        commands.send(Message::Sync).unwrap();
+        sync.send(pretend_sync_f);
     }
 
     pub fn swap_buffers(&self) {
-        self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
+        self.senders.lock().unwrap().0.send(Message::EndFrame).unwrap();
     }
 
     pub fn capabilities(&self) -> &Capabilities {
