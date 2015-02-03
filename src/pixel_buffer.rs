@@ -5,7 +5,7 @@ Contrary to textures, pixel buffers are stored in a client-defined format. They 
 to transfer data to or from the video memory, before or after being turned into a texture.
 */
 use Display;
-use texture::Texture2dData;
+use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
 use GlObject;
 use buffer::{self, Buffer};
@@ -16,16 +16,18 @@ use gl;
 /// The generic type represents the type of pixels that the buffer contains.
 pub struct PixelBuffer<T> {
     buffer: Buffer,
-    width: Option<u32>,
+    dimensions: Option<(u32, u32)>,
+    format: Option<ClientFormat>,
 }
 
-impl<T> PixelBuffer<T> where T: Texture2dData {
+impl<T> PixelBuffer<T> {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty(display: &Display, capacity: usize) -> PixelBuffer<T> {
         PixelBuffer {
             buffer: Buffer::new_empty::<buffer::PixelUnpackBuffer>(display, 1, capacity,
                                                                    gl::DYNAMIC_READ),
-            width: None,
+            dimensions: None,
+            format: None,
         }
     }
 
@@ -33,7 +35,9 @@ impl<T> PixelBuffer<T> where T: Texture2dData {
     pub fn get_size(&self) -> usize {
         self.buffer.get_total_size()
     }
+}
 
+impl<T> PixelBuffer<T> where T: Texture2dDataSink {
     /// Copies the content of the pixel buffer to RAM.
     ///
     /// This operation is slow and should be done outside of the rendering loop.
@@ -48,8 +52,7 @@ impl<T> PixelBuffer<T> where T: Texture2dData {
     /// Otherwise, you should use `read_if_supported`.
     #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> T {
-        let data = self.buffer.read::<buffer::PixelPackBuffer, _>();
-        Texture2dData::from_vec(data, self.width.expect("The pixel buffer is empty"))
+        self.read_if_supported().unwrap()
     }
 
     /// Copies the content of the pixel buffer to RAM.
@@ -65,7 +68,16 @@ impl<T> PixelBuffer<T> where T: Texture2dData {
             None => return None
         };
 
-        Some(Texture2dData::from_vec(data, self.width.expect("The pixel buffer is empty")))
+        let dimensions = self.dimensions.expect("The pixel buffer is empty");
+
+        let data = RawImage2d {
+            data: data,
+            width: dimensions.0,
+            height: dimensions.1,
+            format: self.format.expect("The pixel buffer is empty"),
+        };
+
+        Some(Texture2dDataSink::from_raw(data))
     }
 }
 
@@ -78,6 +90,7 @@ impl<T> GlObject for PixelBuffer<T> {
 
 // TODO: remove this hack
 #[doc(hidden)]
-pub fn store_width<T>(b: &mut PixelBuffer<T>, width: u32) {
-    b.width = Some(width);
+pub fn store_infos<T>(b: &mut PixelBuffer<T>, dimensions: (u32, u32), format: ClientFormat) {
+    b.dimensions = Some(dimensions);
+    b.format = Some(format);
 }

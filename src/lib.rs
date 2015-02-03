@@ -1711,7 +1711,7 @@ impl Display {
     /// ```
     pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
                                    where P: texture::PixelValue + Clone + Send,
-                                   T: texture::Texture2dData<Data = P>
+                                   T: texture::Texture2dDataSink<Data = P>
     {
         ops::read_from_default_fb(gl::FRONT_LEFT, self)
     }

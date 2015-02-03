@@ -7,7 +7,8 @@ use ToGlEnum;
 use context::GlVersion;
 
 use pixel_buffer::PixelBuffer;
-use texture::{format, Texture2dData, PixelValue, TextureFormat, ClientFormat};
+use texture::{format, Texture2dDataSource, Texture2dDataSink, PixelValue};
+use texture::{TextureFormat, ClientFormat};
 
 use libc;
 use std::fmt;
@@ -242,7 +243,7 @@ impl TextureImplementation {
     //       width/height need adjustements
     pub fn read<P, T>(&self, level: u32) -> T
                       where P: PixelValue + Clone + Send,
-                      T: Texture2dData<Data = P>
+                      T: Texture2dDataSink<Data = P>
             // TODO: remove Clone for P
     {
         assert_eq!(level, 0);   // TODO:
@@ -255,13 +256,13 @@ impl TextureImplementation {
     //       width/height need adjustements
     pub fn read_to_pixel_buffer<P, T>(&self, level: u32) -> PixelBuffer<T>
                                       where P: PixelValue + Clone + Send,
-                                      T: Texture2dData<Data = P>
+                                      T: Texture2dDataSink<Data = P>
             // TODO: remove Clone for P
     {
         assert_eq!(level, 0);   // TODO:
 
         let size = self.width as usize * self.height.unwrap_or(1) as usize *
-                   <T as Texture2dData>::get_format().get_size();
+                   <T as Texture2dDataSink>::get_preferred_formats()[0].get_size();
 
         let mut pb = PixelBuffer::new_empty(&self.display, size);
         ops::read_attachment_to_pb(&fbo::Attachment::Texture(self.id), (self.width,

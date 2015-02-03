@@ -222,9 +222,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     // writing the `new` function
     {
         let data_type = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dData",
-            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dData",
-            TextureDimensions::Texture3d => "Texture3dData",
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
+            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
+            TextureDimensions::Texture3d => "Texture3dDataSource",
         };
 
         let param = match dimensions {
@@ -270,54 +270,36 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             },
         };
 
-        // writing the `let client_format = ...` line
-        match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => {
-                (writeln!(dest, "let client_format = <T as Texture1dData>::get_format();")).unwrap();
-            },
-            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => {
-                (writeln!(dest, "let client_format = <T as Texture2dData>::get_format();")).unwrap();
-            },
-            TextureDimensions::Texture3d => {
-                (writeln!(dest, "let client_format = <T as Texture3dData>::get_format();")).unwrap();
-            },
-        }
-
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "
-                    let data = data.into_vec();
-                    let width = data.len() as u32;
+                    let RawImage1d {{ data, width, format: client_format }} = data.into_raw();
                 ")).unwrap(),
 
             TextureDimensions::Texture2d => (write!(dest, "
-                    let (width, height) = data.get_dimensions();
-                    let width = width as u32; let height = height as u32;
-                    let data = data.into_vec();
+                    let RawImage2d {{ data, width, height, format: client_format }} =
+                                            data.into_raw();
                 ")).unwrap(),
 
             TextureDimensions::Texture3d => (write!(dest, "
-                    let (width, height, depth) = data.get_dimensions();
-                    let width = width as u32; let height = height as u32; let depth = depth as u32;
-                    let data = data.into_vec();
+                    let RawImage3d {{ data, width, height, depth, format: client_format }} =
+                                            data.into_raw();
                 ")).unwrap(),
 
             TextureDimensions::Texture1dArray => (write!(dest, "
-                    let array_size = data.len() as u32;
-                    let mut width = 0;
-                    let data = data.into_iter().flat_map(|t| {{
-                        let d = t.into_vec(); width = d.len(); d.into_iter()
-                    }}).collect();
-                    let width = width as u32;
+                    let array_size = 0;
+                    let data = Vec::<u8>::new();
+                    let width = 0;
+                    let client_format = unsafe {{ ::std::mem::uninitialized() }};
+                    unimplemented!();
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
 
             TextureDimensions::Texture2dArray => (write!(dest, "
-                    let array_size = data.len() as u32;
-                    let mut dimensions = (0, 0);
-                    let data = data.into_iter().flat_map(|t| {{
-                        dimensions = t.get_dimensions(); t.into_vec().into_iter()
-                    }}).collect();
-                    let (width, height) = dimensions;
-                    let width = width as u32; let height = height as u32;
+                    let array_size = 0;
+                    let data = Vec::<u8>::new();
+                    let width = 0;
+                    let height = 0;
+                    let client_format = unsafe {{ ::std::mem::uninitialized() }};
+                    unimplemented!();
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
         }
         // writing the constructor
@@ -406,19 +388,13 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     if dimensions == TextureDimensions::Texture2d &&
        (ty == TextureType::Regular || ty == TextureType::Compressed)
     {
-        /*let data_type = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dData",
-            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dData",
-            TextureDimensions::Texture3d => "Texture3dData",
-        };*/
-
         (write!(dest, r#"
                 /// Reads the content of the texture to RAM.
                 ///
                 /// You should avoid doing this at all cost during performance-critical
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
-                pub fn read<P, T>(&self) -> T where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
+                pub fn read<P, T>(&self) -> T where T: Texture2dDataSink<Data = P>, P: PixelValue + Clone {{
                     self.0.read(0)
                 }}
             "#)).unwrap();
@@ -429,7 +405,10 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// This operation copies the texture's data into a buffer in video memory
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
-                pub fn read_to_pixel_buffer<P, T>(&self) -> PixelBuffer<T> where T: Texture2dData<Data = P>, P: PixelValue + Clone {{    // TODO: remove Clone
+                pub fn read_to_pixel_buffer<P, T>(&self) -> PixelBuffer<T>
+                                                  where T: Texture2dDataSink<Data = P>,
+                                                        P: PixelValue + Clone
+                {{
                     self.0.read_to_pixel_buffer(0)
                 }}
             "#)).unwrap();
@@ -441,9 +420,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
        (ty == TextureType::Regular || ty == TextureType::Compressed)
     {
         let data_type = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dData",
-            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dData",
-            TextureDimensions::Texture3d => "Texture3dData",
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
+            TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
+            TextureDimensions::Texture3d => "Texture3dDataSource",
         };
 
         (write!(dest, r#"
@@ -457,14 +436,12 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 /// Panics if the the dimensions of `data` don't match the `Rect`.
                 pub fn write<T>(&self, rect: Rect, data: T) where T: {data} {{
-                    let client_format = <T as {data}>::get_format();
-                    let (width, height) = data.get_dimensions();
-                    let width = width as u32; let height = height as u32;
+                    let RawImage2d {{ data, width, height, format: client_format }} =
+                                            data.into_raw();
 
                     assert_eq!(width, rect.width);
                     assert_eq!(height, rect.height);
 
-                    let data = data.into_vec();
                     self.0.upload(rect.left, rect.bottom, 0, (client_format, data), width,
                                   Some(height), None);
                 }}
