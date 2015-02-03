@@ -137,7 +137,21 @@ pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut context::CommandCont
 /// Waits for this fence and destroys it, from within the commands context.
 pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence, ctxt: &mut context::CommandContext) {
     let fence = fence.id.take().unwrap();
-    ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
-                           365 * 24 * 3600 * 1000 * 1000 * 1000);
+
+    // we try waiting without flushing first
+    let success = match ctxt.gl.ClientWaitSync(fence, 0, 0) {
+        gl::ALREADY_SIGNALED => true,
+        gl::TIMEOUT_EXPIRED => false,
+        gl::WAIT_FAILED => false,
+        gl::CONDITION_SATISFIED => true,
+        _ => unreachable!()
+    };
+
+    // waiting *with* flushing this time
+    if !success {
+        ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
+                               365 * 24 * 3600 * 1000 * 1000 * 1000);
+    }
+
     ctxt.gl.DeleteSync(fence);
 }
