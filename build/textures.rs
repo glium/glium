@@ -287,7 +287,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
             TextureDimensions::Texture1dArray => (write!(dest, "
                     let array_size = 0;
-                    let data = ::std::borrow::Cow::Owned(Vec::<u8>::new());
+                    let data = Cow::Owned(Vec::<u8>::new());
                     let width = 0;
                     let client_format = unsafe {{ ::std::mem::uninitialized() }};
                     unimplemented!();
@@ -295,7 +295,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
             TextureDimensions::Texture2dArray => (write!(dest, "
                     let array_size = 0;
-                    let data = ::std::borrow::Cow::Owned(Vec::<u8>::new());
+                    let data = Cow::Owned(Vec::<u8>::new());
                     let width = 0;
                     let height = 0;
                     let client_format = unsafe {{ ::std::mem::uninitialized() }};

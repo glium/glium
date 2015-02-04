@@ -48,10 +48,10 @@ pub struct TextureImplementation {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    pub fn new<'a, P: Clone + 'a>(display: &Display, format: TextureFormatRequest,
-                  data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, width: u32, height: Option<u32>,
-                  depth: Option<u32>, array_size: Option<u32>)
-                  -> TextureImplementation where P: Send
+    pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
+                      data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, width: u32, height: Option<u32>,
+                      depth: Option<u32>, array_size: Option<u32>)
+                      -> TextureImplementation where P: Send + Clone + 'a
     {
         use std::num::Float;
 
@@ -273,9 +273,9 @@ impl TextureImplementation {
     }
 
     /// Changes some parts of the texture.
-    pub fn upload<'a, P: Clone + 'a>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
-                     (format, data): (ClientFormat, Cow<'a, Vec<P>, [P]>), width: u32, height: Option<u32>,
-                     depth: Option<u32>) where P: Send + Copy
+    pub fn upload<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
+                         (format, data): (ClientFormat, Cow<'a, Vec<P>, [P]>), width: u32, height: Option<u32>,
+                         depth: Option<u32>) where P: Send + Copy + Clone + 'a
     {
         let id = self.id;
         let bind_point = self.bind_point;
