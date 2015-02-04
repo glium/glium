@@ -81,26 +81,6 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
                     opengl_es: opengl_es,
                     capabilities: &*capabilities
                 }),
-                Ok(Message::Sync) => {
-                    match rx_sync.recv() {
-                        Ok(cmd) => {
-                            //For some reason the explicit type of cmd is required.
-                            let cmd: Box<
-                                for<'a,'b>
-                                ::std::thunk::Invoke<::context::CommandContext<'a, 'b>
-                                > + Send> = cmd;
-                            cmd.invoke(CommandContext {
-                                gl: &gl,
-                                state: &mut gl_state,
-                                version: &version,
-                                extensions: &extensions,
-                                opengl_es: opengl_es,
-                                capabilities: &*capabilities,
-                            })
-                        },
-                        Err(_) => break
-                    }
-                },
                 Err(_) => break
             }
         }
