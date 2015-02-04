@@ -239,8 +239,8 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// Builds a new texture by uploading data.
                 ///
                 /// This function will automatically generate all mipmaps of the texture.
-                pub fn new<T>(display: &::Display, data: {param})
-                              -> {name} where T: {data_type}
+                pub fn new<'a, T>(display: &::Display, data: {param})
+                              -> {name} where T: {data_type}<'a>
                 {{
             ", data_type = data_type, param = param, name = name)).unwrap();
 
@@ -287,7 +287,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
             TextureDimensions::Texture1dArray => (write!(dest, "
                     let array_size = 0;
-                    let data = Vec::<u8>::new();
+                    let data = Cow::Owned(Vec::<u8>::new());
                     let width = 0;
                     let client_format = unsafe {{ ::std::mem::uninitialized() }};
                     unimplemented!();
@@ -295,7 +295,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
             TextureDimensions::Texture2dArray => (write!(dest, "
                     let array_size = 0;
-                    let data = Vec::<u8>::new();
+                    let data = Cow::Owned(Vec::<u8>::new());
                     let width = 0;
                     let height = 0;
                     let client_format = unsafe {{ ::std::mem::uninitialized() }};
@@ -435,7 +435,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// ## Panic
                 ///
                 /// Panics if the the dimensions of `data` don't match the `Rect`.
-                pub fn write<T>(&self, rect: Rect, data: T) where T: {data} {{
+                pub fn write<'a, T>(&self, rect: Rect, data: T) where T: {data}<'a> {{
                     let RawImage2d {{ data, width, height, format: client_format }} =
                                             data.into_raw();
 

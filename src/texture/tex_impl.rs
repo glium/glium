@@ -15,6 +15,7 @@ use std::fmt;
 use std::mem;
 use std::ptr;
 use std::sync::mpsc::channel;
+use std::borrow::Cow;
 
 use ops;
 use fbo;
@@ -47,10 +48,10 @@ pub struct TextureImplementation {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    pub fn new<P>(display: &Display, format: TextureFormatRequest,
-                  data: Option<(ClientFormat, Vec<P>)>, width: u32, height: Option<u32>,
-                  depth: Option<u32>, array_size: Option<u32>)
-                  -> TextureImplementation where P: Send
+    pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
+                      data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, width: u32, height: Option<u32>,
+                      depth: Option<u32>, array_size: Option<u32>)
+                      -> TextureImplementation where P: Send + Clone + 'a
     {
         use std::num::Float;
 
@@ -106,7 +107,8 @@ impl TextureImplementation {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: ctxt| {
+        //This always syncs with rx later.
+        display.context.context.exec_maybe_sync(false, move |: ctxt| {
             unsafe {
                 let data = data;
                 let data_raw = if let Some((_, ref data)) = data {
@@ -271,9 +273,9 @@ impl TextureImplementation {
     }
 
     /// Changes some parts of the texture.
-    pub fn upload<P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
-                     (format, data): (ClientFormat, Vec<P>), width: u32, height: Option<u32>,
-                     depth: Option<u32>) where P: Send + Copy
+    pub fn upload<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
+                         (format, data): (ClientFormat, Cow<'a, Vec<P>, [P]>), width: u32, height: Option<u32>,
+                         depth: Option<u32>) where P: Send + Copy + Clone + 'a
     {
         let id = self.id;
         let bind_point = self.bind_point;
@@ -288,8 +290,8 @@ impl TextureImplementation {
 
         let (client_format, client_type) = client_format_to_glenum(&self.display, format,
                                                                    self.requested_format);
-
-        self.display.context.context.exec(move |: ctxt| {
+        let should_sync = data.is_borrowed();
+        self.display.context.context.exec_maybe_sync(should_sync, move |: ctxt| {
             unsafe {
                 if ctxt.state.pixel_store_unpack_alignment != 1 {
                     ctxt.state.pixel_store_unpack_alignment = 1;
@@ -431,33 +433,33 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                     (value, true)
                 },
                 _ => {
-                    assert!(version >= &GlVersion(3, 0));       // FIXME: 
+                    assert!(version >= &GlVersion(3, 0));       // FIXME:
                     (value, true)
                 }
             }
         },
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::DepthFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
         TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME: 
+            assert!(version >= &GlVersion(3, 0));       // FIXME:
             (f.to_glenum(), true)
         },
 
