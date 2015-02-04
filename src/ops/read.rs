@@ -124,7 +124,7 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
 
     rx.map(|rx| {
         let data = texture::RawImage2d {
-            data: rx.recv().unwrap(),
+            data: ::std::borrow::Cow::Owned(rx.recv().unwrap()),
             width: dimensions.0 as u32,
             height: dimensions.1 as u32,
             format: chosen_format,
