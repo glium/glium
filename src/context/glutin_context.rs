@@ -13,6 +13,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     use std::thread::Builder;
 
     let (tx_commands, rx_commands) = channel();
+
     let (tx_end_frame, rx_end_frame) = sync_channel(0);
 
     let org_window = Arc::new(try!(window.build()));
