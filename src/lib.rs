@@ -1650,8 +1650,9 @@ impl Display {
                 String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec()).unwrap()
             };
 
-            if severity == gl::DEBUG_SEVERITY_HIGH ||
-               severity == gl::DEBUG_SEVERITY_MEDIUM
+            if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
+               (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
+                ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
             {
                 panic!("Debug message with high or medium severity: `{}`.\n\
                         Please report this error: https://github.com/tomaka/glium/issues", message);
