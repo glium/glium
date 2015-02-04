@@ -32,7 +32,7 @@ fn main() {
         .unwrap();
 
     let image = image::load(BufReader::new(include_bytes!("../tests/fixture/opengl.png")), image::PNG).unwrap();
-    let opengl_texture = glium::texture::Texture2d::new(&display, image);
+    let opengl_texture = glium::texture::Texture2d::new(&display, &image);
 
     let floor_vertex_buffer = {
         #[vertex_format]
@@ -42,7 +42,7 @@ fn main() {
             normal: [f32; 4],
             texcoord: [f32; 2]
         }
-        
+
         glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [-1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
@@ -63,7 +63,7 @@ fn main() {
             position: [f32; 4],
             texcoord: [f32; 2]
         }
-        
+
         glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [0.0, 0.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
@@ -106,7 +106,7 @@ fn main() {
         // fragment shader
         "
             #version 130
-            
+
             uniform sampler2D texture;
 
             smooth in vec4 frag_position;
@@ -151,7 +151,7 @@ fn main() {
         // fragment shader
         "
             #version 130
-            
+
             uniform sampler2D position_texture;
             uniform sampler2D normal_texture;
             uniform vec4 light_position;
@@ -178,7 +178,7 @@ fn main() {
                     );
                     attenuation_factor *= (1.0 - pow((light_distance / light_radius), 2.0));
                     diffuse *= attenuation_factor;
-                    
+
                 }
                 frag_output = vec4(light_color * diffuse, 1.0);
             }
