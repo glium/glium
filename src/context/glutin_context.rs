@@ -5,7 +5,7 @@ use context::{capabilities, extensions, version};
 use GliumCreationError;
 
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, sync_channel};
 
 pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     -> Result<Context, GliumCreationError>
@@ -13,6 +13,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
     use std::thread::Builder;
 
     let (tx_commands, rx_commands) = channel();
+    let (tx_sync, rx_sync) = sync_channel(0);
 
     let org_window = Arc::new(try!(window.build()));
     let window = org_window.clone();
@@ -78,6 +79,26 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
+                Ok(Message::Sync) => {
+                    match rx_sync.recv() {
+                        Ok(cmd) => {
+                            //For some reason the explicit type of cmd is required.
+                            let cmd: Box<
+                                for<'a,'b>
+                                ::std::thunk::Invoke<::context::CommandContext<'a, 'b>
+                                > + Send> = cmd;
+                            cmd.invoke(CommandContext {
+                                gl: &gl,
+                                state: &mut gl_state,
+                                version: &version,
+                                extensions: &extensions,
+                                opengl_es: opengl_es,
+                                capabilities: &*capabilities,
+                            })
+                        },
+                        Err(_) => break
+                    }
+                },
                 Err(_) => break
             }
         }
@@ -85,7 +106,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
 
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
-        commands: Mutex::new(tx_commands),
+        senders: Mutex::new((tx_commands, tx_sync)),
         window: Some(org_window),
         capabilities: capabilities,
         version: version,

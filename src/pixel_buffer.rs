@@ -3,7 +3,9 @@ Pixel buffers are buffers that contain two-dimensional texture data.
 
 Contrary to textures, pixel buffers are stored in a client-defined format. They are used
 to transfer data to or from the video memory, before or after being turned into a texture.
-*/
+ */
+use std::borrow::Cow;
+
 use Display;
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
@@ -71,7 +73,7 @@ impl<T> PixelBuffer<T> where T: Texture2dDataSink {
         let dimensions = self.dimensions.expect("The pixel buffer is empty");
 
         let data = RawImage2d {
-            data: data,
+            data: Cow::Owned(data),
             width: dimensions.0,
             height: dimensions.1,
             format: self.format.expect("The pixel buffer is empty"),

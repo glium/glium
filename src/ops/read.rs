@@ -61,6 +61,7 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
                    T: texture::Texture2dDataSink<Data = P>
 {
     use std::mem;
+    use std::borrow::Cow;
 
     let pixels_count = dimensions.0 * dimensions.1;
 
@@ -124,7 +125,7 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
 
     rx.map(|rx| {
         let data = texture::RawImage2d {
-            data: rx.recv().unwrap(),
+            data: Cow::Owned(rx.recv().unwrap()),
             width: dimensions.0 as u32,
             height: dimensions.1 as u32,
             format: chosen_format,

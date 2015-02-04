@@ -12,10 +12,10 @@ use glium::{Texture, Surface};
 mod support;
 
 #[test]
-fn texture_1d_creation() {    
+fn texture_1d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::Texture1d::new(&display, vec![
+    let texture = glium::texture::Texture1d::new(&display, &vec![
         (0, 0, 0, 0),
         (0, 0, 0, 0),
         (0, 0, 0, 0u8),
@@ -30,10 +30,10 @@ fn texture_1d_creation() {
 }
 
 #[test]
-fn texture_2d_creation() {    
+fn texture_2d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::Texture2d::new(&display, vec![
+    let texture = glium::texture::Texture2d::new(&display, &vec![
         vec![(0, 0, 0, 0), (0, 0, 0, 0)],
         vec![(0, 0, 0, 0), (0, 0, 0, 0)],
         vec![(0, 0, 0, 0), (0, 0, 0, 0u8)],
@@ -48,10 +48,10 @@ fn texture_2d_creation() {
 }
 
 #[test]
-fn texture_3d_creation() {    
+fn texture_3d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::Texture3d::new(&display, vec![
+    let texture = glium::texture::Texture3d::new(&display, &vec![
         vec![
             vec![(0, 0, 0, 0)],
             vec![(0, 0, 0, 0)],
@@ -78,7 +78,7 @@ fn texture_3d_creation() {
 fn compressed_texture_2d_creation() {
     let display = support::build_display();
 
-    let texture = glium::texture::CompressedTexture2d::new(&display, vec![
+    let texture = glium::texture::CompressedTexture2d::new(&display, &vec![
         vec![(0, 0, 0, 0), (0, 0, 0, 0)],
         vec![(0, 0, 0, 0), (0, 0, 0, 0)],
         vec![(0, 0, 0, 0), (0, 0, 0, 0u8)],
@@ -104,7 +104,7 @@ fn empty_texture2d() {
     display.assert_no_error();
 
     drop(texture);
-    
+
     display.assert_no_error();
 }
 
@@ -127,6 +127,6 @@ fn render_to_texture2d() {
     assert_eq!(read_back[0][0], (255, 0, 0, 255));
     assert_eq!(read_back[512][512], (255, 0, 0, 255));
     assert_eq!(read_back[1023][1023], (255, 0, 0, 255));
-    
+
     display.assert_no_error();
 }

@@ -40,7 +40,7 @@ pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, 
 {
     let color = ((red * 255.0) as u8, (green * 255.0) as u8, (blue * 255.0) as u8);
 
-    glium::texture::Texture2d::new(display, vec![
+    glium::texture::Texture2d::new(display, &vec![
         vec![color, color],
         vec![color, color],
     ])

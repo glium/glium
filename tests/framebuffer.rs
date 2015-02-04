@@ -68,7 +68,7 @@ fn simple_render_to_texture() {
     assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back[64][64], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back[127][127], (1.0, 0.0, 0.0, 1.0));
-    
+
     display.assert_no_error();
 }
 
@@ -107,7 +107,7 @@ fn depth_texture2d() {
     // depth texture with a value of 0.5 everywhere
     let depth_data = iter::repeat(iter::repeat(0.5f32).take(128).collect::<Vec<_>>())
                                   .take(128).collect::<Vec<_>>();
-    let depth = glium::texture::DepthTexture2d::new(&display, depth_data);
+    let depth = glium::texture::DepthTexture2d::new(&display, &depth_data);
 
     // drawing with the `IfLess` depth test
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display,
