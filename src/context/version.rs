@@ -34,8 +34,8 @@ pub fn get_gl_version(gl: &gl::Gl) -> GlVersion {
         let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 
         GlVersion(
-            major.parse().expect("failed to parse GL major version"),
-            minor.parse().expect("failed to parse GL minor version"),
+            major.parse().ok().expect("failed to parse GL major version"),
+            minor.parse().ok().expect("failed to parse GL minor version"),
         )
     }
 }
