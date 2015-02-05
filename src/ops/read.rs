@@ -50,7 +50,6 @@ pub fn read_from_default_fb_to_pb<P, T>(attachment: gl::types::GLenum,
                                         T: texture::Texture2dDataSink<Data = P>
 {
     let (w, h) = display.get_framebuffer_dimensions();
-    let (w, h) = (w as u32, h as u32);      // TODO: remove this conversion
     read_impl(0, attachment, (w, h), Some(dest), &display.context.context);
 }
 
