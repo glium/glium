@@ -7,6 +7,8 @@ High-level OpenGL wrapper for the Rust language.
 ```toml
 [dependencies.glium]
 git = "https://github.com/tomaka/glium"
+[dependencies.glutin]
+git = "https://github.com/tomaka/glutin"
 [dependencies.glium_macros]
 git = "https://github.com/tomaka/glium"
 ```
