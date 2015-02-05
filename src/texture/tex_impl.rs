@@ -1,13 +1,12 @@
 use Display;
 
 use gl;
-use Rect;
 use GlObject;
 use ToGlEnum;
 use context::GlVersion;
 
 use pixel_buffer::PixelBuffer;
-use texture::{format, Texture2dDataSource, Texture2dDataSink, PixelValue};
+use texture::{format, Texture2dDataSink, PixelValue};
 use texture::{TextureFormat, ClientFormat};
 
 use libc;

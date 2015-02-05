@@ -157,11 +157,11 @@ target.finish();
 ```
 
 */
-#![feature(slicing_syntax)]
+#![feature(core, hash, std_misc, libc, collections)]     // TODO: remove after 1.0 beta
+
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
-#![allow(unstable)]
 #![warn(missing_docs)]
 
 // TODO: remove these when everything is implemented
@@ -186,7 +186,6 @@ pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
 
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::channel;
 
@@ -1201,7 +1200,7 @@ pub trait Surface: Sized {
     ///
     /// Note that there is no alpha blending, depth/stencil checking, etc. This function just
     /// copies pixels.
-    #[experimental = "The name will likely change"]
+    #[unstable = "The name will likely change"]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
@@ -1210,7 +1209,7 @@ pub trait Surface: Sized {
     }
 
     /// Copies the entire surface to a target surface. See `blit_color`.
-    #[experimental = "The name will likely change"]
+    #[unstable = "The name will likely change"]
     fn blit_whole_color_to<S>(&self, target: &S, target_rect: &Rect,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
@@ -1220,7 +1219,7 @@ pub trait Surface: Sized {
     }
 
     /// Copies the entire surface to the entire target. See `blit_color`.
-    #[experimental = "The name will likely change"]
+    #[unstable = "The name will likely change"]
     fn fill<S>(&self, target: &S, filter: uniforms::MagnifySamplerFilter) where S: Surface {
         let src_dim = self.get_dimensions();
         let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };

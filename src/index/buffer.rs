@@ -26,6 +26,7 @@ impl IndexBuffer {
         data.into_index_buffer(display)
     }
 
+    /// Builds a new index buffer from raw data and a primitive type.
     pub fn from_raw<T>(display: &Display, data: Vec<T>, prim: PrimitiveType) -> IndexBuffer
                        where T: Index
     {

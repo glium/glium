@@ -1,4 +1,3 @@
-use libc;
 use std::ptr;
 use std::sync::mpsc::{channel, Sender};
 

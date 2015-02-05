@@ -164,7 +164,6 @@ impl<T: Send + Copy> PerInstanceAttributesBuffer<T> {
     /// # }
     /// ```
     ///
-    #[experimental]
     pub unsafe fn new_raw(display: &Display, data: Vec<T>,
                           bindings: VertexFormat, elements_size: usize) -> PerInstanceAttributesBuffer<T>
     {

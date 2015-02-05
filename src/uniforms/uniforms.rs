@@ -1,5 +1,4 @@
 use uniforms::{Uniforms, UniformValue, IntoUniformValue};
-use program::UniformBlock;
 
 /// Object that can be used when you don't have any uniforms.
 #[derive(Debug, Copy, Clone)]

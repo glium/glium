@@ -27,6 +27,7 @@ The first parameter can be `vertex`, `fragment`, `geometry`, `compute`, `tessell
 or `tessellation_evaluation`.
 
 */
+#![feature(core, rustc_private)]
 #![feature(plugin_registrar)]
 #![feature(quote)]
 #![feature(unboxed_closures)]
@@ -52,7 +53,7 @@ pub fn registrar(registry: &mut rustc::plugin::Registry) {
         registry.register_macro("verify_shader", shaders::verify_shader);
     }
     #[cfg(not(feature = "glslang"))]
-    fn register_verify_shader(registry: &mut rustc::plugin::Registry) {
+    fn register_verify_shader(_: &mut rustc::plugin::Registry) {
     }
     register_verify_shader(registry);
 
