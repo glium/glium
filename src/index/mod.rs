@@ -154,6 +154,7 @@ impl ToGlEnum for PrimitiveType {
 ///
 /// If you use this, then the primitives will be constructed using the order in which the
 /// vertices are in the vertices sources.
+#[derive(Copy, Clone, Debug)]
 pub struct NoIndices(pub PrimitiveType);
 
 impl ToIndicesSource for NoIndices {

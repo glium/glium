@@ -2,7 +2,6 @@
 use image;
 
 /// A trait that must be implemented for any type that can represent the value of a pixel.
-#[experimental = "Will be rewritten after UFCS land"]
 pub trait PixelValue: Copy + Send {     // TODO: Clone, but [T, ..N] doesn't impl Clone
     /// Returns corresponding client format.
     fn get_format() -> super::ClientFormat;

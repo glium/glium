@@ -267,6 +267,7 @@ pub enum UncompressedFloatFormat {
 }
 
 impl UncompressedFloatFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::UncompressedFloat(self)
     }
@@ -335,6 +336,7 @@ pub enum UncompressedIntFormat {
 }
 
 impl UncompressedIntFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::UncompressedIntegral(self)
     }
@@ -382,6 +384,7 @@ pub enum UncompressedUintFormat {
 }
 
 impl UncompressedUintFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::UncompressedUnsigned(self)
     }
@@ -423,6 +426,7 @@ pub enum CompressedFormat {
 }
 
 impl CompressedFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::CompressedFormat(self)
     }
@@ -454,6 +458,7 @@ pub enum DepthFormat {
 }
 
 impl DepthFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::DepthFormat(self)
     }
@@ -481,6 +486,7 @@ pub enum DepthStencilFormat {
 }
 
 impl DepthStencilFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::DepthStencilFormat(self)
     }
@@ -510,6 +516,7 @@ pub enum StencilFormat {
 }
 
 impl StencilFormat {
+    /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::StencilFormat(self)
     }
@@ -528,6 +535,7 @@ impl ToGlEnum for StencilFormat {
 
 /// Format of the internal representation of a texture.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(missing_docs)]
 pub enum TextureFormat {
     UncompressedFloat(UncompressedFloatFormat),
     UncompressedIntegral(UncompressedIntFormat),

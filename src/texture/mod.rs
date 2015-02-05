@@ -35,7 +35,9 @@ render-to-texture on the former.
 The most common types of textures are `CompressedTexture2d` and `Texture2d` (the two dimensions
 being the width and height). These are what you will use most of the time.
 
- */
+*/
+#![allow(unreachable_code)]     // TODO: remove
+
 use std::borrow::Cow;
 
 use {gl, framebuffer};
@@ -45,7 +47,7 @@ use image;
 
 use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
-use {Surface, GlObject, ToGlEnum, Rect};
+use {Surface, GlObject, Rect};
 
 use self::tex_impl::{TextureImplementation, TextureFormatRequest};
 
