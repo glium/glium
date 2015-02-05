@@ -7,7 +7,7 @@ extern crate glium_macros;
 extern crate glutin;
 extern crate glium;
 
-use glium::{Surface, Rect};
+use glium::{Surface, BlitTarget, Rect};
 
 mod support;
 
@@ -28,7 +28,7 @@ fn blit_texture_to_window() {
         height: 2,
     };
 
-    let dest_rect = Rect {
+    let dest_rect = BlitTarget {
         left: 1,
         bottom: 1,
         width: 2,
