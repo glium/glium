@@ -57,6 +57,12 @@ pub enum ProgramCreationInput<'a> {
         /// Source code of the fragment shader.
         fragment_shader: &'a str,
     },
+
+    /// Use a precompiled binary.
+    Binary {
+        /// The data.
+        data: Binary,
+    }
 }
 
 impl<'a> IntoProgramCreationInput<'a> for ProgramCreationInput<'a> {
@@ -111,6 +117,14 @@ pub struct Binary {
 
     /// The binary data.
     pub content: Vec<u8>,
+}
+
+impl IntoProgramCreationInput<'static> for Binary {
+    fn into_program_creation_input(self) -> ProgramCreationInput<'static> {
+        ProgramCreationInput::Binary {
+            data: self,
+        }
+    }
 }
 
 /// A combination of shaders linked together.
@@ -235,7 +249,12 @@ impl Program {
                       where I: IntoProgramCreationInput<'a>
     {
         let input = input.into_program_creation_input();
-        Program::from_source_impl(display, input)
+
+        if let ProgramCreationInput::SourceCode { .. } = input {
+            Program::from_source_impl(display, input)
+        } else {
+            Program::from_binary_impl(display, input)
+        }
     }
 
     /// Builds a new program from GLSL source code.
@@ -282,9 +301,18 @@ impl Program {
 
         // getting an array of the source codes and their type
         let shaders: Vec<(&str, gl::types::GLenum)> = {
-            let ProgramCreationInput::SourceCode { vertex_shader, fragment_shader,
+            let (vertex_shader, fragment_shader, geometry_shader,
+                 tessellation_control_shader, tessellation_evaluation_shader) = match input
+            {
+                ProgramCreationInput::SourceCode { vertex_shader, fragment_shader,
                                                    geometry_shader, tessellation_control_shader,
-                                                   tessellation_evaluation_shader } = input;
+                                                   tessellation_evaluation_shader } =>
+                {
+                    (vertex_shader, fragment_shader, geometry_shader,
+                     tessellation_control_shader, tessellation_evaluation_shader)
+                },
+                _ => unreachable!()     // the function shouldn't be called with anything else
+            };
 
             let mut shaders = vec![
                 (vertex_shader, gl::VERTEX_SHADER),
@@ -322,19 +350,9 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: ctxt| {
+        display.context.context.exec(move |: mut ctxt| {
             unsafe {
-                let id = if ctxt.version >= &GlVersion(2, 0) {
-                    Handle::Id(ctxt.gl.CreateProgram())
-                } else if ctxt.extensions.gl_arb_shader_objects {
-                    Handle::Handle(ctxt.gl.CreateProgramObjectARB())
-                } else {
-                    unreachable!()
-                };
-
-                if id == Handle::Id(0) || id == Handle::Handle(0 as gl::types::GLhandleARB) {
-                    panic!("glCreateProgram failed");
-                }
+                let id = create_program(&mut ctxt);
 
                 // attaching shaders
                 for sh in shaders_ids.iter() {
@@ -367,78 +385,10 @@ impl Program {
                 }
 
                 // checking for errors
-                {
-                    let mut link_success: gl::types::GLint = mem::uninitialized();
-
-                    match id {
-                        Handle::Id(id) => {
-                            assert!(ctxt.version >= &GlVersion(2, 0));
-                            ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
-                        },
-                        Handle::Handle(id) => {
-                            assert!(ctxt.extensions.gl_arb_shader_objects);
-                            ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_LINK_STATUS_ARB,
-                                                            &mut link_success);
-                        }
-                    }
-
-                    if link_success == 0 {
-                        use ProgramCreationError::LinkingError;
-
-                        match ctxt.gl.GetError() {
-                            gl::NO_ERROR => (),
-                            gl::INVALID_VALUE => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered \
-                                                                  GL_INVALID_VALUE")))).ok();
-                                return;
-                            },
-                            gl::INVALID_OPERATION => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered \
-                                                                  GL_INVALID_OPERATION")))).ok();
-                                return;
-                            },
-                            _ => {
-                                tx.send(Err(LinkingError(format!("glLinkProgram triggered an \
-                                                                  unknown error")))).ok();
-                                return;
-                            }
-                        };
-
-                        let mut error_log_size: gl::types::GLint = mem::uninitialized();
-
-                        match id {
-                            Handle::Id(id) => {
-                                assert!(ctxt.version >= &GlVersion(2, 0));
-                                ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
-                            },
-                            Handle::Handle(id) => {
-                                assert!(ctxt.extensions.gl_arb_shader_objects);
-                                ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_INFO_LOG_LENGTH_ARB,
-                                                                &mut error_log_size);
-                            }
-                        }
-
-                        let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as usize);
-
-                        match id {
-                            Handle::Id(id) => {
-                                assert!(ctxt.version >= &GlVersion(2, 0));
-                                ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
-                                                          error_log.as_mut_slice().as_mut_ptr()
-                                                            as *mut gl::types::GLchar);
-                            },
-                            Handle::Handle(id) => {
-                                assert!(ctxt.extensions.gl_arb_shader_objects);
-                                ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
-                                                      error_log.as_mut_slice().as_mut_ptr()
-                                                        as *mut gl::types::GLchar);
-                            }
-                        }
-
-                        error_log.set_len(error_log_size as usize);
-
-                        let msg = String::from_utf8(error_log).unwrap();
-                        tx.send(Err(LinkingError(msg))).ok();
+                match check_program_link_errors(&mut ctxt, id) {
+                    Ok(_) => (),
+                    Err(err) => {
+                        tx.send(Err(err)).ok();
                         return;
                     }
                 }
@@ -471,6 +421,73 @@ impl Program {
             attributes: Arc::new(attributes),
             frag_data_locations: Mutex::new(HashMap::new()),
             has_tessellation_shaders: has_tessellation_shaders,
+        })
+    }
+
+    /// Creates a program from binary.
+    ///
+    /// Must only be called if `input` is a `ProgramCreationInput::Binary`, will
+    /// panic otherwise.
+    fn from_binary_impl(display: &Display, input: ProgramCreationInput)
+                        -> Result<Program, ProgramCreationError>
+    {
+        let binary = match input {
+            ProgramCreationInput::Binary { data } => data,
+            _ => unreachable!()
+        };
+
+        let (tx, rx) = channel();
+        display.context.context.exec(move |: mut ctxt| {
+            unsafe {
+                let id = create_program(&mut ctxt);
+
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(2, 0));
+                        ctxt.gl.ProgramBinary(id, binary.format,
+                                              binary.content.as_ptr() as *const _,
+                                              binary.content.len() as gl::types::GLsizei);
+                    },
+                    Handle::Handle(id) => unreachable!()
+                };
+
+                // checking for errors
+                match check_program_link_errors(&mut ctxt, id) {
+                    Ok(_) => (),
+                    Err(err) => {
+                        tx.send(Err(err)).ok();
+                        return;
+                    }
+                }
+
+                tx.send(Ok(id)).unwrap();
+            }
+        });
+
+        let id = try!(rx.recv().unwrap());
+
+        let (tx, rx) = channel();
+        display.context.context.exec(move |: mut ctxt| {
+            unsafe {
+                tx.send((
+                    reflect_uniforms(&mut ctxt, id),
+                    reflect_attributes(&mut ctxt, id),
+                    reflect_uniform_blocks(&mut ctxt, id),
+                )).ok();
+            }
+        });
+
+        let (uniforms, attributes, blocks) = rx.recv().unwrap();
+
+        Ok(Program {
+            display: display.context.clone(),
+            shaders: vec![],
+            id: id,
+            uniforms: Arc::new(uniforms),
+            uniform_blocks: Arc::new(blocks),
+            attributes: Arc::new(attributes),
+            frag_data_locations: Mutex::new(HashMap::new()),
+            has_tessellation_shaders: true,     // FIXME: 
         })
     }
 
@@ -784,6 +801,99 @@ fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: 
             id: id
         }
     })
+}
+
+/// Builds an empty program from within the GL context.
+unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
+    let id = if ctxt.version >= &GlVersion(2, 0) {
+        Handle::Id(ctxt.gl.CreateProgram())
+    } else if ctxt.extensions.gl_arb_shader_objects {
+        Handle::Handle(ctxt.gl.CreateProgramObjectARB())
+    } else {
+        unreachable!()
+    };
+
+    if id == Handle::Id(0) || id == Handle::Handle(0 as gl::types::GLhandleARB) {
+        panic!("glCreateProgram failed");
+    }
+
+    id
+}
+
+unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
+                                    -> Result<(), ProgramCreationError>
+{
+    let mut link_success: gl::types::GLint = mem::uninitialized();
+
+    match id {
+        Handle::Id(id) => {
+            assert!(ctxt.version >= &GlVersion(2, 0));
+            ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
+        },
+        Handle::Handle(id) => {
+            assert!(ctxt.extensions.gl_arb_shader_objects);
+            ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_LINK_STATUS_ARB,
+                                            &mut link_success);
+        }
+    }
+
+    if link_success == 0 {
+        use ProgramCreationError::LinkingError;
+
+        match ctxt.gl.GetError() {
+            gl::NO_ERROR => (),
+            gl::INVALID_VALUE => {
+                return Err(LinkingError(format!("glLinkProgram triggered \
+                                                 GL_INVALID_VALUE")));
+            },
+            gl::INVALID_OPERATION => {
+                return Err(LinkingError(format!("glLinkProgram triggered \
+                                                 GL_INVALID_OPERATION")));
+            },
+            _ => {
+                return Err(LinkingError(format!("glLinkProgram triggered an \
+                                                 unknown error")));
+            }
+        };
+
+        let mut error_log_size: gl::types::GLint = mem::uninitialized();
+
+        match id {
+            Handle::Id(id) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+            },
+            Handle::Handle(id) => {
+                assert!(ctxt.extensions.gl_arb_shader_objects);
+                ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_INFO_LOG_LENGTH_ARB,
+                                                &mut error_log_size);
+            }
+        }
+
+        let mut error_log: Vec<u8> = Vec::with_capacity(error_log_size as usize);
+
+        match id {
+            Handle::Id(id) => {
+                assert!(ctxt.version >= &GlVersion(2, 0));
+                ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
+                                          error_log.as_mut_slice().as_mut_ptr()
+                                            as *mut gl::types::GLchar);
+            },
+            Handle::Handle(id) => {
+                assert!(ctxt.extensions.gl_arb_shader_objects);
+                ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
+                                      error_log.as_mut_slice().as_mut_ptr()
+                                        as *mut gl::types::GLchar);
+            }
+        }
+
+        error_log.set_len(error_log_size as usize);
+
+        let msg = String::from_utf8(error_log).unwrap();
+        return Err(LinkingError(msg));
+    }
+
+    Ok(())
 }
 
 unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
