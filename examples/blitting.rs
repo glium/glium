@@ -41,11 +41,11 @@ fn main() {
         // we have one out of 60 chances to blit one `opengl_texture` over `dest_texture`
         if rand::random::<f64>() <= 0.016666 {
             let (left, bottom, dimensions): (f32, f32, f32) = rand::random();
-            let dest_rect = glium::Rect {
+            let dest_rect = glium::BlitTarget {
                 left: (left * dest_texture.get_width() as f32) as u32,
                 bottom: (bottom * dest_texture.get_height().unwrap() as f32) as u32,
-                width: (dimensions * dest_texture.get_width() as f32) as u32,
-                height: (dimensions * dest_texture.get_height().unwrap() as f32) as u32,
+                width: (dimensions * dest_texture.get_width() as f32) as i32,
+                height: (dimensions * dest_texture.get_height().unwrap() as f32) as i32,
             };
 
             opengl_texture.as_surface().blit_whole_color_to(&dest_texture.as_surface(), &dest_rect,

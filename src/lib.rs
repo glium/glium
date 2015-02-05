@@ -931,6 +931,23 @@ pub struct Rect {
     pub height: u32,
 }
 
+/// Area of a surface in pixels. Similar to a `Rect` except that dimensions can be negative.
+///
+/// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct BlitTarget {
+    /// Number of pixels between the left border of the surface and the left border of
+    /// the rectangle.
+    pub left: u32,
+    /// Number of pixels between the bottom border of the surface and the bottom border
+    /// of the rectangle.
+    pub bottom: u32,
+    /// Width of the area in pixels. Can be negative.
+    pub width: i32,
+    /// Height of the area in pixels. Can be negative.
+    pub height: i32,
+}
+
 /// Object that can be drawn upon.
 ///
 /// # What does the GPU do when you draw?
@@ -1201,7 +1218,7 @@ pub trait Surface: Sized {
     /// Note that there is no alpha blending, depth/stencil checking, etc. This function just
     /// copies pixels.
     #[unstable = "The name will likely change"]
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &Rect,
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
         ops::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
@@ -1210,7 +1227,7 @@ pub trait Surface: Sized {
 
     /// Copies the entire surface to a target surface. See `blit_color`.
     #[unstable = "The name will likely change"]
-    fn blit_whole_color_to<S>(&self, target: &S, target_rect: &Rect,
+    fn blit_whole_color_to<S>(&self, target: &S, target_rect: &BlitTarget,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
         let src_dim = self.get_dimensions();
@@ -1224,7 +1241,7 @@ pub trait Surface: Sized {
         let src_dim = self.get_dimensions();
         let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
         let target_dim = target.get_dimensions();
-        let target_rect = Rect { left: 0, bottom: 0, width: target_dim.0 as u32, height: target_dim.1 as u32 };
+        let target_rect = BlitTarget { left: 0, bottom: 0, width: target_dim.0 as i32, height: target_dim.1 as i32 };
         self.blit_color(&src_rect, target, &target_rect, filter)
     }
 }
