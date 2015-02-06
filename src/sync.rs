@@ -43,7 +43,7 @@ impl SyncFence {
     pub fn new_if_supported(display: &Display) -> Option<SyncFence> {
         let (tx, rx) = mpsc::channel();
 
-        display.context.context.exec(move |: mut ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             tx.send(unsafe { new_linear_sync_fence_if_supported(&mut ctxt) }).unwrap();
         });
 
@@ -55,7 +55,7 @@ impl SyncFence {
         let sync = ptr::Unique(self.id.take().unwrap() as *mut libc::c_void);
         let (tx, rx) = mpsc::channel();
 
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 // waiting with a deadline of one year
                 // the reason why the deadline is so long is because if you attach a GL debugger,
@@ -82,7 +82,7 @@ impl Drop for SyncFence {
             Some(s) => ptr::Unique(s as *mut libc::c_void)
         };
 
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 ctxt.gl.DeleteSync(sync.0 as gl::types::GLsync);
             }

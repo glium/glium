@@ -112,7 +112,7 @@ impl TimestampQuery {
         use std::mem;
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: ctxt| {
+        display.context.context.exec(move |ctxt| {
             if ctxt.opengl_es || ctxt.version <= &context::GlVersion(3, 2) {    // TODO: extension
                 tx.send(None).ok();
                 return;
@@ -142,7 +142,7 @@ impl TimestampQuery {
 
         let id = self.id.clone();
         let (tx, rx) = channel();
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectiv(id, gl::QUERY_RESULT_AVAILABLE, &mut value);
@@ -161,7 +161,7 @@ impl TimestampQuery {
 
         let id = self.id.clone();
         let (tx, rx) = channel();
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectui64v(id, gl::QUERY_RESULT, &mut value);

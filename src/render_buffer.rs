@@ -179,7 +179,7 @@ impl RenderBufferImpl {
     {
         let (tx, rx) = channel();
 
-        display.context.context.exec(move |: ctxt| {
+        display.context.context.exec(move |ctxt| {
             unsafe {
                 let id: gl::types::GLuint = mem::uninitialized();
                 if ctxt.version >= &context::GlVersion(3, 0) {
@@ -226,7 +226,7 @@ impl Drop for RenderBufferImpl {
 
         // destroying
         let id = self.id.clone();
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.state.renderbuffer == id {
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);

@@ -100,7 +100,7 @@ impl Context {
             (None, None)
         };
         let f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>>> = Box::new(
-            move |: c: CommandContext| {
+            move |c: CommandContext| {
                 f(c);
                 if sync {
                     tx.unwrap().send(()).unwrap();

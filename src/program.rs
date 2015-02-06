@@ -21,7 +21,7 @@ struct Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.exec(move |ctxt| {
             unsafe {
                 match id {
                     Handle::Id(id) => {
@@ -350,7 +350,7 @@ impl Program {
         }
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: mut ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let id = create_program(&mut ctxt);
 
@@ -400,7 +400,7 @@ impl Program {
         let id = try!(rx.recv().unwrap());
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: mut ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
@@ -437,7 +437,7 @@ impl Program {
         };
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: mut ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let id = create_program(&mut ctxt);
 
@@ -467,7 +467,7 @@ impl Program {
         let id = try!(rx.recv().unwrap());
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: mut ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 tx.send((
                     reflect_uniforms(&mut ctxt, id),
@@ -512,7 +512,7 @@ impl Program {
         let id = self.get_id();
 
         let (tx, rx) = channel();
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(4, 1) ||
                    ctxt.extensions.gl_arb_get_programy_binary
@@ -568,7 +568,7 @@ impl Program {
         let id = self.id.clone();
         let name_c = ffi::CString::from_slice(name.as_bytes());
         let (tx, rx) = channel();
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.exec(move |ctxt| {
             unsafe {
                 let value = match id {
                     Handle::Id(id) => {
@@ -651,7 +651,7 @@ impl Drop for Program {
 
         // sending the destroy command
         let id = self.id.clone();
-        self.display.context.exec(move |: ctxt| {
+        self.display.context.exec(move |ctxt| {
             unsafe {
                 match id {
                     Handle::Id(id) => {
@@ -687,7 +687,7 @@ fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: 
     let source_code = ffi::CString::from_slice(source_code.as_bytes());
 
     let (tx, rx) = channel();
-    display.context.context.exec(move |: ctxt| {
+    display.context.context.exec(move |ctxt| {
         unsafe {
             if shader_type == gl::GEOMETRY_SHADER && ctxt.opengl_es {
                 tx.send(Err(ProgramCreationError::ShaderTypeNotSupported)).ok();

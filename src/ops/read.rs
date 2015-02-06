@@ -83,7 +83,7 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
         pixel_buffer::store_infos(pixel_buffer, dimensions, chosen_format);
     }
 
-    context.exec(move |: mut ctxt| {
+    context.exec(move |mut ctxt| {
         unsafe {
             // binding framebuffer
             fbo::bind_framebuffer(&mut ctxt, fbo, false, true);

@@ -107,7 +107,7 @@ impl Buffer {
 
         let (tx, rx) = channel();
 
-        display.context.context.exec(move |: mut ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             let data = data;
             let data_ptr = if elements_count * elements_size as usize == 0 {
                 ptr::null()
@@ -229,7 +229,7 @@ impl Buffer {
         let buffer_size = elements_count * elements_size as usize;
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |: ctxt| {
+        display.context.context.exec(move |ctxt| {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
 
@@ -355,7 +355,7 @@ impl Buffer {
 
         let id = self.get_id();
 
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             let data = data;
 
             unsafe {
@@ -425,7 +425,7 @@ impl Buffer {
         let offset_bytes = offset * self.elements_size;
         let size_bytes = size * self.elements_size;
 
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             let ptr = unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.MapNamedBufferRange(id, offset_bytes as gl::types::GLintptr,
@@ -484,7 +484,7 @@ impl Buffer {
         let elements_size = self.elements_size.clone();
         let (tx, rx) = channel();
 
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             if ctxt.opengl_es {
                 tx.send(None).ok();
                 return;
@@ -540,7 +540,7 @@ impl fmt::Debug for Buffer {
 impl Drop for Buffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.context.exec(move |: ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             if ctxt.state.array_buffer_binding == id {
                 ctxt.state.array_buffer_binding = 0;
             }
@@ -589,7 +589,7 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
         }
 
         let id = self.buffer.id.clone();
-        self.buffer.display.context.context.exec(move |: ctxt| {
+        self.buffer.display.context.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.UnmapNamedBuffer(id);

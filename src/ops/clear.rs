@@ -28,7 +28,7 @@ pub fn clear(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachm
     let fbo_id = display.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context);
 
-    display.context.exec(move |: mut ctxt| {
+    display.context.exec(move |mut ctxt| {
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         unsafe {
