@@ -1611,7 +1611,7 @@ impl Display {
     /// This method is always available, but is a no-op if it's not available in
     /// the implementation.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(move |: ctxt| {
+        self.context.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.opengl_es || ctxt.version >= &context::GlVersion(4, 1) {
                     ctxt.gl.ReleaseShaderCompiler();
@@ -1626,7 +1626,7 @@ impl Display {
     pub fn get_free_video_memory(&self) -> Option<usize> {
         let (tx, rx) = channel();
 
-        self.context.context.exec(move |: ctxt| {
+        self.context.context.exec(move |ctxt| {
             unsafe {
                 use std::mem;
                 let mut value: [gl::types::GLint; 4] = mem::uninitialized();
@@ -1676,7 +1676,7 @@ impl Display {
         }
 
         // enabling the callback
-        self.context.context.exec(move |: ctxt| {
+        self.context.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug ||
                     ctxt.extensions.gl_arb_debug_output
@@ -1739,7 +1739,7 @@ impl Display {
     pub fn assert_no_error(&self) {
         let (tx, rx) = channel();
 
-        self.context.context.exec(move |: mut ctxt| {
+        self.context.context.exec(move |mut ctxt| {
             tx.send(get_gl_error(&mut ctxt)).ok();
         });
 
@@ -1759,7 +1759,7 @@ impl Display {
     pub fn synchronize(&self) {
         let (tx, rx) = channel();
 
-        self.context.context.exec(move |: ctxt| {
+        self.context.context.exec(move |ctxt| {
             unsafe { ctxt.gl.Finish(); }
             tx.send(()).ok();
         });
@@ -1773,7 +1773,7 @@ impl Display {
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
         // disabling callback
-        self.context.exec(move |: ctxt| {
+        self.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.state.enabled_debug_output != Some(false) {
                     if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {

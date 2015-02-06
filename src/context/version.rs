@@ -29,7 +29,7 @@ pub fn get_gl_version(gl: &gl::Gl) -> GlVersion {
         let version = version.words().next().expect("glGetString(GL_VERSION) returned an empty \
                                                      string");
 
-        let mut iter = version.split(move |&mut: c: char| c == '.');
+        let mut iter = version.split(move |c: char| c == '.');
         let major = iter.next().unwrap();
         let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 

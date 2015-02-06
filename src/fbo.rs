@@ -153,7 +153,7 @@ impl FrameBufferObject {
         let (tx, rx) = channel();
         let attachments = attachments.clone();
 
-        context.exec(move |: mut ctxt| {
+        context.exec(move |mut ctxt| {
             use context::GlVersion;
 
             // TODO: move outside of the gl thread
@@ -279,7 +279,7 @@ impl FrameBufferObject {
     fn destroy(self, context: &context::Context) {
         let id = self.id;
 
-        context.exec(move |: ctxt| {
+        context.exec(move |ctxt| {
             unsafe {
                 // unbinding framebuffer
                 if ctxt.version >= &context::GlVersion(3, 0) {

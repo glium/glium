@@ -167,7 +167,7 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
         let mut fences = Vec::new();
 
         let mut visiting_result = Ok(());
-        uniforms.visit_values(|&mut: name, value| {
+        uniforms.visit_values(|name, value| {
             if visiting_result.is_err() { return; }
 
             if let Some(uniform) = uniforms_locations.get(name) {
@@ -259,7 +259,7 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
     let draw_parameters = draw_parameters.clone();
 
     // sending the command
-    display.context.context.exec(move |: mut ctxt| {
+    display.context.context.exec(move |mut ctxt| {
         unsafe {
             fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
