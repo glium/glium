@@ -1,10 +1,10 @@
 /*!
 A uniform is a global variable in your program. In order to draw something, you will need to
- give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are 
- here to do that.
+give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are 
+here to do that.
 
-The recommended way to is to create your own structure and put the `#[uniforms]` attribute
- on it.
+There are two primarly ways to do this. The first one is to create your own structure and put
+the `#[uniforms]` attribute on it.
 
 For example:
 
@@ -31,21 +31,90 @@ let uniforms = Uniforms {
 # }
 ```
 
-Each field must implement the `UniformValue` trait.
+The second way is to use the `uniform!` macro provided by glium:
 
-## Sampler
+```no_run
+#[macro_use]
+extern crate glium;
+
+# fn main() {
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let tex: f32 = unsafe { std::mem::uninitialized() };
+# let matrix: f32 = unsafe { std::mem::uninitialized() };
+let uniforms = uniform! {
+    texture: tex,
+    matrix: matrix
+};
+# }
+```
+
+In both situations, each field must implement the `UniformValue` trait.
+
+## Samplers
 
 In order to customize the way a texture is being sampled, you must use a `Sampler`.
 
 ```no_run
+#[macro_use]
+extern crate glium;
+
+# fn main() {
 use std::default::Default;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
-let uniforms = glium::uniforms::UniformsStorage::new("texture",
-    glium::uniforms::Sampler(&texture, glium::uniforms::SamplerBehavior {
+let uniforms = uniform! {
+    texture: glium::uniforms::Sampler(&texture, glium::uniforms::SamplerBehavior {
         magnify_filter: glium::uniforms::MagnifySamplerFilter::Nearest,
         .. Default::default()
-    }));
+    })
+};
+# }
+```
+
+## Blocks
+
+In GLSL, you can choose to use a uniform *block*. When you use a block, you first need to
+upload the content of this block in the video memory thanks to a `UniformBuffer`. Then you
+can link the buffer to the name of the block, just like any other uniform.
+
+```no_run
+#[macro_use]
+extern crate glium;
+# fn main() {
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
+
+let program = glium::Program::from_source(&display,
+    "
+        #version 110
+
+        attribute vec2 position;
+
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    ",
+    "
+        #version 330
+        uniform layout(std140);
+
+        uniform MyBlock {
+            vec3 color;
+        };
+
+        void main() {
+            gl_FragColor = vec4(color, 1.0);
+        }
+    ",
+    None);
+
+let buffer = glium::uniforms::UniformBuffer::new_if_supported(&display,
+                                                              (0.5f32, 0.5f32, 0.5f32)).unwrap();
+
+let uniforms = uniform! {
+    MyBlock: &buffer
+};
+# }
 ```
 
 */
