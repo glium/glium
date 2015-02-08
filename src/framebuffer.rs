@@ -110,7 +110,7 @@ impl<'a> SimpleFrameBuffer<'a> {
         let (dimensions, color_attachment) = match color.to_color_attachment() {
             ColorAttachment::Texture2d(tex) => {
                 let dimensions = (tex.get_width(), tex.get_height().unwrap());
-                let id = fbo::Attachment::Texture(tex.get_id());
+                let id = fbo::Attachment::Texture { id: tex.get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 };
                 (dimensions, id)
             },
 
@@ -129,7 +129,7 @@ impl<'a> SimpleFrameBuffer<'a> {
                                 as the color attachment");
                     }
 
-                    (Some(fbo::Attachment::Texture(tex.get_id())), Some(32))      // FIXME: wrong number
+                    (Some(fbo::Attachment::Texture { id: tex.get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 }), Some(32))      // FIXME: wrong number
                 },
 
                 DepthAttachment::RenderBuffer(buffer) => {
@@ -151,7 +151,7 @@ impl<'a> SimpleFrameBuffer<'a> {
                                 as the color attachment");
                     }
 
-                    (Some(fbo::Attachment::Texture(tex.get_id())), Some(8))       // FIXME: wrong number
+                    (Some(fbo::Attachment::Texture { id: tex.get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 }), Some(8))       // FIXME: wrong number
                 },
 
                 StencilAttachment::RenderBuffer(buffer) => {
@@ -312,7 +312,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                                 as the color attachment");
                     }
 
-                    (Some(fbo::Attachment::Texture(tex.get_id())), Some(32))      // FIXME: wrong number
+                    (Some(fbo::Attachment::Texture { id: tex.get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 }), Some(32))      // FIXME: wrong number
                 },
 
                 DepthAttachment::RenderBuffer(buffer) => {
@@ -347,7 +347,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                 None => panic!("The fragment output `{}` was not found in the program", name)
             };
 
-            colors.push((location, fbo::Attachment::Texture(texture)));
+            colors.push((location, fbo::Attachment::Texture { id: texture, bind_point: gl::TEXTURE_2D, level: 0, layer: 0 }));
         }
 
         FramebufferAttachments {
@@ -361,7 +361,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         let mut colors = Vec::new();
 
         for (id, &(ref name, texture)) in self.color_attachments.iter().enumerate() {
-            colors.push((id as u32, fbo::Attachment::Texture(texture)));
+            colors.push((id as u32, fbo::Attachment::Texture { id: texture, bind_point: gl::TEXTURE_2D, level: 0, layer: 0 }));
         }
 
         FramebufferAttachments {
