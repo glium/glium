@@ -58,8 +58,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
             let content = definition.fields.iter().zip(fields.iter())
                 .map(|(def, &(ident, _))| {
                     let ref elem_type = def.node.ty;
-                    let ident_str = token::get_ident(ident);
-                    let ident_str = ident_str.get();
+                    let ident_str = &*token::get_ident(ident);
 
                     quote_expr!(ecx, {
                         let offset = {
