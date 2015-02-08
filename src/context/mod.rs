@@ -140,6 +140,11 @@ impl Context {
             iter: self.window.as_ref().map(|w| w.wait_events())
         }
     }
+
+    /// Returns the underlying window, or `None` if a headless context is used.
+    pub fn get_window(&self) -> Option<&glutin::Window> {
+        self.window.as_ref().map(|w| ::std::ops::Deref::deref(w))
+    }
 }
 
 fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError> {
