@@ -1572,6 +1572,11 @@ impl Display {
         self.context.context.wait_events()
     }
 
+    /// Returns the underlying window, or `None` if glium uses a headless context.
+    pub fn get_window(&self) -> Option<&glutin::Window> {
+        self.context.context.get_window()
+    }
+
     /// Returns the dimensions of the main framebuffer.
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.context.context.get_framebuffer_dimensions()
