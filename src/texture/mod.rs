@@ -411,3 +411,10 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.get_blit_helper()
     }
 }
+
+/// Error that can happen when creating a texture.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TextureCreationError {
+    /// The requested format is not supported by the backend.
+    UnsupportedFormat,
+}
