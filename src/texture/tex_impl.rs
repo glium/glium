@@ -287,12 +287,13 @@ impl TextureImplementation {
 
     /// Changes some parts of the texture.
     pub fn upload<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
-                         (format, data): (ClientFormat, Cow<'a, Vec<P>, [P]>), width: u32, height: Option<u32>,
-                         depth: Option<u32>) where P: Send + Copy + Clone + 'a
+                         (format, data): (ClientFormat, Cow<'a, Vec<P>, [P]>), width: u32,
+                         height: Option<u32>, depth: Option<u32>, level: u32, regen_mipmaps: bool)
+                         where P: Send + Copy + Clone + 'a
     {
         let id = self.id;
         let bind_point = self.bind_point;
-        let levels = self.levels;
+        let regen_mipmaps = regen_mipmaps && self.levels >= 2;
 
         assert!(x_offset <= self.width);
         assert!(y_offset <= self.height.unwrap_or(1));
@@ -323,7 +324,8 @@ impl TextureImplementation {
 
                 } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
                     assert!(z_offset == 0);
-                    ctxt.gl.TexSubImage2D(bind_point, 0, x_offset as gl::types::GLint,
+                    ctxt.gl.TexSubImage2D(bind_point, level as gl::types::GLint,
+                                          x_offset as gl::types::GLint,
                                           y_offset as gl::types::GLint,
                                           width as gl::types::GLsizei,
                                           height.unwrap_or(1) as gl::types::GLsizei,
@@ -338,7 +340,7 @@ impl TextureImplementation {
                 }
 
                 // regenerate mipmaps if there are some
-                if levels >= 2 {
+                if regen_mipmaps {
                     if ctxt.version >= &GlVersion(3, 0) {
                         ctxt.gl.GenerateMipmap(bind_point);
                     } else {

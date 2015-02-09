@@ -453,7 +453,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                     assert_eq!(height, rect.height);
 
                     self.0.upload(rect.left, rect.bottom, 0, (client_format, data), width,
-                                  Some(height), None);
+                                  Some(height), None, 0, true);
                 }}
             "#, data = data_type)).unwrap();
     }
