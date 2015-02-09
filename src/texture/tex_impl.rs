@@ -375,6 +375,11 @@ impl TextureImplementation {
     pub fn get_array_size(&self) -> Option<u32> {
         self.array_size.clone()
     }
+
+    /// Returns the number of mipmap levels of the texture.
+    pub fn get_mipmap_levels(&self) -> u32 {
+        self.levels
+    }
 }
 
 impl GlObject for TextureImplementation {

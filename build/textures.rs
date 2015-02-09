@@ -429,6 +429,16 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ")).unwrap();
     }
 
+    // writing the `get_mipmap_levels` function
+    (write!(dest, "
+            /// Returns the number of mipmap levels of the texture.
+            ///
+            /// The minimum value is 1, since there is always a main texture.
+            pub fn get_mipmap_levels(&self) -> u32 {{
+                self.0.get_mipmap_levels()
+            }}
+        ")).unwrap();
+
     // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
