@@ -48,8 +48,8 @@ pub struct TextureImplementation {
 impl TextureImplementation {
     /// Builds a new texture.
     pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
-                      data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, width: u32, height: Option<u32>,
-                      depth: Option<u32>, array_size: Option<u32>)
+                      data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, generate_mipmaps: bool,
+                      width: u32, height: Option<u32>, depth: Option<u32>, array_size: Option<u32>)
                       -> TextureImplementation where P: Send + Clone + 'a
     {
         use std::num::Float;
@@ -71,7 +71,7 @@ impl TextureImplementation {
             gl::TEXTURE_3D
         };
 
-        let generate_mipmaps = match format {
+        let generate_mipmaps = generate_mipmaps && match format {
             TextureFormatRequest::AnyFloatingPoint |
             TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
             TextureFormatRequest::AnyIntegral |
