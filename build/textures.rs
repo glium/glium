@@ -18,6 +18,16 @@ enum TextureDimensions {
     Texture2dArray,
 }
 
+impl TextureDimensions {
+    fn is_array(&self) -> bool {
+        match self {
+            &TextureDimensions::Texture1dArray => true,
+            &TextureDimensions::Texture2dArray => true,
+            _ => false
+        }
+    }
+}
+
 pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1d);
@@ -448,6 +458,42 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             "#, data = data_type)).unwrap();
     }
 
+    // writing the `layer()` function
+    if dimensions.is_array() {
+        (write!(dest, r#"
+                /// Access a single layer of this texture.
+                pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
+                    if layer < self.0.get_array_size().unwrap_or(1) {{
+                        Some({name}Layer {{
+                            texture: self,
+                            layer: layer,
+                        }})
+                    }} else {{
+                        None
+                    }}
+                }}
+            "#, name = name)).unwrap();
+    }
+
     // closing `impl Texture` block
     (writeln!(dest, "}}")).unwrap();
+
+
+    // the `Layer` struct
+    if dimensions.is_array() {
+        // writing the struct
+        (write!(dest, r#"
+                /// Represents a single layer of a `{name}`.
+                pub struct {name}Layer<'t> {{
+                    texture: &'t {name},
+                    layer: u32,
+                }}
+            "#, name = name)).unwrap();
+
+        // opening `impl Layer` block
+        (writeln!(dest, "impl<'t> {}Layer<'t> {{", name)).unwrap();
+
+        // closing `impl Layer` block
+        (writeln!(dest, "}}")).unwrap();
+    }
 }
