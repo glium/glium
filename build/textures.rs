@@ -541,9 +541,35 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             "#, name = name)).unwrap();
     }
 
+    // writing the `mipmap()` and `main_level()` functions
+    if !dimensions.is_array() {
+        (write!(dest, r#"
+                /// Access a single mipmap level of this texture.
+                pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
+                    if level < self.0.get_mipmap_levels() {{
+                        Some({name}Mipmap {{
+                            texture: self,
+                            level: level,
+                        }})
+                    }} else {{
+                        None
+                    }}
+                }}
+            "#, name = name)).unwrap();
+
+        (write!(dest, r#"
+                /// Access the main mipmap level of this texture.
+                pub fn main_level(&self) -> {name}Mipmap {{
+                    {name}Mipmap {{
+                        texture: self,
+                        level: 0,
+                    }}
+                }}
+            "#, name = name)).unwrap();
+    }
+
     // closing `impl Texture` block
     (writeln!(dest, "}}")).unwrap();
-
 
     // the `Layer` struct
     if dimensions.is_array() {
@@ -559,7 +585,75 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         // opening `impl Layer` block
         (writeln!(dest, "impl<'t> {}Layer<'t> {{", name)).unwrap();
 
+        // writing the `get_mipmap_levels` function
+        (write!(dest, "
+                /// Returns the number of mipmap levels of the texture.
+                ///
+                /// The minimum value is 1, since there is always a main texture.
+                pub fn get_mipmap_levels(&self) -> u32 {{
+                    self.texture.get_mipmap_levels()
+                }}
+            ")).unwrap();
+
+        // writing the `mipmap()` function
+        (write!(dest, r#"
+                /// Access a single mipmap level of this layer.
+                pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
+                    if level < self.texture.get_mipmap_levels() {{
+                        Some({name}Mipmap {{
+                            texture: self.texture,
+                            layer: self.layer,
+                            level: level,
+                        }})
+                    }} else {{
+                        None
+                    }}
+                }}
+            "#, name = name)).unwrap();
+
+        // writing the `main_level()` function
+        (write!(dest, r#"
+                /// Access the main mipmap level of this layer.
+                pub fn main_level(&self) -> {name}Mipmap {{
+                    {name}Mipmap {{
+                        texture: self.texture,
+                        layer: self.layer,
+                        level: 0,
+                    }}
+                }}
+            "#, name = name)).unwrap();
+
         // closing `impl Layer` block
+        (writeln!(dest, "}}")).unwrap();
+    }
+
+    // the `Mipmap` struct
+    {
+        // writing the struct
+        if dimensions.is_array() {
+            (write!(dest, r#"
+                    /// Represents a single mipmap level of a `{name}`.
+                    pub struct {name}Mipmap<'t> {{
+                        texture: &'t {name},
+                        layer: u32,
+                        level: u32,
+                    }}
+                "#, name = name)).unwrap();
+
+        } else {
+            (write!(dest, r#"
+                    /// Represents a single mipmap level of a `{name}`.
+                    pub struct {name}Mipmap<'t> {{
+                        texture: &'t {name},
+                        level: u32,
+                    }}
+                "#, name = name)).unwrap();
+        }
+
+        // opening `impl Mipmap` block
+        (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
+
+        // closing `impl Mipmap` block
         (writeln!(dest, "}}")).unwrap();
     }
 }
