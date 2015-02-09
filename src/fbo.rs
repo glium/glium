@@ -1,3 +1,55 @@
+/*!
+Contains everything related to the internal handling of framebuffer objects.
+
+This module allows creating framebuffer objects. However it **does not** check whether
+the framebuffer object is complete (ie. if everything is valid). This is the module user's job.
+
+Here are the rules taken from the official wiki:
+
+Attachment Completeness
+
+Each attachment point itself must be complete according to these rules. Empty attachments
+(attachments with no image attached) are complete by default. If an image is attached, it must
+adhere to the following rules:
+
+The source object for the image still exists and has the same type it was attached with.
+The image has a non-zero width and height (the height of a 1D image is assumed to be 1). The
+  width/height must also be less than GL_MAX_FRAMEBUFFER_WIDTH and GL_MAX_FRAMEBUFFER_HEIGHT
+  respectively (if GL 4.3/ARB_framebuffer_no_attachments).
+The layer for 3D or array textures attachments is less than the depth of the texture. It must
+  also be less than GL_MAX_FRAMEBUFFER_LAYERS (if GL 4.3/ARB_framebuffer_no_attachments).
+The number of samples must be less than GL_MAX_FRAMEBUFFER_SAMPLES (if
+  GL 4.3/ARB_framebuffer_no_attachments).
+The image's format must match the attachment point's requirements, as defined above.
+  Color-renderable formats for color attachments, etc.
+
+Completeness Rules
+
+These are the rules for framebuffer completeness. The order of these rules matters.
+
+If the target​ of glCheckFramebufferStatus references the Default Framebuffer (ie: FBO object
+  number 0 is bound), and the default framebuffer does not exist, then you will get
+  GL_FRAMEBUFFER_UNDEFINEZ. If the default framebuffer exists, then you always get
+  GL_FRAMEBUFFER_COMPLETE. The rest of the rules apply when an FBO is bound.
+All attachments must be attachment complete. (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT when false).
+There must be at least one image attached to the FBO, or if OpenGL 4.3 or
+  ARB_framebuffer_no_attachment is available, the GL_FRAMEBUFFER_DEFAULT_WIDTH and
+  GL_FRAMEBUFFER_DEFAULT_HEIGHT parameters of the framebuffer must both be non-zero.
+  (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT when false).
+Each draw buffers must either specify color attachment points that have images attached or
+  must be GL_NONE. (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER when false). Note that this test is
+  not performed if OpenGL 4.1 or ARB_ES2_compatibility is available.
+If the read buffer is set, then it must specify an attachment point that has an image
+  attached. (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER when false). Note that this test is not
+  performed if OpenGL 4.1 or ARB_ES2_compatibility is available.
+All images must have the same number of multisample samples.
+  (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE when false).
+If a layered image is attached to one attachment, then all attachments must be layered
+  attachments. The attached layers do not have to have the same number of layers, nor do the
+  layers have to come from the same kind of texture (a cubemap color texture can be paired
+  with an array depth texture) (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS when false).
+
+*/
 use std::collections::HashMap;
 use std::mem;
 use std::sync::Mutex;
@@ -17,7 +69,12 @@ pub struct FramebufferAttachments {
 
 #[derive(Hash, Copy, Clone, PartialEq, Eq)]
 pub enum Attachment {
-    Texture(gl::types::GLuint),
+    Texture {
+        bind_point: gl::types::GLenum,      // must be GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY, etc.
+        id: gl::types::GLuint,
+        level: u32,
+        layer: u32,
+    },
     RenderBuffer(gl::types::GLuint),
 }
 
@@ -42,7 +99,12 @@ impl FramebuffersContainer {
     }
 
     pub fn purge_texture(&self, texture: gl::types::GLuint, context: &context::Context) {
-        self.purge_if(|a| a == &Attachment::Texture(texture), context);
+        self.purge_if(|a| {
+            match a {
+                &Attachment::Texture { id, .. } if id == texture => true,
+                _ => false 
+            }
+        }, context);
     }
 
     pub fn purge_renderbuffer(&self, renderbuffer: gl::types::GLuint,
@@ -167,8 +229,15 @@ impl FrameBufferObject {
             {
                 if ctxt.version >= &GlVersion(4, 5) {
                     match attachment {
-                        Attachment::Texture(tex_id) => {
-                            ctxt.gl.NamedFramebufferTexture(id, slot, tex_id, 0);
+                        Attachment::Texture { id: tex_id, level, layer, .. } => {
+                            if layer == 0 {
+                                ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
+                                                                level as gl::types::GLint);
+                            } else {
+                                ctxt.gl.NamedFramebufferTextureLayer(id, slot, tex_id,
+                                                                     level as gl::types::GLint,
+                                                                     layer as gl::types::GLint);
+                            }
                         },
                         Attachment::RenderBuffer(buf_id) => {
                             ctxt.gl.NamedFramebufferRenderbuffer(id, slot, gl::RENDERBUFFER,
@@ -180,8 +249,15 @@ impl FrameBufferObject {
                           ctxt.extensions.gl_ext_geometry_shader4
                 {
                     match attachment {
-                        Attachment::Texture(tex_id) => {
-                            ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id, 0);
+                        Attachment::Texture { id: tex_id, level, layer, .. } => {
+                            if layer == 0 {
+                                ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                                   level as gl::types::GLint);
+                            } else {
+                                ctxt.gl.NamedFramebufferTextureLayerEXT(id, slot, tex_id,
+                                                                        level as gl::types::GLint,
+                                                                        layer as gl::types::GLint);
+                            }
                         },
                         Attachment::RenderBuffer(buf_id) => {
                             ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER,
@@ -193,9 +269,16 @@ impl FrameBufferObject {
                     bind_framebuffer(ctxt, id, true, false);
 
                     match attachment {
-                        Attachment::Texture(tex_id) => {
-                            ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
-                                                       slot, tex_id, 0);
+                        Attachment::Texture { id: tex_id, level, layer, .. } => {
+                            if layer == 0 {
+                                ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                           slot, tex_id, level as gl::types::GLint);
+                            } else {
+                                ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
+                                                                slot, tex_id,
+                                                                level as gl::types::GLint,
+                                                                layer as gl::types::GLint);
+                            }
                         },
                         Attachment::RenderBuffer(buf_id) => {
                             ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
@@ -207,9 +290,17 @@ impl FrameBufferObject {
                     bind_framebuffer(ctxt, id, true, false);
 
                     match attachment {
-                        Attachment::Texture(tex_id) => {
-                            ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
-                                                         slot, gl::TEXTURE_2D, tex_id, 0);
+                        Attachment::Texture { bind_point, id: tex_id, level, layer } => {
+                            if layer == 0 {
+                                ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint);
+                            } else {
+                                ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
+                                                                slot, tex_id,
+                                                                level as gl::types::GLint,
+                                                                layer as gl::types::GLint);
+                            }
                         },
                         Attachment::RenderBuffer(buf_id) => {
                             ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
@@ -221,9 +312,14 @@ impl FrameBufferObject {
                     bind_framebuffer(ctxt, id, true, true);
 
                     match attachment {
-                        Attachment::Texture(tex_id) => {
-                            ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
-                                                            slot, gl::TEXTURE_2D, tex_id, 0);
+                        Attachment::Texture { bind_point, id: tex_id, level, layer } => {
+                            if layer == 0 {
+                                ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                                slot, bind_point, tex_id,
+                                                                level as gl::types::GLint);
+                            } else {
+                                panic!("Unsupported");
+                            }
                         },
                         Attachment::RenderBuffer(buf_id) => {
                             ctxt.gl.FramebufferRenderbufferEXT(gl::DRAW_FRAMEBUFFER, slot,

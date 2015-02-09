@@ -248,8 +248,15 @@ impl TextureImplementation {
             // TODO: remove Clone for P
     {
         assert_eq!(level, 0);   // TODO:
-        ops::read_attachment(&fbo::Attachment::Texture(self.id), (self.width,
-                             self.height.unwrap_or(1)), &self.display)
+
+        let attachment = fbo::Attachment::Texture {
+            id: self.id,
+            bind_point: self.bind_point,
+            layer: 0,
+            level: 0
+        };
+
+        ops::read_attachment(&attachment, (self.width, self.height.unwrap_or(1)), &self.display)
     }
 
     /// Reads the content of a mipmap level of the texture to a pixel buffer.
@@ -265,9 +272,16 @@ impl TextureImplementation {
         let size = self.width as usize * self.height.unwrap_or(1) as usize *
                    <T as Texture2dDataSink>::get_preferred_formats()[0].get_size();
 
+        let attachment = fbo::Attachment::Texture {
+            id: self.id,
+            bind_point: self.bind_point,
+            layer: 0,
+            level: 0
+        };
+
         let mut pb = PixelBuffer::new_empty(&self.display, size);
-        ops::read_attachment_to_pb(&fbo::Attachment::Texture(self.id), (self.width,
-                                   self.height.unwrap_or(1)), &mut pb, &self.display);
+        ops::read_attachment_to_pb(&attachment, (self.width, self.height.unwrap_or(1)),
+                                   &mut pb, &self.display);
         pb
     }
 
