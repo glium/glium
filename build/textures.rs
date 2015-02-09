@@ -576,6 +576,8 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         // writing the struct
         (write!(dest, r#"
                 /// Represents a single layer of a `{name}`.
+                ///
+                /// Can be obtained by calling `{name}::layer()`.
                 pub struct {name}Layer<'t> {{
                     texture: &'t {name},
                     layer: u32,
@@ -633,6 +635,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         if dimensions.is_array() {
             (write!(dest, r#"
                     /// Represents a single mipmap level of a `{name}`.
+                    ///
+                    /// Can be obtained by calling `{name}Layer::mipmap()` or
+                    /// `{name}Layer::main_level()`.
                     pub struct {name}Mipmap<'t> {{
                         texture: &'t {name},
                         layer: u32,
@@ -643,6 +648,8 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         } else {
             (write!(dest, r#"
                     /// Represents a single mipmap level of a `{name}`.
+                    ///
+                    /// Can be obtained by calling `{name}::mipmap()` or `{name}::main_level()`.
                     pub struct {name}Mipmap<'t> {{
                         texture: &'t {name},
                         level: u32,
