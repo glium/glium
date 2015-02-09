@@ -291,6 +291,32 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ", data_source_trait = data_source_trait, param = param, name = name)).unwrap();
     }
 
+    // writing the `with_format` function
+    {
+        let param = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => "T",
+
+            TextureDimensions::Texture1dArray |
+            TextureDimensions::Texture2dArray => "Vec<T>",
+        };
+
+        (writeln!(dest, "
+                /// Builds a new texture by uploading data.
+                ///
+                /// This function will automatically generate all mipmaps of the texture.
+                pub fn with_format<'a, T>(display: &::Display, data: {param},
+                                          format: {format}, mipmaps: bool)
+                                          -> Result<{name}, TextureCreationError>
+                                          where T: {data_source_trait}<'a>
+                {{
+                    // FIXME: wrong
+                    Ok({name}::new_impl(display, data, Some(format), mipmaps))
+                }}
+            ", data_source_trait = data_source_trait, param = param,
+               format = relevant_format, name = name)).unwrap();
+    }
+
     // writing the `new_empty` function
     if ty != TextureType::Compressed {
         let dim_params = match dimensions {
