@@ -45,6 +45,9 @@ libc = "*"
 gl_generator = "*"
 khronos_api = "*"
 
+[dev-dependencies]
+clock_ticks = "*"
+
 [dev-dependencies.glium_macros]
 path = "macros"
 version = "*"
