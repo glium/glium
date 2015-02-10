@@ -344,7 +344,7 @@ impl Buffer {
     ///
     /// This function considers that the buffer is filled of elements of type `D`. The offset
     /// is a number of elements, not a number of bytes.
-    pub fn upload<T, D>(&mut self, offset: usize, data: Vec<D>)
+    pub fn upload<T, D>(&self, offset: usize, data: Vec<D>)
                         where D: Copy + Send, T: BufferType
     {
         let offset = offset * get_elements_size(&data);

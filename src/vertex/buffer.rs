@@ -16,6 +16,13 @@ pub struct VertexBuffer<T> {
     buffer: VertexBufferAny,
 }
 
+/// Represents a slice of a `VertexBuffer`.
+pub struct VertexBufferSlice<'b, T> {
+    buffer: &'b VertexBuffer<T>,
+    offset: usize,
+    length: usize,
+}
+
 impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// Builds a new vertex buffer.
     ///
@@ -156,6 +163,21 @@ impl<T: Send + Copy> VertexBuffer<T> {
         }
     }
 
+    /// Accesses a slice of the buffer.
+    ///
+    /// Returns `None` if the slice is out of range.
+    pub fn slice(&self, offset: usize, len: usize) -> Option<VertexBufferSlice<T>> {
+        if offset >= self.len() || offset + len >= self.len() {
+            return None;
+        }
+
+        Some(VertexBufferSlice {
+            buffer: self,
+            offset: offset,
+            length: len
+        })
+    }
+
     /// Maps the buffer to allow write access to it.
     ///
     /// This function will block until the buffer stops being used by the backend.
@@ -187,45 +209,14 @@ impl<T: Send + Copy> VertexBuffer<T> {
         self.buffer.buffer.read_if_supported::<buffer::ArrayBuffer, T>()
     }
 
-    /// Reads the content of the buffer.
-    ///
-    /// This function is usually better if are just doing one punctual read, while `map`
-    /// is better if you want to have multiple small reads.
-    ///
-    /// The offset and size are expressed in number of elements.
+    /// Replaces the content of the buffer.
     ///
     /// ## Panic
     ///
-    /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read_slice(&self, offset: usize, size: usize) -> Vec<T> {
-        self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
-    }
-
-    /// Reads the content of the buffer.
-    ///
-    /// This function is usually better if are just doing one punctual read, while `map`
-    /// is better if you want to have multiple small reads.
-    ///
-    /// The offset and size are expressed in number of elements.
-    ///
-    /// ## Panic
-    ///
-    /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
-    pub fn read_slice_if_supported(&self, offset: usize, size: usize) -> Option<Vec<T>> {
-        self.buffer.buffer.read_slice_if_supported::<buffer::ArrayBuffer, T>(offset, size)
-    }
-
-    /// Writes some vertices to the buffer.
-    ///
-    /// Replaces some vertices in the buffer with others.
-    /// The `offset` represents a number of vertices, not a number of bytes.
-    pub fn write(&mut self, offset: usize, data: Vec<T>) {
-        self.buffer.buffer.upload::<buffer::ArrayBuffer, _>(offset, data)
+    /// Panics if the length of `data` is different from the length of this buffer.
+    pub fn write(&self, data: Vec<T>) {
+        assert!(data.len() == self.len());
+        self.buffer.buffer.upload::<buffer::ArrayBuffer, _>(0, data)
     }
 }
 
@@ -249,6 +240,11 @@ impl<T> VertexBuffer<T> {
     pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
         self.buffer
     }
+
+    /// Returns the number of elements in the buffer.
+    pub fn len(&self) -> usize {
+        self.buffer.len()
+    }
 }
 
 impl<T> GlObject for VertexBuffer<T> {
@@ -264,6 +260,40 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
     }
 }
 
+impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy {
+    /// Reads the content of the slice.
+    ///
+    /// This function is usually better if are just doing one punctual read, while `map`
+    /// is better if you want to have multiple small reads.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_read_buffer` feature is enabled.
+    #[cfg(feature = "gl_read_buffer")]
+    pub fn read(&self) -> Vec<T> {
+        self.buffer.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(self.offset, self.length)
+    }
+
+    /// Reads the content of the buffer.
+    ///
+    /// This function is usually better if are just doing one punctual read, while `map`
+    /// is better if you want to have multiple small reads.
+    pub fn read_if_supported(&self) -> Option<Vec<T>> {
+        self.buffer.buffer.buffer.read_slice_if_supported::<buffer::ArrayBuffer, T>(self.offset,
+                                                                                    self.length)
+    }
+
+    /// Writes some vertices to the buffer.
+    ///
+    /// ## Panic
+    ///
+    /// Panics if the length of `data` is different from the length of this slice.
+    pub fn write(&self, data: Vec<T>) {
+        assert!(data.len() == self.length);
+        self.buffer.buffer.buffer.upload::<buffer::ArrayBuffer, _>(self.offset, data)
+    }
+}
+
 /// A list of vertices loaded in the graphics card's memory.
 ///
 /// Contrary to `VertexBuffer`, this struct doesn't know about the type of data
@@ -276,6 +306,13 @@ pub struct VertexBufferAny {
     buffer: Buffer,
     bindings: VertexFormat,
     elements_size: usize,
+}
+
+/// Represents a slice of a `VertexBufferAny`.
+pub struct VertexBufferAnySlice<'b> {
+    buffer: &'b VertexBufferAny,
+    offset: usize,
+    length: usize,
 }
 
 impl VertexBufferAny {
@@ -299,6 +336,21 @@ impl VertexBufferAny {
         VertexBuffer {
             buffer: self,
         }
+    }
+
+    /// Accesses a slice of the buffer.
+    ///
+    /// Returns `None` if the slice is out of range.
+    pub fn slice(&self, offset: usize, len: usize) -> Option<VertexBufferAnySlice> {
+        if offset >= self.len() || offset + len >= self.len() {
+            return None;
+        }
+
+        Some(VertexBufferAnySlice {
+            buffer: self,
+            offset: offset,
+            length: len
+        })
     }
 }
 
