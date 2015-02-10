@@ -167,7 +167,7 @@ impl<T: Send + Copy> VertexBuffer<T> {
     ///
     /// Returns `None` if the slice is out of range.
     pub fn slice(&self, offset: usize, len: usize) -> Option<VertexBufferSlice<T>> {
-        if offset >= self.len() || offset + len >= self.len() {
+        if offset > self.len() || offset + len > self.len() {
             return None;
         }
 
@@ -289,8 +289,21 @@ impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy {
     ///
     /// Panics if the length of `data` is different from the length of this slice.
     pub fn write(&self, data: Vec<T>) {
-        assert!(data.len() == self.length);
+        // FIXME: uncomment the assert when https://github.com/rust-lang/rust/issues/16734 is fixed
+        //assert!(data.len() == self.length);
         self.buffer.buffer.buffer.upload::<buffer::ArrayBuffer, _>(self.offset, data)
+    }
+}
+
+impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
+        let fence = if self.buffer.buffer.buffer.is_persistent() {
+            Some(self.buffer.buffer.buffer.add_fence())
+        } else {
+            None
+        };
+
+        VerticesSource::VertexBuffer(&self.buffer.buffer, fence, self.offset, self.length)
     }
 }
 
@@ -384,7 +397,19 @@ impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
             None
         };
 
-        VerticesSource::VertexBuffer(self, fence)
+        VerticesSource::VertexBuffer(self, fence, 0, self.len())
+    }
+}
+
+impl<'a> IntoVerticesSource<'a> for VertexBufferAnySlice<'a> {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
+        let fence = if self.buffer.buffer.is_persistent() {
+            Some(self.buffer.buffer.add_fence())
+        } else {
+            None
+        };
+
+        VerticesSource::VertexBuffer(self.buffer, fence, self.offset, self.length)
     }
 }
 

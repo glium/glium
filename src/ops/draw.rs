@@ -29,20 +29,33 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context.context);
 
+    // using a base vertex is not yet supported
+    // TODO: 
+    for src in vertex_buffers.iter() {
+        match src {
+            &VerticesSource::VertexBuffer(_, _, offset, _) => {
+                if offset != 0 {
+                    panic!("Using a base vertex different from 0 is not yet implemented");
+                }
+            },
+            _ => ()
+        }
+    }
+
     // getting the number of vertices in the vertices sources, or `None` if there is a
     // mismatch
     let vertices_count = {
         let mut vertices_count: Option<usize> = None;
         for src in vertex_buffers.iter() {
             match src {
-                &VerticesSource::VertexBuffer(ref buffer, _) => {
+                &VerticesSource::VertexBuffer(_, _, _, len) => {
                     if let Some(curr) = vertices_count {
-                        if curr != buffer.len() {
+                        if curr != len {
                             vertices_count = None;
                             break;
                         }
                     } else {
-                        vertices_count = Some(buffer.len());
+                        vertices_count = Some(len);
                     }
                 },
                 _ => ()
@@ -220,7 +233,7 @@ pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachm
         // adding the vertex buffer and index buffer to the list of fences
         for vertex_buffer in vertex_buffers.iter_mut() {
             match vertex_buffer {
-                &mut VerticesSource::VertexBuffer(_, ref mut fence) => {
+                &mut VerticesSource::VertexBuffer(_, ref mut fence, _, _) => {
                     if let Some(fence) = fence.take() {
                         fences.push(fence);
                     }
