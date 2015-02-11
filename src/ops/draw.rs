@@ -11,18 +11,21 @@ use sync;
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use {Program, DrawParameters, GlObject, ToGlEnum};
 use index::{self, IndicesSource};
-use vertex::VerticesSource;
+use vertex::{MultiVerticesSource, VerticesSource};
 
 use {program, vertex_array_object};
 use {gl, context};
 
 /// Draws everything.
-pub fn draw<'a, I, U>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
-                      mut vertex_buffers: &mut [VerticesSource], mut indices: IndicesSource<I>,
-                      program: &Program, uniforms: U, draw_parameters: &DrawParameters,
-                      dimensions: (u32, u32)) -> Result<(), DrawError>
-                      where U: Uniforms, I: index::Index
+pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
+                         vertex_buffers: V, mut indices: IndicesSource<I>,
+                         program: &Program, uniforms: U, draw_parameters: &DrawParameters,
+                         dimensions: (u32, u32)) -> Result<(), DrawError>
+                         where U: Uniforms, I: index::Index, V: MultiVerticesSource<'a>
 {
+    // TODO: avoid this allocation
+    let mut vertex_buffers = vertex_buffers.iter().collect::<Vec<_>>();
+
     try!(draw_parameters.validate());
 
     // obtaining the identifier of the FBO to draw upon
