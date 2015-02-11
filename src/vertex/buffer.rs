@@ -287,8 +287,7 @@ impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy {
     ///
     /// Panics if the length of `data` is different from the length of this slice.
     pub fn write(&self, data: Vec<T>) {
-        // FIXME: uncomment the assert when https://github.com/rust-lang/rust/issues/16734 is fixed
-        //assert!(data.len() == self.length);
+        assert!(data.len() == self.length);
         self.buffer.buffer.buffer.upload::<buffer::ArrayBuffer, _>(self.offset, data)
     }
 }

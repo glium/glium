@@ -60,6 +60,7 @@ use std::sync::mpsc::Sender;
 use sync::LinearSyncFence;
 
 pub use self::buffer::{VertexBuffer, VertexBufferAny, Mapping};
+pub use self::buffer::{VertexBufferSlice, VertexBufferAnySlice};
 pub use self::format::{AttributeType, VertexFormat};
 pub use self::per_instance::{PerInstanceAttributesBuffer, PerInstanceAttributesBufferAny};
 pub use self::per_instance::Mapping as PerInstanceAttributesBufferMapping;
