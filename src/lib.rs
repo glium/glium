@@ -1422,9 +1422,8 @@ impl Surface for Frame {
             }
         }
 
-        ops::draw(&self.display, None, vertex_buffer.build_vertices_source().as_mut_slice(),
-                  index_buffer.to_indices_source(), program, uniforms, draw_parameters,
-                  (self.dimensions.0 as u32, self.dimensions.1 as u32))
+        ops::draw(&self.display, None, vertex_buffer, index_buffer.to_indices_source(), program,
+                  uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
     fn get_blit_helper(&self) -> BlitHelper {

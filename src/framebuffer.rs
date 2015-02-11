@@ -223,7 +223,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
             }
         }
 
-        ops::draw(&self.display, Some(&self.attachments), vb.build_vertices_source().as_mut_slice(),
+        ops::draw(&self.display, Some(&self.attachments), vb,
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
@@ -420,8 +420,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
             }
         }
 
-        ops::draw(&self.display, Some(&self.build_attachments(program)),
-                  vb.build_vertices_source().as_mut_slice(),
+        ops::draw(&self.display, Some(&self.build_attachments(program)), vb,
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 }
