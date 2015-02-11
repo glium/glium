@@ -138,7 +138,7 @@ fn vertex_buffer_read_slice() {
         ]
     );
 
-    let data = match vb.read_slice_if_supported(1, 1) {
+    let data = match vb.slice(1, 1).unwrap().read_if_supported() {
         Some(d) => d,
         None => return
     };
@@ -149,8 +149,7 @@ fn vertex_buffer_read_slice() {
 }
 
 #[test]
-#[should_fail]
-fn vertex_buffer_read_slice_out_of_bounds() {
+fn vertex_buffer_slice_out_of_bounds() {
     let display = support::build_display();
 
     #[vertex_format]
@@ -167,7 +166,9 @@ fn vertex_buffer_read_slice_out_of_bounds() {
         ]
     );
 
-    vb.read_slice_if_supported(0, 3).unwrap();
+    assert!(vb.slice(0, 3).is_none());
+
+    display.assert_no_error();
 }
 
 #[test]
@@ -211,7 +212,43 @@ fn vertex_buffer_write() {
         ]
     );
 
-    vb.write(1, vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
+    vb.write(vec![
+        Vertex { field1: [ 2,  3], field2: [ 5,  7] },
+        Vertex { field1: [12, 13], field2: [15, 17] }
+    ]);
+
+    let data = match vb.read_if_supported() {
+        Some(d) => d,
+        None => return
+    };
+
+    assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
+    assert_eq!(data[0].field2.as_slice(), [5, 7].as_slice());
+    assert_eq!(data[1].field1.as_slice(), [12, 13].as_slice());
+    assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
+
+    display.assert_no_error();
+}
+
+#[test]
+fn vertex_buffer_write_slice() {
+    let display = support::build_display();
+    
+    #[vertex_format]
+    #[derive(Copy)]
+    struct Vertex {
+        field1: [u8; 2],
+        field2: [u8; 2],
+    }
+
+    let mut vb = glium::VertexBuffer::new(&display, 
+        vec![
+            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
+            Vertex { field1: [ 0,  0], field2: [ 0,  0] },
+        ]
+    );
+
+    vb.slice(1, 1).unwrap().write(vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
 
     let data = match vb.read_if_supported() {
         Some(d) => d,

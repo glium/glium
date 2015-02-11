@@ -76,7 +76,9 @@ pub enum VerticesSource<'a> {
     ///
     /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
     /// when the buffer stops being used.
-    VertexBuffer(&'a VertexBufferAny, Option<Sender<LinearSyncFence>>),
+    ///
+    /// The third and fourth parameters are the offset and length of the buffer.
+    VertexBuffer(&'a VertexBufferAny, Option<Sender<LinearSyncFence>>, usize, usize),
 
     /// A buffer uploaded in the video memory.
     ///
