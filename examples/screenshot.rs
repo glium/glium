@@ -1,7 +1,5 @@
 #![feature(plugin)]
-
-#[plugin]
-extern crate glium_macros;
+#![plugin(glium_macros)]
 
 extern crate glutin;
 extern crate glium;
