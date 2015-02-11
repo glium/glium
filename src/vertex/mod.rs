@@ -10,8 +10,7 @@ located in `glium_macros` helps you with that.
 
 ```
 # #![feature(plugin)]
-# #[plugin]
-# extern crate glium_macros;
+# #![plugin(glium_macros)]
 # extern crate glium;
 # extern crate glutin;
 # fn main() {

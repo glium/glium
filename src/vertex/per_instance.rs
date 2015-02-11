@@ -23,8 +23,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     ///
     /// ```no_run
     /// # #![feature(plugin)]
-    /// # #[plugin]
-    /// # extern crate glium_macros;
+    /// # #![plugin(glium_macros)]
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
@@ -138,8 +137,7 @@ impl<T: Send + Copy> PerInstanceAttributesBuffer<T> {
     ///
     /// ```no_run
     /// # #![feature(plugin)]
-    /// # #[plugin]
-    /// # extern crate glium_macros;
+    /// # #![plugin(glium_macros)]
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {

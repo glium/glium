@@ -38,9 +38,7 @@ See the `vertex` module documentation for more informations.
 
 ```no_run
 # #![feature(plugin)]
-#[plugin]
-extern crate glium_macros;
-
+# #![plugin(glium_macros)]
 # extern crate glium;
 # fn main() {
 #[vertex_format]
