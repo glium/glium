@@ -12,6 +12,8 @@ use std::rand;
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Texture, Surface, Rect};
 
+mod support;
+
 #[cfg(not(feature = "image"))]
 fn main() {
     println!("This example requires the `image` feature to be enabled");
@@ -36,8 +38,7 @@ fn main() {
                                                    1024, 1024);
 
     // the main loop
-    // each cycle will draw once
-    'main: loop {
+    support::start_loop(|| {
         // we have one out of 60 chances to blit one `opengl_texture` over `dest_texture`
         if rand::random::<f64>() <= 0.016666 {
             let (left, bottom, dimensions): (f32, f32, f32) = rand::random();
@@ -60,9 +61,11 @@ fn main() {
         // polling and handling the events received by the window
         for event in display.poll_events() {
             match event {
-                glutin::Event::Closed => break 'main,
+                glutin::Event::Closed => return support::Action::Stop,
                 _ => ()
             }
         }
-    }
+
+        support::Action::Continue
+    });
 }

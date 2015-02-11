@@ -15,6 +15,8 @@ use std::old_io::BufReader;
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Surface};
 
+mod support;
+
 #[cfg(not(feature = "image"))]
 fn main() {
     println!("This example requires the `image` feature to be enabled");
@@ -89,11 +91,7 @@ fn main() {
     }
     
     // the main loop
-    // each cycle will draw once
-    'main: loop {
-        use std::old_io::timer;
-        use std::time::Duration;
-
+    support::start_loop(|| {
         // building the uniforms
         let uniforms = Uniforms {
             matrix: [
@@ -111,15 +109,14 @@ fn main() {
         target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()).unwrap();
         target.finish();
 
-        // sleeping for some time in order not to use up too much CPU
-        timer::sleep(Duration::milliseconds(17));
-
         // polling and handling the events received by the window
         for event in display.poll_events() {
             match event {
-                glutin::Event::Closed => break 'main,
+                glutin::Event::Closed => return support::Action::Stop,
                 _ => ()
             }
         }
-    }
+
+        support::Action::Continue
+    });
 }

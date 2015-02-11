@@ -15,6 +15,8 @@ use glium::DisplayBuild;
 use cgmath::FixedArray;
 use std::old_io::BufReader;
 
+mod support;
+
 #[cfg(not(all(feature = "cgmath", feature = "image")))]
 fn main() {
     println!("This example requires the `cgmath` and `image` features to be enabled");
@@ -317,11 +319,7 @@ fn main() {
     ];
 
     // the main loop
-    // each cycle will draw once
-    'main: loop {
-        use std::old_io::timer;
-        use std::time::Duration;
-
+    support::start_loop(|| {
         // prepass
         let uniforms = PrepassUniforms {
             perspective_matrix: *fixed_perspective_matrix,
@@ -366,15 +364,14 @@ fn main() {
         target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &std::default::Default::default()).unwrap();
         target.finish();
 
-        // sleeping for some time in order not to use up too much CPU
-        timer::sleep(Duration::milliseconds(17));
-
         // polling and handling the events received by the window
         for event in display.poll_events() {
             match event {
-                glutin::Event::Closed => break 'main,
+                glutin::Event::Closed => return support::Action::Stop,
                 _ => ()
             }
         }
-    }
+
+        support::Action::Continue
+    });
 }

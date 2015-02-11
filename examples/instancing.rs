@@ -10,6 +10,8 @@ extern crate glium;
 
 use glium::Surface;
 
+mod support;
+
 fn main() {
     use glium::DisplayBuild;
 
@@ -80,11 +82,7 @@ fn main() {
         .unwrap();
     
     // the main loop
-    // each cycle will draw once
-    'main: loop {
-        use std::old_io::timer;
-        use std::time::Duration;
-
+    support::start_loop(|| {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -92,15 +90,14 @@ fn main() {
                     &std::default::Default::default()).unwrap();
         target.finish();
 
-        // sleeping for some time in order not to use up too much CPU
-        timer::sleep(Duration::milliseconds(17));
-
         // polling and handling the events received by the window
         for event in display.poll_events() {
             match event {
-                glutin::Event::Closed => break 'main,
+                glutin::Event::Closed => return support::Action::Stop,
                 _ => ()
             }
         }
-    }
+
+        support::Action::Continue
+    });
 }
