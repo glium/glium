@@ -157,16 +157,20 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                 return Err(DrawError::TessellationNotSupported);
             }
 
-            if !program.has_tessellation_shaders() {    // TODO: 
+            // TODO: programs created from binaries have the wrong value
+            // for `has_tessellation_shaders`
+            /*if !program.has_tessellation_shaders() {    // TODO: 
                 panic!("Default tessellation level is not supported yet");
-            }
+            }*/
 
             Some(vertices_per_patch)
         },
         _ => {
-            if program.has_tessellation_shaders() {
+            // TODO: programs created from binaries have the wrong value
+            // for `has_tessellation_shaders`
+            /*if program.has_tessellation_shaders() {
                 return Err(DrawError::TessellationWithoutPatches);
-            }
+            }*/
 
             None
         },
