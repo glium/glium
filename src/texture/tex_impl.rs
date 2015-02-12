@@ -8,6 +8,7 @@ use context::GlVersion;
 use pixel_buffer::PixelBuffer;
 use texture::{format, Texture2dDataSink, PixelValue};
 use texture::{TextureFormat, ClientFormat};
+use texture::TextureCreationError;
 
 use libc;
 use std::fmt;
@@ -50,7 +51,8 @@ impl TextureImplementation {
     pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
                       data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, generate_mipmaps: bool,
                       width: u32, height: Option<u32>, depth: Option<u32>, array_size: Option<u32>)
-                      -> TextureImplementation where P: Send + Clone + 'a
+                      -> Result<TextureImplementation, TextureCreationError>
+                      where P: Send + Clone + 'a
     {
         use std::num::Float;
 
@@ -89,7 +91,7 @@ impl TextureImplementation {
         };
 
         let (internal_format, can_use_texstorage) =
-            format_request_to_glenum(display, data.as_ref().map(|&(c, _)| c), format);
+            try!(format_request_to_glenum(display, data.as_ref().map(|&(c, _)| c), format));
 
         // don't use glTexStorage for compressed textures if it has data
         let can_use_texstorage = match format {
@@ -100,9 +102,13 @@ impl TextureImplementation {
             _ => can_use_texstorage,
         };
 
-        let (client_format, client_type) = match data {
-            Some((client_format, _)) => client_format_to_glenum(display, client_format, format),
-            None => (gl::RGBA, gl::UNSIGNED_BYTE),
+        let (client_format, client_type) = match (&data, format) {
+            (&Some((client_format, _)), f) => client_format_to_glenum(display, client_format, f),
+            (&None, TextureFormatRequest::AnyDepth) => (gl::DEPTH_COMPONENT, gl::FLOAT),
+            (&None, TextureFormatRequest::Specific(TextureFormat::DepthFormat(_))) => (gl::DEPTH_COMPONENT, gl::FLOAT),
+            (&None, TextureFormatRequest::AnyDepthStencil) => (gl::DEPTH_STENCIL, gl::UNSIGNED_INT_24_8),
+            (&None, TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(_))) => (gl::DEPTH_STENCIL, gl::UNSIGNED_INT_24_8),
+            (&None, _) => (gl::RGBA, gl::UNSIGNED_BYTE),
         };
 
         let (tx, rx) = channel();
@@ -158,22 +164,20 @@ impl TextureImplementation {
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
                                              height.unwrap() as gl::types::GLsizei,
-                                             depth.unwrap() as gl::types::GLsizei);
+                                             depth.or(array_size).unwrap() as gl::types::GLsizei);
 
                         if !data_raw.is_null() {
                             ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0,
                                                   width as gl::types::GLsizei,
                                                   height.unwrap() as gl::types::GLsizei,
-                                                  depth.unwrap() as gl::types::GLsizei,
+                                                  depth.or(array_size).unwrap() as gl::types::GLsizei,
                                                   client_format, client_type, data_raw);
                         }
 
                     } else {
                         ctxt.gl.TexImage3D(texture_type, 0, internal_format as i32, width as i32,
                                            height.unwrap() as i32,
-                                           if let Some(d) = depth { d } else {
-                                               array_size.unwrap_or(1)
-                                           } as i32, 0,
+                                           depth.or(array_size).unwrap() as i32, 0,
                                            client_format as u32, client_type, data_raw);
                     }
 
@@ -182,18 +186,18 @@ impl TextureImplementation {
                         ctxt.gl.TexStorage2D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
-                                             height.unwrap() as gl::types::GLsizei);
+                                             height.or(array_size).unwrap() as gl::types::GLsizei);
 
                         if !data_raw.is_null() {
                             ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width as gl::types::GLsizei,
-                                                  height.unwrap() as gl::types::GLsizei,
+                                                  height.or(array_size).unwrap() as gl::types::GLsizei,
                                                   client_format, client_type, data_raw);
                         }
 
                     } else {
                         ctxt.gl.TexImage2D(texture_type, 0, internal_format as i32, width as i32,
-                                           height.unwrap() as i32, 0, client_format as u32,
-                                           client_type, data_raw);
+                                           height.or(array_size).unwrap() as i32, 0,
+                                           client_format as u32, client_type, data_raw);
                     }
 
                 } else {
@@ -226,7 +230,7 @@ impl TextureImplementation {
             }
         });
 
-        TextureImplementation {
+        Ok(TextureImplementation {
             display: display.clone(),
             id: rx.recv().unwrap(),
             requested_format: format,
@@ -236,7 +240,7 @@ impl TextureImplementation {
             depth: depth,
             array_size: array_size,
             levels: texture_levels as u32,
-        }
+        })
     }
 
     /// Reads the content of a mipmap level of the texture.
@@ -417,12 +421,12 @@ impl Drop for TextureImplementation {
 /// the returned tuple is `true`, it is also suitable for `glTexStorage*D`.
 fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                             format: TextureFormatRequest)
-                            -> (gl::types::GLenum, bool)
+                            -> Result<(gl::types::GLenum, bool), TextureCreationError>
 {
     let version = display.context.context.get_version();
     let extensions = display.context.context.get_extensions();
 
-    match format {
+    Ok(match format {
         TextureFormatRequest::AnyFloatingPoint => {
             let size = client.map(|c| c.get_num_components());
 
@@ -453,34 +457,61 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                     (value, true)
                 },
                 _ => {
-                    assert!(version >= &GlVersion(3, 0));       // FIXME:
-                    (value, true)
+                    if version >= &GlVersion(3, 0) {
+                        (value, true)
+                    } else {
+                        return Err(TextureCreationError::UnsupportedFormat);
+                    }
                 }
             }
         },
+
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME:
-            (f.to_glenum(), true)
+            if version >= &GlVersion(3, 0) {    // FIXME: 
+                (f.to_glenum(), true)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
+
         TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME:
-            (f.to_glenum(), true)
+            if version >= &GlVersion(3, 0) {    // FIXME: 
+                (f.to_glenum(), true)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
+
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME:
-            (f.to_glenum(), true)
+            if version >= &GlVersion(3, 0) {    // FIXME: 
+                (f.to_glenum(), true)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
+
         TextureFormatRequest::Specific(TextureFormat::DepthFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME:
-            (f.to_glenum(), true)
+            if version >= &GlVersion(3, 0) {    // FIXME: 
+                (f.to_glenum(), true)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
+
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME:
-            (f.to_glenum(), true)
+            if version >= &GlVersion(3, 0) {    // FIXME: 
+                (f.to_glenum(), true)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
+
         TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(f)) => {
-            assert!(version >= &GlVersion(3, 0));       // FIXME:
-            (f.to_glenum(), true)
+            if version >= &GlVersion(3, 0) {    // FIXME: 
+                (f.to_glenum(), true)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
 
         TextureFormatRequest::AnyCompressed => {
@@ -527,19 +558,20 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                 }
 
             } else {
-                assert!(extensions.gl_ext_texture_integer, "Integral textures are not supported \
-                                                            by the backend");
+                if !extensions.gl_ext_texture_integer {
+                    return Err(TextureCreationError::UnsupportedFormat);
+                }
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     Some(1) => if extensions.gl_arb_texture_rg {
                         (gl::R32I, true)
                     } else {
-                        panic!("The backend doesn't support one-component integral textures");
+                        return Err(TextureCreationError::UnsupportedFormat);
                     },
                     Some(2) => if extensions.gl_arb_texture_rg {
                         (gl::RG32I, true)
                     } else {
-                        panic!("The backend doesn't support one-component integral textures");
+                        return Err(TextureCreationError::UnsupportedFormat);
                     },
                     Some(3) => (gl::RGB32I_EXT, true),
                     Some(4) => (gl::RGBA32I_EXT, true),
@@ -563,19 +595,20 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                 }
 
             } else {
-                assert!(extensions.gl_ext_texture_integer, "Integral textures are not supported \
-                                                            by the backend");
+                if !extensions.gl_ext_texture_integer {
+                    return Err(TextureCreationError::UnsupportedFormat);
+                }
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     Some(1) => if extensions.gl_arb_texture_rg {
                         (gl::R32UI, true)
                     } else {
-                        panic!("The backend doesn't support one-component integral textures");
+                        return Err(TextureCreationError::UnsupportedFormat);
                     },
                     Some(2) => if extensions.gl_arb_texture_rg {
                         (gl::RG32UI, true)
                     } else {
-                        panic!("The backend doesn't support one-component integral textures");
+                        return Err(TextureCreationError::UnsupportedFormat);
                     },
                     Some(3) => (gl::RGB32UI_EXT, true),
                     Some(4) => (gl::RGBA32UI_EXT, true),
@@ -586,23 +619,33 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::AnyDepth => {
-            assert!(version >= &GlVersion(1, 1), "OpenGL 1.0 doesn't support depth textures");
-            (gl::DEPTH_COMPONENT, false)
+            if version >= &GlVersion(1, 4) {
+                (gl::DEPTH_COMPONENT, false)
+            } else if extensions.gl_arb_depth_texture {
+                (gl::DEPTH_COMPONENT, false)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
 
         TextureFormatRequest::AnyStencil => {
             // TODO: we just request I8, but this could be more flexible
-            format_request_to_glenum(display, client,
+            return format_request_to_glenum(display, client,
                                      TextureFormatRequest::Specific(
                                         TextureFormat::UncompressedIntegral(
-                                            ::texture::format::UncompressedIntFormat::I8)))
+                                            ::texture::format::UncompressedIntFormat::I8)));
         },
 
         TextureFormatRequest::AnyDepthStencil => {
-            assert!(version >= &GlVersion(3, 0));
-            (gl::DEPTH_STENCIL, false)
+            if version >= &GlVersion(3, 0) {
+                (gl::DEPTH_STENCIL, false)
+            } else if extensions.gl_ext_packed_depth_stencil {
+                (gl::DEPTH_STENCIL_EXT, false)
+            } else {
+                return Err(TextureCreationError::UnsupportedFormat);
+            }
         },
-    }
+    })
 }
 
 /// Checks that the client texture format is supported.

@@ -162,3 +162,68 @@ fn compressed_texture_2d_creation() {
 
     display.assert_no_error();
 }
+
+macro_rules! empty_texture_test {
+    ($test_name:ident, $tex_ty:ident, [$($dims:expr),+],
+     $w:expr, $h:expr, $d:expr, $s:expr) =>
+    (
+        #[test]
+        fn $test_name() {
+            let display = support::build_display();
+
+            let texture = glium::texture::$tex_ty::empty(&display, $($dims),+);
+
+            assert_eq!(texture.get_width(), $w);
+            assert_eq!(texture.get_height(), $h);
+            assert_eq!(texture.get_depth(), $d);
+            assert_eq!(texture.get_array_size(), $s);
+
+            assert_eq!(texture.get_mipmap_levels(), 1);
+
+            display.assert_no_error();
+            drop(texture);
+            display.assert_no_error();
+        }
+    )
+}
+
+// TODO: compressed textures don't have "empty" yet
+/*empty_texture_test!(empty_compressedtexture1d, CompressedTexture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_compressedtexture1darray, CompressedTexture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_compressedtexture2d, CompressedTexture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_compressedtexture2darray, CompressedTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+empty_texture_test!(empty_compressedtexture3d, CompressedTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);*/
+empty_texture_test!(empty_depthstenciltexture1d, DepthStencilTexture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_depthstenciltexture1darray, DepthStencilTexture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_depthstenciltexture2d, DepthStencilTexture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_depthstenciltexture2darray, DepthStencilTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+// TODO: non-working
+//empty_texture_test!(empty_depthstenciltexture3d, DepthStencilTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+empty_texture_test!(empty_depthtexture1d, DepthTexture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_depthtexture1darray, DepthTexture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_depthtexture2d, DepthTexture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_depthtexture2darray, DepthTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+// TODO: non-working
+//empty_texture_test!(empty_depthtexture3d, DepthTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+// TODO: not all backends support these ; the API has to change
+/*empty_texture_test!(empty_integraltexture1d, IntegralTexture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_integraltexture1darray, IntegralTexture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_integraltexture2d, IntegralTexture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_integraltexture2darray, IntegralTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+empty_texture_test!(empty_integraltexture3d, IntegralTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+empty_texture_test!(empty_stenciltexture1d, StencilTexture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_stenciltexture1darray, StencilTexture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_stenciltexture2d, StencilTexture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_stenciltexture2darray, StencilTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+empty_texture_test!(empty_stenciltexture3d, StencilTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);*/
+empty_texture_test!(empty_texture1d, Texture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_texture1darray, Texture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_texture2d, Texture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_texture2darray, Texture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+empty_texture_test!(empty_texture3d, Texture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+// TODO: not all backends support these ; the API has to change
+/*empty_texture_test!(empty_unsignedtexture1d, UnsignedTexture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_unsignedtexture1darray, UnsignedTexture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_unsignedtexture2d, UnsignedTexture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_unsignedtexture2darray, UnsignedTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+empty_texture_test!(empty_unsignedtexture3d, UnsignedTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);*/
