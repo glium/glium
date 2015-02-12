@@ -333,10 +333,10 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                     ctxt.gl.DrawArraysInstanced(a, b, c, d);
                 },
                 DrawCommand::DrawElements(a, b, c, d) => {
-                    ctxt.gl.DrawElements(a, b, c, d.0);
+                    ctxt.gl.DrawElements(a, b, c, d.ptr);
                 },
                 DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
-                    ctxt.gl.DrawElementsInstanced(a, b, c, d.0, e);
+                    ctxt.gl.DrawElementsInstanced(a, b, c, d.ptr, e);
                 },
             }
 

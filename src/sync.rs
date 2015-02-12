@@ -60,11 +60,11 @@ impl SyncFence {
                 // waiting with a deadline of one year
                 // the reason why the deadline is so long is because if you attach a GL debugger,
                 // the wait can be blocked during a breaking point of the debugger
-                let result = ctxt.gl.ClientWaitSync(sync.0 as gl::types::GLsync,
+                let result = ctxt.gl.ClientWaitSync(sync.ptr as gl::types::GLsync,
                                                     gl::SYNC_FLUSH_COMMANDS_BIT,
                                                     365 * 24 * 3600 * 1000 * 1000 * 1000);
                 tx.send(result).unwrap();
-                ctxt.gl.DeleteSync(sync.0 as gl::types::GLsync);
+                ctxt.gl.DeleteSync(sync.ptr as gl::types::GLsync);
             }
         });
 
@@ -84,7 +84,7 @@ impl Drop for SyncFence {
 
         self.display.context.context.exec(move |ctxt| {
             unsafe {
-                ctxt.gl.DeleteSync(sync.0 as gl::types::GLsync);
+                ctxt.gl.DeleteSync(sync.ptr as gl::types::GLsync);
             }
         });
     }
