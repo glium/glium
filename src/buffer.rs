@@ -218,7 +218,7 @@ impl Buffer {
             id: id,
             elements_size: elements_size,
             elements_count: elements_count,
-            persistent_mapping: persistent_mapping.map(|ptr::Unique(p)| p),
+            persistent_mapping: persistent_mapping.map(|ptr::Unique { ptr, .. }| ptr),
             fences: Mutex::new(Vec::new()),
         }
     }
@@ -408,8 +408,11 @@ impl Buffer {
 
         if let Some(existing_mapping) = self.persistent_mapping.clone() {
             // we have a `&mut self`, so there's no risk of deadlock when locking `fences`
-            for fence in self.fences.lock().unwrap().drain() {
-                fence.recv().unwrap().into_sync_fence(&self.display).wait();
+            {
+                let mut fences = self.fences.lock().unwrap();
+                for fence in fences.drain() {
+                    fence.recv().unwrap().into_sync_fence(&self.display).wait();
+                }
             }
 
             return Mapping {
@@ -454,7 +457,7 @@ impl Buffer {
 
         Mapping {
             buffer: self,
-            data: rx.recv().unwrap().0,
+            data: rx.recv().unwrap().ptr,
             len: size,
         }
     }
@@ -628,7 +631,7 @@ impl<'a, T, D> Deref for Mapping<'a, T, D> {
     type Target = [D];
     fn deref<'b>(&'b self) -> &'b [D] {
         unsafe {
-            slice::from_raw_mut_buf(&self.data, self.len)
+            slice::from_raw_parts_mut(self.data, self.len)
         }
     }
 }
@@ -636,7 +639,7 @@ impl<'a, T, D> Deref for Mapping<'a, T, D> {
 impl<'a, T, D> DerefMut for Mapping<'a, T, D> {
     fn deref_mut<'b>(&'b mut self) -> &'b mut [D] {
         unsafe {
-            slice::from_raw_mut_buf(&self.data, self.len)
+            slice::from_raw_parts_mut(self.data, self.len)
         }
     }
 }
