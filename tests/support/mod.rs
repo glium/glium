@@ -109,7 +109,5 @@ pub fn build_rectangle_vb_ib(display: &glium::Display)
 
 /// Builds a texture suitable for rendering.
 pub fn build_renderable_texture(display: &glium::Display) -> glium::Texture2d {
-    glium::Texture2d::new_empty(display,
-                                glium::texture::UncompressedFloatFormat::U8U8U8U8,
-                                1024, 1024)
+    glium::Texture2d::empty(display, 1024, 1024)
 }
