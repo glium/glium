@@ -447,22 +447,22 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
                 uniform!(ctxt, Uniform1f, Uniform1fARB, location, val);
             }))
         },
-        UniformValue::Mat2(val) => {
+        UniformValue::Mat2(val, transpose) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
-                         location, 1, 0, val.as_ptr() as *const f32);
+                         location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
             }))
         },
-        UniformValue::Mat3(val) => {
+        UniformValue::Mat3(val, transpose) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
-                         location, 1, 0, val.as_ptr() as *const f32);
+                         location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
             }))
         },
-        UniformValue::Mat4(val) => {
+        UniformValue::Mat4(val, transpose) => {
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
-                         location, 1, 0, val.as_ptr() as *const f32);
+                         location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec2(val) => {
