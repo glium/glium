@@ -1,11 +1,11 @@
 use gl;
 use glutin;
 use version;
-use context::{Context, Message, CommandContext, GLState, check_gl_compatibility};
-use context::{capabilities, extensions};
+use context::{Context, CommandContext, GLState, check_gl_compatibility};
+use context::{capabilities, extensions, commands};
 use GliumCreationError;
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::sync::mpsc::channel;
 
 pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
@@ -13,7 +13,7 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
 {
     use std::thread::Builder;
 
-    let (tx_commands, rx_commands) = channel();
+    let (commands_frontend, commands_backend) = commands::channel();
 
     let org_window = Arc::new(try!(window.build()));
     let window = org_window.clone();
@@ -63,15 +63,15 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
 
         // main loop
         loop {
-            match rx_commands.recv() {
-                Ok(Message::EndFrame) => {
+            match commands_backend.pop() {
+                commands::Message::EndFrame => {
                     // this is necessary on Windows 8, or nothing is being displayed
                     unsafe { gl.Flush(); }
 
                     // swapping
                     window.swap_buffers();
                 },
-                Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
+                commands::Message::Execute(cmd) => cmd.execute(CommandContext {
                     gl: &gl,
                     state: &mut gl_state,
                     version: &version,
@@ -79,14 +79,14 @@ pub fn new_from_window(window: glutin::WindowBuilder, previous: Option<Context>)
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
-                Err(_) => break
+                commands::Message::Stop => break
             }
         }
     });
 
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
-        commands: Mutex::new(tx_commands),
+        commands: commands_frontend,
         window: Some(org_window),
         capabilities: capabilities,
         version: version,
@@ -100,7 +100,7 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
 {
     use std::thread::Builder;
 
-    let (tx_commands, rx_commands) = channel();
+    let (commands_frontend, commands_backend) = commands::channel();
 
     let (tx_success, rx_success) = channel();
 
@@ -145,8 +145,8 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
         };
 
         loop {
-            match rx_commands.recv() {
-                Ok(Message::Execute(cmd)) => cmd.invoke(CommandContext {
+            match commands_backend.pop() {
+                commands::Message::Execute(cmd) => cmd.execute(CommandContext {
                     gl: &gl,
                     state: &mut gl_state,
                     version: &version,
@@ -154,15 +154,15 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
-                Ok(Message::EndFrame) => (),        // ignoring buffer swapping
-                Err(_) => break
+                commands::Message::EndFrame => (),        // ignoring buffer swapping
+                commands::Message::Stop => break
             }
         }
     });
 
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
     Ok(Context {
-        commands: Mutex::new(tx_commands),
+        commands: commands_frontend,
         window: None,
         capabilities: capabilities,
         version: version,
