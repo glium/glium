@@ -145,12 +145,12 @@ pub enum UniformValue<'a> {
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),
-    /// 2x2 column-major matrix.
-    Mat2([[f32; 2]; 2]),
-    /// 3x3 column-major matrix.
-    Mat3([[f32; 3]; 3]),
-    /// 4x4 column-major matrix.
-    Mat4([[f32; 4]; 4]),
+    /// 2x2 column-major matrix. The second parameter describes whether to transpose it.
+    Mat2([[f32; 2]; 2], bool),
+    /// 3x3 column-major matrix. The second parameter describes whether to transpose it.
+    Mat3([[f32; 3]; 3], bool),
+    /// 4x4 column-major matrix. The second parameter describes whether to transpose it.
+    Mat4([[f32; 4]; 4], bool),
     Vec2([f32; 2]),
     Vec3([f32; 3]),
     Vec4([f32; 4]),
@@ -188,9 +188,9 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::SignedInt(_), UniformType::Int) => true,
             (&UniformValue::UnsignedInt(_), UniformType::UnsignedInt) => true,
             (&UniformValue::Float(_), UniformType::Float) => true,
-            (&UniformValue::Mat2(_), UniformType::FloatMat2) => true,
-            (&UniformValue::Mat3(_), UniformType::FloatMat3) => true,
-            (&UniformValue::Mat4(_), UniformType::FloatMat4) => true,
+            (&UniformValue::Mat2(_,_ ), UniformType::FloatMat2) => true,
+            (&UniformValue::Mat3(_, _), UniformType::FloatMat3) => true,
+            (&UniformValue::Mat4(_, _), UniformType::FloatMat4) => true,
             (&UniformValue::Vec2(_), UniformType::FloatVec2) => true,
             (&UniformValue::Vec3(_), UniformType::FloatVec3) => true,
             (&UniformValue::Vec4(_), UniformType::FloatVec4) => true,
@@ -300,19 +300,19 @@ impl IntoUniformValue<'static> for f32 {
 
 impl IntoUniformValue<'static> for [[f32; 2]; 2] {
     fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Mat2(self)
+        UniformValue::Mat2(self, false)
     }
 }
 
 impl IntoUniformValue<'static> for [[f32; 3]; 3] {
     fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Mat3(self)
+        UniformValue::Mat3(self, false)
     }
 }
 
 impl IntoUniformValue<'static> for [[f32; 4]; 4] {
     fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Mat4(self)
+        UniformValue::Mat4(self, false)
     }
 }
 
