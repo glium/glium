@@ -183,6 +183,8 @@ pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTy
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
 
+use std::default::Default;
+use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::channel;
@@ -210,6 +212,7 @@ mod fbo;
 mod ops;
 mod sampler_object;
 mod sync;
+mod util;
 mod vertex_array_object;
 
 mod gl {
@@ -640,7 +643,7 @@ pub struct DrawParameters {
     pub scissor: Option<Rect>,
 }
 
-impl std::default::Default for DrawParameters {
+impl Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
             depth_function: DepthFunction::Overwrite,
@@ -1495,8 +1498,8 @@ impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
                 context: context,
                 debug_callback: Mutex::new(None),
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: Mutex::new(HashMap::new()),
-                samplers: Mutex::new(HashMap::new()),
+                vertex_array_objects: Mutex::new(HashMap::with_hash_state(Default::default())),
+                samplers: Mutex::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -1515,8 +1518,8 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
                 context: context,
                 debug_callback: Mutex::new(None),
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: Mutex::new(HashMap::new()),
-                samplers: Mutex::new(HashMap::new()),
+                vertex_array_objects: Mutex::new(HashMap::with_hash_state(Default::default())),
+                samplers: Mutex::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -1550,10 +1553,11 @@ struct DisplayImpl {
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (buffers-list, program) ; the buffers list must be sorted
     vertex_array_objects: Mutex<HashMap<(Vec<gl::types::GLuint>, Handle),
-                                        vertex_array_object::VertexArrayObject>>,
+                                        vertex_array_object::VertexArrayObject, DefaultState<util::FnvHasher>>>,
 
     // we maintain a list of samplers for each possible behavior
-    samplers: Mutex<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
+    samplers: Mutex<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
+                    DefaultState<util::FnvHasher>>>,
 }
 
 impl Display {

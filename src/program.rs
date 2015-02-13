@@ -1,13 +1,16 @@
 use gl;
 use libc;
 use std::{ffi, fmt, mem, ptr};
+use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
+use std::default::Default;
 use std::sync::{Arc, Mutex, StaticMutex, MUTEX_INIT};
 use std::sync::mpsc::channel;
 use {Display, DisplayImpl, GlObject};
 use context::{self, CommandContext, GlVersion};
 use uniforms::UniformType;
 use Handle;
+use util::FnvHasher;
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
 /// in the GL thread every time we compile a shader or link a program.
@@ -133,10 +136,10 @@ pub struct Program {
     #[allow(dead_code)]
     shaders: Vec<Shader>,
     id: Handle,
-    uniforms: Arc<HashMap<String, Uniform>>,
-    uniform_blocks: Arc<HashMap<String, UniformBlock>>,
-    attributes: Arc<HashMap<String, Attribute>>,
-    frag_data_locations: Mutex<HashMap<String, Option<u32>>>,
+    uniforms: Arc<HashMap<String, Uniform, DefaultState<FnvHasher>>>,
+    uniform_blocks: Arc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
+    attributes: Arc<HashMap<String, Attribute, DefaultState<FnvHasher>>>,
+    frag_data_locations: Mutex<HashMap<String, Option<u32>, DefaultState<FnvHasher>>>,
     has_tessellation_shaders: bool,
 }
 
@@ -419,7 +422,7 @@ impl Program {
             uniforms: Arc::new(uniforms),
             uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
-            frag_data_locations: Mutex::new(HashMap::new()),
+            frag_data_locations: Mutex::new(HashMap::with_hash_state(Default::default())),
             has_tessellation_shaders: has_tessellation_shaders,
         })
     }
@@ -486,7 +489,7 @@ impl Program {
             uniforms: Arc::new(uniforms),
             uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
-            frag_data_locations: Mutex::new(HashMap::new()),
+            frag_data_locations: Mutex::new(HashMap::with_hash_state(Default::default())),
             has_tessellation_shaders: true,     // FIXME: 
         })
     }
@@ -600,7 +603,7 @@ impl Program {
     }
     
     /// Returns a list of uniform blocks.
-    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, DefaultState<FnvHasher>> {
         &*self.uniform_blocks
     }
 
@@ -625,14 +628,14 @@ impl GlObject for Program {
 
 // TODO: remove this hack
 #[doc(hidden)]
-pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform>>
+pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform, DefaultState<FnvHasher>>>
 {
     program.uniforms.clone()
 }
 
 // TODO: remove this hack
 #[doc(hidden)]
-pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute>>
+pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute, DefaultState<FnvHasher>>>
 {
     program.attributes.clone()
 }
@@ -897,10 +900,10 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 }
 
 unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
-                           -> HashMap<String, Uniform>
+                           -> HashMap<String, Uniform, DefaultState<FnvHasher>>
 {
     // reflecting program uniforms
-    let mut uniforms = HashMap::new();
+    let mut uniforms = HashMap::with_hash_state(Default::default());
 
     // number of active uniforms
     let active_uniforms = {
@@ -974,9 +977,9 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
 }
 
 unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
-                             -> HashMap<String, Attribute>
+                             -> HashMap<String, Attribute, DefaultState<FnvHasher>>
 {
-    let mut attributes = HashMap::new();
+    let mut attributes = HashMap::with_hash_state(Default::default());
 
     // number of active attributes
     let active_attributes = {
@@ -1052,11 +1055,11 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 }
 
 unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
-                                 -> HashMap<String, UniformBlock>
+                                 -> HashMap<String, UniformBlock, DefaultState<FnvHasher>>
 {
     // uniform blocks are not supported, so there's none
     if ctxt.version < &context::GlVersion(3, 1) {
-        return HashMap::new();
+        return HashMap::with_hash_state(Default::default());
     }
 
     let program = match program {
@@ -1064,7 +1067,7 @@ unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
         _ => unreachable!()
     };
 
-    let mut blocks = HashMap::new();
+    let mut blocks = HashMap::with_hash_state(Default::default());
 
     let mut active_blocks: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCKS, &mut active_blocks);
