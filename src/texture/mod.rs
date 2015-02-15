@@ -418,3 +418,13 @@ pub enum TextureCreationError {
     /// The requested format is not supported by the backend.
     UnsupportedFormat,
 }
+
+/// Error that can happen when creating a texture which we don't know whether it is supported.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TextureMaybeSupportedCreationError {
+    /// The texture type is supported, but a `TextureCreationError` happened.
+    CreationError(TextureCreationError),
+
+    /// The texture type is not supported by the backend.
+    NotSupported,
+}

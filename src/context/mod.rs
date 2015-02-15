@@ -222,6 +222,23 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         {
             result.push("OpenGL implementation doesn't support instancing");
         }
+
+        if cfg!(feature = "gl_integral_textures") && ctxt.version < &GlVersion(3, 0) &&
+            !ctxt.extensions.gl_ext_texture_integer
+        {
+            result.push("OpenGL implementation doesn't support integral textures");
+        }
+
+        if cfg!(feature = "gl_depth_textures") && ctxt.version < &GlVersion(3, 0) &&
+            (!ctxt.extensions.gl_arb_depth_texture || !ctxt.extensions.gl_ext_packed_depth_stencil)
+        {
+            result.push("OpenGL implementation doesn't support depth or depth-stencil textures");
+        }
+
+        if cfg!(feature = "gl_stencil_textures") && ctxt.version < &GlVersion(3, 0)
+        {
+            result.push("OpenGL implementation doesn't support stencil textures");
+        }
     }
 
     if result.len() == 0 {
