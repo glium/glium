@@ -276,7 +276,7 @@ fn persistent_block_race_condition() {
     let texture = support::build_renderable_texture(&display);
     let mut target = texture.as_surface();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    for _ in range(0, 1000) {
+    for _ in (0 .. 1000) {
         {
             let mut mapping = buffer.map();
             (*mapping).0 = std::rand::random();

@@ -1,9 +1,7 @@
-#![allow(unstable)]
-
 extern crate gl_generator;
 extern crate khronos_api;
 
-use std::os;
+use std::env;
 use std::old_io::File;
 use std::old_io::BufReader;
 use gl_generator::generators::Generator;
@@ -11,7 +9,7 @@ use gl_generator::generators::Generator;
 mod textures;
 
 fn main() {
-    let dest = Path::new(os::getenv("OUT_DIR").unwrap());
+    let dest = Path::new(env::var("OUT_DIR").unwrap());
 
     textures::build_texture_file(&mut File::create(&dest.join("textures.rs")).unwrap());
 
