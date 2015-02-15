@@ -323,7 +323,11 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                                           -> Result<{name}, TextureCreationError>
                                           where T: {data_source_trait}<'a>
                 {{
-                    {name}::new_impl(display, data, Some(format), mipmaps)
+                    match {name}::new_impl(display, data, Some(format), mipmaps) {{
+                        Ok(t) => Ok(t),
+                        Err(TextureMaybeSupportedCreationError::CreationError(e)) => Err(e),
+                        Err(TextureMaybeSupportedCreationError::NotSupported) => unreachable!()
+                    }}
                 }}
             ", data_source_trait = data_source_trait, param = param,
                format = relevant_format, name = name)).unwrap();
@@ -342,7 +346,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         (writeln!(dest, "
                 fn new_impl<'a, T>(display: &::Display, data: {param},
                                    format: Option<{relevant_format}>, mipmaps: bool)
-                                   -> Result<{name}, TextureCreationError>
+                                   -> Result<{name}, TextureMaybeSupportedCreationError>
                                    where T: {data_source_trait}<'a>
                 {{
             ", data_source_trait = data_source_trait,
@@ -500,7 +504,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ", format = relevant_format, dim_params = dim_params, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "Ok({}(try!(TextureImplementation::new::<u8>(display, format, None, mipmaps, ", name)).unwrap();
+        (write!(dest, "let t = TextureImplementation::new::<u8>(display, format, None, mipmaps, ")).unwrap();
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
             TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
@@ -508,7 +512,12 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, "))))")).unwrap();
+        (writeln!(dest, ");
+            match t {{
+                Ok(t) => Ok({}(t)),
+                Err(TextureMaybeSupportedCreationError::CreationError(e)) => Err(e),
+                Err(TextureMaybeSupportedCreationError::NotSupported) => unreachable!()
+            }}", name)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
