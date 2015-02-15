@@ -145,7 +145,6 @@ pub struct Program {
 
 /// Information about a uniform (except its name).
 #[derive(Debug, Copy)]
-#[doc(hidden)]
 pub struct Uniform {
     /// The location of the uniform.
     ///
