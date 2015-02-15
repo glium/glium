@@ -10,13 +10,12 @@ pub use self::glutin_context::new_from_window;
 #[cfg(feature = "headless")]
 pub use self::glutin_context::new_from_headless;
 pub use self::state::GLState;
-pub use self::version::GlVersion;
+pub use version::Version as GlVersion;
 
 mod capabilities;
 mod extensions;
 mod glutin_context;
 mod state;
-mod version;
 
 enum Message {
     EndFrame,

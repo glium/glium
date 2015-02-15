@@ -1,7 +1,8 @@
 use gl;
 use glutin;
+use version;
 use context::{Context, Message, CommandContext, GLState, check_gl_compatibility};
-use context::{capabilities, extensions, version};
+use context::{capabilities, extensions};
 use GliumCreationError;
 
 use std::sync::{Arc, Mutex};
