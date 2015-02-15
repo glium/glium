@@ -119,6 +119,18 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureType::DepthStencil => "TextureFormatRequest::AnyDepthStencil",
     };
 
+    // the `#[cfg]` attribute for the related cargo feature
+    let cfg_attribute = match ty {
+        TextureType::Integral | TextureType::Unsigned => {
+            "#[cfg(feature = \"gl_integral_textures\")]"
+        },
+        TextureType::Depth | TextureType::DepthStencil => {
+            "#[cfg(feature = \"gl_depth_textures\")]"
+        },
+        TextureType::Stencil => "#[cfg(feature = \"gl_stencil_textures\")]",
+        _ => ""
+    };
+
     // writing the struct with doc-comment
     (write!(dest, "/// ")).unwrap();
     (write!(dest, "{}", match dimensions {
@@ -272,10 +284,38 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// Builds a new texture by uploading data.
                 ///
                 /// This function will automatically generate all mipmaps of the texture.
+                {cfg_attr}
                 pub fn new<'a, T>(display: &::Display, data: {param})
                               -> {name} where T: {data_source_trait}<'a>
                 {{
                     {name}::new_impl(display, data, None, true).unwrap()
+                }}
+            ", data_source_trait = data_source_trait, param = param, name = name,
+                cfg_attr = cfg_attribute)).unwrap();
+    }
+
+    // writing the `new_if_supported` function
+    if cfg_attribute.len() >= 1 {
+        let param = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => "T",
+
+            TextureDimensions::Texture1dArray |
+            TextureDimensions::Texture2dArray => "Vec<T>",
+        };
+
+        (writeln!(dest, "
+                /// Builds a new texture by uploading data.
+                ///
+                /// This function will automatically generate all mipmaps of the texture.
+                pub fn new_if_supported<'a, T>(display: &::Display, data: {param})
+                                               -> Option<{name}> where T: {data_source_trait}<'a>
+                {{
+                    match {name}::new_impl(display, data, None, true) {{
+                        Ok(t) => Some(t),
+                        Err(TextureMaybeSupportedCreationError::NotSupported) => None,
+                        Err(TextureMaybeSupportedCreationError::CreationError(_)) => unreachable!()
+                    }}
                 }}
             ", data_source_trait = data_source_trait, param = param, name = name)).unwrap();
     }
@@ -295,10 +335,40 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
+                {cfg_attr}
                 pub fn with_mipmaps<'a, T>(display: &::Display, data: {param}, mipmaps: bool)
                                            -> {name} where T: {data_source_trait}<'a>
                 {{
                     {name}::new_impl(display, data, None, mipmaps).unwrap()
+                }}
+            ", data_source_trait = data_source_trait, param = param, name = name,
+                cfg_attr = cfg_attribute)).unwrap();
+    }
+
+    // writing the `with_mipmaps_if_supported` function
+    if cfg_attribute.len() >= 1 {
+        let param = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => "T",
+
+            TextureDimensions::Texture1dArray |
+            TextureDimensions::Texture2dArray => "Vec<T>",
+        };
+
+        (writeln!(dest, "
+                /// Builds a new texture by uploading data.
+                ///
+                /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
+                /// Instead it indicates that mipmaps are *allowed* to be created if possible.
+                pub fn with_mipmaps_if_supported<'a, T>(display: &::Display, data: {param},
+                                                        mipmaps: bool) -> Option<{name}>
+                                                        where T: {data_source_trait}<'a>
+                {{
+                    match {name}::new_impl(display, data, None, mipmaps) {{
+                        Ok(t) => Some(t),
+                        Err(TextureMaybeSupportedCreationError::NotSupported) => None,
+                        Err(TextureMaybeSupportedCreationError::CreationError(_)) => unreachable!()
+                    }}
                 }}
             ", data_source_trait = data_source_trait, param = param, name = name)).unwrap();
     }
@@ -318,6 +388,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 ///
                 /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
+                {cfg_attr}
                 pub fn with_format<'a, T>(display: &::Display, data: {param},
                                           format: {format}, mipmaps: bool)
                                           -> Result<{name}, TextureCreationError>
@@ -328,6 +399,32 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                         Err(TextureMaybeSupportedCreationError::CreationError(e)) => Err(e),
                         Err(TextureMaybeSupportedCreationError::NotSupported) => unreachable!()
                     }}
+                }}
+            ", data_source_trait = data_source_trait, param = param, cfg_attr = cfg_attribute,
+               format = relevant_format, name = name)).unwrap();
+    }
+
+    // writing the `with_format_if_supported` function
+    if cfg_attribute.len() >= 1 {
+        let param = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => "T",
+
+            TextureDimensions::Texture1dArray |
+            TextureDimensions::Texture2dArray => "Vec<T>",
+        };
+
+        (writeln!(dest, "
+                /// Builds a new texture with a specific format.
+                ///
+                /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
+                /// Instead it indicates that mipmaps are *allowed* to be created if possible.
+                pub fn with_format_if_supported<'a, T>(display: &::Display, data: {param},
+                                                       format: {format}, mipmaps: bool)
+                                                       -> Result<{name}, TextureMaybeSupportedCreationError>
+                                                       where T: {data_source_trait}<'a>
+                {{
+                    {name}::new_impl(display, data, Some(format), mipmaps)
                 }}
             ", data_source_trait = data_source_trait, param = param,
                format = relevant_format, name = name)).unwrap();

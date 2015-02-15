@@ -11,7 +11,7 @@ license = "Apache"
 build = "build/main.rs"
 
 [features]
-default = ["image", "cgmath", "nalgebra", "gl_read_buffer"]
+default = ["image", "cgmath", "nalgebra", "gl_read_buffer", "gl_depth_textures"]
 gl_read_buffer = []
 gl_uniform_blocks = []
 gl_sync = []
@@ -19,6 +19,9 @@ gl_persistent_mapping = ["gl_sync"]
 gl_program_binary = []
 gl_tessellation = []
 gl_instancing = []
+gl_integral_textures = []
+gl_depth_textures = []
+gl_stencil_textures = []
 headless = ["glutin/headless"]
 
 [dependencies.glutin]

@@ -120,6 +120,9 @@ In addition to this, it has the following OpenGL-related features:
  - `gl_program_binary` (cache a compiled program in order to reload it faster next time)
  - `gl_tessellation` (ask the GPU to split primitives into multiple sub-primitives when rendering)
  - `gl_instancing` (draw multiple times the same model in only one command)
+ - `gl_integral_textures` (textures with components representing integers)
+ - `gl_depth_textures` (textures containing depth or depth-stencil data)
+ - `gl_stencil_textures` (textures containing stencil data)
 
 Enabling each of these features adds more restrictions towards the backend and increases the
 likehood that `build_glium` will return an `Err`. However, it also gives you access to more
