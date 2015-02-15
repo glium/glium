@@ -182,6 +182,7 @@ pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
+pub use version::Version;
 
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
@@ -213,6 +214,7 @@ mod ops;
 mod sampler_object;
 mod sync;
 mod util;
+mod version;
 mod vertex_array_object;
 
 mod gl {
@@ -1581,6 +1583,12 @@ impl Display {
     /// Returns the dimensions of the main framebuffer.
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.context.context.get_framebuffer_dimensions()
+    }
+
+    /// Returns the OpenGL version of the current context.
+    // TODO: return API as well
+    pub fn get_opengl_version(&self) -> Version {
+        *self.context.context.get_version()
     }
 
     /// Start drawing on the backbuffer.

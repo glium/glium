@@ -2,18 +2,18 @@ use std::cmp::Ordering;
 use std::ffi;
 use gl;
 
-/// Describes an OpenGL ctxt.version.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GlVersion(pub u8, pub u8);
+/// Describes a version.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct Version(pub u8, pub u8);
 
-impl PartialOrd for GlVersion {
-    fn partial_cmp(&self, other: &GlVersion) -> Option<Ordering> {
+impl PartialOrd for Version {
+    fn partial_cmp(&self, other: &Version) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for GlVersion {
-    fn cmp(&self, other: &GlVersion) -> Ordering {
+impl Ord for Version {
+    fn cmp(&self, other: &Version) -> Ordering {
         match self.0.cmp(&other.0) {
             Ordering::Equal => self.1.cmp(&other.1),
             a => a
@@ -21,7 +21,7 @@ impl Ord for GlVersion {
     }
 }
 
-pub fn get_gl_version(gl: &gl::Gl) -> GlVersion {
+pub fn get_gl_version(gl: &gl::Gl) -> Version {
     unsafe {
         let version = gl.GetString(gl::VERSION) as *const i8;
         let version = String::from_utf8(ffi::c_str_to_bytes(&version).to_vec()).unwrap();
@@ -33,7 +33,7 @@ pub fn get_gl_version(gl: &gl::Gl) -> GlVersion {
         let major = iter.next().unwrap();
         let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 
-        GlVersion(
+        Version(
             major.parse().ok().expect("failed to parse GL major version"),
             minor.parse().ok().expect("failed to parse GL minor version"),
         )

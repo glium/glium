@@ -10,6 +10,15 @@ use glium::Surface;
 mod support;
 
 #[test]
+fn get_opengl_version() {
+    let display = support::build_display();
+    let version = display.get_opengl_version();
+    display.assert_no_error();
+
+    assert!(version.0 >= 1);
+}
+
+#[test]
 fn clear_color() {
     let display = support::build_display();
 
