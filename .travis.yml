@@ -3,6 +3,7 @@ language: rust
 env: 
   global:
     - secure: "Ts/4pe5X+GCq2tr88UyXvIciibED0vHaJhQE9gC4OIyJRIM4ZBiNmyVATZi16zWzLPVCkURWBIjMt5G7r7rJ0fwvGvsFUfCMg9if1xYEVgXBw/0FFvgO5CkUR+vK3lD1A9Gew1exCwz/bKz0Vf2NvHcpBdvZ3pUbageLRGKcVH4="
+    - secure: "AfE+PLANOT0mgUKpgGUu4yIrSNKxoNST5zFBeajONEEE0wl/bZVE6iGqucNPR0EaIgMfk+NGgCLLM7VFfy+HF5alBiqUUOapef+fc91iHVzoBgtlLXOO7E1UntrieBQCodURTaBtotCMe7jtlkNajkvUD6atKTYh1AYJ3JY2bHA="
     - HEADLESS_TESTS=1
 
 install:
@@ -15,11 +16,16 @@ script:
     - cargo test -j 1 --no-default-features --features "headless" --verbose
     - cargo build -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing" --verbose
 
-after_success: |
-    [ $TRAVIS_BRANCH = master ] &&
-    [ $TRAVIS_PULL_REQUEST = false ] &&
-    cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing" &&
-    cp -R doc/* target/doc &&
-    sudo pip install ghp-import &&
-    ghp-import -n target/doc &&
-    git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+after_success: 
+    - |
+        [ $TRAVIS_BRANCH = master ] &&
+        [ $TRAVIS_PULL_REQUEST = false ] &&
+        cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing" &&
+        cp -R doc/* target/doc &&
+        sudo pip install ghp-import &&
+        ghp-import -n target/doc &&
+        git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+    - |
+        [ $TRAVIS_BRANCH = master ] &&
+        [ $TRAVIS_PULL_REQUEST = false ] &&
+        cargo publish --token ${CRATESIO_TOKEN}
