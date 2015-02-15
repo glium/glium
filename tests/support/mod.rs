@@ -8,11 +8,11 @@ Test supports module.
 use glutin;
 use glium::{self, DisplayBuild};
 
-use std::os;
+use std::env;
 
 /// Returns true if we are executing headless tests.
 pub fn is_headless() -> bool {
-    os::getenv("HEADLESS_TESTS").is_some()
+    env::var("HEADLESS_TESTS").is_ok()
 }
 
 /// Builds a headless display for tests.
