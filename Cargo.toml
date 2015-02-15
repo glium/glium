@@ -1,13 +1,13 @@
 [package]
 name = "glium"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = "High-level and safe OpenGL wrapper."
 keywords = ["opengl", "gamedev"]
 documentation = "http://tomaka.github.io/glium/glium/index.html"
 homepage = "http://tomaka.github.io/glium"
 repository = "https://github.com/tomaka/glium"
-license = "Apache"
+license = "Apache-2.0"
 build = "build/main.rs"
 
 [features]
