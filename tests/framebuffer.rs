@@ -105,7 +105,10 @@ fn depth_texture2d() {
     // depth texture with a value of 0.5 everywhere
     let depth_data = iter::repeat(iter::repeat(0.5f32).take(128).collect::<Vec<_>>())
                                   .take(128).collect::<Vec<_>>();
-    let depth = glium::texture::DepthTexture2d::new(&display, depth_data);
+    let depth = match glium::texture::DepthTexture2d::new_if_supported(&display, depth_data) {
+        None => return,
+        Some(t) => t
+    };
 
     // drawing with the `IfLess` depth test
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display,

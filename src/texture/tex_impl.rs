@@ -636,6 +636,10 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::AnyStencil => {
+            if version < &GlVersion(3, 0) {
+                return Err(TextureMaybeSupportedCreationError::NotSupported);
+            }
+
             // TODO: we just request I8, but this could be more flexible
             return format_request_to_glenum(display, client,
                                      TextureFormatRequest::Specific(
