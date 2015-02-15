@@ -64,6 +64,8 @@ pub struct ExtensionsList {
     pub gl_arb_debug_output: bool,
     /// GL_ARB_depth_texture
     pub gl_arb_depth_texture: bool,
+    /// GL_ARB_invalidate_subdata
+    pub gl_arb_invalidate_subdata: bool,
 }
 
 pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
@@ -100,6 +102,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_packed_depth_stencil: false,
         gl_arb_debug_output: false,
         gl_arb_depth_texture: false,
+        gl_arb_invalidate_subdata: false,
     };
 
     for extension in strings.into_iter() {
@@ -134,6 +137,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
             "GL_ARB_debug_output" => extensions.gl_arb_debug_output = true,
             "GL_ARB_depth_texture" => extensions.gl_arb_depth_texture = true,
+            "GL_ARB_invalidate_subdata" => extensions.gl_arb_invalidate_subdata = true,
             _ => ()
         }
     }

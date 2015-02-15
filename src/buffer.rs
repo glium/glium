@@ -353,12 +353,20 @@ impl Buffer {
         assert!(offset <= self.get_total_size());
         assert!(offset + buffer_size <= self.get_total_size());
 
+        let invalidate_all = (offset == 0) && (buffer_size == self.get_total_size());
+
         let id = self.get_id();
 
         self.display.context.context.exec(move |ctxt| {
             let data = data;
 
             unsafe {
+                if invalidate_all && (ctxt.version >= &GlVersion(4, 3) ||
+                    ctxt.extensions.gl_arb_invalidate_subdata)
+                {
+                    ctxt.gl.InvalidateBufferData(id);
+                }
+
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.NamedBufferSubData(id, offset as gl::types::GLintptr,
                                                buffer_size as gl::types::GLsizei,
