@@ -133,8 +133,6 @@ impl IntoProgramCreationInput<'static> for Binary {
 /// A combination of shaders linked together.
 pub struct Program {
     display: Arc<DisplayImpl>,
-    #[allow(dead_code)]
-    shaders: Vec<Shader>,
     id: Handle,
     uniforms: Arc<HashMap<String, Uniform, DefaultState<FnvHasher>>>,
     uniform_blocks: Arc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
@@ -416,7 +414,6 @@ impl Program {
 
         Ok(Program {
             display: display.context.clone(),
-            shaders: shaders_store,
             id: id,
             uniforms: Arc::new(uniforms),
             uniform_blocks: Arc::new(blocks),
@@ -483,7 +480,6 @@ impl Program {
 
         Ok(Program {
             display: display.context.clone(),
-            shaders: vec![],
             id: id,
             uniforms: Arc::new(uniforms),
             uniform_blocks: Arc::new(blocks),
