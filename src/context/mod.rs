@@ -1,6 +1,6 @@
 use gl;
 use glutin;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::sync::mpsc::{Sender, channel};
 use GliumCreationError;
 
@@ -13,17 +13,13 @@ pub use self::state::GLState;
 pub use version::Version as GlVersion;
 
 mod capabilities;
+mod commands;
 mod extensions;
 mod glutin_context;
 mod state;
 
-enum Message {
-    EndFrame,
-    Execute(Box<for<'a, 'b> ::std::thunk::Invoke<CommandContext<'a, 'b>, ()> + Send>),
-}
-
 pub struct Context {
-    commands: Mutex<Sender<Message>>,
+    commands: commands::Sender,
 
     window: Option<Arc<glutin::Window>>,
 
@@ -86,34 +82,32 @@ impl Context {
         self.window.as_ref().and_then(|w| w.get_inner_size()).unwrap_or((800, 600))
     }
 
-    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send {
-        self.commands.lock().unwrap().send(Message::Execute(Box::new(f))).unwrap();
+    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send + 'static {
+        self.commands.push(f);
     }
+
     pub fn exec_maybe_sync<'a, F>(&self, sync: bool, f: F) where F: FnOnce(CommandContext) + 'a {
-        use std::thunk::Invoke;
-        use std::mem::transmute;
         let (tx, rx) = if sync {
             let (tx, rx) = channel();
             (Some(tx), Some(rx))
         } else {
             (None, None)
         };
-        let f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>>> = Box::new(
-            move |c: CommandContext| {
-                f(c);
-                if sync {
-                    tx.unwrap().send(()).unwrap();
-                };
-            });
-        let pretend_send_f: Box<for<'b,'c> Invoke<CommandContext<'b, 'c>> + Send>
-            = unsafe{ transmute(f) };
-        self.commands.lock().unwrap().send(Message::Execute(pretend_send_f)).unwrap();
+
+        self.commands.push(move |c: CommandContext| {
+            f(c);
+            if sync {
+                tx.unwrap().send(()).unwrap();
+            };
+        });
+
         if sync {
             rx.unwrap().recv().unwrap();
         }
     }
+
     pub fn swap_buffers(&self) {
-        self.commands.lock().unwrap().send(Message::EndFrame).unwrap();
+        self.commands.push_endframe();
     }
 
     pub fn capabilities(&self) -> &Capabilities {
