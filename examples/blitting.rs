@@ -1,3 +1,6 @@
+#![feature(plugin)]
+#![plugin(glium_macros)]
+
 extern crate glutin;
 extern crate glium;
 
