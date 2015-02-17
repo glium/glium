@@ -1671,6 +1671,10 @@ impl Display {
             return;
         }
 
+        if ::std::env::var("GLIUM_DISABLE_DEBUG_OUTPUT").is_ok() {
+            return;
+        }
+
         // this is the C callback
         extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
             id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
