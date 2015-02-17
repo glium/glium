@@ -1676,14 +1676,14 @@ impl Display {
             id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
             message: *const gl::types::GLchar, user_param: *mut libc::c_void)
         {
-            let message = unsafe {
-                String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec()).unwrap()
-            };
-
             if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
                (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
                 ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
             {
+                let message = unsafe {
+                    String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec()).unwrap()
+                };
+
                 panic!("Debug message with high or medium severity: `{}`.\n\
                         Please report this error: https://github.com/tomaka/glium/issues", message);
             }
