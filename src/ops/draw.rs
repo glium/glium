@@ -14,7 +14,7 @@ use index::{self, IndicesSource};
 use vertex::{MultiVerticesSource, VerticesSource};
 
 use {program, vertex_array_object};
-use {gl, context};
+use {gl, context, draw_parameters};
 
 /// Draws everything.
 pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
@@ -26,7 +26,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // TODO: avoid this allocation
     let mut vertex_buffers = vertex_buffers.iter().collect::<Vec<_>>();
 
-    try!(draw_parameters.validate());
+    try!(draw_parameters::validate(draw_parameters));
 
     // obtaining the identifier of the FBO to draw upon
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
@@ -313,7 +313,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
             }
 
             // sync-ing parameters
-            draw_parameters.sync(&mut ctxt, dimensions);
+            draw_parameters::sync(&draw_parameters, &mut ctxt, dimensions);
 
             // vertices per patch
             if let Some(vertices_per_patch) = vertices_per_patch {
