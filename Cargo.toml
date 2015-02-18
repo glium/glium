@@ -50,6 +50,8 @@ khronos_api = "*"
 
 [dev-dependencies]
 clock_ticks = "*"
+genmesh = "*"
+obj = "*"
 
 [dev-dependencies.glium_macros]
 path = "macros"
