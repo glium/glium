@@ -1,6 +1,6 @@
 use gl;
 use glutin;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock, RwLockReadGuard};
 use std::sync::mpsc::{Sender, channel};
 use GliumCreationError;
 
@@ -21,7 +21,7 @@ mod state;
 pub struct Context {
     commands: commands::Sender,
 
-    window: Option<Arc<glutin::Window>>,
+    window: Option<Arc<RwLock<glutin::Window>>>,
 
     capabilities: Arc<Capabilities>,
 
@@ -41,15 +41,15 @@ pub struct CommandContext<'a, 'b> {
 
 /// Iterator for all the events received by the window.
 pub struct PollEventsIter<'a> {
-    iter: Option<glutin::PollEventsIterator<'a>>,
+    window: Option<RwLockReadGuard<'a, glutin::Window>>,
 }
 
 impl<'a> Iterator for PollEventsIter<'a> {
     type Item = glutin::Event;
 
     fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(iter) = self.iter.as_mut() {
-            iter.next()
+        if let Some(window) = self.window.as_ref() {
+            window.poll_events().next()
         } else {
             None
         }
@@ -61,15 +61,15 @@ impl<'a> Iterator for PollEventsIter<'a> {
 /// This iterator polls for events, until the window associated with its context
 /// is closed.
 pub struct WaitEventsIter<'a> {
-    iter: Option<glutin::WaitEventsIterator<'a>>,
+    window: Option<RwLockReadGuard<'a, glutin::Window>>,
 }
 
 impl<'a> Iterator for WaitEventsIter<'a> {
     type Item = glutin::Event;
 
     fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(iter) = self.iter.as_mut() {
-            iter.next()
+        if let Some(window) = self.window.as_ref() {
+            window.wait_events().next()
         } else {
             None
         }
@@ -79,7 +79,7 @@ impl<'a> Iterator for WaitEventsIter<'a> {
 impl Context {
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         // FIXME: 800x600?
-        self.window.as_ref().and_then(|w| w.get_inner_size()).unwrap_or((800, 600))
+        self.window.as_ref().and_then(|w| w.read().unwrap().get_inner_size()).unwrap_or((800, 600))
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send + 'static {
@@ -106,6 +106,14 @@ impl Context {
         }
     }
 
+    pub fn rebuild(&self, builder: glutin::WindowBuilder<'static>)
+                   -> Result<(), GliumCreationError>
+    {
+        let (tx, rx) = channel();
+        self.commands.push_rebuild(builder, tx);
+        rx.recv().unwrap()
+    }
+
     pub fn swap_buffers(&self) {
         self.commands.push_endframe();
     }
@@ -124,19 +132,19 @@ impl Context {
 
     pub fn poll_events(&self) -> PollEventsIter {
         PollEventsIter {
-            iter: self.window.as_ref().map(|w| w.poll_events())
+            window: self.get_window(),
         }
     }
 
     pub fn wait_events(&self) -> WaitEventsIter {
         WaitEventsIter {
-            iter: self.window.as_ref().map(|w| w.wait_events())
+            window: self.get_window(),
         }
     }
 
     /// Returns the underlying window, or `None` if a headless context is used.
-    pub fn get_window(&self) -> Option<&glutin::Window> {
-        self.window.as_ref().map(|w| ::std::ops::Deref::deref(w))
+    pub fn get_window(&self) -> Option<RwLockReadGuard<glutin::Window>> {
+        self.window.as_ref().map(|w| w.read().unwrap())
     }
 }
 

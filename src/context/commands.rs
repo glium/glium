@@ -1,7 +1,10 @@
 use std::collections::RingBuf;
-use std::sync::{atomic, Arc, Condvar, Mutex};
+use std::sync::{atomic, mpsc, Arc, Condvar, Mutex};
 use std::{mem, ptr};
 use context::CommandContext;
+
+use GliumCreationError;
+use glutin;
 
 const CLOSURES_MAX_SIZE: usize = 64;
 const MAX_QUEUE_SIZE: usize = 64;
@@ -24,6 +27,7 @@ pub enum Message {
     EndFrame,
     Stop,
     Execute(Exec),
+    Rebuild(glutin::WindowBuilder<'static>, mpsc::Sender<Result<(), GliumCreationError>>),
 }
 
 pub struct Exec {
@@ -42,6 +46,7 @@ enum InternalMessage {
         /// function used to execute the closure
         call_fn: fn([usize; CLOSURES_MAX_SIZE], CommandContext),
     },
+    Rebuild(glutin::WindowBuilder<'static>, mpsc::Sender<Result<(), GliumCreationError>>),
 }
 
 pub fn channel() -> (Sender, Receiver) {
@@ -104,6 +109,14 @@ impl Sender {
         lock.push_back(InternalMessage::EndFrame);
         self.queue.condvar.notify_one();
     }
+
+    pub fn push_rebuild(&self, b: glutin::WindowBuilder<'static>,
+                        n: mpsc::Sender<Result<(), GliumCreationError>>)
+    {
+        let mut lock = self.queue.queue.lock().unwrap();
+        lock.push_back(InternalMessage::Rebuild(b, n));
+        self.queue.condvar.notify_one();
+    }
 }
 
 impl Drop for Sender {
@@ -130,6 +143,9 @@ impl Receiver {
                 Some(InternalMessage::Stop) => {
                     self.closed.store(true, atomic::Ordering::Release);
                     return Message::Stop;
+                },
+                Some(InternalMessage::Rebuild(a, b)) => {
+                    return Message::Rebuild(a, b);
                 },
                 None => {
                     if self.closed.load(atomic::Ordering::Acquire) {

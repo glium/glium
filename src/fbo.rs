@@ -101,6 +101,10 @@ impl FramebuffersContainer {
         }
     }
 
+    pub fn purge_all(&self, context: &context::Context) {
+        self.purge_if(|_| true, context);
+    }
+
     pub fn purge_texture(&self, texture: gl::types::GLuint, context: &context::Context) {
         self.purge_if(|a| {
             match a {
