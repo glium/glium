@@ -187,7 +187,7 @@ pub use version::Version;
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLockReadGuard};
 use std::sync::mpsc::channel;
 
 pub mod debug;
@@ -1450,6 +1450,9 @@ pub trait DisplayBuild {
     /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
     fn build_glium(self) -> Result<Display, GliumCreationError>;
+
+    /// Changes the settings of an existing `Display`.
+    fn rebuild_glium(self, &Display) -> Result<(), GliumCreationError>;
 }
 
 /// Error that can happen while creating a glium display.
@@ -1491,9 +1494,9 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
     }
 }
 
-impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
+impl DisplayBuild for glutin::WindowBuilder<'static> {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let context = try!(context::new_from_window(self, None));
+        let context = try!(context::new_from_window(self));
 
         let display = Display {
             context: Arc::new(DisplayImpl {
@@ -1507,6 +1510,20 @@ impl<'a> DisplayBuild for glutin::WindowBuilder<'a> {
 
         display.init_debug_callback();
         Ok(display)
+    }
+
+    fn rebuild_glium(self, display: &Display) -> Result<(), GliumCreationError> {
+        // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
+        if let Some(ref fbos) = display.context.framebuffer_objects {
+            fbos.purge_all(&display.context.context);
+        }
+
+        {
+            let mut vaos = display.context.vertex_array_objects.lock().unwrap();
+            vaos.clear();
+        }
+
+        display.context.context.rebuild(self)
     }
 }
 
@@ -1527,6 +1544,10 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 
         display.init_debug_callback();
         Ok(display)
+    }
+
+    fn rebuild_glium(self, _: &Display) -> Result<(), GliumCreationError> {
+        unimplemented!()
     }
 }
 
@@ -1576,7 +1597,7 @@ impl Display {
     }
 
     /// Returns the underlying window, or `None` if glium uses a headless context.
-    pub fn get_window(&self) -> Option<&glutin::Window> {
+    pub fn get_window(&self) -> Option<RwLockReadGuard<glutin::Window>> {
         self.context.context.get_window()
     }
 
