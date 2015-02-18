@@ -45,12 +45,12 @@ fn main() {
 
         glium::VertexBuffer::new(&display, 
             vec![
-                Vertex { position: [-0.5,  0.5, 5.0], tex_coords: [0.0, 1.0] },
-                Vertex { position: [ 0.5,  0.5, 5.0], tex_coords: [1.0, 1.0] },
-                Vertex { position: [-0.5, -0.5, 5.0], tex_coords: [0.0, 0.0] },
-                Vertex { position: [ 0.5,  0.5, 5.0], tex_coords: [1.0, 1.0] },
-                Vertex { position: [ 0.5, -0.5, 5.0], tex_coords: [1.0, 0.0] },
-                Vertex { position: [-0.5, -0.5, 5.0], tex_coords: [0.0, 0.0] },
+                Vertex { position: [-0.5,  0.5, 3.0], tex_coords: [1.0, 1.0] },
+                Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
+                Vertex { position: [-0.5, -0.5, 3.0], tex_coords: [1.0, 0.0] },
+                Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
+                Vertex { position: [ 0.5, -0.5, 3.0], tex_coords: [0.0, 0.0] },
+                Vertex { position: [-0.5, -0.5, 3.0], tex_coords: [1.0, 0.0] },
             ]
         )
     };
@@ -202,8 +202,8 @@ fn main() {
     support::start_loop(|| {
         // building the uniforms
         let uniforms = uniform! {
-            inner_level: 32.0f32,
-            outer_level: 32.0f32,
+            inner_level: 64.0f32,
+            outer_level: 64.0f32,
             projection_matrix: camera.get_perspective(),
             view_matrix: [
                 [1.0, 0.0, 0.0, 0.0],
@@ -212,7 +212,7 @@ fn main() {
                 [0.0, 0.0, 0.0, 1.0f32]
             ],
             height_texture: &opengl_texture,
-            elevation: 0.6f32,
+            elevation: 0.3f32,
             color_texture: &opengl_texture
         };
 
