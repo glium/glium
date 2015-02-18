@@ -5,6 +5,7 @@ use context::{Context, CommandContext, GLState, check_gl_compatibility};
 use context::{capabilities, extensions, commands};
 use GliumCreationError;
 
+use std::default::Default;
 use std::sync::{Arc, RwLock};
 use std::sync::mpsc::channel;
 
@@ -26,16 +27,8 @@ pub fn new_from_window(window: glutin::WindowBuilder)
 
         let gl = gl::Gl::load_with(|symbol| locked_win.get_proc_address(symbol));
 
-        // building the GLState and modifying to GL state to match it
-        let mut gl_state = {
-            let viewport = {
-                let dim = locked_win.get_inner_size().unwrap();
-                (0, 0, dim.0 as gl::types::GLsizei, dim.1 as gl::types::GLsizei)
-            };
-
-            unsafe { gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3) };
-            GLState::new_defaults(viewport)
-        };
+        // building the GLState
+        let mut gl_state = Default::default();
 
         // getting the GL version and extensions
         let opengl_es = match locked_win.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
@@ -94,7 +87,7 @@ pub fn new_from_window(window: glutin::WindowBuilder)
 
                     let mut window = window.write().unwrap();
                     unsafe { win_tmp.make_current(); };
-                    gl_state = GLState::new_defaults((0, 0, 0, 0));
+                    gl_state = Default::default();
                     *window = win_tmp;
                 },
                 commands::Message::Execute(cmd) => cmd.execute(CommandContext {
@@ -144,7 +137,7 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
         // TODO: call glViewport
 
         // building the GLState, version, and extensions
-        let mut gl_state = GLState::new_defaults((0, 0, 0, 0));    // FIXME:
+        let mut gl_state = Default::default();
         let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);

@@ -1,6 +1,8 @@
 use Handle;
 use gl;
 
+use std::default::Default;
+
 /// Represents the current OpenGL state.
 ///
 /// The current state is passed to each function and can be freely updated.
@@ -94,11 +96,13 @@ pub struct GLState {
     /// The latest values passed to `glDepthRange`.
     pub depth_range: (f32, f32),
 
-    /// The latest values passed to `glViewport`.
-    pub viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei),
+    /// The latest values passed to `glViewport`. `None` means unknown.
+    pub viewport: Option<(gl::types::GLint, gl::types::GLint,
+                          gl::types::GLsizei, gl::types::GLsizei)>,
 
-    /// The latest values passed to `glScissor`.
-    pub scissor: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei, gl::types::GLsizei),
+    /// The latest values passed to `glScissor`. `None` means unknown.
+    pub scissor: Option<(gl::types::GLint, gl::types::GLint,
+                         gl::types::GLsizei, gl::types::GLsizei)>,
 
     /// The latest value passed to `glLineWidth`.
     pub line_width: gl::types::GLfloat,
@@ -122,11 +126,8 @@ pub struct GLState {
     pub active_texture: gl::types::GLenum,
 }
 
-impl GLState {
-    /// Builds the `GLState` corresponding to the default GL values.
-    pub fn new_defaults(viewport: (gl::types::GLint, gl::types::GLint, gl::types::GLsizei,
-                                   gl::types::GLsizei)) -> GLState
-    {
+impl Default for GLState {
+    fn default() -> GLState {
         GLState {
             enabled_blend: false,
             enabled_cull_face: false,
@@ -158,8 +159,8 @@ impl GLState {
             depth_range: (0.0, 1.0),
             blend_equation: gl::FUNC_ADD,
             blend_func: (gl::ONE, gl::ZERO),
-            viewport: viewport,
-            scissor: viewport,
+            viewport: None,
+            scissor: None,
             line_width: 1.0,
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,
