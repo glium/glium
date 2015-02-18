@@ -9,6 +9,8 @@ use std::time::duration::Duration;
 use glium::{self, Display};
 use glium::vertex::VertexBufferAny;
 
+pub mod camera;
+
 pub enum Action {
     Stop,
     Continue,
