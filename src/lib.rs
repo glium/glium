@@ -869,9 +869,9 @@ impl DrawParameters {
                             viewport.width as gl::types::GLsizei,
                             viewport.height as gl::types::GLsizei);
 
-            if ctxt.state.viewport != viewport {
+            if ctxt.state.viewport != Some(viewport) {
                 unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
-                ctxt.state.viewport = viewport;
+                ctxt.state.viewport = Some(viewport);
             }
 
         } else {
@@ -883,9 +883,9 @@ impl DrawParameters {
             let viewport = (0, 0, surface_dimensions.0 as gl::types::GLsizei,
                             surface_dimensions.1 as gl::types::GLsizei);
 
-            if ctxt.state.viewport != viewport {
+            if ctxt.state.viewport != Some(viewport) {
                 unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
-                ctxt.state.viewport = viewport;
+                ctxt.state.viewport = Some(viewport);
             }
         }
 
@@ -896,9 +896,9 @@ impl DrawParameters {
                            scissor.height as gl::types::GLsizei);
 
             unsafe {
-                if ctxt.state.scissor != scissor {
+                if ctxt.state.scissor != Some(scissor) {
                     ctxt.gl.Scissor(scissor.0, scissor.1, scissor.2, scissor.3);
-                    ctxt.state.scissor = scissor;
+                    ctxt.state.scissor = Some(scissor);
                 }
 
                 if !ctxt.state.enabled_scissor_test {
