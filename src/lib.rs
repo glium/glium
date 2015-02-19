@@ -177,7 +177,7 @@ extern crate nalgebra;
 
 pub use context::{PollEventsIter, WaitEventsIter};
 pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
-pub use draw_parameters::{DepthFunction, PolygonMode, DrawParameters};
+pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters};
 pub use index::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
@@ -422,14 +422,16 @@ pub struct BlitTarget {
 /// depth value.
 ///
 /// If a depth buffer is present, the GPU will compare the depth value of the pixel currently
-/// being processed, with the existing depth value. Depending on the value of `depth_function`
+/// being processed, with the existing depth value. Depending on the value of `depth_test`
 /// in the draw parameters, the depth test will either pass, in which case the pipeline
-/// continues, or fail, in which case the pixel is discarded.
+/// continues, or fail, in which case the pixel is discarded. If the value of `depth_write`
+/// is true and the test passed, it will then also write the depth value of the pixel on the
+/// depth buffer.
 ///
 /// The purpose of this test is to avoid drawing elements that are in the background of the
 /// scene over elements that are in the foreground.
 ///
-/// See the documentation of `DepthFunction` for more informations.
+/// See the documentation of `DepthTest` for more informations.
 ///
 /// ## Step 15: Blending
 ///
@@ -741,7 +743,9 @@ impl Surface for Frame {
     {
         use index::ToIndicesSource;
 
-        if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
+        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
+                draw_parameters.depth_write)
+        {
             return Err(DrawError::NoDepthBuffer);
         }
 

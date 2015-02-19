@@ -206,7 +206,9 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     {
         use index::ToIndicesSource;
 
-        if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
+        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
+                        draw_parameters.depth_write)
+        {
             return Err(DrawError::NoDepthBuffer);
         }
 
@@ -403,7 +405,9 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     {
         use index::ToIndicesSource;
 
-        if draw_parameters.depth_function.requires_depth_buffer() && !self.has_depth_buffer() {
+        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
+                draw_parameters.depth_write)
+        {
             return Err(DrawError::NoDepthBuffer);
         }
 

@@ -93,6 +93,9 @@ pub struct GLState {
     /// The latest value passed to `glDepthFunc`.
     pub depth_func: gl::types::GLenum,
 
+    /// The latest value passed to `glDepthMask`.
+    pub depth_mask: bool,
+
     /// The latest values passed to `glDepthRange`.
     pub depth_range: (f32, f32),
 
@@ -156,6 +159,7 @@ impl Default for GLState {
             default_framebuffer_read: None,
             renderbuffer: 0,
             depth_func: gl::LESS,
+            depth_mask: true,
             depth_range: (0.0, 1.0),
             blend_equation: gl::FUNC_ADD,
             blend_func: (gl::ONE, gl::ZERO),

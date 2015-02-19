@@ -10,7 +10,7 @@ use glium::Surface;
 mod support;
 
 #[test]
-fn no_depth_buffer() {
+fn no_depth_buffer_depth_test() {
     let display = support::build_display();
     let (vertex_buffer, index_buffer, program) = support::build_fullscreen_red_pipeline(&display);
 
@@ -19,7 +19,31 @@ fn no_depth_buffer() {
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 
     let parameters = glium::DrawParameters {
-        depth_function: glium::DepthFunction::IfLess,
+        depth_test: glium::DepthTest::IfLess,
+        .. std::default::Default::default()
+    };
+
+    match framebuffer.draw(&vertex_buffer, &index_buffer, &program,
+                           &glium::uniforms::EmptyUniforms, &parameters)
+    {
+        Err(glium::DrawError::NoDepthBuffer) => (),
+        a => panic!("{:?}", a)
+    };
+
+    display.assert_no_error();
+}
+
+#[test]
+fn no_depth_buffer_depth_write() {
+    let display = support::build_display();
+    let (vertex_buffer, index_buffer, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = glium::texture::Texture2d::new_empty(&display,
+                            glium::texture::UncompressedFloatFormat::U8U8U8U8, 128, 128);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+
+    let parameters = glium::DrawParameters {
+        depth_write: true,
         .. std::default::Default::default()
     };
 
@@ -114,7 +138,7 @@ fn depth_texture2d() {
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display,
                                                                                    &color, &depth);
     let params = glium::DrawParameters {
-        depth_function: glium::DepthFunction::IfLess,
+        depth_test: glium::DepthTest::IfLess,
         .. std::default::Default::default()
     };
 
