@@ -9,7 +9,7 @@ use syntax::ptr::P;
 /// Expand #[vertex_format]
 pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
               meta_item: &ast::MetaItem, item: &ast::Item,
-              mut push: Box<FnMut(P<ast::Item>)>)
+              push: &mut FnMut(P<ast::Item>))
 {
     generic::TraitDef {
         span: span,
