@@ -249,3 +249,62 @@ fn viewport() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn dont_draw_primitives() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        draw_primitives: false,
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
+    match texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+        Ok(_) => (),
+        Err(glium::DrawError::TransformFeedbackNotSupported) => return,
+        e => e.unwrap()
+    }
+
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(0.0, 1.0, 0.0));
+        }
+    }
+
+    display.assert_no_error();
+}
+
+#[test]
+fn dont_draw_primitives_then_draw() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        draw_primitives: false,
+        .. std::default::Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
+    match texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+        Ok(_) => (),
+        Err(glium::DrawError::TransformFeedbackNotSupported) => return,
+        e => e.unwrap()
+    }
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &std::default::Default::default()).unwrap();
+
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(1.0, 0.0, 0.0));
+        }
+    }
+
+    display.assert_no_error();
+}

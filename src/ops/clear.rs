@@ -32,6 +32,11 @@ pub fn clear(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachm
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         unsafe {
+            if ctxt.state.enabled_rasterizer_discard {
+                ctxt.gl.Disable(gl::RASTERIZER_DISCARD);
+                ctxt.state.enabled_rasterizer_discard = false;
+            }
+
             if ctxt.state.enabled_scissor_test {
                 ctxt.gl.Disable(gl::SCISSOR_TEST);
                 ctxt.state.enabled_scissor_test = false;
