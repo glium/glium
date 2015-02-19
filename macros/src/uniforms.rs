@@ -6,7 +6,7 @@ use syntax::ptr::P;
 /// Expand #[uniforms]
 pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
               _meta_item: &ast::MetaItem, item: &ast::Item,
-              mut push: Box<FnMut(P<ast::Item>)>)
+              push: &mut FnMut(P<ast::Item>))
 {
     let struct_name = &item.ident;
 
