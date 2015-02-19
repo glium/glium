@@ -66,6 +66,10 @@ pub struct ExtensionsList {
     pub gl_arb_depth_texture: bool,
     /// GL_ARB_invalidate_subdata
     pub gl_arb_invalidate_subdata: bool,
+    /// GL_EXT_transform_feedback
+    pub gl_ext_transform_feedback: bool,
+    /// GL_EXT_gpu_shader4
+    pub gl_ext_gpu_shader4: bool,
 }
 
 pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
@@ -103,6 +107,8 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_debug_output: false,
         gl_arb_depth_texture: false,
         gl_arb_invalidate_subdata: false,
+        gl_ext_transform_feedback: false,
+        gl_ext_gpu_shader4: false,
     };
 
     for extension in strings.into_iter() {
@@ -138,6 +144,8 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_debug_output" => extensions.gl_arb_debug_output = true,
             "GL_ARB_depth_texture" => extensions.gl_arb_depth_texture = true,
             "GL_ARB_invalidate_subdata" => extensions.gl_arb_invalidate_subdata = true,
+            "GL_EXT_transform_feedback" => extensions.gl_ext_transform_feedback = true,
+            "GL_EXT_gpu_shader4" => extensions.gl_ext_gpu_shader4 = true,
             _ => ()
         }
     }

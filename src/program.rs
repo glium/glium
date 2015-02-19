@@ -9,6 +9,7 @@ use std::sync::mpsc::channel;
 use {Display, DisplayImpl, GlObject};
 use context::{self, CommandContext, GlVersion};
 use uniforms::UniformType;
+use vertex::AttributeType;
 use Handle;
 use util::FnvHasher;
 
@@ -138,6 +139,7 @@ pub struct Program {
     uniform_blocks: Arc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
     attributes: Arc<HashMap<String, Attribute, DefaultState<FnvHasher>>>,
     frag_data_locations: Mutex<HashMap<String, Option<u32>, DefaultState<FnvHasher>>>,
+    varyings: Option<(Vec<TransformFeedbackVarying>, TransformFeedbackMode)>,
     has_tessellation_shaders: bool,
 }
 
@@ -196,6 +198,29 @@ pub struct Attribute {
     pub location: gl::types::GLint,
     pub ty: gl::types::GLenum,
     pub size: gl::types::GLint,
+}
+
+/// Describes a varying that is being output with transform feedback.
+#[derive(Debug, Clone)]
+pub struct TransformFeedbackVarying {
+    /// Name of the variable.
+    pub name: String,
+
+    /// Size in bytes of this value.
+    pub size: usize,
+
+    /// Type of the value.
+    pub ty: AttributeType,
+}
+
+/// Describes the mode that is used when transform feedback is enabled.
+#[derive(Debug, Copy, Clone)]
+pub enum TransformFeedbackMode {
+    /// Each value is interleaved in the same buffer.
+    Interleaved,
+
+    /// Each value will go in a separate buffer.
+    Separate,
 }
 
 /// Error that can be triggered when creating a `Program`.
@@ -406,11 +431,12 @@ impl Program {
                     reflect_uniforms(&mut ctxt, id),
                     reflect_attributes(&mut ctxt, id),
                     reflect_uniform_blocks(&mut ctxt, id),
+                    reflect_transform_feedback(&mut ctxt, id),
                 )).ok();
             }
         });
 
-        let (uniforms, attributes, blocks) = rx.recv().unwrap();
+        let (uniforms, attributes, blocks, varyings) = rx.recv().unwrap();
 
         Ok(Program {
             display: display.context.clone(),
@@ -419,6 +445,7 @@ impl Program {
             uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
             frag_data_locations: Mutex::new(HashMap::with_hash_state(Default::default())),
+            varyings: varyings,
             has_tessellation_shaders: has_tessellation_shaders,
         })
     }
@@ -472,11 +499,12 @@ impl Program {
                     reflect_uniforms(&mut ctxt, id),
                     reflect_attributes(&mut ctxt, id),
                     reflect_uniform_blocks(&mut ctxt, id),
+                    reflect_transform_feedback(&mut ctxt, id),
                 )).ok();
             }
         });
 
-        let (uniforms, attributes, blocks) = rx.recv().unwrap();
+        let (uniforms, attributes, blocks, varyings) = rx.recv().unwrap();
 
         Ok(Program {
             display: display.context.clone(),
@@ -485,6 +513,7 @@ impl Program {
             uniform_blocks: Arc::new(blocks),
             attributes: Arc::new(attributes),
             frag_data_locations: Mutex::new(HashMap::with_hash_state(Default::default())),
+            varyings: varyings,
             has_tessellation_shaders: true,     // FIXME: 
         })
     }
@@ -600,6 +629,17 @@ impl Program {
     /// Returns a list of uniform blocks.
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, DefaultState<FnvHasher>> {
         &*self.uniform_blocks
+    }
+
+    /// Returns the list of transform feedback varyings.
+    pub fn get_transform_feedback_varyings(&self) -> &[TransformFeedbackVarying] {
+        self.varyings.as_ref().map(|&(ref v, _)| v.as_slice()).unwrap_or(&[])
+    }
+
+    /// Returns the mode used for transform feedback, or `None` is transform feedback is not
+    /// enabled in this program or not supported.
+    pub fn get_transform_feedback_mode(&self) -> Option<TransformFeedbackMode> {
+        self.varyings.as_ref().map(|&(_, m)| m)
     }
 
     /// Returns true if the program contains a tessellation stage.
@@ -1169,6 +1209,103 @@ unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
     blocks
 }
 
+unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Handle)
+                                     -> Option<(Vec<TransformFeedbackVarying>,
+                                                TransformFeedbackMode)>
+{
+    let program = match program {
+        // transform feedback not supported
+        Handle::Handle(_) => return None,
+        Handle::Id(id) => id
+    };
+
+    // transform feedback not supported
+    if ctxt.version < &GlVersion(3, 0) && !ctxt.extensions.gl_ext_transform_feedback {
+        return None;
+    }
+
+    // querying the number of varying
+    let num_varyings = {
+        let mut num_varyings: gl::types::GLint = mem::uninitialized();
+
+        if ctxt.version >= &GlVersion(3, 0) {
+            ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYINGS, &mut num_varyings);
+        } else if ctxt.extensions.gl_ext_transform_feedback {
+            ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYINGS_EXT, &mut num_varyings);
+        } else {
+            unreachable!();
+        }
+
+        num_varyings
+    };
+
+    // no need to request other things if there are no varying
+    if num_varyings == 0 {
+        return None;
+    }
+
+    // querying "interleaved" or "separate"
+    let buffer_mode = {
+        let mut buffer_mode: gl::types::GLint = mem::uninitialized();
+
+        if ctxt.version >= &GlVersion(3, 0) {
+            ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_BUFFER_MODE, &mut buffer_mode);
+        } else if ctxt.extensions.gl_ext_transform_feedback {
+            ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_BUFFER_MODE_EXT, &mut buffer_mode);
+        } else {
+            unreachable!();
+        }
+
+        glenum_to_transform_feedback_mode(buffer_mode as gl::types::GLenum)
+    };
+
+    // the max length includes the null terminator
+    let mut max_buffer_len: gl::types::GLint = mem::uninitialized();
+    if ctxt.version >= &GlVersion(3, 0) {
+        ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH,
+                             &mut max_buffer_len);
+    } else if ctxt.extensions.gl_ext_transform_feedback {
+        ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH_EXT,
+                             &mut max_buffer_len);
+    } else {
+        unreachable!();
+    }
+
+    let mut result = Vec::with_capacity(num_varyings as usize);
+
+    for index in (0 .. num_varyings as gl::types::GLuint) {
+        let mut name_tmp: Vec<u8> = Vec::with_capacity(max_buffer_len as usize);
+        let mut name_tmp_len = max_buffer_len;
+
+        let mut size = mem::uninitialized();
+        let mut ty = mem::uninitialized();
+
+        if ctxt.version >= &GlVersion(3, 0) {
+            ctxt.gl.GetTransformFeedbackVarying(program, index, name_tmp_len, &mut name_tmp_len,
+                                                &mut size, &mut ty, name_tmp.as_mut_ptr()
+                                                as *mut gl::types::GLchar);
+        } else if ctxt.extensions.gl_ext_transform_feedback {
+            ctxt.gl.GetTransformFeedbackVaryingEXT(program, index, name_tmp_len,
+                                                   &mut name_tmp_len, &mut size, &mut ty,
+                                                   name_tmp.as_mut_ptr()
+                                                   as *mut gl::types::GLchar);
+        } else {
+            unreachable!();
+        }
+
+        name_tmp.set_len(name_tmp_len as usize);
+        let name = String::from_utf8(name_tmp).unwrap();
+
+        result.push(TransformFeedbackVarying {
+            name: name,
+            size: size as usize,
+            ty: glenum_to_attribute_type(ty as gl::types::GLenum),
+        });
+    }
+
+    Some((result, buffer_mode))
+}
+
 fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
     match ty {
         gl::FLOAT => UniformType::Float,
@@ -1277,5 +1414,41 @@ fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
         gl::UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY => UniformType::UImage2dMultisampleArray,
         gl::UNSIGNED_INT_ATOMIC_COUNTER => UniformType::AtomicCounterUint,
         v => panic!("Unknown value returned by OpenGL uniform type: {}", v)
+    }
+}
+
+fn glenum_to_attribute_type(value: gl::types::GLenum) -> AttributeType {
+    match value {
+        gl::FLOAT => AttributeType::F32,
+        gl::FLOAT_VEC2 => AttributeType::F32F32,
+        gl::FLOAT_VEC3 => AttributeType::F32F32F32,
+        gl::FLOAT_VEC4 => AttributeType::F32F32F32F32,
+        gl::INT => AttributeType::I32,
+        gl::INT_VEC2 => AttributeType::I32I32,
+        gl::INT_VEC3 => AttributeType::I32I32I32,
+        gl::INT_VEC4 => AttributeType::I32I32I32I32,
+        gl::UNSIGNED_INT => AttributeType::U32,
+        gl::UNSIGNED_INT_VEC2 => AttributeType::U32U32,
+        //gl::UNSIGNED_INT_VEC2_EXT => AttributeType::U32U32,
+        gl::UNSIGNED_INT_VEC3 => AttributeType::U32U32U32,
+        //gl::UNSIGNED_INT_VEC3_EXT => AttributeType::U32U32U32,
+        gl::UNSIGNED_INT_VEC4 => AttributeType::U32U32U32U32,
+        //gl::UNSIGNED_INT_VEC4_EXT => AttributeType::U32U32U32U32,
+        gl::FLOAT_MAT2 => AttributeType::F32x2x2,
+        gl::FLOAT_MAT3 => AttributeType::F32x3x3,
+        gl::FLOAT_MAT4 => AttributeType::F32x4x4,
+        v => panic!("Unknown value returned by OpenGL attribute type: {}", v)
+    }
+}
+
+fn glenum_to_transform_feedback_mode(value: gl::types::GLenum) -> TransformFeedbackMode {
+    match value {
+        gl::INTERLEAVED_ATTRIBS/* | gl::INTERLEAVED_ATTRIBS_EXT*/ => {
+            TransformFeedbackMode::Interleaved
+        },
+        gl::SEPARATE_ATTRIBS/* | gl::SEPARATE_ATTRIBS_EXT*/ => {
+            TransformFeedbackMode::Separate
+        },
+        v => panic!("Unknown value returned by OpenGL varying mode: {}", v)
     }
 }
