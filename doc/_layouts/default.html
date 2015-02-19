@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
 
-    <link rel="stylesheet" type="text/css" href="www/styles/monokai_sublime.css" />
-    <script type="text/javascript" src="www/highlight.pack.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ "/www/styles/monokai_sublime.css" | prepend: site.baseurl }}" />
+    <script type="text/javascript" src="{{ "/www/highlight.pack.js" | prepend: site.baseurl }}"></script>
 
     <style type="text/css" media="screen">
       body {
@@ -44,18 +44,18 @@
         font-family: monospace;
       }
 
-      header {
+      body > header {
         background-color: black;
         color: white;
         padding: 2em;
         text-align: center;
       }
 
-      header h1 {
+      body > header h1 {
         font-size: 300%;
       }
 
-      header > pre {
+      body > header > pre {
         margin-top: 4em;
       }
 
@@ -75,6 +75,23 @@
       .section > div {
         max-width: 1000px;
         margin: 0 auto;
+      }
+
+      p > img {
+        display: block;
+        margin: auto;
+      }
+
+      .tutorial {
+        font-size: 90%;
+      }
+
+      .tutorial header {
+        margin-left: 10%;
+      }
+
+      .tutorial article {
+        margin: 6%;
       }
     </style>
 
