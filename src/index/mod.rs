@@ -186,7 +186,7 @@ impl ToGlEnum for IndexType {
 }
 
 /// An index from the index buffer.
-pub unsafe trait Index: Copy + Send {
+pub unsafe trait Index: Copy + Send + 'static {
     /// Returns the `IndexType` corresponding to this type.
     fn get_type() -> IndexType;
 }

@@ -87,7 +87,7 @@ pub trait Texture1dDataSource<'a> {
 
 /// Trait that describes data for a one-dimensional texture.
 pub trait Texture1dDataSink {
-    type Data: Send + Copy;
+    type Data: Send + Copy + 'static;
 
     /// Returns the list of accepted formats.
     fn get_preferred_formats() -> Vec<ClientFormat>;
@@ -112,7 +112,7 @@ pub struct RawImage1d<'a, T: Clone + 'a> {
     pub format: ClientFormat,
 }
 
-impl<'a, P: PixelValue> Texture1dDataSource<'a> for Vec<P> where P: Copy + Clone + Send {
+impl<'a, P: PixelValue> Texture1dDataSource<'a> for Vec<P> where P: Copy + Clone + Send + 'static {
     type Data = P;
 
     fn into_raw(self) -> RawImage1d<'a, P> {
@@ -139,7 +139,7 @@ impl<P: PixelValue> Texture1dDataSink for Vec<P> where P: Copy + Clone + Send {
     }
 }
 
-impl<'a, P: PixelValue> Texture1dDataSource<'a> for &'a[P] where P: Copy + Clone + Send {
+impl<'a, P: PixelValue> Texture1dDataSource<'a> for &'a[P] where P: Copy + Clone + Send + 'static {
     type Data = P;
 
     fn into_raw(self) -> RawImage1d<'a, P> {
@@ -163,7 +163,7 @@ pub trait Texture2dDataSource<'a> {
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture2dDataSink {
-    type Data: Send + Copy + Clone;
+    type Data: Send + Copy + Clone + 'static;
 
     /// Returns the list of accepted formats.
     fn get_preferred_formats() -> Vec<ClientFormat>;
@@ -224,8 +224,8 @@ impl<P: PixelValue> Texture2dDataSink for Vec<Vec<P>> where P: Copy + Clone + Se
 
 #[cfg(feature = "image")]
 impl<'a, T, P> Texture2dDataSource<'a> for image::ImageBuffer<P, Vec<T>>
-                             where T: image::Primitive + Send,
-                                   P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
+                                       where T: image::Primitive + Send + 'static,
+                                             P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
 {
     type Data = T;
 
@@ -254,7 +254,7 @@ impl<'a, T, P> Texture2dDataSource<'a> for image::ImageBuffer<P, Vec<T>>
 
 #[cfg(feature = "image")]
 impl<T, P> Texture2dDataSink for image::ImageBuffer<P, Vec<T>>
-                                 where T: image::Primitive + Send,
+                                 where T: image::Primitive + Send + 'static,
                                        P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
 {
     type Data = T;
@@ -313,7 +313,7 @@ pub trait Texture3dDataSource<'a> {
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture3dDataSink {
-    type Data: Send + Copy;
+    type Data: Send + Copy + 'static;
 
     /// Returns the list of accepted formats.
     fn get_preferred_formats() -> Vec<ClientFormat>;

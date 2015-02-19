@@ -117,7 +117,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     }
 }
 
-impl<T: Send + Copy> VertexBuffer<T> {
+impl<T: Send + Copy + 'static> VertexBuffer<T> {
     /// Builds a new vertex buffer from an indeterminate data type and bindings.
     ///
     /// # Example
@@ -258,7 +258,7 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
     }
 }
 
-impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy {
+impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy + 'static {
     /// Reads the content of the slice.
     ///
     /// This function is usually better if are just doing one punctual read, while `map`
