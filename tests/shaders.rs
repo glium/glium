@@ -344,3 +344,69 @@ fn program_binary_working() {
 
     display.assert_no_error();
 }
+
+#[test]
+fn get_transform_feedback_varyings() {    
+    let display = support::build_display();
+
+    let source = glium::program::ProgramCreationInput::SourceCode {
+        tessellation_control_shader: None,
+        tessellation_evaluation_shader: None,
+        geometry_shader: None,
+
+        vertex_shader: "
+            #version 110
+
+            varying vec2 normal;
+            varying int color;
+
+            void main() {
+                normal = vec2(0.0, 0.0);
+                color = 5;
+
+                gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+            }
+        ",
+        fragment_shader: "
+            #version 130
+
+            out vec4 color;
+
+            void main() {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+
+        transform_feedback_varyings: Some((
+            vec!["normal".to_string(), "color".to_string()],
+            glium::program::TransformFeedbackMode::Separate
+        )),
+    };
+
+    let program = match glium::Program::new(&display, source) {
+        Ok(p) => p,
+        Err(glium::program::ProgramCreationError::TransformFeedbackNotSupported) => return,
+        Err(e) => panic!("{:?}")
+    };
+
+    assert_eq!(program.get_transform_feedback_varyings()[0],
+                glium::program::TransformFeedbackVarying {
+                    name: "normal".to_string(),
+                    size: 2 * 4,
+                    ty: glium::vertex::AttributeType::F32F32,
+                });
+
+    assert_eq!(program.get_transform_feedback_varyings()[1],
+                glium::program::TransformFeedbackVarying {
+                    name: "color".to_string(),
+                    size: 4,
+                    ty: glium::vertex::AttributeType::U32,
+                });
+
+    assert_eq!(program.get_transform_feedback_varyings().len(), 2);
+
+    assert_eq!(program.get_transform_feedback_mode(),
+               Some(glium::program::TransformFeedbackMode::Separate));
+    
+    display.assert_no_error();
+}

@@ -45,6 +45,8 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
                 "GL_ARB_debug_output".to_string(),
                 "GL_ARB_depth_texture".to_string(),
                 "GL_ARB_invalidate_subdata".to_string(),
+                "GL_EXT_transform_feedback".to_string(),
+                "GL_EXT_gpu_shader4".to_string(),
             ],
             version: "4.5".to_string(),
             profile: "compatibility".to_string(),
