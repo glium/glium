@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+
+    <link rel="stylesheet" type="text/css" href="www/styles/monokai_sublime.css" />
+    <script type="text/javascript" src="www/highlight.pack.js"></script>
+
+    <style type="text/css" media="screen">
+      body {
+        background-color: #ddd;
+        margin: 0;
+        font-family: "Lucida Grande", "Calibri", Helvetica, Arial, sans-serif;
+        font-size: 130%;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: underline;
+      }
+
+      h2 {
+        font-size: 2em;
+      }
+
+      h3 {
+        margin-top: 2.5em;
+      }
+
+      pre {
+        background-color: #333;
+        border: 1px dashed #ccc;
+        color: white;
+        margin: 0;
+        display: inline-block;
+        text-align: left;
+        width: 100%;
+      }
+
+      code {
+        font-family: monospace;
+      }
+
+      header {
+        background-color: black;
+        color: white;
+        padding: 2em;
+        text-align: center;
+      }
+
+      header h1 {
+        font-size: 300%;
+      }
+
+      header > pre {
+        margin-top: 4em;
+      }
+
+      .section {
+        min-height: 10em;
+        padding: 2em 1em;
+      }
+
+      .section:nth-of-type(2n+1) {
+        background-color: #fafafa;
+      }
+
+      .section:nth-of-type(2n) {
+        background-color: #eee;
+      }
+
+      .section > div {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+    </style>
+
+    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+  </head>
+
+  <body>
+    {% include header.html %}
+    {{ content }}
+  </body>
+</html>
+<script>hljs.initHighlightingOnLoad();</script>
