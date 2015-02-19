@@ -60,6 +60,12 @@ pub enum ProgramCreationInput<'a> {
 
         /// Source code of the fragment shader.
         fragment_shader: &'a str,
+
+        /// The list of variables and mode to use for transform feedback.
+        ///
+        /// The information specified here will be passed to the OpenGL linker. If you pass
+        /// `None`, then you won't be able to use transform feedback.
+        transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
     },
 
     /// Use a precompiled binary.
@@ -110,6 +116,7 @@ impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
             tessellation_evaluation_shader: tessellation_evaluation_shader,
             geometry_shader: geometry_shader,
             fragment_shader: fragment_shader,
+            transform_feedback_varyings: None,
         }
     }
 }
@@ -201,7 +208,7 @@ pub struct Attribute {
 }
 
 /// Describes a varying that is being output with transform feedback.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TransformFeedbackVarying {
     /// Name of the variable.
     pub name: String,
@@ -214,7 +221,7 @@ pub struct TransformFeedbackVarying {
 }
 
 /// Describes the mode that is used when transform feedback is enabled.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TransformFeedbackMode {
     /// Each value is interleaved in the same buffer.
     Interleaved,
@@ -236,6 +243,10 @@ pub enum ProgramCreationError {
     ///
     /// Usually the case for geometry shaders.
     ShaderTypeNotSupported,
+
+    /// You have requested transform feedback varyings, but transform feedback is not supported
+    /// by the backend.
+    TransformFeedbackNotSupported,
 }
 
 impl ::std::fmt::Display for ProgramCreationError {
@@ -248,6 +259,9 @@ impl ::std::fmt::Display for ProgramCreationError {
             &ProgramCreationError::ShaderTypeNotSupported =>
                 formatter.write_str("One of the request shader type is \
                                     not supported by the backend"),
+            &ProgramCreationError::TransformFeedbackNotSupported => 
+                formatter.write_str("You requested transform feedback, but this feature is not \
+                                     supported by the backend"),
         }
     }
 }
@@ -260,6 +274,8 @@ impl ::std::error::Error for ProgramCreationError {
             &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
             &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
                                                               not supported by the backend",
+            &ProgramCreationError::TransformFeedbackNotSupported => "Transform feedback is not \
+                                                                     supported by the backend.",
         }
     }
 
@@ -312,6 +328,7 @@ impl Program {
             geometry_shader: geometry_shader,
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
+            transform_feedback_varyings: None,
         })
     }
 
@@ -325,16 +342,19 @@ impl Program {
         let mut has_tessellation_shaders = false;
 
         // getting an array of the source codes and their type
-        let shaders: Vec<(&str, gl::types::GLenum)> = {
+        let (shaders, transform_feedback_varyings): (Vec<(&str, gl::types::GLenum)>, _) = {
             let (vertex_shader, fragment_shader, geometry_shader,
-                 tessellation_control_shader, tessellation_evaluation_shader) = match input
+                 tessellation_control_shader, tessellation_evaluation_shader,
+                 transform_feedback_varyings) = match input
             {
                 ProgramCreationInput::SourceCode { vertex_shader, fragment_shader,
                                                    geometry_shader, tessellation_control_shader,
-                                                   tessellation_evaluation_shader } =>
+                                                   tessellation_evaluation_shader,
+                                                   transform_feedback_varyings } =>
                 {
                     (vertex_shader, fragment_shader, geometry_shader,
-                     tessellation_control_shader, tessellation_evaluation_shader)
+                     tessellation_control_shader, tessellation_evaluation_shader,
+                     transform_feedback_varyings)
                 },
                 _ => unreachable!()     // the function shouldn't be called with anything else
             };
@@ -358,7 +378,14 @@ impl Program {
                 shaders.push((ts, gl::TESS_EVALUATION_SHADER));
             }
 
-            shaders
+            if transform_feedback_varyings.is_some() &&
+                (display.context.context.get_version() >= &GlVersion(3, 0) ||
+                    !display.context.context.get_extensions().gl_ext_transform_feedback)
+            {
+                return Err(ProgramCreationError::TransformFeedbackNotSupported);
+            }
+
+            (shaders, transform_feedback_varyings)
         };
 
         let shaders_store = {
@@ -391,6 +418,43 @@ impl Program {
                             ctxt.gl.AttachObjectARB(id, sh);
                         },
                         _ => unreachable!()
+                    }
+                }
+
+                // transform feedback varyings
+                if let Some((names, mode)) = transform_feedback_varyings {
+                    let id = match id {
+                        Handle::Id(id) => id,
+                        Handle::Handle(id) => unreachable!()    // transf. feedback shouldn't be
+                                                                // available with handles
+                    };
+
+                    let names = names.into_iter().map(|name| {
+                        ffi::CString::from_vec(name.into_bytes())
+                    }).collect::<Vec<_>>();
+                    let names_ptr = names.iter().map(|n| n.as_ptr()).collect::<Vec<_>>();
+
+                    if ctxt.version >= &GlVersion(3, 0) {
+                        let mode = match mode {
+                            TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS,
+                            TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS,
+                        };
+
+                        ctxt.gl.TransformFeedbackVaryings(id, names_ptr.len() as gl::types::GLsizei,
+                                                          names_ptr.as_ptr(), mode);
+
+                    } else if ctxt.extensions.gl_ext_transform_feedback {
+                        let mode = match mode {
+                            TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS_EXT,
+                            TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS_EXT,
+                        };
+
+                        ctxt.gl.TransformFeedbackVaryingsEXT(id, names_ptr.len()
+                                                             as gl::types::GLsizei,
+                                                             names_ptr.as_ptr(), mode);
+
+                    } else {
+                        unreachable!();     // has been checked in the frontend
                     }
                 }
 
