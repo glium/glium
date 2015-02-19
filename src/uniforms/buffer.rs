@@ -21,7 +21,7 @@ pub struct TypelessUniformBuffer {
     buffer: Buffer,
 }
 
-impl<T> UniformBuffer<T> where T: Copy + Send {
+impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Uploads data in the uniforms buffer.
     ///
     /// ## Features

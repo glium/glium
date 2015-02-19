@@ -130,7 +130,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     }
 }
 
-impl<T: Send + Copy> PerInstanceAttributesBuffer<T> {
+impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// Builds a new vertex buffer from an indeterminate data type and bindings.
     ///
     /// # Example

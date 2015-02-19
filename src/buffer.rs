@@ -87,7 +87,7 @@ impl BufferType for UniformBuffer {
 
 impl Buffer {
     pub fn new<T, D>(display: &Display, data: Vec<D>, persistent: bool)
-                     -> Buffer where T: BufferType, D: Send + Copy
+                     -> Buffer where T: BufferType, D: Send + Copy + 'static
     {
         use std::mem;
 
@@ -345,7 +345,7 @@ impl Buffer {
     /// This function considers that the buffer is filled of elements of type `D`. The offset
     /// is a number of elements, not a number of bytes.
     pub fn upload<T, D>(&self, offset: usize, data: Vec<D>)
-                        where D: Copy + Send, T: BufferType
+                        where D: Copy + Send + 'static, T: BufferType
     {
         let offset = offset * get_elements_size(&data);
         let buffer_size = get_elements_size(&data) * data.len();
@@ -408,7 +408,7 @@ impl Buffer {
 
     /// Offset and size should be specified as number of elements
     pub fn map<'a, T, D>(&'a mut self, offset: usize, size: usize)
-                         -> Mapping<'a, T, D> where T: BufferType, D: Send
+                         -> Mapping<'a, T, D> where T: BufferType, D: Send + 'static
     {
         if offset > self.elements_count || (offset + size) > self.elements_count {
             panic!("Trying to map out of range of buffer");
@@ -471,23 +471,23 @@ impl Buffer {
     }
 
     #[cfg(feature = "gl_read_buffer")]
-    pub fn read<T, D>(&self) -> Vec<D> where T: BufferType, D: Send {
+    pub fn read<T, D>(&self) -> Vec<D> where T: BufferType, D: Send + 'static {
         self.read_if_supported::<T, D>().unwrap()
     }
 
-    pub fn read_if_supported<T, D>(&self) -> Option<Vec<D>> where T: BufferType, D: Send {
+    pub fn read_if_supported<T, D>(&self) -> Option<Vec<D>> where T: BufferType, D: Send + 'static {
         self.read_slice_if_supported::<T, D>(0, self.elements_count)
     }
 
     #[cfg(feature = "gl_read_buffer")]
     pub fn read_slice<T, D>(&self, offset: usize, size: usize)
-                            -> Vec<D> where T: BufferType, D: Send
+                            -> Vec<D> where T: BufferType, D: Send + 'static
     {
         self.read_slice_if_supported::<T, D>(offset, size).unwrap()
     }
 
     pub fn read_slice_if_supported<T, D>(&self, offset: usize, size: usize)
-                                         -> Option<Vec<D>> where T: BufferType, D: Send
+                                         -> Option<Vec<D>> where T: BufferType, D: Send + 'static
     {
         assert!(offset + size <= self.elements_count);
 
