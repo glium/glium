@@ -209,12 +209,16 @@ pub enum BackfaceCullingMode {
 /// In addition to the buffer where pixel colors are stored, you can also have a buffer
 /// which contains the depth value of each pixel. Whenever the GPU tries to write a pixel,
 /// it will first compare the depth value of the pixel to be written with the depth value that
-/// is stored at this location.
+/// is stored at this location. If `depth_write` is set to `true` in the draw parameters, it will
+/// then write the depth value in the buffer.
+///
+/// The most common value for depth testing is to set `depth_test` to `IfLess`, and `depth_write`
+/// to `true`.
 ///
 /// If you don't have a depth buffer available, you can only pass `Overwrite`. Glium detects if
 /// you pass any other value and reports an error.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DepthFunction {
+pub enum DepthTest {
     /// Never replace the target pixel.
     ///
     /// This option doesn't really make sense, but is here for completeness.
@@ -244,33 +248,33 @@ pub enum DepthFunction {
     IfLessOrEqual
 }
 
-impl DepthFunction {
+impl DepthTest {
     /// Returns true if the function requires a depth buffer to be used.
     pub fn requires_depth_buffer(&self) -> bool {
         match *self {
-            DepthFunction::Ignore => true,
-            DepthFunction::Overwrite => false,
-            DepthFunction::IfEqual => true,
-            DepthFunction::IfNotEqual => true,
-            DepthFunction::IfMore => true,
-            DepthFunction::IfMoreOrEqual => true,
-            DepthFunction::IfLess => true,
-            DepthFunction::IfLessOrEqual => true,
+            DepthTest::Ignore => true,
+            DepthTest::Overwrite => false,
+            DepthTest::IfEqual => true,
+            DepthTest::IfNotEqual => true,
+            DepthTest::IfMore => true,
+            DepthTest::IfMoreOrEqual => true,
+            DepthTest::IfLess => true,
+            DepthTest::IfLessOrEqual => true,
         }
     }
 }
 
-impl ToGlEnum for DepthFunction {
+impl ToGlEnum for DepthTest {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-            DepthFunction::Ignore => gl::NEVER,
-            DepthFunction::Overwrite => gl::ALWAYS,
-            DepthFunction::IfEqual => gl::EQUAL,
-            DepthFunction::IfNotEqual => gl::NOTEQUAL,
-            DepthFunction::IfMore => gl::GREATER,
-            DepthFunction::IfMoreOrEqual => gl::GEQUAL,
-            DepthFunction::IfLess => gl::LESS,
-            DepthFunction::IfLessOrEqual => gl::LEQUAL,
+            DepthTest::Ignore => gl::NEVER,
+            DepthTest::Overwrite => gl::ALWAYS,
+            DepthTest::IfEqual => gl::EQUAL,
+            DepthTest::IfNotEqual => gl::NOTEQUAL,
+            DepthTest::IfMore => gl::GREATER,
+            DepthTest::IfMoreOrEqual => gl::GEQUAL,
+            DepthTest::IfLess => gl::LESS,
+            DepthTest::IfLessOrEqual => gl::LEQUAL,
         }
     }
 }
@@ -326,7 +330,8 @@ impl ToGlEnum for PolygonMode {
 ///
 /// ```
 /// let params = glium::DrawParameters {
-///     depth_function: glium::DepthFunction::IfLess,
+///     depth_test: glium::DepthTest::IfLess,
+///     depth_write: true,
 ///     .. std::default::Default::default()
 /// };
 /// ```
@@ -334,12 +339,21 @@ impl ToGlEnum for PolygonMode {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DrawParameters {
     /// The function that the GPU will use to determine whether to write over an existing pixel
-    /// on the target.
+    /// on the target. Don't forget to set `depth_write` appropriately if you use a depth test.
     ///
-    /// See the `DepthFunction` documentation for more details.
+    /// See the `DepthTest` documentation for more details.
     ///
     /// The default is `Overwrite`.
-    pub depth_function: DepthFunction,
+    pub depth_test: DepthTest,
+    
+    /// Sets whether the GPU will write the depth values on the depth buffer if they pass the
+    /// depth test.
+    ///
+    /// The default is `false`. You most likely want `true` if you're doing depth testing.
+    ///
+    /// If you pass `true` but don't have a depth buffer available, drawing will produce
+    /// a `NoDepthBuffer` error.
+    pub depth_write: bool,
 
     /// The range of possible Z values in surface coordinates.
     ///
@@ -424,7 +438,8 @@ pub struct DrawParameters {
 impl Default for DrawParameters {
     fn default() -> DrawParameters {
         DrawParameters {
-            depth_function: DepthFunction::Overwrite,
+            depth_test: DepthTest::Overwrite,
+            depth_write: false,
             depth_range: (0.0, 1.0),
             blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
@@ -461,8 +476,8 @@ pub fn sync(params: &DrawParameters, ctxt: &mut context::CommandContext,
             surface_dimensions: (u32, u32))
 {
     // depth function
-    match params.depth_function {
-        DepthFunction::Overwrite => unsafe {
+    match params.depth_test {
+        DepthTest::Overwrite => unsafe {
             if ctxt.state.enabled_depth_test {
                 ctxt.gl.Disable(gl::DEPTH_TEST);
                 ctxt.state.enabled_depth_test = false;
@@ -479,6 +494,14 @@ pub fn sync(params: &DrawParameters, ctxt: &mut context::CommandContext,
                 ctxt.state.enabled_depth_test = true;
             }
         }
+    }
+
+    // depth mask
+    if params.depth_write != ctxt.state.depth_mask {
+        unsafe {
+            ctxt.gl.DepthMask(if params.depth_write { gl::TRUE } else { gl::FALSE });
+        }
+        ctxt.state.depth_mask = params.depth_write;
     }
 
     // depth range
