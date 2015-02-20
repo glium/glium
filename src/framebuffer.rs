@@ -36,7 +36,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 **Note**: depth-stencil attachments are not yet implemented.
 
 */
-use std::marker::ContravariantLifetime;
+use std::marker::PhantomData;
 
 use texture::{Texture, Texture2d, DepthTexture2d, StencilTexture2d, DepthStencilTexture2d};
 use fbo::FramebufferAttachments;
@@ -50,7 +50,7 @@ use {fbo, gl, ops};
 pub struct SimpleFrameBuffer<'a> {
     display: Display,
     attachments: FramebufferAttachments,
-    marker: ContravariantLifetime<'a>,
+    marker: PhantomData<&'a ()>,
     dimensions: (u32, u32),
     depth_buffer_bits: Option<u16>,
     stencil_buffer_bits: Option<u16>,
@@ -172,7 +172,7 @@ impl<'a> SimpleFrameBuffer<'a> {
                 depth: depth,
                 stencil: stencil,
             },
-            marker: ContravariantLifetime,
+            marker: PhantomData,
             dimensions: dimensions,
             depth_buffer_bits: depth_bits,
             stencil_buffer_bits: stencil_bits,
@@ -237,7 +237,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
 /// This struct is useless for the moment.
 pub struct MultiOutputFrameBuffer<'a> {
     display: Display,
-    marker: ContravariantLifetime<'a>,
+    marker: PhantomData<&'a ()>,
     dimensions: (u32, u32),
     color_attachments: Vec<(String, gl::types::GLuint)>,
     depth_attachment: Option<fbo::Attachment>,
@@ -330,7 +330,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         MultiOutputFrameBuffer {
             display: display.clone(),
-            marker: ContravariantLifetime,
+            marker: PhantomData,
             dimensions: dimensions,
             color_attachments: attachments,
             depth_attachment: depth,
