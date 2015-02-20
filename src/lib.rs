@@ -224,8 +224,8 @@ mod gl {
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
 
-/// Internal trait for objects that are OpenGL objects.
-trait GlObject {
+/// Trait for objects that are OpenGL objects.
+pub trait GlObject {
     type Id;
 
     /// Returns the id of the object.
