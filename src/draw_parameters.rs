@@ -1,6 +1,8 @@
 use gl;
 use context;
+use context::GlVersion;
 
+use Display;
 use DrawError;
 use Rect;
 use ToGlEnum;
@@ -405,6 +407,18 @@ pub struct DrawParameters {
     /// This is different from a viewport. The image will stretch to fill the viewport, but
     /// not the scissor box.
     pub scissor: Option<Rect>,
+
+    /// If `false`, the pipeline will stop after the primitives generation stage. The default
+    /// value is `true`.
+    ///
+    /// If `false`, the fragment shader of your program won't be executed.
+    ///
+    /// If `false`, drawing may return `TransformFeedbackNotSupported` if the backend doesn't
+    /// support this feature.
+    ///
+    /// This parameter may seem pointless, but it can be useful when you use transform
+    /// feedback or if you just use your shaders to write to a buffer.
+    pub draw_primitives: bool,
 }
 
 impl Default for DrawParameters {
@@ -420,16 +434,23 @@ impl Default for DrawParameters {
             dithering: true,
             viewport: None,
             scissor: None,
+            draw_primitives: true,
         }
     }
 }
 
 /// Checks parameters and panics if something is wrong.
-pub fn validate(params: &DrawParameters) -> Result<(), DrawError> {
+pub fn validate(display: &Display, params: &DrawParameters) -> Result<(), DrawError> {
     if params.depth_range.0 < 0.0 || params.depth_range.0 > 1.0 ||
        params.depth_range.1 < 0.0 || params.depth_range.1 > 1.0
     {
         return Err(DrawError::InvalidDepthRange);
+    }
+
+    if !params.draw_primitives && display.context.context.get_version() < &GlVersion(3, 0) &&
+        !display.context.context.get_extensions().gl_ext_transform_feedback
+    {
+        return Err(DrawError::TransformFeedbackNotSupported);
     }
 
     Ok(())
@@ -676,5 +697,31 @@ pub fn sync(params: &DrawParameters, ctxt: &mut context::CommandContext,
                 ctxt.state.enabled_scissor_test = false;
             }
         }
+    }
+
+    // draw_primitives
+    if ctxt.state.enabled_rasterizer_discard == params.draw_primitives {
+        if ctxt.version >= &GlVersion(3, 0) {
+            if params.draw_primitives {
+                unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD); }
+                ctxt.state.enabled_rasterizer_discard = false;
+            } else {
+                unsafe { ctxt.gl.Enable(gl::RASTERIZER_DISCARD); }
+                ctxt.state.enabled_rasterizer_discard = true;
+            }
+
+        } else if ctxt.extensions.gl_ext_transform_feedback {
+            if params.draw_primitives {
+                unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD_EXT); }
+                ctxt.state.enabled_rasterizer_discard = false;
+            } else {
+                unsafe { ctxt.gl.Enable(gl::RASTERIZER_DISCARD_EXT); }
+                ctxt.state.enabled_rasterizer_discard = true;
+            }
+
+        } else {
+            unreachable!();
+        }
+
     }
 }

@@ -26,7 +26,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // TODO: avoid this allocation
     let mut vertex_buffers = vertex_buffers.iter().collect::<Vec<_>>();
 
-    try!(draw_parameters::validate(draw_parameters));
+    try!(draw_parameters::validate(display, draw_parameters));
 
     // obtaining the identifier of the FBO to draw upon
     let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()

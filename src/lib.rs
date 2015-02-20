@@ -645,6 +645,9 @@ pub enum DrawError {
 
     /// If you don't use indices, then all vertices sources must have the same size.
     VerticesSourcesLengthMismatch,
+
+    /// You requested not to draw primitives, but this is not supported by the backend.
+    TransformFeedbackNotSupported,
 }
 
 impl std::fmt::Display for DrawError {
@@ -692,6 +695,9 @@ impl std::fmt::Display for DrawError {
             &DrawError::VerticesSourcesLengthMismatch => write!(fmt, "If you don't use indices, \
                                                                       then all vertices sources \
                                                                       must have the same size."),
+            &DrawError::TransformFeedbackNotSupported => write!(fmt, "Requested not to draw \
+                                                                      primitves, but this is not \
+                                                                      supported by the backend."),
         }
     }
 }
