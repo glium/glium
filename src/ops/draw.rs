@@ -113,14 +113,14 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                 DrawCommand::DrawElements(buffer.get_primitives_type().to_glenum(),
                                           length as gl::types::GLsizei,
                                           buffer.get_indices_type().to_glenum(),
-                                          ptr::Unique::null())
+                                          unsafe { ptr::Unique::new(ptr::null_mut()) })
             },
             &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
                 assert!(offset == 0);       // not yet implemented
                 must_sync = true;
                 DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
                                           <I as index::Index>::get_type().to_glenum(),
-                                          ptr::Unique(pointer.as_ptr() as *mut gl::types::GLvoid))
+                                          unsafe { ptr::Unique::new(pointer.as_ptr() as *mut gl::types::GLvoid) })
             },
             &IndicesSource::NoIndices { primitives } => {
                 must_sync = false;
@@ -333,10 +333,10 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                     ctxt.gl.DrawArraysInstanced(a, b, c, d);
                 },
                 DrawCommand::DrawElements(a, b, c, d) => {
-                    ctxt.gl.DrawElements(a, b, c, d.ptr);
+                    ctxt.gl.DrawElements(a, b, c, d.get());
                 },
                 DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
-                    ctxt.gl.DrawElementsInstanced(a, b, c, d.ptr, e);
+                    ctxt.gl.DrawElementsInstanced(a, b, c, d.get(), e);
                 },
             }
 

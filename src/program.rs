@@ -664,7 +664,8 @@ impl Program {
                 let value = match id {
                     Handle::Id(id) => {
                         assert!(ctxt.version >= &GlVersion(2, 0));
-                        ctxt.gl.GetFragDataLocation(id, name_c.as_slice_with_nul().as_ptr())
+                        ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
+                                                    as *const libc::c_char)
                     },
                     Handle::Handle(id) => {
                         // not supported
@@ -1055,13 +1056,13 @@ unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
                 assert!(ctxt.version >= &GlVersion(2, 0));
                 ctxt.gl.GetUniformLocation(program,
                                            ffi::CString::from_slice(uniform_name.as_bytes())
-                                             .as_slice_with_nul().as_ptr())
+                                             .as_bytes_with_nul().as_ptr() as *const libc::c_char)
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
                 ctxt.gl.GetUniformLocationARB(program,
                                               ffi::CString::from_slice(uniform_name.as_bytes())
-                                                .as_slice_with_nul().as_ptr())
+                                                .as_bytes_with_nul().as_ptr() as *const libc::c_char)
             }
         };
 
@@ -1133,13 +1134,13 @@ unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
                 assert!(ctxt.version >= &GlVersion(2, 0));
                 ctxt.gl.GetAttribLocation(program,
                                           ffi::CString::from_slice(attr_name.as_bytes())
-                                            .as_slice_with_nul().as_ptr())
+                                            .as_bytes_with_nul().as_ptr() as *const libc::c_char)
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_vertex_shader);
                 ctxt.gl.GetAttribLocationARB(program,
                                              ffi::CString::from_slice(attr_name.as_bytes())
-                                               .as_slice_with_nul().as_ptr())
+                                               .as_bytes_with_nul().as_ptr() as *const libc::c_char)
             }
         };
 

@@ -56,6 +56,7 @@ let vertex_buffer = glium::vertex::VertexBuffer::new(&display, data);
 ```
 
 */
+use std::marker::MarkerTrait;
 use std::sync::mpsc::Sender;
 use sync::LinearSyncFence;
 
@@ -179,13 +180,13 @@ impl_for_tuple!(A, B, C, D, E, F, G);
 /// Instead of implementing this trait yourself, it is recommended to use the `#[vertex_format]`
 /// attribute from `glium_macros` instead.
 // TODO: this should be `unsafe`, but that would break the syntax extension
-pub trait Vertex: Copy {
+pub trait Vertex: Copy + MarkerTrait {
     /// Builds the `VertexFormat` representing the layout of this element.
     fn build_bindings() -> VertexFormat;
 }
 
 /// Trait for types that can be used as vertex attributes.
-pub unsafe trait Attribute {
+pub unsafe trait Attribute: MarkerTrait {
     /// Get the type of data.
     fn get_type() -> AttributeType;
 }

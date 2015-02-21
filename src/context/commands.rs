@@ -1,4 +1,4 @@
-use std::collections::RingBuf;
+use std::collections::VecDeque;
 use std::sync::{atomic, mpsc, Arc, Condvar, Mutex};
 use std::{mem, ptr};
 use context::CommandContext;
@@ -19,7 +19,7 @@ pub struct Receiver {
 }
 
 struct Queue {
-    queue: Mutex<RingBuf<InternalMessage>>,
+    queue: Mutex<VecDeque<InternalMessage>>,
     condvar: Condvar,
 }
 
@@ -51,7 +51,7 @@ enum InternalMessage {
 
 pub fn channel() -> (Sender, Receiver) {
     let queue_sender = Arc::new(Queue {
-        queue: Mutex::new(RingBuf::with_capacity(MAX_QUEUE_SIZE)),
+        queue: Mutex::new(VecDeque::with_capacity(MAX_QUEUE_SIZE)),
         condvar: Condvar::new(),
     });
 

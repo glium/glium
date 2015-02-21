@@ -1159,7 +1159,7 @@ impl Drop for DisplayImpl {
                     if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
                         ctxt.gl.Disable(gl::DEBUG_OUTPUT);
                     } else if ctxt.extensions.gl_arb_debug_output {
-                        ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0us),
+                        ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0usize),
                                                         std::ptr::null());
                     }
 

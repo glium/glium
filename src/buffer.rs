@@ -3,6 +3,7 @@ use context::{self, GlVersion};
 use gl;
 use libc;
 use std::{fmt, mem, ptr, slice};
+use std::marker::{MarkerTrait, PhantomData};
 use std::sync::Mutex;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::ops::{Deref, DerefMut};
@@ -26,7 +27,7 @@ pub struct Buffer {
 unsafe impl Send for Buffer {}
 
 /// Type of a buffer.
-pub trait BufferType {
+pub trait BufferType: MarkerTrait {
     /// Should return `&mut ctxt.state.something`.
     fn get_storage_point(&mut context::GLState) -> &mut gl::types::GLuint;
     /// Should return `gl::SOMETHING_BUFFER`.
@@ -201,7 +202,7 @@ impl Buffer {
                         panic!("glMapBufferRange returned null (error: {:?})", error);
                     }
 
-                    Some(ptr::Unique(ptr))
+                    Some(MappedBufferWrapper(ptr))
 
                 } else {
                     None
@@ -218,7 +219,7 @@ impl Buffer {
             id: id,
             elements_size: elements_size,
             elements_count: elements_count,
-            persistent_mapping: persistent_mapping.map(|ptr::Unique { ptr, .. }| ptr),
+            persistent_mapping: persistent_mapping.map(|p| p.0),
             fences: Mutex::new(Vec::new()),
         }
     }
@@ -427,6 +428,7 @@ impl Buffer {
                 buffer: self,
                 data: unsafe { (existing_mapping as *mut D).offset(offset as isize) },
                 len: size,
+                marker: PhantomData,
             };
         }
 
@@ -460,13 +462,14 @@ impl Buffer {
                 }
             };
 
-            tx.send(ptr::Unique(ptr as *mut D)).unwrap();
+            tx.send(MappedBufferWrapper(ptr as *mut D)).unwrap();
         });
 
         Mapping {
             buffer: self,
-            data: rx.recv().unwrap().ptr,
+            data: rx.recv().unwrap().0,
             len: size,
+            marker: PhantomData,
         }
     }
 
@@ -589,7 +592,12 @@ pub struct Mapping<'b, T, D> {
     buffer: &'b mut Buffer,
     data: *mut D,
     len: usize,
+    marker: PhantomData<T>,
 }
+
+struct MappedBufferWrapper<D>(*mut D);
+unsafe impl<D> Send for MappedBufferWrapper<D> {}
+unsafe impl<D> Sync for MappedBufferWrapper<D> {}
 
 #[unsafe_destructor]
 impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {

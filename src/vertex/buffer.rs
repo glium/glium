@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use buffer::{self, Buffer};
@@ -14,10 +15,11 @@ use gl;
 #[derive(Debug)]
 pub struct VertexBuffer<T> {
     buffer: VertexBufferAny,
+    marker: PhantomData<T>,
 }
 
 /// Represents a slice of a `VertexBuffer`.
-pub struct VertexBufferSlice<'b, T> {
+pub struct VertexBufferSlice<'b, T: 'b> {
     buffer: &'b VertexBuffer<T>,
     offset: usize,
     length: usize,
@@ -60,7 +62,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
                 buffer: buffer,
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         }
     }
 
@@ -78,7 +81,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
                 buffer: buffer,
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         }
     }
 
@@ -112,7 +116,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
                 buffer: buffer,
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         })
     }
 }
@@ -157,7 +162,8 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
                 buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, false),
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         }
     }
 
@@ -345,6 +351,7 @@ impl VertexBufferAny {
     pub unsafe fn into_vertex_buffer<T>(self) -> VertexBuffer<T> {
         VertexBuffer {
             buffer: self,
+            marker: PhantomData,
         }
     }
 
