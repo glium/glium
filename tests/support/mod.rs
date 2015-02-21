@@ -50,11 +50,12 @@ pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, 
 pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex::VertexBufferAny,
     glium::IndexBuffer, glium::Program)
 {
-    #[vertex_format]
     #[derive(Copy)]
     struct Vertex {
         position: [f32; 2],
     }
+
+    implement_vertex!(Vertex, position);
 
     (
         glium::VertexBuffer::new(display, vec![
@@ -91,11 +92,12 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
 pub fn build_rectangle_vb_ib(display: &glium::Display)
     -> (glium::vertex::VertexBufferAny, glium::IndexBuffer)
 {
-    #[vertex_format]
     #[derive(Copy)]
     struct Vertex {
         position: [f32; 2],
     }
+
+    implement_vertex!(Vertex, position);
 
     (
         glium::VertexBuffer::new(display, vec![
