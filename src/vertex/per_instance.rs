@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use buffer::{self, Buffer};
@@ -14,6 +15,7 @@ use gl;
 #[derive(Debug)]
 pub struct PerInstanceAttributesBuffer<T> {
     buffer: PerInstanceAttributesBufferAny,
+    marker: PhantomData<T>,
 }
 
 impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
@@ -67,7 +69,8 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
                 buffer: buffer,
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         })
     }
 
@@ -85,7 +88,8 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
                 buffer: buffer,
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         }
     }
 
@@ -125,7 +129,8 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
                 buffer: buffer,
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         })
     }
 }
@@ -170,7 +175,8 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
                 buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, false),
                 bindings: bindings,
                 elements_size: elements_size,
-            }
+            },
+            marker: PhantomData,
         }
     }
 
@@ -316,6 +322,7 @@ impl PerInstanceAttributesBufferAny {
     pub unsafe fn into_vertex_buffer<T>(self) -> PerInstanceAttributesBuffer<T> {
         PerInstanceAttributesBuffer {
             buffer: self,
+            marker: PhantomData,
         }
     }
 }

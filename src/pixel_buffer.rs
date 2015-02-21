@@ -5,6 +5,7 @@ Contrary to textures, pixel buffers are stored in a client-defined format. They 
 to transfer data to or from the video memory, before or after being turned into a texture.
  */
 use std::borrow::Cow;
+use std::marker::PhantomData;
 
 use Display;
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
@@ -20,6 +21,7 @@ pub struct PixelBuffer<T> {
     buffer: Buffer,
     dimensions: Option<(u32, u32)>,
     format: Option<ClientFormat>,
+    marker: PhantomData<T>,
 }
 
 impl<T> PixelBuffer<T> {
@@ -30,6 +32,7 @@ impl<T> PixelBuffer<T> {
                                                                    gl::DYNAMIC_READ),
             dimensions: None,
             format: None,
+            marker: PhantomData,
         }
     }
 

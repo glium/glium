@@ -259,7 +259,7 @@ fn main() {
         lighting_texture: &'a glium::texture::Texture2d
     }
 
-    struct Light<'a> {
+    struct Light {
         position: [f32; 4],
         color: [f32; 3],
         attenuation: [f32; 3],

@@ -49,7 +49,7 @@ pub struct TextureImplementation {
 impl TextureImplementation {
     /// Builds a new texture.
     pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
-                      data: Option<(ClientFormat, Cow<'a, Vec<P>, [P]>)>, generate_mipmaps: bool,
+                      data: Option<(ClientFormat, Cow<'a, [P]>)>, generate_mipmaps: bool,
                       width: u32, height: Option<u32>, depth: Option<u32>, array_size: Option<u32>)
                       -> Result<TextureImplementation, TextureMaybeSupportedCreationError>
                       where P: Send + Clone + 'a
@@ -291,7 +291,7 @@ impl TextureImplementation {
 
     /// Changes some parts of the texture.
     pub fn upload<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
-                         (format, data): (ClientFormat, Cow<'a, Vec<P>, [P]>), width: u32,
+                         (format, data): (ClientFormat, Cow<'a, [P]>), width: u32,
                          height: Option<u32>, depth: Option<u32>, level: u32, regen_mipmaps: bool)
                          where P: Send + Copy + Clone + 'a
     {

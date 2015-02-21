@@ -103,7 +103,7 @@ pub struct RawImage1d<'a, T: Clone + 'a> {
     /// The data must start by the left pixel and progress left-to-right.
     ///
     /// `data.len()` must be equal to `width * format.get_size() / mem::size_of::<T>()`.
-    pub data: Cow<'a, Vec<T>, [T]>,
+    pub data: Cow<'a, [T]>,
 
     /// Number of pixels per column.
     pub width: u32,
@@ -180,7 +180,7 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
     /// bottom-to-top.
     ///
     /// `data.len()` must be equal to `width * height * format.get_size() / mem::size_of::<T>()`.
-    pub data: Cow<'a, Vec<T>, [T]>,
+    pub data: Cow<'a, [T]>,
 
     /// Number of pixels per column.
     pub width: u32,
@@ -327,7 +327,7 @@ pub struct RawImage3d<'a, T: Clone + 'a> {
     /// A contiguous array of pixel data.
     ///
     /// `data.len()` must be equal to `width * height * depth * format.get_size() / mem::size_of::<T>()`.
-    pub data: Cow<'a, Vec<T>, [T]>,
+    pub data: Cow<'a, [T]>,
 
     /// Number of pixels per column.
     pub width: u32,
@@ -362,7 +362,7 @@ impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for Vec<Vec<Vec<P>>> {
     }
 }
 
-impl<P: PixelValue> Texture3dDataSink for Vec<Vec<Vec<P>>> {
+impl<P> Texture3dDataSink for Vec<Vec<Vec<P>>> where P: PixelValue + Clone {
     type Data = P;
 
     fn get_preferred_formats() -> Vec<ClientFormat> {

@@ -3,6 +3,7 @@ use buffer::{self, Buffer};
 use program;
 use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
 
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use GlObject;
@@ -13,6 +14,7 @@ use context;
 #[derive(Debug)]
 pub struct UniformBuffer<T> {
     buffer: TypelessUniformBuffer,
+    marker: PhantomData<T>,
 }
 
 /// Same as `UniformBuffer` but doesn't contain any information about the type.
@@ -35,7 +37,8 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
         UniformBuffer {
             buffer: TypelessUniformBuffer {
                 buffer: buffer,
-            }
+            },
+            marker: PhantomData,
         }
     }
 
@@ -80,7 +83,8 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
             Some(UniformBuffer {
                 buffer: TypelessUniformBuffer {
                     buffer: buffer,
-                }
+                },
+                marker: PhantomData,
             })
         }
     }

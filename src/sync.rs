@@ -23,7 +23,7 @@ use gl;
 /// ```
 pub struct SyncFence {
     display: Display,
-    id: Option<gl::types::GLsync>,
+    id: Option<SyncObjectWrapper>,
 }
 
 impl SyncFence {
@@ -52,7 +52,7 @@ impl SyncFence {
 
     /// Blocks until the operation has finished on the server.
     pub fn wait(mut self) {
-        let sync = ptr::Unique(self.id.take().unwrap() as *mut libc::c_void);
+        let sync = self.id.take().unwrap();
         let (tx, rx) = mpsc::channel();
 
         self.display.context.context.exec(move |ctxt| {
@@ -60,11 +60,10 @@ impl SyncFence {
                 // waiting with a deadline of one year
                 // the reason why the deadline is so long is because if you attach a GL debugger,
                 // the wait can be blocked during a breaking point of the debugger
-                let result = ctxt.gl.ClientWaitSync(sync.ptr as gl::types::GLsync,
-                                                    gl::SYNC_FLUSH_COMMANDS_BIT,
+                let result = ctxt.gl.ClientWaitSync(sync.0, gl::SYNC_FLUSH_COMMANDS_BIT,
                                                     365 * 24 * 3600 * 1000 * 1000 * 1000);
                 tx.send(result).unwrap();
-                ctxt.gl.DeleteSync(sync.ptr as gl::types::GLsync);
+                ctxt.gl.DeleteSync(sync.0);
             }
         });
 
@@ -79,12 +78,12 @@ impl Drop for SyncFence {
     fn drop(&mut self) {
         let sync = match self.id {
             None => return,     // fence has already been deleted
-            Some(s) => ptr::Unique(s as *mut libc::c_void)
+            Some(s) => s
         };
 
         self.display.context.context.exec(move |ctxt| {
             unsafe {
-                ctxt.gl.DeleteSync(sync.ptr as gl::types::GLsync);
+                ctxt.gl.DeleteSync(sync.0);
             }
         });
     }
@@ -96,7 +95,7 @@ impl Drop for SyncFence {
 /// the destructor will panic.
 #[must_use]
 pub struct LinearSyncFence {
-    id: Option<gl::types::GLsync>,
+    id: Option<SyncObjectWrapper>,
 }
 
 unsafe impl Send for LinearSyncFence {}
@@ -120,7 +119,7 @@ impl Drop for LinearSyncFence {
 #[cfg(feature = "gl_sync")]
 pub unsafe fn new_linear_sync_fence(ctxt: &mut context::CommandContext) -> LinearSyncFence {
     LinearSyncFence {
-        id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
+        id: Some(SyncObjectWrapper(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0))),
     }
 }
 
@@ -130,7 +129,7 @@ pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut context::CommandCont
     }
 
     Some(LinearSyncFence {
-        id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
+        id: Some(SyncObjectWrapper(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0))),
     })
 }
 
@@ -139,7 +138,7 @@ pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence, ctxt: 
     let fence = fence.id.take().unwrap();
 
     // we try waiting without flushing first
-    let success = match ctxt.gl.ClientWaitSync(fence, 0, 0) {
+    let success = match ctxt.gl.ClientWaitSync(fence.0, 0, 0) {
         gl::ALREADY_SIGNALED => true,
         gl::TIMEOUT_EXPIRED => false,
         gl::WAIT_FAILED => false,
@@ -149,9 +148,14 @@ pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence, ctxt: 
 
     // waiting *with* flushing this time
     if !success {
-        ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
+        ctxt.gl.ClientWaitSync(fence.0, gl::SYNC_FLUSH_COMMANDS_BIT,
                                365 * 24 * 3600 * 1000 * 1000 * 1000);
     }
 
-    ctxt.gl.DeleteSync(fence);
+    ctxt.gl.DeleteSync(fence.0);
 }
+
+#[derive(Copy)]
+struct SyncObjectWrapper(gl::types::GLsync);
+unsafe impl Send for SyncObjectWrapper {}
+unsafe impl Sync for SyncObjectWrapper {}
