@@ -1,15 +1,22 @@
 use gl;
 use libc;
+
+use context;
+use context::CommandContext;
+use context::GlVersion;
+
 use std::{ffi, fmt, mem};
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::default::Default;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::sync::mpsc::channel;
-use {Display, DisplayImpl, GlObject};
-use context::{self, CommandContext, GlVersion};
-use Handle;
 use util::FnvHasher;
+
+use Display;
+use GlObject;
+use Handle;
 
 use program::{COMPILER_GLOBAL_LOCK, IntoProgramCreationInput, ProgramCreationInput, Binary};
 
@@ -90,7 +97,7 @@ impl ::std::error::Error for ProgramCreationError {
 
 /// A combination of shaders linked together.
 pub struct Program {
-    display: Arc<DisplayImpl>,
+    display: Display,
     id: Handle,
     uniforms: Arc<HashMap<String, Uniform, DefaultState<FnvHasher>>>,
     uniform_blocks: Arc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
@@ -319,7 +326,7 @@ impl Program {
         let (uniforms, attributes, blocks, varyings) = rx.recv().unwrap();
 
         Ok(Program {
-            display: display.context.clone(),
+            display: display.clone(),
             id: id,
             uniforms: Arc::new(uniforms),
             uniform_blocks: Arc::new(blocks),
@@ -387,7 +394,7 @@ impl Program {
         let (uniforms, attributes, blocks, varyings) = rx.recv().unwrap();
 
         Ok(Program {
-            display: display.context.clone(),
+            display: display.clone(),
             id: id,
             uniforms: Arc::new(uniforms),
             uniform_blocks: Arc::new(blocks),
@@ -419,7 +426,7 @@ impl Program {
         let id = self.get_id();
 
         let (tx, rx) = channel();
-        self.display.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(4, 1) ||
                    ctxt.extensions.gl_arb_get_programy_binary
@@ -475,7 +482,7 @@ impl Program {
         let id = self.id.clone();
         let name_c = ffi::CString::from_slice(name.as_bytes());
         let (tx, rx) = channel();
-        self.display.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 let value = match id {
                     Handle::Id(id) => {
@@ -546,7 +553,7 @@ impl Drop for Program {
     fn drop(&mut self) {
         // removing VAOs which contain this program
         {
-            let mut vaos = self.display.vertex_array_objects.lock().unwrap();
+            let mut vaos = self.display.context.vertex_array_objects.lock().unwrap();
             let to_delete = vaos.keys().filter(|&&(_, p)| p == self.id)
                 .map(|k| k.clone()).collect::<Vec<_>>();
             for k in to_delete.into_iter() {
@@ -556,7 +563,7 @@ impl Drop for Program {
 
         // sending the destroy command
         let id = self.id.clone();
-        self.display.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 match id {
                     Handle::Id(id) => {
