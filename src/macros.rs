@@ -35,38 +35,54 @@ macro_rules! uniform {
     };
 }
 
-/*
-// TODO: doesn't work
+/// Implements the `glium::vertex::Vertex` trait for the given type.
+///
+/// The parameters must be the name of the struct and the names of its fields.
+///
+/// ## Example
+///
+/// ```ignore   // TODO: error "expected function, found `(String, usize, AttributeType)`"
+/// # #[macro_use]
+/// # extern crate glium;
+/// # fn main() {
+/// #[derive(Copy)]
+/// struct Vertex {
+///     position: [f32; 3],
+///     tex_coords: [f32; 2],
+/// }
+///
+/// implement_vertex!(Vertex, position, tex_coords);
+/// # }
+/// ```
+///
 #[macro_export]
-macro_rules! attributes {
-    ($(#[$attr:meta])* struct $struct_name:ident {
-        $($(#[$field_attr:meta])* $field:ident: $t:ty),*
-    }) => {
-        #[derive(Copy)]
-        $(#[$attr])*
-        pub struct $struct_name {
-            $(
-                $($field_attr)* pub $field: $t
-            ),+
-        }
-
+macro_rules! implement_vertex {
+    ($struct_name:ident, $($field_name:ident),+) => (
         impl $crate::vertex::Vertex for $struct_name {
             fn build_bindings() -> $crate::vertex::VertexFormat {
                 vec![
                     $(
                         (
-                            stringify!($field),
+                            stringify!($field_name).to_string(),
                             {
-                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0u) };
-                                let dummy_field = &dummy.$field;
+                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
+                                let dummy_field = &dummy.$field_name;
                                 let dummy_field: usize = unsafe { ::std::mem::transmute(dummy_field) };
                                 dummy_field
                             },
-                            $crate::vertex::Attribute::get_type(None::<$t>)
+                            {
+                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: &T)
+                                    -> $crate::vertex::AttributeType
+                                {
+                                    <T as $crate::vertex::Attribute>::get_type()
+                                }
+                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
+                                attr_type_of_val(&dummy.$field_name)
+                            },
                         )
                     )+
                 ]
             }
         }
-    }
-}*/
+    )
+}

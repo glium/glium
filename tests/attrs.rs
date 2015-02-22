@@ -1,9 +1,6 @@
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
-extern crate glutin;
+#[macro_use]
 extern crate glium;
+extern crate glutin;
 
 use glium::Surface;
 
@@ -14,11 +11,12 @@ mod support;
 fn attribute_types_mismatch() {
     let display = support::build_display();
 
-    #[vertex_format]
     #[derive(Copy)]
     struct Vertex {
         field1: [f32; 4],
     }
+
+    implement_vertex!(Vertex, field1);
 
     let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
     let index_buffer = glium::IndexBuffer::new(&display,
@@ -60,11 +58,12 @@ fn attribute_types_mismatch() {
 fn missing_attribute() {
     let display = support::build_display();
 
-    #[vertex_format]
     #[derive(Copy)]
     struct Vertex {
         field1: [f32; 4],
     }
+
+    implement_vertex!(Vertex, field1);
 
     let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
     let index_buffer = glium::IndexBuffer::new(&display,
@@ -107,11 +106,12 @@ macro_rules! attribute_test(
         fn $name() {
             let display = support::build_display();
 
-            #[vertex_format]
             #[derive(Copy)]
             struct Vertex {
                 field1: $attr_ty,
             }
+
+            implement_vertex!(Vertex, field1);
 
             let vertex_buffer = glium::VertexBuffer::new(&display, vec![
                     Vertex { field1: $value }

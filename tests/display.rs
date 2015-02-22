@@ -3,6 +3,7 @@
 #![plugin(glium_macros)]
 
 extern crate glutin;
+#[macro_use]
 extern crate glium;
 
 use glium::Surface;
