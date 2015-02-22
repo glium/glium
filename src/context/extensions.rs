@@ -6,6 +6,8 @@ use gl;
 pub struct ExtensionsList {
     /// GL_EXT_direct_state_access
     pub gl_ext_direct_state_access: bool,
+    /// GL_ARB_direct_state_access
+    pub gl_arb_direct_state_access: bool,
     /// GL_EXT_framebuffer_object
     pub gl_ext_framebuffer_object: bool,
     /// GL_EXT_geometry_shader4
@@ -77,6 +79,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
 
     let mut extensions = ExtensionsList {
         gl_ext_direct_state_access: false,
+        gl_arb_direct_state_access: false,
         gl_ext_framebuffer_object: false,
         gl_ext_geometry_shader4: false,
         gl_ext_framebuffer_blit: false,
@@ -114,6 +117,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
     for extension in strings.into_iter() {
         match extension.as_slice() {
             "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
+            "GL_ARB_direct_state_access" => extensions.gl_arb_direct_state_access = true,
             "GL_EXT_framebuffer_object" => extensions.gl_ext_framebuffer_object = true,
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
             "GL_EXT_framebuffer_blit" => extensions.gl_ext_framebuffer_blit = true,
