@@ -1,7 +1,3 @@
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 #[macro_use]
 extern crate glium;
@@ -15,11 +11,12 @@ fn cull_clockwise() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, vec![
             Vertex { position: [-1.0,  1.0] },      // top-left
@@ -74,11 +71,12 @@ fn cull_counterclockwise() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, vec![
             Vertex { position: [-1.0,  1.0] },      // top-left
@@ -133,11 +131,12 @@ fn cull_clockwise_trianglestrip() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, vec![
             Vertex { position: [-1.0,  1.0] },      // top-left
@@ -191,11 +190,12 @@ fn cull_counterclockwise_trianglestrip() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, vec![
             Vertex { position: [-1.0,  1.0] },      // top-left

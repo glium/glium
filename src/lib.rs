@@ -32,21 +32,21 @@ The window you are drawing on will produce events. They can be received by calli
 The first step is to create the vertex buffer, which contains the list of all the points that
 make up our mesh. The elements that we pass to `VertexBuffer::new` must implement the
 `glium::vertex::VertexFormat` trait, which can be easily added for any custom struct thanks to the
-`#[vertex_format]` attribute.
+`implement_vertex!` macro.
 
 See the `vertex` module documentation for more informations.
 
 ```no_run
-# #![feature(plugin)]
-# #![plugin(glium_macros)]
+# #[macro_use]
 # extern crate glium;
 # fn main() {
-#[vertex_format]
 #[derive(Copy)]
 struct Vertex {
     position: [f32; 2],
     color: [f32; 3],
 }
+
+implement_vertex!(Vertex, position, color);
 
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 let vertex = glium::VertexBuffer::new(&display, vec![

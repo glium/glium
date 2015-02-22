@@ -1,7 +1,3 @@
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 #[macro_use]
 extern crate glium;
@@ -11,11 +7,12 @@ use glium::Surface;
 
 mod support;
 
-#[vertex_format]
 #[derive(Copy)]
 struct Vertex {
     position: [f32; 2],
 }
+
+implement_vertex!(Vertex, position);
 
 #[test]
 fn uniforms_storage_single_value() {    

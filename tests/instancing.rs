@@ -1,7 +1,3 @@
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 
 #[macro_use]
@@ -16,11 +12,12 @@ fn instancing() {
     let display = support::build_display();
 
     let buffer1 = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, 
             vec![
@@ -33,11 +30,12 @@ fn instancing() {
     };
 
     let buffer2 = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             color: [f32; 3],
         }
+
+        implement_vertex!(Vertex, color);
 
         match glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, 
             vec![
@@ -109,11 +107,12 @@ fn per_instance_length_mismatch() {
     let display = support::build_display();
 
     let buffer1 = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, 
             vec![
@@ -126,11 +125,12 @@ fn per_instance_length_mismatch() {
     };
 
     let buffer2 = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             color: [f32; 3],
         }
+
+        implement_vertex!(Vertex, color);
 
         match glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, 
             vec![
@@ -146,11 +146,12 @@ fn per_instance_length_mismatch() {
     };
 
     let buffer3 = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             color: [f32; 3],
         }
+
+        implement_vertex!(Vertex, color);
 
         match glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, 
             vec![

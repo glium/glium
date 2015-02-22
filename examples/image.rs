@@ -1,7 +1,6 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
+
+#[macro_use]
 extern crate glium;
 
 #[cfg(feature = "image")]
@@ -35,12 +34,13 @@ fn main() {
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
             tex_coords: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position, tex_coords);
 
         glium::VertexBuffer::new(&display, 
             vec![
@@ -80,25 +80,18 @@ fn main() {
             gl_FragColor = texture2D(texture, v_tex_coords);
         }
     ", None).unwrap();
-
-    // creating the uniforms structure
-    #[uniforms]
-    struct Uniforms<'a> {
-        matrix: [[f32; 4]; 4],
-        texture: &'a glium::texture::CompressedTexture2d,
-    }
     
     // the main loop
     support::start_loop(|| {
         // building the uniforms
-        let uniforms = Uniforms {
+        let uniforms = uniform! {
             matrix: [
                 [1.0, 0.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0f32]
             ],
-            texture: &opengl_texture,
+            texture: &opengl_texture
         };
 
         // drawing a frame

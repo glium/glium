@@ -1,6 +1,3 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 
 #[macro_use]
@@ -59,18 +56,11 @@ fn main() {
         // geometry shader
         None)
         .unwrap();
-
-    // creating the uniforms structure
-    #[uniforms]
-    #[derive(Copy)]
-    struct Uniforms {
-        matrix: [[f32; 4]; 4],
-    }
     
     // the main loop
     support::start_loop(|| {
         // building the uniforms
-        let uniforms = Uniforms {
+        let uniforms = uniform! {
             matrix: [
                 [0.005, 0.0, 0.0, 0.0],
                 [0.0, 0.005, 0.0, 0.0],

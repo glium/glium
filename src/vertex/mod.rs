@@ -5,21 +5,21 @@ The main struct is the `VertexBuffer`, which represents a buffer in the video me
 containing a list of vertices.
 
 In order to create a vertex buffer, you must first create a struct that represents each vertex,
-and implement the `glium::vertex::Vertex` trait on it. The `#[vertex_format]` attribute
-located in `glium_macros` helps you with that.
+and implement the `glium::vertex::Vertex` trait on it. The `implement_vertex!` macro helps you
+with that.
 
 ```
-# #![feature(plugin)]
-# #![plugin(glium_macros)]
+# #[macro_use]
 # extern crate glium;
 # extern crate glutin;
 # fn main() {
-#[vertex_format]
 #[derive(Copy)]
 struct Vertex {
     position: [f32; 3],
     texcoords: [f32; 2],
 }
+
+implement_vertex!(Vertex, position, texcoords);
 # }
 ```
 
@@ -177,8 +177,8 @@ impl_for_tuple!(A, B, C, D, E, F, G);
 
 /// Trait for structures that represent a vertex.
 ///
-/// Instead of implementing this trait yourself, it is recommended to use the `#[vertex_format]`
-/// attribute from `glium_macros` instead.
+/// Instead of implementing this trait yourself, it is recommended to use the `implement_vertex!`
+/// macro instead.
 // TODO: this should be `unsafe`, but that would break the syntax extension
 pub trait Vertex: Copy + MarkerTrait {
     /// Builds the `VertexFormat` representing the layout of this element.

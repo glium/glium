@@ -43,13 +43,14 @@ pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
 
 /// Returns a vertex buffer that should be rendered as `TrianglesList`.
 pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
-    #[vertex_format]
     #[derive(Copy)]
     struct Vertex {
         position: [f32; 3],
         normal: [f32; 3],
         texture: [f32; 2],
     }
+
+    implement_vertex!(Vertex, position, normal, texture);
 
     let mut data = ::std::old_io::BufReader::new(data);
     let data = obj::Obj::load(&mut data);

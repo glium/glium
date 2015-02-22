@@ -1,7 +1,3 @@
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 #[macro_use]
 extern crate glium;
@@ -32,11 +28,12 @@ fn build_program(display: &glium::Display) -> glium::Program {
         None).unwrap()
 }
 
-#[vertex_format]
 #[derive(Copy)]
 struct Vertex {
     position: [f32; 2],
 }
+
+implement_vertex!(Vertex, position);
 
 #[test]
 fn triangles_list_cpu() {    

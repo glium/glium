@@ -1,7 +1,6 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
+
+#[macro_use]
 extern crate glium;
 
 #[cfg(feature = "image")]
@@ -26,12 +25,13 @@ fn main() {
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
             color: [f32; 3],
         }
+
+        implement_vertex!(Vertex, position, color);
 
         glium::VertexBuffer::new(&display, 
             vec![
@@ -79,17 +79,10 @@ fn main() {
         None)
         .unwrap();
 
-    // creating the uniforms structure
-    #[uniforms]
-    #[derive(Copy)]
-    struct Uniforms {
-        matrix: [[f32; 4]; 4],
-    }
-    
     // drawing once
 
     // building the uniforms
-    let uniforms = Uniforms {
+    let uniforms = uniform! {
         matrix: [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],

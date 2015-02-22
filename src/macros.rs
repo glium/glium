@@ -41,7 +41,7 @@ macro_rules! uniform {
 ///
 /// ## Example
 ///
-/// ```ignore   // TODO: error "expected function, found `(String, usize, AttributeType)`"
+/// ```
 /// # #[macro_use]
 /// # extern crate glium;
 /// # fn main() {
@@ -80,7 +80,7 @@ macro_rules! implement_vertex {
                                 attr_type_of_val(&dummy.$field_name)
                             },
                         )
-                    )+
+                    ),+
                 ]
             }
         }

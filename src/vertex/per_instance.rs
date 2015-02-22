@@ -24,17 +24,17 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     /// # Example
     ///
     /// ```no_run
-    /// # #![feature(plugin)]
-    /// # #![plugin(glium_macros)]
+    /// # #[macro_use]
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
-    /// #[vertex_format]
     /// #[derive(Copy)]
     /// struct Vertex {
     ///     position: [f32; 3],
     ///     texcoords: [f32; 2],
     /// }
+    ///
+    /// implement_vertex!(Vertex, position, texcoords);
     ///
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let vertex_buffer = glium::vertex::PerInstanceAttributesBuffer::new(&display, vec![
@@ -141,8 +141,6 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// # Example
     ///
     /// ```no_run
-    /// # #![feature(plugin)]
-    /// # #![plugin(glium_macros)]
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
