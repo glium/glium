@@ -1,4 +1,5 @@
 use gl;
+use context::CommandContext;
 use context::GlVersion;
 
 use std::{ffi, mem, ptr};
@@ -53,11 +54,14 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
     let source_code = ffi::CString::from_slice(source_code.as_bytes());
 
     let (tx, rx) = channel();
-    display.context.context.exec(move |ctxt| {
+    display.context.context.exec(move |mut ctxt| {
         unsafe {
-            if shader_type == gl::GEOMETRY_SHADER && ctxt.opengl_es {
-                tx.send(Err(ProgramCreationError::ShaderTypeNotSupported)).ok();
-                return;
+            match check_shader_type_compatibility(&mut ctxt, shader_type) {
+                Ok(_) => {},
+                Err(e) => {
+                    tx.send(Err(e));
+                    return;
+                }
             }
 
             let id = if ctxt.version >= &GlVersion(2, 0) {
@@ -167,4 +171,34 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
             id: id
         }
     })
+}
+
+fn check_shader_type_compatibility(ctxt: &mut CommandContext, shader_type: gl::types::GLenum)
+                                   -> Result<(), ProgramCreationError>
+{
+    match shader_type {
+        gl::VERTEX_SHADER | gl::FRAGMENT_SHADER => (),
+        gl::GEOMETRY_SHADER => {
+            if ctxt.version < &GlVersion(3, 0) && !ctxt.extensions.gl_arb_geometry_shader4
+               && !ctxt.extensions.gl_ext_geometry_shader4
+            {
+                return Err(ProgramCreationError::ShaderTypeNotSupported);
+            }
+        },
+        gl::TESS_CONTROL_SHADER | gl::TESS_EVALUATION_SHADER => {
+            if ctxt.version < &GlVersion(4, 0) &&
+               !ctxt.extensions.gl_arb_tessellation_shader 
+            {
+                return Err(ProgramCreationError::ShaderTypeNotSupported);
+            }
+        },
+        gl::COMPUTE_SHADER => {
+            if ctxt.version < &GlVersion(4, 3) && !ctxt.extensions.gl_arb_compute_shader {
+                return Err(ProgramCreationError::ShaderTypeNotSupported);
+            }
+        },
+        _ => unreachable!()
+    };
+
+    Ok(())
 }
