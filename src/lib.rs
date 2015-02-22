@@ -224,8 +224,8 @@ mod gl {
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
 
-/// Internal trait for objects that are OpenGL objects.
-trait GlObject {
+/// Trait for objects that are OpenGL objects.
+pub trait GlObject {
     type Id;
 
     /// Returns the id of the object.
@@ -1111,6 +1111,23 @@ impl Display {
                                    T: texture::Texture2dDataSink<Data = P>
     {
         ops::read_from_default_fb(gl::FRONT_LEFT, self)
+    }
+
+    /// Execute an arbitrary closure with the OpenGL context active. Useful if another
+    /// component needs to directly manipulate OpenGL state.
+    ///
+    /// **If action manipulates any OpenGL state, it must be restored before action
+    /// completes.**
+    pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
+                                            where T: Send + 'static,
+                                            F: FnOnce() -> T + 'a
+    {
+        let (tx, rx) = channel();
+        self.context.context.exec_maybe_sync(true, move |ctxt| {
+            tx.send(action()).ok();
+        });
+
+        rx.recv().unwrap()
     }
 
     /// Asserts that there are no OpenGL errors pending.
