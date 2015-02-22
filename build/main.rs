@@ -27,6 +27,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
             api: gl_generator::registry::Ns::Gl.to_string(),
             extensions: vec![
                 "GL_EXT_direct_state_access".to_string(),
+                "GL_ARB_direct_state_access".to_string(),
                 "GL_EXT_framebuffer_object".to_string(),
                 "GL_EXT_framebuffer_blit".to_string(),
                 "GL_NVX_gpu_memory_info".to_string(),
