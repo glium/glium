@@ -14,6 +14,7 @@ use libc;
 use std::fmt;
 use std::mem;
 use std::ptr;
+use std::num::UnsignedInt;
 use std::sync::mpsc::channel;
 use std::borrow::Cow;
 
@@ -62,6 +63,18 @@ impl TextureImplementation {
                 data.len() * mem::size_of::<P>()
             {
                 panic!("Texture data size mismatch");
+            }
+        }
+
+        // checking non-power-of-two
+        if display.context.context.get_version() < &GlVersion(2, 0) &&
+            !display.context.context.get_extensions().gl_arb_texture_non_power_of_two
+        {
+            if !width.is_power_of_two() || !height.unwrap_or(2).is_power_of_two() ||
+                !depth.unwrap_or(2).is_power_of_two() || !array_size.unwrap_or(2).is_power_of_two()
+            {
+                let ce = TextureCreationError::DimensionsNotSupported;
+                return Err(TextureMaybeSupportedCreationError::CreationError(ce));
             }
         }
 
