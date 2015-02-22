@@ -1,10 +1,6 @@
 //! This file is not named `program.rs`, because executables that contain the string `program`
 //! are treated in a special way by Windows.
 
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 
 #[macro_use]

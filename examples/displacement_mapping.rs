@@ -1,6 +1,3 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 
 #[cfg(feature = "image")]
@@ -36,12 +33,13 @@ fn main() {
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 3],
             tex_coords: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position, tex_coords);
 
         glium::VertexBuffer::new(&display, 
             vec![

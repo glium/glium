@@ -1,7 +1,5 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
+#[macro_use]
 extern crate glium;
 #[cfg(feature = "cgmath")]
 extern crate cgmath;
@@ -36,13 +34,14 @@ fn main() {
     let opengl_texture = glium::texture::Texture2d::new(&display, image);
 
     let floor_vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 4],
             normal: [f32; 4],
             texcoord: [f32; 2]
         }
+
+        implement_vertex!(Vertex, position, normal, texcoord);
         
         glium::VertexBuffer::new(&display,
             vec![
@@ -58,12 +57,13 @@ fn main() {
         glium::index::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
 
     let quad_vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 4],
             texcoord: [f32; 2]
         }
+
+        implement_vertex!(Vertex, position, texcoord);
         
         glium::VertexBuffer::new(&display,
             vec![
@@ -229,7 +229,7 @@ fn main() {
         None)
         .unwrap();
 
-    // creating the uniforms structure
+    /*// creating the uniforms structure
     #[uniforms]
     #[derive(Copy)]
     struct PrepassUniforms<'a> {
@@ -257,7 +257,7 @@ fn main() {
         matrix: [[f32; 4]; 4],
         decal_texture: &'a glium::texture::Texture2d,
         lighting_texture: &'a glium::texture::Texture2d
-    }
+    }*/
 
     struct Light {
         position: [f32; 4],
@@ -320,7 +320,7 @@ fn main() {
     // the main loop
     support::start_loop(|| {
         // prepass
-        let uniforms = PrepassUniforms {
+        let uniforms = uniform! {
             perspective_matrix: *fixed_perspective_matrix,
             view_matrix: *fixed_view_matrix,
             model_matrix: *fixed_model_matrix,
@@ -340,7 +340,7 @@ fn main() {
         };
         light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);
         for light in lights.iter() {
-            let uniforms = LightingUniforms {
+            let uniforms = uniform! {
                 matrix: *fixed_ortho_matrix,
                 position_texture: &texture1,
                 normal_texture: &texture2,
@@ -353,7 +353,7 @@ fn main() {
         }
 
         // composition
-        let uniforms = CompositionUniforms {
+        let uniforms = uniform! {
             matrix: *fixed_ortho_matrix,
             decal_texture: &texture3,
             lighting_texture: &light_texture

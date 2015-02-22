@@ -26,8 +26,6 @@ In order to use the glutin and glium libraries, we need to add them as dependenc
 
 Before we can use them, we also need to import these libraries in our `src/main.rs` file, like this:
 
-    #![feature(plugin)]
-    #![plugin(glium_macros)]
     #[macro_use]
     extern crate glium;
     extern crate glutin;
@@ -119,11 +117,12 @@ Here is an example of an object's shape. As you can see, it is made of hundreds 
 
 Each triangle is made of three vertices, which means that a shape is just a collection of vertices linked together to form triangles. The first step to describe a shape like this with glium is to create a struct named `Vertex` (the actual name doesn't matter) whose purpose is to describe each individual vertex. Our collection of vertices can later be represented by a `Vec<Vertex>`.
 
-    #[vertex_format]
     #[derive(Copy)]
     struct Vertex {
         position: [f32; 2],
     }
+
+    implement_vertex!(Vertex, position);
 
 Our struct contains a `position` field which we will use to store the position of each vertex on the window. Being a true vectorial renderer, OpenGL doesn't use coordinates in pixels. Instead it considers that the window has a width and a height of 2 units, and that the origin is at the center of the window.
 
@@ -216,8 +215,6 @@ The "draw command" designation could make you think that drawing is a heavy oper
 
 Here is the final code of our `src/main.rs` file:
 
-    #![feature(plugin)]
-    #![plugin(glium_macros)]
     #[macro_use]
     extern crate glium;
     extern crate glutin;
@@ -226,11 +223,12 @@ Here is the final code of our `src/main.rs` file:
         use glium::{DisplayBuild, Surface};
         let display = glutin::WindowBuilder::new().build_glium().unwrap();
 
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         let vertex1 = Vertex { position: [-0.5, -0.5] };
         let vertex2 = Vertex { position: [ 0.0,  0.5] };

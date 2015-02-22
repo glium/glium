@@ -1,7 +1,3 @@
-#![feature(plugin)]
-#![feature(unboxed_closures)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 #[macro_use]
 extern crate glium;

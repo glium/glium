@@ -1,6 +1,3 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
 
 #[macro_use]
@@ -20,11 +17,12 @@ fn main() {
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
-        #[vertex_format]
         #[derive(Copy)]
         struct Vertex {
             position: [f32; 2],
         }
+
+        implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display, 
             vec![

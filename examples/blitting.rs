@@ -1,7 +1,6 @@
-#![feature(plugin)]
-#![plugin(glium_macros)]
-
 extern crate glutin;
+
+#[macro_use]
 extern crate glium;
 
 #[cfg(feature = "image")]
