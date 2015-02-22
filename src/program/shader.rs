@@ -1,16 +1,20 @@
 use gl;
+use context::GlVersion;
+
 use std::{ffi, mem, ptr};
 use std::sync::Arc;
 use std::sync::mpsc::channel;
-use {Display, DisplayImpl, GlObject};
-use context::GlVersion;
+
+use Display;
+use GlObject;
 use Handle;
 
 use program::COMPILER_GLOBAL_LOCK;
 use program::ProgramCreationError;
 
+/// A single, compiled but unlinked, shader.
 pub struct Shader {
-    display: Arc<DisplayImpl>,
+    display: Display,
     id: Handle,
 }
 
@@ -25,7 +29,7 @@ impl GlObject for Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 match id {
                     Handle::Id(id) => {
@@ -159,7 +163,7 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
 
     rx.recv().unwrap().map(|id| {
         Shader {
-            display: display.context.clone(),
+            display: display.clone(),
             id: id
         }
     })

@@ -1,14 +1,21 @@
 use gl;
 use libc;
-use std::{ffi, mem};
+
+use std::ffi;
+use std::mem;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::default::Default;
-use context::{self, CommandContext, GlVersion};
+use util::FnvHasher;
+
+use context;
+use context::CommandContext;
+use context::GlVersion;
+
 use uniforms::UniformType;
 use vertex::AttributeType;
+
 use Handle;
-use util::FnvHasher;
 
 /// Information about a uniform (except its name).
 #[derive(Debug, Copy)]
