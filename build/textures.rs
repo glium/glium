@@ -231,7 +231,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Texture2d(self)
+                                ::framebuffer::ColorAttachment::Texture2d(self.main_level())
                             }}
                         }}
                     ", name)).unwrap();
@@ -240,7 +240,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthAttachment for {} {{
                             fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
-                                ::framebuffer::DepthAttachment::Texture2d(self)
+                                ::framebuffer::DepthAttachment::Texture2d(self.main_level())
                             }}
                         }}
                     ", name)).unwrap();
@@ -249,7 +249,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 (writeln!(dest, "
                         impl ::framebuffer::ToStencilAttachment for {} {{
                             fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
-                                ::framebuffer::StencilAttachment::Texture2d(self)
+                                ::framebuffer::StencilAttachment::Texture2d(self.main_level())
                             }}
                         }}
                     ", name)).unwrap();
@@ -258,7 +258,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthStencilAttachment for {} {{
                             fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
-                                ::framebuffer::DepthStencilAttachment::Texture2d(self)
+                                ::framebuffer::DepthStencilAttachment::Texture2d(self.main_level())
                             }}
                         }}
                     ", name)).unwrap();
@@ -933,6 +933,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// Represents a single layer of a `{name}`.
                 ///
                 /// Can be obtained by calling `{name}::layer()`.
+                #[derive(Copy, Clone)]
                 pub struct {name}Layer<'t> {{
                     texture: &'t {name},
                     layer: u32,
@@ -941,6 +942,19 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
         // opening `impl Layer` block
         (writeln!(dest, "impl<'t> {}Layer<'t> {{", name)).unwrap();
+
+        // writing the `get_layer` and `get_texture` functions
+        (write!(dest, "
+                /// Returns the corresponding texture.
+                pub fn get_texture(&self) -> &'t {name} {{
+                    self.texture
+                }}
+
+                /// Returns the layer index.
+                pub fn get_layer(&self) -> u32 {{
+                    self.layer
+                }}
+            ", name = name)).unwrap();
 
         // writing the `get_mipmap_levels` function
         (write!(dest, "
@@ -993,6 +1007,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                     ///
                     /// Can be obtained by calling `{name}Layer::mipmap()` or
                     /// `{name}Layer::main_level()`.
+                    #[derive(Copy, Clone)]
                     pub struct {name}Mipmap<'t> {{
                         texture: &'t {name},
                         layer: u32,
@@ -1005,6 +1020,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                     /// Represents a single mipmap level of a `{name}`.
                     ///
                     /// Can be obtained by calling `{name}::mipmap()` or `{name}::main_level()`.
+                    #[derive(Copy, Clone)]
                     pub struct {name}Mipmap<'t> {{
                         texture: &'t {name},
                         level: u32,
@@ -1014,6 +1030,29 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
         // opening `impl Mipmap` block
         (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
+
+        // writing the `get_levl` and `get_texture` functions
+        (write!(dest, "
+                /// Returns the corresponding texture.
+                pub fn get_texture(&self) -> &'t {name} {{
+                    self.texture
+                }}
+
+                /// Returns the layer index.
+                pub fn get_level(&self) -> u32 {{
+                    self.level
+                }}
+            ", name = name)).unwrap();
+
+        // writing the `get_layer` function
+        if dimensions.is_array() {
+            (write!(dest, "
+                    /// Returns the layer index.
+                    pub fn get_layer(&self) -> u32 {{
+                        self.layer
+                    }}
+                ")).unwrap();
+        }
 
         // closing `impl Mipmap` block
         (writeln!(dest, "}}")).unwrap();
