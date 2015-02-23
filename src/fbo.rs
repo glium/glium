@@ -466,11 +466,28 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
         bind_framebuffer(ctxt, id, true, false);
 
         match attachment {
-            Attachment::Texture { id: tex_id, level, layer, .. } => {
-                ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
-                                                slot, tex_id,
-                                                level as gl::types::GLint,
-                                                layer as gl::types::GLint);
+            Attachment::Texture { bind_point, id: tex_id, level, layer } => {
+                match bind_point {
+                    gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
+                        assert!(layer == 0);
+                        ctxt.gl.FramebufferTexture1D(gl::DRAW_FRAMEBUFFER,
+                                                     slot, bind_point, tex_id,
+                                                     level as gl::types::GLint);
+                    },
+                    gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
+                        assert!(layer == 0);
+                        ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                     slot, bind_point, tex_id,
+                                                     level as gl::types::GLint);
+                    },
+                    gl::TEXTURE_3D | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
+                        ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
+                                                        slot, tex_id,
+                                                        level as gl::types::GLint,
+                                                        layer as gl::types::GLint);
+                    },
+                    _ => unreachable!()
+                }
             },
             Attachment::RenderBuffer(buf_id) => {
                 ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
@@ -497,7 +514,6 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
                                                         level as gl::types::GLint);
                     },
                     gl::TEXTURE_3D | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
-                        assert!(layer == 0);
                         ctxt.gl.FramebufferTexture3DEXT(gl::FRAMEBUFFER_EXT,
                                                         slot, bind_point, tex_id,
                                                         level as gl::types::GLint,
