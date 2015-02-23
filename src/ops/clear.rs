@@ -54,6 +54,11 @@ pub fn clear(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachm
                     ctxt.gl.ClearDepth(depth as f64);        // TODO: find out why this needs "as"
                     ctxt.state.clear_depth = depth;
                 }
+
+                if !ctxt.state.depth_mask {
+                    ctxt.gl.DepthMask(gl::TRUE);
+                    ctxt.state.depth_mask = true;
+                }
             }
 
             if let Some(stencil) = stencil {
