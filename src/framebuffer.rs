@@ -191,8 +191,15 @@ impl<'a> SimpleFrameBuffer<'a> {
             display: display.clone(),
             attachments: FramebufferAttachments {
                 colors: vec![(0, color_attachment)],
-                depth: depth,
-                stencil: stencil,
+                depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
+                    fbo::FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
+                } else if let Some(depth) = depth {
+                    fbo::FramebufferDepthStencilAttachments::DepthAttachment(depth)
+                } else if let Some(stencil) = stencil {
+                    fbo::FramebufferDepthStencilAttachments::DepthAttachment(stencil)
+                } else {
+                    fbo::FramebufferDepthStencilAttachments::None
+                },
             },
             marker: PhantomData,
             dimensions: dimensions,
@@ -378,8 +385,11 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         FramebufferAttachments {
             colors: colors,
-            depth: self.depth_attachment,
-            stencil: None,
+            depth_stencil: if let Some(depth) = self.depth_attachment {
+                fbo::FramebufferDepthStencilAttachments::DepthAttachment(depth)
+            } else {
+                fbo::FramebufferDepthStencilAttachments::None
+            },
         }
     }
 
@@ -392,8 +402,11 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         FramebufferAttachments {
             colors: colors,
-            depth: self.depth_attachment,
-            stencil: None,
+            depth_stencil: if let Some(depth) = self.depth_attachment {
+                fbo::FramebufferDepthStencilAttachments::DepthAttachment(depth)
+            } else {
+                fbo::FramebufferDepthStencilAttachments::None
+            },
         }
     }
 }

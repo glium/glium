@@ -67,8 +67,16 @@ use util::FnvHasher;
 #[derive(Hash, Clone, PartialEq, Eq)]
 pub struct FramebufferAttachments {
     pub colors: Vec<(u32, Attachment)>,
-    pub depth: Option<Attachment>,
-    pub stencil: Option<Attachment>,
+    pub depth_stencil: FramebufferDepthStencilAttachments,
+}
+
+#[derive(Hash, Clone, PartialEq, Eq)]
+pub enum FramebufferDepthStencilAttachments {
+    None,
+    DepthAttachment(Attachment),
+    StencilAttachment(Attachment),
+    DepthAndStencilAttachments(Attachment, Attachment),
+    DepthStencilAttachment(Attachment),
 }
 
 #[derive(Hash, Copy, Clone, PartialEq, Eq)]
@@ -128,17 +136,33 @@ impl FramebuffersContainer {
 
         let mut attachments = Vec::new();
         for (key, _) in framebuffers.iter() {
-            if let Some(ref depth) = key.depth {
-                if condition(depth) {
-                    attachments.push(key.clone());
-                    continue;
-                }
-            }
-
-            if let Some(ref stencil) = key.stencil {
-                if condition(stencil) {
-                    attachments.push(key.clone());
-                    continue;
+            match key.depth_stencil {
+                FramebufferDepthStencilAttachments::None => (),
+                FramebufferDepthStencilAttachments::DepthAttachment(ref depth) => {
+                    if condition(depth) {
+                        attachments.push(key.clone());
+                        continue;
+                    }
+                },
+                FramebufferDepthStencilAttachments::StencilAttachment(ref stencil) => {
+                    if condition(stencil) {
+                        attachments.push(key.clone());
+                        continue;
+                    }
+                },
+                FramebufferDepthStencilAttachments::DepthAndStencilAttachments(ref depth,
+                                                                               ref stencil) =>
+                {
+                    if condition(depth) || condition(stencil) {
+                        attachments.push(key.clone());
+                        continue;
+                    }
+                },
+                FramebufferDepthStencilAttachments::DepthStencilAttachment(ref depth_stencil) => {
+                    if condition(depth_stencil) {
+                        attachments.push(key.clone());
+                        continue;
+                    }
                 }
             }
 
@@ -185,8 +209,7 @@ impl FramebuffersContainer {
 
         let attachments = FramebufferAttachments {
             colors: vec![(0, attachment.clone())],
-            depth: None,
-            stencil: None,
+            depth_stencil: FramebufferDepthStencilAttachments::None,
         };
 
         let framebuffer = self.get_framebuffer_for_drawing(Some(&attachments), context);
@@ -247,13 +270,24 @@ impl FrameBufferObject {
                     raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
                 }
 
-                if let Some(atchmnt) = attachments.depth {
-                    attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, atchmnt);
-                }
-
-                if let Some(atchmnt) = attachments.stencil {
-                    attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, atchmnt);
-                }
+                match attachments.depth_stencil {
+                    FramebufferDepthStencilAttachments::None => (),
+                    FramebufferDepthStencilAttachments::DepthAttachment(depth) => {
+                        attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
+                    },
+                    FramebufferDepthStencilAttachments::StencilAttachment(stencil) => {
+                        attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
+                    },
+                    FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth,
+                                                                                   stencil) =>
+                    {
+                        attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
+                        attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
+                    },
+                    FramebufferDepthStencilAttachments::DepthStencilAttachment(depth_stencil) => {
+                        attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil);
+                    },
+                };
 
                 if ctxt.version >= &GlVersion(4, 5) {
                     ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
