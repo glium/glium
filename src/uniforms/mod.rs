@@ -62,10 +62,8 @@ use std::default::Default;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
 let uniforms = uniform! {
-    texture: glium::uniforms::Sampler(&texture, glium::uniforms::SamplerBehavior {
-        magnify_filter: glium::uniforms::MagnifySamplerFilter::Nearest,
-        .. Default::default()
-    })
+    texture: glium::uniforms::Sampler::new(&texture)
+                        .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
 };
 # }
 ```
