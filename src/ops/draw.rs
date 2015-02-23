@@ -15,6 +15,7 @@ use vertex::{MultiVerticesSource, VerticesSource};
 
 use {program, vertex_array_object};
 use {gl, context, draw_parameters};
+use version::Api;
 
 /// Draws everything.
 pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
@@ -299,7 +300,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
 
             // binding VAO
             if ctxt.state.vertex_array != vao_id {
-                if ctxt.version >= &context::GlVersion(3, 0) ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                     ctxt.extensions.gl_arb_vertex_array_object
                 {
                     ctxt.gl.BindVertexArray(vao_id);
@@ -408,7 +409,7 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
     macro_rules! uniform(
         ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
             unsafe {
-                if $ctxt.version >= &context::GlVersion(1, 5) {
+                if $ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
                     $ctxt.gl.$uniform($($params),+)
                 } else {
                     assert!($ctxt.extensions.gl_arb_shader_objects);
@@ -433,7 +434,7 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
                 // Uniform1uiARB doesn't exist
                 unsafe {
-                    if ctxt.version >= &context::GlVersion(1, 5) {
+                    if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
                         ctxt.gl.Uniform1ui(location, val)
                     } else {
                         assert!(ctxt.extensions.gl_arb_shader_objects);
@@ -612,7 +613,7 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
 
             ctxt.gl.BindTexture(bind_point, texture);
 
-            if ctxt.version >= &context::GlVersion(1, 5) {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
                 ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
             } else {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
@@ -620,10 +621,10 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
             }
 
             if let Some(sampler) = sampler {
-                assert!(ctxt.version >= &context::GlVersion(3, 3) ||
+                assert!(ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
                         ctxt.extensions.gl_arb_sampler_objects);
                 ctxt.gl.BindSampler(current_texture, sampler);
-            } else if ctxt.version >= &context::GlVersion(3, 3) ||
+            } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
                 ctxt.extensions.gl_arb_sampler_objects
             {
                 ctxt.gl.BindSampler(current_texture, 0);

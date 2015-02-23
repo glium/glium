@@ -62,6 +62,7 @@ use GlObject;
 use gl;
 use context;
 use context::GlVersion;
+use version::Api;
 use util::FnvHasher;
 
 #[derive(Hash, Clone, PartialEq, Eq)]
@@ -256,11 +257,11 @@ impl FrameBufferObject {
             unsafe {
                 let mut id = mem::uninitialized();
 
-                if ctxt.version >= &context::GlVersion(4, 5) ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
                     ctxt.extensions.gl_arb_direct_state_access
                 {
                     ctxt.gl.CreateFramebuffers(1, &mut id);
-                } else if ctxt.version >= &context::GlVersion(3, 0) {
+                } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     ctxt.gl.GenFramebuffers(1, &mut id);
                     bind_framebuffer(&mut ctxt, id, true, false);
                 } else {
@@ -296,12 +297,12 @@ impl FrameBufferObject {
                     },
                 };
 
-                if ctxt.version >= &GlVersion(4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+                if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
                     ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
                                                         as gl::types::GLsizei,
                                                         raw_attachments.as_ptr());
 
-                } else if ctxt.version >= &GlVersion(2, 0) {
+                } else if ctxt.version >= &GlVersion(Api::Gl, 2, 0) {
                     bind_framebuffer(&mut ctxt, id, true, false);
                     ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
                                         raw_attachments.as_ptr());
@@ -324,7 +325,7 @@ impl FrameBufferObject {
         context.exec(move |ctxt| {
             unsafe {
                 // unbinding framebuffer
-                if ctxt.version >= &context::GlVersion(3, 0) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     if ctxt.state.draw_framebuffer == id && ctxt.state.read_framebuffer == id {
                         ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
                         ctxt.state.draw_framebuffer = 0;
@@ -351,7 +352,7 @@ impl FrameBufferObject {
                 }
 
                 // deleting
-                if ctxt.version >= &context::GlVersion(3, 0) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     ctxt.gl.DeleteFramebuffers(1, [ id ].as_ptr());
                 } else if ctxt.extensions.gl_ext_framebuffer_object {
                     ctxt.gl.DeleteFramebuffersEXT(1, [ id ].as_ptr());
@@ -375,7 +376,7 @@ pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::G
 {
     if draw && ctxt.state.draw_framebuffer != fbo_id {
         unsafe {
-            if ctxt.version >= &context::GlVersion(3, 0) {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                 ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
                 ctxt.state.draw_framebuffer = fbo_id;
             } else {
@@ -388,7 +389,7 @@ pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::G
 
     if read && ctxt.state.read_framebuffer != fbo_id {
         unsafe {
-            if ctxt.version >= &context::GlVersion(3, 0) {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                 ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
                 ctxt.state.read_framebuffer = fbo_id;
             } else {
@@ -403,7 +404,7 @@ pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::G
 unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: Attachment)
 {
-    if ctxt.version >= &GlVersion(4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+    if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         match attachment {
             Attachment::Texture { id: tex_id, level, layer, .. } => {
                 if layer == 0 {
@@ -441,7 +442,7 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
             },
         }
 
-    } else if ctxt.version >= &GlVersion(3, 2) {
+    } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) {
         bind_framebuffer(ctxt, id, true, false);
 
         match attachment {
@@ -462,7 +463,7 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
             },
         }
 
-    } else if ctxt.version >= &GlVersion(3, 0) {
+    } else if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
         bind_framebuffer(ctxt, id, true, false);
 
         match attachment {

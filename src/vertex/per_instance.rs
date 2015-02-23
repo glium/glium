@@ -9,6 +9,7 @@ use Display;
 use GlObject;
 
 use context;
+use version::Api;
 use gl;
 
 /// A list of vertices loaded in the graphics card's memory.
@@ -53,7 +54,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     pub fn new_if_supported(display: &Display, data: Vec<T>)
                             -> Option<PerInstanceAttributesBuffer<T>>
     {
-        if display.context.context.get_version() < &context::GlVersion(3, 3) &&
+        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
             !display.context.context.get_extensions().gl_arb_instanced_arrays
         {
             return None;
@@ -107,13 +108,13 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     pub fn new_persistent_if_supported(display: &Display, data: Vec<T>)
                                        -> Option<PerInstanceAttributesBuffer<T>>
     {
-        if display.context.context.get_version() < &context::GlVersion(3, 3) &&
+        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
             !display.context.context.get_extensions().gl_arb_instanced_arrays
         {
             return None;
         }
 
-        if display.context.context.get_version() < &context::GlVersion(4, 4) &&
+        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 4, 4) &&
            !display.context.context.get_extensions().gl_arb_buffer_storage
         {
             return None;

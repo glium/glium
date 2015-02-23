@@ -1,6 +1,7 @@
 use gl;
 use context;
 use context::GlVersion;
+use version::Api;
 
 use Display;
 use DrawError;
@@ -462,7 +463,7 @@ pub fn validate(display: &Display, params: &DrawParameters) -> Result<(), DrawEr
         return Err(DrawError::InvalidDepthRange);
     }
 
-    if !params.draw_primitives && display.context.context.get_version() < &GlVersion(3, 0) &&
+    if !params.draw_primitives && display.context.context.get_version() < &GlVersion(Api::Gl, 3, 0) &&
         !display.context.context.get_extensions().gl_ext_transform_feedback
     {
         return Err(DrawError::TransformFeedbackNotSupported);
@@ -724,7 +725,7 @@ pub fn sync(params: &DrawParameters, ctxt: &mut context::CommandContext,
 
     // draw_primitives
     if ctxt.state.enabled_rasterizer_discard == params.draw_primitives {
-        if ctxt.version >= &GlVersion(3, 0) {
+        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
             if params.draw_primitives {
                 unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD); }
                 ctxt.state.enabled_rasterizer_discard = false;

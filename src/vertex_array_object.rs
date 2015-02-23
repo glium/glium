@@ -8,6 +8,7 @@ use vertex::{VerticesSource, AttributeType};
 use {DisplayImpl, GlObject};
 
 use {libc, gl, context};
+use version::Api;
 
 /// Stores informations about how to bind a vertex buffer, an index buffer and a program.
 pub struct VertexArrayObject {
@@ -101,7 +102,7 @@ impl VertexArrayObject {
             unsafe {
                 // building the VAO
                 let id: gl::types::GLuint = mem::uninitialized();
-                if ctxt.version >= &context::GlVersion(3, 0) ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                     ctxt.extensions.gl_arb_vertex_array_object
                 {
                     ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
@@ -114,7 +115,7 @@ impl VertexArrayObject {
 
                 // we don't use DSA as we're going to make multiple calls for this VAO
                 // and we're likely going to use the VAO right after it's been created
-                if ctxt.version >= &context::GlVersion(3, 0) ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                     ctxt.extensions.gl_arb_vertex_array_object
                 {
                     ctxt.gl.BindVertexArray(id);
@@ -192,7 +193,7 @@ impl Drop for VertexArrayObject {
             unsafe {
                 // unbinding
                 if ctxt.state.vertex_array == id {
-                    if ctxt.version >= &context::GlVersion(3, 0) ||
+                    if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                         ctxt.extensions.gl_arb_vertex_array_object
                     {
                         ctxt.gl.BindVertexArray(0);
@@ -206,7 +207,7 @@ impl Drop for VertexArrayObject {
                 }
 
                 // deleting
-                if ctxt.version >= &context::GlVersion(3, 0) ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                     ctxt.extensions.gl_arb_vertex_array_object
                 {
                     ctxt.gl.DeleteVertexArrays(1, [ id ].as_ptr());
