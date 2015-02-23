@@ -76,6 +76,8 @@ pub struct ExtensionsList {
     pub gl_arb_compute_shader: bool,
     /// GL_ARB_geometry_shader4
     pub gl_arb_geometry_shader4: bool,
+    /// GL_ARB_texture_non_power_of_two
+    pub gl_arb_texture_non_power_of_two: bool,
 }
 
 pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
@@ -118,6 +120,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_gpu_shader4: false,
         gl_arb_compute_shader: false,
         gl_arb_geometry_shader4: false,
+        gl_arb_texture_non_power_of_two: false,
     };
 
     for extension in strings.into_iter() {
@@ -158,6 +161,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_gpu_shader4" => extensions.gl_ext_gpu_shader4 = true,
             "GL_ARB_compute_shader" => extensions.gl_arb_compute_shader = true,
             "GL_ARB_geometry_shader4" => extensions.gl_arb_geometry_shader4 = true,
+            "GL_ARB_texture_non_power_of_two" => extensions.gl_arb_texture_non_power_of_two = true,
             _ => ()
         }
     }

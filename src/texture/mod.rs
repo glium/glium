@@ -417,6 +417,9 @@ impl<'a> Surface for TextureSurface<'a> {
 pub enum TextureCreationError {
     /// The requested format is not supported by the backend.
     UnsupportedFormat,
+
+    /// The requested texture dimensions are not supported.
+    DimensionsNotSupported,
 }
 
 /// Error that can happen when creating a texture which we don't know whether it is supported.
