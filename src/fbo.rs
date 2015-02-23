@@ -441,7 +441,7 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
             },
         }
 
-    } else if ctxt.version >= &GlVersion(3, 0) {
+    } else if ctxt.version >= &GlVersion(3, 2) {
         bind_framebuffer(ctxt, id, true, false);
 
         match attachment {
@@ -455,6 +455,22 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
                                                     level as gl::types::GLint,
                                                     layer as gl::types::GLint);
                 }
+            },
+            Attachment::RenderBuffer(buf_id) => {
+                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                gl::RENDERBUFFER, buf_id);
+            },
+        }
+
+    } else if ctxt.version >= &GlVersion(3, 0) {
+        bind_framebuffer(ctxt, id, true, false);
+
+        match attachment {
+            Attachment::Texture { id: tex_id, level, layer, .. } => {
+                ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
+                                                slot, tex_id,
+                                                level as gl::types::GLint,
+                                                layer as gl::types::GLint);
             },
             Attachment::RenderBuffer(buf_id) => {
                 ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
