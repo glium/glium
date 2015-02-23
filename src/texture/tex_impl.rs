@@ -233,7 +233,7 @@ impl TextureImplementation {
                                                         height.unwrap() as gl::types::GLsizei,
                                                         gl::TRUE);
 
-                    } else if ctxt.version >= &GlVersion(3, 2) {
+                    } else if ctxt.version >= &GlVersion(3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                         ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
                                                       samples.unwrap() as gl::types::GLsizei,
                                                       internal_format as gl::types::GLenum,
@@ -256,7 +256,7 @@ impl TextureImplementation {
                                                         array_size.unwrap() as gl::types::GLsizei,
                                                         gl::TRUE);
 
-                    } else if ctxt.version >= &GlVersion(3, 2) {
+                    } else if ctxt.version >= &GlVersion(3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                         ctxt.gl.TexImage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
                                                       samples.unwrap() as gl::types::GLsizei,
                                                       internal_format as gl::types::GLenum,
