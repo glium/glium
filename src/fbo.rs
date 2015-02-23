@@ -234,7 +234,8 @@ impl FrameBufferObject {
             unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
                              id: gl::types::GLuint, attachment: Attachment)
             {
-                if ctxt.version >= &GlVersion(4, 5) {
+                // TODO: triggers a GL error on NVidia+Windows
+                /*if ctxt.version >= &GlVersion(4, 5) {
                     match attachment {
                         Attachment::Texture { id: tex_id, level, layer, .. } => {
                             if layer == 0 {
@@ -272,7 +273,7 @@ impl FrameBufferObject {
                         },
                     }
 
-                } else if ctxt.version >= &GlVersion(3, 2) {
+                } else*/ if ctxt.version >= &GlVersion(3, 2) {
                     bind_framebuffer(ctxt, id, true, false);
 
                     match attachment {
