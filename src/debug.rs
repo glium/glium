@@ -4,6 +4,7 @@
 */
 
 use Display;
+use version::Api;
 use {context, gl};
 use std::sync::mpsc::channel;
 
@@ -113,7 +114,7 @@ impl TimestampQuery {
 
         let (tx, rx) = channel();
         display.context.context.exec(move |ctxt| {
-            if ctxt.opengl_es || ctxt.version <= &context::GlVersion(3, 2) {    // TODO: extension
+            if ctxt.opengl_es || ctxt.version <= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
                 tx.send(None).ok();
                 return;
             }

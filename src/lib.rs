@@ -184,7 +184,7 @@ pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
-pub use version::Version;
+pub use version::{Api, Version};
 
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
@@ -989,7 +989,7 @@ impl Display {
     pub fn release_shader_compiler(&self) {
         self.context.context.exec(move |ctxt| {
             unsafe {
-                if ctxt.opengl_es || ctxt.version >= &context::GlVersion(4, 1) {
+                if ctxt.opengl_es || ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) {
                     ctxt.gl.ReleaseShaderCompiler();
                 }
             }
@@ -1058,7 +1058,7 @@ impl Display {
         // enabling the callback
         self.context.context.exec(move |ctxt| {
             unsafe {
-                if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
                     ctxt.extensions.gl_arb_debug_output
                 {
                     if ctxt.state.enabled_debug_output_synchronous != true {
@@ -1066,7 +1066,7 @@ impl Display {
                         ctxt.state.enabled_debug_output_synchronous = true;
                     }
 
-                    if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                    if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
                         // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
                         //       but with GL only, it doesn't have one
                         ctxt.gl.DebugMessageCallback(callback_wrapper, std::ptr::null());
@@ -1173,7 +1173,7 @@ impl Drop for DisplayImpl {
         self.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.state.enabled_debug_output != Some(false) {
-                    if ctxt.version >= &context::GlVersion(4,5) || ctxt.extensions.gl_khr_debug {
+                    if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
                         ctxt.gl.Disable(gl::DEBUG_OUTPUT);
                     } else if ctxt.extensions.gl_arb_debug_output {
                         ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0usize),

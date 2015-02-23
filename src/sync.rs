@@ -5,6 +5,7 @@ use Display;
 
 use libc;
 use context;
+use version::Api;
 use gl;
 
 /// Provides a way to wait for a server-side operation to be finished.
@@ -124,7 +125,7 @@ pub unsafe fn new_linear_sync_fence(ctxt: &mut context::CommandContext) -> Linea
 }
 
 pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut context::CommandContext) -> Option<LinearSyncFence> {
-    if ctxt.version < &context::GlVersion(3, 2) && !ctxt.extensions.gl_arb_sync {
+    if ctxt.version < &context::GlVersion(Api::Gl, 3, 2) && !ctxt.extensions.gl_arb_sync {
         return None;
     }
 

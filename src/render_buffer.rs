@@ -19,6 +19,7 @@ use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilF
 
 use {gl, context};
 use {GlObject, DisplayImpl, ToGlEnum};
+use version::Api;
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
 ///
@@ -185,14 +186,14 @@ impl RenderBufferImpl {
             unsafe {
                 let mut id = mem::uninitialized();
 
-                if ctxt.version >= &context::GlVersion(4, 5) ||
+                if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
                     ctxt.extensions.gl_arb_direct_state_access
                 {
                     ctxt.gl.CreateRenderbuffers(1, &mut id);
                     ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
                                                      height as gl::types::GLsizei);
 
-                } else if ctxt.version >= &context::GlVersion(3, 0) {
+                } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     ctxt.gl.GenRenderbuffers(1, &mut id);
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
                     ctxt.state.renderbuffer = id;
@@ -236,7 +237,7 @@ impl Drop for RenderBufferImpl {
         self.display.context.exec(move |ctxt| {
             unsafe {
 
-                if ctxt.version >= &context::GlVersion(3, 0) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     if ctxt.state.renderbuffer == id {
                         ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
                         ctxt.state.renderbuffer = 0;

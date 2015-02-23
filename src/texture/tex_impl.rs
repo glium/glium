@@ -4,6 +4,7 @@ use gl;
 use GlObject;
 use ToGlEnum;
 use context::GlVersion;
+use version::Api;
 
 use pixel_buffer::PixelBuffer;
 use texture::{format, Texture2dDataSink, PixelValue};
@@ -68,7 +69,7 @@ impl TextureImplementation {
         }
 
         // checking non-power-of-two
-        if display.context.context.get_version() < &GlVersion(2, 0) &&
+        if display.context.context.get_version() < &GlVersion(Api::Gl, 2, 0) &&
             !display.context.context.get_extensions().gl_arb_texture_non_power_of_two
         {
             if !width.is_power_of_two() || !height.unwrap_or(2).is_power_of_two() ||
@@ -182,7 +183,7 @@ impl TextureImplementation {
                 }
 
                 if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage3D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
@@ -205,7 +206,7 @@ impl TextureImplementation {
                     }
 
                 } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage2D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei,
@@ -225,7 +226,7 @@ impl TextureImplementation {
 
                 } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE {
                     assert!(data_raw.is_null());
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
                                                         samples.unwrap() as gl::types::GLsizei,
                                                         internal_format as gl::types::GLenum,
@@ -233,7 +234,7 @@ impl TextureImplementation {
                                                         height.unwrap() as gl::types::GLsizei,
                                                         gl::TRUE);
 
-                    } else if ctxt.version >= &GlVersion(3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+                    } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                         ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
                                                       samples.unwrap() as gl::types::GLsizei,
                                                       internal_format as gl::types::GLenum,
@@ -247,7 +248,7 @@ impl TextureImplementation {
 
                 } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
                     assert!(data_raw.is_null());
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
                                                         samples.unwrap() as gl::types::GLsizei,
                                                         internal_format as gl::types::GLenum,
@@ -256,7 +257,7 @@ impl TextureImplementation {
                                                         array_size.unwrap() as gl::types::GLsizei,
                                                         gl::TRUE);
 
-                    } else if ctxt.version >= &GlVersion(3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+                    } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                         ctxt.gl.TexImage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
                                                       samples.unwrap() as gl::types::GLsizei,
                                                       internal_format as gl::types::GLenum,
@@ -270,7 +271,7 @@ impl TextureImplementation {
                     }
 
                 } else if texture_type == gl::TEXTURE_1D {
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage1D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
                                              width as gl::types::GLsizei);
@@ -291,7 +292,7 @@ impl TextureImplementation {
 
                 // only generate mipmaps for color textures
                 if generate_mipmaps {
-                    if ctxt.version >= &GlVersion(3, 0) {
+                    if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
                         ctxt.gl.GenerateMipmap(texture_type);
                     } else {
                         ctxt.gl.GenerateMipmapEXT(texture_type);
@@ -417,7 +418,7 @@ impl TextureImplementation {
 
                 // regenerate mipmaps if there are some
                 if regen_mipmaps {
-                    if ctxt.version >= &GlVersion(3, 0) {
+                    if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
                         ctxt.gl.GenerateMipmap(bind_point);
                     } else {
                         ctxt.gl.GenerateMipmapEXT(bind_point);
@@ -502,7 +503,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         TextureFormatRequest::AnyFloatingPoint => {
             let size = client.map(|c| c.get_num_components());
 
-            if version >= &GlVersion(3, 0) {
+            if version >= &GlVersion(Api::Gl, 3, 0) {
                 match size {
                     Some(1) => (gl::RED, false),
                     Some(2) => (gl::RG, false),
@@ -529,7 +530,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
                     (value, true)
                 },
                 _ => {
-                    if version >= &GlVersion(3, 0) {
+                    if version >= &GlVersion(Api::Gl, 3, 0) {
                         (value, true)
                     } else {
                         return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -540,7 +541,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(f)) => {
-            if version >= &GlVersion(3, 0) {    // FIXME: 
+            if version >= &GlVersion(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
                 return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -549,7 +550,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(f)) => {
-            if version >= &GlVersion(3, 0) {    // FIXME: 
+            if version >= &GlVersion(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
                 return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -558,7 +559,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(f)) => {
-            if version >= &GlVersion(3, 0) {    // FIXME: 
+            if version >= &GlVersion(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
                 return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -567,7 +568,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::Specific(TextureFormat::DepthFormat(f)) => {
-            if version >= &GlVersion(3, 0) {    // FIXME: 
+            if version >= &GlVersion(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
                 return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -576,7 +577,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(f)) => {
-            if version >= &GlVersion(3, 0) {    // FIXME: 
+            if version >= &GlVersion(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
                 return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -585,7 +586,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(f)) => {
-            if version >= &GlVersion(3, 0) {    // FIXME: 
+            if version >= &GlVersion(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
                 return Err(TextureMaybeSupportedCreationError::CreationError(
@@ -596,15 +597,15 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         TextureFormatRequest::AnyCompressed => {
             let size = client.map(|c| c.get_num_components());
 
-            if version >= &GlVersion(1, 1) {
+            if version >= &GlVersion(Api::Gl, 1, 1) {
                 match size {
-                    Some(1) => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
+                    Some(1) => if version >= &GlVersion(Api::Gl, 3, 0) || extensions.gl_arb_texture_rg {
                         (gl::COMPRESSED_RED, false)
                     } else {
                         // format not supported
                         (1, false)
                     },
-                    Some(2) => if version >= &GlVersion(3, 0) || extensions.gl_arb_texture_rg {
+                    Some(2) => if version >= &GlVersion(Api::Gl, 3, 0) || extensions.gl_arb_texture_rg {
                         (gl::COMPRESSED_RG, false)
                     } else {
                         // format not supported
@@ -626,7 +627,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         TextureFormatRequest::AnyIntegral => {
             let size = client.map(|c| c.get_num_components());
 
-            if version >= &GlVersion(3, 0) {
+            if version >= &GlVersion(Api::Gl, 3, 0) {
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     Some(1) => (gl::R32I, true),
                     Some(2) => (gl::RG32I, true),
@@ -663,7 +664,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         TextureFormatRequest::AnyUnsigned => {
             let size = client.map(|c| c.get_num_components());
 
-            if version >= &GlVersion(3, 0) {
+            if version >= &GlVersion(Api::Gl, 3, 0) {
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     Some(1) => (gl::R32UI, true),
                     Some(2) => (gl::RG32UI, true),
@@ -698,7 +699,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::AnyDepth => {
-            if version >= &GlVersion(1, 4) {
+            if version >= &GlVersion(Api::Gl, 1, 4) {
                 (gl::DEPTH_COMPONENT, false)
             } else if extensions.gl_arb_depth_texture {
                 (gl::DEPTH_COMPONENT, false)
@@ -708,7 +709,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::AnyStencil => {
-            if version < &GlVersion(3, 0) {
+            if version < &GlVersion(Api::Gl, 3, 0) {
                 return Err(TextureMaybeSupportedCreationError::NotSupported);
             }
 
@@ -720,7 +721,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::AnyDepthStencil => {
-            if version >= &GlVersion(3, 0) {
+            if version >= &GlVersion(Api::Gl, 3, 0) {
                 (gl::DEPTH_STENCIL, false)
             } else if extensions.gl_ext_packed_depth_stencil {
                 (gl::DEPTH_STENCIL_EXT, false)

@@ -12,7 +12,7 @@ fn get_opengl_version() {
     let version = display.get_opengl_version();
     display.assert_no_error();
 
-    assert!(version.0 >= 1);
+    assert!(version.1 >= 1);
 }
 
 #[test]

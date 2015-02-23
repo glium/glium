@@ -6,6 +6,7 @@ use uniforms::SamplerBehavior;
 
 use gl;
 use context::{self, GlVersion};
+use version::Api;
 use GlObject;
 use ToGlEnum;
 
@@ -19,7 +20,7 @@ impl SamplerObject {
     /// Builds a new sampler object.
     pub fn new(display: &Display, behavior: &SamplerBehavior) -> SamplerObject {
         // making sure that the backend supports samplers
-        assert!(display.context.context.get_version() >= &GlVersion(3, 2) ||
+        assert!(display.context.context.get_version() >= &GlVersion(Api::Gl, 3, 2) ||
                 display.context.context.get_extensions().gl_arb_sampler_objects);
 
         let (tx, rx) = mpsc::channel();
@@ -91,7 +92,7 @@ pub fn get_sampler(display: &Display, behavior: &SamplerBehavior)
                    -> Result<gl::types::GLuint, DrawError>
 {
     // checking for compatibility
-    if display.context.context.get_version() < &context::GlVersion(3, 2) &&
+    if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 2) &&
         !display.context.context.get_extensions().gl_arb_sampler_objects
     {
         return Err(DrawError::SamplersNotSupported);

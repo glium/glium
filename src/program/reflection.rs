@@ -11,6 +11,7 @@ use util::FnvHasher;
 use context;
 use context::CommandContext;
 use context::GlVersion;
+use version::Api;
 
 use uniforms::UniformType;
 use vertex::AttributeType;
@@ -108,7 +109,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         let mut active_uniforms: gl::types::GLint = mem::uninitialized();
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &GlVersion(2, 0));
+                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
                 ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
             },
             Handle::Handle(program) => {
@@ -129,7 +130,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
 
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &GlVersion(2, 0));
+                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
                 ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint,
                                          uniform_name_tmp_len, &mut uniform_name_tmp_len,
                                          &mut data_size, &mut data_type,
@@ -151,7 +152,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
         let location = match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &GlVersion(2, 0));
+                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
                 ctxt.gl.GetUniformLocation(program,
                                            ffi::CString::from_slice(uniform_name.as_bytes())
                                              .as_bytes_with_nul().as_ptr() as *const libc::c_char)
@@ -184,7 +185,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
         let mut active_attributes: gl::types::GLint = mem::uninitialized();
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &GlVersion(2, 0));
+                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
                 ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
             },
             Handle::Handle(program) => {
@@ -205,7 +206,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &GlVersion(2, 0));
+                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
                 ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint,
                                         attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
                                         &mut data_type, attr_name_tmp.as_mut_slice().as_mut_ptr()
@@ -229,7 +230,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 
         let location = match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &GlVersion(2, 0));
+                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
                 ctxt.gl.GetAttribLocation(program,
                                           ffi::CString::from_slice(attr_name.as_bytes())
                                             .as_bytes_with_nul().as_ptr() as *const libc::c_char)
@@ -256,7 +257,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
                                      -> HashMap<String, UniformBlock, DefaultState<FnvHasher>>
 {
     // uniform blocks are not supported, so there's none
-    if ctxt.version < &context::GlVersion(3, 1) {
+    if ctxt.version < &context::GlVersion(Api::Gl, 3, 1) {
         return HashMap::with_hash_state(Default::default());
     }
 
@@ -383,7 +384,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
     };
 
     // transform feedback not supported
-    if ctxt.version < &GlVersion(3, 0) && !ctxt.extensions.gl_ext_transform_feedback {
+    if ctxt.version < &GlVersion(Api::Gl, 3, 0) && !ctxt.extensions.gl_ext_transform_feedback {
         return None;
     }
 
@@ -391,7 +392,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
     let num_varyings = {
         let mut num_varyings: gl::types::GLint = mem::uninitialized();
 
-        if ctxt.version >= &GlVersion(3, 0) {
+        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
             ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYINGS, &mut num_varyings);
         } else if ctxt.extensions.gl_ext_transform_feedback {
             ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYINGS_EXT, &mut num_varyings);
@@ -411,7 +412,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
     let buffer_mode = {
         let mut buffer_mode: gl::types::GLint = mem::uninitialized();
 
-        if ctxt.version >= &GlVersion(3, 0) {
+        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
             ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_BUFFER_MODE, &mut buffer_mode);
         } else if ctxt.extensions.gl_ext_transform_feedback {
             ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_BUFFER_MODE_EXT, &mut buffer_mode);
@@ -424,7 +425,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
 
     // the max length includes the null terminator
     let mut max_buffer_len: gl::types::GLint = mem::uninitialized();
-    if ctxt.version >= &GlVersion(3, 0) {
+    if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
         ctxt.gl.GetProgramiv(program, gl::TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH,
                              &mut max_buffer_len);
     } else if ctxt.extensions.gl_ext_transform_feedback {
@@ -443,7 +444,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
         let mut size = mem::uninitialized();
         let mut ty = mem::uninitialized();
 
-        if ctxt.version >= &GlVersion(3, 0) {
+        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
             ctxt.gl.GetTransformFeedbackVarying(program, index, name_tmp_len, &mut name_tmp_len,
                                                 &mut size, &mut ty, name_tmp.as_mut_ptr()
                                                 as *mut gl::types::GLchar);

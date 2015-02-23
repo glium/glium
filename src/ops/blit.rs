@@ -4,6 +4,7 @@ use Surface;
 
 use gl;
 use context;
+use version::Api;
 
 pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types::GLbitfield,
     src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
@@ -23,7 +24,7 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
     display.context.exec(move |ctxt| {
         unsafe {
             // trying to do a named blit if possible
-            if ctxt.version >= &context::GlVersion(4, 5) {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) {
                 ctxt.gl.BlitNamedFramebuffer(source, target,
                     src_rect.left as gl::types::GLint,
                     src_rect.bottom as gl::types::GLint,
@@ -38,7 +39,7 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
 
             // binding source framebuffer
             if ctxt.state.read_framebuffer != source {
-                if ctxt.version >= &context::GlVersion(3, 0) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, source);
                     ctxt.state.read_framebuffer = source;
 
@@ -50,7 +51,7 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
 
             // binding target framebuffer
             if ctxt.state.draw_framebuffer != target {
-                if ctxt.version >= &context::GlVersion(3, 0) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                     ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, target);
                     ctxt.state.draw_framebuffer = target;
 
@@ -61,7 +62,7 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
             }
 
             // doing the blit
-            if ctxt.version >= &context::GlVersion(3, 0) {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
                 ctxt.gl.BlitFramebuffer(src_rect.left as gl::types::GLint,
                     src_rect.bottom as gl::types::GLint,
                     (src_rect.left + src_rect.width) as gl::types::GLint,
