@@ -153,7 +153,7 @@ impl Default for SamplerBehavior {
                 SamplerWrapFunction::Mirror,
                 SamplerWrapFunction::Mirror
             ),
-            minify_filter: MinifySamplerFilter::Linear,
+            minify_filter: MinifySamplerFilter::LinearMipmapLinear,
             magnify_filter: MagnifySamplerFilter::Linear,
             max_anisotropy: 1,
         }
