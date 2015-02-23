@@ -254,11 +254,18 @@ impl FrameBufferObject {
             }
 
             unsafe {
-                let id: gl::types::GLuint = mem::uninitialized();
-                if ctxt.version >= &context::GlVersion(3, 0) {
-                    ctxt.gl.GenFramebuffers(1, mem::transmute(&id));
+                let mut id = mem::uninitialized();
+
+                if ctxt.version >= &context::GlVersion(4, 5) ||
+                    ctxt.extensions.gl_arb_direct_state_access
+                {
+                    ctxt.gl.CreateFramebuffers(1, &mut id);
+                } else if ctxt.version >= &context::GlVersion(3, 0) {
+                    ctxt.gl.GenFramebuffers(1, &mut id);
+                    bind_framebuffer(&mut ctxt, id, true, false);
                 } else {
-                    ctxt.gl.GenFramebuffersEXT(1, mem::transmute(&id));
+                    ctxt.gl.GenFramebuffersEXT(1, &mut id);
+                    bind_framebuffer(&mut ctxt, id, true, false);
                 }
 
                 tx.send(id).unwrap();
@@ -289,14 +296,18 @@ impl FrameBufferObject {
                     },
                 };
 
-                if ctxt.version >= &GlVersion(4, 5) {
+                if ctxt.version >= &GlVersion(4, 5) || ctxt.extensions.gl_arb_direct_state_access {
                     ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
                                                         as gl::types::GLsizei,
                                                         raw_attachments.as_ptr());
-                } else {
+
+                } else if ctxt.version >= &GlVersion(2, 0) {
                     bind_framebuffer(&mut ctxt, id, true, false);
                     ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
                                         raw_attachments.as_ptr());
+
+                } else {
+                    unimplemented!();       // FIXME: use an extension
                 }
             }
         });
@@ -328,19 +339,24 @@ impl FrameBufferObject {
                         ctxt.state.read_framebuffer = 0;
                     }
 
-                } else {
+                } else if ctxt.extensions.gl_ext_framebuffer_object {
                     if ctxt.state.draw_framebuffer == id || ctxt.state.read_framebuffer == id {
                         ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
                         ctxt.state.draw_framebuffer = 0;
                         ctxt.state.read_framebuffer = 0;
                     }
+
+                } else {
+                    unreachable!();
                 }
 
                 // deleting
                 if ctxt.version >= &context::GlVersion(3, 0) {
                     ctxt.gl.DeleteFramebuffers(1, [ id ].as_ptr());
-                } else {
+                } else if ctxt.extensions.gl_ext_framebuffer_object {
                     ctxt.gl.DeleteFramebuffersEXT(1, [ id ].as_ptr());
+                } else {
+                    unreachable!();
                 }
             }
         });
@@ -387,8 +403,7 @@ pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::G
 unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: Attachment)
 {
-    // TODO: triggers a GL error on NVidia+Windows
-    /*if ctxt.version >= &GlVersion(4, 5) {
+    if ctxt.version >= &GlVersion(4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         match attachment {
             Attachment::Texture { id: tex_id, level, layer, .. } => {
                 if layer == 0 {
@@ -426,7 +441,7 @@ unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
             },
         }
 
-    } else*/ if ctxt.version >= &GlVersion(3, 0) {
+    } else if ctxt.version >= &GlVersion(3, 0) {
         bind_framebuffer(ctxt, id, true, false);
 
         match attachment {
