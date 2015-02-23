@@ -499,7 +499,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, "))))")).unwrap();
+        (writeln!(dest, ", None))))")).unwrap();
 
         // end of "new" function block
         (writeln!(dest, "}}")).unwrap();
@@ -535,7 +535,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ").unwrap())")).unwrap();
+        (writeln!(dest, ", None).unwrap())")).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -573,7 +573,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ").unwrap())")).unwrap();
+        (writeln!(dest, ", None).unwrap())")).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -609,7 +609,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ")
+        (writeln!(dest, ", None)
             {{
                 Ok(t) => Some({}(t)),
                 Err(TextureMaybeSupportedCreationError::NotSupported) => None,
@@ -654,7 +654,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ");
+        (writeln!(dest, ", None);
             match t {{
                 Ok(t) => Ok({}(t)),
                 Err(TextureMaybeSupportedCreationError::CreationError(e)) => Err(e),
@@ -701,7 +701,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ").map(|t| {}(t))", name)).unwrap();
+        (writeln!(dest, ", None).map(|t| {}(t))", name)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -740,7 +740,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ").unwrap())")).unwrap();
+        (writeln!(dest, ", None).unwrap())")).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -778,7 +778,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
             TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
         }
-        (writeln!(dest, ")
+        (writeln!(dest, ", None)
             {{
                 Ok(t) => Some({}(t)),
                 Err(TextureMaybeSupportedCreationError::NotSupported) => None,
