@@ -31,11 +31,9 @@ pub fn new_from_window(window: glutin::WindowBuilder)
         let mut gl_state = Default::default();
 
         // getting the GL version and extensions
-        let opengl_es = match locked_win.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);
-        let capabilities = Arc::new(capabilities::get_capabilities(&gl, &version,
-                                                                   &extensions, opengl_es));
+        let capabilities = Arc::new(capabilities::get_capabilities(&gl, &version, &extensions));
 
         drop(locked_win);
 
@@ -45,7 +43,6 @@ pub fn new_from_window(window: glutin::WindowBuilder)
             state: &mut gl_state,
             version: &version,
             extensions: &extensions,
-            opengl_es: opengl_es,
             capabilities: &*capabilities,
         }) {
             Err(e) => {
@@ -95,7 +92,6 @@ pub fn new_from_window(window: glutin::WindowBuilder)
                     state: &mut gl_state,
                     version: &version,
                     extensions: &extensions,
-                    opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
                 commands::Message::Stop => break
@@ -138,11 +134,9 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
 
         // building the GLState, version, and extensions
         let mut gl_state = Default::default();
-        let opengl_es = match window.get_api() { glutin::Api::OpenGlEs => true, _ => false };       // TODO: fix glutin::Api not implementing Eq
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);
-        let capabilities = Arc::new(capabilities::get_capabilities(&gl, &version,
-                                                                   &extensions, opengl_es));
+        let capabilities = Arc::new(capabilities::get_capabilities(&gl, &version, &extensions));
 
         // checking compatibility with glium
         match check_gl_compatibility(CommandContext {
@@ -150,7 +144,6 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
             state: &mut gl_state,
             version: &version,
             extensions: &extensions,
-            opengl_es: opengl_es,
             capabilities: &*capabilities,
         }) {
             Err(e) => {
@@ -170,7 +163,6 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
                     state: &mut gl_state,
                     version: &version,
                     extensions: &extensions,
-                    opengl_es: opengl_es,
                     capabilities: &*capabilities,
                 }),
                 commands::Message::EndFrame => (),        // ignoring buffer swapping

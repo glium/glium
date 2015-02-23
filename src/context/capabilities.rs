@@ -34,19 +34,19 @@ pub struct Capabilities {
 }
 
 /// Loads the capabilities.
-pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsList,
-                        gl_es: bool) -> Capabilities
+pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsList)
+                        -> Capabilities
 {
     use std::mem;
 
     Capabilities {
         stereo: unsafe {
-            if gl_es {
-                false
-            } else {
+            if version >= &GlVersion(Api::Gl, 1, 0) {
                 let mut val: gl::types::GLboolean = mem::uninitialized();
                 gl.GetBooleanv(gl::STEREO, &mut val);
                 val != 0
+            } else {
+                false
             }
         },
 
