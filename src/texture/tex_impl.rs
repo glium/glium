@@ -51,7 +51,8 @@ impl TextureImplementation {
     /// Builds a new texture.
     pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
                       data: Option<(ClientFormat, Cow<'a, [P]>)>, generate_mipmaps: bool,
-                      width: u32, height: Option<u32>, depth: Option<u32>, array_size: Option<u32>)
+                      width: u32, height: Option<u32>, depth: Option<u32>, array_size: Option<u32>,
+                      samples: Option<u32>)
                       -> Result<TextureImplementation, TextureMaybeSupportedCreationError>
                       where P: Send + Clone + 'a
     {
@@ -79,10 +80,19 @@ impl TextureImplementation {
         }
 
         let texture_type = if height.is_none() && depth.is_none() {
+            assert!(samples.is_none());
             if array_size.is_none() { gl::TEXTURE_1D } else { gl::TEXTURE_1D_ARRAY }
+
         } else if depth.is_none() {
-            if array_size.is_none() { gl::TEXTURE_2D } else { gl::TEXTURE_2D_ARRAY }
+            match (array_size.is_some(), samples.is_some()) {
+                (false, false) => gl::TEXTURE_2D,
+                (true, false) => gl::TEXTURE_2D_ARRAY,
+                (false, true) => gl::TEXTURE_2D_MULTISAMPLE,
+                (true, true) => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+            }
+
         } else {
+            assert!(samples.is_none());
             gl::TEXTURE_3D
         };
 
@@ -213,7 +223,53 @@ impl TextureImplementation {
                                            client_format as u32, client_type, data_raw);
                     }
 
-                } else {
+                } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE {
+                    assert!(data_raw.is_null());
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                        ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
+                                                        samples.unwrap() as gl::types::GLsizei,
+                                                        internal_format as gl::types::GLenum,
+                                                        width as gl::types::GLsizei,
+                                                        height.unwrap() as gl::types::GLsizei,
+                                                        gl::TRUE);
+
+                    } else if ctxt.version >= &GlVersion(3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+                        ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
+                                                      samples.unwrap() as gl::types::GLsizei,
+                                                      internal_format as gl::types::GLenum,
+                                                      width as gl::types::GLsizei,
+                                                      height.unwrap() as gl::types::GLsizei,
+                                                      gl::TRUE);
+
+                    } else {
+                        unreachable!();
+                    }
+
+                } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
+                    assert!(data_raw.is_null());
+                    if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                        ctxt.gl.TexStorage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+                                                        samples.unwrap() as gl::types::GLsizei,
+                                                        internal_format as gl::types::GLenum,
+                                                        width as gl::types::GLsizei,
+                                                        height.unwrap() as gl::types::GLsizei,
+                                                        array_size.unwrap() as gl::types::GLsizei,
+                                                        gl::TRUE);
+
+                    } else if ctxt.version >= &GlVersion(3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+                        ctxt.gl.TexImage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+                                                      samples.unwrap() as gl::types::GLsizei,
+                                                      internal_format as gl::types::GLenum,
+                                                      width as gl::types::GLsizei,
+                                                      height.unwrap() as gl::types::GLsizei,
+                                                      array_size.unwrap() as gl::types::GLsizei,
+                                                      gl::TRUE);
+
+                    } else {
+                        unreachable!();
+                    }
+
+                } else if texture_type == gl::TEXTURE_1D {
                     if can_use_texstorage && (ctxt.version >= &GlVersion(4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                         ctxt.gl.TexStorage1D(texture_type, texture_levels,
                                              internal_format as gl::types::GLenum,
@@ -228,6 +284,9 @@ impl TextureImplementation {
                         ctxt.gl.TexImage1D(texture_type, 0, internal_format as i32, width as i32,
                                            0, client_format as u32, client_type, data_raw);
                     }
+
+                } else {
+                    unreachable!();
                 }
 
                 // only generate mipmaps for color textures

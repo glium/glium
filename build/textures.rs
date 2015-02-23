@@ -13,9 +13,11 @@ enum TextureType {
 enum TextureDimensions {
     Texture1d,
     Texture2d,
+    Texture2dMultisample,
     Texture3d,
     Texture1dArray,
     Texture2dArray,
+    Texture2dArrayMultisample,
 }
 
 impl TextureDimensions {
@@ -23,6 +25,14 @@ impl TextureDimensions {
         match self {
             &TextureDimensions::Texture1dArray => true,
             &TextureDimensions::Texture2dArray => true,
+            _ => false
+        }
+    }
+
+    fn is_multisample(&self) -> bool {
+        match self {
+            &TextureDimensions::Texture2dMultisample => true,
+            &TextureDimensions::Texture2dArrayMultisample => true,
             _ => false
         }
     }
@@ -43,6 +53,7 @@ pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2d);
+    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture3d);
@@ -64,6 +75,7 @@ pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArray);
+    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dArrayMultisample);
 }
 
 fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
@@ -82,9 +94,11 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         let suffix = match dimensions {
             TextureDimensions::Texture1d => "Texture1d",
             TextureDimensions::Texture2d => "Texture2d",
+            TextureDimensions::Texture2dMultisample => "Texture2dMultisample",
             TextureDimensions::Texture3d => "Texture3d",
             TextureDimensions::Texture1dArray => "Texture1dArray",
             TextureDimensions::Texture2dArray => "Texture2dArray",
+            TextureDimensions::Texture2dArrayMultisample => "Texture2dArrayMultisample",
         };
 
         format!("{}{}", prefix, suffix)
@@ -95,6 +109,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
         TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
         TextureDimensions::Texture3d => "Texture3dDataSource",
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dArrayMultisample => {
+            "unreachable"
+        },
     };
 
     // the format enum corresponding to this texture
@@ -131,25 +148,51 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         _ => ""
     };
 
+    // 
+    let dimensions_parameters_input = match dimensions {
+        TextureDimensions::Texture1d => "width: u32",
+        TextureDimensions::Texture2d => "width: u32, height: u32",
+        TextureDimensions::Texture2dMultisample => "width: u32, height: u32, samples: u32",
+        TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
+        TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
+        TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
+        TextureDimensions::Texture2dArrayMultisample => "width: u32, height: u32, array_size: u32, samples: u32",
+    };
+
+    let dimensions_parameters_passing = match dimensions {
+        TextureDimensions::Texture1d => "width, None, None, None, None",
+        TextureDimensions::Texture2d => "width, Some(height), None, None, None",
+        TextureDimensions::Texture2dMultisample => "width, Some(height), None, None, Some(samples)",
+        TextureDimensions::Texture3d => "width, Some(height), Some(depth), None, None",
+        TextureDimensions::Texture1dArray => "width, None, None, Some(array_size), None",
+        TextureDimensions::Texture2dArray => "width, Some(height), None, Some(array_size), None",
+        TextureDimensions::Texture2dArrayMultisample => "width, Some(height), None, Some(array_size), Some(samples)",
+    };
+
     // writing the struct with doc-comment
     (write!(dest, "/// ")).unwrap();
     (write!(dest, "{}", match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-        TextureDimensions::Texture3d => "A ",
-        TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "An array of ",
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d => "A ",
+        TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
+        TextureDimensions::Texture2dArrayMultisample => "An array of ",
     })).unwrap();
     if ty == TextureType::Compressed {
         (write!(dest, "compressed ")).unwrap();
     }
     (write!(dest, "{}", match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "one-dimensional ",
-        TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "two-dimensional ",
+        TextureDimensions::Texture2d | TextureDimensions::Texture2dArray |
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dArrayMultisample => {
+            "two-dimensional "
+        },
         TextureDimensions::Texture3d => "three-dimensional ",
     })).unwrap();
     (write!(dest, "{}", match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-        TextureDimensions::Texture3d => "texture ",
-        TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "textures ",
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d => "texture ",
+        TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
+        TextureDimensions::Texture2dArrayMultisample => "textures ",
     })).unwrap();
     (write!(dest, "{}", match ty {
         TextureType::Regular | TextureType::Compressed => " containing floating-point data",
@@ -204,24 +247,26 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ", name)).unwrap();
 
     // `UniformValue` trait impl
-    match ty {
-        TextureType::Regular | TextureType::Compressed |
-        TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
-            (writeln!(dest, "
-                        impl<'a> IntoUniformValue<'a> for &'a {myname} {{
-                            fn into_uniform_value(self) -> UniformValue<'a> {{
-                                UniformValue::{myname}(self, None)
+    if !dimensions.is_multisample() {
+        match ty {
+            TextureType::Regular | TextureType::Compressed |
+            TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
+                (writeln!(dest, "
+                            impl<'a> IntoUniformValue<'a> for &'a {myname} {{
+                                fn into_uniform_value(self) -> UniformValue<'a> {{
+                                    UniformValue::{myname}(self, None)
+                                }}
                             }}
-                        }}
 
-                        impl<'a> IntoUniformValue<'a> for Sampler<'a, {myname}> {{
-                            fn into_uniform_value(self) -> UniformValue<'a> {{
-                                UniformValue::{myname}(self.0, Some(self.1))
+                            impl<'a> IntoUniformValue<'a> for Sampler<'a, {myname}> {{
+                                fn into_uniform_value(self) -> UniformValue<'a> {{
+                                    UniformValue::{myname}(self.0, Some(self.1))
+                                }}
                             }}
-                        }}
-                    ", myname = name)).unwrap();
-        },
-        _ => ()
+                        ", myname = name)).unwrap();
+            },
+            _ => ()
+        }
     }
 
     // `ToXXXAttachment` trait impl
@@ -271,13 +316,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     (writeln!(dest, "impl {} {{", name)).unwrap();
 
     // writing the `new` function
-    {
+    if !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -295,13 +342,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `new_if_supported` function
-    if cfg_attribute.len() >= 1 {
+    if cfg_attribute.len() >= 1 && !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -321,13 +370,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `with_mipmaps` function
-    {
+    if !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -346,13 +397,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `with_mipmaps_if_supported` function
-    if cfg_attribute.len() >= 1 {
+    if cfg_attribute.len() >= 1 && !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -374,13 +427,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `with_format` function
-    {
+    if !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -405,13 +460,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `with_format_if_supported` function
-    if cfg_attribute.len() >= 1 {
+    if cfg_attribute.len() >= 1 && !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -431,13 +488,15 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // writing the `new_impl` function
-    {
+    if !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
+
+            _ => unreachable!()
         };
 
         (writeln!(dest, "
@@ -487,18 +546,13 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                     let client_format = unsafe {{ ::std::mem::uninitialized() }};
                     unimplemented!();
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
+
+            _ => unreachable!()
         }
 
         // writing the constructor
         (write!(dest, "Ok({}(try!(TextureImplementation::new(display, format, \
-                       Some((client_format, data)), mipmaps, ", name)).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
+                       Some((client_format, data)), mipmaps, {}", name, dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "))))")).unwrap();
 
         // end of "new" function block
@@ -507,14 +561,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `new_empty` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture.
@@ -524,18 +570,10 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 pub fn new_empty(display: &::Display, format: {format}, {dim_params}) -> {name} {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
-            ", format = relevant_format, dim_params = dim_params, name = name)).unwrap();
+            ", format = relevant_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, true, ", name)).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ").unwrap())")).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, true, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -543,14 +581,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `empty` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture.
@@ -561,19 +591,11 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 {cfg_attr}
                 pub fn empty(display: &::Display, {dim_params}) -> {name} {{
                     let format = {format};
-            ", format = default_format, dim_params = dim_params, name = name,
+            ", format = default_format, dim_params = dimensions_parameters_input, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, false, ", name)).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ").unwrap())")).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, false, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -581,14 +603,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `empty_if_supported` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture.
@@ -598,18 +612,11 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 /// The texture will contain undefined data.
                 pub fn empty_if_supported(display: &::Display, {dim_params}) -> Option<{name}> {{
                     let format = {format};
-            ", format = default_format, dim_params = dim_params, name = name)).unwrap();
+            ", format = default_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "match TextureImplementation::new::<u8>(display, format, None, false, ")).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ")
+        (write!(dest, "match TextureImplementation::new::<u8>(display, format, None, false, {})", dimensions_parameters_passing)).unwrap();
+        (writeln!(dest, "
             {{
                 Ok(t) => Some({}(t)),
                 Err(TextureMaybeSupportedCreationError::NotSupported) => None,
@@ -622,14 +629,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `empty_with_format` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture with a specific format.
@@ -642,19 +641,12 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 pub fn empty_with_format(display: &::Display, format: {format}, mipmaps: bool, {dim_params}) -> Result<{name}, TextureCreationError> {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
-            ", format = relevant_format, dim_params = dim_params, name = name,
+            ", format = relevant_format, dim_params = dimensions_parameters_input, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "let t = TextureImplementation::new::<u8>(display, format, None, mipmaps, ")).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ");
+        (write!(dest, "let t = TextureImplementation::new::<u8>(display, format, None, mipmaps, {});", dimensions_parameters_passing)).unwrap();
+        (writeln!(dest, "
             match t {{
                 Ok(t) => Ok({}(t)),
                 Err(TextureMaybeSupportedCreationError::CreationError(e)) => Err(e),
@@ -667,14 +659,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `empty_with_format_if_supported` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture with a specific format.
@@ -690,18 +674,11 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
-            ", format = relevant_format, dim_params = dim_params, name = name)).unwrap();
+            ", format = relevant_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "TextureImplementation::new::<u8>(display, format, None, mipmaps, ")).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ").map(|t| {}(t))", name)).unwrap();
+        (write!(dest, "TextureImplementation::new::<u8>(display, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
+        (writeln!(dest, ".map(|t| {}(t))", name)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -709,14 +686,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `empty_with_mipmaps` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture. Specifies whether is has mipmaps.
@@ -728,19 +697,12 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 {cfg_attr}
                 pub fn empty_with_mipmaps(display: &::Display, mipmaps: bool, {dim_params}) -> {name} {{
                     let format = {format};
-            ", format = default_format, dim_params = dim_params, name = name,
+            ", format = default_format, dim_params = dimensions_parameters_input, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, mipmaps, ", name)).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ").unwrap())")).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, mipmaps, {})", name, dimensions_parameters_passing)).unwrap();
+        (writeln!(dest, ".unwrap())")).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -748,14 +710,6 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
     // writing the `empty_with_mipmaps_if_supported` function
     if ty != TextureType::Compressed {
-        let dim_params = match dimensions {
-            TextureDimensions::Texture1d => "width: u32",
-            TextureDimensions::Texture2d => "width: u32, height: u32",
-            TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
-            TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
-            TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        };
-
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture. Specifies whether is has mipmaps.
@@ -767,18 +721,11 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
                 pub fn empty_with_mipmaps_if_supported(display: &::Display, mipmaps: bool,
                                                        {dim_params}) -> Option<{name}> {{
                     let format = {format};
-            ", format = default_format, dim_params = dim_params, name = name)).unwrap();
+            ", format = default_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "match TextureImplementation::new::<u8>(display, format, None, mipmaps, ")).unwrap();
-        match dimensions {
-            TextureDimensions::Texture1d => (write!(dest, "width, None, None, None")).unwrap(),
-            TextureDimensions::Texture2d => (write!(dest, "width, Some(height), None, None")).unwrap(),
-            TextureDimensions::Texture3d => (write!(dest, "width, Some(height), Some(depth), None")).unwrap(),
-            TextureDimensions::Texture1dArray => (write!(dest, "width, None, None, Some(array_size)")).unwrap(),
-            TextureDimensions::Texture2dArray => (write!(dest, "width, Some(height), None, Some(array_size)")).unwrap(),
-        }
-        (writeln!(dest, ")
+        (write!(dest, "match TextureImplementation::new::<u8>(display, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
+        (writeln!(dest, "
             {{
                 Ok(t) => Some({}(t)),
                 Err(TextureMaybeSupportedCreationError::NotSupported) => None,
