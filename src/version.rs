@@ -51,3 +51,39 @@ pub fn get_gl_version(gl: &gl::Gl) -> Version {
         )
     }
 }
+
+impl Version {
+    pub fn get_glsl_version(&self) -> Version {
+        match self.0 {
+            Api::Gl => {
+                // since OpenGL 3.3: glsl versions match gl version, just return a copy
+                if *self >= Version(self.0, 3, 3) {
+                    return *self;
+                }
+
+                // match to detect invalid versions
+                match *self {
+                    Version(a, 2, 0) => Version(a, 1, 1),
+                    Version(a, 2, 1) => Version(a, 1, 2),
+                    Version(a, 3, 0) => Version(a, 1, 3),
+                    Version(a, 3, 1) => Version(a, 1, 4),
+                    Version(a, 3, 2) => Version(a, 1, 5),
+                    _ => panic!("no corresponding glsl version exists")
+                }
+            },
+            Api::GlEs => {
+                // since OpenGL ES 3.0: glsl versions match gl version, just return a copy
+                if *self >= Version(self.0, 3, 0) {
+                    return *self;
+                }
+                
+                // only other valid GLES version is 2.0
+                if *self == Version(self.0, 2, 0){
+                    return Version(Api::GlEs, 1, 0);
+                } else {
+                    panic!("no corresponding glsl version exists")
+                }
+            }
+        }
+    }
+}
