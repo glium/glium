@@ -12,6 +12,7 @@ use std::collections::HashMap;
 use std::default::Default;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc::channel;
 use util::FnvHasher;
 
@@ -285,6 +286,9 @@ impl Program {
                 // linking
                 {
                     let _lock = COMPILER_GLOBAL_LOCK.lock();
+
+                    ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
+
                     match id {
                         Handle::Id(id) => {
                             assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
@@ -295,6 +299,8 @@ impl Program {
                             ctxt.gl.LinkProgramARB(id);
                         }
                     }
+
+                    ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
                 }
 
                 // checking for errors
