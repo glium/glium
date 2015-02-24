@@ -1,0 +1,18 @@
+machine:
+  pre:
+    - curl -sS https://static.rust-lang.org/rustup.sh | sudo bash
+    - sudo apt-get install libXxf86vm-dev libosmesa6-dev
+  environment:
+    HEADLESS_TESTS: 1
+
+test:
+  override:
+    - cargo build --verbose
+    - cargo test --features "headless" --verbose
+    - cargo test --no-default-features --features "headless" --verbose
+    - cargo build --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures" --verbose
+
+general:
+  branches:
+    ignore:
+      - gh-pages
