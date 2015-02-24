@@ -193,10 +193,13 @@ impl RenderBufferImpl {
                     ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
                                                      height as gl::types::GLsizei);
 
-                } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+                } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                          ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+                {
                     ctxt.gl.GenRenderbuffers(1, &mut id);
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
                     ctxt.state.renderbuffer = id;
+                    // FIXME: gles2 only supports very few formats
                     ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format,
                                                 width as gl::types::GLsizei,
                                                 height as gl::types::GLsizei);
@@ -236,8 +239,9 @@ impl Drop for RenderBufferImpl {
         let id = self.id.clone();
         self.display.context.exec(move |ctxt| {
             unsafe {
-
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                   ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+                {
                     if ctxt.state.renderbuffer == id {
                         ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
                         ctxt.state.renderbuffer = 0;
