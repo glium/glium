@@ -67,6 +67,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
             api: gl_generator::registry::Ns::Gles2.to_string(),
             extensions: vec![
                 "GL_OES_texture_npot".to_string(),
+                "GL_EXT_disjoint_timer_query".to_string(),
             ],
             version: "3.1".to_string(),
             profile: "compatibility".to_string(),

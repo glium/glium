@@ -114,18 +114,28 @@ impl TimestampQuery {
 
         let (tx, rx) = channel();
         display.context.context.exec(move |ctxt| {
-            if ctxt.opengl_es || ctxt.version <= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+                unsafe {
+                    let mut id = mem::uninitialized();
+                    ctxt.gl.GenQueries(1, &mut id);
+                    tx.send(Some(id)).unwrap();
+
+                    ctxt.gl.QueryCounter(id, gl::TIMESTAMP);
+                }
+
+            } else if ctxt.extensions.gl_ext_disjoint_timer_query {
+                unsafe {
+                    let mut id = mem::uninitialized();
+                    ctxt.gl.GenQueriesEXT(1, &mut id);
+                    tx.send(Some(id)).unwrap();
+
+                    ctxt.gl.QueryCounterEXT(id, gl::TIMESTAMP);
+                }
+
+            } else {
                 tx.send(None).ok();
-                return;
             }
 
-            unsafe {
-                let mut id = mem::uninitialized();
-                ctxt.gl.GenQueries(1, &mut id);
-                tx.send(Some(id)).unwrap();
-
-                ctxt.gl.QueryCounter(id, gl::TIMESTAMP);
-            }
         });
 
         rx.recv().unwrap().map(|q| TimestampQuery {
@@ -144,10 +154,22 @@ impl TimestampQuery {
         let id = self.id.clone();
         let (tx, rx) = channel();
         self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                let mut value = mem::uninitialized();
-                ctxt.gl.GetQueryObjectiv(id, gl::QUERY_RESULT_AVAILABLE, &mut value);
-                tx.send(if value != 0 { true } else { false }).ok();
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+                unsafe {
+                    let mut value = mem::uninitialized();
+                    ctxt.gl.GetQueryObjectiv(id, gl::QUERY_RESULT_AVAILABLE, &mut value);
+                    tx.send(if value != 0 { true } else { false }).ok();
+                }
+
+            } else if ctxt.extensions.gl_ext_disjoint_timer_query {
+                unsafe {
+                    let mut value = mem::uninitialized();
+                    ctxt.gl.GetQueryObjectivEXT(id, gl::QUERY_RESULT_AVAILABLE_EXT, &mut value);
+                    tx.send(if value != 0 { true } else { false }).ok();
+                }
+
+            } else {
+                unreachable!();
             }
         });
 
@@ -163,11 +185,24 @@ impl TimestampQuery {
         let id = self.id.clone();
         let (tx, rx) = channel();
         self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                let mut value = mem::uninitialized();
-                ctxt.gl.GetQueryObjectui64v(id, gl::QUERY_RESULT, &mut value);
-                tx.send(value).ok();
-                ctxt.gl.DeleteQueries(1, [id].as_ptr())
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+                unsafe {
+                    let mut value = mem::uninitialized();
+                    ctxt.gl.GetQueryObjectui64v(id, gl::QUERY_RESULT, &mut value);
+                    tx.send(value).ok();
+                    ctxt.gl.DeleteQueries(1, [id].as_ptr())
+                }
+
+            } else if ctxt.extensions.gl_ext_disjoint_timer_query {
+                unsafe {
+                    let mut value = mem::uninitialized();
+                    ctxt.gl.GetQueryObjectui64vEXT(id, gl::QUERY_RESULT_EXT, &mut value);
+                    tx.send(value).ok();
+                    ctxt.gl.DeleteQueriesEXT(1, [id].as_ptr())
+                }
+
+            } else {
+                unreachable!();
             }
         });
 
