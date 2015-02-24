@@ -521,16 +521,11 @@ impl Buffer {
         let (tx, rx) = channel();
 
         self.display.context.context.exec(move |ctxt| {
-            if ctxt.opengl_es {
-                tx.send(None).ok();
-                return;
-            }
-
             unsafe {
                 let mut data = Vec::with_capacity(size);
                 data.set_len(size);
 
-                if !ctxt.opengl_es && ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+                if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
                     ctxt.gl.GetNamedBufferSubData(id, (offset * elements_size) as gl::types::GLintptr,
                         (size * elements_size) as gl::types::GLsizei,
                         data.as_mut_ptr() as *mut libc::c_void);

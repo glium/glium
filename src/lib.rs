@@ -995,7 +995,9 @@ impl Display {
     pub fn release_shader_compiler(&self) {
         self.context.context.exec(move |ctxt| {
             unsafe {
-                if ctxt.opengl_es || ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) {
+                if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
+                    ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
+                {
                     ctxt.gl.ReleaseShaderCompiler();
                 }
             }
