@@ -14,13 +14,13 @@ script:
     - cargo build -j 1 --verbose
     - cargo test -j 1 --features "headless" --verbose
     - cargo test -j 1 --no-default-features --features "headless" --verbose
-    - cargo build -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures" --verbose
+    - cargo build -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_texture_1d gl_texture_3d gl_texture_multisample gl_texture_multisample_array" --verbose
 
 after_success: 
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
-        cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures" &&
+        cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_texture_1d gl_texture_3d gl_texture_multisample gl_texture_multisample_array" &&
         cp -R doc/* target/doc &&
         sudo pip install ghp-import &&
         ghp-import target/doc &&

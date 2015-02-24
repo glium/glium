@@ -123,6 +123,10 @@ In addition to this, it has the following OpenGL-related features:
  - `gl_integral_textures` (textures with components representing integers)
  - `gl_depth_textures` (textures containing depth or depth-stencil data)
  - `gl_stencil_textures` (textures containing stencil data)
+ - `gl_texture_1d` (one dimensional textures and one dimensional texture arrays)
+ - `gl_texture_3d` (three dimensional textures and two-dimensional texture arrays)
+ - `gl_texture_multisample` (multisample textures)
+ - `gl_texture_multisample_array` (arrays of multisample textures)
 
 Enabling each of these features adds more restrictions towards the backend and increases the
 likehood that `build_glium` will return an `Err`. However, it also gives you access to more
