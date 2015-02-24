@@ -147,15 +147,35 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     };
 
     // the `#[cfg]` attribute for the related cargo feature
-    let cfg_attribute = match ty {
-        TextureType::Integral | TextureType::Unsigned => {
-            "#[cfg(feature = \"gl_integral_textures\")]"
-        },
-        TextureType::Depth | TextureType::DepthStencil => {
-            "#[cfg(feature = \"gl_depth_textures\")]"
-        },
-        TextureType::Stencil => "#[cfg(feature = \"gl_stencil_textures\")]",
-        _ => ""
+    let cfg_attribute = {
+        let format = match ty {
+            TextureType::Integral | TextureType::Unsigned => {
+                "#[cfg(feature = \"gl_integral_textures\")]"
+            },
+            TextureType::Depth | TextureType::DepthStencil => {
+                "#[cfg(feature = \"gl_depth_textures\")]"
+            },
+            TextureType::Stencil => "#[cfg(feature = \"gl_stencil_textures\")]",
+            _ => ""
+        };
+
+        let dim = match dimensions {
+            TextureDimensions::Texture1d => {
+                "#[cfg(feature = \"gl_texture_1d\")]"
+            },
+            TextureDimensions::Texture2dArray | TextureDimensions::Texture3d => {
+                "#[cfg(feature = \"gl_texture_3d\")]"
+            },
+            TextureDimensions::Texture2dMultisample => {
+                "#[cfg(feature = \"gl_texture_multisample\")]"
+            },
+            TextureDimensions::Texture2dArrayMultisample => {
+                "#[cfg(feature = \"gl_texture_multisample_array\")]"
+            },
+            _ => ""
+        };
+
+        format!("{}{}", format, dim)
     };
 
     // 

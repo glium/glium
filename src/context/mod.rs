@@ -248,6 +248,16 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         result.push("OpenGL implementation doesn't support stencil textures");
     }
 
+    if cfg!(feature = "gl_texture_multisample") && ctxt.version < &GlVersion(Api::Gl, 3, 2)
+    {
+        result.push("OpenGL implementation doesn't support multisample textures");
+    }
+
+    if cfg!(feature = "gl_texture_multisample_array") && ctxt.version < &GlVersion(Api::Gl, 3, 2)
+    {
+        result.push("OpenGL implementation doesn't support arrays of multisample textures");
+    }
+
     if result.len() == 0 {
         Ok(())
     } else {
