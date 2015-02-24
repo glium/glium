@@ -54,6 +54,11 @@ pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisample);
+    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dMultisample);
+    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dMultisample);
+    build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisample);
+    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dMultisample);
+    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture3d);
@@ -76,6 +81,11 @@ pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dArrayMultisample);
+    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dArrayMultisample);
+    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dArrayMultisample);
+    build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dArrayMultisample);
+    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArrayMultisample);
+    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArrayMultisample);
 }
 
 fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
@@ -247,7 +257,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             ", name)).unwrap();
 
     // `UniformValue` trait impl
-    if !dimensions.is_multisample() {
+    {
         match ty {
             TextureType::Regular | TextureType::Compressed |
             TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {

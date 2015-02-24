@@ -521,6 +521,22 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
+        UniformValue::Texture2dMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+        },
+        UniformValue::IntegralTexture2dMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+        },
+        UniformValue::UnsignedTexture2dMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+        },
+        UniformValue::DepthTexture2dMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+        },
         UniformValue::Texture3d(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_3D)
@@ -580,6 +596,22 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
         UniformValue::DepthTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
+        },
+        UniformValue::Texture2dArrayMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+        },
+        UniformValue::IntegralTexture2dArrayMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+        },
+        UniformValue::UnsignedTexture2dArrayMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+        },
+        UniformValue::DepthTexture2dArrayMultisample(texture, sampler) => {
+            let texture = texture.get_id();
+            build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
     }
 }
