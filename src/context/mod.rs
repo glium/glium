@@ -1,6 +1,7 @@
 use gl;
 use glutin;
 use std::sync::{Arc, RwLock, RwLockReadGuard};
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Sender, channel};
 use version::Api;
 use GliumCreationError;
@@ -38,6 +39,21 @@ pub struct CommandContext<'a, 'b> {
     pub extensions: &'a ExtensionsList,
     pub opengl_es: bool,
     pub capabilities: &'a Capabilities,
+    pub shared_debug_output: &'a SharedDebugOutput,
+}
+
+/// Struct shared with the debug output callback.
+pub struct SharedDebugOutput {
+    /// Whether debug output should report errors
+    pub report_errors: AtomicBool,
+}
+
+impl SharedDebugOutput {
+    pub fn new() -> Arc<SharedDebugOutput> {
+        Arc::new(SharedDebugOutput {
+            report_errors: AtomicBool::new(true),
+        })
+    }
 }
 
 /// Iterator for all the events received by the window.

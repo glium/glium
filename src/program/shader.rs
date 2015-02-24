@@ -5,6 +5,7 @@ use version::Api;
 
 use std::{ffi, mem, ptr};
 use std::sync::Arc;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc::channel;
 
 use Display;
@@ -93,6 +94,8 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
             {
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
 
+                ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
+
                 match id {
                     Handle::Id(id) => {
                         assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
@@ -103,6 +106,8 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
                         ctxt.gl.CompileShaderARB(id);
                     }
                 }
+
+                ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
             }
 
             // checking compilation success

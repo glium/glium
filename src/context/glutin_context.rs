@@ -1,7 +1,7 @@
 use gl;
 use glutin;
 use version;
-use context::{Context, CommandContext, GLState, check_gl_compatibility};
+use context::{Context, CommandContext, GLState, SharedDebugOutput, check_gl_compatibility};
 use context::{capabilities, extensions, commands};
 use GliumCreationError;
 
@@ -10,11 +10,14 @@ use std::sync::{Arc, RwLock};
 use std::sync::mpsc::channel;
 
 pub fn new_from_window(window: glutin::WindowBuilder)
-                       -> Result<Context, GliumCreationError>
+                       -> Result<(Context, Arc<SharedDebugOutput>), GliumCreationError>
 {
     use std::thread::Builder;
 
     let (commands_frontend, commands_backend) = commands::channel();
+
+    let shared_debug_frontend = SharedDebugOutput::new();
+    let shared_debug_backend = shared_debug_frontend.clone();
 
     let org_window = Arc::new(RwLock::new(try!(window.build())));
     let window = org_window.clone();
@@ -47,6 +50,7 @@ pub fn new_from_window(window: glutin::WindowBuilder)
             extensions: &extensions,
             opengl_es: opengl_es,
             capabilities: &*capabilities,
+            shared_debug_output: &shared_debug_backend,
         }) {
             Err(e) => {
                 tx_success.send(Err(e)).unwrap();
@@ -97,6 +101,7 @@ pub fn new_from_window(window: glutin::WindowBuilder)
                     extensions: &extensions,
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
+                    shared_debug_output: &shared_debug_backend,
                 }),
                 commands::Message::Stop => break
             }
@@ -104,22 +109,25 @@ pub fn new_from_window(window: glutin::WindowBuilder)
     });
 
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
-    Ok(Context {
+    Ok((Context {
         commands: commands_frontend,
         window: Some(org_window),
         capabilities: capabilities,
         version: version,
         extensions: extensions,
-    })
+    }, shared_debug_frontend))
 }
 
 #[cfg(feature = "headless")]
 pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
-    -> Result<Context, GliumCreationError>
+    -> Result<(Context, Arc<SharedDebugOutput>), GliumCreationError>
 {
     use std::thread::Builder;
 
     let (commands_frontend, commands_backend) = commands::channel();
+
+    let shared_debug_frontend = SharedDebugOutput::new();
+    let shared_debug_backend = shared_debug_frontend.clone();
 
     let (tx_success, rx_success) = channel();
 
@@ -152,6 +160,7 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
             extensions: &extensions,
             opengl_es: opengl_es,
             capabilities: &*capabilities,
+            shared_debug_output: &shared_debug_backend,
         }) {
             Err(e) => {
                 tx_success.send(Err(e)).unwrap();
@@ -172,6 +181,7 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
                     extensions: &extensions,
                     opengl_es: opengl_es,
                     capabilities: &*capabilities,
+                    shared_debug_output: &shared_debug_backend,
                 }),
                 commands::Message::EndFrame => (),        // ignoring buffer swapping
                 commands::Message::Rebuild(_, _) => unimplemented!(),
@@ -181,11 +191,11 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
     });
 
     let (capabilities, version, extensions) = try!(rx_success.recv().unwrap());
-    Ok(Context {
+    Ok((Context {
         commands: commands_frontend,
         window: None,
         capabilities: capabilities,
         version: version,
         extensions: extensions,
-    })
+    }, shared_debug_frontend))
 }

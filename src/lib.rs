@@ -189,6 +189,7 @@ pub use version::{Api, Version};
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
+use std::ops::Deref;
 use std::sync::{Arc, Mutex, RwLockReadGuard};
 use std::sync::mpsc::channel;
 
@@ -837,12 +838,13 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
 
 impl DisplayBuild for glutin::WindowBuilder<'static> {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let context = try!(context::new_from_window(self));
+        let (context, shared_debug) = try!(context::new_from_window(self));
 
         let display = Display {
             context: Arc::new(DisplayImpl {
                 context: context,
                 debug_callback: Mutex::new(None),
+                shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
                 vertex_array_objects: Mutex::new(HashMap::with_hash_state(Default::default())),
                 samplers: Mutex::new(HashMap::with_hash_state(Default::default())),
@@ -871,12 +873,13 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 #[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let context = try!(context::new_from_headless(self));
+        let (context, shared_debug) = try!(context::new_from_headless(self));
 
         let display = Display {
             context: Arc::new(DisplayImpl {
                 context: context,
                 debug_callback: Mutex::new(None),
+                shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
                 vertex_array_objects: Mutex::new(HashMap::with_hash_state(Default::default())),
                 samplers: Mutex::new(HashMap::with_hash_state(Default::default())),
@@ -909,6 +912,9 @@ struct DisplayImpl {
     // the callback used for debug messages
     debug_callback: Mutex<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
                                      + Send + Sync>>>,
+
+    // holding the Arc to SharedDebugOutput
+    shared_debug_output: Arc<context::SharedDebugOutput>,
 
     // we maintain a list of FBOs
     // the option is here to destroy the container
@@ -1042,18 +1048,28 @@ impl Display {
             id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
             message: *const gl::types::GLchar, user_param: *mut libc::c_void)
         {
+            let user_param = user_param as *const context::SharedDebugOutput;
+            let user_param = unsafe { user_param.as_ref().unwrap() };
+
             if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
                (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
                 ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
             {
-                let message = unsafe {
-                    String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec()).unwrap()
-                };
+                if user_param.report_errors.load(std::sync::atomic::Ordering::Relaxed) {
+                    let message = unsafe {
+                        String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec()).unwrap()
+                    };
 
-                panic!("Debug message with high or medium severity: `{}`.\n\
-                        Please report this error: https://github.com/tomaka/glium/issues", message);
+                    panic!("Debug message with high or medium severity: `{}`.\n\
+                            Please report this error: https://github.com/tomaka/glium/issues",
+                            message);
+                }
             }
         }
+
+        struct SharedDebugOutputPtr(*const context::SharedDebugOutput);
+        unsafe impl Send for SharedDebugOutputPtr {}
+        let shared_debug_output_ptr = SharedDebugOutputPtr(self.context.shared_debug_output.deref());
 
         // enabling the callback
         self.context.context.exec(move |ctxt| {
@@ -1069,7 +1085,8 @@ impl Display {
                     if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
                         // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
                         //       but with GL only, it doesn't have one
-                        ctxt.gl.DebugMessageCallback(callback_wrapper, std::ptr::null());
+                        ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
+                                                                         as *const libc::c_void);
                         ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                                     std::ptr::null(), gl::TRUE);
 
@@ -1079,7 +1096,8 @@ impl Display {
                         }
 
                     } else {
-                        ctxt.gl.DebugMessageCallbackARB(callback_wrapper, std::ptr::null());
+                        ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
+                                                                            as *const libc::c_void);
                         ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
                                                        0, std::ptr::null(), gl::TRUE);
 
