@@ -217,6 +217,7 @@ fn get_uniform_blocks() {
 }
 
 #[test]
+#[ignore]       // TODO: doesn't work with some versions of MESA
 fn get_program_binary() {
     let display = support::build_display();
 
@@ -257,6 +258,7 @@ fn get_program_binary() {
 }
 
 #[test]
+#[ignore]       // TODO: doesn't work with some versions of MESA
 fn program_binary_reload() {
     let display = support::build_display();
 
@@ -297,6 +299,7 @@ fn program_binary_reload() {
 }
 
 #[test]
+#[ignore]       // TODO: doesn't work with some versions of MESA
 fn program_binary_working() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
