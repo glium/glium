@@ -9,12 +9,18 @@ use fbo::{self, FramebufferAttachments};
 
 use sync;
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
-use {Program, DrawParameters, GlObject, ToGlEnum};
+use {Program, GlObject, ToGlEnum};
 use index::{self, IndicesSource};
 use vertex::{MultiVerticesSource, VerticesSource};
 
+use draw_parameters::DrawParameters;
+use draw_parameters::{BlendingFunction, BackfaceCullingMode};
+use draw_parameters::{DepthTest, PolygonMode};
+use Rect;
+
 use {program, vertex_array_object};
 use {gl, context, draw_parameters};
+use context::GlVersion;
 use version::Api;
 
 /// Draws everything.
@@ -277,7 +283,9 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
 
     // copying some stuff in order to send them
     let program_id = program.get_id();
-    let draw_parameters = draw_parameters.clone();
+    let DrawParameters { depth_test, depth_write, depth_range, blending_function,
+                         line_width, point_size, backface_culling, polygon_mode, multisampling,
+                         dithering, viewport, scissor, draw_primitives } = *draw_parameters;
 
     // sending the command
     display.context.context.exec(move |mut ctxt| {
@@ -314,16 +322,16 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
             }
 
             // sync-ing parameters
-            draw_parameters::sync(&draw_parameters, &mut ctxt, dimensions);
-
-            // vertices per patch
-            if let Some(vertices_per_patch) = vertices_per_patch {
-                let vertices_per_patch = vertices_per_patch as gl::types::GLint;
-                if ctxt.state.patch_patch_vertices != vertices_per_patch {
-                    ctxt.gl.PatchParameteri(gl::PATCH_VERTICES, vertices_per_patch);
-                    ctxt.state.patch_patch_vertices = vertices_per_patch;
-                }
-            }
+            sync_depth(&mut ctxt, depth_test, depth_write, depth_range);
+            sync_blending(&mut ctxt, blending_function);
+            sync_line_width(&mut ctxt, line_width);
+            sync_point_size(&mut ctxt, point_size);
+            sync_polygon_mode(&mut ctxt, backface_culling, polygon_mode);
+            sync_multisampling(&mut ctxt, multisampling);
+            sync_dithering(&mut ctxt, dithering);
+            sync_viewport_scissor(&mut ctxt, viewport, scissor, dimensions);
+            sync_rasterizer_discard(&mut ctxt, draw_primitives);
+            sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
 
             // drawing
             match draw_command {
@@ -663,4 +671,314 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
             }
         }
     }))
+}
+
+fn sync_depth(ctxt: &mut context::CommandContext, depth_test: DepthTest, depth_write: bool,
+              depth_range: (f32, f32))
+{
+    // depth test
+    match depth_test {
+        DepthTest::Overwrite => unsafe {
+            if ctxt.state.enabled_depth_test {
+                ctxt.gl.Disable(gl::DEPTH_TEST);
+                ctxt.state.enabled_depth_test = false;
+            }
+        },
+        depth_function => unsafe {
+            let depth_function = depth_function.to_glenum();
+            if ctxt.state.depth_func != depth_function {
+                ctxt.gl.DepthFunc(depth_function);
+                ctxt.state.depth_func = depth_function;
+            }
+            if !ctxt.state.enabled_depth_test {
+                ctxt.gl.Enable(gl::DEPTH_TEST);
+                ctxt.state.enabled_depth_test = true;
+            }
+        }
+    }
+
+    // depth mask
+    if depth_write != ctxt.state.depth_mask {
+        unsafe {
+            ctxt.gl.DepthMask(if depth_write { gl::TRUE } else { gl::FALSE });
+        }
+        ctxt.state.depth_mask = depth_write;
+    }
+
+    // depth range
+    if depth_range != ctxt.state.depth_range {
+        unsafe {
+            ctxt.gl.DepthRange(depth_range.0 as f64, depth_range.1 as f64);
+        }
+        ctxt.state.depth_range = depth_range;
+    }
+}
+
+fn sync_blending(ctxt: &mut context::CommandContext, blending_function: Option<BlendingFunction>) {
+    let blend_factors = match blending_function {
+        Some(BlendingFunction::AlwaysReplace) => unsafe {
+            if ctxt.state.enabled_blend {
+                ctxt.gl.Disable(gl::BLEND);
+                ctxt.state.enabled_blend = false;
+            }
+            None
+        },
+        Some(BlendingFunction::Min) => unsafe {
+            if ctxt.state.blend_equation != gl::MIN {
+                ctxt.gl.BlendEquation(gl::MIN);
+                ctxt.state.blend_equation = gl::MIN;
+            }
+            if !ctxt.state.enabled_blend {
+                ctxt.gl.Enable(gl::BLEND);
+                ctxt.state.enabled_blend = true;
+            }
+            None
+        },
+        Some(BlendingFunction::Max) => unsafe {
+            if ctxt.state.blend_equation != gl::MAX {
+                ctxt.gl.BlendEquation(gl::MAX);
+                ctxt.state.blend_equation = gl::MAX;
+            }
+            if !ctxt.state.enabled_blend {
+                ctxt.gl.Enable(gl::BLEND);
+                ctxt.state.enabled_blend = true;
+            }
+            None
+        },
+        Some(BlendingFunction::Addition { source, destination }) => unsafe {
+            if ctxt.state.blend_equation != gl::FUNC_ADD {
+                ctxt.gl.BlendEquation(gl::FUNC_ADD);
+                ctxt.state.blend_equation = gl::FUNC_ADD;
+            }
+            if !ctxt.state.enabled_blend {
+                ctxt.gl.Enable(gl::BLEND);
+                ctxt.state.enabled_blend = true;
+            }
+            Some((source, destination))
+        },
+        Some(BlendingFunction::Subtraction { source, destination }) => unsafe {
+            if ctxt.state.blend_equation != gl::FUNC_SUBTRACT {
+                ctxt.gl.BlendEquation(gl::FUNC_SUBTRACT);
+                ctxt.state.blend_equation = gl::FUNC_SUBTRACT;
+            }
+            if !ctxt.state.enabled_blend {
+                ctxt.gl.Enable(gl::BLEND);
+                ctxt.state.enabled_blend = true;
+            }
+            Some((source, destination))
+        },
+        Some(BlendingFunction::ReverseSubtraction { source, destination }) => unsafe {
+            if ctxt.state.blend_equation != gl::FUNC_REVERSE_SUBTRACT {
+                ctxt.gl.BlendEquation(gl::FUNC_REVERSE_SUBTRACT);
+                ctxt.state.blend_equation = gl::FUNC_REVERSE_SUBTRACT;
+            }
+            if !ctxt.state.enabled_blend {
+                ctxt.gl.Enable(gl::BLEND);
+                ctxt.state.enabled_blend = true;
+            }
+            Some((source, destination))
+        },
+        _ => None
+    };
+    if let Some((source, destination)) = blend_factors {
+        let source = source.to_glenum();
+        let destination = destination.to_glenum();
+
+        if ctxt.state.blend_func != (source, destination) {
+            unsafe { ctxt.gl.BlendFunc(source, destination) };
+            ctxt.state.blend_func = (source, destination);
+        }
+    };
+}
+
+fn sync_line_width(ctxt: &mut context::CommandContext, line_width: Option<f32>) {
+    if let Some(line_width) = line_width {
+        if ctxt.state.line_width != line_width {
+            unsafe {
+                ctxt.gl.LineWidth(line_width);
+                ctxt.state.line_width = line_width;
+            }
+        }
+    }
+}
+
+fn sync_point_size(ctxt: &mut context::CommandContext, point_size: Option<f32>) {
+    if let Some(point_size) = point_size {
+        if ctxt.state.point_size != point_size {
+            unsafe {
+                ctxt.gl.PointSize(point_size);
+                ctxt.state.point_size = point_size;
+            }
+        }
+    }
+}
+
+fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: BackfaceCullingMode,
+                     polygon_mode: PolygonMode)
+{
+    // back-face culling
+    // note: we never change the value of `glFrontFace`, whose default is GL_CCW
+    //  that's why `CullClockWise` uses `GL_BACK` for example
+    match backface_culling {
+        BackfaceCullingMode::CullingDisabled => unsafe {
+            if ctxt.state.enabled_cull_face {
+                ctxt.gl.Disable(gl::CULL_FACE);
+                ctxt.state.enabled_cull_face = false;
+            }
+        },
+        BackfaceCullingMode::CullCounterClockWise => unsafe {
+            if !ctxt.state.enabled_cull_face {
+                ctxt.gl.Enable(gl::CULL_FACE);
+                ctxt.state.enabled_cull_face = true;
+            }
+            if ctxt.state.cull_face != gl::FRONT {
+                ctxt.gl.CullFace(gl::FRONT);
+                ctxt.state.cull_face = gl::FRONT;
+            }
+        },
+        BackfaceCullingMode::CullClockWise => unsafe {
+            if !ctxt.state.enabled_cull_face {
+                ctxt.gl.Enable(gl::CULL_FACE);
+                ctxt.state.enabled_cull_face = true;
+            }
+            if ctxt.state.cull_face != gl::BACK {
+                ctxt.gl.CullFace(gl::BACK);
+                ctxt.state.cull_face = gl::BACK;
+            }
+        },
+    }
+
+    // polygon mode
+    unsafe {
+        let polygon_mode = polygon_mode.to_glenum();
+        if ctxt.state.polygon_mode != polygon_mode {
+            ctxt.gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
+            ctxt.state.polygon_mode = polygon_mode;
+        }
+    }
+}
+
+fn sync_multisampling(ctxt: &mut context::CommandContext, multisampling: bool) {
+    if ctxt.state.enabled_multisample != multisampling {
+        unsafe {
+            if multisampling {
+                ctxt.gl.Enable(gl::MULTISAMPLE);
+                ctxt.state.enabled_multisample = true;
+            } else {
+                ctxt.gl.Disable(gl::MULTISAMPLE);
+                ctxt.state.enabled_multisample = false;
+            }
+        }
+    }
+}
+
+fn sync_dithering(ctxt: &mut context::CommandContext, dithering: bool) {
+    if ctxt.state.enabled_dither != dithering {
+        unsafe {
+            if dithering {
+                ctxt.gl.Enable(gl::DITHER);
+                ctxt.state.enabled_dither = true;
+            } else {
+                ctxt.gl.Disable(gl::DITHER);
+                ctxt.state.enabled_dither = false;
+            }
+        }
+    }
+}
+
+fn sync_viewport_scissor(ctxt: &mut context::CommandContext, viewport: Option<Rect>,
+                         scissor: Option<Rect>, surface_dimensions: (u32, u32))
+{
+    // viewport
+    if let Some(viewport) = viewport {
+        assert!(viewport.width <= ctxt.capabilities.max_viewport_dims.0 as u32,
+                "Viewport dimensions are too large");
+        assert!(viewport.height <= ctxt.capabilities.max_viewport_dims.1 as u32,
+                "Viewport dimensions are too large");
+
+        let viewport = (viewport.left as gl::types::GLint, viewport.bottom as gl::types::GLint,
+                        viewport.width as gl::types::GLsizei,
+                        viewport.height as gl::types::GLsizei);
+
+        if ctxt.state.viewport != Some(viewport) {
+            unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
+            ctxt.state.viewport = Some(viewport);
+        }
+
+    } else {
+        assert!(surface_dimensions.0 <= ctxt.capabilities.max_viewport_dims.0 as u32,
+                "Viewport dimensions are too large");
+        assert!(surface_dimensions.1 <= ctxt.capabilities.max_viewport_dims.1 as u32,
+                "Viewport dimensions are too large");
+
+        let viewport = (0, 0, surface_dimensions.0 as gl::types::GLsizei,
+                        surface_dimensions.1 as gl::types::GLsizei);
+
+        if ctxt.state.viewport != Some(viewport) {
+            unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
+            ctxt.state.viewport = Some(viewport);
+        }
+    }
+
+    // scissor
+    if let Some(scissor) = scissor {
+        let scissor = (scissor.left as gl::types::GLint, scissor.bottom as gl::types::GLint,
+                       scissor.width as gl::types::GLsizei,
+                       scissor.height as gl::types::GLsizei);
+
+        unsafe {
+            if ctxt.state.scissor != Some(scissor) {
+                ctxt.gl.Scissor(scissor.0, scissor.1, scissor.2, scissor.3);
+                ctxt.state.scissor = Some(scissor);
+            }
+
+            if !ctxt.state.enabled_scissor_test {
+                ctxt.gl.Enable(gl::SCISSOR_TEST);
+                ctxt.state.enabled_scissor_test = true;
+            }
+        }
+    } else {
+        unsafe {
+            if ctxt.state.enabled_scissor_test {
+                ctxt.gl.Disable(gl::SCISSOR_TEST);
+                ctxt.state.enabled_scissor_test = false;
+            }
+        }
+    }
+}
+
+fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: bool) {
+    if ctxt.state.enabled_rasterizer_discard == draw_primitives {
+        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
+            if draw_primitives {
+                unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD); }
+                ctxt.state.enabled_rasterizer_discard = false;
+            } else {
+                unsafe { ctxt.gl.Enable(gl::RASTERIZER_DISCARD); }
+                ctxt.state.enabled_rasterizer_discard = true;
+            }
+
+        } else if ctxt.extensions.gl_ext_transform_feedback {
+            if draw_primitives {
+                unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD_EXT); }
+                ctxt.state.enabled_rasterizer_discard = false;
+            } else {
+                unsafe { ctxt.gl.Enable(gl::RASTERIZER_DISCARD_EXT); }
+                ctxt.state.enabled_rasterizer_discard = true;
+            }
+
+        } else {
+            unreachable!();
+        }
+    }
+}
+
+unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext, vertices_per_patch: Option<u16>) {
+    if let Some(vertices_per_patch) = vertices_per_patch {
+        let vertices_per_patch = vertices_per_patch as gl::types::GLint;
+        if ctxt.state.patch_patch_vertices != vertices_per_patch {
+            ctxt.gl.PatchParameteri(gl::PATCH_VERTICES, vertices_per_patch);
+            ctxt.state.patch_patch_vertices = vertices_per_patch;
+        }
+    }
 }
