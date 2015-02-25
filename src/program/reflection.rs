@@ -68,11 +68,17 @@ pub struct UniformBlockMember {
 ///
 /// Internal struct. Not public.
 #[derive(Debug, Copy)]
-#[doc(hidden)]
 pub struct Attribute {
-    pub location: gl::types::GLint,
-    pub ty: gl::types::GLenum,
-    pub size: gl::types::GLint,
+    /// The index of the uniform.
+    ///
+    /// This is internal information, you probably don't need to use it.
+    pub location: i32,
+
+    /// Type of the attribute.
+    pub ty: AttributeType,
+
+    /// Number of elements of the attribute.
+    pub size: usize,
 }
 
 /// Describes a varying that is being output with transform feedback.
@@ -245,8 +251,8 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 
         attributes.insert(attr_name, Attribute {
             location: location,
-            ty: data_type,
-            size: data_size
+            ty: glenum_to_attribute_type(data_type),
+            size: data_size as usize,
         });
     }
 
@@ -601,6 +607,12 @@ fn glenum_to_attribute_type(value: gl::types::GLenum) -> AttributeType {
         gl::FLOAT_MAT2 => AttributeType::F32x2x2,
         gl::FLOAT_MAT3 => AttributeType::F32x3x3,
         gl::FLOAT_MAT4 => AttributeType::F32x4x4,
+        gl::FLOAT_MAT2x3 => AttributeType::F32x2x3,
+        gl::FLOAT_MAT2x4 => AttributeType::F32x2x4,
+        gl::FLOAT_MAT3x2 => AttributeType::F32x3x2,
+        gl::FLOAT_MAT3x4 => AttributeType::F32x3x4,
+        gl::FLOAT_MAT4x2 => AttributeType::F32x4x2,
+        gl::FLOAT_MAT4x3 => AttributeType::F32x4x3,
         v => panic!("Unknown value returned by OpenGL attribute type: {}", v)
     }
 }

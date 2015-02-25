@@ -86,6 +86,64 @@ pub enum AttributeType {
     F64x4x4,
 }
 
+impl AttributeType {
+    /// Returns the number of values for this type.
+    pub fn get_num_components(&self) -> usize {
+        match *self {
+            AttributeType::I8 => 1,
+            AttributeType::I8I8 => 2,
+            AttributeType::I8I8I8 => 3,
+            AttributeType::I8I8I8I8 => 4,
+            AttributeType::U8 => 1,
+            AttributeType::U8U8 => 2,
+            AttributeType::U8U8U8 => 3,
+            AttributeType::U8U8U8U8 => 4,
+            AttributeType::I16 => 1,
+            AttributeType::I16I16 => 2,
+            AttributeType::I16I16I16 => 3,
+            AttributeType::I16I16I16I16 => 4,
+            AttributeType::U16 => 1,
+            AttributeType::U16U16 => 2,
+            AttributeType::U16U16U16 => 3,
+            AttributeType::U16U16U16U16 => 4,
+            AttributeType::I32 => 1,
+            AttributeType::I32I32 => 2,
+            AttributeType::I32I32I32 => 3,
+            AttributeType::I32I32I32I32 => 4,
+            AttributeType::U32 => 1,
+            AttributeType::U32U32 => 2,
+            AttributeType::U32U32U32 => 3,
+            AttributeType::U32U32U32U32 => 4,
+            AttributeType::F32 => 1,
+            AttributeType::F32F32 => 2,
+            AttributeType::F32F32F32 => 3,
+            AttributeType::F32F32F32F32 => 4,
+            AttributeType::F32x2x2 => 4,
+            AttributeType::F32x2x3 => 6,
+            AttributeType::F32x2x4 => 8,
+            AttributeType::F32x3x2 => 6,
+            AttributeType::F32x3x3 => 9,
+            AttributeType::F32x3x4 => 12,
+            AttributeType::F32x4x2 => 8,
+            AttributeType::F32x4x3 => 12,
+            AttributeType::F32x4x4 => 16,
+            AttributeType::F64 => 1,
+            AttributeType::F64F64 => 2,
+            AttributeType::F64F64F64 => 3,
+            AttributeType::F64F64F64F64 => 4,
+            AttributeType::F64x2x2 => 4,
+            AttributeType::F64x2x3 => 6,
+            AttributeType::F64x2x4 => 8,
+            AttributeType::F64x3x2 => 6,
+            AttributeType::F64x3x3 => 9,
+            AttributeType::F64x3x4 => 12,
+            AttributeType::F64x4x2 => 8,
+            AttributeType::F64x4x3 => 12,
+            AttributeType::F64x4x4 => 16,
+        }
+    }
+}
+
 /// Describes the layout of each vertex in a vertex buffer.
 ///
 /// The first element is the name of the binding, the second element is the offset
