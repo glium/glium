@@ -62,17 +62,21 @@ pub struct GLState {
     // The latest value passed to `glClearStencil`.
     pub clear_stencil: gl::types::GLint,
 
-    /// The latest buffer bound to `GL_ARRAY_BUFFER`.
-    pub array_buffer_binding: gl::types::GLuint,
+    /// The latest buffer bound to `GL_ARRAY_BUFFER`. `None` means that the binded object
+    /// no longer exists.
+    pub array_buffer_binding: Option<gl::types::GLuint>,
 
-    /// The latest buffer bound to `GL_PIXEL_PACK_BUFFER`.
-    pub pixel_pack_buffer_binding: gl::types::GLuint,
+    /// The latest buffer bound to `GL_PIXEL_PACK_BUFFER`. `None` means that the binded object
+    /// no longer exists.
+    pub pixel_pack_buffer_binding: Option<gl::types::GLuint>,
 
-    /// The latest buffer bound to `GL_PIXEL_UNPACK_BUFFER`.
-    pub pixel_unpack_buffer_binding: gl::types::GLuint,
+    /// The latest buffer bound to `GL_PIXEL_UNPACK_BUFFER`. `None` means that the binded object
+    /// no longer exists.
+    pub pixel_unpack_buffer_binding: Option<gl::types::GLuint>,
 
-    /// The latest buffer bound to `GL_UNIFORM_BUFFER`.
-    pub uniform_buffer_binding: gl::types::GLuint,
+    /// The latest buffer bound to `GL_UNIFORM_BUFFER`. `None` means that the binded object
+    /// no longer exists.
+    pub uniform_buffer_binding: Option<gl::types::GLuint>,
 
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: gl::types::GLuint,
@@ -154,10 +158,10 @@ impl Default for GLState {
             clear_color: (0.0, 0.0, 0.0, 0.0),
             clear_depth: 1.0,
             clear_stencil: 0,
-            array_buffer_binding: 0,
-            pixel_pack_buffer_binding: 0,
-            pixel_unpack_buffer_binding: 0,
-            uniform_buffer_binding: 0,
+            array_buffer_binding: Some(0),
+            pixel_pack_buffer_binding: Some(0),
+            pixel_unpack_buffer_binding: Some(0),
+            uniform_buffer_binding: Some(0),
             read_framebuffer: 0,
             draw_framebuffer: 0,
             default_framebuffer_read: None,
