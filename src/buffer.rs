@@ -584,6 +584,10 @@ impl Drop for Buffer {
                 ctxt.state.pixel_unpack_buffer_binding = 0;
             }
 
+            if ctxt.state.uniform_buffer_binding == id {
+                ctxt.state.uniform_buffer_binding = 0;
+            }
+
             unsafe {
                 if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
                     ctxt.gl.DeleteBuffers(1, [id].as_ptr());
