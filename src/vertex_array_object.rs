@@ -133,9 +133,9 @@ impl VertexArrayObject {
                 for (vertex_buffer, bindings, vb_elementssize, divisor) in data.into_iter() {
                     // binding vertex buffer because glVertexAttribPointer uses the current
                     // array buffer
-                    if ctxt.state.array_buffer_binding != vertex_buffer {
+                    if ctxt.state.array_buffer_binding != Some(vertex_buffer) {
                         ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
-                        ctxt.state.array_buffer_binding = vertex_buffer;
+                        ctxt.state.array_buffer_binding = Some(vertex_buffer);
                     }
 
                     // binding attributes

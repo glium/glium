@@ -98,9 +98,9 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
             }
 
             // binding buffer
-            if ctxt.state.pixel_pack_buffer_binding != pixel_buffer {
+            if ctxt.state.pixel_pack_buffer_binding != Some(pixel_buffer) {
                 ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, pixel_buffer);
-                ctxt.state.pixel_pack_buffer_binding = pixel_buffer;
+                ctxt.state.pixel_pack_buffer_binding = Some(pixel_buffer);
             }
 
             // reading
