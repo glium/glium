@@ -404,8 +404,11 @@ impl Buffer {
                     let storage = <T as BufferType>::get_storage_point(ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
-                    ctxt.gl.BindBuffer(bind, id);
-                    *storage = id;
+                    if *storage != id {
+                        ctxt.gl.BindBuffer(bind, id);
+                        *storage = id;
+                    }
+
                     ctxt.gl.BufferSubData(bind, offset as gl::types::GLintptr,
                                           buffer_size as gl::types::GLsizeiptr,
                                           data.as_ptr() as *const libc::c_void);
@@ -414,8 +417,11 @@ impl Buffer {
                     let storage = <T as BufferType>::get_storage_point(ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
-                    ctxt.gl.BindBufferARB(bind, id);
-                    *storage = id;
+                    if *storage != id {
+                        ctxt.gl.BindBufferARB(bind, id);
+                        *storage = id;
+                    }
+
                     ctxt.gl.BufferSubDataARB(bind, offset as gl::types::GLintptr,
                                              buffer_size as gl::types::GLsizeiptr,
                                              data.as_ptr() as *const libc::c_void);
@@ -473,8 +479,11 @@ impl Buffer {
                     let storage = <T as BufferType>::get_storage_point(ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
-                    ctxt.gl.BindBuffer(bind, id);
-                    *storage = id;
+                    if *storage != id {
+                        ctxt.gl.BindBuffer(bind, id);
+                        *storage = id;
+                    }
+
                     ctxt.gl.MapBufferRange(bind, offset_bytes as gl::types::GLintptr,
                                            size_bytes as gl::types::GLsizeiptr,
                                            gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
@@ -534,8 +543,11 @@ impl Buffer {
                     let storage = <T as BufferType>::get_storage_point(ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
-                    ctxt.gl.BindBuffer(bind, id);
-                    *storage = id;
+                    if *storage != id {
+                        ctxt.gl.BindBuffer(bind, id);
+                        *storage = id;
+                    }
+
                     ctxt.gl.GetBufferSubData(bind, (offset * elements_size) as gl::types::GLintptr,
                         (size * elements_size) as gl::types::GLsizeiptr,
                         data.as_mut_ptr() as *mut libc::c_void);
@@ -544,8 +556,11 @@ impl Buffer {
                     let storage = <T as BufferType>::get_storage_point(ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
-                    ctxt.gl.BindBufferARB(bind, id);
-                    *storage = id;
+                    if *storage != id {
+                        ctxt.gl.BindBufferARB(bind, id);
+                        *storage = id;
+                    }
+
                     ctxt.gl.GetBufferSubDataARB(bind, (offset * elements_size) as gl::types::GLintptr,
                         (size * elements_size) as gl::types::GLsizeiptr,
                         data.as_mut_ptr() as *mut libc::c_void);
@@ -582,6 +597,10 @@ impl Drop for Buffer {
 
             if ctxt.state.pixel_unpack_buffer_binding == id {
                 ctxt.state.pixel_unpack_buffer_binding = 0;
+            }
+
+            if ctxt.state.uniform_buffer_binding == id {
+                ctxt.state.uniform_buffer_binding = 0;
             }
 
             unsafe {
