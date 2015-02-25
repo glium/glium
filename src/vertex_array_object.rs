@@ -43,8 +43,11 @@ impl VertexArrayObject {
                     None => continue
                 };
 
-                if !vertex_type_matches(ty, attribute.ty, attribute.size) {
-                    panic!("The program attribute `{}` does not match the vertex format", name);
+                if ty.get_num_components() != attribute.ty.get_num_components() ||
+                    attribute.size != 1
+                {
+                    panic!("The program attribute `{}` does not match the vertex format. \
+                            Program expected {:?}, got {:?}.", name, attribute.ty, ty);
                 }
             }
         }
@@ -147,8 +150,10 @@ impl VertexArrayObject {
                             None => continue
                         };
 
+                        let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
+
                         if attribute.location != -1 {
-                            match attribute.ty {
+                            match attribute_ty {
                                 gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
                                 gl::INT | gl::UNSIGNED_INT =>
                                     ctxt.gl.VertexAttribIPointer(attribute.location as u32,
@@ -321,125 +326,5 @@ fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types
         AttributeType::F64x4x2 => (gl::DOUBLE_MAT4x2, 1),
         AttributeType::F64x4x3 => (gl::DOUBLE_MAT4x3, 1),
         AttributeType::F64x4x4 => (gl::DOUBLE_MAT4, 1),
-    }
-}
-
-fn vertex_type_matches(ty: AttributeType, gl_ty: gl::types::GLenum,
-                       gl_size: gl::types::GLint) -> bool
-{
-    match (ty, gl_ty, gl_size) {
-        (AttributeType::I8, gl::BYTE, 1) => true,
-        (AttributeType::I8I8, gl::BYTE, 2) => true,
-        (AttributeType::I8I8I8, gl::BYTE, 3) => true,
-        (AttributeType::I8I8I8I8, gl::BYTE, 4) => true,
-        (AttributeType::I8, gl::FLOAT, 1) => true,
-        (AttributeType::I8I8, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::I8I8, gl::FLOAT, 2) => true,
-        (AttributeType::I8I8I8, gl::FLOAT, 3) => true,
-        (AttributeType::I8I8I8, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::I8I8I8I8, gl::FLOAT, 4) => true,
-        (AttributeType::I8I8I8I8, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::U8, gl::UNSIGNED_BYTE, 1) => true,
-        (AttributeType::U8U8, gl::UNSIGNED_BYTE, 2) => true,
-        (AttributeType::U8U8U8, gl::UNSIGNED_BYTE, 3) => true,
-        (AttributeType::U8U8U8U8, gl::UNSIGNED_BYTE, 4) => true,
-        (AttributeType::U8, gl::FLOAT, 1) => true,
-        (AttributeType::U8U8, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::U8U8, gl::FLOAT, 2) => true,
-        (AttributeType::U8U8U8, gl::FLOAT, 3) => true,
-        (AttributeType::U8U8U8, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::U8U8U8U8, gl::FLOAT, 4) => true,
-        (AttributeType::U8U8U8U8, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::I16, gl::SHORT, 1) => true,
-        (AttributeType::I16I16, gl::SHORT, 2) => true,
-        (AttributeType::I16I16I16, gl::SHORT, 3) => true,
-        (AttributeType::I16I16I16I16, gl::SHORT, 4) => true,
-        (AttributeType::I16, gl::FLOAT, 1) => true,
-        (AttributeType::I16I16, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::I16I16, gl::FLOAT, 2) => true,
-        (AttributeType::I16I16I16, gl::FLOAT, 3) => true,
-        (AttributeType::I16I16I16, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::I16I16I16I16, gl::FLOAT, 4) => true,
-        (AttributeType::I16I16I16I16, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::U16, gl::UNSIGNED_SHORT, 1) => true,
-        (AttributeType::U16U16, gl::UNSIGNED_SHORT, 2) => true,
-        (AttributeType::U16U16U16, gl::UNSIGNED_SHORT, 3) => true,
-        (AttributeType::U16U16U16U16, gl::UNSIGNED_SHORT, 4) => true,
-        (AttributeType::U16, gl::FLOAT, 1) => true,
-        (AttributeType::U16U16, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::U16U16, gl::FLOAT, 2) => true,
-        (AttributeType::U16U16U16, gl::FLOAT, 3) => true,
-        (AttributeType::U16U16U16, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::U16U16U16U16, gl::FLOAT, 4) => true,
-        (AttributeType::U16U16U16U16, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::I32, gl::INT, 1) => true,
-        (AttributeType::I32I32, gl::INT, 2) => true,
-        (AttributeType::I32I32, gl::INT_VEC2, 1) => true,
-        (AttributeType::I32I32I32, gl::INT, 3) => true,
-        (AttributeType::I32I32I32, gl::INT_VEC3, 1) => true,
-        (AttributeType::I32I32I32I32, gl::INT, 4) => true,
-        (AttributeType::I32I32I32I32, gl::INT_VEC4, 1) => true,
-        (AttributeType::I32I32I32I32, gl::INT_VEC2, 2) => true,
-        (AttributeType::I32, gl::FLOAT, 1) => true,
-        (AttributeType::I32I32, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::I32I32, gl::FLOAT, 2) => true,
-        (AttributeType::I32I32I32, gl::FLOAT, 3) => true,
-        (AttributeType::I32I32I32, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::I32I32I32I32, gl::FLOAT, 4) => true,
-        (AttributeType::I32I32I32I32, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::U32, gl::UNSIGNED_INT, 1) => true,
-        (AttributeType::U32U32, gl::UNSIGNED_INT, 2) => true,
-        (AttributeType::U32U32, gl::UNSIGNED_INT_VEC2, 1) => true,
-        (AttributeType::U32U32U32, gl::UNSIGNED_INT, 3) => true,
-        (AttributeType::U32U32U32, gl::UNSIGNED_INT_VEC3, 1) => true,
-        (AttributeType::U32U32U32U32, gl::UNSIGNED_INT, 4) => true,
-        (AttributeType::U32U32U32U32, gl::UNSIGNED_INT_VEC4, 1) => true,
-        (AttributeType::U32U32U32U32, gl::UNSIGNED_INT_VEC2, 2) => true,
-        (AttributeType::U32, gl::FLOAT, 1) => true,
-        (AttributeType::U32U32, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::U32U32, gl::FLOAT, 2) => true,
-        (AttributeType::U32U32U32, gl::FLOAT, 3) => true,
-        (AttributeType::U32U32U32, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::U32U32U32U32, gl::FLOAT, 4) => true,
-        (AttributeType::U32U32U32U32, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::F32, gl::FLOAT, 1) => true,
-        (AttributeType::F32F32, gl::FLOAT, 2) => true,
-        (AttributeType::F32F32, gl::FLOAT_VEC2, 1) => true,
-        (AttributeType::F32F32F32, gl::FLOAT, 3) => true,
-        (AttributeType::F32F32F32, gl::FLOAT_VEC3, 1) => true,
-        (AttributeType::F32F32F32F32, gl::FLOAT, 4) => true,
-        (AttributeType::F32F32F32F32, gl::FLOAT_VEC4, 1) => true,
-        (AttributeType::F32F32F32F32, gl::FLOAT_VEC2, 2) => true,
-        (AttributeType::F32x2x2, gl::FLOAT_MAT2, 1) => true,
-        (AttributeType::F32x2x2, gl::FLOAT_VEC2, 2) => true,
-        (AttributeType::F32x2x3, gl::FLOAT_MAT2x3, 1) => true,
-        (AttributeType::F32x2x4, gl::FLOAT_MAT2x4, 1) => true,
-        (AttributeType::F32x3x2, gl::FLOAT_MAT3x2, 1) => true,
-        (AttributeType::F32x3x3, gl::FLOAT_MAT3, 1) => true,
-        (AttributeType::F32x3x4, gl::FLOAT_MAT3x4, 1) => true,
-        (AttributeType::F32x4x2, gl::FLOAT_MAT4x2, 1) => true,
-        (AttributeType::F32x4x3, gl::FLOAT_MAT4x3, 1) => true,
-        (AttributeType::F32x4x4, gl::FLOAT_MAT4, 1) => true,
-        (AttributeType::F32x4x4, gl::FLOAT_VEC4, 4) => true,
-        (AttributeType::F64, gl::DOUBLE, 1) => true,
-        (AttributeType::F64F64, gl::DOUBLE, 2) => true,
-        (AttributeType::F64F64, gl::DOUBLE_VEC2, 1) => true,
-        (AttributeType::F64F64F64, gl::DOUBLE, 3) => true,
-        (AttributeType::F64F64F64, gl::DOUBLE_VEC3, 1) => true,
-        (AttributeType::F64F64F64F64, gl::DOUBLE, 4) => true,
-        (AttributeType::F64F64F64F64, gl::DOUBLE_VEC4, 1) => true,
-        (AttributeType::F64F64F64F64, gl::DOUBLE_VEC2, 2) => true,
-        (AttributeType::F64x2x2, gl::DOUBLE_MAT2, 1) => true,
-        (AttributeType::F64x2x2, gl::DOUBLE_VEC2, 2) => true,
-        (AttributeType::F64x2x3, gl::DOUBLE_MAT2x3, 1) => true,
-        (AttributeType::F64x2x4, gl::DOUBLE_MAT2x4, 1) => true,
-        (AttributeType::F64x3x2, gl::DOUBLE_MAT3x2, 1) => true,
-        (AttributeType::F64x3x3, gl::DOUBLE_MAT3, 1) => true,
-        (AttributeType::F64x3x4, gl::DOUBLE_MAT3x4, 1) => true,
-        (AttributeType::F64x4x2, gl::DOUBLE_MAT4x2, 1) => true,
-        (AttributeType::F64x4x3, gl::DOUBLE_MAT4x3, 1) => true,
-        (AttributeType::F64x4x4, gl::DOUBLE_MAT4, 1) => true,
-        (AttributeType::F64x4x4, gl::DOUBLE_VEC4, 4) => true,
-        _ => false,
     }
 }
