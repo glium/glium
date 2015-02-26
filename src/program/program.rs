@@ -8,7 +8,7 @@ use version::Api;
 
 use std::{ffi, fmt, mem};
 use std::collections::hash_state::DefaultState;
-use std::collections::HashMap;
+use std::collections::hash_map::{self, HashMap};
 use std::default::Default;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -521,6 +521,11 @@ impl Program {
         self.uniforms.get(name)
     }
     
+    /// Returns an iterator to the list of uniforms.
+    pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
+        self.uniforms.iter()
+    }
+    
     /// Returns a list of uniform blocks.
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, DefaultState<FnvHasher>> {
         &*self.uniform_blocks
@@ -540,6 +545,16 @@ impl Program {
     /// Returns true if the program contains a tessellation stage.
     pub fn has_tessellation_shaders(&self) -> bool {
         self.has_tessellation_shaders
+    }
+
+    /// Returns informations about an attribute, if it exists.
+    pub fn get_attribute(&self, name: &str) -> Option<&Attribute> {
+        self.attributes.get(name)
+    }
+
+    /// Returns an iterator to the list of attributes.
+    pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
+        self.attributes.iter()
     }
 }
 
