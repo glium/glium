@@ -1,8 +1,6 @@
 #![cfg(feature = "glslang")]
 #![feature(plugin)]
-
-#[plugin]
-extern crate glium_macros;
+#![plugin(glium_macros)]
 
 #[test]
 fn verify_shader() {

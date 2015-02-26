@@ -13,6 +13,7 @@ script:
     # We run everything with `-j 1` or travis runs out of memory
     - cargo build -j 1 --verbose
     - cargo test -j 1 --features "headless" --verbose
+    - cargo test --manifest-path macros/Cargo.toml
 
 after_success: 
     - |
