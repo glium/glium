@@ -42,9 +42,11 @@ use texture::Texture;
 use texture::Texture2d;
 use texture::{Texture1dMipmap, DepthTexture1dMipmap, StencilTexture1dMipmap, DepthStencilTexture1dMipmap};
 use texture::{Texture2dMipmap, DepthTexture2dMipmap, StencilTexture2dMipmap, DepthStencilTexture2dMipmap};
+use texture::{Texture2dMultisampleMipmap, DepthTexture2dMultisampleMipmap, StencilTexture2dMultisampleMipmap, DepthStencilTexture2dMultisampleMipmap};
 use texture::{Texture3dMipmap, DepthTexture3dMipmap, StencilTexture3dMipmap, DepthStencilTexture3dMipmap};
 use texture::{Texture1dArrayMipmap, DepthTexture1dArrayMipmap, StencilTexture1dArrayMipmap, DepthStencilTexture1dArrayMipmap};
 use texture::{Texture2dArrayMipmap, DepthTexture2dArrayMipmap, StencilTexture2dArrayMipmap, DepthStencilTexture2dArrayMipmap};
+use texture::{Texture2dArrayMultisampleMipmap, DepthTexture2dArrayMultisampleMipmap, StencilTexture2dArrayMultisampleMipmap, DepthStencilTexture2dArrayMultisampleMipmap};
 
 use fbo::FramebufferAttachments;
 
@@ -474,11 +476,15 @@ pub enum ColorAttachment<'a> {
     /// A texture.
     Texture2d(Texture2dMipmap<'a>),
     /// A texture.
+    Texture2dMultisample(Texture2dMipmap<'a>),
+    /// A texture.
     Texture3d(Texture3dMipmap<'a>, u32),
     /// A texture.
     Texture1dArray(Texture1dArrayMipmap<'a>),
     /// A texture.
     Texture2dArray(Texture2dArrayMipmap<'a>),
+    /// A texture.
+    Texture2dMultisampleArray(Texture2dArrayMultisampleMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a ::render_buffer::RenderBuffer),
 }
@@ -497,11 +503,15 @@ pub enum DepthAttachment<'a> {
     /// A texture.
     Texture2d(DepthTexture2dMipmap<'a>),
     /// A texture.
+    Texture2dMultisample(DepthTexture2dMultisampleMipmap<'a>),
+    /// A texture.
     Texture3d(DepthTexture3dMipmap<'a>, u32),
     /// A texture.
     Texture1dArray(DepthTexture1dArrayMipmap<'a>),
     /// A texture.
     Texture2dArray(DepthTexture2dArrayMipmap<'a>),
+    /// A texture.
+    Texture2dMultisampleArray(DepthTexture2dArrayMultisampleMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a ::render_buffer::DepthRenderBuffer),
 }
@@ -520,11 +530,15 @@ pub enum StencilAttachment<'a> {
     /// A texture.
     Texture2d(StencilTexture2dMipmap<'a>),
     /// A texture.
+    Texture2dMultisample(StencilTexture2dMultisampleMipmap<'a>),
+    /// A texture.
     Texture3d(StencilTexture3dMipmap<'a>, u32),
     /// A texture.
     Texture1dArray(StencilTexture1dArrayMipmap<'a>),
     /// A texture.
     Texture2dArray(StencilTexture2dArrayMipmap<'a>),
+    /// A texture.
+    Texture2dMultisampleArray(StencilTexture2dArrayMultisampleMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a ::render_buffer::StencilRenderBuffer),
 }
@@ -543,11 +557,15 @@ pub enum DepthStencilAttachment<'a> {
     /// A texture.
     Texture2d(DepthStencilTexture2dMipmap<'a>),
     /// A texture.
+    Texture2dMultisample(DepthStencilTexture2dMultisampleMipmap<'a>),
+    /// A texture.
     Texture3d(DepthStencilTexture3dMipmap<'a>, u32),
     /// A texture.
     Texture1dArray(DepthStencilTexture1dArrayMipmap<'a>),
     /// A texture.
     Texture2dArray(DepthStencilTexture2dArrayMipmap<'a>),
+    /// A texture.
+    Texture2dMultisampleArray(DepthStencilTexture2dArrayMultisampleMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a ::render_buffer::DepthStencilRenderBuffer),
 }
