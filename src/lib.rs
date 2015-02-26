@@ -960,7 +960,8 @@ impl Display {
 
     /// Returns the supported GLSL version.
     pub fn get_supported_glsl_version(&self) -> Version {
-        self.context.context.get_version().get_glsl_version()
+        version::get_supported_glsl_version(
+            self.context.context.get_version())
     }
 
     /// Start drawing on the backbuffer.
