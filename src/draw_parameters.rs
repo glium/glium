@@ -303,7 +303,7 @@ impl ToGlEnum for DepthTest {
 pub enum PolygonMode {
     /// Only draw a single point at each vertex.
     ///
-    /// All attributes that apply to points are used when using this mode.
+    /// All attributes that apply to points (`point_size`) are used when using this mode.
     Point,
 
     /// Only draw a line in the boundaries of each polygon.
@@ -381,6 +381,11 @@ pub struct DrawParameters {
     /// `None` means "don't care". Use this when you don't draw lines.
     pub line_width: Option<f32>,
 
+    /// Diameter in pixels of the points to draw when drawing points. 
+    ///
+    /// `None` means "don't care". Use this when you don't draw points.
+    pub point_size: Option<f32>,
+
     /// Whether or not the GPU should filter out some faces.
     ///
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
@@ -444,6 +449,7 @@ impl Default for DrawParameters {
             depth_range: (0.0, 1.0),
             blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
+            point_size: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,
             polygon_mode: PolygonMode::Fill,
             multisampling: true,
@@ -595,6 +601,16 @@ pub fn sync(params: &DrawParameters, ctxt: &mut context::CommandContext,
             unsafe {
                 ctxt.gl.LineWidth(line_width);
                 ctxt.state.line_width = line_width;
+            }
+        }
+    }
+
+    // point size
+    if let Some(point_size) = params.point_size {
+        if ctxt.state.point_size != point_size {
+            unsafe {
+                ctxt.gl.PointSize(point_size);
+                ctxt.state.point_size = point_size;
             }
         }
     }

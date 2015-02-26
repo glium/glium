@@ -113,6 +113,9 @@ pub struct GLState {
     /// The latest value passed to `glLineWidth`.
     pub line_width: gl::types::GLfloat,
 
+    /// The latest value passed to `glPointSize`.
+    pub point_size: gl::types::GLfloat,
+
     /// The latest value passed to `glCullFace`.
     pub cull_face: gl::types::GLenum,
 
@@ -170,6 +173,7 @@ impl Default for GLState {
             viewport: None,
             scissor: None,
             line_width: 1.0,
+            point_size: 1.0,
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,
             pixel_store_unpack_alignment: 4,
