@@ -24,6 +24,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
         let ns = gl_generator::registry::Ns::Gl;
 
         let filter = gl_generator::registry::Filter {
+            fallbacks: gl_generator::Fallbacks::None,
             api: gl_generator::registry::Ns::Gl.to_string(),
             extensions: vec![
                 "GL_EXT_direct_state_access".to_string(),
@@ -64,6 +65,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
         let ns = gl_generator::registry::Ns::Gles2;
 
         let filter = gl_generator::registry::Filter {
+            fallbacks: gl_generator::Fallbacks::None,
             api: gl_generator::registry::Ns::Gles2.to_string(),
             extensions: vec![
                 "GL_OES_texture_npot".to_string(),
