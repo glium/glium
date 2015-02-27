@@ -81,7 +81,7 @@ impl ClientFormat {
             ClientFormat::U5U6U5 => (5 + 6 + 5) / 8,
             ClientFormat::U4U4U4U4 => (4 + 4 + 4 + 4) / 8,
             ClientFormat::U5U5U5U1 => (5 + 5 + 5 + 1) / 8,
-            ClientFormat::U10U10U10U2 => (10 + 10 + 10 + 2) / 2,
+            ClientFormat::U10U10U10U2 => (10 + 10 + 10 + 2) / 8,
             ClientFormat::F16 => 16 / 8,
             ClientFormat::F16F16 => (16 + 16) / 8,
             ClientFormat::F16F16F16 => (16 + 16 + 16) / 8,
