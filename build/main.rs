@@ -1,3 +1,5 @@
+#![feature(env, old_io, old_path)]
+
 extern crate gl_generator;
 extern crate khronos_api;
 
@@ -25,6 +27,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
 
         let filter = gl_generator::registry::Filter {
             api: gl_generator::registry::Ns::Gl.to_string(),
+            fallbacks: gl_generator::registry::Fallbacks::All,
             extensions: vec![
                 "GL_EXT_direct_state_access".to_string(),
                 "GL_ARB_direct_state_access".to_string(),
@@ -65,6 +68,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
 
         let filter = gl_generator::registry::Filter {
             api: gl_generator::registry::Ns::Gles2.to_string(),
+            fallbacks: gl_generator::registry::Fallbacks::All,
             extensions: vec![
                 "GL_OES_texture_npot".to_string(),
                 "GL_EXT_disjoint_timer_query".to_string(),
