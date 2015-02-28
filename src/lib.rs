@@ -954,9 +954,14 @@ impl Display {
     }
 
     /// Returns the OpenGL version of the current context.
-    // TODO: return API as well
     pub fn get_opengl_version(&self) -> Version {
         *self.context.context.get_version()
+    }
+
+    /// Returns the supported GLSL version.
+    pub fn get_supported_glsl_version(&self) -> Version {
+        version::get_supported_glsl_version(
+            self.context.context.get_version())
     }
 
     /// Start drawing on the backbuffer.
