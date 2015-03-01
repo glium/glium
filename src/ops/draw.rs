@@ -392,7 +392,7 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
                 _ => unreachable!()
             };
 
-            let bind_fn = Box::new(move |&: ctxt: &mut context::CommandContext| {
+            let bind_fn = Box::new(move |ctxt: &mut context::CommandContext| {
                 unsafe {
                     ctxt.gl.BindBufferBase(gl::UNIFORM_BUFFER, bind_point as gl::types::GLuint,
                                            buffer);
@@ -434,12 +434,12 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             });
         },
         UniformValue::SignedInt(val) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, Uniform1i, Uniform1iARB, location, val);
             }))
         },
         UniformValue::UnsignedInt(val) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 // Uniform1uiARB doesn't exist
                 unsafe {
                     if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
@@ -452,40 +452,40 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             }))
         },
         UniformValue::Float(val) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, Uniform1f, Uniform1fARB, location, val);
             }))
         },
         UniformValue::Mat2(val, transpose) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
                          location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Mat3(val, transpose) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
                          location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Mat4(val, transpose) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
                          location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec2(val) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, Uniform2fv, Uniform2fvARB, location, 1, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec3(val) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, Uniform3fv, Uniform3fvARB, location, 1, val.as_ptr() as *const f32);
             }))
         },
         UniformValue::Vec4(val) => {
-            Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
                 uniform!(ctxt, Uniform4fv, Uniform4fvARB, location, 1, val.as_ptr() as *const f32);
             }))
         },
@@ -642,7 +642,7 @@ fn build_texture_binder(display: &Display, texture: gl::types::GLuint,
     let current_texture = *active_texture;
     *active_texture += 1;
 
-    Ok(Box::new(move |&: ctxt: &mut context::CommandContext| {
+    Ok(Box::new(move |ctxt: &mut context::CommandContext| {
         unsafe {
             // TODO: what if it's not supported?
             let active_tex_enum = current_texture + gl::TEXTURE0;
