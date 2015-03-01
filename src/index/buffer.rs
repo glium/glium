@@ -33,7 +33,7 @@ impl IndexBuffer {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, data, false),
+            buffer: Buffer::new::<buffer::ArrayBuffer, _>(display, data, false).unwrap(),
             data_type: <T as Index>::get_type(),
             primitives: prim,
         }

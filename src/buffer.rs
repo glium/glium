@@ -27,6 +27,16 @@ pub struct Buffer {
 // we need to do this because `*mut libc::c_void*` is not Send
 unsafe impl Send for Buffer {}
 
+/// Error that can happen when creating a buffer.
+#[derive(Debug)]
+pub enum BufferCreationError {
+    /// Not enough memory to create the buffer.
+    OutOfMemory,
+
+    /// Persistent mapping is not supported.
+    PersistentMappingNotSupported,
+}
+
 /// Type of a buffer.
 pub trait BufferType: MarkerTrait {
     /// Should return `&mut ctxt.state.something`.
@@ -89,15 +99,10 @@ impl BufferType for UniformBuffer {
 
 impl Buffer {
     pub fn new<T, D>(display: &Display, data: Vec<D>, persistent: bool)
-                     -> Buffer where T: BufferType, D: Send + Copy + 'static
+                     -> Result<Buffer, BufferCreationError>
+                     where T: BufferType, D: Send + Copy + 'static
     {
         use std::mem;
-
-        if persistent && display.context.context.get_version() < &context::GlVersion(Api::Gl, 4, 4) &&
-           !display.context.context.get_extensions().gl_arb_buffer_storage
-        {
-            panic!("Persistent storage is not supported by the backend");
-        }
 
         let (tx, rx) = channel();
         display.context.context.exec(move |mut ctxt| {
@@ -105,16 +110,17 @@ impl Buffer {
                 tx.send(create_buffer::<T, _>(&mut ctxt, data, persistent)).unwrap();
             }
         });
-        let (id, persistent_mapping, elements_size, elements_count) = rx.recv().unwrap();
 
-        Buffer {
+        let (id, persistent_mapping, elements_size, elements_count) = try!(rx.recv().unwrap());
+
+        Ok(Buffer {
             display: display.clone(),
             id: id,
             elements_size: elements_size,
             elements_count: elements_count,
             persistent_mapping: persistent_mapping.map(|p| p.0),
             fences: Mutex::new(Vec::new()),
-        }
+        })
     }
 
     pub fn new_empty<T>(display: &Display, elements_size: usize, elements_count: usize,
@@ -580,10 +586,17 @@ fn get_elements_size<T>(data: &Vec<T>) -> usize {
 
 /// Creates a new buffer.
 unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, persistent: bool)
-                              -> (gl::types::GLuint, Option<MappedBufferWrapper<libc::c_void>>,
-                                  usize, usize)
+                              -> Result<(gl::types::GLuint,
+                                         Option<MappedBufferWrapper<libc::c_void>>, usize, usize),
+                                        BufferCreationError>
                               where T: BufferType, D: Send + Copy + 'static
 {
+    if persistent && ctxt.version < &context::GlVersion(Api::Gl, 4, 4) &&
+       !ctxt.extensions.gl_arb_buffer_storage
+    {
+        return Err(BufferCreationError::PersistentMappingNotSupported);
+    }
+
     let elements_size = get_elements_size(&data);
     let elements_count = data.len();
 
@@ -663,7 +676,7 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
         ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
 
     } else {
-        unreachable!()
+        unreachable!();
     }
 
     if buffer_size != obtained_size as usize {
@@ -675,8 +688,7 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
             unreachable!();
         }
         
-        panic!("Not enough available memory for buffer (required: {} bytes, \
-                obtained: {})", buffer_size, obtained_size);
+        return Err(BufferCreationError::OutOfMemory);
     }
 
     let persistent_mapping = if persistent {
@@ -710,5 +722,5 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
         None
     };
 
-    (id, persistent_mapping, elements_size, elements_count)
+    Ok((id, persistent_mapping, elements_size, elements_count))
 }
