@@ -37,6 +37,7 @@ use ToGlEnum;
 
 use sync::LinearSyncFence;
 use std::sync::mpsc::Sender;
+use std::mem;
 
 pub use self::buffer::IndexBuffer;
 pub use self::local::{PointsList, LinesList, LinesListAdjacency, LineStrip, LineStripAdjacency};
@@ -177,6 +178,17 @@ pub enum IndexType {
     U16 = gl::UNSIGNED_SHORT,
     /// u32
     U32 = gl::UNSIGNED_INT,
+}
+
+impl IndexType {
+    /// Returns the size in bytes of each index of this type.
+    pub fn get_size(&self) -> usize {
+        match *self {
+            IndexType::U8 => mem::size_of::<u8>(),
+            IndexType::U16 => mem::size_of::<u16>(),
+            IndexType::U32 => mem::size_of::<u32>(),
+        }
+    }
 }
 
 impl ToGlEnum for IndexType {

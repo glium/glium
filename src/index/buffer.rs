@@ -20,6 +20,12 @@ pub struct IndexBuffer {
     primitives: PrimitiveType,
 }
 
+pub struct IndexBufferSlice<'a> {
+    buffer: &'a IndexBuffer,
+    offset: usize,  // in number of elements
+    len: usize,     // in number of elements
+}
+
 impl IndexBuffer {
     /// Builds a new index buffer.
     pub fn new<T: IntoIndexBuffer>(display: &Display, data: T) -> IndexBuffer {
@@ -47,6 +53,21 @@ impl IndexBuffer {
     /// Returns the data type of the indices inside this index buffer.
     pub fn get_indices_type(&self) -> IndexType {
         self.data_type
+    }
+
+    /// Returns `None` if out of range.
+    pub fn slice(&self, offset: usize, len: usize) -> Option<IndexBufferSlice> {
+        if offset > self.buffer.get_elements_count() ||
+            offset + len > self.buffer.get_elements_count()
+        {
+            return None;
+        }
+
+        Some(IndexBufferSlice {
+            buffer: self,
+            offset: offset,
+            len: len,
+        })
     }
 }
 
@@ -87,6 +108,25 @@ impl Drop for IndexBuffer {
                             .map(|k| k.clone()).collect::<Vec<_>>();
         for k in to_delete.into_iter() {
             vaos.remove(&k);
+        }
+    }
+}
+
+impl<'a> ToIndicesSource for IndexBufferSlice<'a> {
+    type Data = u16;      // TODO: u16?
+
+    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
+        let fence = if self.buffer.buffer.is_persistent() {
+            Some(self.buffer.buffer.add_fence())
+        } else {
+            None
+        };
+
+        IndicesSource::IndexBuffer {
+            buffer: self.buffer,
+            fence: fence,
+            offset: self.offset,
+            length: self.len,
         }
     }
 }
