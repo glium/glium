@@ -183,10 +183,10 @@ pub enum UniformValue<'a> {
     IntegralTexture2dArray(&'a texture::IntegralTexture2dArray, Option<SamplerBehavior>),
     UnsignedTexture2dArray(&'a texture::UnsignedTexture2dArray, Option<SamplerBehavior>),
     DepthTexture2dArray(&'a texture::DepthTexture2dArray, Option<SamplerBehavior>),
-    Texture2dArrayMultisample(&'a texture::Texture2dArrayMultisample, Option<SamplerBehavior>),
-    IntegralTexture2dArrayMultisample(&'a texture::IntegralTexture2dArrayMultisample, Option<SamplerBehavior>),
-    UnsignedTexture2dArrayMultisample(&'a texture::UnsignedTexture2dArrayMultisample, Option<SamplerBehavior>),
-    DepthTexture2dArrayMultisample(&'a texture::DepthTexture2dArrayMultisample, Option<SamplerBehavior>),
+    Texture2dMultisampleArray(&'a texture::Texture2dMultisampleArray, Option<SamplerBehavior>),
+    IntegralTexture2dMultisampleArray(&'a texture::IntegralTexture2dMultisampleArray, Option<SamplerBehavior>),
+    UnsignedTexture2dMultisampleArray(&'a texture::UnsignedTexture2dMultisampleArray, Option<SamplerBehavior>),
+    DepthTexture2dMultisampleArray(&'a texture::DepthTexture2dMultisampleArray, Option<SamplerBehavior>),
 }
 
 impl<'a> UniformValue<'a> {

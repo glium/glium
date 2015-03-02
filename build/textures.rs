@@ -17,7 +17,7 @@ enum TextureDimensions {
     Texture3d,
     Texture1dArray,
     Texture2dArray,
-    Texture2dArrayMultisample,
+    Texture2dMultisampleArray,
 }
 
 impl TextureDimensions {
@@ -32,7 +32,7 @@ impl TextureDimensions {
     fn is_multisample(&self) -> bool {
         match self {
             &TextureDimensions::Texture2dMultisample => true,
-            &TextureDimensions::Texture2dArrayMultisample => true,
+            &TextureDimensions::Texture2dMultisampleArray => true,
             _ => false
         }
     }
@@ -80,12 +80,12 @@ pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dArrayMultisample);
-    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dArrayMultisample);
-    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dArrayMultisample);
-    build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dArrayMultisample);
-    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArrayMultisample);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArrayMultisample);
+    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisampleArray);
 }
 
 fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
@@ -108,7 +108,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture3d => "Texture3d",
             TextureDimensions::Texture1dArray => "Texture1dArray",
             TextureDimensions::Texture2dArray => "Texture2dArray",
-            TextureDimensions::Texture2dArrayMultisample => "Texture2dArrayMultisample",
+            TextureDimensions::Texture2dMultisampleArray => "Texture2dMultisampleArray",
         };
 
         format!("{}{}", prefix, suffix)
@@ -119,7 +119,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
         TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
         TextureDimensions::Texture3d => "Texture3dDataSource",
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dArrayMultisample => {
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
             "unreachable"
         },
     };
@@ -169,7 +169,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
             TextureDimensions::Texture2dMultisample => {
                 "#[cfg(feature = \"gl_texture_multisample\")]"
             },
-            TextureDimensions::Texture2dArrayMultisample => {
+            TextureDimensions::Texture2dMultisampleArray => {
                 "#[cfg(feature = \"gl_texture_multisample_array\")]"
             },
             _ => ""
@@ -186,7 +186,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
         TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
         TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        TextureDimensions::Texture2dArrayMultisample => "width: u32, height: u32, array_size: u32, samples: u32",
+        TextureDimensions::Texture2dMultisampleArray => "width: u32, height: u32, array_size: u32, samples: u32",
     };
 
     let dimensions_parameters_passing = match dimensions {
@@ -196,7 +196,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureDimensions::Texture3d => "width, Some(height), Some(depth), None, None",
         TextureDimensions::Texture1dArray => "width, None, None, Some(array_size), None",
         TextureDimensions::Texture2dArray => "width, Some(height), None, Some(array_size), None",
-        TextureDimensions::Texture2dArrayMultisample => "width, Some(height), None, Some(array_size), Some(samples)",
+        TextureDimensions::Texture2dMultisampleArray => "width, Some(height), None, Some(array_size), Some(samples)",
     };
 
     // writing the struct with doc-comment
@@ -205,7 +205,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureDimensions::Texture1d | TextureDimensions::Texture2d |
         TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d => "A ",
         TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dArrayMultisample => "An array of ",
+        TextureDimensions::Texture2dMultisampleArray => "An array of ",
     })).unwrap();
     if ty == TextureType::Compressed {
         (write!(dest, "compressed ")).unwrap();
@@ -213,7 +213,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     (write!(dest, "{}", match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "one-dimensional ",
         TextureDimensions::Texture2d | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dArrayMultisample => {
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
             "two-dimensional "
         },
         TextureDimensions::Texture3d => "three-dimensional ",
@@ -222,7 +222,7 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
         TextureDimensions::Texture1d | TextureDimensions::Texture2d |
         TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d => "texture ",
         TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dArrayMultisample => "textures ",
+        TextureDimensions::Texture2dMultisampleArray => "textures ",
     })).unwrap();
     (write!(dest, "{}", match ty {
         TextureType::Regular | TextureType::Compressed => " containing floating-point data",

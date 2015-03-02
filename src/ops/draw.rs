@@ -605,19 +605,19 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
-        UniformValue::Texture2dArrayMultisample(texture, sampler) => {
+        UniformValue::Texture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
-        UniformValue::IntegralTexture2dArrayMultisample(texture, sampler) => {
+        UniformValue::IntegralTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
-        UniformValue::UnsignedTexture2dArrayMultisample(texture, sampler) => {
+        UniformValue::UnsignedTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
-        UniformValue::DepthTexture2dArrayMultisample(texture, sampler) => {
+        UniformValue::DepthTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
             build_texture_binder(display, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
