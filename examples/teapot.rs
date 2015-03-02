@@ -12,6 +12,7 @@ fn main() {
 
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()
+        .with_depth_buffer(24)
         .build_glium()
         .unwrap();
 
@@ -71,13 +72,14 @@ fn main() {
 
         // draw parameters
         let params = glium::DrawParameters {
-            //depth_function: glium::DepthFunction::IfLess,
+            depth_test: glium::DepthTest::IfLess,
+            depth_write: true,
             .. std::default::Default::default()
         };
 
         // drawing a frame
         let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 0.0);
+        target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
         target.draw(&vertex_buffer,
                     &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
                     &program, &uniforms, &params).unwrap();
