@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
-use buffer::{self, Buffer};
+use buffer::{self, Buffer, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
 use vertex::format::VertexFormat;
 
@@ -62,7 +62,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false);
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false).unwrap();
         let elements_size = buffer.get_elements_size();
 
         Some(PerInstanceAttributesBuffer {
@@ -81,7 +81,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     pub fn new_dynamic(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false);
+        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false).unwrap();
         let elements_size = buffer.get_elements_size();
 
         PerInstanceAttributesBuffer {
@@ -114,15 +114,13 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
             return None;
         }
 
-        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 4, 4) &&
-           !display.context.context.get_extensions().gl_arb_buffer_storage
-        {
-            return None;
-        }
-
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, true);
+        let buffer = match Buffer::new::<buffer::ArrayBuffer, T>(display, data, true) {
+            Err(BufferCreationError::PersistentMappingNotSupported) => return None,
+            b => b.unwrap()
+        };
+
         let elements_size = buffer.get_elements_size();
 
         Some(PerInstanceAttributesBuffer {
@@ -171,7 +169,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     {
         PerInstanceAttributesBuffer {
             buffer: PerInstanceAttributesBufferAny {
-                buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, false),
+                buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, false).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,
             },

@@ -1,5 +1,5 @@
 use Display;
-use buffer::{self, Buffer};
+use buffer::{self, Buffer, BufferCreationError};
 use program;
 use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
 
@@ -33,7 +33,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     #[cfg(feature = "gl_uniform_blocks")]
     pub fn new(display: &Display, data: T) -> UniformBuffer<T> {
         let buffer = Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
-                                                             false);
+                                                             false).unwrap();
 
         UniformBuffer {
             buffer: TypelessUniformBuffer {
@@ -72,14 +72,12 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
             None
 
         } else {
-            if persistent && display.context.context.get_version() < &context::GlVersion(Api::Gl, 4, 4) &&
-               !display.context.context.get_extensions().gl_arb_buffer_storage
+            let buffer = match Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
+                                                                       persistent)
             {
-                return None;
-            }
-
-            let buffer = Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
-                                                                 persistent);
+                Err(BufferCreationError::PersistentMappingNotSupported) => return None,
+                b => b.unwrap()
+            };
 
             Some(UniformBuffer {
                 buffer: TypelessUniformBuffer {

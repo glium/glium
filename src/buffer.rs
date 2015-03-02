@@ -27,6 +27,16 @@ pub struct Buffer {
 // we need to do this because `*mut libc::c_void*` is not Send
 unsafe impl Send for Buffer {}
 
+/// Error that can happen when creating a buffer.
+#[derive(Debug)]
+pub enum BufferCreationError {
+    /// Not enough memory to create the buffer.
+    OutOfMemory,
+
+    /// Persistent mapping is not supported.
+    PersistentMappingNotSupported,
+}
+
 /// Type of a buffer.
 pub trait BufferType: MarkerTrait {
     /// Should return `&mut ctxt.state.something`.
@@ -89,161 +99,28 @@ impl BufferType for UniformBuffer {
 
 impl Buffer {
     pub fn new<T, D>(display: &Display, data: Vec<D>, persistent: bool)
-                     -> Buffer where T: BufferType, D: Send + Copy + 'static
+                     -> Result<Buffer, BufferCreationError>
+                     where T: BufferType, D: Send + Copy + 'static
     {
         use std::mem;
 
-        if persistent && display.context.context.get_version() < &context::GlVersion(Api::Gl, 4, 4) &&
-           !display.context.context.get_extensions().gl_arb_buffer_storage
-        {
-            panic!("Persistent storage is not supported by the backend");
-        }
-
-        let elements_size = get_elements_size(&data);
-        let elements_count = data.len();
-
-        let buffer_size = match elements_count * elements_size as usize {
-            0 => 1,     // use size 1 instead of 0, or nvidia drivers complain
-            a => a
-        };
-
         let (tx, rx) = channel();
-
         display.context.context.exec(move |mut ctxt| {
-            let data = data;
-            let data_ptr = if elements_count * elements_size as usize == 0 {
-                ptr::null()
-            } else {
-                data.as_ptr()
-            };
-
             unsafe {
-                let mut id: gl::types::GLuint = mem::uninitialized();
-
-                if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-                    ctxt.gl.CreateBuffers(1, &mut id);
-                } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
-                    ctxt.gl.GenBuffers(1, &mut id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.GenBuffersARB(1, &mut id);
-                } else {
-                    unreachable!();
-                }
-
-                let bind = <T as BufferType>::get_bind_point();
-
-                let mut flags = gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
-                                gl::MAP_WRITE_BIT;       // TODO: more specific flags
-
-                if persistent {
-                    flags = flags | gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT;
-                }
-
-                let mut obtained_size: gl::types::GLint = mem::uninitialized();
-
-                if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-                    ctxt.gl.NamedBufferStorage(id, buffer_size as gl::types::GLsizei,
-                                               data_ptr as *const libc::c_void,
-                                               flags);
-                    ctxt.gl.GetNamedBufferParameteriv(id, gl::BUFFER_SIZE, &mut obtained_size);
-
-                } else if ctxt.extensions.gl_arb_buffer_storage &&
-                          ctxt.extensions.gl_ext_direct_state_access
-                {
-                    ctxt.gl.NamedBufferStorageEXT(id, buffer_size as gl::types::GLsizeiptr,
-                                                  data_ptr as *const libc::c_void,
-                                                  flags);
-                    ctxt.gl.GetNamedBufferParameterivEXT(id, gl::BUFFER_SIZE, &mut obtained_size);
-
-
-                } else if ctxt.version >= &GlVersion(Api::Gl, 4, 4) ||
-                          ctxt.extensions.gl_arb_buffer_storage
-                {
-                    ctxt.gl.BindBuffer(bind, id);
-                    *<T as BufferType>::get_storage_point(ctxt.state) = id;
-                    ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
-                                          data_ptr as *const libc::c_void,
-                                          flags);
-                    ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
-
-                } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
-                    debug_assert!(!persistent);
-                    ctxt.gl.BindBuffer(bind, id);
-                    *<T as BufferType>::get_storage_point(ctxt.state) = id;
-                    ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                                       data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
-                    ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
-
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    debug_assert!(!persistent);
-                    ctxt.gl.BindBufferARB(bind, id);    // bind points are the same in the ext
-                    *<T as BufferType>::get_storage_point(ctxt.state) = id;
-                    ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
-                                          data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
-                    ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
-
-                } else {
-                    unreachable!()
-                }
-
-                if buffer_size != obtained_size as usize {
-                    if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
-                        ctxt.gl.DeleteBuffers(1, [id].as_ptr());
-                    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                        ctxt.gl.DeleteBuffersARB(1, [id].as_ptr());
-                    } else {
-                        unreachable!();
-                    }
-                    
-                    panic!("Not enough available memory for buffer (required: {} bytes, \
-                            obtained: {})", buffer_size, obtained_size);
-                }
-
-                let persistent_mapping = if persistent {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
-                            ctxt.extensions.gl_arb_map_buffer_range);
-
-                    // TODO: better handling of versions
-                    let ptr = if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
-                        ctxt.gl.MapNamedBufferRange(id, 0, buffer_size as gl::types::GLsizei,
-                                                    gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                                    gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
-                    } else {
-                        if *<T as BufferType>::get_storage_point(ctxt.state) != id {
-                            ctxt.gl.BindBuffer(bind, id);
-                            *<T as BufferType>::get_storage_point(ctxt.state) = id;
-                        }
-
-                        ctxt.gl.MapBufferRange(bind, 0, buffer_size as gl::types::GLsizeiptr,
-                                               gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                               gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
-                    };
-
-                    if ptr.is_null() {
-                        let error = ::get_gl_error(&mut ctxt);
-                        panic!("glMapBufferRange returned null (error: {:?})", error);
-                    }
-
-                    Some(MappedBufferWrapper(ptr))
-
-                } else {
-                    None
-                };
-
-                tx.send((id, persistent_mapping)).unwrap();
+                tx.send(create_buffer::<T, _>(&mut ctxt, data, persistent)).unwrap();
             }
         });
 
-        let (id, persistent_mapping) = rx.recv().unwrap();
+        let (id, persistent_mapping, elements_size, elements_count) = try!(rx.recv().unwrap());
 
-        Buffer {
+        Ok(Buffer {
             display: display.clone(),
             id: id,
             elements_size: elements_size,
             elements_count: elements_count,
             persistent_mapping: persistent_mapping.map(|p| p.0),
             fences: Mutex::new(Vec::new()),
-        }
+        })
     }
 
     pub fn new_empty<T>(display: &Display, elements_size: usize, elements_count: usize,
@@ -705,4 +582,145 @@ fn get_elements_size<T>(data: &Vec<T>) -> usize {
         let d1: *const T = &data[1];
         (d1 as usize) - (d0 as usize)
     }
+}
+
+/// Creates a new buffer.
+unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, persistent: bool)
+                              -> Result<(gl::types::GLuint,
+                                         Option<MappedBufferWrapper<libc::c_void>>, usize, usize),
+                                        BufferCreationError>
+                              where T: BufferType, D: Send + Copy + 'static
+{
+    if persistent && ctxt.version < &context::GlVersion(Api::Gl, 4, 4) &&
+       !ctxt.extensions.gl_arb_buffer_storage
+    {
+        return Err(BufferCreationError::PersistentMappingNotSupported);
+    }
+
+    let elements_size = get_elements_size(&data);
+    let elements_count = data.len();
+
+    let buffer_size = match elements_count * elements_size as usize {
+        0 => 1,     // use size 1 instead of 0, or nvidia drivers complain
+        a => a
+    };
+
+    let data_ptr = if elements_count * elements_size as usize == 0 {
+        ptr::null()
+    } else {
+        data.as_ptr()
+    };
+
+    let mut id: gl::types::GLuint = mem::uninitialized();
+
+    if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+        ctxt.gl.CreateBuffers(1, &mut id);
+    } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
+        ctxt.gl.GenBuffers(1, &mut id);
+    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+        ctxt.gl.GenBuffersARB(1, &mut id);
+    } else {
+        unreachable!();
+    }
+
+    let bind = <T as BufferType>::get_bind_point();
+
+    let mut flags = gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
+                    gl::MAP_WRITE_BIT;       // TODO: more specific flags
+
+    if persistent {
+        flags = flags | gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT;
+    }
+
+    let mut obtained_size: gl::types::GLint = mem::uninitialized();
+
+    if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+        ctxt.gl.NamedBufferStorage(id, buffer_size as gl::types::GLsizei,
+                                   data_ptr as *const libc::c_void,
+                                   flags);
+        ctxt.gl.GetNamedBufferParameteriv(id, gl::BUFFER_SIZE, &mut obtained_size);
+
+    } else if ctxt.extensions.gl_arb_buffer_storage &&
+              ctxt.extensions.gl_ext_direct_state_access
+    {
+        ctxt.gl.NamedBufferStorageEXT(id, buffer_size as gl::types::GLsizeiptr,
+                                      data_ptr as *const libc::c_void,
+                                      flags);
+        ctxt.gl.GetNamedBufferParameterivEXT(id, gl::BUFFER_SIZE, &mut obtained_size);
+
+
+    } else if ctxt.version >= &GlVersion(Api::Gl, 4, 4) ||
+              ctxt.extensions.gl_arb_buffer_storage
+    {
+        ctxt.gl.BindBuffer(bind, id);
+        *<T as BufferType>::get_storage_point(ctxt.state) = id;
+        ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
+                              data_ptr as *const libc::c_void,
+                              flags);
+        ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
+
+    } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
+        debug_assert!(!persistent);
+        ctxt.gl.BindBuffer(bind, id);
+        *<T as BufferType>::get_storage_point(ctxt.state) = id;
+        ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
+                           data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
+        ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
+
+    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+        debug_assert!(!persistent);
+        ctxt.gl.BindBufferARB(bind, id);    // bind points are the same in the ext
+        *<T as BufferType>::get_storage_point(ctxt.state) = id;
+        ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
+                              data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
+        ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
+
+    } else {
+        unreachable!();
+    }
+
+    if buffer_size != obtained_size as usize {
+        if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
+            ctxt.gl.DeleteBuffers(1, [id].as_ptr());
+        } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+            ctxt.gl.DeleteBuffersARB(1, [id].as_ptr());
+        } else {
+            unreachable!();
+        }
+        
+        return Err(BufferCreationError::OutOfMemory);
+    }
+
+    let persistent_mapping = if persistent {
+        assert!(ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
+                ctxt.extensions.gl_arb_map_buffer_range);
+
+        // TODO: better handling of versions
+        let ptr = if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+            ctxt.gl.MapNamedBufferRange(id, 0, buffer_size as gl::types::GLsizei,
+                                        gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                        gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
+        } else {
+            if *<T as BufferType>::get_storage_point(ctxt.state) != id {
+                ctxt.gl.BindBuffer(bind, id);
+                *<T as BufferType>::get_storage_point(ctxt.state) = id;
+            }
+
+            ctxt.gl.MapBufferRange(bind, 0, buffer_size as gl::types::GLsizeiptr,
+                                   gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                   gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
+        };
+
+        if ptr.is_null() {
+            let error = ::get_gl_error(ctxt);
+            panic!("glMapBufferRange returned null (error: {:?})", error);
+        }
+
+        Some(MappedBufferWrapper(ptr))
+
+    } else {
+        None
+    };
+
+    Ok((id, persistent_mapping, elements_size, elements_count))
 }
