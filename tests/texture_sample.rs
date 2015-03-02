@@ -8,7 +8,7 @@ use glium::Surface;
 
 mod support;
 
-macro_rules! texture_draw_test {
+macro_rules! texture_sample_test {
     ($test_name:ident, $tex_ty:ident, $sampler_ty:expr, $fun:expr, $coords:expr, $data:expr) => (
         #[test]
         fn $test_name() {
@@ -58,13 +58,13 @@ macro_rules! texture_draw_test {
     );
 }
 
-texture_draw_test!(texture_2d_draw, Texture2d, "sampler2D", "texture2D", "vec2(0.5, 0.5)",
+texture_sample_test!(texture_2d_draw, Texture2d, "sampler2D", "texture2D", "vec2(0.5, 0.5)",
     vec![
         vec![(255, 0, 0, 255), (255, 0, 0, 255)],
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
     ]);
 
-texture_draw_test!(compressed_texture_2d_draw, CompressedTexture2d, "sampler2D", "texture2D",
+texture_sample_test!(compressed_texture_2d_draw, CompressedTexture2d, "sampler2D", "texture2D",
     "vec2(0.5, 0.5)",
     vec![
         vec![(255, 0, 0, 255), (255, 0, 0, 255)],
