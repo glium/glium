@@ -19,6 +19,7 @@ use draw_parameters::{DepthTest, PolygonMode};
 use Rect;
 
 use {program, vertex_array_object};
+use libc;
 use {gl, context, draw_parameters};
 use context::GlVersion;
 use version::Api;
@@ -115,12 +116,15 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     let draw_command = {
         let cmd = match &indices {
             &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
-                assert!(offset == 0);       // not yet implemented
                 must_sync = false;
+
+                let ptr: *const u8 = ptr::null_mut();
+                let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
+
                 DrawCommand::DrawElements(buffer.get_primitives_type().to_glenum(),
                                           length as gl::types::GLsizei,
                                           buffer.get_indices_type().to_glenum(),
-                                          unsafe { ptr::Unique::new(ptr::null_mut()) })
+                                          unsafe { ptr::Unique::new(ptr as *mut libc::c_void) })
             },
             &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
                 assert!(offset == 0);       // not yet implemented
