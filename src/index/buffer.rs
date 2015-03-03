@@ -100,7 +100,7 @@ impl ToIndicesSource for IndexBuffer {
 impl Drop for IndexBuffer {
     fn drop(&mut self) {
         // removing VAOs which contain this index buffer
-        let mut vaos = self.buffer.get_display().context.vertex_array_objects.lock().unwrap();
+        let mut vaos = self.buffer.get_display().context.vertex_array_objects.borrow_mut();
         let to_delete = vaos.keys()
                             .filter(|&&(ref bufs, _)| {
                                 bufs.iter().find(|&&b| b == self.buffer.get_id()).is_some()

@@ -7,7 +7,7 @@ You should prefer render buffers over textures when you know that you don't need
 the data of the render buffer.
 
 */
-use std::sync::Arc;
+use std::rc::Rc;
 use std::sync::mpsc::channel;
 use std::mem;
 
@@ -167,7 +167,7 @@ impl GlObject for DepthStencilRenderBuffer {
 
 /// The implementation
 struct RenderBufferImpl {
-    display: Arc<DisplayImpl>,
+    display: Rc<DisplayImpl>,
     id: gl::types::GLuint,
     width: u32,
     height: u32,

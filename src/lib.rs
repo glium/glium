@@ -190,7 +190,9 @@ use std::default::Default;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::ops::Deref;
-use std::sync::{Arc, Mutex, RwLockReadGuard};
+use std::rc::Rc;
+use std::cell::Ref;
+use std::cell::RefCell;
 use std::sync::mpsc::channel;
 
 pub mod debug;
@@ -706,7 +708,7 @@ impl std::fmt::Display for DrawError {
 }
 
 #[doc(hidden)]
-pub struct BlitHelper<'a>(&'a Arc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
+pub struct BlitHelper<'a>(&'a Rc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
 
 /// Implementation of `Surface`, targeting the default framebuffer.
 ///
@@ -841,13 +843,13 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         let (context, shared_debug) = try!(context::new_from_window(self));
 
         let display = Display {
-            context: Arc::new(DisplayImpl {
+            context: Rc::new(DisplayImpl {
                 context: context,
-                debug_callback: Mutex::new(None),
+                debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: Mutex::new(HashMap::with_hash_state(Default::default())),
-                samplers: Mutex::new(HashMap::with_hash_state(Default::default())),
+                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -862,7 +864,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         }
 
         {
-            let mut vaos = display.context.vertex_array_objects.lock().unwrap();
+            let mut vaos = display.context.vertex_array_objects.borrow_mut();
             vaos.clear();
         }
 
@@ -876,13 +878,13 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         let (context, shared_debug) = try!(context::new_from_headless(self));
 
         let display = Display {
-            context: Arc::new(DisplayImpl {
+            context: Rc::new(DisplayImpl {
                 context: context,
-                debug_callback: Mutex::new(None),
+                debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: Mutex::new(HashMap::with_hash_state(Default::default())),
-                samplers: Mutex::new(HashMap::with_hash_state(Default::default())),
+                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -902,7 +904,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 /// your program and between threads.
 #[derive(Clone)]
 pub struct Display {
-    context: Arc<DisplayImpl>,
+    context: Rc<DisplayImpl>,
 }
 
 struct DisplayImpl {
@@ -910,11 +912,11 @@ struct DisplayImpl {
     context: context::Context,
 
     // the callback used for debug messages
-    debug_callback: Mutex<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
+    debug_callback: RefCell<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
                                      + Send + Sync>>>,
 
-    // holding the Arc to SharedDebugOutput
-    shared_debug_output: Arc<context::SharedDebugOutput>,
+    // holding the Rc to SharedDebugOutput
+    shared_debug_output: Rc<context::SharedDebugOutput>,
 
     // we maintain a list of FBOs
     // the option is here to destroy the container
@@ -922,11 +924,11 @@ struct DisplayImpl {
 
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (buffers-list, program) ; the buffers list must be sorted
-    vertex_array_objects: Mutex<HashMap<(Vec<gl::types::GLuint>, Handle),
+    vertex_array_objects: RefCell<HashMap<(Vec<gl::types::GLuint>, Handle),
                                         vertex_array_object::VertexArrayObject, DefaultState<util::FnvHasher>>>,
 
     // we maintain a list of samplers for each possible behavior
-    samplers: Mutex<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
+    samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
                     DefaultState<util::FnvHasher>>>,
 }
 
@@ -944,7 +946,7 @@ impl Display {
     }
 
     /// Returns the underlying window, or `None` if glium uses a headless context.
-    pub fn get_window(&self) -> Option<RwLockReadGuard<glutin::Window>> {
+    pub fn get_window(&self) -> Option<Ref<glutin::Window>> {
         self.context.context.get_window()
     }
 
@@ -1148,7 +1150,7 @@ impl Display {
                                             F: FnOnce() -> T + 'a
     {
         let (tx, rx) = channel();
-        self.context.context.exec_maybe_sync(true, move |ctxt| {
+        self.context.context.exec(move |ctxt| {
             tx.send(action()).ok();
         });
 
@@ -1190,7 +1192,7 @@ impl Display {
     }
 }
 
-// this destructor is here because objects in `Display` contain an `Arc<DisplayImpl>`,
+// this destructor is here because objects in `Display` contain an `Rc<DisplayImpl>`,
 // which would lead to a leak
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
@@ -1217,12 +1219,12 @@ impl Drop for DisplayImpl {
         }
 
         {
-            let mut vaos = self.vertex_array_objects.lock().unwrap();
+            let mut vaos = self.vertex_array_objects.borrow_mut();
             vaos.clear();
         }
 
         {
-            let mut samplers = self.samplers.lock().unwrap();
+            let mut samplers = self.samplers.borrow_mut();
             samplers.clear();
         }
     }

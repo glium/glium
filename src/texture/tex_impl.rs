@@ -137,7 +137,7 @@ impl TextureImplementation {
 
         let (tx, rx) = channel();
         //This always syncs with rx later.
-        display.context.context.exec_maybe_sync(false, move |ctxt| {
+        display.context.context.exec(move |ctxt| {
             unsafe {
                 let data = data;
                 let data_raw = if let Some((_, ref data)) = data {
@@ -382,7 +382,7 @@ impl TextureImplementation {
         let (client_format, client_type) = client_format_to_glenum(&self.display, format,
                                                                    self.requested_format);
         let should_sync = data.is_borrowed();
-        self.display.context.context.exec_maybe_sync(should_sync, move |ctxt| {
+        self.display.context.context.exec(move |ctxt| {
             unsafe {
                 if ctxt.state.pixel_store_unpack_alignment != 1 {
                     ctxt.state.pixel_store_unpack_alignment = 1;

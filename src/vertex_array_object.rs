@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 use std::sync::mpsc::channel;
 use std::mem;
 
@@ -12,7 +12,7 @@ use version::Api;
 
 /// Stores informations about how to bind a vertex buffer, an index buffer and a program.
 pub struct VertexArrayObject {
-    display: Arc<DisplayImpl>,
+    display: Rc<DisplayImpl>,
     id: gl::types::GLuint,
 }
 
@@ -21,7 +21,7 @@ impl VertexArrayObject {
     ///
     /// The vertex buffer, index buffer and program must not outlive the
     /// VAO, and the VB & program attributes must not change.
-    fn new(display: Arc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
+    fn new(display: Rc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
            ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
         let attributes = ::program::get_attributes(program);
@@ -235,7 +235,7 @@ impl GlObject for VertexArrayObject {
 
 /// Obtains the id of the VAO corresponding to the vertex buffer, index buffer and program
 /// passed as parameters. Creates a new VAO if no existing one matches these.
-pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
+pub fn get_vertex_array_object<I>(display: &Rc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
                                   indices: &IndicesSource<I>, program: &Program)
                                   -> gl::types::GLuint where I: ::index::Index
 {
@@ -262,7 +262,7 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffers: &[
 
     let program_id = program.get_id();
 
-    if let Some(value) = display.vertex_array_objects.lock().unwrap()
+    if let Some(value) = display.vertex_array_objects.borrow_mut()
                                 .get(&(buffers_list.clone(), program_id)) {
         return value.id;
     }
@@ -270,7 +270,7 @@ pub fn get_vertex_array_object<I>(display: &Arc<DisplayImpl>, vertex_buffers: &[
     // we create the new VAO without the mutex locked
     let new_vao = VertexArrayObject::new(display.clone(), vertex_buffers, ib_id, program);
     let new_vao_id = new_vao.id;
-    display.vertex_array_objects.lock().unwrap().insert((buffers_list, program_id), new_vao);
+    display.vertex_array_objects.borrow_mut().insert((buffers_list, program_id), new_vao);
     new_vao_id
 }
 

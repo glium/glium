@@ -10,8 +10,8 @@ use std::{ffi, fmt, mem};
 use std::collections::hash_state::DefaultState;
 use std::collections::hash_map::{self, HashMap};
 use std::default::Default;
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::rc::Rc;
+use std::cell::RefCell;
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::channel;
 use util::FnvHasher;
@@ -31,14 +31,14 @@ use program::shader::build_shader;
 
 // TODO: remove this hack
 #[doc(hidden)]
-pub fn get_uniforms_locations(program: &Program) -> Arc<HashMap<String, Uniform, DefaultState<FnvHasher>>>
+pub fn get_uniforms_locations(program: &Program) -> Rc<HashMap<String, Uniform, DefaultState<FnvHasher>>>
 {
     program.uniforms.clone()
 }
 
 // TODO: remove this hack
 #[doc(hidden)]
-pub fn get_attributes(program: &Program) -> Arc<HashMap<String, Attribute, DefaultState<FnvHasher>>>
+pub fn get_attributes(program: &Program) -> Rc<HashMap<String, Attribute, DefaultState<FnvHasher>>>
 {
     program.attributes.clone()
 }
@@ -101,10 +101,10 @@ impl ::std::error::Error for ProgramCreationError {
 pub struct Program {
     display: Display,
     id: Handle,
-    uniforms: Arc<HashMap<String, Uniform, DefaultState<FnvHasher>>>,
-    uniform_blocks: Arc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
-    attributes: Arc<HashMap<String, Attribute, DefaultState<FnvHasher>>>,
-    frag_data_locations: Mutex<HashMap<String, Option<u32>, DefaultState<FnvHasher>>>,
+    uniforms: Rc<HashMap<String, Uniform, DefaultState<FnvHasher>>>,
+    uniform_blocks: Rc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
+    attributes: Rc<HashMap<String, Attribute, DefaultState<FnvHasher>>>,
+    frag_data_locations: RefCell<HashMap<String, Option<u32>, DefaultState<FnvHasher>>>,
     varyings: Option<(Vec<TransformFeedbackVarying>, TransformFeedbackMode)>,
     has_tessellation_shaders: bool,
 }
@@ -335,10 +335,10 @@ impl Program {
         Ok(Program {
             display: display.clone(),
             id: id,
-            uniforms: Arc::new(uniforms),
-            uniform_blocks: Arc::new(blocks),
-            attributes: Arc::new(attributes),
-            frag_data_locations: Mutex::new(HashMap::with_hash_state(Default::default())),
+            uniforms: Rc::new(uniforms),
+            uniform_blocks: Rc::new(blocks),
+            attributes: Rc::new(attributes),
+            frag_data_locations: RefCell::new(HashMap::with_hash_state(Default::default())),
             varyings: varyings,
             has_tessellation_shaders: has_tessellation_shaders,
         })
@@ -403,10 +403,10 @@ impl Program {
         Ok(Program {
             display: display.clone(),
             id: id,
-            uniforms: Arc::new(uniforms),
-            uniform_blocks: Arc::new(blocks),
-            attributes: Arc::new(attributes),
-            frag_data_locations: Mutex::new(HashMap::with_hash_state(Default::default())),
+            uniforms: Rc::new(uniforms),
+            uniform_blocks: Rc::new(blocks),
+            attributes: Rc::new(attributes),
+            frag_data_locations: RefCell::new(HashMap::with_hash_state(Default::default())),
             varyings: varyings,
             has_tessellation_shaders: true,     // FIXME: 
         })
@@ -481,7 +481,7 @@ impl Program {
     ///
     pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
         // looking for a cached value
-        if let Some(result) = self.frag_data_locations.lock().unwrap().get(name) {
+        if let Some(result) = self.frag_data_locations.borrow_mut().get(name) {
             return result.clone();
         }
 
@@ -512,7 +512,7 @@ impl Program {
             a => Some(a as u32),
         };
 
-        self.frag_data_locations.lock().unwrap().insert(name.to_string(), location);
+        self.frag_data_locations.borrow_mut().insert(name.to_string(), location);
         location
     }
 
@@ -575,7 +575,7 @@ impl Drop for Program {
     fn drop(&mut self) {
         // removing VAOs which contain this program
         {
-            let mut vaos = self.display.context.vertex_array_objects.lock().unwrap();
+            let mut vaos = self.display.context.vertex_array_objects.borrow_mut();
             let to_delete = vaos.keys().filter(|&&(_, p)| p == self.id)
                 .map(|k| k.clone()).collect::<Vec<_>>();
             for k in to_delete.into_iter() {

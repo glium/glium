@@ -327,7 +327,7 @@ impl PerInstanceAttributesBufferAny {
 impl Drop for PerInstanceAttributesBufferAny {
     fn drop(&mut self) {
         // removing VAOs which contain this vertex buffer
-        let mut vaos = self.buffer.get_display().context.vertex_array_objects.lock().unwrap();
+        let mut vaos = self.buffer.get_display().context.vertex_array_objects.borrow_mut();
         let to_delete = vaos.keys()
                             .filter(|&&(ref v, _)| {
                                 v.iter().find(|&&b| b == self.buffer.get_id()).is_some()

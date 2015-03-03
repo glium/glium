@@ -1,6 +1,7 @@
 use gl;
 use glutin;
-use std::sync::{Arc, RwLock, RwLockReadGuard};
+use std::cell::{RefCell, Ref};
+use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Sender, channel};
 use version::Api;
@@ -15,21 +16,19 @@ pub use self::state::GLState;
 pub use version::Version as GlVersion;
 
 mod capabilities;
-mod commands;
 mod extensions;
 mod glutin_context;
 mod state;
 
 pub struct Context {
-    commands: commands::Sender,
-
-    window: Option<Arc<RwLock<glutin::Window>>>,
-
-    capabilities: Arc<Capabilities>,
-
+    gl: gl::Gl,
+    state: RefCell<GLState>,
     version: GlVersion,
-
     extensions: ExtensionsList,
+    capabilities: Capabilities,
+    shared_debug_output: Rc<SharedDebugOutput>,
+
+    window: Option<Rc<RefCell<glutin::Window>>>,
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -48,8 +47,8 @@ pub struct SharedDebugOutput {
 }
 
 impl SharedDebugOutput {
-    pub fn new() -> Arc<SharedDebugOutput> {
-        Arc::new(SharedDebugOutput {
+    pub fn new() -> Rc<SharedDebugOutput> {
+        Rc::new(SharedDebugOutput {
             report_errors: AtomicBool::new(true),
         })
     }
@@ -57,7 +56,7 @@ impl SharedDebugOutput {
 
 /// Iterator for all the events received by the window.
 pub struct PollEventsIter<'a> {
-    window: Option<RwLockReadGuard<'a, glutin::Window>>,
+    window: Option<Ref<'a, glutin::Window>>,
 }
 
 impl<'a> Iterator for PollEventsIter<'a> {
@@ -77,7 +76,7 @@ impl<'a> Iterator for PollEventsIter<'a> {
 /// This iterator polls for events, until the window associated with its context
 /// is closed.
 pub struct WaitEventsIter<'a> {
-    window: Option<RwLockReadGuard<'a, glutin::Window>>,
+    window: Option<Ref<'a, glutin::Window>>,
 }
 
 impl<'a> Iterator for WaitEventsIter<'a> {
@@ -95,47 +94,59 @@ impl<'a> Iterator for WaitEventsIter<'a> {
 impl Context {
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         // FIXME: 800x600?
-        self.window.as_ref().and_then(|w| w.read().unwrap().get_inner_size()).unwrap_or((800, 600))
+        self.window.as_ref().and_then(|w| w.borrow().get_inner_size()).unwrap_or((800, 600))
     }
 
-    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) + Send + 'static {
-        self.commands.push(f);
-    }
-
-    pub fn exec_maybe_sync<'a, F>(&self, sync: bool, f: F) where F: FnOnce(CommandContext) + 'a {
-        let (tx, rx) = if sync {
-            let (tx, rx) = channel();
-            (Some(tx), Some(rx))
-        } else {
-            (None, None)
-        };
-
-        self.commands.push(move |c: CommandContext| {
-            f(c);
-            if sync {
-                tx.unwrap().send(()).unwrap();
-            };
+    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
+        f(CommandContext {
+            gl: &self.gl,
+            state: &mut *self.state.borrow_mut(),
+            version: &self.version,
+            extensions: &self.extensions,
+            capabilities: &self.capabilities,
+            shared_debug_output: &*self.shared_debug_output,
         });
-
-        if sync {
-            rx.unwrap().recv().unwrap();
-        }
     }
 
     pub fn rebuild(&self, builder: glutin::WindowBuilder<'static>)
                    -> Result<(), GliumCreationError>
     {
-        let (tx, rx) = channel();
-        self.commands.push_rebuild(builder, tx);
-        rx.recv().unwrap()
+        unimplemented!();
+
+        /*let win_tmp = {
+            let window = window.read().unwrap();
+            let builder = builder.with_shared_lists(&*window);
+            match builder.build() {
+                Ok(win) => {
+                    notification.send(Ok(())).ok();
+                    win
+                },
+                Err(e) => {
+                    let e = ::std::error::FromError::from_error(e);
+                    notification.send(Err(e)).ok();
+                    continue;
+                }
+            }
+        };
+
+        let mut window = window.write().unwrap();
+        unsafe { win_tmp.make_current(); };
+        gl_state = Default::default();
+        *window = win_tmp;*/
     }
 
     pub fn swap_buffers(&self) {
-        self.commands.push_endframe();
+        // this is necessary on Windows 8, or nothing is being displayed
+        unsafe { self.gl.Flush(); }
+
+        // swapping
+        if let Some(window) = self.window.as_ref() {
+            window.borrow().swap_buffers();
+        }
     }
 
     pub fn capabilities(&self) -> &Capabilities {
-        &*self.capabilities
+        &self.capabilities
     }
 
     pub fn get_version(&self) -> &GlVersion {
@@ -159,8 +170,8 @@ impl Context {
     }
 
     /// Returns the underlying window, or `None` if a headless context is used.
-    pub fn get_window(&self) -> Option<RwLockReadGuard<glutin::Window>> {
-        self.window.as_ref().map(|w| w.read().unwrap())
+    pub fn get_window(&self) -> Option<Ref<glutin::Window>> {
+        self.window.as_ref().map(|w| w.borrow())
     }
 }
 
