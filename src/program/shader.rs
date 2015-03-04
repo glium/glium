@@ -4,7 +4,6 @@ use context::GlVersion;
 use version::Api;
 
 use std::{ffi, mem, ptr};
-use std::sync::Arc;
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::channel;
 

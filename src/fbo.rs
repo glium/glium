@@ -54,7 +54,7 @@ use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::default::Default;
 use std::mem;
-use std::sync::Mutex;
+use std::cell::RefCell;
 use std::sync::mpsc::channel;
 
 use GlObject;
@@ -95,7 +95,7 @@ pub enum Attachment {
 ///
 /// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
 pub struct FramebuffersContainer {
-    framebuffers: Mutex<HashMap<FramebufferAttachments, FrameBufferObject, DefaultState<FnvHasher>>>,
+    framebuffers: RefCell<HashMap<FramebufferAttachments, FrameBufferObject, DefaultState<FnvHasher>>>,
 }
 
 /// Frame buffer.
@@ -107,7 +107,7 @@ struct FrameBufferObject {
 impl FramebuffersContainer {
     pub fn new() -> FramebuffersContainer {
         FramebuffersContainer {
-            framebuffers: Mutex::new(HashMap::with_hash_state(Default::default())),
+            framebuffers: RefCell::new(HashMap::with_hash_state(Default::default())),
         }
     }
 
@@ -133,7 +133,7 @@ impl FramebuffersContainer {
     fn purge_if<F>(&self, condition: F, context: &context::Context)
                    where F: Fn(&Attachment) -> bool
     {
-        let mut framebuffers = self.framebuffers.lock().unwrap();
+        let mut framebuffers = self.framebuffers.borrow_mut();
 
         let mut attachments = Vec::new();
         for (key, _) in framebuffers.iter() {
@@ -180,7 +180,7 @@ impl FramebuffersContainer {
 
     pub fn cleanup(self, context: &context::Context) {
         let mut other = HashMap::with_hash_state(Default::default());
-        mem::swap(&mut *self.framebuffers.lock().unwrap(), &mut other);
+        mem::swap(&mut *self.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {
             obj.destroy(context);
@@ -200,7 +200,7 @@ impl FramebuffersContainer {
     pub fn get_framebuffer_for_reading(&self, attachment: &Attachment, context: &context::Context)
                                        -> (gl::types::GLuint, gl::types::GLenum)
     {
-        for (attachments, fbo) in self.framebuffers.lock().unwrap().iter() {
+        for (attachments, fbo) in self.framebuffers.borrow_mut().iter() {
             for &(key, ref atc) in attachments.colors.iter() {
                 if atc == attachment {
                     return (fbo.get_id(), gl::COLOR_ATTACHMENT0 + key);
@@ -220,7 +220,7 @@ impl FramebuffersContainer {
     fn get_framebuffer(&self, framebuffer: &FramebufferAttachments,
                        context: &context::Context) -> gl::types::GLuint
     {
-        let mut framebuffers = self.framebuffers.lock().unwrap();
+        let mut framebuffers = self.framebuffers.borrow_mut();
 
         if let Some(value) = framebuffers.get(framebuffer) {
             return value.id;
@@ -235,7 +235,7 @@ impl FramebuffersContainer {
 
 impl Drop for FramebuffersContainer {
     fn drop(&mut self) {
-        if self.framebuffers.lock().unwrap().len() != 0 {
+        if self.framebuffers.borrow_mut().len() != 0 {
             panic!()
         }
     }

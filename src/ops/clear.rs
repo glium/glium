@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use fbo::{self, FramebufferAttachments};
 
@@ -8,7 +8,7 @@ use Surface;
 use gl;
 
 
-pub fn clear(display: &Arc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
+pub fn clear(display: &Rc<DisplayImpl>, framebuffer: Option<&FramebufferAttachments>,
              color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<i32>)
 {
     let color = color.map(|(red, green, blue, alpha)| (
