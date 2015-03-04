@@ -2,6 +2,7 @@ extern crate glutin;
 #[macro_use]
 extern crate glium;
 
+use std::default::Default;
 use glium::Surface;
 
 mod support;
@@ -51,7 +52,7 @@ fn viewport_too_large() {
             width: 4294967295,
             height: 4294967295,
         }),
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -88,7 +89,7 @@ fn wrong_depth_range() {
 
     let params = glium::DrawParameters {
         depth_range: (-0.1, 1.0),
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -112,7 +113,7 @@ fn scissor() {
             width: 1,
             height: 1,
         }),
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -158,7 +159,7 @@ fn scissor_followed_by_clear() {
             width: 2,
             height: 2,
         }),
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -190,7 +191,7 @@ fn viewport_followed_by_clear() {
             width: 2,
             height: 2,
         }),
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -222,7 +223,7 @@ fn viewport() {
             width: 1,
             height: 1,
         }),
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -253,7 +254,7 @@ fn dont_draw_primitives() {
 
     let params = glium::DrawParameters {
         draw_primitives: false,
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -282,7 +283,7 @@ fn dont_draw_primitives_then_draw() {
 
     let params = glium::DrawParameters {
         draw_primitives: false,
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -294,7 +295,7 @@ fn dont_draw_primitives_then_draw() {
         Err(glium::DrawError::TransformFeedbackNotSupported) => return,
         e => e.unwrap()
     }
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &std::default::Default::default()).unwrap();
+    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
     for row in data.iter() {
@@ -304,4 +305,43 @@ fn dont_draw_primitives_then_draw() {
     }
 
     display.assert_no_error();
+}
+
+#[test]
+fn multiple_displays() {
+    let display1 = support::build_display();
+    let display2 = support::build_display();
+
+    let (vb1, ib1, program1) = support::build_fullscreen_red_pipeline(&display1);
+    let (vb2, ib2, program2) = support::build_fullscreen_red_pipeline(&display2);
+
+    let texture1 = support::build_renderable_texture(&display1);
+    let texture2 = support::build_renderable_texture(&display2);
+
+    texture1.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture2.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+
+    texture1.as_surface().draw(&vb1, &ib1, &program1, &glium::uniforms::EmptyUniforms,
+                               &Default::default()).unwrap();
+
+    texture2.as_surface().draw(&vb2, &ib2, &program2, &glium::uniforms::EmptyUniforms,
+                               &Default::default()).unwrap();
+    texture2.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
+
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture1.read();
+    for row in read_back.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+        }
+    }
+
+    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture2.read();
+    for row in read_back.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(0.0, 1.0, 0.0, 0.0));
+        }
+    }
+
+    display1.assert_no_error();
+    display2.assert_no_error();
 }
