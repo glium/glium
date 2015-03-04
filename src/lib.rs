@@ -795,6 +795,12 @@ pub trait DisplayBuild {
     /// are supported by the implementation.
     fn build_glium(self) -> Result<Display, GliumCreationError>;
 
+    /// Build a context and a `Display` to draw on it
+    ///
+    /// This function does the same as `build_glium`, except that the resulting context
+    /// will assume that the current OpenGL context will never change.
+    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError>;
+
     /// Changes the settings of an existing `Display`.
     fn rebuild_glium(self, &Display) -> Result<(), GliumCreationError>;
 }
@@ -840,7 +846,25 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
 
 impl DisplayBuild for glutin::WindowBuilder<'static> {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let (context, shared_debug) = try!(context::new_from_window(self));
+        let (context, shared_debug) = try!(context::new_from_window(self, true));
+
+        let display = Display {
+            context: Rc::new(DisplayImpl {
+                context: context,
+                debug_callback: RefCell::new(None),
+                shared_debug_output: shared_debug,
+                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
+                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
+            }),
+        };
+
+        display.init_debug_callback();
+        Ok(display)
+    }
+
+    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
+        let (context, shared_debug) = try!(context::new_from_window(self, false));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
@@ -875,7 +899,25 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 #[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let (context, shared_debug) = try!(context::new_from_headless(self));
+        let (context, shared_debug) = try!(context::new_from_headless(self, true));
+
+        let display = Display {
+            context: Rc::new(DisplayImpl {
+                context: context,
+                debug_callback: RefCell::new(None),
+                shared_debug_output: shared_debug,
+                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
+                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
+            }),
+        };
+
+        display.init_debug_callback();
+        Ok(display)
+    }
+
+    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
+        let (context, shared_debug) = try!(context::new_from_headless(self, false));
 
         let display = Display {
             context: Rc::new(DisplayImpl {

@@ -20,7 +20,7 @@ impl Backend for Rc<RefCell<glutin::Window>> {
     }
 }
 
-pub fn new_from_window(window: glutin::WindowBuilder)
+pub fn new_from_window(window: glutin::WindowBuilder, check_context: bool)
                        -> Result<(Context, Rc<SharedDebugOutput>), GliumCreationError>
 {
     let shared_debug_frontend = SharedDebugOutput::new();
@@ -63,7 +63,7 @@ pub fn new_from_window(window: glutin::WindowBuilder)
         shared_debug_output: shared_debug_backend,
         window: Some(window),
         backend: backend,
-        check_current_context: true,
+        check_current_context: check_context,
     }, shared_debug_frontend))
 }
 
@@ -79,7 +79,7 @@ impl Backend for glutin::HeadlessContext {
 }
 
 #[cfg(feature = "headless")]
-pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
+pub fn new_from_headless(window: glutin::HeadlessRendererBuilder, check_context: bool)
                          -> Result<(Context, Rc<SharedDebugOutput>), GliumCreationError>
 {
     let shared_debug_frontend = SharedDebugOutput::new();
@@ -117,6 +117,6 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
         shared_debug_output: shared_debug_backend,
         window: None,
         backend: backend,
-        check_current_context: true,
+        check_current_context: check_context,
     }, shared_debug_frontend))
 }
