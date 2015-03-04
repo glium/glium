@@ -29,6 +29,13 @@ pub struct Context {
     shared_debug_output: Rc<SharedDebugOutput>,
 
     window: Option<Rc<RefCell<glutin::Window>>>,
+    backend: Box<Backend>,
+    check_current_context: bool,
+}
+
+pub trait Backend {
+    fn is_current(&self) -> bool;
+    unsafe fn make_current(&self);
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -98,6 +105,8 @@ impl Context {
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
+        unsafe { self.make_current() };
+
         f(CommandContext {
             gl: &self.gl,
             state: &mut *self.state.borrow_mut(),
@@ -106,6 +115,14 @@ impl Context {
             capabilities: &self.capabilities,
             shared_debug_output: &*self.shared_debug_output,
         });
+    }
+
+    pub unsafe fn make_current(&self) {
+        if self.check_current_context {
+            if !self.backend.is_current() {
+                self.backend.make_current();
+            }
+        }
     }
 
     pub fn rebuild(&self, builder: glutin::WindowBuilder<'static>)
@@ -136,12 +153,16 @@ impl Context {
     }
 
     pub fn swap_buffers(&self) {
-        // this is necessary on Windows 8, or nothing is being displayed
-        unsafe { self.gl.Flush(); }
+        unsafe {
+            self.make_current();
 
-        // swapping
-        if let Some(window) = self.window.as_ref() {
-            window.borrow().swap_buffers();
+            // this is necessary on Windows 8, or nothing is being displayed
+            self.gl.Flush();
+
+            // swapping
+            if let Some(window) = self.window.as_ref() {
+                window.borrow().swap_buffers();
+            }   
         }
     }
 

@@ -2,13 +2,23 @@ use gl;
 use glutin;
 use version;
 use context::{Context, CommandContext, GLState, SharedDebugOutput, check_gl_compatibility};
-use context::{capabilities, extensions};
+use context::{capabilities, extensions, Backend};
 use GliumCreationError;
 
 use std::default::Default;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::mpsc::channel;
+
+impl Backend for Rc<RefCell<glutin::Window>> {
+    fn is_current(&self) -> bool {
+        self.borrow().is_current()
+    }
+
+    unsafe fn make_current(&self) {
+        self.borrow().make_current();
+    }
+}
 
 pub fn new_from_window(window: glutin::WindowBuilder)
                        -> Result<(Context, Rc<SharedDebugOutput>), GliumCreationError>
@@ -42,15 +52,30 @@ pub fn new_from_window(window: glutin::WindowBuilder)
         shared_debug_output: &shared_debug_backend,
     }));
 
+    let backend = Box::new(window.clone());
+
     Ok((Context {
         gl: gl,
         state: RefCell::new(gl_state),
         version: version,
         extensions: extensions,
         capabilities: capabilities,
-        window: Some(window),
         shared_debug_output: shared_debug_backend,
+        window: Some(window),
+        backend: backend,
+        check_current_context: true,
     }, shared_debug_frontend))
+}
+
+#[cfg(feature = "headless")]
+impl Backend for glutin::HeadlessContext {
+    fn is_current(&self) -> bool {
+        self.is_current()
+    }
+
+    unsafe fn make_current(&self) {
+        self.make_current();
+    }
 }
 
 #[cfg(feature = "headless")]
@@ -81,13 +106,17 @@ pub fn new_from_headless(window: glutin::HeadlessRendererBuilder)
         shared_debug_output: &shared_debug_backend,
     }));
 
+    let backend = Box::new(window);
+
     Ok((Context {
         gl: gl,
         state: RefCell::new(gl_state),
         version: version,
         extensions: extensions,
         capabilities: capabilities,
-        window: None,
         shared_debug_output: shared_debug_backend,
+        window: None,
+        backend: backend,
+        check_current_context: true,
     }, shared_debug_frontend))
 }
