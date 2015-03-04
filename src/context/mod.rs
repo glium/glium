@@ -111,30 +111,21 @@ impl Context {
         });
     }
 
-    /*pub fn rebuild(&self, builder: glutin::WindowBuilder<'static>)
-                   -> Result<(), GliumCreationError>
+    pub fn rebuild<B>(&self, new_backend: B)
+                      -> Result<(), GliumCreationError>
+                      where B: Backend + 'static
     {
-        let win_tmp = {
-            let window = window.read().unwrap();
-            let builder = builder.with_shared_lists(&*window);
-            match builder.build() {
-                Ok(win) => {
-                    notification.send(Ok(())).ok();
-                    win
-                },
-                Err(e) => {
-                    let e = ::std::error::FromError::from_error(e);
-                    notification.send(Err(e)).ok();
-                    continue;
-                }
-            }
-        };
+        unsafe { new_backend.make_current(); };
 
-        let mut window = window.write().unwrap();
-        unsafe { win_tmp.make_current(); };
-        gl_state = Default::default();
-        *window = win_tmp;
-    }*/
+        // FIXME: remove this hack
+        let me: &mut Context = unsafe { ::std::mem::transmute(self) };
+        me.state = Default::default();
+        // FIXME: verify version, capabilities and extensions
+
+        me.backend = Box::new(new_backend);
+
+        Ok(())
+    }
 
     pub fn swap_buffers(&self) {
         self.make_current();

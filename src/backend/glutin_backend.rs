@@ -66,6 +66,16 @@ impl GlutinWindowBackend {
     pub fn wait_events(&self) -> glutin::WaitEventsIterator {
         self.window.wait_events()
     }
+
+    pub fn rebuild(&self, builder: glutin::WindowBuilder)
+                   -> Result<GlutinWindowBackend, GliumCreationError>
+    {
+        let window = try!(builder.with_shared_lists(&self.window).build());
+
+        Ok(GlutinWindowBackend {
+            window: window,
+        })
+    }
 }
 
 #[cfg(feature = "headless")]

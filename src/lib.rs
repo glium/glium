@@ -855,7 +855,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
-                backend: Some(backend),
+                backend: Some(RefCell::new(backend)),
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
@@ -875,7 +875,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
-                backend: Some(backend),
+                backend: Some(RefCell::new(backend)),
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
@@ -899,8 +899,12 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
             vaos.clear();
         }
 
-        //display.context.context.rebuild(self)
-        unimplemented!()
+        let mut existing_window = display.context.backend.as_ref()
+                                         .expect("can't rebuild a headless display").borrow_mut();
+        let new_backend = Rc::new(try!(existing_window.rebuild(self)));
+        try!(display.context.context.rebuild(new_backend.clone()));
+        *existing_window = new_backend;
+        Ok(())
     }
 }
 
@@ -966,7 +970,7 @@ struct DisplayImpl {
     context: context::Context,
 
     // contains the window
-    backend: Option<Rc<backend::glutin_backend::GlutinWindowBackend>>,
+    backend: Option<RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
 
     // the callback used for debug messages
     debug_callback: RefCell<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
@@ -991,7 +995,7 @@ struct DisplayImpl {
 
 /// Iterator for all the events received by the window.
 pub struct PollEventsIter<'a> {
-    window: Option<&'a Rc<backend::glutin_backend::GlutinWindowBackend>>,
+    window: Option<&'a RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
 }
 
 impl<'a> Iterator for PollEventsIter<'a> {
@@ -999,7 +1003,7 @@ impl<'a> Iterator for PollEventsIter<'a> {
 
     fn next(&mut self) -> Option<glutin::Event> {
         if let Some(window) = self.window.as_ref() {
-            window.poll_events().next()
+            window.borrow().poll_events().next()
         } else {
             None
         }
@@ -1011,7 +1015,7 @@ impl<'a> Iterator for PollEventsIter<'a> {
 /// This iterator polls for events, until the window associated with its context
 /// is closed.
 pub struct WaitEventsIter<'a> {
-    window: Option<&'a Rc<backend::glutin_backend::GlutinWindowBackend>>,
+    window: Option<&'a RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
 }
 
 impl<'a> Iterator for WaitEventsIter<'a> {
@@ -1019,7 +1023,7 @@ impl<'a> Iterator for WaitEventsIter<'a> {
 
     fn next(&mut self) -> Option<glutin::Event> {
         if let Some(window) = self.window.as_ref() {
-            window.wait_events().next()
+            window.borrow().wait_events().next()
         } else {
             None
         }
@@ -1045,13 +1049,13 @@ impl Display {
 
     /// Returns true if the window has been closed.
     pub fn is_closed(&self) -> bool {
-        self.context.backend.as_ref().map(|b| b.is_closed()).unwrap_or(false)
+        self.context.backend.as_ref().map(|b| b.borrow().is_closed()).unwrap_or(false)
     }
 
-    /// Returns the underlying window, or `None` if glium uses a headless context.
+    /*/// Returns the underlying window, or `None` if glium uses a headless context.
     pub fn get_window(&self) -> Option<&glutin::Window> {
         self.context.backend.as_ref().map(|w| w.get_window())
-    }
+    }*/
 
     /// Returns the dimensions of the main framebuffer.
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
