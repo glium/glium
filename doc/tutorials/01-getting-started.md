@@ -46,11 +46,15 @@ Initializing a window with glutin can be done by calling `glutin::WindowBuilder(
         let display = glutin::WindowBuilder::new().build_glium().unwrap();
     }
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, the `Display` object provides a method named `wait_events()`. This method returns an iterator that produces an infinite stream of the events that are received by the window (like mouse clicks, keyboard actions, etc.). The stream ends as soon as the window has been closed by the user.
+But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we are just going to add an infinite loop until we detect that the window has been closed:
 
-We just need to add this at the end of the `main` function:
+    loop {
+        if display.is_closed() {
+            break;
+        }
+    }
 
-    for _ in display.wait_events() { }
+This is a bad practice as it will consume 100% of our CPU, but that will do for now.
 
 You can now execute `cargo run`. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.
 
@@ -87,11 +91,15 @@ Here is our full `main` function after this step:
         use glium::{DisplayBuild, Surface};
         let display = glutin::WindowBuilder::new().build_glium().unwrap();
 
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.finish();
+        loop {
+            let mut target = display.draw();
+            target.clear_color(0.0, 0.0, 1.0, 1.0);
+            target.finish();
 
-        for _ in display.wait_events() { }
+            if display.is_closed() {
+                break;
+            }
+        }
     }
 
 ### Drawing a triangle
@@ -102,7 +110,7 @@ With some exceptions (like the clearing operation that was used above), OpenGL d
 
 This is the point where the learning curve becomes very steep, as you need to learn how the graphics pipeline works even if you just want to draw a single triangle. However once you have passed that step, it will become easier to understand the rest.
 
-Before we can draw a triangle, we need to prepare two things:
+Before we can draw a triangle, we need to prepare two things during the initialization:
 
  - A shape that describes our triangle.
  - A program that will be executed by the GPU.
@@ -258,11 +266,15 @@ Here is the final code of our `src/main.rs` file:
 
         let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &std::default::Default::default()).unwrap();
-        target.finish();
+        loop {
+            let mut target = display.draw();
+            target.clear_color(0.0, 0.0, 1.0, 1.0);
+            target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
+                        &std::default::Default::default()).unwrap();
+            target.finish();
 
-        for _ in display.wait_events() { }
+            if display.is_closed() {
+                break;
+            }
+        }
     }
