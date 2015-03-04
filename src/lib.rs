@@ -175,7 +175,6 @@ extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 
-pub use context::{PollEventsIter, WaitEventsIter};
 pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters};
 pub use index::IndexBuffer;
@@ -212,6 +211,7 @@ pub mod index_buffer {
     pub use index::*;
 }
 
+mod backend;
 mod buffer;
 mod context;
 mod draw_parameters;
@@ -849,11 +849,13 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
 
 impl DisplayBuild for glutin::WindowBuilder<'static> {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let (context, shared_debug) = try!(context::new_from_window(self, true));
+        let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
+        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
+                backend: Some(backend),
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
@@ -867,11 +869,13 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     }
 
     unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
-        let (context, shared_debug) = try!(context::new_from_window(self, false));
+        let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
+        let (context, shared_debug) = try!(context::Context::new(backend.clone(), false));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
+                backend: Some(backend),
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
@@ -895,18 +899,21 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
             vaos.clear();
         }
 
-        display.context.context.rebuild(self)
+        //display.context.context.rebuild(self)
+        unimplemented!()
     }
 }
 
 #[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let (context, shared_debug) = try!(context::new_from_headless(self, true));
+        let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
+        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
+                backend: None,
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
@@ -920,11 +927,13 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
     }
 
     unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
-        let (context, shared_debug) = try!(context::new_from_headless(self, false));
+        let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
+        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
+                backend: None,
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
@@ -956,6 +965,9 @@ struct DisplayImpl {
     // contains everything related to the current context and its state
     context: context::Context,
 
+    // contains the window
+    backend: Option<Rc<backend::glutin_backend::GlutinWindowBackend>>,
+
     // the callback used for debug messages
     debug_callback: RefCell<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
                                      + Send + Sync>>>,
@@ -977,27 +989,68 @@ struct DisplayImpl {
                     DefaultState<util::FnvHasher>>>,
 }
 
+/// Iterator for all the events received by the window.
+pub struct PollEventsIter<'a> {
+    window: Option<&'a Rc<backend::glutin_backend::GlutinWindowBackend>>,
+}
+
+impl<'a> Iterator for PollEventsIter<'a> {
+    type Item = glutin::Event;
+
+    fn next(&mut self) -> Option<glutin::Event> {
+        if let Some(window) = self.window.as_ref() {
+            window.poll_events().next()
+        } else {
+            None
+        }
+    }
+}
+
+/// Blocking iterator over all the events received by the window.
+///
+/// This iterator polls for events, until the window associated with its context
+/// is closed.
+pub struct WaitEventsIter<'a> {
+    window: Option<&'a Rc<backend::glutin_backend::GlutinWindowBackend>>,
+}
+
+impl<'a> Iterator for WaitEventsIter<'a> {
+    type Item = glutin::Event;
+
+    fn next(&mut self) -> Option<glutin::Event> {
+        if let Some(window) = self.window.as_ref() {
+            window.wait_events().next()
+        } else {
+            None
+        }
+    }
+}
+
 impl Display {
     /// Reads all events received by the window.
     ///
     /// This iterator polls for events and can be exhausted.
     pub fn poll_events(&self) -> PollEventsIter {
-        self.context.context.poll_events()
+        PollEventsIter {
+            window: self.context.backend.as_ref(),
+        }
     }
 
     /// Reads all events received by the window.
     pub fn wait_events(&self) -> WaitEventsIter {
-        self.context.context.wait_events()
+        WaitEventsIter {
+            window: self.context.backend.as_ref(),
+        }
     }
 
     /// Returns true if the window has been closed.
     pub fn is_closed(&self) -> bool {
-        self.context.context.is_closed()
+        self.context.backend.as_ref().map(|b| b.is_closed()).unwrap_or(false)
     }
 
     /// Returns the underlying window, or `None` if glium uses a headless context.
-    pub fn get_window(&self) -> Option<Ref<glutin::Window>> {
-        self.context.context.get_window()
+    pub fn get_window(&self) -> Option<&glutin::Window> {
+        self.context.backend.as_ref().map(|w| w.get_window())
     }
 
     /// Returns the dimensions of the main framebuffer.

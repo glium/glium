@@ -1,23 +1,23 @@
 use gl;
-use glutin;
+
+use std::default::Default;
 use std::cell::{RefCell, Ref};
 use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Sender, channel};
-use version::Api;
+
 use GliumCreationError;
+use backend::Backend;
+use version;
+use version::Api;
 
 pub use self::capabilities::Capabilities;
 pub use self::extensions::ExtensionsList;
-pub use self::glutin_context::new_from_window;
-#[cfg(feature = "headless")]
-pub use self::glutin_context::new_from_headless;
 pub use self::state::GLState;
-pub use version::Version as GlVersion;
+pub use version::Version as GlVersion;      // TODO: remove
 
 mod capabilities;
 mod extensions;
-mod glutin_context;
 mod state;
 
 pub struct Context {
@@ -28,15 +28,8 @@ pub struct Context {
     capabilities: Capabilities,
     shared_debug_output: Rc<SharedDebugOutput>,
 
-    window: Option<Rc<RefCell<glutin::Window>>>,
     backend: Box<Backend>,
     check_current_context: bool,
-}
-
-pub trait Backend {
-    fn is_closed(&self) -> bool;
-    fn is_current(&self) -> bool;
-    unsafe fn make_current(&self);
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -62,47 +55,47 @@ impl SharedDebugOutput {
     }
 }
 
-/// Iterator for all the events received by the window.
-pub struct PollEventsIter<'a> {
-    window: Option<Ref<'a, glutin::Window>>,
-}
-
-impl<'a> Iterator for PollEventsIter<'a> {
-    type Item = glutin::Event;
-
-    fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(window) = self.window.as_ref() {
-            window.poll_events().next()
-        } else {
-            None
-        }
-    }
-}
-
-/// Blocking iterator over all the events received by the window.
-///
-/// This iterator polls for events, until the window associated with its context
-/// is closed.
-pub struct WaitEventsIter<'a> {
-    window: Option<Ref<'a, glutin::Window>>,
-}
-
-impl<'a> Iterator for WaitEventsIter<'a> {
-    type Item = glutin::Event;
-
-    fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(window) = self.window.as_ref() {
-            window.wait_events().next()
-        } else {
-            None
-        }
-    }
-}
-
 impl Context {
+    pub fn new<B>(backend: B, check_current_context: bool)
+                  -> Result<(Context, Rc<SharedDebugOutput>), GliumCreationError>
+                  where B: Backend + 'static
+    {
+        backend.make_current();
+        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
+
+        let mut gl_state = Default::default();
+        let version = version::get_gl_version(&gl);
+        let extensions = extensions::get_extensions(&gl);
+        let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
+
+        let shared_debug_frontend = SharedDebugOutput::new();
+        let shared_debug_backend = shared_debug_frontend.clone();
+
+        try!(check_gl_compatibility(CommandContext {
+            gl: &gl,
+            state: &mut gl_state,
+            version: &version,
+            extensions: &extensions,
+            capabilities: &capabilities,
+            shared_debug_output: &shared_debug_backend,
+        }));
+
+        let backend = Box::new(backend);
+
+        Ok((Context {
+            gl: gl,
+            state: RefCell::new(gl_state),
+            version: version,
+            extensions: extensions,
+            capabilities: capabilities,
+            shared_debug_output: shared_debug_backend,
+            backend: backend,
+            check_current_context: check_current_context,
+        }, shared_debug_frontend))
+    }
+
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        // FIXME: 800x600?
-        self.window.as_ref().and_then(|w| w.borrow().get_inner_size()).unwrap_or((800, 600))
+        self.backend.get_framebuffer_dimensions()
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
@@ -118,24 +111,10 @@ impl Context {
         });
     }
 
-    pub fn is_closed(&self) -> bool {
-        self.backend.is_closed()
-    }
-
-    pub unsafe fn make_current(&self) {
-        if self.check_current_context {
-            if !self.backend.is_current() {
-                self.backend.make_current();
-            }
-        }
-    }
-
-    pub fn rebuild(&self, builder: glutin::WindowBuilder<'static>)
+    /*pub fn rebuild(&self, builder: glutin::WindowBuilder<'static>)
                    -> Result<(), GliumCreationError>
     {
-        unimplemented!();
-
-        /*let win_tmp = {
+        let win_tmp = {
             let window = window.read().unwrap();
             let builder = builder.with_shared_lists(&*window);
             match builder.build() {
@@ -154,20 +133,24 @@ impl Context {
         let mut window = window.write().unwrap();
         unsafe { win_tmp.make_current(); };
         gl_state = Default::default();
-        *window = win_tmp;*/
-    }
+        *window = win_tmp;
+    }*/
 
     pub fn swap_buffers(&self) {
-        unsafe {
-            self.make_current();
+        self.make_current();
 
-            // this is necessary on Windows 8, or nothing is being displayed
-            self.gl.Flush();
+        // this is necessary on Windows 8, or nothing is being displayed
+        unsafe { self.gl.Flush(); }
 
-            // swapping
-            if let Some(window) = self.window.as_ref() {
-                window.borrow().swap_buffers();
-            }   
+        // swapping
+        self.backend.swap_buffers();
+    }
+
+    pub fn make_current(&self) {
+        if !self.backend.is_current() {
+            unsafe {
+                self.backend.make_current();
+            }
         }
     }
 
@@ -181,23 +164,6 @@ impl Context {
 
     pub fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
-    }
-
-    pub fn poll_events(&self) -> PollEventsIter {
-        PollEventsIter {
-            window: self.get_window(),
-        }
-    }
-
-    pub fn wait_events(&self) -> WaitEventsIter {
-        WaitEventsIter {
-            window: self.get_window(),
-        }
-    }
-
-    /// Returns the underlying window, or `None` if a headless context is used.
-    pub fn get_window(&self) -> Option<Ref<glutin::Window>> {
-        self.window.as_ref().map(|w| w.borrow())
     }
 }
 
