@@ -987,6 +987,11 @@ impl Display {
         self.context.context.wait_events()
     }
 
+    /// Returns true if the window has been closed.
+    pub fn is_closed(&self) -> bool {
+        self.context.context.is_closed()
+    }
+
     /// Returns the underlying window, or `None` if glium uses a headless context.
     pub fn get_window(&self) -> Option<Ref<glutin::Window>> {
         self.context.context.get_window()

@@ -11,6 +11,10 @@ use std::rc::Rc;
 use std::sync::mpsc::channel;
 
 impl Backend for Rc<RefCell<glutin::Window>> {
+    fn is_closed(&self) -> bool {
+        self.borrow().is_closed()
+    }
+
     fn is_current(&self) -> bool {
         self.borrow().is_current()
     }
@@ -69,6 +73,10 @@ pub fn new_from_window(window: glutin::WindowBuilder, check_context: bool)
 
 #[cfg(feature = "headless")]
 impl Backend for glutin::HeadlessContext {
+    fn is_closed(&self) -> bool {
+        false
+    }
+
     fn is_current(&self) -> bool {
         self.is_current()
     }

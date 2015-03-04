@@ -34,6 +34,7 @@ pub struct Context {
 }
 
 pub trait Backend {
+    fn is_closed(&self) -> bool;
     fn is_current(&self) -> bool;
     unsafe fn make_current(&self);
 }
@@ -115,6 +116,10 @@ impl Context {
             capabilities: &self.capabilities,
             shared_debug_output: &*self.shared_debug_output,
         });
+    }
+
+    pub fn is_closed(&self) -> bool {
+        self.backend.is_closed()
     }
 
     pub unsafe fn make_current(&self) {
