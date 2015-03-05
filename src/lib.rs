@@ -1188,7 +1188,7 @@ impl Display {
         let shared_debug_output_ptr = SharedDebugOutputPtr(self.context.shared_debug_output.deref());
 
         // enabling the callback
-        self.context.context.exec(move |ctxt| {
+        self.context.context.exec(move |mut ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
                     ctxt.extensions.gl_arb_debug_output
@@ -1304,7 +1304,7 @@ impl Display {
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
         // disabling callback
-        self.context.exec(move |ctxt| {
+        self.context.exec(move |mut ctxt| {
             unsafe {
                 if ctxt.state.enabled_debug_output != Some(false) {
                     if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {

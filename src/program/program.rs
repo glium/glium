@@ -433,7 +433,7 @@ impl Program {
         let id = self.get_id();
 
         let (tx, rx) = channel();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) ||
                    ctxt.extensions.gl_arb_get_programy_binary
@@ -489,7 +489,7 @@ impl Program {
         let id = self.id.clone();
         let name_c = ffi::CString::from_slice(name.as_bytes());
         let (tx, rx) = channel();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let value = match id {
                     Handle::Id(id) => {
@@ -585,7 +585,7 @@ impl Drop for Program {
 
         // sending the destroy command
         let id = self.id.clone();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 match id {
                     Handle::Id(id) => {

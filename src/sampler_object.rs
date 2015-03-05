@@ -26,7 +26,7 @@ impl SamplerObject {
         let (tx, rx) = mpsc::channel();
         let behavior = behavior.clone();
 
-        display.context.context.exec(move |ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             let sampler = unsafe {
                 use std::mem;
                 let mut sampler: gl::types::GLuint = mem::uninitialized();
@@ -78,7 +78,7 @@ impl GlObject for SamplerObject {
 impl Drop for SamplerObject {
     fn drop(&mut self) {
         let id = self.id;
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 ctxt.gl.DeleteSamplers(1, [id].as_ptr());
             }

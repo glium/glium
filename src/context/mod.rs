@@ -1,7 +1,7 @@
 use gl;
 
 use std::default::Default;
-use std::cell::{RefCell, Ref};
+use std::cell::{RefCell, Ref, RefMut};
 use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Sender, channel};
@@ -34,7 +34,7 @@ pub struct Context {
 
 pub struct CommandContext<'a, 'b> {
     pub gl: &'a gl::Gl,
-    pub state: &'b mut GLState,
+    pub state: RefMut<'b, GLState>,
     pub version: &'a GlVersion,
     pub extensions: &'a ExtensionsList,
     pub capabilities: &'a Capabilities,
@@ -63,7 +63,7 @@ impl Context {
         backend.make_current();
         let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
 
-        let mut gl_state = Default::default();
+        let gl_state = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
@@ -73,7 +73,7 @@ impl Context {
 
         try!(check_gl_compatibility(CommandContext {
             gl: &gl,
-            state: &mut gl_state,
+            state: gl_state.borrow_mut(),
             version: &version,
             extensions: &extensions,
             capabilities: &capabilities,
@@ -82,7 +82,7 @@ impl Context {
 
         Ok((Context {
             gl: gl,
-            state: RefCell::new(gl_state),
+            state: gl_state,
             version: version,
             extensions: extensions,
             capabilities: capabilities,
@@ -101,7 +101,7 @@ impl Context {
 
         f(CommandContext {
             gl: &self.gl,
-            state: &mut *self.state.borrow_mut(),
+            state: self.state.borrow_mut(),
             version: &self.version,
             extensions: &self.extensions,
             capabilities: &self.capabilities,

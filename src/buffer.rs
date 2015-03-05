@@ -129,7 +129,7 @@ impl Buffer {
         let buffer_size = elements_count * elements_size as usize;
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let mut id: gl::types::GLuint = mem::uninitialized();
 
@@ -141,7 +141,7 @@ impl Buffer {
                     unreachable!();
                 }
 
-                let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                 let bind = <T as BufferType>::get_bind_point();
 
                 if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
@@ -257,7 +257,7 @@ impl Buffer {
 
         let id = self.get_id();
 
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             let data = data;
 
             unsafe {
@@ -278,7 +278,7 @@ impl Buffer {
                                                   data.as_ptr() as *const libc::c_void)
 
                 } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -291,7 +291,7 @@ impl Buffer {
                                           data.as_ptr() as *const libc::c_void);
 
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -343,7 +343,7 @@ impl Buffer {
         let offset_bytes = offset * self.elements_size;
         let size_bytes = size * self.elements_size;
 
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             let ptr = unsafe {
                 if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
                     ctxt.gl.MapNamedBufferRange(id, offset_bytes as gl::types::GLintptr,
@@ -353,7 +353,7 @@ impl Buffer {
                 } else if ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
                     ctxt.extensions.gl_arb_map_buffer_range
                 {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -406,7 +406,7 @@ impl Buffer {
         let elements_size = self.elements_size.clone();
         let (tx, rx) = channel();
 
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let mut data = Vec::with_capacity(size);
                 data.set_len(size);
@@ -417,7 +417,7 @@ impl Buffer {
                         data.as_mut_ptr() as *mut libc::c_void);
 
                 } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -430,7 +430,7 @@ impl Buffer {
                         data.as_mut_ptr() as *mut libc::c_void);
 
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -463,7 +463,7 @@ impl fmt::Debug for Buffer {
 impl Drop for Buffer {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             if ctxt.state.array_buffer_binding == id {
                 ctxt.state.array_buffer_binding = 0;
             }
@@ -521,13 +521,13 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
         }
 
         let id = self.buffer.id.clone();
-        self.buffer.display.context.context.exec(move |ctxt| {
+        self.buffer.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
                     ctxt.gl.UnmapNamedBuffer(id);
 
                 } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -538,7 +538,7 @@ impl<'a, T, D> Drop for Mapping<'a, T, D> where T: BufferType {
                     ctxt.gl.UnmapBuffer(bind);
 
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    let storage = <T as BufferType>::get_storage_point(ctxt.state);
+                    let storage = <T as BufferType>::get_storage_point(&mut ctxt.state);
                     let bind = <T as BufferType>::get_bind_point();
 
                     if *storage != id {
@@ -653,7 +653,7 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
               ctxt.extensions.gl_arb_buffer_storage
     {
         ctxt.gl.BindBuffer(bind, id);
-        *<T as BufferType>::get_storage_point(ctxt.state) = id;
+        *<T as BufferType>::get_storage_point(&mut ctxt.state) = id;
         ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
                               data_ptr as *const libc::c_void,
                               flags);
@@ -662,7 +662,7 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
     } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
         debug_assert!(!persistent);
         ctxt.gl.BindBuffer(bind, id);
-        *<T as BufferType>::get_storage_point(ctxt.state) = id;
+        *<T as BufferType>::get_storage_point(&mut ctxt.state) = id;
         ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
                            data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
@@ -670,7 +670,7 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
     } else if ctxt.extensions.gl_arb_vertex_buffer_object {
         debug_assert!(!persistent);
         ctxt.gl.BindBufferARB(bind, id);    // bind points are the same in the ext
-        *<T as BufferType>::get_storage_point(ctxt.state) = id;
+        *<T as BufferType>::get_storage_point(&mut ctxt.state) = id;
         ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
                               data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
         ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
@@ -701,9 +701,9 @@ unsafe fn create_buffer<T, D>(ctxt: &mut context::CommandContext, data: Vec<D>, 
                                         gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
                                         gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
         } else {
-            if *<T as BufferType>::get_storage_point(ctxt.state) != id {
+            if *<T as BufferType>::get_storage_point(&mut ctxt.state) != id {
                 ctxt.gl.BindBuffer(bind, id);
-                *<T as BufferType>::get_storage_point(ctxt.state) = id;
+                *<T as BufferType>::get_storage_point(&mut ctxt.state) = id;
             }
 
             ctxt.gl.MapBufferRange(bind, 0, buffer_size as gl::types::GLsizeiptr,

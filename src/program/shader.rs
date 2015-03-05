@@ -31,7 +31,7 @@ impl GlObject for Shader {
 impl Drop for Shader {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 match id {
                     Handle::Id(id) => {

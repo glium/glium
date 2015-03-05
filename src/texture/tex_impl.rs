@@ -137,7 +137,7 @@ impl TextureImplementation {
 
         let (tx, rx) = channel();
         //This always syncs with rx later.
-        display.context.context.exec(move |ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let data = data;
                 let data_raw = if let Some((_, ref data)) = data {
@@ -382,7 +382,7 @@ impl TextureImplementation {
         let (client_format, client_type) = client_format_to_glenum(&self.display, format,
                                                                    self.requested_format);
         let should_sync = data.is_borrowed();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe {
                 if ctxt.state.pixel_store_unpack_alignment != 1 {
                     ctxt.state.pixel_store_unpack_alignment = 1;
@@ -482,7 +482,7 @@ impl Drop for TextureImplementation {
 
         // destroying the texture
         let id = self.id.clone();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             unsafe { ctxt.gl.DeleteTextures(1, [ id ].as_ptr()); }
         });
     }

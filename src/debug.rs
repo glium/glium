@@ -113,7 +113,7 @@ impl TimestampQuery {
         use std::mem;
 
         let (tx, rx) = channel();
-        display.context.context.exec(move |ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
                 unsafe {
                     let mut id = mem::uninitialized();
@@ -153,7 +153,7 @@ impl TimestampQuery {
 
         let id = self.id.clone();
         let (tx, rx) = channel();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
                 unsafe {
                     let mut value = mem::uninitialized();
@@ -184,7 +184,7 @@ impl TimestampQuery {
 
         let id = self.id.clone();
         let (tx, rx) = channel();
-        self.display.context.context.exec(move |ctxt| {
+        self.display.context.context.exec(move |mut ctxt| {
             if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
                 unsafe {
                     let mut value = mem::uninitialized();

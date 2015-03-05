@@ -182,7 +182,7 @@ impl RenderBufferImpl {
 
         // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
 
-        display.context.context.exec(move |ctxt| {
+        display.context.context.exec(move |mut ctxt| {
             unsafe {
                 let mut id = mem::uninitialized();
 
@@ -237,7 +237,7 @@ impl Drop for RenderBufferImpl {
 
         // destroying
         let id = self.id.clone();
-        self.display.context.exec(move |ctxt| {
+        self.display.context.exec(move |mut ctxt| {
             unsafe {
                 if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                    ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)

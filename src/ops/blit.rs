@@ -21,7 +21,7 @@ pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types:
     let target = display.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(target, &display.context);
 
-    display.context.exec(move |ctxt| {
+    display.context.exec(move |mut ctxt| {
         unsafe {
             // trying to do a named blit if possible
             if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) {

@@ -101,7 +101,7 @@ impl VertexArrayObject {
 
         let (tx, rx) = channel();
 
-        display.context.exec(move |ctxt| {
+        display.context.exec(move |mut ctxt| {
             unsafe {
                 // building the VAO
                 let id: gl::types::GLuint = mem::uninitialized();
@@ -194,7 +194,7 @@ impl VertexArrayObject {
 impl Drop for VertexArrayObject {
     fn drop(&mut self) {
         let id = self.id.clone();
-        self.display.context.exec(move |ctxt| {
+        self.display.context.exec(move |mut ctxt| {
             unsafe {
                 // unbinding
                 if ctxt.state.vertex_array == id {

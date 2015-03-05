@@ -322,7 +322,7 @@ impl FrameBufferObject {
     fn destroy(self, context: &context::Context) {
         let id = self.id;
 
-        context.exec(move |ctxt| {
+        context.exec(move |mut ctxt| {
             unsafe {
                 // unbinding framebuffer
                 if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
