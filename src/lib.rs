@@ -229,6 +229,7 @@ mod gl {
 
 /// Trait for objects that are OpenGL objects.
 pub trait GlObject {
+    /// The type of identifier for this object.
     type Id;
 
     /// Returns the id of the object.
@@ -238,8 +239,10 @@ pub trait GlObject {
 /// Handle to a shader or a program.
 // TODO: Handle(null()) is equal to Id(0)
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Hash)]
-enum Handle {
+pub enum Handle {
+    /// A numberic identifier.
     Id(gl::types::GLuint),
+    /// A `GLhandleARB`.
     Handle(gl::types::GLhandleARB),
 }
 
