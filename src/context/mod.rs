@@ -28,7 +28,7 @@ pub struct Context {
     capabilities: Capabilities,
     shared_debug_output: Rc<SharedDebugOutput>,
 
-    backend: Box<Backend>,
+    backend: RefCell<Box<Backend>>,
     check_current_context: bool,
 }
 
@@ -80,8 +80,6 @@ impl Context {
             shared_debug_output: &shared_debug_backend,
         }));
 
-        let backend = Box::new(backend);
-
         Ok((Context {
             gl: gl,
             state: RefCell::new(gl_state),
@@ -89,13 +87,13 @@ impl Context {
             extensions: extensions,
             capabilities: capabilities,
             shared_debug_output: shared_debug_backend,
-            backend: backend,
+            backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
         }, shared_debug_frontend))
     }
 
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        self.backend.get_framebuffer_dimensions()
+        self.backend.borrow().get_framebuffer_dimensions()
     }
 
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
@@ -117,30 +115,35 @@ impl Context {
     {
         unsafe { new_backend.make_current(); };
 
-        // FIXME: remove this hack
-        let me: &mut Context = unsafe { ::std::mem::transmute(self) };
-        me.state = Default::default();
+        *self.state.borrow_mut() = Default::default();
         // FIXME: verify version, capabilities and extensions
-
-        me.backend = Box::new(new_backend);
+        *self.backend.borrow_mut() = Box::new(new_backend);
 
         Ok(())
     }
 
     pub fn swap_buffers(&self) {
-        self.make_current();
+        let backend = self.backend.borrow();
+
+        if !backend.is_current() {
+            unsafe {
+                backend.make_current();
+            }
+        }
 
         // this is necessary on Windows 8, or nothing is being displayed
         unsafe { self.gl.Flush(); }
 
         // swapping
-        self.backend.swap_buffers();
+        backend.swap_buffers();
     }
 
     pub fn make_current(&self) {
-        if !self.backend.is_current() {
+        let backend = self.backend.borrow();
+
+        if !backend.is_current() {
             unsafe {
-                self.backend.make_current();
+                backend.make_current();
             }
         }
     }
