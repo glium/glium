@@ -178,51 +178,48 @@ impl RenderBufferImpl {
     fn new(display: &::Display, format: gl::types::GLenum, width: u32, height: u32)
            -> RenderBufferImpl
     {
-        let (tx, rx) = channel();
-
         // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
+        let mut ctxt = display.context.context.make_current();
 
-        display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                let mut id = mem::uninitialized();
+        let id = unsafe {
+            let mut id = mem::uninitialized();
 
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
-                    ctxt.extensions.gl_arb_direct_state_access
-                {
-                    ctxt.gl.CreateRenderbuffers(1, &mut id);
-                    ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
-                                                     height as gl::types::GLsizei);
+            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
+                ctxt.extensions.gl_arb_direct_state_access
+            {
+                ctxt.gl.CreateRenderbuffers(1, &mut id);
+                ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
+                                                 height as gl::types::GLsizei);
 
-                } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                          ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.GenRenderbuffers(1, &mut id);
-                    ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
-                    ctxt.state.renderbuffer = id;
-                    // FIXME: gles2 only supports very few formats
-                    ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format,
-                                                width as gl::types::GLsizei,
-                                                height as gl::types::GLsizei);
+            } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                      ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            {
+                ctxt.gl.GenRenderbuffers(1, &mut id);
+                ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
+                ctxt.state.renderbuffer = id;
+                // FIXME: gles2 only supports very few formats
+                ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format,
+                                            width as gl::types::GLsizei,
+                                            height as gl::types::GLsizei);
 
-                } else if ctxt.extensions.gl_ext_framebuffer_object {
-                    ctxt.gl.GenRenderbuffersEXT(1, &mut id);
-                    ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, id);
-                    ctxt.state.renderbuffer = id;
-                    ctxt.gl.RenderbufferStorageEXT(gl::RENDERBUFFER_EXT, format,
-                                                   width as gl::types::GLsizei,
-                                                   height as gl::types::GLsizei);
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.GenRenderbuffersEXT(1, &mut id);
+                ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, id);
+                ctxt.state.renderbuffer = id;
+                ctxt.gl.RenderbufferStorageEXT(gl::RENDERBUFFER_EXT, format,
+                                               width as gl::types::GLsizei,
+                                               height as gl::types::GLsizei);
 
-                } else {
-                    unreachable!();
-                }
-
-                tx.send(id).unwrap();
+            } else {
+                unreachable!();
             }
-        });
+
+            id
+        };
 
         RenderBufferImpl {
             display: display.context.clone(),
-            id: rx.recv().unwrap(),
+            id: id,
             width: width,
             height: height,
         }

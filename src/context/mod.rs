@@ -96,8 +96,35 @@ impl Context {
         self.backend.borrow().get_framebuffer_dimensions()
     }
 
+    pub fn make_current<'a>(&'a self) -> CommandContext<'a, 'a> {
+        {
+            let backend = self.backend.borrow();
+            if !backend.is_current() {
+                unsafe {
+                    backend.make_current();
+                }
+            }
+        }
+
+        CommandContext {
+            gl: &self.gl,
+            state: self.state.borrow_mut(),
+            version: &self.version,
+            extensions: &self.extensions,
+            capabilities: &self.capabilities,
+            shared_debug_output: &*self.shared_debug_output,
+        }
+    }
+
+    // TODO: remove this reliquate
     pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
-        unsafe { self.make_current() };
+        let backend = self.backend.borrow();
+
+        if !backend.is_current() {
+            unsafe {
+                backend.make_current();
+            }
+        }
 
         f(CommandContext {
             gl: &self.gl,
@@ -136,16 +163,6 @@ impl Context {
 
         // swapping
         backend.swap_buffers();
-    }
-
-    pub fn make_current(&self) {
-        let backend = self.backend.borrow();
-
-        if !backend.is_current() {
-            unsafe {
-                backend.make_current();
-            }
-        }
     }
 
     pub fn capabilities(&self) -> &Capabilities {
