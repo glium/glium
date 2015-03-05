@@ -135,177 +135,175 @@ impl TextureImplementation {
             (&None, _) => (gl::RGBA, gl::UNSIGNED_BYTE),
         };
 
-        let (tx, rx) = channel();
-        //This always syncs with rx later.
-        display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                let data = data;
-                let data_raw = if let Some((_, ref data)) = data {
-                    data.as_ptr() as *const libc::c_void
+        let mut ctxt = display.context.context.make_current();
+
+        let id = unsafe {
+            let data = data;
+            let data_raw = if let Some((_, ref data)) = data {
+                data.as_ptr() as *const libc::c_void
+            } else {
+                ptr::null()
+            };
+
+            if ctxt.state.pixel_store_unpack_alignment != 1 {
+                ctxt.state.pixel_store_unpack_alignment = 1;
+                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+            }
+
+            if ctxt.state.pixel_unpack_buffer_binding != 0 {
+                ctxt.state.pixel_unpack_buffer_binding = 0;
+                ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
+            }
+
+            let id: gl::types::GLuint = mem::uninitialized();
+            ctxt.gl.GenTextures(1, mem::transmute(&id));
+
+            ctxt.gl.BindTexture(texture_type, id);
+
+            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            if height.is_some() || depth.is_some() || array_size.is_some() {
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            }
+            if depth.is_some() || array_size.is_some() {
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
+            }
+            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+            if generate_mipmaps {
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+                                      gl::LINEAR_MIPMAP_LINEAR as i32);
+            } else {
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+                                      gl::LINEAR as i32);
+            }
+
+            if !generate_mipmaps {
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_BASE_LEVEL, 0);
+                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAX_LEVEL, 0);
+            }
+
+            if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
+                if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    ctxt.gl.TexStorage3D(texture_type, texture_levels,
+                                         internal_format as gl::types::GLenum,
+                                         width as gl::types::GLsizei,
+                                         height.unwrap() as gl::types::GLsizei,
+                                         depth.or(array_size).unwrap() as gl::types::GLsizei);
+
+                    if !data_raw.is_null() {
+                        ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0,
+                                              width as gl::types::GLsizei,
+                                              height.unwrap() as gl::types::GLsizei,
+                                              depth.or(array_size).unwrap() as gl::types::GLsizei,
+                                              client_format, client_type, data_raw);
+                    }
+
                 } else {
-                    ptr::null()
-                };
-
-                if ctxt.state.pixel_store_unpack_alignment != 1 {
-                    ctxt.state.pixel_store_unpack_alignment = 1;
-                    ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+                    ctxt.gl.TexImage3D(texture_type, 0, internal_format as i32, width as i32,
+                                       height.unwrap() as i32,
+                                       depth.or(array_size).unwrap() as i32, 0,
+                                       client_format as u32, client_type, data_raw);
                 }
 
-                if ctxt.state.pixel_unpack_buffer_binding != 0 {
-                    ctxt.state.pixel_unpack_buffer_binding = 0;
-                    ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
-                }
+            } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
+                if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    ctxt.gl.TexStorage2D(texture_type, texture_levels,
+                                         internal_format as gl::types::GLenum,
+                                         width as gl::types::GLsizei,
+                                         height.or(array_size).unwrap() as gl::types::GLsizei);
 
-                let id: gl::types::GLuint = mem::uninitialized();
-                ctxt.gl.GenTextures(1, mem::transmute(&id));
+                    if !data_raw.is_null() {
+                        ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width as gl::types::GLsizei,
+                                              height.or(array_size).unwrap() as gl::types::GLsizei,
+                                              client_format, client_type, data_raw);
+                    }
 
-                ctxt.gl.BindTexture(texture_type, id);
-
-                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-                if height.is_some() || depth.is_some() || array_size.is_some() {
-                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
-                }
-                if depth.is_some() || array_size.is_some() {
-                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
-                }
-                ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-                if generate_mipmaps {
-                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
-                                          gl::LINEAR_MIPMAP_LINEAR as i32);
                 } else {
-                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
-                                          gl::LINEAR as i32);
+                    ctxt.gl.TexImage2D(texture_type, 0, internal_format as i32, width as i32,
+                                       height.or(array_size).unwrap() as i32, 0,
+                                       client_format as u32, client_type, data_raw);
                 }
 
-                if !generate_mipmaps {
-                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_BASE_LEVEL, 0);
-                    ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAX_LEVEL, 0);
-                }
+            } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE {
+                assert!(data_raw.is_null());
+                if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
+                                                    samples.unwrap() as gl::types::GLsizei,
+                                                    internal_format as gl::types::GLenum,
+                                                    width as gl::types::GLsizei,
+                                                    height.unwrap() as gl::types::GLsizei,
+                                                    gl::TRUE);
 
-                if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                        ctxt.gl.TexStorage3D(texture_type, texture_levels,
-                                             internal_format as gl::types::GLenum,
-                                             width as gl::types::GLsizei,
-                                             height.unwrap() as gl::types::GLsizei,
-                                             depth.or(array_size).unwrap() as gl::types::GLsizei);
-
-                        if !data_raw.is_null() {
-                            ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0,
+                } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+                    ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
+                                                  samples.unwrap() as gl::types::GLsizei,
+                                                  internal_format as gl::types::GLenum,
                                                   width as gl::types::GLsizei,
                                                   height.unwrap() as gl::types::GLsizei,
-                                                  depth.or(array_size).unwrap() as gl::types::GLsizei,
-                                                  client_format, client_type, data_raw);
-                        }
-
-                    } else {
-                        ctxt.gl.TexImage3D(texture_type, 0, internal_format as i32, width as i32,
-                                           height.unwrap() as i32,
-                                           depth.or(array_size).unwrap() as i32, 0,
-                                           client_format as u32, client_type, data_raw);
-                    }
-
-                } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                        ctxt.gl.TexStorage2D(texture_type, texture_levels,
-                                             internal_format as gl::types::GLenum,
-                                             width as gl::types::GLsizei,
-                                             height.or(array_size).unwrap() as gl::types::GLsizei);
-
-                        if !data_raw.is_null() {
-                            ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width as gl::types::GLsizei,
-                                                  height.or(array_size).unwrap() as gl::types::GLsizei,
-                                                  client_format, client_type, data_raw);
-                        }
-
-                    } else {
-                        ctxt.gl.TexImage2D(texture_type, 0, internal_format as i32, width as i32,
-                                           height.or(array_size).unwrap() as i32, 0,
-                                           client_format as u32, client_type, data_raw);
-                    }
-
-                } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE {
-                    assert!(data_raw.is_null());
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                        ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
-                                                        samples.unwrap() as gl::types::GLsizei,
-                                                        internal_format as gl::types::GLenum,
-                                                        width as gl::types::GLsizei,
-                                                        height.unwrap() as gl::types::GLsizei,
-                                                        gl::TRUE);
-
-                    } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
-                        ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
-                                                      samples.unwrap() as gl::types::GLsizei,
-                                                      internal_format as gl::types::GLenum,
-                                                      width as gl::types::GLsizei,
-                                                      height.unwrap() as gl::types::GLsizei,
-                                                      gl::TRUE);
-
-                    } else {
-                        unreachable!();
-                    }
-
-                } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
-                    assert!(data_raw.is_null());
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                        ctxt.gl.TexStorage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-                                                        samples.unwrap() as gl::types::GLsizei,
-                                                        internal_format as gl::types::GLenum,
-                                                        width as gl::types::GLsizei,
-                                                        height.unwrap() as gl::types::GLsizei,
-                                                        array_size.unwrap() as gl::types::GLsizei,
-                                                        gl::TRUE);
-
-                    } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
-                        ctxt.gl.TexImage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-                                                      samples.unwrap() as gl::types::GLsizei,
-                                                      internal_format as gl::types::GLenum,
-                                                      width as gl::types::GLsizei,
-                                                      height.unwrap() as gl::types::GLsizei,
-                                                      array_size.unwrap() as gl::types::GLsizei,
-                                                      gl::TRUE);
-
-                    } else {
-                        unreachable!();
-                    }
-
-                } else if texture_type == gl::TEXTURE_1D {
-                    if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                        ctxt.gl.TexStorage1D(texture_type, texture_levels,
-                                             internal_format as gl::types::GLenum,
-                                             width as gl::types::GLsizei);
-
-                        if !data_raw.is_null() {
-                            ctxt.gl.TexSubImage1D(texture_type, 0, 0, width as gl::types::GLsizei,
-                                                  client_format, client_type, data_raw);
-                        }
-
-                    } else {
-                        ctxt.gl.TexImage1D(texture_type, 0, internal_format as i32, width as i32,
-                                           0, client_format as u32, client_type, data_raw);
-                    }
+                                                  gl::TRUE);
 
                 } else {
                     unreachable!();
                 }
 
-                // only generate mipmaps for color textures
-                if generate_mipmaps {
-                    if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
-                        ctxt.gl.GenerateMipmap(texture_type);
-                    } else {
-                        ctxt.gl.GenerateMipmapEXT(texture_type);
-                    }
+            } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
+                assert!(data_raw.is_null());
+                if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    ctxt.gl.TexStorage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+                                                    samples.unwrap() as gl::types::GLsizei,
+                                                    internal_format as gl::types::GLenum,
+                                                    width as gl::types::GLsizei,
+                                                    height.unwrap() as gl::types::GLsizei,
+                                                    array_size.unwrap() as gl::types::GLsizei,
+                                                    gl::TRUE);
+
+                } else if ctxt.version >= &GlVersion(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+                    ctxt.gl.TexImage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+                                                  samples.unwrap() as gl::types::GLsizei,
+                                                  internal_format as gl::types::GLenum,
+                                                  width as gl::types::GLsizei,
+                                                  height.unwrap() as gl::types::GLsizei,
+                                                  array_size.unwrap() as gl::types::GLsizei,
+                                                  gl::TRUE);
+
+                } else {
+                    unreachable!();
                 }
 
-                tx.send(id).unwrap();
+            } else if texture_type == gl::TEXTURE_1D {
+                if can_use_texstorage && (ctxt.version >= &GlVersion(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+                    ctxt.gl.TexStorage1D(texture_type, texture_levels,
+                                         internal_format as gl::types::GLenum,
+                                         width as gl::types::GLsizei);
+
+                    if !data_raw.is_null() {
+                        ctxt.gl.TexSubImage1D(texture_type, 0, 0, width as gl::types::GLsizei,
+                                              client_format, client_type, data_raw);
+                    }
+
+                } else {
+                    ctxt.gl.TexImage1D(texture_type, 0, internal_format as i32, width as i32,
+                                       0, client_format as u32, client_type, data_raw);
+                }
+
+            } else {
+                unreachable!();
             }
-        });
+
+            // only generate mipmaps for color textures
+            if generate_mipmaps {
+                if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
+                    ctxt.gl.GenerateMipmap(texture_type);
+                } else {
+                    ctxt.gl.GenerateMipmapEXT(texture_type);
+                }
+            }
+
+            id
+        };
 
         Ok(TextureImplementation {
             display: display.clone(),
-            id: rx.recv().unwrap(),
+            id: id,
             requested_format: format,
             bind_point: texture_type,
             width: width,
@@ -382,50 +380,51 @@ impl TextureImplementation {
         let (client_format, client_type) = client_format_to_glenum(&self.display, format,
                                                                    self.requested_format);
         let should_sync = data.is_borrowed();
-        self.display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                if ctxt.state.pixel_store_unpack_alignment != 1 {
-                    ctxt.state.pixel_store_unpack_alignment = 1;
-                    ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
-                }
 
-                if ctxt.state.pixel_unpack_buffer_binding != 0 {
-                    ctxt.state.pixel_unpack_buffer_binding = 0;
-                    ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
-                }
+        let mut ctxt = self.display.context.context.make_current();
 
-                ctxt.gl.BindTexture(bind_point, id);
+        unsafe {
+            if ctxt.state.pixel_store_unpack_alignment != 1 {
+                ctxt.state.pixel_store_unpack_alignment = 1;
+                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+            }
 
-                if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
-                    unimplemented!();
+            if ctxt.state.pixel_unpack_buffer_binding != 0 {
+                ctxt.state.pixel_unpack_buffer_binding = 0;
+                ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
+            }
 
-                } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
-                    assert!(z_offset == 0);
-                    ctxt.gl.TexSubImage2D(bind_point, level as gl::types::GLint,
-                                          x_offset as gl::types::GLint,
-                                          y_offset as gl::types::GLint,
-                                          width as gl::types::GLsizei,
-                                          height.unwrap_or(1) as gl::types::GLsizei,
-                                          client_format, client_type,
-                                          data.as_ptr() as *const libc::c_void);
+            ctxt.gl.BindTexture(bind_point, id);
 
+            if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
+                unimplemented!();
+
+            } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
+                assert!(z_offset == 0);
+                ctxt.gl.TexSubImage2D(bind_point, level as gl::types::GLint,
+                                      x_offset as gl::types::GLint,
+                                      y_offset as gl::types::GLint,
+                                      width as gl::types::GLsizei,
+                                      height.unwrap_or(1) as gl::types::GLsizei,
+                                      client_format, client_type,
+                                      data.as_ptr() as *const libc::c_void);
+
+            } else {
+                assert!(z_offset == 0);
+                assert!(y_offset == 0);
+
+                unimplemented!();
+            }
+
+            // regenerate mipmaps if there are some
+            if regen_mipmaps {
+                if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
+                    ctxt.gl.GenerateMipmap(bind_point);
                 } else {
-                    assert!(z_offset == 0);
-                    assert!(y_offset == 0);
-
-                    unimplemented!();
-                }
-
-                // regenerate mipmaps if there are some
-                if regen_mipmaps {
-                    if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
-                        ctxt.gl.GenerateMipmap(bind_point);
-                    } else {
-                        ctxt.gl.GenerateMipmapEXT(bind_point);
-                    }
+                    ctxt.gl.GenerateMipmapEXT(bind_point);
                 }
             }
-        });
+        }
     }
 
     /// Returns the `Display` associated with this texture.
@@ -481,10 +480,8 @@ impl Drop for TextureImplementation {
                     .purge_texture(self.id, &self.display.context.context);
 
         // destroying the texture
-        let id = self.id.clone();
-        self.display.context.context.exec(move |mut ctxt| {
-            unsafe { ctxt.gl.DeleteTextures(1, [ id ].as_ptr()); }
-        });
+        let mut ctxt = self.display.context.context.make_current();
+        unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
     }
 }
 

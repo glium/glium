@@ -1,7 +1,6 @@
 use Display;
 use DrawError;
 
-use std::sync::mpsc;
 use uniforms::SamplerBehavior;
 
 use gl;
@@ -23,46 +22,41 @@ impl SamplerObject {
         assert!(display.context.context.get_version() >= &GlVersion(Api::Gl, 3, 2) ||
                 display.context.context.get_extensions().gl_arb_sampler_objects);
 
-        let (tx, rx) = mpsc::channel();
-        let behavior = behavior.clone();
+        let mut ctxt = display.context.context.make_current();
 
-        display.context.context.exec(move |mut ctxt| {
-            let sampler = unsafe {
-                use std::mem;
-                let mut sampler: gl::types::GLuint = mem::uninitialized();
-                ctxt.gl.GenSamplers(1, &mut sampler);
-                sampler
-            };
+        let sampler = unsafe {
+            use std::mem;
+            let mut sampler: gl::types::GLuint = mem::uninitialized();
+            ctxt.gl.GenSamplers(1, &mut sampler);
+            sampler
+        };
 
-            tx.send(sampler).unwrap();
+        unsafe {
+            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_S,
+                                      behavior.wrap_function.0.to_glenum() as gl::types::GLint);
+            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_T,
+                                      behavior.wrap_function.1.to_glenum() as gl::types::GLint);
+            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_R,
+                                      behavior.wrap_function.2.to_glenum() as gl::types::GLint);
+            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MIN_FILTER,
+                                      behavior.minify_filter.to_glenum() as gl::types::GLint);
+            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MAG_FILTER,
+                                      behavior.magnify_filter.to_glenum() as gl::types::GLint);
 
-            unsafe {
-                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_S,
-                                          behavior.wrap_function.0.to_glenum() as gl::types::GLint);
-                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_T,
-                                          behavior.wrap_function.1.to_glenum() as gl::types::GLint);
-                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_R,
-                                          behavior.wrap_function.2.to_glenum() as gl::types::GLint);
-                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MIN_FILTER,
-                                          behavior.minify_filter.to_glenum() as gl::types::GLint);
-                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MAG_FILTER,
-                                          behavior.magnify_filter.to_glenum() as gl::types::GLint);
+            if let Some(max_value) = ctxt.capabilities.max_texture_max_anisotropy {
+                let value = if behavior.max_anisotropy as f32 > max_value {
+                    max_value
+                } else {
+                    behavior.max_anisotropy as f32
+                };
 
-                if let Some(max_value) = ctxt.capabilities.max_texture_max_anisotropy {
-                    let value = if behavior.max_anisotropy as f32 > max_value {
-                        max_value
-                    } else {
-                        behavior.max_anisotropy as f32
-                    };
-
-                    ctxt.gl.SamplerParameterf(sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, value);
-                }
+                ctxt.gl.SamplerParameterf(sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, value);
             }
-        });
+        }
 
         SamplerObject {
             display: display.clone(),
-            id: rx.recv().unwrap(),
+            id: sampler,
         }
     }
 }
@@ -77,12 +71,8 @@ impl GlObject for SamplerObject {
 
 impl Drop for SamplerObject {
     fn drop(&mut self) {
-        let id = self.id;
-        self.display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                ctxt.gl.DeleteSamplers(1, [id].as_ptr());
-            }
-        });
+        let mut ctxt = self.display.context.context.make_current();
+        unsafe { ctxt.gl.DeleteSamplers(1, [self.id].as_ptr()); }
     }
 }
 

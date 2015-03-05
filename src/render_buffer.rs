@@ -233,30 +233,29 @@ impl Drop for RenderBufferImpl {
                     .purge_renderbuffer(self.id, &self.display.context);
 
         // destroying
-        let id = self.id.clone();
-        self.display.context.exec(move |mut ctxt| {
-            unsafe {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                   ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
-                {
-                    if ctxt.state.renderbuffer == id {
-                        ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
-                        ctxt.state.renderbuffer = 0;
-                    }
-                    ctxt.gl.DeleteRenderbuffers(1, [ id ].as_ptr());
+        let mut ctxt = self.display.context.make_current();
 
-                } else if ctxt.extensions.gl_ext_framebuffer_object {
-                    if ctxt.state.renderbuffer == id {
-                        ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, 0);
-                        ctxt.state.renderbuffer = 0;
-                    }
-                    ctxt.gl.DeleteRenderbuffersEXT(1, [ id ].as_ptr());
-
-                } else {
-                    unreachable!();
+        unsafe {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+               ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            {
+                if ctxt.state.renderbuffer == self.id {
+                    ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
+                    ctxt.state.renderbuffer = 0;
                 }
+                ctxt.gl.DeleteRenderbuffers(1, [ self.id ].as_ptr());
+
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                if ctxt.state.renderbuffer == self.id {
+                    ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, 0);
+                    ctxt.state.renderbuffer = 0;
+                }
+                ctxt.gl.DeleteRenderbuffersEXT(1, [ self.id ].as_ptr());
+
+            } else {
+                unreachable!();
             }
-        });
+        }
     }
 }
 

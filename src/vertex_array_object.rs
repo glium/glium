@@ -99,130 +99,129 @@ impl VertexArrayObject {
             }
         }).collect::<Vec<_>>();
 
-        let (tx, rx) = channel();
+        let display_clone = display.clone();
+        let mut ctxt = display.context.make_current();
 
-        display.context.exec(move |mut ctxt| {
-            unsafe {
-                // building the VAO
-                let id: gl::types::GLuint = mem::uninitialized();
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                    ctxt.extensions.gl_arb_vertex_array_object
-                {
-                    ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
-                } else if ctxt.extensions.gl_apple_vertex_array_object {
-                    ctxt.gl.GenVertexArraysAPPLE(1, mem::transmute(&id));
-                } else {
-                    unreachable!()
+        let id = unsafe {
+            // building the VAO
+            let id: gl::types::GLuint = mem::uninitialized();
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                ctxt.extensions.gl_arb_vertex_array_object
+            {
+                ctxt.gl.GenVertexArrays(1, mem::transmute(&id));
+            } else if ctxt.extensions.gl_apple_vertex_array_object {
+                ctxt.gl.GenVertexArraysAPPLE(1, mem::transmute(&id));
+            } else {
+                unreachable!()
+            }
+
+            // we don't use DSA as we're going to make multiple calls for this VAO
+            // and we're likely going to use the VAO right after it's been created
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                ctxt.extensions.gl_arb_vertex_array_object
+            {
+                ctxt.gl.BindVertexArray(id);
+            } else if ctxt.extensions.gl_apple_vertex_array_object {
+                ctxt.gl.BindVertexArrayAPPLE(id);
+            } else {
+                unreachable!()
+            }
+            ctxt.state.vertex_array = id;
+
+            // binding index buffer
+            // the ELEMENT_ARRAY_BUFFER is part of the state of the VAO
+            ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
+
+            for (vertex_buffer, bindings, vb_elementssize, divisor) in data.into_iter() {
+                // binding vertex buffer because glVertexAttribPointer uses the current
+                // array buffer
+                if ctxt.state.array_buffer_binding != vertex_buffer {
+                    ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
+                    ctxt.state.array_buffer_binding = vertex_buffer;
                 }
-                tx.send(id).unwrap();
 
-                // we don't use DSA as we're going to make multiple calls for this VAO
-                // and we're likely going to use the VAO right after it's been created
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                    ctxt.extensions.gl_arb_vertex_array_object
-                {
-                    ctxt.gl.BindVertexArray(id);
-                } else if ctxt.extensions.gl_apple_vertex_array_object {
-                    ctxt.gl.BindVertexArrayAPPLE(id);
-                } else {
-                    unreachable!()
-                }
-                ctxt.state.vertex_array = id;
+                // binding attributes
+                for (name, offset, ty) in bindings.into_iter() {
+                    let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
 
-                // binding index buffer
-                // the ELEMENT_ARRAY_BUFFER is part of the state of the VAO
-                ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
+                    let attribute = match attributes.get(&name) {
+                        Some(a) => a,
+                        None => continue
+                    };
 
-                for (vertex_buffer, bindings, vb_elementssize, divisor) in data.into_iter() {
-                    // binding vertex buffer because glVertexAttribPointer uses the current
-                    // array buffer
-                    if ctxt.state.array_buffer_binding != vertex_buffer {
-                        ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
-                        ctxt.state.array_buffer_binding = vertex_buffer;
-                    }
+                    let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
 
-                    // binding attributes
-                    for (name, offset, ty) in bindings.into_iter() {
-                        let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
+                    if attribute.location != -1 {
+                        match attribute_ty {
+                            gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
+                            gl::INT | gl::UNSIGNED_INT =>
+                                ctxt.gl.VertexAttribIPointer(attribute.location as u32,
+                                    elements_count as gl::types::GLint, data_type,
+                                    vb_elementssize as i32, offset as *const libc::c_void),
 
-                        let attribute = match attributes.get(&name) {
-                            Some(a) => a,
-                            None => continue
-                        };
+                            gl::DOUBLE | gl::DOUBLE_VEC2 | gl::DOUBLE_VEC3 | gl::DOUBLE_VEC4 |
+                            gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
+                            gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
+                            gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 =>
+                                ctxt.gl.VertexAttribLPointer(attribute.location as u32,
+                                    elements_count as gl::types::GLint, data_type,
+                                    vb_elementssize as i32, offset as *const libc::c_void),
 
-                        let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
-
-                        if attribute.location != -1 {
-                            match attribute_ty {
-                                gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
-                                gl::INT | gl::UNSIGNED_INT =>
-                                    ctxt.gl.VertexAttribIPointer(attribute.location as u32,
-                                        elements_count as gl::types::GLint, data_type,
-                                        vb_elementssize as i32, offset as *const libc::c_void),
-
-                                gl::DOUBLE | gl::DOUBLE_VEC2 | gl::DOUBLE_VEC3 | gl::DOUBLE_VEC4 |
-                                gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
-                                gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
-                                gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 =>
-                                    ctxt.gl.VertexAttribLPointer(attribute.location as u32,
-                                        elements_count as gl::types::GLint, data_type,
-                                        vb_elementssize as i32, offset as *const libc::c_void),
-
-                                _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
-                                        elements_count as gl::types::GLint, data_type, 0,
-                                        vb_elementssize as i32, offset as *const libc::c_void)
-                            }
-
-                            if divisor != 0 {
-                                ctxt.gl.VertexAttribDivisor(attribute.location as u32, divisor);
-                            }
-
-                            ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
+                            _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
+                                    elements_count as gl::types::GLint, data_type, 0,
+                                    vb_elementssize as i32, offset as *const libc::c_void)
                         }
+
+                        if divisor != 0 {
+                            ctxt.gl.VertexAttribDivisor(attribute.location as u32, divisor);
+                        }
+
+                        ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
                     }
                 }
             }
-        });
+
+            id
+        };
 
         VertexArrayObject {
-            display: display,
-            id: rx.recv().unwrap(),
+            display: display_clone,
+            id: id,
         }
     }
 }
 
 impl Drop for VertexArrayObject {
     fn drop(&mut self) {
-        let id = self.id.clone();
-        self.display.context.exec(move |mut ctxt| {
-            unsafe {
-                // unbinding
-                if ctxt.state.vertex_array == id {
-                    if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                        ctxt.extensions.gl_arb_vertex_array_object
-                    {
-                        ctxt.gl.BindVertexArray(0);
-                    } else if ctxt.extensions.gl_apple_vertex_array_object {
-                        ctxt.gl.BindVertexArrayAPPLE(0);
-                    } else {
-                        unreachable!()
-                    }
+        let mut ctxt = self.display.context.make_current();
 
-                    ctxt.state.vertex_array = 0;
-                }
-
-                // deleting
+        unsafe {
+            // unbinding
+            if ctxt.state.vertex_array == self.id {
                 if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                     ctxt.extensions.gl_arb_vertex_array_object
                 {
-                    ctxt.gl.DeleteVertexArrays(1, [ id ].as_ptr());
+                    ctxt.gl.BindVertexArray(0);
                 } else if ctxt.extensions.gl_apple_vertex_array_object {
-                    ctxt.gl.DeleteVertexArraysAPPLE(1, [ id ].as_ptr());
+                    ctxt.gl.BindVertexArrayAPPLE(0);
                 } else {
                     unreachable!()
                 }
+
+                ctxt.state.vertex_array = 0;
             }
-        });
+
+            // deleting
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                ctxt.extensions.gl_arb_vertex_array_object
+            {
+                ctxt.gl.DeleteVertexArrays(1, [ self.id ].as_ptr());
+            } else if ctxt.extensions.gl_apple_vertex_array_object {
+                ctxt.gl.DeleteVertexArraysAPPLE(1, [ self.id ].as_ptr());
+            } else {
+                unreachable!()
+            }
+        }
     }
 }
 

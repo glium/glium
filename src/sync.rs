@@ -42,33 +42,29 @@ impl SyncFence {
     ///
     /// Returns `None` is this is not supported by the backend.
     pub fn new_if_supported(display: &Display) -> Option<SyncFence> {
-        let (tx, rx) = mpsc::channel();
+        let mut ctxt = display.context.context.make_current();
 
-        display.context.context.exec(move |mut ctxt| {
-            tx.send(unsafe { new_linear_sync_fence_if_supported(&mut ctxt) }).unwrap();
-        });
-
-        rx.recv().unwrap().map(|f| f.into_sync_fence(display))
+        unsafe { new_linear_sync_fence_if_supported(&mut ctxt) }
+            .map(|f| f.into_sync_fence(display))
     }
 
     /// Blocks until the operation has finished on the server.
     pub fn wait(mut self) {
         let sync = self.id.take().unwrap();
-        let (tx, rx) = mpsc::channel();
 
-        self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                // waiting with a deadline of one year
-                // the reason why the deadline is so long is because if you attach a GL debugger,
-                // the wait can be blocked during a breaking point of the debugger
-                let result = ctxt.gl.ClientWaitSync(sync.0, gl::SYNC_FLUSH_COMMANDS_BIT,
-                                                    365 * 24 * 3600 * 1000 * 1000 * 1000);
-                tx.send(result).unwrap();
-                ctxt.gl.DeleteSync(sync.0);
-            }
-        });
+        let mut ctxt = self.display.context.context.make_current();
 
-        match rx.recv().unwrap() {
+        let result = unsafe {
+            // waiting with a deadline of one year
+            // the reason why the deadline is so long is because if you attach a GL debugger,
+            // the wait can be blocked during a breaking point of the debugger
+            let result = ctxt.gl.ClientWaitSync(sync.0, gl::SYNC_FLUSH_COMMANDS_BIT,
+                                                365 * 24 * 3600 * 1000 * 1000 * 1000);
+            ctxt.gl.DeleteSync(sync.0);
+            result
+        };
+
+        match result {
             gl::ALREADY_SIGNALED | gl::CONDITION_SATISFIED => (),
             _ => panic!("Could not wait for the fence")
         };
@@ -82,11 +78,8 @@ impl Drop for SyncFence {
             Some(s) => s
         };
 
-        self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                ctxt.gl.DeleteSync(sync.0);
-            }
-        });
+        let mut ctxt = self.display.context.context.make_current();
+        unsafe { ctxt.gl.DeleteSync(sync.0); }
     }
 }
 

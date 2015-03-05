@@ -1107,46 +1107,41 @@ impl Display {
     /// This method is always available, but is a no-op if it's not available in
     /// the implementation.
     pub fn release_shader_compiler(&self) {
-        self.context.context.exec(move |ctxt| {
-            unsafe {
-                if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
-                    ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
-                {
-                    ctxt.gl.ReleaseShaderCompiler();
-                }
+        unsafe {
+            let mut ctxt = self.context.context.make_current();
+
+            if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
+                ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
+            {
+                ctxt.gl.ReleaseShaderCompiler();
             }
-        });
+        }
     }
 
     /// Returns an estimate of the amount of video memory available in bytes.
     ///
     /// Returns `None` if no estimate is available.
     pub fn get_free_video_memory(&self) -> Option<usize> {
-        let (tx, rx) = channel();
+        use std::mem;
 
-        self.context.context.exec(move |ctxt| {
-            unsafe {
-                use std::mem;
-                let mut value: [gl::types::GLint; 4] = mem::uninitialized();
+        unsafe {
+            let mut ctxt = self.context.context.make_current();
 
-                let value = if ctxt.extensions.gl_nvx_gpu_memory_info {
-                    ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
-                                   &mut value[0]);
-                    Some(value[0])
+            let mut value: [gl::types::GLint; 4] = mem::uninitialized();
 
-                } else if ctxt.extensions.gl_ati_meminfo {
-                    ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
-                    Some(value[0])
+            if ctxt.extensions.gl_nvx_gpu_memory_info {
+                ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+                               &mut value[0]);
+                Some(value[0] as usize * 1024)
 
-                } else {
-                    None
-                };
+            } else if ctxt.extensions.gl_ati_meminfo {
+                ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
+                Some(value[0] as usize * 1024)
 
-                tx.send(value).ok();
+            } else {
+                return None;
             }
-        });
-
-        rx.recv().unwrap().map(|v| v as usize * 1024)
+        }
     }
 
     // TODO: do this more properly
@@ -1188,40 +1183,40 @@ impl Display {
         let shared_debug_output_ptr = SharedDebugOutputPtr(self.context.shared_debug_output.deref());
 
         // enabling the callback
-        self.context.context.exec(move |mut ctxt| {
-            unsafe {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
-                    ctxt.extensions.gl_arb_debug_output
-                {
-                    if ctxt.state.enabled_debug_output_synchronous != true {
-                        ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                        ctxt.state.enabled_debug_output_synchronous = true;
-                    }
+        let mut ctxt = self.context.context.make_current();
 
-                    if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
-                        // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
-                        //       but with GL only, it doesn't have one
-                        ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
-                                                                         as *const libc::c_void);
-                        ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
-                                                    std::ptr::null(), gl::TRUE);
+        unsafe {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
+                ctxt.extensions.gl_arb_debug_output
+            {
+                if ctxt.state.enabled_debug_output_synchronous != true {
+                    ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                    ctxt.state.enabled_debug_output_synchronous = true;
+                }
 
-                        if ctxt.state.enabled_debug_output != Some(true) {
-                            ctxt.gl.Enable(gl::DEBUG_OUTPUT);
-                            ctxt.state.enabled_debug_output = Some(true);
-                        }
+                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
+                    // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
+                    //       but with GL only, it doesn't have one
+                    ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
+                                                                     as *const libc::c_void);
+                    ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                                                std::ptr::null(), gl::TRUE);
 
-                    } else {
-                        ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
-                                                                            as *const libc::c_void);
-                        ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
-                                                       0, std::ptr::null(), gl::TRUE);
-
+                    if ctxt.state.enabled_debug_output != Some(true) {
+                        ctxt.gl.Enable(gl::DEBUG_OUTPUT);
                         ctxt.state.enabled_debug_output = Some(true);
                     }
+
+                } else {
+                    ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
+                                                                        as *const libc::c_void);
+                    ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
+                                                   0, std::ptr::null(), gl::TRUE);
+
+                    ctxt.state.enabled_debug_output = Some(true);
                 }
             }
-        });
+        }
     }
 
     /// Reads the content of the front buffer.
@@ -1256,25 +1251,17 @@ impl Display {
                                             where T: Send + 'static,
                                             F: FnOnce() -> T + 'a
     {
-        let (tx, rx) = channel();
-        self.context.context.exec(move |ctxt| {
-            tx.send(action()).ok();
-        });
-
-        rx.recv().unwrap()
+        let _ctxt = self.context.context.make_current();
+        action()
     }
 
     /// Asserts that there are no OpenGL errors pending.
     ///
     /// This function should be used in tests.
     pub fn assert_no_error(&self) {
-        let (tx, rx) = channel();
+        let mut ctxt = self.context.context.make_current();
 
-        self.context.context.exec(move |mut ctxt| {
-            tx.send(get_gl_error(&mut ctxt)).ok();
-        });
-
-        match rx.recv().unwrap() {
+        match get_gl_error(&mut ctxt) {
             Some(msg) => panic!("{}", msg),
             None => ()
         };
@@ -1288,14 +1275,8 @@ impl Display {
     ///
     /// **You don't need to call this function manually, except when running benchmarks.**
     pub fn synchronize(&self) {
-        let (tx, rx) = channel();
-
-        self.context.context.exec(move |ctxt| {
-            unsafe { ctxt.gl.Finish(); }
-            tx.send(()).ok();
-        });
-
-        rx.recv().unwrap();
+        let mut ctxt = self.context.context.make_current();
+        unsafe { ctxt.gl.Finish(); }
     }
 }
 
@@ -1304,21 +1285,21 @@ impl Display {
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
         // disabling callback
-        self.context.exec(move |mut ctxt| {
-            unsafe {
-                if ctxt.state.enabled_debug_output != Some(false) {
-                    if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
-                        ctxt.gl.Disable(gl::DEBUG_OUTPUT);
-                    } else if ctxt.extensions.gl_arb_debug_output {
-                        ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0usize),
-                                                        std::ptr::null());
-                    }
+        unsafe {
+            let mut ctxt = self.context.make_current();
 
-                    ctxt.state.enabled_debug_output = Some(false);
-                    ctxt.gl.Finish();
+            if ctxt.state.enabled_debug_output != Some(false) {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
+                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
+                } else if ctxt.extensions.gl_arb_debug_output {
+                    ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0usize),
+                                                    std::ptr::null());
                 }
+
+                ctxt.state.enabled_debug_output = Some(false);
+                ctxt.gl.Finish();
             }
-        });
+        }
 
         {
             let fbos = self.framebuffer_objects.take();

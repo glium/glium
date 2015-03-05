@@ -69,13 +69,6 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
 
     let total_data_size = pixels_count as usize * pixels_size;
 
-    let (tx, rx) = if target.is_none() {
-        let (tx, rx) = mpsc::channel();
-        (Some(tx), Some(rx))
-    } else {
-        (None, None)
-    };
-
     let pixel_buffer = target.as_ref().map(|buf| buf.get_id()).unwrap_or(0);
 
     if let Some(pixel_buffer) = target {
@@ -83,54 +76,59 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
         pixel_buffer::store_infos(pixel_buffer, dimensions, chosen_format);
     }
 
-    context.exec(move |mut ctxt| {
-        unsafe {
-            // binding framebuffer
-            fbo::bind_framebuffer(&mut ctxt, fbo, false, true);
+    let mut ctxt = context.make_current();
 
-            // adjusting glReadBuffer
-            ctxt.gl.ReadBuffer(readbuffer);
+    let data = unsafe {
+        // binding framebuffer
+        fbo::bind_framebuffer(&mut ctxt, fbo, false, true);
 
-            // adjusting data alignement
-            if ctxt.state.pixel_store_pack_alignment != 1 {
-                ctxt.state.pixel_store_pack_alignment = 1;
-                ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
-            }
+        // adjusting glReadBuffer
+        ctxt.gl.ReadBuffer(readbuffer);
 
-            // binding buffer
-            if ctxt.state.pixel_pack_buffer_binding != pixel_buffer {
-                ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, pixel_buffer);
-                ctxt.state.pixel_pack_buffer_binding = pixel_buffer;
-            }
-
-            // reading
-            if pixel_buffer == 0 {
-                let data_size = pixels_count as usize * pixels_size / mem::size_of::<P>();
-                let mut data: Vec<P> = Vec::with_capacity(data_size);
-                ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
-                                   dimensions.1 as gl::types::GLint, format, gltype,
-                                   data.as_mut_ptr() as *mut libc::c_void);
-                data.set_len(data_size);
-                tx.unwrap().send(data).ok();
-
-            } else {
-                ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
-                                   dimensions.1 as gl::types::GLint, format, gltype,
-                                   ptr::null_mut());
-            }
+        // adjusting data alignement
+        if ctxt.state.pixel_store_pack_alignment != 1 {
+            ctxt.state.pixel_store_pack_alignment = 1;
+            ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
         }
-    });
 
-    rx.map(|rx| {
+        // binding buffer
+        if ctxt.state.pixel_pack_buffer_binding != pixel_buffer {
+            ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, pixel_buffer);
+            ctxt.state.pixel_pack_buffer_binding = pixel_buffer;
+        }
+
+        // reading
+        if pixel_buffer == 0 {
+            let data_size = pixels_count as usize * pixels_size / mem::size_of::<P>();
+            let mut data: Vec<P> = Vec::with_capacity(data_size);
+            ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
+                               dimensions.1 as gl::types::GLint, format, gltype,
+                               data.as_mut_ptr() as *mut libc::c_void);
+            data.set_len(data_size);
+            Some(data)
+
+        } else {
+            ctxt.gl.ReadPixels(0, 0, dimensions.0 as gl::types::GLint,
+                               dimensions.1 as gl::types::GLint, format, gltype,
+                               ptr::null_mut());
+            None
+        }
+    };
+
+    if let Some(data) = data {
         let data = texture::RawImage2d {
-            data: ::std::borrow::Cow::Owned(rx.recv().unwrap()),
+            data: ::std::borrow::Cow::Owned(data),
             width: dimensions.0 as u32,
             height: dimensions.1 as u32,
             format: chosen_format,
         };
 
-        texture::Texture2dDataSink::from_raw(data)
-    })
+        Some(texture::Texture2dDataSink::from_raw(data))
+
+    } else {
+
+        None
+    }
 }
 
 fn client_format_to_gl_enum(format: &ClientFormat) -> (gl::types::GLenum, gl::types::GLenum) {

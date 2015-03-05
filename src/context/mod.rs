@@ -116,26 +116,6 @@ impl Context {
         }
     }
 
-    // TODO: remove this reliquate
-    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
-        let backend = self.backend.borrow();
-
-        if !backend.is_current() {
-            unsafe {
-                backend.make_current();
-            }
-        }
-
-        f(CommandContext {
-            gl: &self.gl,
-            state: self.state.borrow_mut(),
-            version: &self.version,
-            extensions: &self.extensions,
-            capabilities: &self.capabilities,
-            shared_debug_output: &*self.shared_debug_output,
-        });
-    }
-
     pub fn rebuild<B>(&self, new_backend: B)
                       -> Result<(), GliumCreationError>
                       where B: Backend + 'static
