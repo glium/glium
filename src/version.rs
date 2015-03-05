@@ -9,7 +9,9 @@ pub struct Version(pub Api, pub u8, pub u8);
 /// Describes the corresponding API.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Api {
+    /// Regular OpenGL.
     Gl,
+    /// OpenGL embedded system.
     GlEs,
 }
 
