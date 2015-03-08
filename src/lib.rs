@@ -1030,6 +1030,16 @@ impl<'a> Iterator for WaitEventsIter<'a> {
     }
 }
 
+pub struct WinRef<'a>(Ref<'a, Rc<backend::glutin_backend::GlutinWindowBackend>>);
+
+impl<'a> Deref for WinRef<'a> {
+    type Target = glutin::Window;
+
+    fn deref(&self) -> &glutin::Window {
+        self.0.get_window()
+    }
+}
+
 impl Display {
     /// Reads all events received by the window.
     ///
@@ -1052,10 +1062,10 @@ impl Display {
         self.context.backend.as_ref().map(|b| b.borrow().is_closed()).unwrap_or(false)
     }
 
-    /*/// Returns the underlying window, or `None` if glium uses a headless context.
-    pub fn get_window(&self) -> Option<&glutin::Window> {
-        self.context.backend.as_ref().map(|w| w.get_window())
-    }*/
+    /// Returns the underlying window, or `None` if glium uses a headless context.
+    pub fn get_window(&self) -> Option<WinRef> {
+        self.context.backend.as_ref().map(|w| WinRef(w.borrow()))
+    }
 
     /// Returns the dimensions of the main framebuffer.
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
