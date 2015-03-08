@@ -24,9 +24,6 @@ pub struct Buffer {
     fences: Mutex<Vec<Receiver<sync::LinearSyncFence>>>,
 }
 
-// we need to do this because `*mut libc::c_void*` is not Send
-unsafe impl Send for Buffer {}
-
 /// Error that can happen when creating a buffer.
 #[derive(Debug)]
 pub enum BufferCreationError {
