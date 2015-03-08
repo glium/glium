@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.0.3"
+version = "0.1.0"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = "High-level and safe OpenGL wrapper."
 keywords = ["opengl", "gamedev"]
@@ -29,19 +29,19 @@ gl_texture_multisample_array = []
 headless = ["glutin/headless"]
 
 [dependencies.glutin]
-git = "http://github.com/tomaka/glutin"
+version = "*"
 features = ["window"]
 
 [dependencies.cgmath]
-git = "https://github.com/bjz/cgmath-rs"
+version = "*"
 optional = true
 
 [dependencies.nalgebra]
-git = "https://github.com/sebcrozet/nalgebra"
+version = "*"
 optional = true
 
 [dependencies.image]
-git = "https://github.com/PistonDevelopers/image"
+version = "*"
 optional = true
 
 [dependencies]
