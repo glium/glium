@@ -4,31 +4,7 @@ give `glium` the values of all your uniforms. Objects that implement the `Unifor
 here to do that.
 
 There are two primarly ways to do this. The first one is to create your own structure and put
-the `#[uniforms]` attribute on it.
-
-For example:
-
-```no_run
-# #![feature(plugin)]
-# #![plugin(glium_macros)]
-# extern crate glium;
-# fn main() {
-
-#[uniforms]
-struct Uniforms<'a> {
-    texture: &'a glium::Texture2d,
-    matrix: [[f32; 4]; 4],
-}
-
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let tex = unsafe { std::mem::uninitialized() };
-# let matrix = unsafe { std::mem::uninitialized() };
-let uniforms = Uniforms {
-    texture: tex,
-    matrix: matrix,
-};
-# }
-```
+the `#[uniforms]` attribute on it. See the `glium_macros` crate for more infos.
 
 The second way is to use the `uniform!` macro provided by glium:
 

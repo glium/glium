@@ -1,32 +1,3 @@
-/*!
-
-# verify_shader
-
-*Only available if the `glslang` feature is enabled.*
-
-The `verify_shader!` macro checks that your shader's source code is correct and returns the
-source code as an expression.
-
-Example:
-
-```
-# #![feature(plugin)]
-# #[plugin]
-# extern crate glium_macros;
-static VERTEX_SHADER: &'static str = verify_shader!(vertex "
-    #version 110
-
-    void main() {
-        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-    }
-");
-# fn main() {}
-```
-
-The first parameter can be `vertex`, `fragment`, `geometry`, `compute`, `tessellation_control`
-or `tessellation_evaluation`.
-
-*/
 #![feature(core, rustc_private)]
 #![feature(plugin_registrar)]
 #![feature(quote)]

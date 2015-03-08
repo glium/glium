@@ -11,3 +11,7 @@ plugin = true
 [dependencies.glslang]
 git = "https://github.com/tomaka/glslang-rs"
 optional = true
+
+[dev-dependencies.glium]
+version = "*"
+path = ".."
