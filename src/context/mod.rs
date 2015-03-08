@@ -97,7 +97,7 @@ impl Context {
     }
 
     pub fn make_current<'a>(&'a self) -> CommandContext<'a, 'a> {
-        {
+        if self.check_current_context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
                 unsafe {
@@ -132,9 +132,11 @@ impl Context {
     pub fn swap_buffers(&self) {
         let backend = self.backend.borrow();
 
-        if !backend.is_current() {
-            unsafe {
-                backend.make_current();
+        if self.check_current_context {
+            if !backend.is_current() {
+                unsafe {
+                    backend.make_current();
+                }
             }
         }
 
