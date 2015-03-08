@@ -28,47 +28,47 @@ pub fn clear(display: &Rc<DisplayImpl>, framebuffer: Option<&FramebufferAttachme
     let fbo_id = display.framebuffer_objects.as_ref().unwrap()
                         .get_framebuffer_for_drawing(framebuffer, &display.context);
 
-    display.context.exec(move |mut ctxt| {
-        fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
+    let mut ctxt = display.context.make_current();
 
-        unsafe {
-            if ctxt.state.enabled_rasterizer_discard {
-                ctxt.gl.Disable(gl::RASTERIZER_DISCARD);
-                ctxt.state.enabled_rasterizer_discard = false;
-            }
+    fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
-            if ctxt.state.enabled_scissor_test {
-                ctxt.gl.Disable(gl::SCISSOR_TEST);
-                ctxt.state.enabled_scissor_test = false;
-            }
-
-            if let Some(color) = color {
-                if ctxt.state.clear_color != color {
-                    ctxt.gl.ClearColor(color.0, color.1, color.2, color.3);
-                    ctxt.state.clear_color = color;
-                }
-            }
-
-            if let Some(depth) = depth {
-                if ctxt.state.clear_depth != depth {
-                    ctxt.gl.ClearDepth(depth as f64);        // TODO: find out why this needs "as"
-                    ctxt.state.clear_depth = depth;
-                }
-
-                if !ctxt.state.depth_mask {
-                    ctxt.gl.DepthMask(gl::TRUE);
-                    ctxt.state.depth_mask = true;
-                }
-            }
-
-            if let Some(stencil) = stencil {
-                if ctxt.state.clear_stencil != stencil {
-                    ctxt.gl.ClearStencil(stencil);
-                    ctxt.state.clear_stencil = stencil;
-                }
-            }
-
-            ctxt.gl.Clear(flags);
+    unsafe {
+        if ctxt.state.enabled_rasterizer_discard {
+            ctxt.gl.Disable(gl::RASTERIZER_DISCARD);
+            ctxt.state.enabled_rasterizer_discard = false;
         }
-    });
+
+        if ctxt.state.enabled_scissor_test {
+            ctxt.gl.Disable(gl::SCISSOR_TEST);
+            ctxt.state.enabled_scissor_test = false;
+        }
+
+        if let Some(color) = color {
+            if ctxt.state.clear_color != color {
+                ctxt.gl.ClearColor(color.0, color.1, color.2, color.3);
+                ctxt.state.clear_color = color;
+            }
+        }
+
+        if let Some(depth) = depth {
+            if ctxt.state.clear_depth != depth {
+                ctxt.gl.ClearDepth(depth as f64);        // TODO: find out why this needs "as"
+                ctxt.state.clear_depth = depth;
+            }
+
+            if !ctxt.state.depth_mask {
+                ctxt.gl.DepthMask(gl::TRUE);
+                ctxt.state.depth_mask = true;
+            }
+        }
+
+        if let Some(stencil) = stencil {
+            if ctxt.state.clear_stencil != stencil {
+                ctxt.gl.ClearStencil(stencil);
+                ctxt.state.clear_stencil = stencil;
+            }
+        }
+
+        ctxt.gl.Clear(flags);
+    }
 }

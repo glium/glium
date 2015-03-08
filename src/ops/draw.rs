@@ -112,12 +112,9 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     }
 
     // choosing the right command
-    let must_sync;
     let draw_command = {
         let cmd = match &indices {
             &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
-                must_sync = false;
-
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
 
@@ -128,14 +125,12 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
             },
             &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
                 assert!(offset == 0);       // not yet implemented
-                must_sync = true;
+
                 DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
                                           <I as index::Index>::get_type().to_glenum(),
                                           unsafe { ptr::Unique::new(pointer.as_ptr() as *mut gl::types::GLvoid) })
             },
             &IndicesSource::NoIndices { primitives } => {
-                must_sync = false;
-
                 let vertices_count = match vertices_count {
                     Some(c) => c,
                     None => return Err(DrawError::VerticesSourcesLengthMismatch)
@@ -275,16 +270,6 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         (uniforms_storage, fences)
     };
 
-    // if the command uses data in the RAM, we have to wait for the draw command to
-    // finish before returning
-    // if so, we build a channel for this purpose
-    let (tx, rx) = if must_sync {
-        let (tx, rx) = channel();
-        (Some(tx), Some(rx))
-    } else {
-        (None, None)
-    };
-
     // copying some stuff in order to send them
     let program_id = program.get_id();
     let DrawParameters { depth_test, depth_write, depth_range, blending_function,
@@ -292,82 +277,72 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                          dithering, viewport, scissor, draw_primitives } = *draw_parameters;
 
     // sending the command
-    display.context.context.exec(move |mut ctxt| {
-        unsafe {
-            fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
+    let mut ctxt = display.context.context.make_current();
 
-            // binding program
-            if ctxt.state.program != program_id {
-                match program_id {
-                    Handle::Id(id) => ctxt.gl.UseProgram(id),
-                    Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
-                }
-                ctxt.state.program = program_id;
+    unsafe {
+        fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
+
+        // binding program
+        if ctxt.state.program != program_id {
+            match program_id {
+                Handle::Id(id) => ctxt.gl.UseProgram(id),
+                Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
             }
-
-            // binding program uniforms
-            for binder in uniforms.into_iter() {
-                binder.call((&mut ctxt,));
-            }
-
-            // binding VAO
-            if ctxt.state.vertex_array != vao_id {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                    ctxt.extensions.gl_arb_vertex_array_object
-                {
-                    ctxt.gl.BindVertexArray(vao_id);
-                } else if ctxt.extensions.gl_apple_vertex_array_object {
-                    ctxt.gl.BindVertexArrayAPPLE(vao_id);
-                } else {
-                    unreachable!()
-                }
-                
-                ctxt.state.vertex_array = vao_id;
-            }
-
-            // sync-ing parameters
-            sync_depth(&mut ctxt, depth_test, depth_write, depth_range);
-            sync_blending(&mut ctxt, blending_function);
-            sync_line_width(&mut ctxt, line_width);
-            sync_point_size(&mut ctxt, point_size);
-            sync_polygon_mode(&mut ctxt, backface_culling, polygon_mode);
-            sync_multisampling(&mut ctxt, multisampling);
-            sync_dithering(&mut ctxt, dithering);
-            sync_viewport_scissor(&mut ctxt, viewport, scissor, dimensions);
-            sync_rasterizer_discard(&mut ctxt, draw_primitives);
-            sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
-
-            // drawing
-            match draw_command {
-                DrawCommand::DrawArrays(a, b, c) => {
-                    ctxt.gl.DrawArrays(a, b, c);
-                },
-                DrawCommand::DrawArraysInstanced(a, b, c, d) => {
-                    ctxt.gl.DrawArraysInstanced(a, b, c, d);
-                },
-                DrawCommand::DrawElements(a, b, c, d) => {
-                    ctxt.gl.DrawElements(a, b, c, d.get());
-                },
-                DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
-                    ctxt.gl.DrawElementsInstanced(a, b, c, d.get(), e);
-                },
-            }
-
-            // fulfilling the fences
-            for fence in fences.into_iter() {
-                fence.send(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap()).unwrap();
-            }
+            ctxt.state.program = program_id;
         }
 
-        // sync-ing if necessary
-        if let Some(tx) = tx {
-            tx.send(()).ok();
+        // binding program uniforms
+        for binder in uniforms.into_iter() {
+            binder.call((&mut ctxt,));
         }
-    });
 
-    // sync-ing if necessary
-    if let Some(rx) = rx {
-        rx.recv().unwrap();
+        // binding VAO
+        if ctxt.state.vertex_array != vao_id {
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+                ctxt.extensions.gl_arb_vertex_array_object
+            {
+                ctxt.gl.BindVertexArray(vao_id);
+            } else if ctxt.extensions.gl_apple_vertex_array_object {
+                ctxt.gl.BindVertexArrayAPPLE(vao_id);
+            } else {
+                unreachable!()
+            }
+            
+            ctxt.state.vertex_array = vao_id;
+        }
+
+        // sync-ing parameters
+        sync_depth(&mut ctxt, depth_test, depth_write, depth_range);
+        sync_blending(&mut ctxt, blending_function);
+        sync_line_width(&mut ctxt, line_width);
+        sync_point_size(&mut ctxt, point_size);
+        sync_polygon_mode(&mut ctxt, backface_culling, polygon_mode);
+        sync_multisampling(&mut ctxt, multisampling);
+        sync_dithering(&mut ctxt, dithering);
+        sync_viewport_scissor(&mut ctxt, viewport, scissor, dimensions);
+        sync_rasterizer_discard(&mut ctxt, draw_primitives);
+        sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
+
+        // drawing
+        match draw_command {
+            DrawCommand::DrawArrays(a, b, c) => {
+                ctxt.gl.DrawArrays(a, b, c);
+            },
+            DrawCommand::DrawArraysInstanced(a, b, c, d) => {
+                ctxt.gl.DrawArraysInstanced(a, b, c, d);
+            },
+            DrawCommand::DrawElements(a, b, c, d) => {
+                ctxt.gl.DrawElements(a, b, c, d.get());
+            },
+            DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
+                ctxt.gl.DrawElementsInstanced(a, b, c, d.get(), e);
+            },
+        }
+
+        // fulfilling the fences
+        for fence in fences.into_iter() {
+            fence.send(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap()).unwrap();
+        }
     }
 
     Ok(())

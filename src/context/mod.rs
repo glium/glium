@@ -1,7 +1,7 @@
 use gl;
 
 use std::default::Default;
-use std::cell::{RefCell, Ref};
+use std::cell::{RefCell, Ref, RefMut};
 use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Sender, channel};
@@ -28,13 +28,13 @@ pub struct Context {
     capabilities: Capabilities,
     shared_debug_output: Rc<SharedDebugOutput>,
 
-    backend: Box<Backend>,
+    backend: RefCell<Box<Backend>>,
     check_current_context: bool,
 }
 
 pub struct CommandContext<'a, 'b> {
     pub gl: &'a gl::Gl,
-    pub state: &'b mut GLState,
+    pub state: RefMut<'b, GLState>,
     pub version: &'a GlVersion,
     pub extensions: &'a ExtensionsList,
     pub capabilities: &'a Capabilities,
@@ -63,7 +63,7 @@ impl Context {
         backend.make_current();
         let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
 
-        let mut gl_state = Default::default();
+        let gl_state = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
@@ -73,42 +73,47 @@ impl Context {
 
         try!(check_gl_compatibility(CommandContext {
             gl: &gl,
-            state: &mut gl_state,
+            state: gl_state.borrow_mut(),
             version: &version,
             extensions: &extensions,
             capabilities: &capabilities,
             shared_debug_output: &shared_debug_backend,
         }));
 
-        let backend = Box::new(backend);
-
         Ok((Context {
             gl: gl,
-            state: RefCell::new(gl_state),
+            state: gl_state,
             version: version,
             extensions: extensions,
             capabilities: capabilities,
             shared_debug_output: shared_debug_backend,
-            backend: backend,
+            backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
         }, shared_debug_frontend))
     }
 
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        self.backend.get_framebuffer_dimensions()
+        self.backend.borrow().get_framebuffer_dimensions()
     }
 
-    pub fn exec<F>(&self, f: F) where F: FnOnce(CommandContext) {
-        unsafe { self.make_current() };
+    pub fn make_current<'a>(&'a self) -> CommandContext<'a, 'a> {
+        {
+            let backend = self.backend.borrow();
+            if !backend.is_current() {
+                unsafe {
+                    backend.make_current();
+                }
+            }
+        }
 
-        f(CommandContext {
+        CommandContext {
             gl: &self.gl,
-            state: &mut *self.state.borrow_mut(),
+            state: self.state.borrow_mut(),
             version: &self.version,
             extensions: &self.extensions,
             capabilities: &self.capabilities,
             shared_debug_output: &*self.shared_debug_output,
-        });
+        }
     }
 
     pub fn rebuild<B>(&self, new_backend: B)
@@ -117,32 +122,27 @@ impl Context {
     {
         unsafe { new_backend.make_current(); };
 
-        // FIXME: remove this hack
-        let me: &mut Context = unsafe { ::std::mem::transmute(self) };
-        me.state = Default::default();
+        *self.state.borrow_mut() = Default::default();
         // FIXME: verify version, capabilities and extensions
-
-        me.backend = Box::new(new_backend);
+        *self.backend.borrow_mut() = Box::new(new_backend);
 
         Ok(())
     }
 
     pub fn swap_buffers(&self) {
-        self.make_current();
+        let backend = self.backend.borrow();
+
+        if !backend.is_current() {
+            unsafe {
+                backend.make_current();
+            }
+        }
 
         // this is necessary on Windows 8, or nothing is being displayed
         unsafe { self.gl.Flush(); }
 
         // swapping
-        self.backend.swap_buffers();
-    }
-
-    pub fn make_current(&self) {
-        if !self.backend.is_current() {
-            unsafe {
-                self.backend.make_current();
-            }
-        }
+        backend.swap_buffers();
     }
 
     pub fn capabilities(&self) -> &Capabilities {

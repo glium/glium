@@ -244,123 +244,117 @@ impl Drop for FramebuffersContainer {
 impl FrameBufferObject {
     /// Builds a new FBO.
     fn new(context: &context::Context, attachments: &FramebufferAttachments) -> FrameBufferObject {
-        let (tx, rx) = channel();
-        let attachments = attachments.clone();
+        let mut ctxt = context.make_current();
 
-        context.exec(move |mut ctxt| {
-            // TODO: move outside of the gl thread
-            if attachments.colors.len() > ctxt.capabilities.max_draw_buffers as usize {
-                panic!("Trying to attach {} color buffers, but the hardware only supports {}",
-                       attachments.colors.len(), ctxt.capabilities.max_draw_buffers);
+        if attachments.colors.len() > ctxt.capabilities.max_draw_buffers as usize {
+            panic!("Trying to attach {} color buffers, but the hardware only supports {}",
+                   attachments.colors.len(), ctxt.capabilities.max_draw_buffers);
+        }
+
+        let id = unsafe {
+            let mut id = mem::uninitialized();
+
+            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
+                ctxt.extensions.gl_arb_direct_state_access
+            {
+                ctxt.gl.CreateFramebuffers(1, &mut id);
+            } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+                ctxt.gl.GenFramebuffers(1, &mut id);
+                bind_framebuffer(&mut ctxt, id, true, false);
+            } else {
+                ctxt.gl.GenFramebuffersEXT(1, &mut id);
+                bind_framebuffer(&mut ctxt, id, true, false);
             }
 
-            unsafe {
-                let mut id = mem::uninitialized();
+            let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
 
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
-                    ctxt.extensions.gl_arb_direct_state_access
+            for &(slot, atchmnt) in attachments.colors.iter() {
+                attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);
+                raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
+            }
+
+            match attachments.depth_stencil {
+                FramebufferDepthStencilAttachments::None => (),
+                FramebufferDepthStencilAttachments::DepthAttachment(depth) => {
+                    attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
+                },
+                FramebufferDepthStencilAttachments::StencilAttachment(stencil) => {
+                    attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
+                },
+                FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth,
+                                                                               stencil) =>
                 {
-                    ctxt.gl.CreateFramebuffers(1, &mut id);
-                } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
-                    ctxt.gl.GenFramebuffers(1, &mut id);
-                    bind_framebuffer(&mut ctxt, id, true, false);
-                } else {
-                    ctxt.gl.GenFramebuffersEXT(1, &mut id);
-                    bind_framebuffer(&mut ctxt, id, true, false);
-                }
+                    attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
+                    attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
+                },
+                FramebufferDepthStencilAttachments::DepthStencilAttachment(depth_stencil) => {
+                    attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil);
+                },
+            };
 
-                tx.send(id).unwrap();
+            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+                ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
+                                                    as gl::types::GLsizei,
+                                                    raw_attachments.as_ptr());
 
-                let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
+            } else if ctxt.version >= &GlVersion(Api::Gl, 2, 0) {
+                bind_framebuffer(&mut ctxt, id, true, false);
+                ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
+                                    raw_attachments.as_ptr());
 
-                for &(slot, atchmnt) in attachments.colors.iter() {
-                    attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);
-                    raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
-                }
-
-                match attachments.depth_stencil {
-                    FramebufferDepthStencilAttachments::None => (),
-                    FramebufferDepthStencilAttachments::DepthAttachment(depth) => {
-                        attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
-                    },
-                    FramebufferDepthStencilAttachments::StencilAttachment(stencil) => {
-                        attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
-                    },
-                    FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth,
-                                                                                   stencil) =>
-                    {
-                        attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
-                        attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
-                    },
-                    FramebufferDepthStencilAttachments::DepthStencilAttachment(depth_stencil) => {
-                        attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil);
-                    },
-                };
-
-                if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-                    ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
-                                                        as gl::types::GLsizei,
-                                                        raw_attachments.as_ptr());
-
-                } else if ctxt.version >= &GlVersion(Api::Gl, 2, 0) {
-                    bind_framebuffer(&mut ctxt, id, true, false);
-                    ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
-                                        raw_attachments.as_ptr());
-
-                } else {
-                    unimplemented!();       // FIXME: use an extension
-                }
+            } else {
+                unimplemented!();       // FIXME: use an extension
             }
-        });
+
+            id
+        };
 
         FrameBufferObject {
-            id: rx.recv().unwrap(),
+            id: id,
             current_read_buffer: gl::BACK,
         }
     }
 
     fn destroy(self, context: &context::Context) {
-        let id = self.id;
+        let mut ctxt = context.make_current();
 
-        context.exec(move |ctxt| {
-            unsafe {
-                // unbinding framebuffer
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
-                    if ctxt.state.draw_framebuffer == id && ctxt.state.read_framebuffer == id {
-                        ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                        ctxt.state.draw_framebuffer = 0;
-                        ctxt.state.read_framebuffer = 0;
+        unsafe {
+            // unbinding framebuffer
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+                if ctxt.state.draw_framebuffer == self.id && ctxt.state.read_framebuffer == self.id {
+                    ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
+                    ctxt.state.draw_framebuffer = 0;
+                    ctxt.state.read_framebuffer = 0;
 
-                    } else if ctxt.state.draw_framebuffer == id {
-                        ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-                        ctxt.state.draw_framebuffer = 0;
+                } else if ctxt.state.draw_framebuffer == self.id {
+                    ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+                    ctxt.state.draw_framebuffer = 0;
 
-                    } else if ctxt.state.read_framebuffer == id {
-                        ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                        ctxt.state.read_framebuffer = 0;
-                    }
-
-                } else if ctxt.extensions.gl_ext_framebuffer_object {
-                    if ctxt.state.draw_framebuffer == id || ctxt.state.read_framebuffer == id {
-                        ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                        ctxt.state.draw_framebuffer = 0;
-                        ctxt.state.read_framebuffer = 0;
-                    }
-
-                } else {
-                    unreachable!();
+                } else if ctxt.state.read_framebuffer == self.id {
+                    ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+                    ctxt.state.read_framebuffer = 0;
                 }
 
-                // deleting
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
-                    ctxt.gl.DeleteFramebuffers(1, [ id ].as_ptr());
-                } else if ctxt.extensions.gl_ext_framebuffer_object {
-                    ctxt.gl.DeleteFramebuffersEXT(1, [ id ].as_ptr());
-                } else {
-                    unreachable!();
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                if ctxt.state.draw_framebuffer == self.id || ctxt.state.read_framebuffer == self.id {
+                    ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                    ctxt.state.draw_framebuffer = 0;
+                    ctxt.state.read_framebuffer = 0;
                 }
+
+            } else {
+                unreachable!();
             }
-        });
+
+            // deleting
+            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+                ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr());
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.DeleteFramebuffersEXT(1, [ self.id ].as_ptr());
+            } else {
+                unreachable!();
+            }
+        }
     }
 }
 

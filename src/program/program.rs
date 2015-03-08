@@ -226,111 +226,99 @@ impl Program {
             shaders_ids.push(sh.get_id());
         }
 
-        let (tx, rx) = channel();
-        display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                let id = create_program(&mut ctxt);
+        let mut ctxt = display.context.context.make_current();
 
-                // attaching shaders
-                for sh in shaders_ids.iter() {
-                    match (id, sh) {
-                        (Handle::Id(id), &Handle::Id(sh)) => {
-                            assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
-                            ctxt.gl.AttachShader(id, sh);
-                        },
-                        (Handle::Handle(id), &Handle::Handle(sh)) => {
-                            assert!(ctxt.extensions.gl_arb_shader_objects);
-                            ctxt.gl.AttachObjectARB(id, sh);
-                        },
-                        _ => unreachable!()
-                    }
+        let id = unsafe {
+            let id = create_program(&mut ctxt);
+
+            // attaching shaders
+            for sh in shaders_ids.iter() {
+                match (id, sh) {
+                    (Handle::Id(id), &Handle::Id(sh)) => {
+                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                        ctxt.gl.AttachShader(id, sh);
+                    },
+                    (Handle::Handle(id), &Handle::Handle(sh)) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.AttachObjectARB(id, sh);
+                    },
+                    _ => unreachable!()
                 }
+            }
 
-                // transform feedback varyings
-                if let Some((names, mode)) = transform_feedback_varyings {
-                    let id = match id {
-                        Handle::Id(id) => id,
-                        Handle::Handle(id) => unreachable!()    // transf. feedback shouldn't be
-                                                                // available with handles
+            // transform feedback varyings
+            if let Some((names, mode)) = transform_feedback_varyings {
+                let id = match id {
+                    Handle::Id(id) => id,
+                    Handle::Handle(id) => unreachable!()    // transf. feedback shouldn't be
+                                                            // available with handles
+                };
+
+                let names = names.into_iter().map(|name| {
+                    ffi::CString::from_vec(name.into_bytes())
+                }).collect::<Vec<_>>();
+                let names_ptr = names.iter().map(|n| n.as_ptr()).collect::<Vec<_>>();
+
+                if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
+                    let mode = match mode {
+                        TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS,
+                        TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS,
                     };
 
-                    let names = names.into_iter().map(|name| {
-                        ffi::CString::from_vec(name.into_bytes())
-                    }).collect::<Vec<_>>();
-                    let names_ptr = names.iter().map(|n| n.as_ptr()).collect::<Vec<_>>();
+                    ctxt.gl.TransformFeedbackVaryings(id, names_ptr.len() as gl::types::GLsizei,
+                                                      names_ptr.as_ptr(), mode);
 
-                    if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
-                        let mode = match mode {
-                            TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS,
-                            TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS,
-                        };
+                } else if ctxt.extensions.gl_ext_transform_feedback {
+                    let mode = match mode {
+                        TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS_EXT,
+                        TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS_EXT,
+                    };
 
-                        ctxt.gl.TransformFeedbackVaryings(id, names_ptr.len() as gl::types::GLsizei,
-                                                          names_ptr.as_ptr(), mode);
+                    ctxt.gl.TransformFeedbackVaryingsEXT(id, names_ptr.len()
+                                                         as gl::types::GLsizei,
+                                                         names_ptr.as_ptr(), mode);
 
-                    } else if ctxt.extensions.gl_ext_transform_feedback {
-                        let mode = match mode {
-                            TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS_EXT,
-                            TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS_EXT,
-                        };
-
-                        ctxt.gl.TransformFeedbackVaryingsEXT(id, names_ptr.len()
-                                                             as gl::types::GLsizei,
-                                                             names_ptr.as_ptr(), mode);
-
-                    } else {
-                        unreachable!();     // has been checked in the frontend
-                    }
+                } else {
+                    unreachable!();     // has been checked in the frontend
                 }
-
-                // linking
-                {
-                    let _lock = COMPILER_GLOBAL_LOCK.lock();
-
-                    ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
-
-                    match id {
-                        Handle::Id(id) => {
-                            assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
-                            ctxt.gl.LinkProgram(id);
-                        },
-                        Handle::Handle(id) => {
-                            assert!(ctxt.extensions.gl_arb_shader_objects);
-                            ctxt.gl.LinkProgramARB(id);
-                        }
-                    }
-
-                    ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
-                }
-
-                // checking for errors
-                match check_program_link_errors(&mut ctxt, id) {
-                    Ok(_) => (),
-                    Err(err) => {
-                        tx.send(Err(err)).ok();
-                        return;
-                    }
-                }
-
-                tx.send(Ok(id)).unwrap();
             }
-        });
 
-        let id = try!(rx.recv().unwrap());
+            // linking
+            {
+                let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-        let (tx, rx) = channel();
-        display.context.context.exec(move |mut ctxt| {
+                ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
+
+                match id {
+                    Handle::Id(id) => {
+                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                        ctxt.gl.LinkProgram(id);
+                    },
+                    Handle::Handle(id) => {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.LinkProgramARB(id);
+                    }
+                }
+
+                ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
+            }
+
+            // checking for errors
+            try!(check_program_link_errors(&mut ctxt, id));
+
+            id
+        };
+
+        let (uniforms, attributes, blocks, varyings) = {
             unsafe {
-                tx.send((
+                (
                     reflect_uniforms(&mut ctxt, id),
                     reflect_attributes(&mut ctxt, id),
                     reflect_uniform_blocks(&mut ctxt, id),
                     reflect_transform_feedback(&mut ctxt, id),
-                )).ok();
+                )
             }
-        });
-
-        let (uniforms, attributes, blocks, varyings) = rx.recv().unwrap();
+        };
 
         Ok(Program {
             display: display.clone(),
@@ -356,49 +344,35 @@ impl Program {
             _ => unreachable!()
         };
 
-        let (tx, rx) = channel();
-        display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                let id = create_program(&mut ctxt);
+        let mut ctxt = display.context.context.make_current();
 
-                match id {
-                    Handle::Id(id) => {
-                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
-                        ctxt.gl.ProgramBinary(id, binary.format,
-                                              binary.content.as_ptr() as *const _,
-                                              binary.content.len() as gl::types::GLsizei);
-                    },
-                    Handle::Handle(id) => unreachable!()
-                };
+        let id = unsafe {
+            let id = create_program(&mut ctxt);
 
-                // checking for errors
-                match check_program_link_errors(&mut ctxt, id) {
-                    Ok(_) => (),
-                    Err(err) => {
-                        tx.send(Err(err)).ok();
-                        return;
-                    }
-                }
+            match id {
+                Handle::Id(id) => {
+                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                    ctxt.gl.ProgramBinary(id, binary.format,
+                                          binary.content.as_ptr() as *const _,
+                                          binary.content.len() as gl::types::GLsizei);
+                },
+                Handle::Handle(id) => unreachable!()
+            };
 
-                tx.send(Ok(id)).unwrap();
-            }
-        });
+            // checking for errors
+            try!(check_program_link_errors(&mut ctxt, id));
 
-        let id = try!(rx.recv().unwrap());
+            id
+        };
 
-        let (tx, rx) = channel();
-        display.context.context.exec(move |mut ctxt| {
-            unsafe {
-                tx.send((
-                    reflect_uniforms(&mut ctxt, id),
-                    reflect_attributes(&mut ctxt, id),
-                    reflect_uniform_blocks(&mut ctxt, id),
-                    reflect_transform_feedback(&mut ctxt, id),
-                )).ok();
-            }
-        });
-
-        let (uniforms, attributes, blocks, varyings) = rx.recv().unwrap();
+        let (uniforms, attributes, blocks, varyings) = unsafe {
+            (
+                reflect_uniforms(&mut ctxt, id),
+                reflect_attributes(&mut ctxt, id),
+                reflect_uniform_blocks(&mut ctxt, id),
+                reflect_transform_feedback(&mut ctxt, id),
+            )
+        };
 
         Ok(Program {
             display: display.clone(),
@@ -430,42 +404,35 @@ impl Program {
     /// Same as `get_binary` but always available. Returns `None` if the backend doesn't support
     /// getting or reloading the program's binary.
     pub fn get_binary_if_supported(&self) -> Option<Binary> {
-        let id = self.get_id();
+        unsafe {
+            let mut ctxt = self.display.context.context.make_current();
 
-        let (tx, rx) = channel();
-        self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) ||
-                   ctxt.extensions.gl_arb_get_programy_binary
-                {
-                    let id = match id {
-                        Handle::Id(id) => id,
-                        Handle::Handle(_) => unreachable!()
-                    };
+            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) ||
+               ctxt.extensions.gl_arb_get_programy_binary
+            {
+                let id = match self.id {
+                    Handle::Id(id) => id,
+                    Handle::Handle(_) => unreachable!()
+                };
 
-                    let mut buf_len = mem::uninitialized();
-                    ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
+                let mut buf_len = mem::uninitialized();
+                ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
-                    let mut format = mem::uninitialized();
-                    let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
-                    ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
-                                             storage.as_mut_ptr() as *mut libc::c_void);
-                    storage.set_len(buf_len as usize);
+                let mut format = mem::uninitialized();
+                let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
+                ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
+                                         storage.as_mut_ptr() as *mut libc::c_void);
+                storage.set_len(buf_len as usize);
 
-                    tx.send(Some((format, storage))).ok();
+                Some(Binary {
+                    format: format,
+                    content: storage,
+                })
 
-                } else {
-                    tx.send(None).ok();
-                }
+            } else {
+                None
             }
-        });
-
-        rx.recv().unwrap().map(|(format, storage)| {
-            Binary {
-                format: format,
-                content: storage,
-            }
-        })
+        }
     }
 
     /// Returns the *location* of an output fragment, if it exists.
@@ -486,28 +453,25 @@ impl Program {
         }
 
         // querying opengl
-        let id = self.id.clone();
         let name_c = ffi::CString::from_slice(name.as_bytes());
-        let (tx, rx) = channel();
-        self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                let value = match id {
-                    Handle::Id(id) => {
-                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
-                        ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
-                                                    as *const libc::c_char)
-                    },
-                    Handle::Handle(id) => {
-                        // not supported
-                        -1
-                    }
-                };
 
-                tx.send(value).ok();
+        let mut ctxt = self.display.context.context.make_current();
+
+        let value = unsafe {
+            match self.id {
+                Handle::Id(id) => {
+                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                    ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
+                                                as *const libc::c_char)
+                },
+                Handle::Handle(id) => {
+                    // not supported
+                    -1
+                }
             }
-        });
+        };
 
-        let location = match rx.recv().unwrap() {
+        let location = match value {
             -1 => None,
             a => Some(a as u32),
         };
@@ -584,33 +548,31 @@ impl Drop for Program {
         }
 
         // sending the destroy command
-        let id = self.id.clone();
-        self.display.context.context.exec(move |ctxt| {
-            unsafe {
-                match id {
-                    Handle::Id(id) => {
-                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+        let mut ctxt = self.display.context.context.make_current();
+        unsafe {
+            match self.id {
+                Handle::Id(id) => {
+                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
 
-                        if ctxt.state.program == Handle::Id(id) {
-                            ctxt.gl.UseProgram(0);
-                            ctxt.state.program = Handle::Id(0);
-                        }
-
-                        ctxt.gl.DeleteProgram(id);
-                    },
-                    Handle::Handle(id) => {
-                        assert!(ctxt.extensions.gl_arb_shader_objects);
-
-                        if ctxt.state.program == Handle::Handle(id) {
-                            ctxt.gl.UseProgramObjectARB(0 as gl::types::GLhandleARB);
-                            ctxt.state.program = Handle::Handle(0 as gl::types::GLhandleARB);
-                        }
-
-                        ctxt.gl.DeleteObjectARB(id);
+                    if ctxt.state.program == Handle::Id(id) {
+                        ctxt.gl.UseProgram(0);
+                        ctxt.state.program = Handle::Id(0);
                     }
+
+                    ctxt.gl.DeleteProgram(id);
+                },
+                Handle::Handle(id) => {
+                    assert!(ctxt.extensions.gl_arb_shader_objects);
+
+                    if ctxt.state.program == Handle::Handle(id) {
+                        ctxt.gl.UseProgramObjectARB(0 as gl::types::GLhandleARB);
+                        ctxt.state.program = Handle::Handle(0 as gl::types::GLhandleARB);
+                    }
+
+                    ctxt.gl.DeleteObjectARB(id);
                 }
             }
-        });
+        }
     }
 }
 
