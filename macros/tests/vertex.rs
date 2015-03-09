@@ -1,4 +1,5 @@
 #![feature(plugin)]
+#![feature(custom_attribute)]
 #![plugin(glium_macros)]
 
 extern crate glium;
