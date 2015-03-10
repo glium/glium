@@ -95,11 +95,6 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         instances_count
     };
 
-    // the vertex array object to bind
-    let vao_id = vertex_array_object::get_vertex_array_object(&display.context,
-                                                              vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
-                                                              &indices, program);
-
     // list of the commands that can be executed
     enum DrawCommand {
         DrawArrays(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei),
@@ -278,6 +273,11 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
 
     // sending the command
     let mut ctxt = display.context.context.make_current();
+    
+    // the vertex array object to bind
+    let vao_id = display.context.vertex_array_objects.bind_vao(&mut ctxt,
+                                                               vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
+                                                               &indices, program);
 
     unsafe {
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
@@ -294,21 +294,6 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         // binding program uniforms
         for binder in uniforms.into_iter() {
             binder.call((&mut ctxt,));
-        }
-
-        // binding VAO
-        if ctxt.state.vertex_array != vao_id {
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                ctxt.extensions.gl_arb_vertex_array_object
-            {
-                ctxt.gl.BindVertexArray(vao_id);
-            } else if ctxt.extensions.gl_apple_vertex_array_object {
-                ctxt.gl.BindVertexArrayAPPLE(vao_id);
-            } else {
-                unreachable!()
-            }
-            
-            ctxt.state.vertex_array = vao_id;
         }
 
         // sync-ing parameters

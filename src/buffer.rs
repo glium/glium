@@ -440,6 +440,8 @@ impl Drop for Buffer {
     fn drop(&mut self) {
         let mut ctxt = self.display.context.context.make_current();
 
+        self.display.context.vertex_array_objects.purge_buffer(&mut ctxt, self.id);
+
         if ctxt.state.array_buffer_binding == self.id {
             ctxt.state.array_buffer_binding = 0;
         }
