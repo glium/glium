@@ -859,7 +859,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
                 samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
@@ -879,7 +879,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
                 samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
@@ -895,8 +895,8 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         }
 
         {
-            let mut vaos = display.context.vertex_array_objects.borrow_mut();
-            vaos.clear();
+            let mut ctxt = display.context.context.make_current();
+            display.context.vertex_array_objects.purge_all(&mut ctxt);
         }
 
         let mut existing_window = display.context.backend.as_ref()
@@ -921,7 +921,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
                 samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
@@ -941,7 +941,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
                 framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: RefCell::new(HashMap::with_hash_state(Default::default())),
+                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
                 samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
@@ -983,10 +983,7 @@ struct DisplayImpl {
     // the option is here to destroy the container
     framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
-    // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
-    // the key is a (buffers-list, program) ; the buffers list must be sorted
-    vertex_array_objects: RefCell<HashMap<(Vec<gl::types::GLuint>, Handle),
-                                        vertex_array_object::VertexArrayObject, DefaultState<util::FnvHasher>>>,
+    vertex_array_objects: vertex_array_object::VertexAttributesSystem,
 
     // we maintain a list of samplers for each possible behavior
     samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
@@ -1317,8 +1314,8 @@ impl Drop for DisplayImpl {
         }
 
         {
-            let mut vaos = self.vertex_array_objects.borrow_mut();
-            vaos.clear();
+            let mut ctxt = self.context.make_current();
+            self.vertex_array_objects.cleanup(&mut ctxt);
         }
 
         {

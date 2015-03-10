@@ -1,18 +1,126 @@
 use std::rc::Rc;
+use std::cell::RefCell;
 use std::sync::mpsc::channel;
+use std::default::Default;
+use std::collections::HashMap;
+use std::collections::hash_state::DefaultState;
 use std::mem;
 
+use Handle;
 use program::Program;
 use index::IndicesSource;
 use vertex::{VerticesSource, AttributeType};
 use {DisplayImpl, GlObject};
 
 use {libc, gl, context};
+use context::CommandContext;
 use version::Api;
+use util;
+
+/// Stores and handles vertex attributes.
+pub struct VertexAttributesSystem {
+    // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
+    // the key is a (buffers-list, program) ; the buffers list must be sorted
+    vaos: RefCell<HashMap<(Vec<gl::types::GLuint>, Handle),
+                          VertexArrayObject, DefaultState<util::FnvHasher>>>,
+}
+
+impl VertexAttributesSystem {
+    pub fn new() -> VertexAttributesSystem {
+        VertexAttributesSystem {
+            vaos: RefCell::new(HashMap::with_hash_state(Default::default())),
+        }
+    }
+
+    /// Makes sure that the VAO currently binded contains the right information.
+    pub fn bind_vao<I>(&self, ctxt: &mut CommandContext, vertex_buffers: &[&VerticesSource],
+                       indices: &IndicesSource<I>, program: &Program)
+                       where I: ::index::Index
+    {
+        let ib_id = match indices {
+            &IndicesSource::Buffer { .. } => 0,
+            &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
+            &IndicesSource::NoIndices { .. } => 0,
+        };
+
+        let buffers_list = {
+            let mut buffers_list = Vec::with_capacity(1 + vertex_buffers.len());
+            if ib_id != 0 {
+                buffers_list.push(ib_id);
+            }
+            for vertex_buffer in vertex_buffers.iter() {
+                buffers_list.push(match vertex_buffer {
+                    &&VerticesSource::VertexBuffer(ref vb, _, _, _) => vb.get_id(),
+                    &&VerticesSource::PerInstanceBuffer(ref buf, _) => buf.get_id(),
+                });
+            }
+            buffers_list.sort();
+            buffers_list
+        };
+
+        let program_id = program.get_id();
+
+        if let Some(value) = self.vaos.borrow_mut()
+                                 .get(&(buffers_list.clone(), program_id))
+        {
+            bind_vao(ctxt, value.id);
+            return;
+        }
+
+        // we create the new VAO without the mutex locked
+        let new_vao = VertexArrayObject::new(ctxt, vertex_buffers, ib_id, program);
+        bind_vao(ctxt, new_vao.id);
+        self.vaos.borrow_mut().insert((buffers_list, program_id), new_vao);
+    }
+
+    pub fn purge_buffer(&self, ctxt: &mut CommandContext, id: gl::types::GLuint) {
+        self.purge_if(ctxt, |&(ref buffers, _)| {
+            buffers.iter().find(|&b| b == &id).is_some()
+        })
+    }
+
+    pub fn purge_program(&self, ctxt: &mut CommandContext, program: Handle) {
+        self.purge_if(ctxt, |&(_, p)| p == program)
+    }
+
+    pub fn purge_all(&self, ctxt: &mut CommandContext) {
+        let vaos = mem::replace(&mut *self.vaos.borrow_mut(),
+                                HashMap::with_hash_state(Default::default()));
+
+        for (_, vao) in vaos {
+            vao.destroy(ctxt);
+        }
+    }
+
+    pub fn cleanup(&mut self, ctxt: &mut CommandContext) {
+        let vaos = mem::replace(&mut *self.vaos.borrow_mut(),
+                                HashMap::with_capacity_and_hash_state(0, Default::default()));
+
+        for (_, vao) in vaos {
+            vao.destroy(ctxt);
+        }
+    }
+
+    fn purge_if<F>(&self, ctxt: &mut CommandContext, mut condition: F)
+                   where F: FnMut(&(Vec<gl::types::GLuint>, Handle)) -> bool
+    {
+        let mut vaos = self.vaos.borrow_mut();
+
+        let mut keys = Vec::with_capacity(4);
+        for (key, _) in &*vaos {
+            if condition(key) {
+                keys.push(key.clone());
+            }
+        }
+
+        for key in keys {
+            vaos.remove(&key);
+        }
+    }
+}
 
 /// Stores informations about how to bind a vertex buffer, an index buffer and a program.
-pub struct VertexArrayObject {
-    display: Rc<DisplayImpl>,
+struct VertexArrayObject {
     id: gl::types::GLuint,
 }
 
@@ -21,7 +129,7 @@ impl VertexArrayObject {
     ///
     /// The vertex buffer, index buffer and program must not outlive the
     /// VAO, and the VB & program attributes must not change.
-    fn new(display: Rc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
+    fn new(mut ctxt: &mut CommandContext, vertex_buffers: &[&VerticesSource],
            ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
         let attributes = ::program::get_attributes(program);
@@ -98,9 +206,6 @@ impl VertexArrayObject {
                 },
             }
         }).collect::<Vec<_>>();
-
-        let display_clone = display.clone();
-        let mut ctxt = display.context.make_current();
 
         let id = unsafe {
             // building the VAO
@@ -185,16 +290,11 @@ impl VertexArrayObject {
         };
 
         VertexArrayObject {
-            display: display_clone,
             id: id,
         }
     }
-}
 
-impl Drop for VertexArrayObject {
-    fn drop(&mut self) {
-        let mut ctxt = self.display.context.make_current();
-
+    fn destroy(self, mut ctxt: &mut CommandContext) {
         unsafe {
             // unbinding
             if ctxt.state.vertex_array == self.id {
@@ -205,7 +305,7 @@ impl Drop for VertexArrayObject {
                 } else if ctxt.extensions.gl_apple_vertex_array_object {
                     ctxt.gl.BindVertexArrayAPPLE(0);
                 } else {
-                    unreachable!()
+                    unreachable!();
                 }
 
                 ctxt.state.vertex_array = 0;
@@ -219,7 +319,7 @@ impl Drop for VertexArrayObject {
             } else if ctxt.extensions.gl_apple_vertex_array_object {
                 ctxt.gl.DeleteVertexArraysAPPLE(1, [ self.id ].as_ptr());
             } else {
-                unreachable!()
+                unreachable!();
             }
         }
     }
@@ -227,50 +327,10 @@ impl Drop for VertexArrayObject {
 
 impl GlObject for VertexArrayObject {
     type Id = gl::types::GLuint;
+
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }
-}
-
-/// Obtains the id of the VAO corresponding to the vertex buffer, index buffer and program
-/// passed as parameters. Creates a new VAO if no existing one matches these.
-pub fn get_vertex_array_object<I>(display: &Rc<DisplayImpl>, vertex_buffers: &[&VerticesSource],
-                                  indices: &IndicesSource<I>, program: &Program)
-                                  -> gl::types::GLuint where I: ::index::Index
-{
-    let ib_id = match indices {
-        &IndicesSource::Buffer { .. } => 0,
-        &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
-        &IndicesSource::NoIndices { .. } => 0,
-    };
-
-    let buffers_list = {
-        let mut buffers_list = Vec::with_capacity(1 + vertex_buffers.len());
-        if ib_id != 0 {
-            buffers_list.push(ib_id);
-        }
-        for vertex_buffer in vertex_buffers.iter() {
-            buffers_list.push(match vertex_buffer {
-                &&VerticesSource::VertexBuffer(ref vb, _, _, _) => vb.get_id(),
-                &&VerticesSource::PerInstanceBuffer(ref buf, _) => buf.get_id(),
-            });
-        }
-        buffers_list.sort();
-        buffers_list
-    };
-
-    let program_id = program.get_id();
-
-    if let Some(value) = display.vertex_array_objects.borrow_mut()
-                                .get(&(buffers_list.clone(), program_id)) {
-        return value.id;
-    }
-
-    // we create the new VAO without the mutex locked
-    let new_vao = VertexArrayObject::new(display.clone(), vertex_buffers, ib_id, program);
-    let new_vao_id = new_vao.id;
-    display.vertex_array_objects.borrow_mut().insert((buffers_list, program_id), new_vao);
-    new_vao_id
 }
 
 fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types::GLint) {
@@ -325,5 +385,21 @@ fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types
         AttributeType::F64x4x2 => (gl::DOUBLE_MAT4x2, 1),
         AttributeType::F64x4x3 => (gl::DOUBLE_MAT4x3, 1),
         AttributeType::F64x4x4 => (gl::DOUBLE_MAT4, 1),
+    }
+}
+
+fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
+    if ctxt.state.vertex_array != vao_id {
+        if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
+            ctxt.extensions.gl_arb_vertex_array_object
+        {
+            unsafe { ctxt.gl.BindVertexArray(vao_id) };
+        } else if ctxt.extensions.gl_apple_vertex_array_object {
+            unsafe { ctxt.gl.BindVertexArrayAPPLE(vao_id) };
+        } else {
+            unreachable!();
+        }
+
+        ctxt.state.vertex_array = vao_id;
     }
 }

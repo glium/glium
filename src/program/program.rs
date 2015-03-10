@@ -537,18 +537,12 @@ impl GlObject for Program {
 
 impl Drop for Program {
     fn drop(&mut self) {
+        let mut ctxt = self.display.context.context.make_current();
+
         // removing VAOs which contain this program
-        {
-            let mut vaos = self.display.context.vertex_array_objects.borrow_mut();
-            let to_delete = vaos.keys().filter(|&&(_, p)| p == self.id)
-                .map(|k| k.clone()).collect::<Vec<_>>();
-            for k in to_delete.into_iter() {
-                vaos.remove(&k);
-            }
-        }
+        self.display.context.vertex_array_objects.purge_program(&mut ctxt, self.id);
 
         // sending the destroy command
-        let mut ctxt = self.display.context.context.make_current();
         unsafe {
             match self.id {
                 Handle::Id(id) => {
