@@ -17,12 +17,9 @@ The directory you have just created should contain a `Cargo.toml` file which con
 
 In order to use the glutin and glium libraries, we need to add them as dependencies in our `Cargo.toml` file:
 
-    [dependencies.glium]
-    git = "https://github.com/tomaka/glium"
-    [dependencies.glutin]
-    git = "https://github.com/tomaka/glutin"
-    [dependencies.glium_macros]
-    git = "https://github.com/tomaka/glium"
+    [dependencies]
+    glium = "*"
+    glutin = "*"
 
 Before we can use them, we also need to import these libraries in our `src/main.rs` file, like this:
 
