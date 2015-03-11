@@ -22,7 +22,7 @@ impl SamplerObject {
         assert!(display.context.context.get_version() >= &GlVersion(Api::Gl, 3, 2) ||
                 display.context.context.get_extensions().gl_arb_sampler_objects);
 
-        let mut ctxt = display.context.context.make_current();
+        let ctxt = display.context.context.make_current();
 
         let sampler = unsafe {
             use std::mem;
@@ -71,7 +71,7 @@ impl GlObject for SamplerObject {
 
 impl Drop for SamplerObject {
     fn drop(&mut self) {
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
         unsafe { ctxt.gl.DeleteSamplers(1, [self.id].as_ptr()); }
     }
 }

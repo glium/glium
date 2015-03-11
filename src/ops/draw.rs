@@ -1,5 +1,5 @@
 use std::ptr;
-use std::sync::mpsc::{channel, Sender};
+use std::sync::mpsc::Sender;
 
 use Display;
 use DrawError;
@@ -18,7 +18,7 @@ use draw_parameters::{BlendingFunction, BackfaceCullingMode};
 use draw_parameters::{DepthTest, PolygonMode};
 use Rect;
 
-use {program, vertex_array_object};
+use program;
 use libc;
 use {gl, context, draw_parameters};
 use context::GlVersion;
@@ -101,9 +101,9 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         DrawArraysInstanced(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei,
                             gl::types::GLsizei),
         DrawElements(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
-                     ptr::Unique<gl::types::GLvoid>),
+                     *const gl::types::GLvoid),
         DrawElementsInstanced(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
-                              ptr::Unique<gl::types::GLvoid>, gl::types::GLsizei),
+                              *const gl::types::GLvoid, gl::types::GLsizei),
     }
 
     // choosing the right command
@@ -116,14 +116,14 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                 DrawCommand::DrawElements(buffer.get_primitives_type().to_glenum(),
                                           length as gl::types::GLsizei,
                                           buffer.get_indices_type().to_glenum(),
-                                          unsafe { ptr::Unique::new(ptr as *mut libc::c_void) })
+                                          ptr as *const libc::c_void)
             },
             &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
                 assert!(offset == 0);       // not yet implemented
 
                 DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
                                           <I as index::Index>::get_type().to_glenum(),
-                                          unsafe { ptr::Unique::new(pointer.as_ptr() as *mut gl::types::GLvoid) })
+                                          pointer.as_ptr() as *const gl::types::GLvoid)
             },
             &IndicesSource::NoIndices { primitives } => {
                 let vertices_count = match vertices_count {
@@ -317,10 +317,10 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                 ctxt.gl.DrawArraysInstanced(a, b, c, d);
             },
             DrawCommand::DrawElements(a, b, c, d) => {
-                ctxt.gl.DrawElements(a, b, c, d.get());
+                ctxt.gl.DrawElements(a, b, c, d);
             },
             DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
-                ctxt.gl.DrawElementsInstanced(a, b, c, d.get(), e);
+                ctxt.gl.DrawElementsInstanced(a, b, c, d, e);
             },
         }
 

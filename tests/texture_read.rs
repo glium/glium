@@ -2,12 +2,10 @@ extern crate glutin;
 #[macro_use]
 extern crate glium;
 
-use glium::{Texture, Surface};
-
 mod support;
 
 #[test]
-#[should_fail]
+#[should_panic]
 fn empty_pixel_buffer() {
     let display = support::build_display();
 

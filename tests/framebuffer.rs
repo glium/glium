@@ -153,8 +153,6 @@ fn depth_texture2d() {
 
 #[test]
 fn multioutput() {
-    use std::iter;
-
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 

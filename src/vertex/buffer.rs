@@ -8,8 +8,6 @@ use vertex::format::VertexFormat;
 use Display;
 use GlObject;
 
-use context;
-use version::Api;
 use gl;
 
 /// A list of vertices loaded in the graphics card's memory.

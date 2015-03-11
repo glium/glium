@@ -79,6 +79,7 @@ pub trait Texture {
 
 /// Trait that describes data for a one-dimensional texture.
 pub trait Texture1dDataSource<'a> {
+    /// The type of each pixel.
     type Data: Send + Copy + Clone + 'a;
 
     /// Returns the raw representation of the data.
@@ -87,6 +88,7 @@ pub trait Texture1dDataSource<'a> {
 
 /// Trait that describes data for a one-dimensional texture.
 pub trait Texture1dDataSink {
+    /// The type of each pixel.
     type Data: Send + Copy + 'static;
 
     /// Returns the list of accepted formats.
@@ -155,6 +157,7 @@ impl<'a, P: PixelValue> Texture1dDataSource<'a> for &'a[P] where P: Copy + Clone
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture2dDataSource<'a> {
+    /// The type of each pixel.
     type Data: Send + Copy + Clone + 'a;
 
     /// Returns the raw representation of the data.
@@ -163,6 +166,7 @@ pub trait Texture2dDataSource<'a> {
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture2dDataSink {
+    /// The type of each pixel.
     type Data: Send + Copy + Clone + 'static;
 
     /// Returns the list of accepted formats.
@@ -305,6 +309,7 @@ impl Texture2dDataSink for image::DynamicImage {
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture3dDataSource<'a> {
+    /// The type of each pixel.
     type Data: Send + Copy + Clone + 'a;
 
     /// Returns the raw representation of the data.
@@ -313,6 +318,7 @@ pub trait Texture3dDataSource<'a> {
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture3dDataSink {
+    /// The type of each pixel.
     type Data: Send + Copy + 'static;
 
     /// Returns the list of accepted formats.

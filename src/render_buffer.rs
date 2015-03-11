@@ -8,7 +8,6 @@ the data of the render buffer.
 
 */
 use std::rc::Rc;
-use std::sync::mpsc::channel;
 use std::mem;
 
 use framebuffer::{ColorAttachment, ToColorAttachment};

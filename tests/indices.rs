@@ -325,7 +325,7 @@ fn empty_index_buffer() {
     let display = support::build_display();
 
     let indices = glium::index_buffer::TriangleFan(Vec::<u16>::new());
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let _indices = glium::IndexBuffer::new(&display, indices);
 
     display.assert_no_error();
 }
@@ -333,7 +333,6 @@ fn empty_index_buffer() {
 #[test]
 fn indexbuffer_slice_out_of_range() {    
     let display = support::build_display();
-    let program = build_program(&display);
 
     let indices = glium::index::TrianglesList(vec![0u16, 1, 2, 2, 1, 3]);
     let indices = glium::IndexBuffer::new(&display, indices);

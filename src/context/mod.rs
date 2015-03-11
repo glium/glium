@@ -1,10 +1,9 @@
 use gl;
 
 use std::default::Default;
-use std::cell::{RefCell, Ref, RefMut};
+use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
-use std::sync::mpsc::{Sender, channel};
 
 use GliumCreationError;
 use backend::Backend;
@@ -100,9 +99,7 @@ impl Context {
         if self.check_current_context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
-                unsafe {
-                    backend.make_current();
-                }
+                backend.make_current();
             }
         }
 
@@ -120,7 +117,7 @@ impl Context {
                       -> Result<(), GliumCreationError>
                       where B: Backend + 'static
     {
-        unsafe { new_backend.make_current(); };
+        new_backend.make_current();
 
         *self.state.borrow_mut() = Default::default();
         // FIXME: verify version, capabilities and extensions
@@ -134,9 +131,7 @@ impl Context {
 
         if self.check_current_context {
             if !backend.is_current() {
-                unsafe {
-                    backend.make_current();
-                }
+                backend.make_current();
             }
         }
 

@@ -1,5 +1,4 @@
 use std::ptr;
-use std::sync::mpsc;
 
 use Display;
 use pixel_buffer::{self, PixelBuffer};

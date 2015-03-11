@@ -55,7 +55,6 @@ use std::collections::HashMap;
 use std::default::Default;
 use std::mem;
 use std::cell::RefCell;
-use std::sync::mpsc::channel;
 
 use GlObject;
 

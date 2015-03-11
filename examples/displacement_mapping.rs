@@ -194,7 +194,7 @@ fn main() {
             ",
         }).unwrap();
 
-    let mut camera = support::camera::CameraState::new();
+    let camera = support::camera::CameraState::new();
 
     // the main loop
     support::start_loop(|| {
