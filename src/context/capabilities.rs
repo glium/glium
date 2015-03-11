@@ -121,21 +121,28 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
         },
 
         max_draw_buffers: unsafe {
-            let mut val = 1;
-            gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);
-            val
+            if gl.version >= &GlVersion(Api::Gl, 2, 0) ||
+                gl.version >= &GlVersion(Api::GlEs, 3, 0)
+            {
+                let mut val = 1;
+                gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);
+                val
+            } else {
+                1
+            }
         },
 
-        max_patch_vertices: if version < &GlVersion(Api::Gl, 4, 0) && !extensions.gl_arb_tessellation_shader {
-            None
-
-        } else {
+        max_patch_vertices: if version >= &GlVersion(Api::Gl, 4, 0) ||
+            extensions.gl_arb_tessellation_shader
+        {
             Some(unsafe {
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_PATCH_VERTICES, &mut val);
                 val
             })
-        },
 
+        } else {
+            None
+        },
     }
 }
