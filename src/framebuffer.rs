@@ -132,6 +132,12 @@ impl<'a> SimpleFrameBuffer<'a> {
                 (dimensions, id)
             },
 
+            ColorAttachment::Texture2dMultisample(tex) => {
+                let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
+                let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D_MULTISAMPLE, level: 0, layer: 0 };
+                (dimensions, id)
+            },
+
             ColorAttachment::RenderBuffer(buffer) => {
                 let dimensions = buffer.get_dimensions();
                 let id = fbo::Attachment::RenderBuffer(buffer.get_id());
@@ -476,7 +482,7 @@ pub enum ColorAttachment<'a> {
     /// A texture.
     Texture2d(Texture2dMipmap<'a>),
     /// A texture.
-    Texture2dMultisample(Texture2dMipmap<'a>),
+    Texture2dMultisample(Texture2dMultisampleMipmap<'a>),
     /// A texture.
     Texture3d(Texture3dMipmap<'a>, u32),
     /// A texture.
