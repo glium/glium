@@ -300,43 +300,53 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
     }
 
     // `ToXXXAttachment` trait impl
-    if dimensions == TextureDimensions::Texture2d {
+    if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample {
+        let suffix = match dimensions {
+            TextureDimensions::Texture1d => "Texture1d",
+            TextureDimensions::Texture2d => "Texture2d",
+            TextureDimensions::Texture2dMultisample => "Texture2dMultisample",
+            TextureDimensions::Texture3d => "Texture3d",
+            TextureDimensions::Texture1dArray => "Texture1dArray",
+            TextureDimensions::Texture2dArray => "Texture2dArray",
+            TextureDimensions::Texture2dMultisampleArray => "Texture2dMultisampleArray",
+        };
+
         match ty {
             TextureType::Regular => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToColorAttachment for {} {{
+                        impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Texture2d(self.main_level())
+                                ::framebuffer::ColorAttachment::{suffix}(self.main_level())
                             }}
                         }}
-                    ", name)).unwrap();
+                    ", name = name, suffix = suffix)).unwrap();
             },
             TextureType::Depth => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToDepthAttachment for {} {{
+                        impl ::framebuffer::ToDepthAttachment for {name} {{
                             fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
-                                ::framebuffer::DepthAttachment::Texture2d(self.main_level())
+                                ::framebuffer::DepthAttachment::{suffix}(self.main_level())
                             }}
                         }}
-                    ", name)).unwrap();
+                    ", name = name, suffix = suffix)).unwrap();
             },
             TextureType::Stencil => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToStencilAttachment for {} {{
+                        impl ::framebuffer::ToStencilAttachment for {name} {{
                             fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
-                                ::framebuffer::StencilAttachment::Texture2d(self.main_level())
+                                ::framebuffer::StencilAttachment::{suffix}(self.main_level())
                             }}
                         }}
-                    ", name)).unwrap();
+                    ", name = name, suffix = suffix)).unwrap();
             },
             TextureType::DepthStencil => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToDepthStencilAttachment for {} {{
+                        impl ::framebuffer::ToDepthStencilAttachment for {name} {{
                             fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
-                                ::framebuffer::DepthStencilAttachment::Texture2d(self.main_level())
+                                ::framebuffer::DepthStencilAttachment::{suffix}(self.main_level())
                             }}
                         }}
-                    ", name)).unwrap();
+                    ", name = name, suffix = suffix)).unwrap();
             },
             _ => ()
         }
@@ -768,7 +778,9 @@ fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: Textu
 
 
     // writing the `as_surface` function
-    if dimensions == TextureDimensions::Texture2d && ty == TextureType::Regular {
+    if (dimensions == TextureDimensions::Texture2d ||
+        dimensions == TextureDimensions::Texture2dMultisample) && ty == TextureType::Regular
+    {
         (write!(dest, "
                 /// Starts drawing on the texture.
                 ///
