@@ -121,8 +121,8 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
         },
 
         max_draw_buffers: unsafe {
-            if gl.version >= &GlVersion(Api::Gl, 2, 0) ||
-                gl.version >= &GlVersion(Api::GlEs, 3, 0)
+            if version >= &GlVersion(Api::Gl, 2, 0) ||
+                version >= &GlVersion(Api::GlEs, 3, 0)
             {
                 let mut val = 1;
                 gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);
