@@ -82,6 +82,8 @@ pub struct ExtensionsList {
     pub gl_arb_texture_multisample: bool,
     /// GL_EXT_disjoint_timer_query
     pub gl_ext_disjoint_timer_query: bool,
+    /// GL_OES_vertex_array_object
+    pub gl_oes_vertex_array_object: bool,
 }
 
 pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
@@ -127,6 +129,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_texture_non_power_of_two: false,
         gl_arb_texture_multisample: false,
         gl_ext_disjoint_timer_query: false,
+        gl_oes_vertex_array_object: false,
     };
 
     for extension in strings.into_iter() {
@@ -170,6 +173,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_texture_non_power_of_two" => extensions.gl_arb_texture_non_power_of_two = true,
             "GL_ARB_texture_multisample" => extensions.gl_arb_texture_multisample = true,
             "GL_EXT_disjoint_timer_query" => extensions.gl_ext_disjoint_timer_query = true,
+            "GL_OES_vertex_array_object" => extensions.gl_oes_vertex_array_object = true,
             _ => ()
         }
     }
