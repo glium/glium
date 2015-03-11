@@ -1,9 +1,5 @@
-use std::sync::mpsc;
-use std::ptr;
-
 use Display;
 
-use libc;
 use context;
 use version::Api;
 use gl;
@@ -52,7 +48,7 @@ impl SyncFence {
     pub fn wait(mut self) {
         let sync = self.id.take().unwrap();
 
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
 
         let result = unsafe {
             // waiting with a deadline of one year
@@ -78,7 +74,7 @@ impl Drop for SyncFence {
             Some(s) => s
         };
 
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
         unsafe { ctxt.gl.DeleteSync(sync.0); }
     }
 }

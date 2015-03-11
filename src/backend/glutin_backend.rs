@@ -2,15 +2,9 @@ use libc;
 
 use glutin;
 
-use version;
 use GliumCreationError;
 
 use super::Backend;
-
-use std::default::Default;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::mpsc::channel;
 
 pub struct GlutinWindowBackend {
     window: glutin::Window,

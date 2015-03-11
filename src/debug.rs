@@ -6,7 +6,6 @@
 use Display;
 use version::Api;
 use {context, gl};
-use std::sync::mpsc::channel;
 
 /// Severity of a debug message.
 #[derive(Clone, Copy, Debug, FromPrimitive, PartialEq, Eq)]
@@ -112,7 +111,7 @@ impl TimestampQuery {
     pub fn new(display: &Display) -> Option<TimestampQuery> {
         use std::mem;
 
-        let mut ctxt = display.context.context.make_current();
+        let ctxt = display.context.context.make_current();
 
         let id = if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
@@ -151,7 +150,7 @@ impl TimestampQuery {
     pub fn is_ready(&self) -> bool {
         use std::mem;
 
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
 
         if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
@@ -178,7 +177,7 @@ impl TimestampQuery {
     pub fn get(self) -> u64 {
         use std::mem;
 
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
 
         if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {

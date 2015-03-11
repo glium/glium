@@ -5,7 +5,6 @@ use version::Api;
 
 use std::{ffi, mem, ptr};
 use std::sync::atomic::Ordering;
-use std::sync::mpsc::channel;
 
 use Display;
 use GlObject;
@@ -30,7 +29,7 @@ impl GlObject for Shader {
 
 impl Drop for Shader {
     fn drop(&mut self) {
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
 
         unsafe {
             match self.id {
@@ -52,7 +51,7 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
                     -> Result<Shader, ProgramCreationError>
 {
     unsafe {
-        let source_code = ffi::CString::from_slice(source_code.as_bytes());
+        let source_code = ffi::CString::new(source_code.as_bytes()).unwrap();
 
         let mut ctxt = display.context.context.make_current();
 

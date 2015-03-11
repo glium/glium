@@ -1,4 +1,4 @@
-use std::ffi;
+use std::ffi::CStr;
 use gl;
 
 /// Contains data about the list of extensions
@@ -191,11 +191,11 @@ fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
 
             range(0, num_extensions).map(|num| {
                 let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
-                String::from_utf8(ffi::c_str_to_bytes(&(ext as *const i8)).to_vec()).unwrap()
+                String::from_utf8(CStr::from_ptr(ext as *const i8).to_bytes().to_vec()).unwrap()
             }).collect()
 
         } else {
-            let list = String::from_utf8(ffi::c_str_to_bytes(&(list as *const i8)).to_vec()).unwrap();
+            let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec()).unwrap();
             list.words().map(|e| e.to_string()).collect()
         }
     }

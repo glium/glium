@@ -293,7 +293,7 @@ fn program_binary_reload() {
         Some(bin) => bin
     };
 
-    let program2 = glium::Program::new(&display, binary).unwrap();
+    let _program2 = glium::Program::new(&display, binary).unwrap();
 
     display.assert_no_error();
 }
@@ -385,7 +385,7 @@ fn get_transform_feedback_varyings() {
     let program = match glium::Program::new(&display, source) {
         Ok(p) => p,
         Err(glium::program::ProgramCreationError::TransformFeedbackNotSupported) => return,
-        Err(e) => panic!("{:?}")
+        Err(e) => panic!("{:?}", e)
     };
 
     assert_eq!(program.get_transform_feedback_varyings()[0],

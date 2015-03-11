@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::ffi;
+use std::ffi::CStr;
 use gl;
 
 /// Describes a version.
@@ -31,7 +31,7 @@ impl PartialOrd for Version {
 pub fn get_gl_version(gl: &gl::Gl) -> Version {
     unsafe {
         let version = gl.GetString(gl::VERSION) as *const i8;
-        let version = String::from_utf8(ffi::c_str_to_bytes(&version).to_vec()).unwrap();
+        let version = String::from_utf8(CStr::from_ptr(version).to_bytes().to_vec()).unwrap();
 
         let (version, gles) = if version.starts_with("OpenGL ES ") {
             (&version[10..], true)

@@ -7,7 +7,7 @@ use glium::Surface;
 mod support;
 
 #[test]
-#[should_fail(expected = "The program attribute `field1` does not match the vertex format")]
+#[should_panic(expected = "The program attribute `field1` does not match the vertex format")]
 fn attribute_types_mismatch() {
     let display = support::build_display();
 
@@ -54,7 +54,7 @@ fn attribute_types_mismatch() {
 }
 
 #[test]
-#[should_fail(expected = "The program attribute `field2` is missing in the vertex bindings")]
+#[should_panic(expected = "The program attribute `field2` is missing in the vertex bindings")]
 fn missing_attribute() {
     let display = support::build_display();
 
@@ -120,7 +120,7 @@ macro_rules! attribute_test(
                                     glium::index::PointsList(vec![0u16]));
 
             let program = glium::Program::from_source(&display,
-                format!("
+                &format!("
                     #version 110
 
                     attribute {} field1;
@@ -128,7 +128,7 @@ macro_rules! attribute_test(
                     void main() {{
                         gl_Position = {};
                     }}
-                ", $glsl_ty, $gl_pos).as_slice(),
+                ", $glsl_ty, $gl_pos),
                 "
                     #version 110
                     void main() {

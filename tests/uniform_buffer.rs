@@ -1,6 +1,7 @@
 extern crate glutin;
 #[macro_use]
 extern crate glium;
+extern crate rand;
 
 use glium::Surface;
 use std::default::Default;
@@ -200,7 +201,7 @@ fn block_wrong_type() {
     
     match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
         Err(glium::DrawError::UniformBlockLayoutMismatch { ref name })
-            if name.as_slice() == "MyBlock" => (),
+            if name == &"MyBlock" => (),
         a => panic!("{:?}", a)
     }
 
@@ -275,9 +276,9 @@ fn persistent_block_race_condition() {
     for _ in (0 .. 1000) {
         {
             let mut mapping = buffer.map();
-            (*mapping).0 = std::rand::random();
-            (*mapping).1 = std::rand::random();
-            (*mapping).2 = std::rand::random();
+            (*mapping).0 = rand::random();
+            (*mapping).1 = rand::random();
+            (*mapping).2 = rand::random();
         }
 
         target.draw(&vb, &ib, &program, &uniform!{

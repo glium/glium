@@ -30,7 +30,7 @@ macro_rules! texture_sample_test {
                         gl_Position = vec4(position, 0.0, 1.0);
                     }
                 ",
-                format!("
+                &format!("
                     #version 110
 
                     uniform {} texture;
@@ -38,7 +38,7 @@ macro_rules! texture_sample_test {
                     void main() {{
                         gl_FragColor = {}(texture, {});
                     }}
-                ", $sampler_ty, $fun, $coords).as_slice(),
+                ", $sampler_ty, $fun, $coords),
                 None).unwrap();
 
             let output = support::build_renderable_texture(&display);

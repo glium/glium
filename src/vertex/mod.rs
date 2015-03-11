@@ -105,6 +105,7 @@ impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
 
 /// Objects that describe multiple vertex sources.
 pub trait MultiVerticesSource<'a> {
+    /// Iterator that enumerates each source.
     type Iterator: Iterator<Item = VerticesSource<'a>>;
 
     /// Iterates over the `VerticesSource`.

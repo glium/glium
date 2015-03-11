@@ -13,7 +13,6 @@ use std::default::Default;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::atomic::Ordering;
-use std::sync::mpsc::channel;
 use util::FnvHasher;
 
 use Display;
@@ -255,7 +254,7 @@ impl Program {
                 };
 
                 let names = names.into_iter().map(|name| {
-                    ffi::CString::from_vec(name.into_bytes())
+                    ffi::CString::new(name.into_bytes()).unwrap()
                 }).collect::<Vec<_>>();
                 let names_ptr = names.iter().map(|n| n.as_ptr()).collect::<Vec<_>>();
 
@@ -405,7 +404,7 @@ impl Program {
     /// getting or reloading the program's binary.
     pub fn get_binary_if_supported(&self) -> Option<Binary> {
         unsafe {
-            let mut ctxt = self.display.context.context.make_current();
+            let ctxt = self.display.context.context.make_current();
 
             if ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) ||
                ctxt.extensions.gl_arb_get_programy_binary
@@ -453,9 +452,9 @@ impl Program {
         }
 
         // querying opengl
-        let name_c = ffi::CString::from_slice(name.as_bytes());
+        let name_c = ffi::CString::new(name.as_bytes()).unwrap();
 
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
 
         let value = unsafe {
             match self.id {

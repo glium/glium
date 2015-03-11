@@ -26,7 +26,7 @@ macro_rules! texture_draw_test {
                         gl_Position = vec4(position, 0.0, 1.0);
                     }
                 ",
-                format!("
+                &format!("
                     #version 130
 
                     out {} color;
@@ -34,7 +34,7 @@ macro_rules! texture_draw_test {
                     void main() {{
                         color = {};
                     }}
-                ", $glsl_ty, $glsl_value).as_slice(),
+                ", $glsl_ty, $glsl_value),
                 None);
 
             let program = match program {

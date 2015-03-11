@@ -188,11 +188,11 @@ pub use version::{Api, Version};
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
+use std::ffi::CStr;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::cell::Ref;
 use std::cell::RefCell;
-use std::sync::mpsc::channel;
 
 pub mod debug;
 pub mod framebuffer;
@@ -1115,7 +1115,7 @@ impl Display {
     /// the implementation.
     pub fn release_shader_compiler(&self) {
         unsafe {
-            let mut ctxt = self.context.context.make_current();
+            let ctxt = self.context.context.make_current();
 
             if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
                 ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
@@ -1132,7 +1132,7 @@ impl Display {
         use std::mem;
 
         unsafe {
-            let mut ctxt = self.context.context.make_current();
+            let ctxt = self.context.context.make_current();
 
             let mut value: [gl::types::GLint; 4] = mem::uninitialized();
 
@@ -1175,7 +1175,7 @@ impl Display {
             {
                 if user_param.report_errors.load(std::sync::atomic::Ordering::Relaxed) {
                     let message = unsafe {
-                        String::from_utf8(std::ffi::c_str_to_bytes(&message).to_vec()).unwrap()
+                        String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
                     };
 
                     panic!("Debug message with high or medium severity: `{}`.\n\
@@ -1282,7 +1282,7 @@ impl Display {
     ///
     /// **You don't need to call this function manually, except when running benchmarks.**
     pub fn synchronize(&self) {
-        let mut ctxt = self.context.context.make_current();
+        let ctxt = self.context.context.make_current();
         unsafe { ctxt.gl.Finish(); }
     }
 }

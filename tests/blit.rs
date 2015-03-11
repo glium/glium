@@ -10,7 +10,7 @@ mod support;
 fn blit_texture_to_window() {
     // ignoring test on travis
     // TODO: find out why they are failing
-    if ::std::os::getenv("TRAVIS").is_some() {
+    if ::std::env::var("TRAVIS").is_ok() {
         return;
     }
 

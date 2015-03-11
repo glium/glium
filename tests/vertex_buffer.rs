@@ -50,8 +50,8 @@ fn vertex_buffer_mapping_read() {
     );
 
     let mapping = vb.map();
-    assert_eq!(mapping[0].field1.as_slice(), [2, 3].as_slice());
-    assert_eq!(mapping[1].field2.as_slice(), [15, 17].as_slice());
+    assert_eq!(mapping[0].field1, [2, 3]);
+    assert_eq!(mapping[1].field2, [15, 17]);
 
     display.assert_no_error();
 }
@@ -81,8 +81,8 @@ fn vertex_buffer_mapping_write() {
     }
 
     let mapping = vb.map();
-    assert_eq!(mapping[0].field1.as_slice(), [0, 1].as_slice());
-    assert_eq!(mapping[1].field2.as_slice(), [15, 17].as_slice());
+    assert_eq!(mapping[0].field1, [0, 1]);
+    assert_eq!(mapping[1].field2, [15, 17]);
 
     display.assert_no_error();
 }
@@ -111,8 +111,8 @@ fn vertex_buffer_read() {
         None => return
     };
 
-    assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
-    assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
+    assert_eq!(data[0].field1, [2, 3]);
+    assert_eq!(data[1].field2, [15, 17]);
 
     display.assert_no_error();
 }
@@ -141,7 +141,7 @@ fn vertex_buffer_read_slice() {
         None => return
     };
 
-    assert_eq!(data[0].field2.as_slice(), [15, 17].as_slice());
+    assert_eq!(data[0].field2, [15, 17]);
     
     display.assert_no_error();
 }
@@ -205,7 +205,7 @@ fn vertex_buffer_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display, 
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
@@ -222,10 +222,10 @@ fn vertex_buffer_write() {
         None => return
     };
 
-    assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
-    assert_eq!(data[0].field2.as_slice(), [5, 7].as_slice());
-    assert_eq!(data[1].field1.as_slice(), [12, 13].as_slice());
-    assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
+    assert_eq!(data[0].field1, [2, 3]);
+    assert_eq!(data[0].field2, [5, 7]);
+    assert_eq!(data[1].field1, [12, 13]);
+    assert_eq!(data[1].field2, [15, 17]);
 
     display.assert_no_error();
 }
@@ -242,7 +242,7 @@ fn vertex_buffer_write_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display, 
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
@@ -256,10 +256,10 @@ fn vertex_buffer_write_slice() {
         None => return
     };
 
-    assert_eq!(data[0].field1.as_slice(), [2, 3].as_slice());
-    assert_eq!(data[0].field2.as_slice(), [5, 7].as_slice());
-    assert_eq!(data[1].field1.as_slice(), [12, 13].as_slice());
-    assert_eq!(data[1].field2.as_slice(), [15, 17].as_slice());
+    assert_eq!(data[0].field1, [2, 3]);
+    assert_eq!(data[0].field2, [5, 7]);
+    assert_eq!(data[1].field1, [12, 13]);
+    assert_eq!(data[1].field2, [15, 17]);
 
     display.assert_no_error();
 }

@@ -16,7 +16,6 @@ use std::fmt;
 use std::mem;
 use std::ptr;
 use std::num::UnsignedInt;
-use std::sync::mpsc::channel;
 use std::borrow::Cow;
 
 use ops;
@@ -379,7 +378,6 @@ impl TextureImplementation {
 
         let (client_format, client_type) = client_format_to_glenum(&self.display, format,
                                                                    self.requested_format);
-        let should_sync = data.is_borrowed();
 
         let mut ctxt = self.display.context.context.make_current();
 
@@ -480,7 +478,7 @@ impl Drop for TextureImplementation {
                     .purge_texture(self.id, &self.display.context.context);
 
         // destroying the texture
-        let mut ctxt = self.display.context.context.make_current();
+        let ctxt = self.display.context.context.make_current();
         unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
     }
 }

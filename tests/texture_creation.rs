@@ -2,7 +2,7 @@ extern crate glutin;
 #[macro_use]
 extern crate glium;
 
-use glium::{Texture, Surface};
+use glium::Texture;
 
 mod support;
 

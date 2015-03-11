@@ -1,6 +1,4 @@
-use std::rc::Rc;
 use std::cell::RefCell;
-use std::sync::mpsc::channel;
 use std::default::Default;
 use std::collections::HashMap;
 use std::collections::hash_state::DefaultState;
@@ -10,7 +8,7 @@ use Handle;
 use program::Program;
 use index::IndicesSource;
 use vertex::{VerticesSource, AttributeType};
-use {DisplayImpl, GlObject};
+use GlObject;
 
 use {libc, gl, context};
 use context::CommandContext;

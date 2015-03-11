@@ -1,4 +1,5 @@
 extern crate glutin;
+extern crate rand;
 
 #[macro_use]
 extern crate glium;
@@ -8,11 +9,9 @@ extern crate image;
 
 #[cfg(feature = "image")]
 use std::old_io::BufReader;
-#[cfg(feature = "image")]
-use std::rand;
 
 #[cfg(feature = "image")]
-use glium::{DisplayBuild, Texture, Surface, Rect};
+use glium::{DisplayBuild, Texture, Surface};
 
 mod support;
 
