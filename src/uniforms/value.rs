@@ -1,12 +1,10 @@
 use program;
 use texture;
-use sync::LinearSyncFence;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
 use uniforms::buffer::TypelessUniformBuffer;
 
 use std::default::Default;
-use std::sync::mpsc::Sender;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
@@ -141,7 +139,7 @@ pub enum UniformValue<'a> {
     /// can be binded on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
-    Block(&'a TypelessUniformBuffer, Box<Fn(&program::UniformBlock) -> bool + 'static>, Option<Sender<LinearSyncFence>>),
+    Block(&'a TypelessUniformBuffer, Box<Fn(&program::UniformBlock) -> bool + 'static>),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),

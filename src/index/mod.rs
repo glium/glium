@@ -35,8 +35,6 @@ drawing in order to make sure that the indices are not free'd.
 use gl;
 use ToGlEnum;
 
-use sync::LinearSyncFence;
-use std::sync::mpsc::Sender;
 use std::mem;
 
 pub use self::buffer::IndexBuffer;
@@ -63,9 +61,6 @@ pub enum IndicesSource<'a, T: 'a> {
     IndexBuffer {
         /// The buffer.
         buffer: &'a IndexBuffer,
-        /// Sender which must be used to send back a fence that is signaled when the buffer has
-        /// finished being used.
-        fence: Option<Sender<LinearSyncFence>>,
         /// Offset of the first element of the buffer to use.
         offset: usize,
         /// Number of elements in the buffer to use.

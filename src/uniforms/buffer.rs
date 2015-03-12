@@ -5,10 +5,13 @@ use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
+use std::sync::mpsc::Sender;
 
 use GlObject;
+use BufferExt;
 use gl;
 use context;
+use sync;
 use version::Api;
 
 /// Buffer that contains a uniform block.
@@ -135,6 +138,18 @@ impl GlObject for TypelessUniformBuffer {
     }
 }
 
+impl<T> BufferExt for UniformBuffer<T> {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
+impl BufferExt for TypelessUniformBuffer {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 /// A mapping of a uniform buffer.
 pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::UniformBuffer, T>);
 
@@ -153,14 +168,8 @@ impl<'a, T> DerefMut for Mapping<'a, T> {
 
 impl<'a, T> IntoUniformValue<'a> for &'a UniformBuffer<T> where T: UniformBlock {
     fn into_uniform_value(self) -> UniformValue<'a> {
-        let fence = if self.buffer.buffer.is_persistent() {
-            Some(self.buffer.buffer.add_fence())
-        } else {
-            None
-        };
-
         UniformValue::Block(&self.buffer, Box::new(move |block: &program::UniformBlock| -> bool {
             <T as UniformBlock>::matches(block)
-        }), fence)
+        }))
     }
 }

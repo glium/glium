@@ -1,14 +1,17 @@
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
+use std::sync::mpsc::Sender;
 
 use buffer::{self, Buffer, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
 use vertex::format::VertexFormat;
 
 use Display;
+use BufferExt;
 use GlObject;
 
 use gl;
+use sync;
 
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
@@ -255,6 +258,12 @@ impl<T> GlObject for VertexBuffer<T> {
     }
 }
 
+impl<T> BufferExt for VertexBuffer<T> {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
         (&self.buffer).into_vertices_source()
@@ -295,15 +304,15 @@ impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy + 'static {
     }
 }
 
+impl<'a, T> BufferExt for VertexBufferSlice<'a, T> {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        let fence = if self.buffer.buffer.buffer.is_persistent() {
-            Some(self.buffer.buffer.buffer.add_fence())
-        } else {
-            None
-        };
-
-        VerticesSource::VertexBuffer(&self.buffer.buffer, fence, self.offset, self.length)
+        VerticesSource::VertexBuffer(&self.buffer.buffer, self.offset, self.length)
     }
 }
 
@@ -368,6 +377,12 @@ impl VertexBufferAny {
     }
 }
 
+impl BufferExt for VertexBufferAny {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 impl GlObject for VertexBufferAny {
     type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
@@ -377,25 +392,13 @@ impl GlObject for VertexBufferAny {
 
 impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        let fence = if self.buffer.is_persistent() {
-            Some(self.buffer.add_fence())
-        } else {
-            None
-        };
-
-        VerticesSource::VertexBuffer(self, fence, 0, self.len())
+        VerticesSource::VertexBuffer(self, 0, self.len())
     }
 }
 
 impl<'a> IntoVerticesSource<'a> for VertexBufferAnySlice<'a> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        let fence = if self.buffer.buffer.is_persistent() {
-            Some(self.buffer.buffer.add_fence())
-        } else {
-            None
-        };
-
-        VerticesSource::VertexBuffer(self.buffer, fence, self.offset, self.length)
+        VerticesSource::VertexBuffer(self.buffer, self.offset, self.length)
     }
 }
 

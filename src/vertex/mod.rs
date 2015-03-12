@@ -57,9 +57,6 @@ let vertex_buffer = glium::vertex::VertexBuffer::new(&display, data);
 
 */
 use std::marker::MarkerTrait;
-use std::sync::mpsc::Sender;
-use sync::LinearSyncFence;
-
 use std::iter::Chain;
 use std::option::IntoIter;
 
@@ -82,13 +79,13 @@ pub enum VerticesSource<'a> {
     /// when the buffer stops being used.
     ///
     /// The third and fourth parameters are the offset and length of the buffer.
-    VertexBuffer(&'a VertexBufferAny, Option<Sender<LinearSyncFence>>, usize, usize),
+    VertexBuffer(&'a VertexBufferAny, usize, usize),
 
     /// A buffer uploaded in the video memory.
     ///
     /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
     /// when the buffer stops being used.
-    PerInstanceBuffer(&'a PerInstanceAttributesBufferAny, Option<Sender<LinearSyncFence>>),
+    PerInstanceBuffer(&'a PerInstanceAttributesBufferAny),
 }
 
 /// Objects that can be used as vertex sources.

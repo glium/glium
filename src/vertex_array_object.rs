@@ -49,8 +49,8 @@ impl VertexAttributesSystem {
             }
             for vertex_buffer in vertex_buffers.iter() {
                 buffers_list.push(match vertex_buffer {
-                    &&VerticesSource::VertexBuffer(ref vb, _, _, _) => vb.get_id(),
-                    &&VerticesSource::PerInstanceBuffer(ref buf, _) => buf.get_id(),
+                    &&VerticesSource::VertexBuffer(ref vb, _, _) => vb.get_id(),
+                    &&VerticesSource::PerInstanceBuffer(ref buf) => buf.get_id(),
                 });
             }
             buffers_list.sort();
@@ -136,10 +136,10 @@ impl VertexArrayObject {
         // checking the attributes types
         for vertex_buffer in vertex_buffers.iter() {
             let bindings = match vertex_buffer {
-                &&VerticesSource::VertexBuffer(ref vertex_buffer, _, _, _) => {
+                &&VerticesSource::VertexBuffer(ref vertex_buffer, _, _) => {
                     vertex_buffer.get_bindings()
                 },
-                &&VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                &&VerticesSource::PerInstanceBuffer(ref buffer) => {
                     buffer.get_bindings()
                 },
             };
@@ -164,10 +164,10 @@ impl VertexArrayObject {
             let mut found = false;
             for vertex_buffer in vertex_buffers.iter() {
                 let bindings = match vertex_buffer {
-                    &&VerticesSource::VertexBuffer(ref vertex_buffer, _, _, _) => {
+                    &&VerticesSource::VertexBuffer(ref vertex_buffer, _, _) => {
                         vertex_buffer.get_bindings()
                     },
-                    &&VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                    &&VerticesSource::PerInstanceBuffer(ref buffer) => {
                         buffer.get_bindings()
                     },
                 };
@@ -187,7 +187,7 @@ impl VertexArrayObject {
         // building the values that will be sent to the other thread
         let data = vertex_buffers.iter().map(|vertex_buffer| {
             match vertex_buffer {
-                &&VerticesSource::VertexBuffer(ref vertex_buffer, _, _, _) => {
+                &&VerticesSource::VertexBuffer(ref vertex_buffer, _, _) => {
                     (
                         GlObject::get_id(*vertex_buffer),
                         vertex_buffer.get_bindings().clone(),
@@ -195,7 +195,7 @@ impl VertexArrayObject {
                         0 as u32
                     )
                 },
-                &&VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                &&VerticesSource::PerInstanceBuffer(ref buffer) => {
                     (
                         GlObject::get_id(*buffer),
                         buffer.get_bindings().clone(),
