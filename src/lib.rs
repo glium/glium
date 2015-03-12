@@ -188,6 +188,7 @@ pub use version::{Api, Version};
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
+use std::sync::mpsc::Sender;
 use std::ffi::CStr;
 use std::ops::Deref;
 use std::rc::Rc;
@@ -252,6 +253,11 @@ unsafe impl Send for Handle {}
 trait ToGlEnum {
     /// Returns the value.
     fn to_glenum(&self) -> gl::types::GLenum;
+}
+
+/// Internal trait for buffers.
+trait BufferExt {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>>;
 }
 
 /// Area of a surface in pixels.

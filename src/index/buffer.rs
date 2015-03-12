@@ -1,7 +1,10 @@
 use buffer::{self, Buffer};
 use gl;
+use BufferExt;
 use Display;
 use GlObject;
+
+use sync;
 
 use index::IndicesSource;
 use index::ToIndicesSource;
@@ -11,6 +14,7 @@ use index::IndexType;
 use index::PrimitiveType;
 
 use std::mem;
+use std::sync::mpsc::Sender;
 
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
@@ -71,6 +75,12 @@ impl IndexBuffer {
     }
 }
 
+impl BufferExt for IndexBuffer {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 impl GlObject for IndexBuffer {
     type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
@@ -82,15 +92,8 @@ impl ToIndicesSource for IndexBuffer {
     type Data = u16;      // TODO: u16?
 
     fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
-        let fence = if self.buffer.is_persistent() {
-            Some(self.buffer.add_fence())
-        } else {
-            None
-        };
-
         IndicesSource::IndexBuffer {
             buffer: self,
-            fence: fence,
             offset: 0,
             length: self.buffer.get_elements_count() as usize,
         }
@@ -101,15 +104,8 @@ impl<'a> ToIndicesSource for IndexBufferSlice<'a> {
     type Data = u16;      // TODO: u16?
 
     fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
-        let fence = if self.buffer.buffer.is_persistent() {
-            Some(self.buffer.buffer.add_fence())
-        } else {
-            None
-        };
-
         IndicesSource::IndexBuffer {
             buffer: self.buffer,
-            fence: fence,
             offset: self.offset,
             length: self.len,
         }

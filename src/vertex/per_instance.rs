@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
+use std::sync::mpsc::Sender;
 
 use buffer::{self, Buffer, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
@@ -7,8 +8,10 @@ use vertex::format::VertexFormat;
 
 use Display;
 use GlObject;
+use BufferExt;
 
 use context;
+use sync;
 use version::Api;
 use gl;
 
@@ -279,6 +282,12 @@ impl<T> GlObject for PerInstanceAttributesBuffer<T> {
     }
 }
 
+impl<T> BufferExt for PerInstanceAttributesBuffer<T> {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 impl<'a, T> IntoVerticesSource<'a> for &'a PerInstanceAttributesBuffer<T> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
         (&self.buffer).into_vertices_source()
@@ -331,15 +340,15 @@ impl GlObject for PerInstanceAttributesBufferAny {
     }
 }
 
+impl BufferExt for PerInstanceAttributesBufferAny {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        self.buffer.add_fence()
+    }
+}
+
 impl<'a> IntoVerticesSource<'a> for &'a PerInstanceAttributesBufferAny {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        let fence = if self.buffer.is_persistent() {
-            Some(self.buffer.add_fence())
-        } else {
-            None
-        };
-
-        VerticesSource::PerInstanceBuffer(self, fence)
+        VerticesSource::PerInstanceBuffer(self)
     }
 }
 

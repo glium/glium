@@ -1,6 +1,7 @@
 use std::ptr;
 use std::sync::mpsc::Sender;
 
+use BufferExt;
 use Display;
 use DrawError;
 use Handle;
@@ -44,7 +45,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // TODO: 
     for src in vertex_buffers.iter() {
         match src {
-            &VerticesSource::VertexBuffer(_, _, offset, _) => {
+            &VerticesSource::VertexBuffer(_, offset, _) => {
                 if offset != 0 {
                     panic!("Using a base vertex different from 0 is not yet implemented");
                 }
@@ -59,7 +60,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         let mut vertices_count: Option<usize> = None;
         for src in vertex_buffers.iter() {
             match src {
-                &VerticesSource::VertexBuffer(_, _, _, len) => {
+                &VerticesSource::VertexBuffer(_, _, len) => {
                     if let Some(curr) = vertices_count {
                         if curr != len {
                             vertices_count = None;
@@ -80,7 +81,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         let mut instances_count: Option<usize> = None;
         for src in vertex_buffers.iter() {
             match src {
-                &VerticesSource::PerInstanceBuffer(ref buffer, _) => {
+                &VerticesSource::PerInstanceBuffer(ref buffer) => {
                     if let Some(curr) = instances_count {
                         if curr != buffer.len() {
                             return Err(DrawError::InstancesCountMismatch);
@@ -241,21 +242,21 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         // adding the vertex buffer and index buffer to the list of fences
         for vertex_buffer in vertex_buffers.iter_mut() {
             match vertex_buffer {
-                &mut VerticesSource::VertexBuffer(_, ref mut fence, _, _) => {
-                    if let Some(fence) = fence.take() {
+                &mut VerticesSource::VertexBuffer(ref buffer, _, _) => {
+                    if let Some(fence) = buffer.add_fence() {
                         fences.push(fence);
                     }
                 }
-                &mut VerticesSource::PerInstanceBuffer(_, ref mut fence) => {
-                    if let Some(fence) = fence.take() {
+                &mut VerticesSource::PerInstanceBuffer(ref buffer) => {
+                    if let Some(fence) = buffer.add_fence() {
                         fences.push(fence);
                     }
                 }
             };
         }
         match &mut indices {
-            &mut IndicesSource::IndexBuffer { ref mut fence, .. } => {
-                if let Some(fence) = fence.take() {
+            &mut IndicesSource::IndexBuffer { ref buffer, .. } => {
+                if let Some(fence) = buffer.add_fence() {
                     fences.push(fence);
                 }
             },
@@ -340,7 +341,7 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
                        Option<Sender<sync::LinearSyncFence>>), DrawError>
 {
     Ok(match value {
-        &UniformValue::Block(ref buffer, ref layout, ref fence) => {
+        &UniformValue::Block(ref buffer, ref layout) => {
             if !layout.call((block,)) {
                 return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
             }
@@ -348,6 +349,7 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
             let bind_point = *current_bind_point;
             *current_bind_point += 1;
 
+            let fence = buffer.add_fence();
             let buffer = buffer.get_id();
             let binding = block.binding as gl::types::GLuint;
 
@@ -365,7 +367,7 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
                 }
             });
 
-            (bind_fn, fence.clone())
+            (bind_fn, fence)
         },
         _ => {
             return Err(DrawError::UniformValueToBlock { name: name.to_string() });
@@ -392,7 +394,7 @@ fn uniform_to_binder(display: &Display, value: &UniformValue, location: gl::type
     );
 
     match *value {
-        UniformValue::Block(_, _, _) => {
+        UniformValue::Block(_, _) => {
             return Err(DrawError::UniformBufferToValue {
                 name: name.to_string(),
             });

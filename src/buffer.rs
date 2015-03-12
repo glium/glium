@@ -8,6 +8,7 @@ use std::sync::Mutex;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::ops::{Deref, DerefMut};
 use GlObject;
+use BufferExt;
 
 use sync;
 use version::Api;
@@ -230,17 +231,6 @@ impl Buffer {
         self.persistent_mapping.is_some()
     }
 
-    /// Adds a new fence that must be waited on before being able to access the
-    /// persistent mapping.
-    ///
-    /// Panics if not a persistent buffer.
-    pub fn add_fence(&self) -> Sender<sync::LinearSyncFence> {
-        assert!(self.is_persistent());
-        let (tx, rx) = channel();
-        self.fences.lock().unwrap().push(rx);
-        tx
-    }
-
     /// Uploads data in the buffer.
     ///
     /// This function considers that the buffer is filled of elements of type `D`. The offset
@@ -443,6 +433,18 @@ impl Buffer {
 
             Some(data)
         }
+    }
+}
+
+impl BufferExt for Buffer {
+    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+        if !self.is_persistent() {
+            return None;
+        }
+
+        let (tx, rx) = channel();
+        self.fences.lock().unwrap().push(rx);
+        Some(tx)
     }
 }
 
