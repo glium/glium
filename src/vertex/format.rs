@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use vertex::Attribute;
 
 #[allow(missing_docs)]
@@ -148,7 +149,7 @@ impl AttributeType {
 ///
 /// The first element is the name of the binding, the second element is the offset
 /// from the start of each vertex to this element, and the third element is the type.
-pub type VertexFormat = Vec<(String, usize, AttributeType)>;
+pub type VertexFormat = Vec<(Cow<'static, str>, usize, AttributeType)>;
 
 unsafe impl Attribute for i8 {
     fn get_type() -> AttributeType {

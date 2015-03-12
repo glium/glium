@@ -60,10 +60,12 @@ macro_rules! implement_vertex {
     ($struct_name:ident, $($field_name:ident),+) => (
         impl $crate::vertex::Vertex for $struct_name {
             fn build_bindings() -> $crate::vertex::VertexFormat {
+                use std::borrow::Cow;
+
                 vec![
                     $(
                         (
-                            stringify!($field_name).to_string(),
+                            Cow::Borrowed(stringify!($field_name)),
                             {
                                 let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
                                 let dummy_field = &dummy.$field_name;

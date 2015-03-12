@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::default::Default;
 use std::collections::HashMap;
@@ -144,7 +145,7 @@ impl VertexArrayObject {
             };
 
             for &(ref name, _, ty) in bindings.iter() {
-                let attribute = match attributes.get(name) {
+                let attribute = match attributes.get(Borrow::<str>::borrow(name)) {
                     Some(a) => a,
                     None => continue
                 };
@@ -259,7 +260,7 @@ impl VertexArrayObject {
                 for (name, offset, ty) in bindings.into_iter() {
                     let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
 
-                    let attribute = match attributes.get(&name) {
+                    let attribute = match attributes.get(Borrow::<str>::borrow(&name)) {
                         Some(a) => a,
                         None => continue
                     };
