@@ -69,7 +69,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
                         };
 
                         bindings.push((
-                            $ident_str.to_string(),
+                            Cow::Borrowed($ident_str),
                             offset,
                             <$elem_type as Attribute>::get_type(),
                         ));
@@ -79,6 +79,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
 
             quote_expr!(ecx, {
                 use glium::vertex::Attribute;
+                use std::borrow::Cow;
                 use std::mem;
 
                 let mut bindings = Vec::new();

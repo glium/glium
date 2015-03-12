@@ -128,11 +128,13 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
+    /// use std::borrow::Cow;
+    ///
     /// let bindings = vec![(
-    ///         format!("position"), 0,
+    ///         Cow::Borrowed("position"), 0,
     ///         glium::vertex::AttributeType::F32F32,
     ///     ), (
-    ///         format!("color"), 2 * ::std::mem::size_of::<f32>(),
+    ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
     ///         glium::vertex::AttributeType::F32,
     ///     ),
     /// ];
