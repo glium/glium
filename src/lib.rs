@@ -1123,10 +1123,13 @@ impl Display {
         unsafe {
             let ctxt = self.context.context.make_current();
 
+
             if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
                 ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
             {
-                ctxt.gl.ReleaseShaderCompiler();
+                if ctxt.capabilities.shader_compiler {
+                    ctxt.gl.ReleaseShaderCompiler();
+                }
             }
         }
     }

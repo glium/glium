@@ -56,6 +56,9 @@ pub enum ProgramCreationError {
     /// Usually the case for geometry shaders.
     ShaderTypeNotSupported,
 
+    /// The OpenGL implementation doesn't provide a compiler.
+    CompilationNotSupported,
+
     /// You have requested transform feedback varyings, but transform feedback is not supported
     /// by the backend.
     TransformFeedbackNotSupported,
@@ -71,6 +74,8 @@ impl ::std::fmt::Display for ProgramCreationError {
             &ProgramCreationError::ShaderTypeNotSupported =>
                 formatter.write_str("One of the request shader type is \
                                     not supported by the backend"),
+            &ProgramCreationError::CompilationNotSupported =>
+                formatter.write_str("The backend doesn't support shaders compilation"),
             &ProgramCreationError::TransformFeedbackNotSupported => 
                 formatter.write_str("You requested transform feedback, but this feature is not \
                                      supported by the backend"),
@@ -86,6 +91,8 @@ impl ::std::error::Error for ProgramCreationError {
             &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
             &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
                                                               not supported by the backend",
+            &ProgramCreationError::CompilationNotSupported => "The backend doesn't support \
+                                                               shaders compilation",
             &ProgramCreationError::TransformFeedbackNotSupported => "Transform feedback is not \
                                                                      supported by the backend.",
         }
