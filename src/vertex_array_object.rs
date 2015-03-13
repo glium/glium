@@ -113,7 +113,7 @@ impl VertexAttributesSystem {
         }
 
         for key in keys {
-            vaos.remove(&key);
+            vaos.remove(&key).unwrap().destroy(ctxt);
         }
     }
 }
@@ -121,6 +121,7 @@ impl VertexAttributesSystem {
 /// Stores informations about how to bind a vertex buffer, an index buffer and a program.
 struct VertexArrayObject {
     id: gl::types::GLuint,
+    destroyed: bool,
 }
 
 impl VertexArrayObject {
@@ -302,10 +303,13 @@ impl VertexArrayObject {
 
         VertexArrayObject {
             id: id,
+            destroyed: false,
         }
     }
 
-    fn destroy(self, mut ctxt: &mut CommandContext) {
+    fn destroy(mut self, mut ctxt: &mut CommandContext) {
+        self.destroyed = true;
+
         unsafe {
             // unbinding
             if ctxt.state.vertex_array == self.id {
@@ -339,6 +343,12 @@ impl VertexArrayObject {
                 unreachable!();
             }
         }
+    }
+}
+
+impl Drop for VertexArrayObject {
+    fn drop(&mut self) {
+        assert!(self.destroyed);
     }
 }
 
