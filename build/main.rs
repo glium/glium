@@ -1,15 +1,19 @@
+#![feature(io, path)]
+
 extern crate gl_generator;
 extern crate khronos_api;
 
 use std::env;
-use std::old_io::File;
-use std::old_io::BufReader;
+use std::fs::File;
+use std::io::BufReader;
+use std::io::Write;
+use std::path::PathBuf;
 use gl_generator::generators::Generator;
 
 mod textures;
 
 fn main() {
-    let dest = Path::new(env::var("OUT_DIR").unwrap());
+    let dest = PathBuf::new(&env::var("OUT_DIR").unwrap());
 
     textures::build_texture_file(&mut File::create(&dest.join("textures.rs")).unwrap());
 
@@ -18,7 +22,7 @@ fn main() {
     generate_gl_bindings(&mut gl_bindings);
 }
 
-fn generate_gl_bindings<W>(dest: &mut W) where W: Writer {
+fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
     let gl_registry = {
         let reader = BufReader::new(khronos_api::GL_XML);
         let ns = gl_generator::registry::Ns::Gl;

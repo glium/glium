@@ -1,3 +1,5 @@
+use std::io::Write;
+
 #[derive(PartialEq, Eq)]
 enum TextureType {
     Regular,
@@ -38,7 +40,7 @@ impl TextureDimensions {
     }
 }
 
-pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
+pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture1d);
@@ -88,7 +90,7 @@ pub fn build_texture_file<W: Writer>(mut dest: &mut W) {
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisampleArray);
 }
 
-fn build_texture<W: Writer>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
+fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
     // building the name of the texture type
     let name: String = {
         let prefix = match ty {
