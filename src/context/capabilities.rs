@@ -4,6 +4,9 @@ use gl;
 
 /// Represents the capabilities of the context.
 pub struct Capabilities {
+    /// Whether the context has a shader compiler.
+    pub shader_compiler: bool,
+
     /// Whether the context supports left and right buffers.
     pub stereo: bool,
 
@@ -40,6 +43,16 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
     use std::mem;
 
     Capabilities {
+        shader_compiler: if version >= &GlVersion(Api::Gl, 1, 0) {
+            true
+        } else {
+            unsafe {
+                let mut val = mem::uninitialized();
+                gl.GetBooleanv(gl::SHADER_COMPILER, &mut val);
+                val != 0
+            }
+        },
+
         stereo: unsafe {
             if version >= &GlVersion(Api::Gl, 1, 0) {
                 let mut val: gl::types::GLboolean = mem::uninitialized();
