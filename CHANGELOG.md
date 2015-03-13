@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.1.1 (2015-03-13)
 
  - Added `ToColorAttachment` trait implementation for `Texture2dMultisample`.
  - Added `Texture2dMultisample::as_surface` method.
