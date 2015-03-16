@@ -127,13 +127,13 @@ mod tests {
     }
 
     #[test]
-    #[should_fail]
+    #[should_panic]
     fn invalid_gl_version() {
         get_supported_glsl_version(&Version(Api::Gl, 1, 0));
     }
 
     #[test]
-    #[should_fail]
+    #[should_panic]
     fn invalid_gles_version() {
         get_supported_glsl_version(&Version(Api::GlEs, 1, 0));
     }
