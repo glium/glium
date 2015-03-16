@@ -52,7 +52,7 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
 
     implement_vertex!(Vertex, position, normal, texture);
 
-    let mut data = ::std::old_io::BufReader::new(data);
+    let mut data = ::std::io::BufReader::new(data);
     let data = obj::Obj::load(&mut data);
 
     let mut vertex_data = Vec::new();
