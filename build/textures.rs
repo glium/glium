@@ -255,6 +255,10 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                     fn get_array_size(&self) -> Option<u32> {{
                         self.0.get_array_size()
                     }}
+
+                    fn get_generic_format(&self) -> TextureFormat {{
+                        self.0.get_format()
+                    }}
                 }}
             ", name)).unwrap();
 

@@ -4,12 +4,15 @@ use gl;
 use GlObject;
 use ToGlEnum;
 use context::GlVersion;
+use context::CommandContext;
 use version::Api;
 
 use pixel_buffer::PixelBuffer;
 use texture::{format, Texture2dDataSink, PixelValue};
 use texture::{TextureFormat, ClientFormat};
 use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
+use texture::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat,};
+use texture::DepthFormat;
 
 use libc;
 use std::fmt;
@@ -21,7 +24,7 @@ use std::borrow::Cow;
 use ops;
 use fbo;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum TextureFormatRequest {
     Specific(TextureFormat),
     AnyFloatingPoint,
@@ -37,6 +40,7 @@ pub struct TextureImplementation {
     display: Display,
     id: gl::types::GLuint,
     requested_format: TextureFormatRequest,
+    format: TextureFormat,
     bind_point: gl::types::GLenum,
     width: u32,
     height: Option<u32>,
@@ -304,6 +308,7 @@ impl TextureImplementation {
             display: display.clone(),
             id: id,
             requested_format: format,
+            format: unsafe { get_format(&mut ctxt, texture_type, format) },
             bind_point: texture_type,
             width: width,
             height: height,
@@ -428,6 +433,11 @@ impl TextureImplementation {
     /// Returns the `Display` associated with this texture.
     pub fn get_display(&self) -> &Display {
         &self.display
+    }
+
+    /// Returns the format of this texture.
+    pub fn get_format(&self) -> TextureFormat {
+        self.format
     }
 
     /// Returns the width of the texture.
@@ -928,4 +938,281 @@ fn to_float_internal_format(format: &ClientFormat) -> Option<format::Uncompresse
         ClientFormat::F32F32F32 => Some(UncompressedFloatFormat::F32F32F32),
         ClientFormat::F32F32F32F32 => Some(UncompressedFloatFormat::F32F32F32F32),
     }
+}
+
+/// Finds the `TextureFormat` of a texture.
+///
+/// Technically we find the format of the level 0, but in glium textures always have the same
+/// format at all levels.
+unsafe fn get_format(ctxt: &mut CommandContext, bind_point: gl::types::GLenum,
+                     requested: TextureFormatRequest) -> TextureFormat
+{
+    match requested {
+        TextureFormatRequest::Specific(format) => {
+            return format;
+        },
+        _ => ()
+    };
+
+    if !(ctxt.version >= &GlVersion(Api::Gl, 1, 1)) &&
+        !(ctxt.version >= &GlVersion(Api::GlEs, 3, 0))
+    {
+        // glGetTexLevelParameteriv not available
+        unimplemented!();
+    }
+
+    // FIXME: handle compressed formats
+
+    let (red_bits, green_bits, blue_bits, alpha_bits, depth_bits) = {
+        let mut red = mem::uninitialized();
+        ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_SIZE, &mut red);
+
+        let mut green = mem::uninitialized();
+        ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_GREEN_SIZE, &mut green);
+
+        let mut blue = mem::uninitialized();
+        ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_BLUE_SIZE, &mut blue);
+
+        let mut alpha = mem::uninitialized();
+        ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_ALPHA_SIZE, &mut alpha);
+
+        let mut depth = mem::uninitialized();
+        ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_DEPTH_SIZE, &mut depth);
+
+        (red, green, blue, alpha, depth)
+    };
+
+    let (red_type, green_type, blue_type, alpha_type, depth_type) = {
+        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) || ctxt.version >= &GlVersion(Api::GlEs, 3, 0) {
+            let mut red = mem::uninitialized();
+            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_TYPE, &mut red);
+
+            let mut green = mem::uninitialized();
+            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_GREEN_TYPE, &mut green);
+
+            let mut blue = mem::uninitialized();
+            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_BLUE_TYPE, &mut blue);
+
+            let mut alpha = mem::uninitialized();
+            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_ALPHA_TYPE, &mut alpha);
+
+            let mut depth = mem::uninitialized();
+            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_DEPTH_TYPE, &mut depth);
+
+            (red as gl::types::GLenum, green as gl::types::GLenum, blue as gl::types::GLenum,
+                alpha as gl::types::GLenum, depth as gl::types::GLenum)
+
+        } else {
+            // FIXME: handle ARB_texture_rg and similar
+            (gl::FLOAT, gl::FLOAT, gl::FLOAT, gl::FLOAT, gl::FLOAT)
+        }
+    };
+
+    match (red_bits, red_type, green_bits, green_type, blue_bits, blue_type,
+           alpha_bits, alpha_type, depth_bits, depth_type)
+    {
+        (8, t, 0, _, 0, _, 0, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8),
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (8, t, 8, _, 0, _, 0, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8),
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8U8),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (8, t, 8, _, 8, _, 0, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8I8),
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8U8),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8I8),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8U8U8),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (8, t, 8, _, 8, _, 8, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8I8I8),
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8U8U8),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8I8I8),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8U8U8U8),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (16, t, 0, _, 0, _, 0, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16),
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16),
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (16, t, 16, _, 0, _, 0, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16I16),
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16U16),
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16U16),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (16, t, 16, _, 16, _, 0, _, 0, _) => {
+            match t {
+                gl::SIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16I16I16),
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16F16),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16I16),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16U16U16),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (16, t, 16, _, 16, _, 16, _, 0, _) => {
+            match t {
+                gl::UNSIGNED_NORMALIZED => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16U16U16U16),
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16F16F16),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16I16I16),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16U16U16U16),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (32, t, 0, _, 0, _, 0, _, 0, _) => {
+            match t {
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (32, t, 32, _, 0, _, 0, _, 0, _) => {
+            match t {
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32U32),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (32, t, 32, _, 32, _, 0, _, 0, _) => {
+            match t {
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32F32),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32I32),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32U32U32),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (32, t, 32, _, 32, _, 32, _, 0, _) => {
+            match t {
+                gl::FLOAT => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32F32F32),
+                gl::INT => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32I32I32),
+                gl::UNSIGNED_INT => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32U32U32U32),
+                _ => unreachable!("Unexpected type: 0x{:x}", t)
+            }
+        },
+        (3, gl::UNSIGNED_NORMALIZED, 3, _, 2, _, 0, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U3U3U2)
+        },
+        (4, gl::UNSIGNED_NORMALIZED, 4, _, 4, _, 0, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U4U4U4)
+        },
+        (5, gl::UNSIGNED_NORMALIZED, 5, _, 5, _, 0, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U5U5U5)
+        },
+        (10, gl::UNSIGNED_NORMALIZED, 10, _, 10, _, 0, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U10U10U10)
+        },
+        (12, gl::UNSIGNED_NORMALIZED, 12, _, 12, _, 0, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U12U12U12)
+        },
+        (2, gl::UNSIGNED_NORMALIZED, 2, _, 2, _, 2, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U2U2U2U2)
+        },
+        (4, gl::UNSIGNED_NORMALIZED, 4, _, 4, _, 4, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U4U4U4U4)
+        },
+        (5, gl::UNSIGNED_NORMALIZED, 5, _, 5, _, 1, _, 0, _) => {
+            TextureFormat::UncompressedFloat(UncompressedFloatFormat::U5U5U5U1)
+        },
+        (a, b, c, d, e, f, g, h, i, j) => panic!("Unexpected texture format: \
+                                                  ({}/{} {}/{} {}/{} {}/{} {}/{})", 
+                                                  a, b, c, d, e, f, g, h, i, j)
+    }
+/*
+    match (format, requested) {
+        (gl::R8, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8),
+        (gl::R8_SNORM, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8),
+        (gl::R16, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16),
+        (gl::R16_SNORM, TextureFormatRequest::AnyDepth) => TextureFormat::DepthFormat(DepthFormat::I16),
+        (gl::R16_SNORM, TextureFormatRequest::AnyFloatingPoint) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16),
+        (gl::RG8, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8),
+        (gl::RG8_SNORM, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8),
+        (gl::RG16, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16U16),
+        (gl::RG16_SNORM, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16I16),
+        (gl::R3_G3_B2, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U3U3U2),
+        (gl::RGB4, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U4U4U4),     
+        (gl::RGB5, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U5U5U5),
+        (gl::RGB8, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8U8),
+        (gl::RGB8_SNORM, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8I8),
+        (gl::RGB10, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U10U10U10),
+        (gl::RGB12, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U12U12U12),
+        (gl::RGB16_SNORM, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16I16I16),
+        (gl::RGBA2, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U2U2U2U2),  
+        (gl::RGBA4, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U4U4U4U4), 
+        (gl::RGB5_A1, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U5U5U5U1),
+        (gl::RGBA8, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8U8U8),
+        (gl::RGBA8_SNORM, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8I8I8),
+        (gl::RGB10_A2, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U10U10U10U2),
+        (gl::RGB10_A2UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U10U10U10U2),
+        (gl::RGBA12, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U12U12U12U12),
+        (gl::RGBA16, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16U16U16U16),
+        (gl::SRGB8    gl::RGB  8   8   8        
+        (gl::SRGB8_ALPHA8     gl::RGBA     8   8   8   8    
+        (gl::R16F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16),
+        (gl::RG16F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16),
+        (gl::RGB16F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16F16),
+        (gl::RGBA16F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16F16F16),
+        (gl::R32F, TextureFormatRequest::AnyDepth) => TextureFormat::DepthFormat(DepthFormat::F32),
+        (gl::R32F, TextureFormatRequest::AnyFloatingPoint) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32),
+        (gl::RG32F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32),
+        (gl::RGB32F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32F32),
+        (gl::RGBA32F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32F32F32),
+        (gl::R11F_G11F_B10F, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F11F11F10),
+        (gl::RGB9_E5, _) => TextureFormat::UncompressedFloat(UncompressedFloatFormat::F9F9F9),
+        (gl::R8I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8),
+        (gl::R8UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8),
+        (gl::R16I, TextureFormatRequest::AnyDepth) => TextureFormat::DepthFormat(DepthFormat::I16),
+        (gl::R16I, TextureFormatRequest::AnyFloatingPoint) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16),
+        (gl::R16UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16),
+        (gl::R32I, TextureFormatRequest::AnyDepth) => TextureFormat::DepthFormat(DepthFormat::I32),
+        (gl::R32I, TextureFormatRequest::AnyFloatingPoint) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32),
+        (gl::R32UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32),
+        (gl::RG8I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8),
+        (gl::RG8UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8U8),
+        (gl::RG16I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16),
+        (gl::RG16UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16U16),
+        (gl::RG32I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32),
+        (gl::RG32UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32U32),
+        (gl::RGB8I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8I8),
+        (gl::RGB8UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8U8U8),
+        (gl::RGB16I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16I16),
+        (gl::RGB16UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16U16U16),
+        (gl::RGB32I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32I32),
+        (gl::RGB32UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32U32U32),
+        (gl::RGBA8I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8I8I8),
+        (gl::RGBA8UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U8U8U8U8),
+        (gl::RGBA16I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16I16I16),
+        (gl::RGBA16UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U16U16U16U16),
+        (gl::RGBA32I, _) => TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32I32I32),
+        (gl::RGBA32UI, _) => TextureFormat::UncompressedUnsigned(UncompressedUintFormat::U32U32U32U32),
+        (_, TextureFormatRequest::Specific(_)) => unreachable!(),
+        (e, rq) => panic!("Unimplemented tex get_format ; glenum value: {}, requested: {:?}", e, rq),
+    }*/
 }

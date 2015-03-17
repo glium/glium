@@ -81,6 +81,9 @@ pub trait Texture {
 
     /// Returns the number of textures in the array, or `None` for non-arrays.
     fn get_array_size(&self) -> Option<u32>;
+
+    /// Returns the format of the texture.
+    fn get_generic_format(&self) -> TextureFormat;
 }
 
 /// Trait that describes data for a one-dimensional texture.
