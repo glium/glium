@@ -4,9 +4,6 @@ pub use self::program::{Program, ProgramCreationError};
 pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackMode};
 
-// TODO: remove this hack
-pub use self::program::get_uniforms_locations;
-
 mod program;
 mod reflection;
 mod shader;

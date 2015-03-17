@@ -27,14 +27,6 @@ use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_
 use program::reflection::{reflect_transform_feedback};
 use program::shader::build_shader;
 
-
-// TODO: remove this hack
-#[doc(hidden)]
-pub fn get_uniforms_locations(program: &Program) -> Rc<HashMap<String, Uniform, DefaultState<FnvHasher>>>
-{
-    program.uniforms.clone()
-}
-
 /// Error that can be triggered when creating a `Program`.
 #[derive(Clone, Debug)]
 pub enum ProgramCreationError {

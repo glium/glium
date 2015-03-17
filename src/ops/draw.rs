@@ -181,7 +181,6 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // building the list of uniforms binders and the fences that must be fulfilled
     // TODO: panic if uniforms of the program are not found in the parameter
     let (uniforms, fences): (Vec<Box<Fn(&mut context::CommandContext) + Send>>, _) = {
-        let uniforms_locations = program::get_uniforms_locations(program);
         let mut active_texture = 0;
         let mut active_buffer_binding = 0;
 
@@ -192,7 +191,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
         uniforms.visit_values(|name, value| {
             if visiting_result.is_err() { return; }
 
-            if let Some(uniform) = uniforms_locations.get(name) {
+            if let Some(uniform) = program.get_uniform(name) {
                 assert!(uniform.size.is_none(), "Uniform arrays not supported yet");
 
                 if !value.is_usable_with(&uniform.ty) {
