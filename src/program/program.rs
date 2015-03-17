@@ -35,13 +35,6 @@ pub fn get_uniforms_locations(program: &Program) -> Rc<HashMap<String, Uniform, 
     program.uniforms.clone()
 }
 
-// TODO: remove this hack
-#[doc(hidden)]
-pub fn get_attributes(program: &Program) -> Rc<HashMap<String, Attribute, DefaultState<FnvHasher>>>
-{
-    program.attributes.clone()
-}
-
 /// Error that can be triggered when creating a `Program`.
 #[derive(Clone, Debug)]
 pub enum ProgramCreationError {

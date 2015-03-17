@@ -5,7 +5,7 @@ pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackMode};
 
 // TODO: remove this hack
-pub use self::program::{get_uniforms_locations, get_attributes};
+pub use self::program::get_uniforms_locations;
 
 mod program;
 mod reflection;

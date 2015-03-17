@@ -132,8 +132,6 @@ impl VertexArrayObject {
     fn new(mut ctxt: &mut CommandContext, vertex_buffers: &[&VerticesSource],
            ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
     {
-        let attributes = ::program::get_attributes(program);
-
         // checking the attributes types
         for vertex_buffer in vertex_buffers.iter() {
             let bindings = match vertex_buffer {
@@ -146,7 +144,7 @@ impl VertexArrayObject {
             };
 
             for &(ref name, _, ty) in bindings.iter() {
-                let attribute = match attributes.get(Borrow::<str>::borrow(name)) {
+                let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
                     Some(a) => a,
                     None => continue
                 };
@@ -161,7 +159,7 @@ impl VertexArrayObject {
         }
 
         // checking for missing attributes
-        for (&ref name, _) in attributes.iter() {
+        for (&ref name, _) in program.attributes() {
             let mut found = false;
             for vertex_buffer in vertex_buffers.iter() {
                 let bindings = match vertex_buffer {
@@ -261,7 +259,7 @@ impl VertexArrayObject {
                 for (name, offset, ty) in bindings.into_iter() {
                     let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
 
-                    let attribute = match attributes.get(Borrow::<str>::borrow(&name)) {
+                    let attribute = match program.get_attribute(Borrow::<str>::borrow(&name)) {
                         Some(a) => a,
                         None => continue
                     };
