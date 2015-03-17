@@ -92,9 +92,9 @@ impl ::std::error::Error for ProgramCreationError {
 pub struct Program {
     display: Display,
     id: Handle,
-    uniforms: Rc<HashMap<String, Uniform, DefaultState<FnvHasher>>>,
-    uniform_blocks: Rc<HashMap<String, UniformBlock, DefaultState<FnvHasher>>>,
-    attributes: Rc<HashMap<String, Attribute, DefaultState<FnvHasher>>>,
+    uniforms: HashMap<String, Uniform, DefaultState<FnvHasher>>,
+    uniform_blocks: HashMap<String, UniformBlock, DefaultState<FnvHasher>>,
+    attributes: HashMap<String, Attribute, DefaultState<FnvHasher>>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>, DefaultState<FnvHasher>>>,
     varyings: Option<(Vec<TransformFeedbackVarying>, TransformFeedbackMode)>,
     has_tessellation_shaders: bool,
@@ -314,9 +314,9 @@ impl Program {
         Ok(Program {
             display: display.clone(),
             id: id,
-            uniforms: Rc::new(uniforms),
-            uniform_blocks: Rc::new(blocks),
-            attributes: Rc::new(attributes),
+            uniforms: uniforms,
+            uniform_blocks: blocks,
+            attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::with_hash_state(Default::default())),
             varyings: varyings,
             has_tessellation_shaders: has_tessellation_shaders,
@@ -368,9 +368,9 @@ impl Program {
         Ok(Program {
             display: display.clone(),
             id: id,
-            uniforms: Rc::new(uniforms),
-            uniform_blocks: Rc::new(blocks),
-            attributes: Rc::new(attributes),
+            uniforms: uniforms,
+            uniform_blocks: blocks,
+            attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::with_hash_state(Default::default())),
             varyings: varyings,
             has_tessellation_shaders: true,     // FIXME: 
@@ -483,7 +483,7 @@ impl Program {
     
     /// Returns a list of uniform blocks.
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, DefaultState<FnvHasher>> {
-        &*self.uniform_blocks
+        &self.uniform_blocks
     }
 
     /// Returns the list of transform feedback varyings.
