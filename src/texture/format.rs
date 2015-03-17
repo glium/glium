@@ -177,7 +177,7 @@ pub enum UncompressedFloatFormat {
     /// Guaranteed to be supported for textures.
     I16I16,
     /// 
-    U3U32U,
+    U3U3U2,
     /// 
     U4U4U4,
     /// 
@@ -284,7 +284,7 @@ impl ToGlEnum for UncompressedFloatFormat {
             UncompressedFloatFormat::I8I8 => gl::RG8_SNORM,
             UncompressedFloatFormat::U16U16 => gl::RG16,
             UncompressedFloatFormat::I16I16 => gl::RG16_SNORM,
-            UncompressedFloatFormat::U3U32U => gl::R3_G3_B2,
+            UncompressedFloatFormat::U3U3U2 => gl::R3_G3_B2,
             UncompressedFloatFormat::U4U4U4 => gl::RGB4,
             UncompressedFloatFormat::U5U5U5 => gl::RGB5,
             UncompressedFloatFormat::U8U8U8 => gl::RGB8,
