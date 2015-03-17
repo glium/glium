@@ -550,8 +550,19 @@ pub trait Surface: Sized {
         V: vertex::MultiVerticesSource<'b>, I: index::ToIndicesSource,
         U: uniforms::Uniforms;
 
-    /// Returns an opaque type that is used by the implementation of blit functions.
-    fn get_blit_helper(&self) -> BlitHelper;
+    /// Blits from the default framebuffer.
+    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter);
+
+    /// Blits from a simple framebuffer.
+    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
+                                    source_rect: &Rect, target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter);
+
+    /// Blits from a multi-output framebuffer.
+    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
+                                         source_rect: &Rect, target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter);
 
     /// Copies a rectangle of pixels from this surface to another surface.
     ///
@@ -567,11 +578,7 @@ pub trait Surface: Sized {
     /// copies pixels.
     #[unstable = "The name will likely change"]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-        filter: uniforms::MagnifySamplerFilter) where S: Surface
-    {
-        ops::blit(self, target, gl::COLOR_BUFFER_BIT, source_rect, target_rect,
-            filter.to_glenum())
-    }
+                     filter: uniforms::MagnifySamplerFilter) where S: Surface;
 
     /// Copies the entire surface to a target surface. See `blit_color`.
     #[unstable = "The name will likely change"]
@@ -592,6 +599,11 @@ pub trait Surface: Sized {
         let target_rect = BlitTarget { left: 0, bottom: 0, width: target_dim.0 as i32, height: target_dim.1 as i32 };
         self.blit_color(&src_rect, target, &target_rect, filter)
     }
+}
+
+/// Private trait for framebuffer-like objects that provide attachments.
+trait FboAttachments {
+    fn get_attachments(&self) -> Option<&fbo::FramebufferAttachments>;
 }
 
 /// Error that can happen while drawing.
@@ -716,9 +728,6 @@ impl std::fmt::Display for DrawError {
     }
 }
 
-#[doc(hidden)]
-pub struct BlitHelper<'a>(&'a Rc<DisplayImpl>, Option<&'a fbo::FramebufferAttachments>);
-
 /// Implementation of `Surface`, targeting the default framebuffer.
 ///
 /// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
@@ -784,8 +793,39 @@ impl Surface for Frame {
                   uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
-    fn get_blit_helper(&self) -> BlitHelper {
-        BlitHelper(&self.display.context, None)
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    {
+        target.blit_from_frame(source_rect, target_rect, filter)
+    }
+
+    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, None, self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
+                                    source_rect: &Rect, target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
+                                         source_rect: &Rect, target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+}
+
+impl FboAttachments for Frame {
+    fn get_attachments(&self) -> Option<&fbo::FramebufferAttachments> {
+        None
     }
 }
 

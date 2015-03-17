@@ -1,27 +1,24 @@
+use Display;
 use BlitTarget;
 use Rect;
-use Surface;
+
+use fbo::FramebufferAttachments;
 
 use gl;
 use context;
 use version::Api;
 
-pub fn blit<S1: Surface, S2: Surface>(source: &S1, target: &S2, mask: gl::types::GLbitfield,
-    src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
+pub fn blit(display: &Display, source: Option<&FramebufferAttachments>,
+            target: Option<&FramebufferAttachments>, mask: gl::types::GLbitfield,
+            src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
-    let ::BlitHelper(display, source) = source.get_blit_helper();
-    let ::BlitHelper(_, target) = target.get_blit_helper();
-
-    let src_rect = src_rect.clone();
-    let target_rect = target_rect.clone();
-
     // FIXME: we don't draw on it
-    let source = display.framebuffer_objects.as_ref().unwrap()
-                        .get_framebuffer_for_drawing(source, &display.context);
-    let target = display.framebuffer_objects.as_ref().unwrap()
-                        .get_framebuffer_for_drawing(target, &display.context);
+    let source = display.context.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(source, &display.context.context);
+    let target = display.context.framebuffer_objects.as_ref().unwrap()
+                        .get_framebuffer_for_drawing(target, &display.context.context);
 
-    let mut ctxt = display.context.make_current();
+    let mut ctxt = display.context.context.make_current();
 
     unsafe {
         // trying to do a named blit if possible
