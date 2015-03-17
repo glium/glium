@@ -47,7 +47,13 @@ use image;
 
 use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
-use {Surface, GlObject, Rect};
+use {Surface, GlObject};
+
+use FboAttachments;
+use fbo::FramebufferAttachments;
+use Rect;
+use BlitTarget;
+use uniforms;
 
 use self::tex_impl::{TextureImplementation, TextureFormatRequest};
 
@@ -413,8 +419,36 @@ impl<'a> Surface for TextureSurface<'a> {
         self.0.draw(vb, ib, program, uniforms, draw_parameters)
     }
 
-    fn get_blit_helper(&self) -> ::BlitHelper {
-        self.0.get_blit_helper()
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    {
+        target.blit_from_simple_framebuffer(&self.0, source_rect, target_rect, filter)
+    }
+
+    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter)
+    {
+        self.0.blit_from_frame(source_rect, target_rect, filter)
+    }
+
+    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
+                                    source_rect: &Rect, target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter)
+    {
+        self.0.blit_from_simple_framebuffer(source, source_rect, target_rect, filter)
+    }
+
+    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
+                                         source_rect: &Rect, target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter)
+    {
+        self.0.blit_from_multioutput_framebuffer(source, source_rect, target_rect, filter)
+    }
+}
+
+impl<'a> FboAttachments for TextureSurface<'a> {
+    fn get_attachments(&self) -> Option<&FramebufferAttachments> {
+        self.0.get_attachments()
     }
 }
 

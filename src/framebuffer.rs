@@ -49,11 +49,17 @@ use texture::{Texture2dArrayMipmap, DepthTexture2dArrayMipmap, StencilTexture2dA
 use texture::{Texture2dMultisampleArrayMipmap, DepthTexture2dMultisampleArrayMipmap, StencilTexture2dMultisampleArrayMipmap, DepthStencilTexture2dMultisampleArrayMipmap};
 
 use fbo::FramebufferAttachments;
+use FboAttachments;
+use Rect;
+use BlitTarget;
+use ToGlEnum;
+use ops;
+use uniforms;
 
 use {Display, Program, Surface, GlObject};
 use DrawError;
 
-use {fbo, gl, ops};
+use {fbo, gl};
 
 /// A framebuffer which has only one color attachment.
 pub struct SimpleFrameBuffer<'a> {
@@ -266,8 +272,39 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
-    fn get_blit_helper(&self) -> ::BlitHelper {
-        ::BlitHelper(&self.display.context, Some(&self.attachments))
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    {
+        target.blit_from_simple_framebuffer(self, source_rect, target_rect, filter)
+    }
+
+    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, None, self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
+                                    source_rect: &Rect, target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
+                                         source_rect: &Rect, target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+}
+
+impl<'a> FboAttachments for SimpleFrameBuffer<'a> {
+    fn get_attachments(&self) -> Option<&FramebufferAttachments> {
+        Some(&self.attachments)
     }
 }
 
@@ -427,10 +464,6 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
                    color, depth, stencil);
     }
 
-    fn get_blit_helper(&self) -> ::BlitHelper {
-        unimplemented!()
-    }
-
     fn get_dimensions(&self) -> (u32, u32) {
         (self.dimensions.0 as u32, self.dimensions.1 as u32)
     }
@@ -471,6 +504,41 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
 
         ops::draw(&self.display, Some(&self.build_attachments(program)), vb,
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
+    }
+
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    {
+        target.blit_from_multioutput_framebuffer(self, source_rect, target_rect, filter)
+    }
+
+    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, None, self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
+                                    source_rect: &Rect, target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
+                                         source_rect: &Rect, target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+}
+
+impl<'a> FboAttachments for MultiOutputFrameBuffer<'a> {
+    fn get_attachments(&self) -> Option<&FramebufferAttachments> {
+        unimplemented!();
     }
 }
 
