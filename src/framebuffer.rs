@@ -227,7 +227,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        ops::clear(&self.display.context, Some(&self.attachments), color, depth, stencil);
+        ops::clear(&self.display, Some(&self.attachments), color, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -460,7 +460,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        ops::clear(&self.display.context, Some(&self.build_attachments_any()),
+        ops::clear(&self.display, Some(&self.build_attachments_any()),
                    color, depth, stencil);
     }
 
