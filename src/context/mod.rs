@@ -1,5 +1,7 @@
 use gl;
 
+use std::collections::hash_state::DefaultState;
+use std::collections::HashMap;
 use std::default::Default;
 use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
@@ -9,6 +11,12 @@ use GliumCreationError;
 use backend::Backend;
 use version;
 use version::Api;
+
+use fbo;
+use sampler_object;
+use uniforms;
+use util;
+use vertex_array_object;
 
 pub use self::capabilities::Capabilities;
 pub use self::extensions::ExtensionsList;
@@ -29,6 +37,16 @@ pub struct Context {
 
     backend: RefCell<Box<Backend>>,
     check_current_context: bool,
+
+    // we maintain a list of FBOs
+    // the option is here to destroy the container
+    pub framebuffer_objects: Option<fbo::FramebuffersContainer>,
+
+    pub vertex_array_objects: vertex_array_object::VertexAttributesSystem,
+
+    // we maintain a list of samplers for each possible behavior
+    pub samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
+                          DefaultState<util::FnvHasher>>>,
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -88,6 +106,9 @@ impl Context {
             shared_debug_output: shared_debug_backend,
             backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
+            framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
+            vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
+            samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
         }, shared_debug_frontend))
     }
 
@@ -152,6 +173,35 @@ impl Context {
 
     pub fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
+    }
+}
+
+impl Drop for Context {
+    fn drop(&mut self) {
+        unsafe {
+            // this is the code of make_current duplicated here because we can't borrow
+            // `self` twice
+            if self.check_current_context {
+                let backend = self.backend.borrow();
+                if !backend.is_current() {
+                    backend.make_current();
+                }
+            }
+
+            let mut ctxt = CommandContext {
+                gl: &self.gl,
+                state: self.state.borrow_mut(),
+                version: &self.version,
+                extensions: &self.extensions,
+                capabilities: &self.capabilities,
+                shared_debug_output: &*self.shared_debug_output,
+            };
+
+            let fbos = self.framebuffer_objects.take();
+            fbos.unwrap().cleanup(&mut ctxt);
+
+            self.vertex_array_objects.cleanup(&mut ctxt);
+        }
     }
 }
 

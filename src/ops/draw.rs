@@ -40,7 +40,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // obtaining the identifier of the FBO to draw upon
     let fbo_id = {
         let mut ctxt = display.context.context.make_current();
-        display.context.framebuffer_objects.as_ref().unwrap()
+        display.context.context.framebuffer_objects.as_ref().unwrap()
                        .get_framebuffer_for_drawing(framebuffer, &mut ctxt)
     };
 
@@ -278,7 +278,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     let mut ctxt = display.context.context.make_current();
     
     // the vertex array object to bind
-    let vao_id = display.context.vertex_array_objects.bind_vao(&mut ctxt,
+    let vao_id = display.context.context.vertex_array_objects.bind_vao(&mut ctxt,
                                                                vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
                                                                &indices, program);
 

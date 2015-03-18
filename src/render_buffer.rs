@@ -231,7 +231,7 @@ impl Drop for RenderBufferImpl {
             let mut ctxt = self.display.context.make_current();
 
             // removing FBOs which contain this buffer
-            self.display.framebuffer_objects.as_ref().unwrap()
+            self.display.context.framebuffer_objects.as_ref().unwrap()
                         .purge_renderbuffer(self.id, &mut ctxt);
 
             if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||

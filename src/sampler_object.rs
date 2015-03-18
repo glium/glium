@@ -89,7 +89,7 @@ pub fn get_sampler(display: &Display, behavior: &SamplerBehavior)
     }
 
     // looking for an existing sampler
-    match display.context.samplers.borrow_mut().get(behavior) {
+    match display.context.context.samplers.borrow_mut().get(behavior) {
         Some(obj) => return Ok(obj.get_id()),
         None => ()
     };
@@ -97,6 +97,6 @@ pub fn get_sampler(display: &Display, behavior: &SamplerBehavior)
     // builds a new sampler
     let sampler = SamplerObject::new(display, behavior);
     let id = sampler.get_id();
-    display.context.samplers.borrow_mut().insert(behavior.clone(), sampler);
+    display.context.context.samplers.borrow_mut().insert(behavior.clone(), sampler);
     Ok(id)
 }

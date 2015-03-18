@@ -904,9 +904,6 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
                 backend: Some(RefCell::new(backend)),
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -924,9 +921,6 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
                 backend: Some(RefCell::new(backend)),
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -939,11 +933,11 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
             let mut ctxt = display.context.context.make_current();
 
             // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
-            if let Some(ref fbos) = display.context.framebuffer_objects {
+            if let Some(ref fbos) = display.context.context.framebuffer_objects {
                 fbos.purge_all(&mut ctxt);
             }
 
-            display.context.vertex_array_objects.purge_all(&mut ctxt);
+            display.context.context.vertex_array_objects.purge_all(&mut ctxt);
         }
 
         let mut existing_window = display.context.backend.as_ref()
@@ -967,9 +961,6 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
                 backend: None,
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -987,9 +978,6 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
                 backend: None,
                 debug_callback: RefCell::new(None),
                 shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
             }),
         };
 
@@ -1025,16 +1013,6 @@ struct DisplayImpl {
 
     // holding the Rc to SharedDebugOutput
     shared_debug_output: Rc<context::SharedDebugOutput>,
-
-    // we maintain a list of FBOs
-    // the option is here to destroy the container
-    framebuffer_objects: Option<fbo::FramebuffersContainer>,
-
-    vertex_array_objects: vertex_array_object::VertexAttributesSystem,
-
-    // we maintain a list of samplers for each possible behavior
-    samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
-                    DefaultState<util::FnvHasher>>>,
 }
 
 /// Iterator for all the events received by the window.
@@ -1337,8 +1315,6 @@ impl Display {
     }
 }
 
-// this destructor is here because objects in `Display` contain an `Rc<DisplayImpl>`,
-// which would lead to a leak
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
         // disabling callback
@@ -1356,17 +1332,10 @@ impl Drop for DisplayImpl {
                 ctxt.state.enabled_debug_output = Some(false);
                 ctxt.gl.Finish();
             }
-
-            {
-                let fbos = self.framebuffer_objects.take();
-                fbos.unwrap().cleanup(&mut ctxt);
-            }
-
-            self.vertex_array_objects.cleanup(&mut ctxt);
         }
 
         {
-            let mut samplers = self.samplers.borrow_mut();
+            let mut samplers = self.context.samplers.borrow_mut();
             samplers.clear();
         }
     }
