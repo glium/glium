@@ -77,8 +77,8 @@ impl Context {
                   -> Result<(Context, Rc<SharedDebugOutput>), GliumCreationError>
                   where B: Backend + 'static
     {
-        backend.make_current();
-        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
+        unsafe { backend.make_current() };
+        let gl = gl::Gl::load_with(|symbol| unsafe { backend.get_proc_address(symbol) });
 
         let gl_state = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
@@ -120,7 +120,7 @@ impl Context {
         if self.check_current_context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
-                backend.make_current();
+                unsafe { backend.make_current() };
             }
         }
 
@@ -138,7 +138,7 @@ impl Context {
                       -> Result<(), GliumCreationError>
                       where B: Backend + 'static
     {
-        new_backend.make_current();
+        unsafe { new_backend.make_current() };
 
         *self.state.borrow_mut() = Default::default();
         // FIXME: verify version, capabilities and extensions
@@ -152,7 +152,7 @@ impl Context {
 
         if self.check_current_context {
             if !backend.is_current() {
-                backend.make_current();
+                unsafe { backend.make_current() };
             }
         }
 

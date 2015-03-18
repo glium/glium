@@ -195,6 +195,7 @@ use std::rc::Rc;
 use std::cell::Ref;
 use std::cell::RefCell;
 
+pub mod backend;
 pub mod debug;
 pub mod framebuffer;
 pub mod index;
@@ -212,7 +213,6 @@ pub mod index_buffer {
     pub use index::*;
 }
 
-mod backend;
 mod buffer;
 mod context;
 mod draw_parameters;
