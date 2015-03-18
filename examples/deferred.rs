@@ -45,10 +45,10 @@ fn main() {
         
         glium::VertexBuffer::new(&display,
             vec![
-                Vertex { position: [-1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
-                Vertex { position: [1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 0.0] },
-                Vertex { position: [1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 1.0] },
-                Vertex { position: [-1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 1.0] },
+                Vertex { position: [-1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 0.0] },
+                Vertex { position: [1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
+                Vertex { position: [1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 1.0] },
+                Vertex { position: [-1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 1.0] },
             ]
         )
     };
