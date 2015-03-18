@@ -227,14 +227,13 @@ impl RenderBufferImpl {
 
 impl Drop for RenderBufferImpl {
     fn drop(&mut self) {
-        // removing FBOs which contain this buffer
-        self.display.framebuffer_objects.as_ref().unwrap()
-                    .purge_renderbuffer(self.id, &self.display.context);
-
-        // destroying
-        let mut ctxt = self.display.context.make_current();
-
         unsafe {
+            let mut ctxt = self.display.context.make_current();
+
+            // removing FBOs which contain this buffer
+            self.display.framebuffer_objects.as_ref().unwrap()
+                        .purge_renderbuffer(self.id, &mut ctxt);
+
             if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
                ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
             {

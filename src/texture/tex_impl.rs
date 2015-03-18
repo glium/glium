@@ -473,12 +473,12 @@ impl fmt::Debug for TextureImplementation {
 
 impl Drop for TextureImplementation {
     fn drop(&mut self) {
+        let mut ctxt = self.display.context.context.make_current();
+
         // removing FBOs which contain this texture
         self.display.context.framebuffer_objects.as_ref().unwrap()
-                    .purge_texture(self.id, &self.display.context.context);
+                    .purge_texture(self.id, &mut ctxt);
 
-        // destroying the texture
-        let ctxt = self.display.context.context.make_current();
         unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
     }
 }

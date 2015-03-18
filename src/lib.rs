@@ -935,13 +935,14 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     }
 
     fn rebuild_glium(self, display: &Display) -> Result<(), GliumCreationError> {
-        // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
-        if let Some(ref fbos) = display.context.framebuffer_objects {
-            fbos.purge_all(&display.context.context);
-        }
-
         {
             let mut ctxt = display.context.context.make_current();
+
+            // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
+            if let Some(ref fbos) = display.context.framebuffer_objects {
+                fbos.purge_all(&mut ctxt);
+            }
+
             display.context.vertex_array_objects.purge_all(&mut ctxt);
         }
 
@@ -1355,15 +1356,12 @@ impl Drop for DisplayImpl {
                 ctxt.state.enabled_debug_output = Some(false);
                 ctxt.gl.Finish();
             }
-        }
 
-        {
-            let fbos = self.framebuffer_objects.take();
-            fbos.unwrap().cleanup(&self.context);
-        }
+            {
+                let fbos = self.framebuffer_objects.take();
+                fbos.unwrap().cleanup(&mut ctxt);
+            }
 
-        {
-            let mut ctxt = self.context.make_current();
             self.vertex_array_objects.cleanup(&mut ctxt);
         }
 

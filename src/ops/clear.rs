@@ -14,10 +14,10 @@ pub fn clear(display: &Display, framebuffer: Option<&FramebufferAttachments>,
              color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<i32>)
 {
     unsafe {
-        let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
-                            .get_framebuffer_for_drawing(framebuffer, &display.context.context);
-
         let mut ctxt = display.context.context.make_current();
+
+        let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
+                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
 
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 

@@ -59,7 +59,7 @@ use std::cell::RefCell;
 use GlObject;
 
 use gl;
-use context;
+use context::CommandContext;
 use context::GlVersion;
 use version::Api;
 use util::FnvHasher;
@@ -110,26 +110,26 @@ impl FramebuffersContainer {
         }
     }
 
-    pub fn purge_all(&self, context: &context::Context) {
-        self.purge_if(|_| true, context);
+    pub fn purge_all(&self, ctxt: &mut CommandContext) {
+        self.purge_if(|_| true, ctxt);
     }
 
-    pub fn purge_texture(&self, texture: gl::types::GLuint, context: &context::Context) {
+    pub fn purge_texture(&self, texture: gl::types::GLuint, ctxt: &mut CommandContext) {
         self.purge_if(|a| {
             match a {
                 &Attachment::Texture { id, .. } if id == texture => true,
                 _ => false 
             }
-        }, context);
+        }, ctxt);
     }
 
     pub fn purge_renderbuffer(&self, renderbuffer: gl::types::GLuint,
-                              context: &context::Context)
+                              ctxt: &mut CommandContext)
     {
-        self.purge_if(|a| a == &Attachment::RenderBuffer(renderbuffer), context);
+        self.purge_if(|a| a == &Attachment::RenderBuffer(renderbuffer), ctxt);
     }
 
-    fn purge_if<F>(&self, condition: F, context: &context::Context)
+    fn purge_if<F>(&self, condition: F, mut ctxt: &mut CommandContext)
                    where F: Fn(&Attachment) -> bool
     {
         let mut framebuffers = self.framebuffers.borrow_mut();
@@ -173,30 +173,30 @@ impl FramebuffersContainer {
         }
 
         for atch in attachments.into_iter() {
-            framebuffers.remove(&atch).unwrap().destroy(context);
+            framebuffers.remove(&atch).unwrap().destroy(ctxt);
         }
     }
 
-    pub fn cleanup(self, context: &context::Context) {
+    pub fn cleanup(self, ctxt: &mut CommandContext) {
         let mut other = HashMap::with_hash_state(Default::default());
         mem::swap(&mut *self.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {
-            obj.destroy(context);
+            obj.destroy(ctxt);
         }
     }
 
     pub fn get_framebuffer_for_drawing(&self, attachments: Option<&FramebufferAttachments>,
-                                       context: &context::Context) -> gl::types::GLuint
+                                       ctxt: &mut CommandContext) -> gl::types::GLuint
     {
         if let Some(attachments) = attachments {
-            self.get_framebuffer(attachments, context)
+            self.get_framebuffer(attachments, ctxt)
         } else {
             0
         }
     }
 
-    pub fn get_framebuffer_for_reading(&self, attachment: &Attachment, context: &context::Context)
+    pub fn get_framebuffer_for_reading(&self, attachment: &Attachment, ctxt: &mut CommandContext)
                                        -> (gl::types::GLuint, gl::types::GLenum)
     {
         for (attachments, fbo) in self.framebuffers.borrow_mut().iter() {
@@ -212,12 +212,12 @@ impl FramebuffersContainer {
             depth_stencil: FramebufferDepthStencilAttachments::None,
         };
 
-        let framebuffer = self.get_framebuffer_for_drawing(Some(&attachments), context);
+        let framebuffer = self.get_framebuffer_for_drawing(Some(&attachments), ctxt);
         (framebuffer, gl::COLOR_ATTACHMENT0)
     }
 
     fn get_framebuffer(&self, framebuffer: &FramebufferAttachments,
-                       context: &context::Context) -> gl::types::GLuint
+                       ctxt: &mut CommandContext) -> gl::types::GLuint
     {
         let mut framebuffers = self.framebuffers.borrow_mut();
 
@@ -225,7 +225,7 @@ impl FramebuffersContainer {
             return value.id;
         }
 
-        let new_fbo = FrameBufferObject::new(context, framebuffer);
+        let new_fbo = FrameBufferObject::new(ctxt, framebuffer);
         let new_fbo_id = new_fbo.id.clone();
         framebuffers.insert(framebuffer.clone(), new_fbo);
         new_fbo_id
@@ -242,9 +242,7 @@ impl Drop for FramebuffersContainer {
 
 impl FrameBufferObject {
     /// Builds a new FBO.
-    fn new(context: &context::Context, attachments: &FramebufferAttachments) -> FrameBufferObject {
-        let mut ctxt = context.make_current();
-
+    fn new(mut ctxt: &mut CommandContext, attachments: &FramebufferAttachments) -> FrameBufferObject {
         if attachments.colors.len() > ctxt.capabilities.max_draw_buffers as usize {
             panic!("Trying to attach {} color buffers, but the hardware only supports {}",
                    attachments.colors.len(), ctxt.capabilities.max_draw_buffers);
@@ -253,12 +251,12 @@ impl FrameBufferObject {
         let id = unsafe {
             let mut id = mem::uninitialized();
 
-            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
+            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) ||
                 ctxt.extensions.gl_arb_direct_state_access
             {
                 ctxt.gl.CreateFramebuffers(1, &mut id);
-            } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            } else if ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
+                ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
             {
                 ctxt.gl.GenFramebuffers(1, &mut id);
                 bind_framebuffer(&mut ctxt, id, true, false);
@@ -323,12 +321,10 @@ impl FrameBufferObject {
         }
     }
 
-    fn destroy(self, context: &context::Context) {
-        let mut ctxt = context.make_current();
-
+    fn destroy(self, mut ctxt: &mut CommandContext) {
         unsafe {
             // unbinding framebuffer
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+            if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
                 if ctxt.state.draw_framebuffer == self.id && ctxt.state.read_framebuffer == self.id {
                     ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
                     ctxt.state.draw_framebuffer = 0;
@@ -343,7 +339,7 @@ impl FrameBufferObject {
                     ctxt.state.read_framebuffer = 0;
                 }
 
-            } else if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) {
+            } else if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) {
                 if ctxt.state.draw_framebuffer == self.id || ctxt.state.read_framebuffer == self.id {
                     ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
                     ctxt.state.draw_framebuffer = 0;
@@ -362,8 +358,8 @@ impl FrameBufferObject {
             }
 
             // deleting
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            if ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
+                ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
             {
                 ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr());
             } else if ctxt.extensions.gl_ext_framebuffer_object {
@@ -382,15 +378,15 @@ impl GlObject for FrameBufferObject {
     }
 }
 
-pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::GLuint,
+pub fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
                         draw: bool, read: bool)
 {
     if draw && ctxt.state.draw_framebuffer != fbo_id {
         unsafe {
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+            if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
                 ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
                 ctxt.state.draw_framebuffer = fbo_id;
-            } else if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) {
+            } else if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) {
                 ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
                 ctxt.state.draw_framebuffer = fbo_id;
                 ctxt.state.read_framebuffer = fbo_id;
@@ -404,10 +400,10 @@ pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::G
 
     if read && ctxt.state.read_framebuffer != fbo_id {
         unsafe {
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) {
+            if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
                 ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
                 ctxt.state.read_framebuffer = fbo_id;
-            } else if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) {
+            } else if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) {
                 ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
                 ctxt.state.draw_framebuffer = fbo_id;
                 ctxt.state.read_framebuffer = fbo_id;
@@ -420,7 +416,7 @@ pub fn bind_framebuffer(ctxt: &mut context::CommandContext, fbo_id: gl::types::G
     }
 }
 
-unsafe fn attach(ctxt: &mut context::CommandContext, slot: gl::types::GLenum,
+unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: Attachment)
 {
     if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {

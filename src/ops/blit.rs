@@ -12,15 +12,15 @@ pub fn blit(display: &Display, source: Option<&FramebufferAttachments>,
             target: Option<&FramebufferAttachments>, mask: gl::types::GLbitfield,
             src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
-    // FIXME: we don't draw on it
-    let source = display.context.framebuffer_objects.as_ref().unwrap()
-                        .get_framebuffer_for_drawing(source, &display.context.context);
-    let target = display.context.framebuffer_objects.as_ref().unwrap()
-                        .get_framebuffer_for_drawing(target, &display.context.context);
-
-    let mut ctxt = display.context.context.make_current();
-
     unsafe {
+        let mut ctxt = display.context.context.make_current();
+
+        // FIXME: we don't draw on it
+        let source = display.context.framebuffer_objects.as_ref().unwrap()
+                            .get_framebuffer_for_drawing(source, &mut ctxt);
+        let target = display.context.framebuffer_objects.as_ref().unwrap()
+                            .get_framebuffer_for_drawing(target, &mut ctxt);
+
         // trying to do a named blit if possible
         if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) {
             ctxt.gl.BlitNamedFramebuffer(source, target,
