@@ -1383,6 +1383,7 @@ fn get_gl_error(ctxt: &mut context::CommandContext) -> Option<&'static str> {
         gl::OUT_OF_MEMORY => Some("GL_OUT_OF_MEMORY"),
         gl::STACK_UNDERFLOW => Some("GL_STACK_UNDERFLOW"),
         gl::STACK_OVERFLOW => Some("GL_STACK_OVERFLOW"),
+        gl::CONTEXT_LOST => Some("GL_CONTEXT_LOST"),
         _ => Some("Unknown glGetError return value")
     }
 }
