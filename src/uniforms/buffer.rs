@@ -1,5 +1,5 @@
 use Display;
-use buffer::{self, Buffer, BufferCreationError};
+use buffer::{self, Buffer, BufferType, BufferCreationError};
 use program;
 use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
 
@@ -35,8 +35,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Only available if the `gl_uniform_blocks` feature is enabled.
     #[cfg(feature = "gl_uniform_blocks")]
     pub fn new(display: &Display, data: T) -> UniformBuffer<T> {
-        let buffer = Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
-                                                             false).unwrap();
+        let buffer = Buffer::new(display, vec![data], BufferType::UniformBuffer, false).unwrap();
 
         UniformBuffer {
             buffer: TypelessUniformBuffer {
@@ -75,8 +74,8 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
             None
 
         } else {
-            let buffer = match Buffer::new::<buffer::UniformBuffer, _>(display, vec![data],
-                                                                       persistent)
+            let buffer = match Buffer::new(display, vec![data], BufferType::UniformBuffer,
+                                           persistent)
             {
                 Err(BufferCreationError::PersistentMappingNotSupported) => return None,
                 b => b.unwrap()
@@ -93,7 +92,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
 
     /// Modifies the content of the buffer.
     pub fn upload(&mut self, data: T) {
-        self.buffer.buffer.upload::<buffer::UniformBuffer, _>(0, vec![data])
+        self.buffer.buffer.upload(0, vec![data])
     }
 
     /// Maps the buffer to allow write access to it.
@@ -101,7 +100,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// This function will block until the buffer stops being used by the backend.
     /// This operation is much faster if the buffer is persistent.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
-        Mapping(self.buffer.buffer.map::<buffer::UniformBuffer, T>(0, 1))
+        Mapping(self.buffer.buffer.map(0, 1))
     }
 
     /// Reads the content of the buffer.
@@ -114,12 +113,12 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Only available if the `gl_read_buffer` feature is enabled.
     #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> T {
-        self.buffer.buffer.read::<buffer::UniformBuffer, T>().into_iter().next().unwrap()
+        self.buffer.buffer.read().into_iter().next().unwrap()
     }
 
     /// Reads the content of the buffer.
     pub fn read_if_supported(&self) -> Option<T> {
-        let res = self.buffer.buffer.read_if_supported::<buffer::UniformBuffer, T>();
+        let res = self.buffer.buffer.read_if_supported();
         res.map(|res| res.into_iter().next().unwrap())
     }
 }
@@ -151,7 +150,7 @@ impl BufferExt for TypelessUniformBuffer {
 }
 
 /// A mapping of a uniform buffer.
-pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::UniformBuffer, T>);
+pub struct Mapping<'a, T>(buffer::Mapping<'a, T>);
 
 impl<'a, T> Deref for Mapping<'a, T> {
     type Target = T;

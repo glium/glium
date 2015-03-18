@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::sync::mpsc::Sender;
 
-use buffer::{self, Buffer, BufferCreationError};
+use buffer::{self, Buffer, BufferType, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
 use vertex::format::VertexFormat;
 
@@ -65,7 +65,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false).unwrap();
+        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap();
         let elements_size = buffer.get_elements_size();
 
         Some(PerInstanceAttributesBuffer {
@@ -84,7 +84,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     pub fn new_dynamic(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new::<buffer::ArrayBuffer, T>(display, data, false).unwrap();
+        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap();
         let elements_size = buffer.get_elements_size();
 
         PerInstanceAttributesBuffer {
@@ -119,7 +119,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = match Buffer::new::<buffer::ArrayBuffer, T>(display, data, true) {
+        let buffer = match Buffer::new(display, data, BufferType::ArrayBuffer, true) {
             Err(BufferCreationError::PersistentMappingNotSupported) => return None,
             b => b.unwrap()
         };
@@ -174,7 +174,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     {
         PerInstanceAttributesBuffer {
             buffer: PerInstanceAttributesBufferAny {
-                buffer: Buffer::new::<buffer::ArrayBuffer, T>(display, data, false).unwrap(),
+                buffer: Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,
             },
@@ -188,7 +188,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// This operation is much faster if the buffer is persistent.
     pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
         let len = self.buffer.buffer.get_elements_count();
-        let mapping = self.buffer.buffer.map::<buffer::ArrayBuffer, T>(0, len);
+        let mapping = self.buffer.buffer.map(0, len);
         Mapping(mapping)
     }
 
@@ -202,7 +202,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// Only available if the `gl_read_buffer` feature is enabled.
     #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> Vec<T> {
-        self.buffer.buffer.read::<buffer::ArrayBuffer, T>()
+        self.buffer.buffer.read()
     }
 
     /// Reads the content of the buffer.
@@ -210,7 +210,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// This function is usually better if are just doing one punctual read, while `map`
     /// is better if you want to have multiple small reads.
     pub fn read_if_supported(&self) -> Option<Vec<T>> {
-        self.buffer.buffer.read_if_supported::<buffer::ArrayBuffer, T>()
+        self.buffer.buffer.read_if_supported()
     }
 
     /// Reads the content of the buffer.
@@ -229,7 +229,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// Only available if the `gl_read_buffer` feature is enabled.
     #[cfg(feature = "gl_read_buffer")]
     pub fn read_slice(&self, offset: usize, size: usize) -> Vec<T> {
-        self.buffer.buffer.read_slice::<buffer::ArrayBuffer, T>(offset, size)
+        self.buffer.buffer.read_slice(offset, size)
     }
 
     /// Reads the content of the buffer.
@@ -243,7 +243,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     ///
     /// Panics if `offset` or `offset + size` are greated than the size of the buffer.
     pub fn read_slice_if_supported(&self, offset: usize, size: usize) -> Option<Vec<T>> {
-        self.buffer.buffer.read_slice_if_supported::<buffer::ArrayBuffer, T>(offset, size)
+        self.buffer.buffer.read_slice_if_supported(offset, size)
     }
 
     /// Writes some vertices to the buffer.
@@ -251,7 +251,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// Replaces some vertices in the buffer with others.
     /// The `offset` represents a number of vertices, not a number of bytes.
     pub fn write(&mut self, offset: usize, data: Vec<T>) {
-        self.buffer.buffer.upload::<buffer::ArrayBuffer, _>(offset, data)
+        self.buffer.buffer.upload(offset, data)
     }
 }
 
@@ -355,7 +355,7 @@ impl<'a> IntoVerticesSource<'a> for &'a PerInstanceAttributesBufferAny {
 }
 
 /// A mapping of a buffer.
-pub struct Mapping<'a, T>(buffer::Mapping<'a, buffer::ArrayBuffer, T>);
+pub struct Mapping<'a, T>(buffer::Mapping<'a, T>);
 
 impl<'a, T> Deref for Mapping<'a, T> {
     type Target = [T];
