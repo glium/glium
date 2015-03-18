@@ -38,8 +38,11 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     try!(draw_parameters::validate(display, draw_parameters));
 
     // obtaining the identifier of the FBO to draw upon
-    let fbo_id = display.context.framebuffer_objects.as_ref().unwrap()
-                        .get_framebuffer_for_drawing(framebuffer, &display.context.context);
+    let fbo_id = {
+        let mut ctxt = display.context.context.make_current();
+        display.context.framebuffer_objects.as_ref().unwrap()
+                       .get_framebuffer_for_drawing(framebuffer, &mut ctxt)
+    };
 
     // using a base vertex is not yet supported
     // TODO: 

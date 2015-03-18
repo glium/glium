@@ -10,6 +10,7 @@ use texture;
 use GlObject;
 use libc;
 use context;
+use context::CommandContext;
 use gl;
 
 pub fn read_attachment<P, T>(attachment: &fbo::Attachment, dimensions: (u32, u32),
@@ -17,9 +18,12 @@ pub fn read_attachment<P, T>(attachment: &fbo::Attachment, dimensions: (u32, u32
                              where P: texture::PixelValue + Clone + Send,
                              T: texture::Texture2dDataSink<Data = P>
 {
+    let mut ctxt = display.context.context.make_current();
+
     let (fbo, atch) = display.context.framebuffer_objects.as_ref().unwrap()
-                             .get_framebuffer_for_reading(attachment, &display.context.context);
-    read_impl(fbo, atch, dimensions, None, &display.context.context).unwrap()
+                             .get_framebuffer_for_reading(attachment, &mut ctxt);
+
+    read_impl(fbo, atch, dimensions, None, &mut ctxt).unwrap()
 }
 
 /// Panics if the pixel buffer is not big enough.
@@ -28,18 +32,23 @@ pub fn read_attachment_to_pb<P, T>(attachment: &fbo::Attachment, dimensions: (u3
                                    where P: texture::PixelValue + Clone + Send,
                                    T: texture::Texture2dDataSink<Data = P>
 {
+    let mut ctxt = display.context.context.make_current();
+
     let (fbo, atch) = display.context.framebuffer_objects.as_ref().unwrap()
-                             .get_framebuffer_for_reading(attachment, &display.context.context);
-    read_impl(fbo, atch, dimensions, Some(dest), &display.context.context);
+                             .get_framebuffer_for_reading(attachment, &mut ctxt);
+
+    read_impl(fbo, atch, dimensions, Some(dest), &mut ctxt);
 }
 
 pub fn read_from_default_fb<P, T>(attachment: gl::types::GLenum, display: &Display) -> T          // TODO: remove Clone for P
                                   where P: texture::PixelValue + Clone + Send,
                                   T: texture::Texture2dDataSink<Data = P>
 {
+    let mut ctxt = display.context.context.make_current();
+
     let (w, h) = display.get_framebuffer_dimensions();
     let (w, h) = (w as u32, h as u32);      // TODO: remove this conversion
-    read_impl(0, attachment, (w, h), None, &display.context.context).unwrap()
+    read_impl(0, attachment, (w, h), None, &mut ctxt).unwrap()
 }
 
 /// Panics if the pixel buffer is not big enough.
@@ -48,13 +57,14 @@ pub fn read_from_default_fb_to_pb<P, T>(attachment: gl::types::GLenum,
                                         where P: texture::PixelValue + Clone + Send,
                                         T: texture::Texture2dDataSink<Data = P>
 {
+    let mut ctxt = display.context.context.make_current();
     let (w, h) = display.get_framebuffer_dimensions();
-    read_impl(0, attachment, (w, h), Some(dest), &display.context.context);
+    read_impl(0, attachment, (w, h), Some(dest), &mut ctxt);
 }
 
 fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
                    dimensions: (u32, u32), target: Option<&mut PixelBuffer<T>>,
-                   context: &context::Context) -> Option<T>          // TODO: remove Clone for P
+                   mut ctxt: &mut CommandContext) -> Option<T>          // TODO: remove Clone for P
                    where P: texture::PixelValue + Clone + Send,
                    T: texture::Texture2dDataSink<Data = P>
 {
@@ -74,8 +84,6 @@ fn read_impl<P, T>(fbo: gl::types::GLuint, readbuffer: gl::types::GLenum,
         assert!(pixel_buffer.get_size() >= total_data_size);
         pixel_buffer::store_infos(pixel_buffer, dimensions, chosen_format);
     }
-
-    let mut ctxt = context.make_current();
 
     let data = unsafe {
         // binding framebuffer
