@@ -139,7 +139,7 @@ pub enum UniformValue<'a> {
     /// can be binded on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
-    Block(&'a TypelessUniformBuffer, Box<Fn(&program::UniformBlock) -> bool + 'static>),
+    Block(&'a TypelessUniformBuffer, fn(&program::UniformBlock) -> bool),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),
