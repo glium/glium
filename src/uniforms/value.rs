@@ -134,6 +134,7 @@ pub trait IntoUniformValue<'a> {
 
 /// Represents a value to bind to a uniform.
 #[allow(missing_docs)]
+#[derive(Copy)]
 pub enum UniformValue<'a> {
     /// Contains a handle to the buffer, and a function that indicates whether this buffer
     /// can be binded on a block with the given layout.
@@ -185,6 +186,12 @@ pub enum UniformValue<'a> {
     IntegralTexture2dMultisampleArray(&'a texture::IntegralTexture2dMultisampleArray, Option<SamplerBehavior>),
     UnsignedTexture2dMultisampleArray(&'a texture::UnsignedTexture2dMultisampleArray, Option<SamplerBehavior>),
     DepthTexture2dMultisampleArray(&'a texture::DepthTexture2dMultisampleArray, Option<SamplerBehavior>),
+}
+
+impl<'a> Clone for UniformValue<'a> {
+    fn clone(&self) -> UniformValue<'a> {
+        *self
+    }
 }
 
 impl<'a> UniformValue<'a> {
