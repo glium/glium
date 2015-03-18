@@ -5,14 +5,19 @@ env:
     - secure: "Ts/4pe5X+GCq2tr88UyXvIciibED0vHaJhQE9gC4OIyJRIM4ZBiNmyVATZi16zWzLPVCkURWBIjMt5G7r7rJ0fwvGvsFUfCMg9if1xYEVgXBw/0FFvgO5CkUR+vK3lD1A9Gew1exCwz/bKz0Vf2NvHcpBdvZ3pUbageLRGKcVH4="
     - secure: "AfE+PLANOT0mgUKpgGUu4yIrSNKxoNST5zFBeajONEEE0wl/bZVE6iGqucNPR0EaIgMfk+NGgCLLM7VFfy+HF5alBiqUUOapef+fc91iHVzoBgtlLXOO7E1UntrieBQCodURTaBtotCMe7jtlkNajkvUD6atKTYh1AYJ3JY2bHA="
     - HEADLESS_TESTS=1
+  matrix:
+    - FEATURES='headless' TEST=1
+    - FEATURES='headless image cgmath gl_read_buffer gl_depth_textures' TEST=1
+    - FEATURES='headless image cgmath gl_read_buffer gl_depth_textures gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures' TEST=0
 
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
 
 script:
     # We run everything with `-j 1` or travis runs out of memory
-    - cargo test -j 1 --features "headless" --verbose
-    - cargo test --manifest-path macros/Cargo.toml
+    - cargo build -v --no-default-features --features "$FEATURES"
+    - if [ "$TEST" -eq 1 ]; then cargo test -v -j 1 --no-default-features --features "$FEATURES"; fi
+    - cargo test -v --manifest-path macros/Cargo.toml
 
 after_success: 
     - |
