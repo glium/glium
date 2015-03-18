@@ -341,7 +341,7 @@ fn block_to_binder(display: &Display, value: &UniformValue, block: &program::Uni
 {
     Ok(match value {
         &UniformValue::Block(ref buffer, ref layout) => {
-            if !layout.call((block,)) {
+            if !layout(block) {
                 return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
             }
 
