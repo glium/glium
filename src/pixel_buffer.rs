@@ -11,7 +11,7 @@ use Display;
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
 use GlObject;
-use buffer::{Buffer, BufferType};
+use buffer::{Buffer, BufferFlags, BufferType};
 use gl;
 
 /// Buffer that stores the content of a texture.
@@ -29,7 +29,7 @@ impl<T> PixelBuffer<T> {
     pub fn new_empty(display: &Display, capacity: usize) -> PixelBuffer<T> {
         PixelBuffer {
             buffer: Buffer::new_empty(display, BufferType::PixelPackBuffer, 1, capacity,
-                                      gl::DYNAMIC_READ),
+                                      BufferFlags::simple()).unwrap(),
             dimensions: None,
             format: None,
             marker: PhantomData,
