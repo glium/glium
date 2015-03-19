@@ -21,6 +21,12 @@ pub fn blit(display: &Display, source: Option<&FramebufferAttachments>,
         let target = display.context.framebuffer_objects.as_ref().unwrap()
                             .get_framebuffer_for_drawing(target, &mut ctxt);
 
+        // scissor testing influences blitting
+        if ctxt.state.enabled_scissor_test {
+            ctxt.gl.Disable(gl::SCISSOR_TEST);
+            ctxt.state.enabled_scissor_test = false;
+        }
+
         // trying to do a named blit if possible
         if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) {
             ctxt.gl.BlitNamedFramebuffer(source, target,
