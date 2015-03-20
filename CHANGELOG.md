@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Changed the name of uniform arrays to remove the trailing `[0]`.
  - Fixed scissor boxing not being disabled before a blit.
 
 ## Version 0.1.2 (2015-03-20)

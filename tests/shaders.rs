@@ -158,6 +158,57 @@ fn get_frag_data_location() {
 }
 
 #[test]
+fn get_uniform() {    
+    let display = support::build_display();
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            uniform vec3 position;
+            uniform float color[4];
+            uniform float coord[1];
+
+            void main() {
+                gl_Position = vec4(position.xy, coord[0], color[3]);
+            }
+        ",
+        "
+            #version 110
+
+            void main() {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+        None);
+
+    // ignoring test in case of compilation error (version may not be supported)
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
+
+    assert_eq!(program.uniforms().count(), 3);
+
+    assert_eq!(program.get_uniform("position").unwrap().ty,
+               glium::uniforms::UniformType::FloatVec3);
+    assert_eq!(program.get_uniform("position").unwrap().size,
+               None);
+
+    assert_eq!(program.get_uniform("color").unwrap().ty,
+               glium::uniforms::UniformType::Float);
+    assert_eq!(program.get_uniform("color").unwrap().size,
+               Some(4));
+
+    assert_eq!(program.get_uniform("coord").unwrap().ty,
+               glium::uniforms::UniformType::Float);
+    assert_eq!(program.get_uniform("coord").unwrap().size,
+               Some(1));
+
+    display.assert_no_error();
+}
+
+#[test]
 fn get_uniform_blocks() {    
     let display = support::build_display();
 
