@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.1.2 (2015-03-20)
 
  - Fixed a memory leak with vertex array objects.
  - Fixed an issue where you couldn't reuse the same uniform values created with `uniform!` multiple times.

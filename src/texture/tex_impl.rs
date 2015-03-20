@@ -15,7 +15,6 @@ use libc;
 use std::fmt;
 use std::mem;
 use std::ptr;
-use std::num::UnsignedInt;
 use std::borrow::Cow;
 
 use ops;
