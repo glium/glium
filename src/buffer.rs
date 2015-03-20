@@ -39,6 +39,112 @@ pub enum BufferCreationError {
     BufferTypeNotSupported,
 }
 
+/// Flags to specify how the buffer should behave.
+#[derive(Debug, Copy, Clone)]
+pub struct BufferFlags {
+    /// The contents of the data store may be updated after creation through calls to
+    /// glBufferSubData. If this bit is not set, the buffer content may not be directly updated
+    /// by the client. Regardless of the presence of this bit, buffers may always be updated with
+    /// server-side calls such as glCopyBufferSubData and glClearBufferSubData.
+    pub dynamic: bool,
+
+    /// When all other criteria for the buffer storage allocation are met, this bit may be used by
+    /// an implementation to determine whether to use storage that is local to the server or to
+    /// the client to serve as the backing store for the buffer.
+    pub client_storage: bool,
+
+    /// Specifies how the buffer may be mapped.
+    pub mapping: BufferFlagsMapping,
+}
+
+impl BufferFlags {
+    /// Builds very tolerant flags.
+    pub fn simple() -> BufferFlags {
+        BufferFlags {
+            dynamic: true,
+            client_storage: false,
+            mapping: BufferFlagsMapping::ReadWrite(BufferFlagsPersistent::None),
+        }
+    }
+
+    /// Builds persistent flags.
+    pub fn persistent() -> BufferFlags {
+        BufferFlags {
+            dynamic: true,
+            client_storage: false,
+            mapping: BufferFlagsMapping::ReadWrite(BufferFlagsPersistent::PersistentCoherent),
+        }
+    }
+
+    /// Returns true if the flags request a persistent buffer.
+    pub fn is_persistent(&self) -> bool {
+        let persistent = match self.mapping {
+            BufferFlagsMapping::None => return false,
+            BufferFlagsMapping::Read(p) => p,
+            BufferFlagsMapping::Write(p) => p,
+            BufferFlagsMapping::ReadWrite(p) => p,
+        };
+
+        match persistent {
+            BufferFlagsPersistent::None => false,
+            BufferFlagsPersistent::Persistent => true,
+            BufferFlagsPersistent::PersistentCoherent => true,
+        }
+    }
+}
+
+/// Flags specifying how the buffer may be mapped.
+#[derive(Debug, Copy, Clone)]
+pub enum BufferFlagsMapping {
+    /// No mapping allowed.
+    None,
+
+    /// Read-only mapping. The mapped buffer may not be written to.
+    Read(BufferFlagsPersistent),
+
+    /// Write-only mapping. The mapped buffer may not be read from.
+    Write(BufferFlagsPersistent),
+
+    /// Read and write mapping.
+    ReadWrite(BufferFlagsPersistent),
+}
+
+/// Flags specifying whether mapping is persistent.
+#[derive(Debug, Copy, Clone)]
+pub enum BufferFlagsPersistent {
+    /// No persistent mapping.
+    None,
+
+    /// The client may request that the server read from or write to the buffer while it is mapped.
+    /// The client's pointer to the data store remains valid so long as the data store is mapped,
+    /// even during execution of drawing or dispatch commands.
+    ///
+    /// If the client performs a write followed by a call to the glMemoryBarrier command with the
+    /// GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT set, then in subsequent commands the server will see
+    /// the writes.
+    ///
+    /// If the server performs a write, the application must call glMemoryBarrier with the
+    /// GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT set and then call glFenceSync with
+    /// GL_SYNC_GPU_COMMANDS_COMPLETE (or glFinish). Then the CPU will see the writes after the
+    /// sync is complete.
+    Persistent,
+
+    /// The client may request that the server read from or write to the buffer while it is mapped.
+    /// The client's pointer to the data store remains valid so long as the data store is mapped,
+    /// even during execution of drawing or dispatch commands.
+    ///
+    /// Shared access to buffers that are simultaneously mapped for client access and are used by
+    /// the server will be coherent, so long as that mapping is performed using glMapBufferRange.
+    /// That is, data written to the store by either the client or server will be immediately
+    /// visible to the other with no further action taken by the application.
+    ///
+    /// If the client performs a write, then in subsequent commands the server will see the writes.
+    ///
+    /// If the server does a write, the app must call FenceSync with GL_SYNC_GPU_COMMANDS_COMPLETE
+    /// (or glFinish). Then the CPU will see the writes after the sync is complete.
+    PersistentCoherent,
+}
+
 /// Type of a buffer.
 #[derive(Debug, Copy)]
 pub enum BufferType {
@@ -60,14 +166,14 @@ impl BufferType {
 }
 
 impl Buffer {
-    pub fn new<D>(display: &Display, data: Vec<D>, ty: BufferType, persistent: bool)
+    pub fn new<D>(display: &Display, data: Vec<D>, ty: BufferType, flags: BufferFlags)
                   -> Result<Buffer, BufferCreationError>
                   where D: Send + Copy + 'static
     {
         let mut ctxt = display.context.context.make_current();
 
         let (id, persistent_mapping, elements_size, elements_count) = try!(unsafe {
-            create_buffer(&mut ctxt, data, ty, persistent)
+            create_buffer(&mut ctxt, data, ty, flags)
         });
 
         Ok(Buffer {
@@ -82,7 +188,7 @@ impl Buffer {
     }
 
     pub fn new_empty(display: &Display, ty: BufferType, elements_size: usize, elements_count: usize,
-                     usage: gl::types::GLenum) -> Buffer
+                     flags: BufferFlags) -> Result<Buffer, BufferCreationError>
     {
         let buffer_size = elements_count * elements_size as usize;
 
@@ -104,20 +210,21 @@ impl Buffer {
             let bind = bind_buffer(&mut ctxt, id, ty);
 
             if ctxt.version >= &GlVersion(Api::Gl, 4, 4) || ctxt.extensions.gl_arb_buffer_storage {
+                let flags = immutable_storage_flags(flags);
                 ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
-                                      ptr::null(),
-                                      gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
-                                      gl::MAP_WRITE_BIT);       // TODO: more specific flags
+                                      ptr::null(), flags);
 
             } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
                 ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
             {
+                let flags = try!(mutable_storage_flags(&mut ctxt, flags));
                 ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                                   ptr::null(), usage);
+                                   ptr::null(), flags);
 
             } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                let flags = try!(mutable_storage_flags(&mut ctxt, flags));
                 ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
-                                      ptr::null(), usage);      // TODO: better usage
+                                      ptr::null(), flags);
 
             } else {
                 unreachable!()
@@ -153,7 +260,7 @@ impl Buffer {
             id
         };
 
-        Buffer {
+        Ok(Buffer {
             display: display.clone(),
             id: id,
             ty: ty,
@@ -161,7 +268,7 @@ impl Buffer {
             elements_count: elements_count,
             persistent_mapping: None,
             fences: Mutex::new(Vec::new()),
-        }
+        })
     }
 
     pub fn get_display(&self) -> &Display {
@@ -277,6 +384,7 @@ impl Buffer {
         let ptr = unsafe {
             let mut ctxt = self.display.context.context.make_current();
 
+            // FIXME: incorrect flags
             if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
                 ctxt.gl.MapNamedBufferRange(self.id, offset_bytes as gl::types::GLintptr,
                                             size_bytes as gl::types::GLsizei,
@@ -493,13 +601,13 @@ fn get_elements_size<T>(data: &Vec<T>) -> usize {
 
 /// Creates a new buffer.
 unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, data: Vec<D>, ty: BufferType,
-                           persistent: bool)
+                           flags: BufferFlags)
                            -> Result<(gl::types::GLuint,
                                       Option<MappedBufferWrapper<libc::c_void>>, usize, usize),
                                      BufferCreationError>
                            where D: Send + Copy + 'static
 {
-    if persistent && !(ctxt.version >= &context::GlVersion(Api::Gl, 4, 4)) &&
+    if flags.is_persistent() && !(ctxt.version >= &context::GlVersion(Api::Gl, 4, 4)) &&
        !ctxt.extensions.gl_arb_buffer_storage
     {
         return Err(BufferCreationError::PersistentMappingNotSupported);
@@ -533,16 +641,10 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, data: Vec<D>, ty: Buff
         unreachable!();
     }
 
-    let mut flags = gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT |
-                    gl::MAP_WRITE_BIT;       // TODO: more specific flags
-
-    if persistent {
-        flags = flags | gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT;
-    }
-
     let mut obtained_size: gl::types::GLint = mem::uninitialized();
 
     if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+        let flags = immutable_storage_flags(flags);
         ctxt.gl.NamedBufferStorage(id, buffer_size as gl::types::GLsizei,
                                    data_ptr as *const libc::c_void,
                                    flags);
@@ -551,6 +653,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, data: Vec<D>, ty: Buff
     } else if ctxt.extensions.gl_arb_buffer_storage &&
               ctxt.extensions.gl_ext_direct_state_access
     {
+        let flags = immutable_storage_flags(flags);
         ctxt.gl.NamedBufferStorageEXT(id, buffer_size as gl::types::GLsizeiptr,
                                       data_ptr as *const libc::c_void,
                                       flags);
@@ -561,6 +664,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, data: Vec<D>, ty: Buff
               ctxt.extensions.gl_arb_buffer_storage
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
+        let flags = immutable_storage_flags(flags);
         ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
                               data_ptr as *const libc::c_void,
                               flags);
@@ -569,17 +673,17 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, data: Vec<D>, ty: Buff
     } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
         ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
     {
-        debug_assert!(!persistent);
         let bind = bind_buffer(&mut ctxt, id, ty);
+        let flags = try!(mutable_storage_flags(&mut ctxt, flags));
         ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
-                           data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
+                           data_ptr as *const libc::c_void, flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
 
     } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-        debug_assert!(!persistent);
         let bind = bind_buffer(&mut ctxt, id, ty);
+        let flags = try!(mutable_storage_flags(&mut ctxt, flags));
         ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
-                              data_ptr as *const libc::c_void, gl::STATIC_DRAW);      // TODO: better usage
+                              data_ptr as *const libc::c_void, flags);
         ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
 
     } else {
@@ -600,11 +704,12 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, data: Vec<D>, ty: Buff
         return Err(BufferCreationError::OutOfMemory);
     }
 
-    let persistent_mapping = if persistent {
+    let persistent_mapping = if flags.is_persistent() {
         assert!(ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
                 ctxt.extensions.gl_arb_map_buffer_range);
 
         // TODO: better handling of versions
+        // FIXME: incorrect flags
         let ptr = if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
             ctxt.gl.MapNamedBufferRange(id, 0, buffer_size as gl::types::GLsizei,
                                         gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
@@ -707,4 +812,53 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
             gl::UNIFORM_BUFFER
         },
     }
+}
+
+fn immutable_storage_flags(flags: BufferFlags) -> gl::types::GLenum {
+    let mut output = 0;
+
+    if flags.dynamic {
+        output |= gl::DYNAMIC_STORAGE_BIT;
+    }
+
+    if flags.client_storage {
+        output |= gl::CLIENT_STORAGE_BIT;
+    }
+
+    let persistent = match flags.mapping {
+        BufferFlagsMapping::None => None,
+        BufferFlagsMapping::Read(p) => {
+            output |= gl::MAP_READ_BIT;
+            Some(p)
+        },
+        BufferFlagsMapping::Write(p) => {
+            output |= gl::MAP_WRITE_BIT;
+            Some(p)
+        },
+        BufferFlagsMapping::ReadWrite(p) => {
+            output |= gl::MAP_READ_BIT | gl::MAP_WRITE_BIT;
+            Some(p)
+        },
+    };
+
+    match persistent {
+        None => (),
+        Some(BufferFlagsPersistent::None) => (),
+        Some(BufferFlagsPersistent::Persistent) => {
+            output |= gl::MAP_PERSISTENT_BIT;
+        },
+        Some(BufferFlagsPersistent::PersistentCoherent) => {
+            output |= gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT;
+        },
+    };
+
+    output
+}
+
+fn mutable_storage_flags(ctxt: &mut CommandContext, flags: BufferFlags)
+                         -> Result<gl::types::GLenum, BufferCreationError>
+{
+    // FIXME: do it properly
+    // FIXME: detect persistent and return Err if not supported
+    Ok(gl::STATIC_DRAW)
 }

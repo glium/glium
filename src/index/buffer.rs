@@ -1,4 +1,4 @@
-use buffer::{Buffer, BufferType};
+use buffer::{Buffer, BufferFlags, BufferType};
 use gl;
 use BufferExt;
 use Display;
@@ -43,7 +43,8 @@ impl IndexBuffer {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap(),    // FIXME: ElementArrayBuffer
+            buffer: Buffer::new(display, data, BufferType::ArrayBuffer,
+                                BufferFlags::simple()).unwrap(),    // FIXME: ElementArrayBuffer
             data_type: <T as Index>::get_type(),
             primitives: prim,
         }

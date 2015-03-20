@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::sync::mpsc::Sender;
 
-use buffer::{self, Buffer, BufferType, BufferCreationError};
+use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
 use vertex::format::VertexFormat;
 
@@ -56,7 +56,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     pub fn new(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap();
+        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer,
+                                 BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -75,7 +76,8 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     pub fn new_dynamic(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap();
+        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer,
+                                 BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -104,7 +106,9 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = match Buffer::new(display, data, BufferType::ArrayBuffer, true) {
+        let buffer = match Buffer::new(display, data, BufferType::ArrayBuffer,
+                                       BufferFlags::persistent())
+        {
             Err(BufferCreationError::PersistentMappingNotSupported) => return None,
             b => b.unwrap()
         };
@@ -159,7 +163,8 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
     {
         VertexBuffer {
             buffer: VertexBufferAny {
-                buffer: Buffer::new(display, data, BufferType::ArrayBuffer, false).unwrap(),
+                buffer: Buffer::new(display, data, BufferType::ArrayBuffer,
+                                    BufferFlags::simple()).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,
             },
