@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed scissor boxing not being disabled before a blit.
+
 ## Version 0.1.2 (2015-03-20)
 
  - Fixed a memory leak with vertex array objects.
