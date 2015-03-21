@@ -34,7 +34,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Only available if the `gl_uniform_blocks` feature is enabled.
     #[cfg(feature = "gl_uniform_blocks")]
     pub fn new(display: &Display, data: T) -> UniformBuffer<T> {
-        let buffer = Buffer::new(display, vec![data], BufferType::UniformBuffer,
+        let buffer = Buffer::new(display, &[data], BufferType::UniformBuffer,
                                  BufferFlags::simple()).unwrap();
 
         UniformBuffer {
@@ -74,7 +74,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
             None
 
         } else {
-            let buffer = match Buffer::new(display, vec![data], BufferType::UniformBuffer,
+            let buffer = match Buffer::new(display, &[data], BufferType::UniformBuffer,
                                            if persistent {
                                                BufferFlags::persistent()
                                            } else {
