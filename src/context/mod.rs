@@ -159,92 +159,101 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
     let mut result = Vec::new();
 
     if !(ctxt.version >= &GlVersion(Api::Gl, 1, 5)) &&
-        (!ctxt.extensions.gl_arb_vertex_buffer_object ||
-            !ctxt.extensions.gl_arb_map_buffer_range)
+        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0)) &&
+        (!ctxt.extensions.gl_arb_vertex_buffer_object || !ctxt.extensions.gl_arb_map_buffer_range)
     {
         result.push("OpenGL implementation doesn't support buffer objects");
     }
 
-    if !(ctxt.version >= &GlVersion(Api::Gl, 2, 0)) && (!ctxt.extensions.gl_arb_shader_objects ||
-        !ctxt.extensions.gl_arb_vertex_shader || !ctxt.extensions.gl_arb_fragment_shader)
+    if !(ctxt.version >= &GlVersion(Api::Gl, 2, 0)) &&
+        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0)) &&
+        (!ctxt.extensions.gl_arb_shader_objects ||
+            !ctxt.extensions.gl_arb_vertex_shader || !ctxt.extensions.gl_arb_fragment_shader)
     {
         result.push("OpenGL implementation doesn't support vertex/fragment shaders");
     }
 
-    if !ctxt.extensions.gl_ext_framebuffer_object && ctxt.version < &GlVersion(Api::Gl, 3, 0) {
+    if !ctxt.extensions.gl_ext_framebuffer_object && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
+        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0))
+    {
         result.push("OpenGL implementation doesn't support framebuffers");
     }
 
-    if !ctxt.extensions.gl_ext_framebuffer_blit && ctxt.version < &GlVersion(Api::Gl, 3, 0) {
+    if !ctxt.extensions.gl_ext_framebuffer_blit && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
+        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0))
+    {
         result.push("OpenGL implementation doesn't support blitting framebuffers");
     }
 
     if !ctxt.extensions.gl_arb_vertex_array_object &&
         !ctxt.extensions.gl_apple_vertex_array_object &&
-        !(ctxt.version >= &GlVersion(Api::Gl, 3, 0))
+        !ctxt.extensions.gl_oes_vertex_array_object &&
+        !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
+        !(ctxt.version >= &GlVersion(Api::GlEs, 3, 0))
     {
         result.push("OpenGL implementation doesn't support vertex array objects");
     }
 
-    if cfg!(feature = "gl_uniform_blocks") && ctxt.version < &GlVersion(Api::Gl, 3, 1) &&
+    if cfg!(feature = "gl_uniform_blocks") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 1)) &&
         !ctxt.extensions.gl_arb_uniform_buffer_object
     {
         result.push("OpenGL implementation doesn't support uniform blocks");
     }
 
-    if cfg!(feature = "gl_sync") && ctxt.version < &GlVersion(Api::Gl, 3, 2) &&
-        !ctxt.extensions.gl_arb_sync
+    if cfg!(feature = "gl_sync") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 2)) &&
+        !(ctxt.version >= &GlVersion(Api::GlEs, 3, 0)) && !ctxt.extensions.gl_arb_sync
     {
         result.push("OpenGL implementation doesn't support synchronization objects");
     }
 
-    if cfg!(feature = "gl_persistent_mapping") && ctxt.version < &GlVersion(Api::Gl, 4, 4) &&
+    if cfg!(feature = "gl_persistent_mapping") && !(ctxt.version >= &GlVersion(Api::Gl, 4, 4)) &&
         !ctxt.extensions.gl_arb_buffer_storage
     {
         result.push("OpenGL implementation doesn't support persistent mapping");
     }
 
-    if cfg!(feature = "gl_program_binary") && ctxt.version < &GlVersion(Api::Gl, 4, 1) &&
+    if cfg!(feature = "gl_program_binary") && !(ctxt.version >= &GlVersion(Api::Gl, 4, 1)) &&
         !ctxt.extensions.gl_arb_get_programy_binary
     {
         result.push("OpenGL implementation doesn't support program binary");
     }
 
-    if cfg!(feature = "gl_tessellation") && ctxt.version < &GlVersion(Api::Gl, 4, 0) &&
+    if cfg!(feature = "gl_tessellation") && !(ctxt.version >= &GlVersion(Api::Gl, 4, 0)) &&
         !ctxt.extensions.gl_arb_tessellation_shader
     {
         result.push("OpenGL implementation doesn't support tessellation");
     }
 
-    if cfg!(feature = "gl_instancing") && ctxt.version < &GlVersion(Api::Gl, 3, 3) &&
+    if cfg!(feature = "gl_instancing") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 3)) &&
         !ctxt.extensions.gl_arb_instanced_arrays
     {
         result.push("OpenGL implementation doesn't support instancing");
     }
 
-    if cfg!(feature = "gl_integral_textures") && ctxt.version < &GlVersion(Api::Gl, 3, 0) &&
+    if cfg!(feature = "gl_integral_textures") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
         !ctxt.extensions.gl_ext_texture_integer
     {
         result.push("OpenGL implementation doesn't support integral textures");
     }
 
-    if cfg!(feature = "gl_depth_textures") && ctxt.version < &GlVersion(Api::Gl, 3, 0) &&
+    if cfg!(feature = "gl_depth_textures") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
         (!ctxt.extensions.gl_arb_depth_texture || !ctxt.extensions.gl_ext_packed_depth_stencil)
     {
         result.push("OpenGL implementation doesn't support depth or depth-stencil textures");
     }
 
-    if cfg!(feature = "gl_stencil_textures") && ctxt.version < &GlVersion(Api::Gl, 3, 0)
+    if cfg!(feature = "gl_stencil_textures") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0))
     {
         result.push("OpenGL implementation doesn't support stencil textures");
     }
 
-    if cfg!(feature = "gl_texture_multisample") && ctxt.version < &GlVersion(Api::Gl, 3, 2)
+    if cfg!(feature = "gl_texture_multisample") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 2))
     {
         result.push("OpenGL implementation doesn't support multisample textures");
     }
 
-    if cfg!(feature = "gl_texture_multisample_array") && ctxt.version < &GlVersion(Api::Gl, 3, 2)
+    if cfg!(feature = "gl_texture_multisample_array") &&
+        !(ctxt.version >= &GlVersion(Api::Gl, 3, 2))
     {
         result.push("OpenGL implementation doesn't support arrays of multisample textures");
     }
