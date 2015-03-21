@@ -50,7 +50,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     ///
     #[cfg(feature = "gl_instancing")]
     pub fn new(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
-        PerInstanceAttributesBuffer::new_if_supported(display, data).unwrap()
+        PerInstanceAttributesBuffer::new_if_supported(display, &data).unwrap()
     }
 
     /// Builds a new buffer.
@@ -65,7 +65,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(display, &data, BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
@@ -85,7 +85,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     pub fn new_dynamic(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(display, &data, BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
@@ -106,7 +106,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     /// Only available if the `gl_persistent_mapping` feature is enabled.
     #[cfg(all(feature = "gl_persistent_mapping", feature = "gl_instancing"))]
     pub fn new_persistent(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
-        PerInstanceAttributesBuffer::new_persistent_if_supported(display, data).unwrap()
+        PerInstanceAttributesBuffer::new_persistent_if_supported(display, &data).unwrap()
     }
 
     /// Builds a new vertex buffer with persistent mapping, or `None` if this is not supported.
@@ -121,7 +121,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = match Buffer::new(display, data, BufferType::ArrayBuffer,
+        let buffer = match Buffer::new(display, &data, BufferType::ArrayBuffer,
                                        BufferFlags::persistent())
         {
             Err(BufferCreationError::PersistentMappingNotSupported) => return None,
@@ -178,7 +178,7 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     {
         PerInstanceAttributesBuffer {
             buffer: PerInstanceAttributesBufferAny {
-                buffer: Buffer::new(display, data, BufferType::ArrayBuffer,
+                buffer: Buffer::new(display, &data, BufferType::ArrayBuffer,
                                     BufferFlags::simple()).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,

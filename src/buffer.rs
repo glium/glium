@@ -166,13 +166,13 @@ impl BufferType {
 }
 
 impl Buffer {
-    pub fn new<D>(display: &Display, data: Vec<D>, ty: BufferType, flags: BufferFlags)
+    pub fn new<D>(display: &Display, data: &[D], ty: BufferType, flags: BufferFlags)
                   -> Result<Buffer, BufferCreationError>
                   where D: Send + Copy + 'static
     {
         let mut ctxt = display.context.context.make_current();
 
-        let elements_size = get_elements_size(&data);
+        let elements_size = get_elements_size(data);
         let elements_count = data.len();
 
         let (id, persistent_mapping) = try!(unsafe {
@@ -528,7 +528,7 @@ impl<'a, D> DerefMut for Mapping<'a, D> {
 }
 
 /// Returns the size of each element inside the vec.
-fn get_elements_size<T>(data: &Vec<T>) -> usize {
+fn get_elements_size<T>(data: &[T]) -> usize {
     if data.len() <= 1 {
         mem::size_of::<T>()
     } else {
