@@ -1221,13 +1221,6 @@ impl Display {
     }
 }
 
-impl Drop for DisplayImpl {
-    fn drop(&mut self) {
-        let mut samplers = self.context.samplers.borrow_mut();
-        samplers.clear();
-    }
-}
-
 #[allow(dead_code)]
 fn get_gl_error(ctxt: &mut context::CommandContext) -> Option<&'static str> {
     match unsafe { ctxt.gl.GetError() } {

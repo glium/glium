@@ -210,6 +210,11 @@ impl Drop for Context {
 
             self.vertex_array_objects.cleanup(&mut ctxt);
 
+            let mut samplers = self.samplers.borrow_mut();
+            for (_, s) in samplers.drain() {
+                s.destroy(&mut ctxt);
+            }
+
             // disabling callback
             if ctxt.state.enabled_debug_output != Some(false) {
                 if ctxt.version >= &GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
