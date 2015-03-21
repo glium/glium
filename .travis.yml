@@ -7,8 +7,8 @@ env:
     - HEADLESS_TESTS=1
   matrix:
     - FEATURES='headless' TEST=1
-    - FEATURES='headless image cgmath gl_read_buffer gl_depth_textures' TEST=1
-    - FEATURES='headless image cgmath gl_read_buffer gl_depth_textures gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures' TEST=0
+    - FEATURES='headless image nalgebra cgmath gl_read_buffer gl_depth_textures' TEST=1
+    - FEATURES='headless image nalgebra cgmath gl_read_buffer gl_depth_textures gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures' TEST=0
 
 install:
   - sudo apt-get install libXxf86vm-dev libosmesa6-dev
