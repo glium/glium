@@ -896,35 +896,29 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
 impl DisplayBuild for glutin::WindowBuilder<'static> {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
+        let context = try!(context::Context::new(backend.clone(), true));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
                 backend: Some(RefCell::new(backend)),
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
             }),
         };
 
-        display.init_debug_callback();
         Ok(display)
     }
 
     unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), false));
+        let context = try!(context::Context::new(backend.clone(), false));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
                 backend: Some(RefCell::new(backend)),
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
             }),
         };
 
-        display.init_debug_callback();
         Ok(display)
     }
 
@@ -953,35 +947,29 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     fn build_glium(self) -> Result<Display, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
+        let context = try!(context::Context::new(backend.clone(), true));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
                 backend: None,
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
             }),
         };
 
-        display.init_debug_callback();
         Ok(display)
     }
 
     unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
+        let context = try!(context::Context::new(backend.clone(), true));
 
         let display = Display {
             context: Rc::new(DisplayImpl {
                 context: context,
                 backend: None,
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
             }),
         };
 
-        display.init_debug_callback();
         Ok(display)
     }
 
@@ -1006,13 +994,6 @@ struct DisplayImpl {
 
     // contains the window
     backend: Option<RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
-
-    // the callback used for debug messages
-    debug_callback: RefCell<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
-                                     + Send + Sync>>>,
-
-    // holding the Rc to SharedDebugOutput
-    shared_debug_output: Rc<context::SharedDebugOutput>,
 }
 
 /// Iterator for all the events received by the window.
@@ -1179,81 +1160,6 @@ impl Display {
         }
     }
 
-    // TODO: do this more properly
-    fn init_debug_callback(&self) {
-        if cfg!(ndebug) {
-            return;
-        }
-
-        if ::std::env::var("GLIUM_DISABLE_DEBUG_OUTPUT").is_ok() {
-            return;
-        }
-
-        // this is the C callback
-        extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
-            id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
-            message: *const gl::types::GLchar, user_param: *mut libc::c_void)
-        {
-            let user_param = user_param as *const context::SharedDebugOutput;
-            let user_param = unsafe { user_param.as_ref().unwrap() };
-
-            if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
-               (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
-                ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
-            {
-                if user_param.report_errors.load(std::sync::atomic::Ordering::Relaxed) {
-                    let message = unsafe {
-                        String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
-                    };
-
-                    panic!("Debug message with high or medium severity: `{}`.\n\
-                            Please report this error: https://github.com/tomaka/glium/issues",
-                            message);
-                }
-            }
-        }
-
-        struct SharedDebugOutputPtr(*const context::SharedDebugOutput);
-        unsafe impl Send for SharedDebugOutputPtr {}
-        let shared_debug_output_ptr = SharedDebugOutputPtr(self.context.shared_debug_output.deref());
-
-        // enabling the callback
-        let mut ctxt = self.context.context.make_current();
-
-        unsafe {
-            if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
-                ctxt.extensions.gl_arb_debug_output
-            {
-                if ctxt.state.enabled_debug_output_synchronous != true {
-                    ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                    ctxt.state.enabled_debug_output_synchronous = true;
-                }
-
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
-                    // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
-                    //       but with GL only, it doesn't have one
-                    ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
-                                                                     as *const libc::c_void);
-                    ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
-                                                std::ptr::null(), gl::TRUE);
-
-                    if ctxt.state.enabled_debug_output != Some(true) {
-                        ctxt.gl.Enable(gl::DEBUG_OUTPUT);
-                        ctxt.state.enabled_debug_output = Some(true);
-                    }
-
-                } else {
-                    ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
-                                                                        as *const libc::c_void);
-                    ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
-                                                   0, std::ptr::null(), gl::TRUE);
-
-                    ctxt.state.enabled_debug_output = Some(true);
-                }
-            }
-        }
-    }
-
     /// Reads the content of the front buffer.
     ///
     /// You will only see the data that has finished being drawn.
@@ -1317,27 +1223,8 @@ impl Display {
 
 impl Drop for DisplayImpl {
     fn drop(&mut self) {
-        // disabling callback
-        unsafe {
-            let mut ctxt = self.context.make_current();
-
-            if ctxt.state.enabled_debug_output != Some(false) {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
-                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
-                } else if ctxt.extensions.gl_arb_debug_output {
-                    ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0usize),
-                                                    std::ptr::null());
-                }
-
-                ctxt.state.enabled_debug_output = Some(false);
-                ctxt.gl.Finish();
-            }
-        }
-
-        {
-            let mut samplers = self.context.samplers.borrow_mut();
-            samplers.clear();
-        }
+        let mut samplers = self.context.samplers.borrow_mut();
+        samplers.clear();
     }
 }
 

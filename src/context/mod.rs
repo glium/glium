@@ -1,11 +1,15 @@
 use gl;
+use libc;
 
+use std::env;
+use std::mem;
+use std::ptr;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::default::Default;
 use std::cell::{RefCell, RefMut};
-use std::rc::Rc;
-use std::sync::atomic::AtomicBool;
+use std::ffi::CStr;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use GliumCreationError;
 use backend::Backend;
@@ -33,7 +37,7 @@ pub struct Context {
     version: GlVersion,
     extensions: ExtensionsList,
     capabilities: Capabilities,
-    shared_debug_output: Rc<SharedDebugOutput>,
+    shared_debug_output: Box<SharedDebugOutput>,
 
     backend: RefCell<Box<Backend>>,
     check_current_context: bool,
@@ -65,8 +69,8 @@ pub struct SharedDebugOutput {
 }
 
 impl SharedDebugOutput {
-    pub fn new() -> Rc<SharedDebugOutput> {
-        Rc::new(SharedDebugOutput {
+    pub fn new() -> Box<SharedDebugOutput> {
+        Box::new(SharedDebugOutput {
             report_errors: AtomicBool::new(true),
         })
     }
@@ -74,7 +78,7 @@ impl SharedDebugOutput {
 
 impl Context {
     pub fn new<B>(backend: B, check_current_context: bool)
-                  -> Result<(Context, Rc<SharedDebugOutput>), GliumCreationError>
+                  -> Result<Context, GliumCreationError>
                   where B: Backend + 'static
     {
         unsafe { backend.make_current() };
@@ -85,31 +89,35 @@ impl Context {
         let extensions = extensions::get_extensions(&gl);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
 
-        let shared_debug_frontend = SharedDebugOutput::new();
-        let shared_debug_backend = shared_debug_frontend.clone();
+        let shared_debug = SharedDebugOutput::new();
 
-        try!(check_gl_compatibility(CommandContext {
-            gl: &gl,
-            state: gl_state.borrow_mut(),
-            version: &version,
-            extensions: &extensions,
-            capabilities: &capabilities,
-            shared_debug_output: &shared_debug_backend,
-        }));
+        {
+            let mut ctxt = CommandContext {
+                gl: &gl,
+                state: gl_state.borrow_mut(),
+                version: &version,
+                extensions: &extensions,
+                capabilities: &capabilities,
+                shared_debug_output: &shared_debug,
+            };
 
-        Ok((Context {
+            try!(check_gl_compatibility(&mut ctxt));
+            init_debug_callback(&mut ctxt);
+        }
+
+        Ok(Context {
             gl: gl,
             state: gl_state,
             version: version,
             extensions: extensions,
             capabilities: capabilities,
-            shared_debug_output: shared_debug_backend,
+            shared_debug_output: shared_debug,
             backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
             framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
             vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
             samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
-        }, shared_debug_frontend))
+        })
     }
 
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
@@ -201,11 +209,24 @@ impl Drop for Context {
             fbos.unwrap().cleanup(&mut ctxt);
 
             self.vertex_array_objects.cleanup(&mut ctxt);
+
+            // disabling callback
+            if ctxt.state.enabled_debug_output != Some(false) {
+                if ctxt.version >= &GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
+                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
+                } else if ctxt.extensions.gl_arb_debug_output {
+                    ctxt.gl.DebugMessageCallbackARB(mem::transmute(0usize),
+                                                    ptr::null());
+                }
+
+                ctxt.state.enabled_debug_output = Some(false);
+                ctxt.gl.Finish();
+            }
         }
     }
 }
 
-fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError> {
+fn check_gl_compatibility(ctxt: &mut CommandContext) -> Result<(), GliumCreationError> {
     let mut result = Vec::new();
 
     if !(ctxt.version >= &GlVersion(Api::Gl, 1, 5)) &&
@@ -312,5 +333,89 @@ fn check_gl_compatibility(ctxt: CommandContext) -> Result<(), GliumCreationError
         Ok(())
     } else {
         Err(GliumCreationError::IncompatibleOpenGl(result.connect("\n")))
+    }
+}
+
+fn init_debug_callback(mut ctxt: &mut CommandContext) {
+    if cfg!(ndebug) {
+        return;
+    }
+
+    if env::var("GLIUM_DISABLE_DEBUG_OUTPUT").is_ok() {
+        return;
+    }
+
+    // this is the C callback
+    extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
+        id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
+        message: *const gl::types::GLchar, user_param: *mut libc::c_void)
+    {
+        let user_param = user_param as *const SharedDebugOutput;
+        let user_param = unsafe { user_param.as_ref().unwrap() };
+
+        if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
+           (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
+            ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
+        {
+            if user_param.report_errors.load(Ordering::Relaxed) {
+                let message = unsafe {
+                    String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
+                };
+
+                panic!("Debug message with high or medium severity: `{}`.\n\
+                        Please report this error: https://github.com/tomaka/glium/issues",
+                        message);
+            }
+        }
+    }
+
+    struct SharedDebugOutputPtr(*const SharedDebugOutput);
+    unsafe impl Send for SharedDebugOutputPtr {}
+    let shared_debug_output_ptr = SharedDebugOutputPtr(ctxt.shared_debug_output);
+
+    unsafe {
+        if ctxt.version >= &GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
+            ctxt.extensions.gl_arb_debug_output
+        {
+            if ctxt.state.enabled_debug_output_synchronous != true {
+                ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                ctxt.state.enabled_debug_output_synchronous = true;
+            }
+
+            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) ||
+                (ctxt.version >= &GlVersion(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
+            {
+                ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
+                                                                 as *const libc::c_void);
+                ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                                            ptr::null(), gl::TRUE);
+
+                if ctxt.state.enabled_debug_output != Some(true) {
+                    ctxt.gl.Enable(gl::DEBUG_OUTPUT);
+                    ctxt.state.enabled_debug_output = Some(true);
+                }
+
+            } else if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) &&
+                ctxt.extensions.gl_khr_debug
+            {
+                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, shared_debug_output_ptr.0
+                                                                 as *const libc::c_void);
+                ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
+                                               ptr::null(), gl::TRUE);
+
+                if ctxt.state.enabled_debug_output != Some(true) {
+                    ctxt.gl.Enable(gl::DEBUG_OUTPUT);
+                    ctxt.state.enabled_debug_output = Some(true);
+                }
+
+            } else {
+                ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
+                                                                    as *const libc::c_void);
+                ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
+                                               0, ptr::null(), gl::TRUE);
+
+                ctxt.state.enabled_debug_output = Some(true);
+            }
+        }
     }
 }
