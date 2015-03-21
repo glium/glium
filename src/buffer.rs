@@ -474,11 +474,6 @@ pub struct Mapping<'b, D> {
     len: usize,
 }
 
-// TODO: remove
-struct MappedBufferWrapper<D>(*mut D);
-unsafe impl<D> Send for MappedBufferWrapper<D> {}
-unsafe impl<D> Sync for MappedBufferWrapper<D> {}
-
 #[unsafe_destructor]
 impl<'a, D> Drop for Mapping<'a, D> {
     fn drop(&mut self) {
