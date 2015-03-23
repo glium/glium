@@ -13,5 +13,6 @@ git = "https://github.com/tomaka/glslang-rs"
 optional = true
 
 [dev-dependencies.glium]
+default-features = false
 version = "*"
 path = ".."
