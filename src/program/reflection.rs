@@ -171,10 +171,16 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
             }
         };
 
+        let (uniform_name, is_array) = if uniform_name.ends_with("[0]") {
+            (uniform_name[..uniform_name.len() - 3].to_string(), true)
+        } else {
+            (uniform_name, false)
+        };
+
         uniforms.insert(uniform_name, Uniform {
             location: location as i32,
             ty: glenum_to_uniform_type(data_type),
-            size: if data_size == 1 { None } else { Some(data_size as usize) },
+            size: if is_array { Some(data_size as usize) } else { None },
         });
     }
 
