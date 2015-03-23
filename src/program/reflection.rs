@@ -127,7 +127,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         active_uniforms
     };
 
-    for uniform_id in range(0, active_uniforms) {
+    for uniform_id in (0 .. active_uniforms) {
         let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
         let mut uniform_name_tmp_len = 63;
 
@@ -203,7 +203,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
         active_attributes
     };
 
-    for attribute_id in range(0, active_attributes) {
+    for attribute_id in (0 .. active_attributes) {
         let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
         let mut attr_name_tmp_len = 63;
 
@@ -281,7 +281,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH,
                          &mut active_blocks_max_name_len);
 
-    for block_id in range(0, active_blocks) {
+    for block_id in (0 .. active_blocks) {
         // getting the name of the block
         let name = {
             let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + active_blocks_max_name_len
