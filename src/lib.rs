@@ -843,22 +843,24 @@ impl Drop for Frame {
     }
 }
 
-/// Objects that can build a `Display` object.
+/// Objects that can build a facade object.
 pub trait DisplayBuild {
-    /// Build a context and a `Display` to draw on it.
+    type Facade: backend::Facade;
+
+    /// Build a context and a facade to draw on it.
     ///
     /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
-    fn build_glium(self) -> Result<Display, GliumCreationError>;
+    fn build_glium(self) -> Result<Self::Facade, GliumCreationError>;
 
-    /// Build a context and a `Display` to draw on it
+    /// Build a context and a facade to draw on it
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError>;
+    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, GliumCreationError>;
 
-    /// Changes the settings of an existing `Display`.
-    fn rebuild_glium(self, &Display) -> Result<(), GliumCreationError>;
+    /// Changes the settings of an existing facade.
+    fn rebuild_glium(self, &Self::Facade) -> Result<(), GliumCreationError>;
 }
 
 /// Error that can happen while creating a glium display.
@@ -901,6 +903,8 @@ impl std::error::FromError<glutin::CreationError> for GliumCreationError {
 }
 
 impl DisplayBuild for glutin::WindowBuilder<'static> {
+    type Facade = Display;
+
     fn build_glium(self) -> Result<Display, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), true));
@@ -952,6 +956,8 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 
 #[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
+    type Facade = Display;
+
     fn build_glium(self) -> Result<Display, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), true));
