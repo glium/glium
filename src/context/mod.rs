@@ -18,7 +18,9 @@ use version;
 use version::Api;
 
 use fbo;
+use ops;
 use sampler_object;
+use texture;
 use uniforms;
 use util;
 use vertex_array_object;
@@ -164,6 +166,131 @@ impl Context {
 
     pub fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
+    }
+
+    /// Returns the supported GLSL version.
+    pub fn get_supported_glsl_version(&self) -> GlVersion {
+        version::get_supported_glsl_version(
+            self.get_version())
+    }
+
+    /// Returns the maximum value that can be used for anisotropic filtering, or `None`
+    /// if the hardware doesn't support it.
+    pub fn get_max_anisotropy_support(&self) -> Option<u16> {
+        self.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
+    }
+
+    /// Returns the maximum dimensions of the viewport.
+    ///
+    /// Glium will panic if you request a larger viewport than this when drawing.
+    pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
+        let d = self.capabilities().max_viewport_dims;
+        (d.0 as u32, d.1 as u32)
+    }
+
+    /// Releases the shader compiler, indicating that no new programs will be created for a while.
+    ///
+    /// # Features
+    ///
+    /// This method is always available, but is a no-op if it's not available in
+    /// the implementation.
+    pub fn release_shader_compiler(&self) {
+        unsafe {
+            let ctxt = self.make_current();
+
+
+            if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) ||
+                ctxt.version >= &GlVersion(Api::Gl, 4, 1)
+            {
+                if ctxt.capabilities.shader_compiler {
+                    ctxt.gl.ReleaseShaderCompiler();
+                }
+            }
+        }
+    }
+
+    /// Returns an estimate of the amount of video memory available in bytes.
+    ///
+    /// Returns `None` if no estimate is available.
+    pub fn get_free_video_memory(&self) -> Option<usize> {
+        unsafe {
+            let ctxt = self.make_current();
+
+            let mut value: [gl::types::GLint; 4] = mem::uninitialized();
+
+            if ctxt.extensions.gl_nvx_gpu_memory_info {
+                ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+                               &mut value[0]);
+                Some(value[0] as usize * 1024)
+
+            } else if ctxt.extensions.gl_ati_meminfo {
+                ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
+                Some(value[0] as usize * 1024)
+
+            } else {
+                return None;
+            }
+        }
+    }
+
+    /// Reads the content of the front buffer.
+    ///
+    /// You will only see the data that has finished being drawn.
+    ///
+    /// This function can return any type that implements `Texture2dData`.
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # extern crate glium;
+    /// # extern crate glutin;
+    /// # fn main() {
+    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+    /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    /// # }
+    /// ```
+    pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
+                                   where P: texture::PixelValue + Clone + Send,
+                                   T: texture::Texture2dDataSink<Data = P>
+    {
+        ops::read_from_default_fb(gl::FRONT_LEFT, &self)
+    }
+
+    /// Execute an arbitrary closure with the OpenGL context active. Useful if another
+    /// component needs to directly manipulate OpenGL state.
+    ///
+    /// **If action manipulates any OpenGL state, it must be restored before action
+    /// completes.**
+    pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
+                                            where T: Send + 'static,
+                                            F: FnOnce() -> T + 'a
+    {
+        let _ctxt = self.make_current();
+        action()
+    }
+
+    /// Asserts that there are no OpenGL errors pending.
+    ///
+    /// This function should be used in tests.
+    pub fn assert_no_error(&self) {
+        let mut ctxt = self.make_current();
+
+        match ::get_gl_error(&mut ctxt) {
+            Some(msg) => panic!("{}", msg),
+            None => ()
+        };
+    }
+
+    /// Waits until all the previous commands have finished being executed.
+    ///
+    /// When you execute OpenGL functions, they are not executed immediately. Instead they are
+    /// put in a queue. This function waits until all commands have finished being executed, and
+    /// the queue is empty.
+    ///
+    /// **You don't need to call this function manually, except when running benchmarks.**
+    pub fn synchronize(&self) {
+        let ctxt = self.make_current();
+        unsafe { ctxt.gl.Finish(); }
     }
 }
 

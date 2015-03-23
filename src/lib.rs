@@ -1121,15 +1121,14 @@ impl Display {
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`
     /// if the hardware doesn't support it.
     pub fn get_max_anisotropy_support(&self) -> Option<u16> {
-        self.context.context.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
+        self.context.context.get_max_anisotropy_support()
     }
 
     /// Returns the maximum dimensions of the viewport.
     ///
     /// Glium will panic if you request a larger viewport than this when drawing.
     pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
-        let d = self.context.context.capabilities().max_viewport_dims;
-        (d.0 as u32, d.1 as u32)
+        self.context.context.get_max_viewport_dimensions()
     }
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
@@ -1139,44 +1138,14 @@ impl Display {
     /// This method is always available, but is a no-op if it's not available in
     /// the implementation.
     pub fn release_shader_compiler(&self) {
-        unsafe {
-            let ctxt = self.context.context.make_current();
-
-
-            if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
-                ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
-            {
-                if ctxt.capabilities.shader_compiler {
-                    ctxt.gl.ReleaseShaderCompiler();
-                }
-            }
-        }
+        self.context.context.release_shader_compiler()
     }
 
     /// Returns an estimate of the amount of video memory available in bytes.
     ///
     /// Returns `None` if no estimate is available.
     pub fn get_free_video_memory(&self) -> Option<usize> {
-        use std::mem;
-
-        unsafe {
-            let ctxt = self.context.context.make_current();
-
-            let mut value: [gl::types::GLint; 4] = mem::uninitialized();
-
-            if ctxt.extensions.gl_nvx_gpu_memory_info {
-                ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
-                               &mut value[0]);
-                Some(value[0] as usize * 1024)
-
-            } else if ctxt.extensions.gl_ati_meminfo {
-                ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
-                Some(value[0] as usize * 1024)
-
-            } else {
-                return None;
-            }
-        }
+        self.context.context.get_free_video_memory()
     }
 
     /// Reads the content of the front buffer.
@@ -1199,7 +1168,7 @@ impl Display {
                                    where P: texture::PixelValue + Clone + Send,
                                    T: texture::Texture2dDataSink<Data = P>
     {
-        ops::read_from_default_fb(gl::FRONT_LEFT, &self.context.context)
+        self.context.context.read_front_buffer()
     }
 
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another
@@ -1211,20 +1180,14 @@ impl Display {
                                             where T: Send + 'static,
                                             F: FnOnce() -> T + 'a
     {
-        let _ctxt = self.context.context.make_current();
-        action()
+        self.context.context.exec_in_context(action)
     }
 
     /// Asserts that there are no OpenGL errors pending.
     ///
     /// This function should be used in tests.
     pub fn assert_no_error(&self) {
-        let mut ctxt = self.context.context.make_current();
-
-        match get_gl_error(&mut ctxt) {
-            Some(msg) => panic!("{}", msg),
-            None => ()
-        };
+        self.context.context.assert_no_error()
     }
 
     /// Waits until all the previous commands have finished being executed.
@@ -1235,8 +1198,7 @@ impl Display {
     ///
     /// **You don't need to call this function manually, except when running benchmarks.**
     pub fn synchronize(&self) {
-        let ctxt = self.context.context.make_current();
-        unsafe { ctxt.gl.Finish(); }
+        self.context.context.synchronize()
     }
 }
 
