@@ -189,7 +189,7 @@ fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
             let mut num_extensions = 0;
             gl.GetIntegerv(gl::NUM_EXTENSIONS, &mut num_extensions);
 
-            range(0, num_extensions).map(|num| {
+            (0 .. num_extensions).map(|num| {
                 let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
                 String::from_utf8(CStr::from_ptr(ext as *const i8).to_bytes().to_vec()).unwrap()
             }).collect()
