@@ -374,10 +374,10 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// This function will automatically generate all mipmaps of the texture.
                 {cfg_attr}
-                pub fn new<'a, T>(display: &::Display, data: {param})
-                              -> {name} where T: {data_source_trait}<'a>
+                pub fn new<'a, F, T>(facade: &F, data: {param})
+                              -> {name} where T: {data_source_trait}<'a>, F: Facade
                 {{
-                    {name}::new_impl(display, data, None, true).unwrap()
+                    {name}::new_impl(facade, data, None, true).unwrap()
                 }}
             ", data_source_trait = data_source_trait, param = param, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
@@ -399,10 +399,10 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Builds a new texture by uploading data.
                 ///
                 /// This function will automatically generate all mipmaps of the texture.
-                pub fn new_if_supported<'a, T>(display: &::Display, data: {param})
-                                               -> Option<{name}> where T: {data_source_trait}<'a>
+                pub fn new_if_supported<'a, F, T>(facade: &F, data: {param})
+                                               -> Option<{name}> where T: {data_source_trait}<'a>, F: Facade
                 {{
-                    match {name}::new_impl(display, data, None, true) {{
+                    match {name}::new_impl(facade, data, None, true) {{
                         Ok(t) => Some(t),
                         Err(TextureMaybeSupportedCreationError::NotSupported) => None,
                         Err(TextureMaybeSupportedCreationError::CreationError(_)) => unreachable!()
@@ -429,10 +429,10 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
                 {cfg_attr}
-                pub fn with_mipmaps<'a, T>(display: &::Display, data: {param}, mipmaps: bool)
-                                           -> {name} where T: {data_source_trait}<'a>
+                pub fn with_mipmaps<'a, F, T>(facade: &F, data: {param}, mipmaps: bool)
+                                           -> {name} where T: {data_source_trait}<'a>, F: Facade
                 {{
-                    {name}::new_impl(display, data, None, mipmaps).unwrap()
+                    {name}::new_impl(facade, data, None, mipmaps).unwrap()
                 }}
             ", data_source_trait = data_source_trait, param = param, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
@@ -455,11 +455,11 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
-                pub fn with_mipmaps_if_supported<'a, T>(display: &::Display, data: {param},
+                pub fn with_mipmaps_if_supported<'a, F, T>(facade: &F, data: {param},
                                                         mipmaps: bool) -> Option<{name}>
-                                                        where T: {data_source_trait}<'a>
+                                                        where T: {data_source_trait}<'a>, F: Facade
                 {{
-                    match {name}::new_impl(display, data, None, mipmaps) {{
+                    match {name}::new_impl(facade, data, None, mipmaps) {{
                         Ok(t) => Some(t),
                         Err(TextureMaybeSupportedCreationError::NotSupported) => None,
                         Err(TextureMaybeSupportedCreationError::CreationError(_)) => unreachable!()
@@ -486,12 +486,12 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
                 {cfg_attr}
-                pub fn with_format<'a, T>(display: &::Display, data: {param},
+                pub fn with_format<'a, F, T>(facade: &F, data: {param},
                                           format: {format}, mipmaps: bool)
                                           -> Result<{name}, TextureCreationError>
-                                          where T: {data_source_trait}<'a>
+                                          where T: {data_source_trait}<'a>, F: Facade
                 {{
-                    match {name}::new_impl(display, data, Some(format), mipmaps) {{
+                    match {name}::new_impl(facade, data, Some(format), mipmaps) {{
                         Ok(t) => Ok(t),
                         Err(TextureMaybeSupportedCreationError::CreationError(e)) => Err(e),
                         Err(TextureMaybeSupportedCreationError::NotSupported) => unreachable!()
@@ -518,12 +518,12 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// Note that passing `true` for `mipmaps` does not mean that you will get mipmaps.
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
-                pub fn with_format_if_supported<'a, T>(display: &::Display, data: {param},
+                pub fn with_format_if_supported<'a, F, T>(facade: &F, data: {param},
                                                        format: {format}, mipmaps: bool)
                                                        -> Result<{name}, TextureMaybeSupportedCreationError>
-                                                       where T: {data_source_trait}<'a>
+                                                       where T: {data_source_trait}<'a>, F: Facade
                 {{
-                    {name}::new_impl(display, data, Some(format), mipmaps)
+                    {name}::new_impl(facade, data, Some(format), mipmaps)
                 }}
             ", data_source_trait = data_source_trait, param = param,
                format = relevant_format, name = name)).unwrap();
@@ -542,10 +542,10 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         };
 
         (writeln!(dest, "
-                fn new_impl<'a, T>(display: &::Display, data: {param},
+                fn new_impl<'a, F, T>(facade: &F, data: {param},
                                    format: Option<{relevant_format}>, mipmaps: bool)
                                    -> Result<{name}, TextureMaybeSupportedCreationError>
-                                   where T: {data_source_trait}<'a>
+                                   where T: {data_source_trait}<'a>, F: Facade
                 {{
             ", data_source_trait = data_source_trait,
                param = param,
@@ -593,7 +593,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         }
 
         // writing the constructor
-        (write!(dest, "Ok({}(try!(TextureImplementation::new(display, format, \
+        (write!(dest, "Ok({}(try!(TextureImplementation::new(facade, format, \
                        Some((client_format, data)), mipmaps, {}", name, dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "))))")).unwrap();
 
@@ -609,13 +609,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture will contain undefined data.
                 #[deprecated = \"Use `empty` instead\"]
-                pub fn new_empty(display: &::Display, format: {format}, {dim_params}) -> {name} {{
+                pub fn new_empty<F>(facade: &F, format: {format}, {dim_params}) -> {name} where F: Facade {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, true, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<_, u8>(facade, format, None, true, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -631,13 +631,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture will contain undefined data.
                 {cfg_attr}
-                pub fn empty(display: &::Display, {dim_params}) -> {name} {{
+                pub fn empty<F>(facade: &F, {dim_params}) -> {name} where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, false, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<_, u8>(facade, format, None, false, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -652,12 +652,12 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// No mipmaps will be created.
                 ///
                 /// The texture will contain undefined data.
-                pub fn empty_if_supported(display: &::Display, {dim_params}) -> Option<{name}> {{
+                pub fn empty_if_supported<F>(facade: &F, {dim_params}) -> Option<{name}> where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "match TextureImplementation::new::<u8>(display, format, None, false, {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "match TextureImplementation::new::<_, u8>(facade, format, None, false, {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             {{
                 Ok(t) => Some({}(t)),
@@ -680,14 +680,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture (and its mipmaps, if you pass `true`) will contain undefined data.
                 {cfg_attr}
-                pub fn empty_with_format(display: &::Display, format: {format}, mipmaps: bool, {dim_params}) -> Result<{name}, TextureCreationError> {{
+                pub fn empty_with_format<F>(facade: &F, format: {format}, mipmaps: bool, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "let t = TextureImplementation::new::<u8>(display, format, None, mipmaps, {});", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "let t = TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {});", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             match t {{
                 Ok(t) => Ok({}(t)),
@@ -709,17 +709,17 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
                 ///
                 /// The texture (and its mipmaps, if you pass `true`) will contain undefined data.
-                pub fn empty_with_format_if_supported(display: &::Display, format: {format},
+                pub fn empty_with_format_if_supported<F>(facade: &F, format: {format},
                                                       mipmaps: bool, {dim_params})
                                                       -> Result<{name},
-                                                                TextureMaybeSupportedCreationError>
+                                                                TextureMaybeSupportedCreationError> where F: Facade
                 {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "TextureImplementation::new::<u8>(display, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, ".map(|t| {}(t))", name)).unwrap();
 
         // closing function
@@ -737,13 +737,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture (and its mipmaps, if you pass `true`) will contain undefined data.
                 {cfg_attr}
-                pub fn empty_with_mipmaps(display: &::Display, mipmaps: bool, {dim_params}) -> {name} {{
+                pub fn empty_with_mipmaps<F>(facade: &F, mipmaps: bool, {dim_params}) -> {name} where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name,
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<u8>(display, format, None, mipmaps, {})", name, dimensions_parameters_passing)).unwrap();
+        (write!(dest, "{}(TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {})", name, dimensions_parameters_passing)).unwrap();
         (writeln!(dest, ".unwrap())")).unwrap();
 
         // closing function
@@ -760,13 +760,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Instead it indicates that mipmaps are *allowed* to be created if possible.
                 ///
                 /// The texture (and its mipmaps, if you pass `true`) will contain undefined data.
-                pub fn empty_with_mipmaps_if_supported(display: &::Display, mipmaps: bool,
-                                                       {dim_params}) -> Option<{name}> {{
+                pub fn empty_with_mipmaps_if_supported<F>(facade: &F, mipmaps: bool,
+                                                       {dim_params}) -> Option<{name}> where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "match TextureImplementation::new::<u8>(display, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "match TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             {{
                 Ok(t) => Some({}(t)),
@@ -796,7 +796,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// FBO and re-use it. When the texture is destroyed, the FBO is destroyed too.
                 ///
                 pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
-                    TextureSurface(framebuffer::SimpleFrameBuffer::new(self.0.get_display(), self))
+                    TextureSurface(framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self))
                 }}
             ")).unwrap();
     }

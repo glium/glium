@@ -1,9 +1,11 @@
-use Display;
-
 use gl;
 use GlObject;
 use ToGlEnum;
+
+use backend::Facade;
 use context::GlVersion;
+use context::Context;
+use ContextExt;
 use version::Api;
 
 use pixel_buffer::PixelBuffer;
@@ -16,6 +18,7 @@ use std::fmt;
 use std::mem;
 use std::ptr;
 use std::borrow::Cow;
+use std::rc::Rc;
 
 use ops;
 use fbo;
@@ -33,7 +36,7 @@ pub enum TextureFormatRequest {
 }
 
 pub struct TextureImplementation {
-    display: Display,
+    context: Rc<Context>,
     id: gl::types::GLuint,
     requested_format: TextureFormatRequest,
     bind_point: gl::types::GLenum,
@@ -48,12 +51,12 @@ pub struct TextureImplementation {
 
 impl TextureImplementation {
     /// Builds a new texture.
-    pub fn new<'a, P>(display: &Display, format: TextureFormatRequest,
-                      data: Option<(ClientFormat, Cow<'a, [P]>)>, generate_mipmaps: bool,
-                      width: u32, height: Option<u32>, depth: Option<u32>, array_size: Option<u32>,
-                      samples: Option<u32>)
-                      -> Result<TextureImplementation, TextureMaybeSupportedCreationError>
-                      where P: Send + Clone + 'a
+    pub fn new<'a, F, P>(facade: &F, format: TextureFormatRequest,
+                         data: Option<(ClientFormat, Cow<'a, [P]>)>, generate_mipmaps: bool,
+                         width: u32, height: Option<u32>, depth: Option<u32>,
+                         array_size: Option<u32>, samples: Option<u32>)
+                         -> Result<TextureImplementation, TextureMaybeSupportedCreationError>
+                         where P: Send + Clone + 'a, F: Facade
     {
         use std::num::Float;
 
@@ -67,8 +70,8 @@ impl TextureImplementation {
         }
 
         // checking non-power-of-two
-        if display.context.context.get_version() < &GlVersion(Api::Gl, 2, 0) &&
-            !display.context.context.get_extensions().gl_arb_texture_non_power_of_two
+        if facade.get_context().get_version() < &GlVersion(Api::Gl, 2, 0) &&
+            !facade.get_context().get_extensions().gl_arb_texture_non_power_of_two
         {
             if !width.is_power_of_two() || !height.unwrap_or(2).is_power_of_two() ||
                 !depth.unwrap_or(2).is_power_of_two() || !array_size.unwrap_or(2).is_power_of_two()
@@ -113,7 +116,7 @@ impl TextureImplementation {
         };
 
         let (internal_format, can_use_texstorage) =
-            try!(format_request_to_glenum(display, data.as_ref().map(|&(c, _)| c), format));
+            try!(format_request_to_glenum(facade.get_context(), data.as_ref().map(|&(c, _)| c), format));
 
         // don't use glTexStorage for compressed textures if it has data
         let can_use_texstorage = match format {
@@ -125,7 +128,7 @@ impl TextureImplementation {
         };
 
         let (client_format, client_type) = match (&data, format) {
-            (&Some((client_format, _)), f) => client_format_to_glenum(display, client_format, f),
+            (&Some((client_format, _)), f) => client_format_to_glenum(facade.get_context(), client_format, f),
             (&None, TextureFormatRequest::AnyDepth) => (gl::DEPTH_COMPONENT, gl::FLOAT),
             (&None, TextureFormatRequest::Specific(TextureFormat::DepthFormat(_))) => (gl::DEPTH_COMPONENT, gl::FLOAT),
             (&None, TextureFormatRequest::AnyDepthStencil) => (gl::DEPTH_STENCIL, gl::UNSIGNED_INT_24_8),
@@ -133,7 +136,7 @@ impl TextureImplementation {
             (&None, _) => (gl::RGBA, gl::UNSIGNED_BYTE),
         };
 
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         let id = unsafe {
             let data = data;
@@ -300,7 +303,7 @@ impl TextureImplementation {
         };
 
         Ok(TextureImplementation {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: id,
             requested_format: format,
             bind_point: texture_type,
@@ -329,7 +332,7 @@ impl TextureImplementation {
             level: 0
         };
 
-        ops::read_attachment(&attachment, (self.width, self.height.unwrap_or(1)), &self.display)
+        ops::read_attachment(&attachment, (self.width, self.height.unwrap_or(1)), &self.context)
     }
 
     /// Reads the content of a mipmap level of the texture to a pixel buffer.
@@ -352,9 +355,9 @@ impl TextureImplementation {
             level: 0
         };
 
-        let mut pb = PixelBuffer::new_empty(&self.display, size);
+        let mut pb = PixelBuffer::new_empty(&self.context, size);
         ops::read_attachment_to_pb(&attachment, (self.width, self.height.unwrap_or(1)),
-                                   &mut pb, &self.display);
+                                   &mut pb, &self.context);
         pb
     }
 
@@ -375,10 +378,10 @@ impl TextureImplementation {
         assert!(y_offset + height.unwrap_or(1) <= self.height.unwrap_or(1));
         assert!(z_offset + depth.unwrap_or(1) <= self.depth.unwrap_or(1));
 
-        let (client_format, client_type) = client_format_to_glenum(&self.display, format,
+        let (client_format, client_type) = client_format_to_glenum(&self.context, format,
                                                                    self.requested_format);
 
-        let mut ctxt = self.display.context.context.make_current();
+        let mut ctxt = self.context.make_current();
 
         unsafe {
             if ctxt.state.pixel_store_unpack_alignment != 1 {
@@ -424,9 +427,9 @@ impl TextureImplementation {
         }
     }
 
-    /// Returns the `Display` associated with this texture.
-    pub fn get_display(&self) -> &Display {
-        &self.display
+    /// Returns the `Context` associated with this texture.
+    pub fn get_context(&self) -> &Rc<Context> {
+        &self.context
     }
 
     /// Returns the width of the texture.
@@ -472,10 +475,10 @@ impl fmt::Debug for TextureImplementation {
 
 impl Drop for TextureImplementation {
     fn drop(&mut self) {
-        let mut ctxt = self.display.context.context.make_current();
+        let mut ctxt = self.context.make_current();
 
         // removing FBOs which contain this texture
-        self.display.context.context.framebuffer_objects.as_ref().unwrap()
+        self.context.framebuffer_objects.as_ref().unwrap()
                     .purge_texture(self.id, &mut ctxt);
 
         unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
@@ -486,12 +489,12 @@ impl Drop for TextureImplementation {
 ///
 /// Returns a GLenum suitable for the internal format of `glTexImage#D`. If the second element of
 /// the returned tuple is `true`, it is also suitable for `glTexStorage*D`.
-fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
+fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                             format: TextureFormatRequest)
                             -> Result<(gl::types::GLenum, bool), TextureMaybeSupportedCreationError>
 {
-    let version = display.context.context.get_version();
-    let extensions = display.context.context.get_extensions();
+    let version = context.get_version();
+    let extensions = context.get_extensions();
 
     Ok(match format {
         TextureFormatRequest::AnyFloatingPoint => {
@@ -708,7 +711,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
             }
 
             // TODO: we just request I8, but this could be more flexible
-            return format_request_to_glenum(display, client,
+            return format_request_to_glenum(context, client,
                                      TextureFormatRequest::Specific(
                                         TextureFormat::UncompressedIntegral(
                                             ::texture::format::UncompressedIntFormat::I8)));
@@ -729,7 +732,7 @@ fn format_request_to_glenum(display: &Display, client: Option<ClientFormat>,
 /// Checks that the client texture format is supported.
 ///
 /// Returns two GLenums suitable for `glTexImage#D` and `glTexSubImage#D`.
-fn client_format_to_glenum(display: &Display, client: ClientFormat, format: TextureFormatRequest)
+fn client_format_to_glenum(_context: &Context, client: ClientFormat, format: TextureFormatRequest)
                            -> (gl::types::GLenum, gl::types::GLenum)
 {
     match format {

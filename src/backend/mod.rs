@@ -5,8 +5,7 @@ use libc;
 
 use GliumCreationError;
 
-pub use context::OpaqueContext;
-pub use context::build_context;
+pub use context::Context;
 
 pub mod glutin_backend;
 
@@ -33,8 +32,8 @@ pub trait Backend {
 
 /// Trait for types that provide a safe access for glium functions.
 pub trait Facade {
-    /// Returns an opaque type 
-    fn get_context(&self) -> &OpaqueContext;
+    /// Returns an opaque type that contains the OpenGL state, extensions, version, etc.
+    fn get_context(&self) -> &Rc<Context>;
 }
 
 impl<T> Backend for Rc<T> where T: Backend {
@@ -56,5 +55,11 @@ impl<T> Backend for Rc<T> where T: Backend {
 
     unsafe fn make_current(&self) {
         self.deref().make_current();
+    }
+}
+
+impl Facade for Rc<Context> {
+    fn get_context(&self) -> &Rc<Context> {
+        self
     }
 }

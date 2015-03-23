@@ -18,6 +18,7 @@ use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilF
 
 use {gl, context};
 use {GlObject, DisplayImpl, ToGlEnum};
+use ContextExt;
 use version::Api;
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.

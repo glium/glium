@@ -37,6 +37,8 @@ use ToGlEnum;
 
 use std::mem;
 
+use backend::Facade;
+
 pub use self::buffer::IndexBuffer;
 pub use self::local::{PointsList, LinesList, LinesListAdjacency, LineStrip, LineStripAdjacency};
 pub use self::local::{TrianglesList, TrianglesListAdjacency, TriangleStrip, TriangleStripAdjacency};
@@ -219,5 +221,5 @@ unsafe impl Index for u32 {
 /// Object that is convertible to an index buffer.
 pub trait IntoIndexBuffer {
     /// Creates a new `IndexBuffer` with the list of indices.
-    fn into_index_buffer(self, &super::Display) -> IndexBuffer;
+    fn into_index_buffer<F>(self, &F) -> IndexBuffer where F: Facade;
 }

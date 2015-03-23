@@ -195,6 +195,8 @@ use std::rc::Rc;
 use std::cell::Ref;
 use std::cell::RefCell;
 
+use context::Context;
+
 pub mod backend;
 pub mod debug;
 pub mod framebuffer;
@@ -258,6 +260,11 @@ trait ToGlEnum {
 /// Internal trait for buffers.
 trait BufferExt {
     fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>>;
+}
+
+/// Internal trait for contexts.
+trait ContextExt {
+    fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
 }
 
 /// Area of a surface in pixels.
@@ -733,7 +740,7 @@ impl std::fmt::Display for DrawError {
 /// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
 /// instantaneous, even when vsync is enabled.
 pub struct Frame {
-    display: Display,
+    context: Rc<Context>,
     dimensions: (u32, u32),
 }
 
@@ -747,7 +754,7 @@ impl Surface for Frame {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        ops::clear(&self.display, None, color, depth, stencil);
+        ops::clear(&self.context, None, color, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -755,11 +762,11 @@ impl Surface for Frame {
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {
-        self.display.context.context.capabilities().depth_bits
+        self.context.capabilities().depth_bits
     }
 
     fn get_stencil_buffer_bits(&self) -> Option<u16> {
-        self.display.context.context.capabilities().stencil_bits
+        self.context.capabilities().stencil_bits
     }
 
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
@@ -777,19 +784,19 @@ impl Surface for Frame {
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+            if viewport.width > self.context.capabilities().max_viewport_dims.0
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+            if viewport.height > self.context.capabilities().max_viewport_dims.1
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.display, None, vertex_buffer, index_buffer.to_indices_source(), program,
+        ops::draw(&self.context, None, vertex_buffer, index_buffer.to_indices_source(), program,
                   uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
@@ -802,7 +809,7 @@ impl Surface for Frame {
     fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, None, self.get_attachments(),
+        ops::blit(&self.context, None, self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -810,7 +817,7 @@ impl Surface for Frame {
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -818,7 +825,7 @@ impl Surface for Frame {
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 }
@@ -832,7 +839,7 @@ impl FboAttachments for Frame {
 #[unsafe_destructor]
 impl Drop for Frame {
     fn drop(&mut self) {
-        self.display.context.context.swap_buffers();
+        self.context.swap_buffers();
     }
 }
 
@@ -900,7 +907,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 
         let display = Display {
             context: Rc::new(DisplayImpl {
-                context: context,
+                context: Rc::new(context),
                 backend: Some(RefCell::new(backend)),
             }),
         };
@@ -914,7 +921,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 
         let display = Display {
             context: Rc::new(DisplayImpl {
-                context: context,
+                context: Rc::new(context),
                 backend: Some(RefCell::new(backend)),
             }),
         };
@@ -951,7 +958,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 
         let display = Display {
             context: Rc::new(DisplayImpl {
-                context: context,
+                context: Rc::new(context),
                 backend: None,
             }),
         };
@@ -965,7 +972,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 
         let display = Display {
             context: Rc::new(DisplayImpl {
-                context: context,
+                context: Rc::new(context),
                 backend: None,
             }),
         };
@@ -988,9 +995,15 @@ pub struct Display {
     context: Rc<DisplayImpl>,
 }
 
+impl backend::Facade for Display {
+    fn get_context(&self) -> &Rc<Context> {
+        &self.context.context
+    }
+}
+
 struct DisplayImpl {
     // contains everything related to the current context and its state
-    context: context::Context,
+    context: Rc<context::Context>,
 
     // contains the window
     backend: Option<RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
@@ -1094,7 +1107,7 @@ impl Display {
     /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
     pub fn draw(&self) -> Frame {
         Frame {
-            display: self.clone(),
+            context: self.context.context.clone(),
             dimensions: self.get_framebuffer_dimensions(),
         }
     }
@@ -1180,7 +1193,7 @@ impl Display {
                                    where P: texture::PixelValue + Clone + Send,
                                    T: texture::Texture2dDataSink<Data = P>
     {
-        ops::read_from_default_fb(gl::FRONT_LEFT, self)
+        ops::read_from_default_fb(gl::FRONT_LEFT, &self.context.context)
     }
 
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another

@@ -4,9 +4,11 @@ use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 
 use BufferExt;
-use Display;
 use DrawError;
 use Handle;
+
+use context::Context;
+use ContextExt;
 
 use fbo::{self, FramebufferAttachments};
 
@@ -30,7 +32,7 @@ use context::GlVersion;
 use version::Api;
 
 /// Draws everything.
-pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAttachments>,
+pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachments>,
                          vertex_buffers: V, mut indices: IndicesSource<I>,
                          program: &Program, uniforms: U, draw_parameters: &DrawParameters,
                          dimensions: (u32, u32)) -> Result<(), DrawError>
@@ -39,13 +41,13 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // TODO: avoid this allocation
     let mut vertex_buffers = vertex_buffers.iter().collect::<Vec<_>>();
 
-    try!(draw_parameters::validate(display, draw_parameters));
+    try!(draw_parameters::validate(context, draw_parameters));
 
     // obtaining the identifier of the FBO to draw upon
     let fbo_id = {
-        let mut ctxt = display.context.context.make_current();
-        display.context.context.framebuffer_objects.as_ref().unwrap()
-                       .get_framebuffer_for_drawing(framebuffer, &mut ctxt)
+        let mut ctxt = context.make_current();
+        context.framebuffer_objects.as_ref().unwrap()
+                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt)
     };
 
     // using a base vertex is not yet supported
@@ -158,7 +160,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     // handling tessellation
     let vertices_per_patch = match indices.get_primitives_type() {
         index::PrimitiveType::Patches { vertices_per_patch } => {
-            if let Some(max) = display.context.context.capabilities().max_patch_vertices {
+            if let Some(max) = context.capabilities().max_patch_vertices {
                 if vertices_per_patch == 0 || vertices_per_patch as gl::types::GLint > max {
                     return Err(DrawError::UnsupportedVerticesPerPatch);
                 }
@@ -186,7 +188,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
     };
 
     // sending the command
-    let mut ctxt = display.context.context.make_current();
+    let mut ctxt = context.make_current();
 
     // building the list of uniforms binders and the fences that must be fulfilled
     // TODO: panic if uniforms of the program are not found in the parameter
@@ -212,7 +214,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                     return;
                 }
 
-                let binder = match uniform_to_binder(&mut ctxt, &mut display.context.context.samplers.borrow_mut(),
+                let binder = match uniform_to_binder(&mut ctxt, &mut context.samplers.borrow_mut(),
                                                      value, uniform.location,
                                                      &mut active_texture, name)
                 {
@@ -226,7 +228,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                 uniforms_storage.push(binder);
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
-                let (binder, fence) = match block_to_binder(display, value, block,
+                let (binder, fence) = match block_to_binder(context, value, block,
                                                             program.get_id(),
                                                             &mut active_buffer_binding, name)
                 {
@@ -283,7 +285,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
                          dithering, viewport, scissor, draw_primitives } = *draw_parameters;
     
     // the vertex array object to bind
-    let vao_id = display.context.context.vertex_array_objects.bind_vao(&mut ctxt,
+    let vao_id = context.vertex_array_objects.bind_vao(&mut ctxt,
                                                                vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
                                                                &indices, program);
 
@@ -342,7 +344,7 @@ pub fn draw<'a, I, U, V>(display: &Display, framebuffer: Option<&FramebufferAtta
 }
 
 // TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
-fn block_to_binder(display: &Display, value: &UniformValue, block: &program::UniformBlock,
+fn block_to_binder(context: &Context, value: &UniformValue, block: &program::UniformBlock,
                    program: Handle, current_bind_point: &mut gl::types::GLuint, name: &str)
                    -> Result<(Box<Fn(&mut context::CommandContext) + Send>,
                        Option<Sender<sync::LinearSyncFence>>), DrawError>

@@ -6,6 +6,10 @@ use context::CommandContext;
 use context::GlVersion;
 use version::Api;
 
+use backend::Facade;
+use context::Context;
+use ContextExt;
+
 use std::{ffi, fmt, mem};
 use std::collections::hash_state::DefaultState;
 use std::collections::hash_map::{self, HashMap};
@@ -15,7 +19,6 @@ use std::cell::RefCell;
 use std::sync::atomic::Ordering;
 use util::FnvHasher;
 
-use Display;
 use GlObject;
 use Handle;
 
@@ -90,7 +93,7 @@ impl ::std::error::Error for ProgramCreationError {
 
 /// A combination of shaders linked together.
 pub struct Program {
-    display: Display,
+    context: Rc<Context>,
     id: Handle,
     uniforms: HashMap<String, Uniform, DefaultState<FnvHasher>>,
     uniform_blocks: HashMap<String, UniformBlock, DefaultState<FnvHasher>>,
@@ -102,15 +105,15 @@ pub struct Program {
 
 impl Program {
     /// Builds a new program.
-    pub fn new<'a, I>(display: &Display, input: I) -> Result<Program, ProgramCreationError>
-                      where I: IntoProgramCreationInput<'a>
+    pub fn new<'a, F, I>(facade: &F, input: I) -> Result<Program, ProgramCreationError>
+                         where I: IntoProgramCreationInput<'a>, F: Facade
     {
         let input = input.into_program_creation_input();
 
         if let ProgramCreationInput::SourceCode { .. } = input {
-            Program::from_source_impl(display, input)
+            Program::from_source_impl(facade, input)
         } else {
-            Program::from_binary_impl(display, input)
+            Program::from_binary_impl(facade, input)
         }
     }
 
@@ -134,11 +137,11 @@ impl Program {
     /// ```
     ///
     #[unstable = "The list of shaders and the result error will probably change"]
-    pub fn from_source<'a>(display: &Display, vertex_shader: &'a str, fragment_shader: &'a str,
-                           geometry_shader: Option<&'a str>)
-                           -> Result<Program, ProgramCreationError>
+    pub fn from_source<'a, F>(facade: &F, vertex_shader: &'a str, fragment_shader: &'a str,
+                              geometry_shader: Option<&'a str>)
+                              -> Result<Program, ProgramCreationError> where F: Facade
     {
-        Program::from_source_impl(display, ProgramCreationInput::SourceCode {
+        Program::from_source_impl(facade, ProgramCreationInput::SourceCode {
             vertex_shader: vertex_shader,
             fragment_shader: fragment_shader,
             geometry_shader: geometry_shader,
@@ -152,8 +155,9 @@ impl Program {
     ///
     /// Must only be called if `input` is a `ProgramCreationInput::SourceCode`, will
     /// panic otherwise.
-    fn from_source_impl(display: &Display, input: ProgramCreationInput)
-                        -> Result<Program, ProgramCreationError>
+    fn from_source_impl<F>(facade: &F, input: ProgramCreationInput)
+                           -> Result<Program, ProgramCreationError>
+                           where F: Facade
     {
         let mut has_tessellation_shaders = false;
 
@@ -195,8 +199,8 @@ impl Program {
             }
 
             if transform_feedback_varyings.is_some() &&
-                (display.context.context.get_version() >= &GlVersion(Api::Gl, 3, 0) ||
-                    !display.context.context.get_extensions().gl_ext_transform_feedback)
+                (facade.get_context().get_version() >= &GlVersion(Api::Gl, 3, 0) ||
+                    !facade.get_context().get_extensions().gl_ext_transform_feedback)
             {
                 return Err(ProgramCreationError::TransformFeedbackNotSupported);
             }
@@ -207,7 +211,7 @@ impl Program {
         let shaders_store = {
             let mut shaders_store = Vec::new();
             for (src, ty) in shaders.into_iter() {
-                shaders_store.push(try!(build_shader(display, ty, src)));
+                shaders_store.push(try!(build_shader(facade, ty, src)));
             }
             shaders_store
         };
@@ -217,7 +221,7 @@ impl Program {
             shaders_ids.push(sh.get_id());
         }
 
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         let id = unsafe {
             let id = create_program(&mut ctxt);
@@ -312,7 +316,7 @@ impl Program {
         };
 
         Ok(Program {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: id,
             uniforms: uniforms,
             uniform_blocks: blocks,
@@ -327,15 +331,15 @@ impl Program {
     ///
     /// Must only be called if `input` is a `ProgramCreationInput::Binary`, will
     /// panic otherwise.
-    fn from_binary_impl(display: &Display, input: ProgramCreationInput)
-                        -> Result<Program, ProgramCreationError>
+    fn from_binary_impl<F>(facade: &F, input: ProgramCreationInput)
+                           -> Result<Program, ProgramCreationError> where F: Facade
     {
         let binary = match input {
             ProgramCreationInput::Binary { data } => data,
             _ => unreachable!()
         };
 
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         let id = unsafe {
             let id = create_program(&mut ctxt);
@@ -366,7 +370,7 @@ impl Program {
         };
 
         Ok(Program {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: id,
             uniforms: uniforms,
             uniform_blocks: blocks,
@@ -396,7 +400,7 @@ impl Program {
     /// getting or reloading the program's binary.
     pub fn get_binary_if_supported(&self) -> Option<Binary> {
         unsafe {
-            let ctxt = self.display.context.context.make_current();
+            let ctxt = self.context.make_current();
 
             if ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) ||
                ctxt.extensions.gl_arb_get_programy_binary
@@ -446,7 +450,7 @@ impl Program {
         // querying opengl
         let name_c = ffi::CString::new(name.as_bytes()).unwrap();
 
-        let ctxt = self.display.context.context.make_current();
+        let ctxt = self.context.make_current();
 
         let value = unsafe {
             match self.id {
@@ -528,10 +532,10 @@ impl GlObject for Program {
 
 impl Drop for Program {
     fn drop(&mut self) {
-        let mut ctxt = self.display.context.context.make_current();
+        let mut ctxt = self.context.make_current();
 
         // removing VAOs which contain this program
-        self.display.context.context.vertex_array_objects.purge_program(&mut ctxt, self.id);
+        self.context.vertex_array_objects.purge_program(&mut ctxt, self.id);
 
         // sending the destroy command
         unsafe {

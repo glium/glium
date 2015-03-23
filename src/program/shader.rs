@@ -3,10 +3,14 @@ use context::CommandContext;
 use context::GlVersion;
 use version::Api;
 
+use backend::Facade;
+use context::Context;
+use ContextExt;
+
 use std::{ffi, mem, ptr};
 use std::sync::atomic::Ordering;
+use std::rc::Rc;
 
-use Display;
 use GlObject;
 use Handle;
 
@@ -15,7 +19,7 @@ use program::ProgramCreationError;
 
 /// A single, compiled but unlinked, shader.
 pub struct Shader {
-    display: Display,
+    context: Rc<Context>,
     id: Handle,
 }
 
@@ -29,7 +33,7 @@ impl GlObject for Shader {
 
 impl Drop for Shader {
     fn drop(&mut self) {
-        let ctxt = self.display.context.context.make_current();
+        let ctxt = self.context.make_current();
 
         unsafe {
             match self.id {
@@ -47,13 +51,13 @@ impl Drop for Shader {
 }
 
 /// Builds an individual shader.
-pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_code: &str)
-                    -> Result<Shader, ProgramCreationError>
+pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: &str)
+                       -> Result<Shader, ProgramCreationError> where F: Facade
 {
     unsafe {
         let source_code = ffi::CString::new(source_code.as_bytes()).unwrap();
 
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         if !ctxt.capabilities.shader_compiler {
             return Err(ProgramCreationError::CompilationNotSupported);
@@ -168,7 +172,7 @@ pub fn build_shader(display: &Display, shader_type: gl::types::GLenum, source_co
         }
 
         Ok(Shader {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: id
         })
     }

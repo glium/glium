@@ -1,11 +1,14 @@
-use Display;
+use backend::Facade;
 use context::{self, GlVersion};
 use context::CommandContext;
+use context::Context;
+use ContextExt;
 use gl;
 use libc;
 use std::{fmt, mem, ptr, slice};
 use std::sync::Mutex;
 use std::sync::mpsc::{channel, Sender, Receiver};
+use std::rc::Rc;
 use std::ops::{Deref, DerefMut};
 use GlObject;
 use BufferExt;
@@ -15,7 +18,7 @@ use version::Api;
 
 /// A buffer in the graphics card's memory.
 pub struct Buffer {
-    display: Display,
+    context: Rc<Context>,
     id: gl::types::GLuint,
     ty: BufferType,
     elements_size: usize,
@@ -166,11 +169,11 @@ impl BufferType {
 }
 
 impl Buffer {
-    pub fn new<D>(display: &Display, data: &[D], ty: BufferType, flags: BufferFlags)
-                  -> Result<Buffer, BufferCreationError>
-                  where D: Send + Copy + 'static
+    pub fn new<D, F>(facade: &F, data: &[D], ty: BufferType, flags: BufferFlags)
+                     -> Result<Buffer, BufferCreationError>
+                     where D: Send + Copy + 'static, F: Facade
     {
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         let elements_size = get_elements_size(data);
         let elements_count = data.len();
@@ -180,7 +183,7 @@ impl Buffer {
         });
 
         Ok(Buffer {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: id,
             ty: ty,
             elements_size: elements_size,
@@ -190,17 +193,18 @@ impl Buffer {
         })
     }
 
-    pub fn new_empty(display: &Display, ty: BufferType, elements_size: usize, elements_count: usize,
-                     flags: BufferFlags) -> Result<Buffer, BufferCreationError>
+    pub fn new_empty<F>(facade: &F, ty: BufferType, elements_size: usize,
+                        elements_count: usize, flags: BufferFlags)
+                        -> Result<Buffer, BufferCreationError> where F: Facade
     {
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         let (id, persistent_mapping) = try!(unsafe {
             create_buffer::<()>(&mut ctxt, elements_size, elements_count, None, ty, flags)
         });
 
         Ok(Buffer {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: id,
             ty: ty,
             elements_size: elements_size,
@@ -210,8 +214,8 @@ impl Buffer {
         })
     }
 
-    pub fn get_display(&self) -> &Display {
-        &self.display
+    pub fn get_context(&self) -> &Rc<Context> {
+        &self.context
     }
 
     pub fn get_elements_size(&self) -> usize {
@@ -252,7 +256,7 @@ impl Buffer {
 
         let invalidate_all = (offset == 0) && (buffer_size == self.get_total_size());
 
-        let mut ctxt = self.display.context.context.make_current();
+        let mut ctxt = self.context.make_current();
 
         unsafe {
             if invalidate_all && (ctxt.version >= &GlVersion(Api::Gl, 4, 3) ||
@@ -306,7 +310,7 @@ impl Buffer {
             {
                 let mut fences = self.fences.lock().unwrap();
                 for fence in fences.drain() {
-                    fence.recv().unwrap().into_sync_fence(&self.display).wait();
+                    fence.recv().unwrap().into_sync_fence(&self.context).wait();
                 }
             }
 
@@ -321,7 +325,7 @@ impl Buffer {
         let size_bytes = size * self.elements_size;
 
         let ptr = unsafe {
-            let mut ctxt = self.display.context.context.make_current();
+            let mut ctxt = self.context.make_current();
 
             // FIXME: incorrect flags
             if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
@@ -371,7 +375,7 @@ impl Buffer {
     {
         assert!(offset + size <= self.elements_count);
 
-        let mut ctxt = self.display.context.context.make_current();
+        let mut ctxt = self.context.make_current();
 
         unsafe {
             let mut data = Vec::with_capacity(size);
@@ -426,9 +430,9 @@ impl fmt::Debug for Buffer {
 
 impl Drop for Buffer {
     fn drop(&mut self) {
-        let mut ctxt = self.display.context.context.make_current();
+        let mut ctxt = self.context.make_current();
 
-        self.display.context.context.vertex_array_objects.purge_buffer(&mut ctxt, self.id);
+        self.context.vertex_array_objects.purge_buffer(&mut ctxt, self.id);
 
         if ctxt.state.array_buffer_binding == self.id {
             ctxt.state.array_buffer_binding = 0;
@@ -482,7 +486,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
             return;
         }
 
-        let mut ctxt = self.buffer.display.context.context.make_current();
+        let mut ctxt = self.buffer.context.make_current();
 
         unsafe {
             if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {

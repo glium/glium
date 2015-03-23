@@ -1,4 +1,3 @@
-use Display;
 use DrawError;
 
 use uniforms::SamplerBehavior;

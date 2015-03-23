@@ -7,7 +7,8 @@ to transfer data to or from the video memory, before or after being turned into 
 use std::borrow::Cow;
 use std::marker::PhantomData;
 
-use Display;
+use backend::Facade;
+
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
 use GlObject;
@@ -26,9 +27,9 @@ pub struct PixelBuffer<T> {
 
 impl<T> PixelBuffer<T> {
     /// Builds a new buffer with an uninitialized content.
-    pub fn new_empty(display: &Display, capacity: usize) -> PixelBuffer<T> {
+    pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
-            buffer: Buffer::new_empty(display, BufferType::PixelPackBuffer, 1, capacity,
+            buffer: Buffer::new_empty(facade, BufferType::PixelPackBuffer, 1, capacity,
                                       BufferFlags::simple()).unwrap(),
             dimensions: None,
             format: None,

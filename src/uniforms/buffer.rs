@@ -1,10 +1,11 @@
-use Display;
 use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
 use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::sync::mpsc::Sender;
+
+use backend::Facade;
 
 use GlObject;
 use BufferExt;
@@ -33,8 +34,8 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     ///
     /// Only available if the `gl_uniform_blocks` feature is enabled.
     #[cfg(feature = "gl_uniform_blocks")]
-    pub fn new(display: &Display, data: T) -> UniformBuffer<T> {
-        let buffer = Buffer::new(display, &[data], BufferType::UniformBuffer,
+    pub fn new<F>(facade: &F, data: T) -> UniformBuffer<T> where F: Facade {
+        let buffer = Buffer::new(facade, &[data], BufferType::UniformBuffer,
                                  BufferFlags::simple()).unwrap();
 
         UniformBuffer {
@@ -46,8 +47,8 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Uploads data in the uniforms buffer.
-    pub fn new_if_supported(display: &Display, data: T) -> Option<UniformBuffer<T>> {
-        UniformBuffer::new_impl(display, data, false)
+    pub fn new_if_supported<F>(facade: &F, data: T) -> Option<UniformBuffer<T>> where F: Facade {
+        UniformBuffer::new_impl(facade, data, false)
     }
 
     /// Builds a new uniform buffer with persistent mapping.
@@ -57,24 +58,28 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Only available if the `gl_uniform_blocks` and `gl_persistent_mapping` features are
     /// both enabled.
     #[cfg(all(feature = "gl_persistent_mapping", feature = "gl_uniform_blocks"))]
-    pub fn new_persistent(display: &Display, data: T) -> UniformBuffer<T> {
-        UniformBuffer::new_persistent_if_supported(display, data).unwrap()
+    pub fn new_persistent<F>(facade: &F, data: T) -> UniformBuffer<T> where F: Facade {
+        UniformBuffer::new_persistent_if_supported(facade, data).unwrap()
     }
 
     /// Builds a new uniform buffer with persistent mapping, or `None` if this is not supported.
-    pub fn new_persistent_if_supported(display: &Display, data: T) -> Option<UniformBuffer<T>> {
-        UniformBuffer::new_impl(display, data, true)
+    pub fn new_persistent_if_supported<F>(facade: &F, data: T)
+                                       -> Option<UniformBuffer<T>> where F: Facade
+    {
+        UniformBuffer::new_impl(facade, data, true)
     }
 
     /// Implementation of `new`.
-    fn new_impl(display: &Display, data: T, persistent: bool) -> Option<UniformBuffer<T>> {
-        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 1) &&
-           !display.context.context.get_extensions().gl_arb_uniform_buffer_object
+    fn new_impl<F>(facade: &F, data: T, persistent: bool) -> Option<UniformBuffer<T>>
+                where F: Facade
+    {
+        if facade.get_context().get_version() < &context::GlVersion(Api::Gl, 3, 1) &&
+           !facade.get_context().get_extensions().gl_arb_uniform_buffer_object
         {
             None
 
         } else {
-            let buffer = match Buffer::new(display, &[data], BufferType::UniformBuffer,
+            let buffer = match Buffer::new(facade, &[data], BufferType::UniformBuffer,
                                            if persistent {
                                                BufferFlags::persistent()
                                            } else {

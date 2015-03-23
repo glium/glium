@@ -3,9 +3,13 @@
 
 */
 
-use Display;
+use backend::Facade;
+use context::Context;
+use ContextExt;
 use version::Api;
 use {context, gl};
+use std::rc::Rc;
+use std::mem;
 
 /// Severity of a debug message.
 #[derive(Clone, Copy, Debug, FromPrimitive, PartialEq, Eq)]
@@ -102,16 +106,14 @@ pub enum MessageType {
 /// ```
 ///
 pub struct TimestampQuery {
-    display: Display,
+    context: Rc<Context>,
     id: gl::types::GLuint,
 }
 
 impl TimestampQuery {
     /// Creates a new `TimestampQuery`. Returns `None` if the backend doesn't support it.
-    pub fn new(display: &Display) -> Option<TimestampQuery> {
-        use std::mem;
-
-        let ctxt = display.context.context.make_current();
+    pub fn new<F>(facade: &F) -> Option<TimestampQuery> where F: Facade {
+        let ctxt = facade.get_context().make_current();
 
         let id = if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
@@ -138,7 +140,7 @@ impl TimestampQuery {
         };
 
         id.map(|q| TimestampQuery {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: q
         })
     }
@@ -150,7 +152,7 @@ impl TimestampQuery {
     pub fn is_ready(&self) -> bool {
         use std::mem;
 
-        let ctxt = self.display.context.context.make_current();
+        let ctxt = self.context.make_current();
 
         if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
@@ -177,7 +179,7 @@ impl TimestampQuery {
     pub fn get(self) -> u64 {
         use std::mem;
 
-        let ctxt = self.display.context.context.make_current();
+        let ctxt = self.context.make_current();
 
         if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {

@@ -1,8 +1,9 @@
 use buffer::{Buffer, BufferFlags, BufferType};
 use gl;
 use BufferExt;
-use Display;
 use GlObject;
+
+use backend::Facade;
 
 use sync;
 
@@ -32,18 +33,18 @@ pub struct IndexBufferSlice<'a> {
 
 impl IndexBuffer {
     /// Builds a new index buffer.
-    pub fn new<T: IntoIndexBuffer>(display: &Display, data: T) -> IndexBuffer {
-        data.into_index_buffer(display)
+    pub fn new<T: IntoIndexBuffer, F>(facade: &F, data: T) -> IndexBuffer where F: Facade {
+        data.into_index_buffer(facade)
     }
 
     /// Builds a new index buffer from raw data and a primitive type.
-    pub fn from_raw<T>(display: &Display, data: Vec<T>, prim: PrimitiveType) -> IndexBuffer
-                       where T: Index
+    pub fn from_raw<T, F>(facade: &F, data: Vec<T>, prim: PrimitiveType) -> IndexBuffer
+                       where T: Index, F: Facade
     {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new(display, &data, BufferType::ArrayBuffer,
+            buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                 BufferFlags::simple()).unwrap(),    // FIXME: ElementArrayBuffer
             data_type: <T as Index>::get_type(),
             primitives: prim,

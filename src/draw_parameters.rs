@@ -1,8 +1,8 @@
 use gl;
+use context::Context;
 use context::GlVersion;
 use version::Api;
 
-use Display;
 use DrawError;
 use Rect;
 use ToGlEnum;
@@ -461,15 +461,15 @@ impl Default for DrawParameters {
 }
 
 /// Checks parameters and panics if something is wrong.
-pub fn validate(display: &Display, params: &DrawParameters) -> Result<(), DrawError> {
+pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawError> {
     if params.depth_range.0 < 0.0 || params.depth_range.0 > 1.0 ||
        params.depth_range.1 < 0.0 || params.depth_range.1 > 1.0
     {
         return Err(DrawError::InvalidDepthRange);
     }
 
-    if !params.draw_primitives && display.context.context.get_version() < &GlVersion(Api::Gl, 3, 0) &&
-        !display.context.context.get_extensions().gl_ext_transform_feedback
+    if !params.draw_primitives && context.get_version() < &GlVersion(Api::Gl, 3, 0) &&
+        !context.get_extensions().gl_ext_transform_feedback
     {
         return Err(DrawError::TransformFeedbackNotSupported);
     }

@@ -6,9 +6,10 @@ use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
 use vertex::format::VertexFormat;
 
-use Display;
 use GlObject;
 use BufferExt;
+
+use backend::Facade;
 
 use context;
 use sync;
@@ -49,23 +50,23 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     /// ```
     ///
     #[cfg(feature = "gl_instancing")]
-    pub fn new(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
-        PerInstanceAttributesBuffer::new_if_supported(display, data).unwrap()
+    pub fn new<F>(facade: &F, data: Vec<T>) -> PerInstanceAttributesBuffer<T> where F: Facade {
+        PerInstanceAttributesBuffer::new_if_supported(facade, data).unwrap()
     }
 
     /// Builds a new buffer.
-    pub fn new_if_supported(display: &Display, data: Vec<T>)
-                            -> Option<PerInstanceAttributesBuffer<T>>
+    pub fn new_if_supported<F>(facade: &F, data: Vec<T>)
+                               -> Option<PerInstanceAttributesBuffer<T>> where F: Facade
     {
-        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
-            !display.context.context.get_extensions().gl_arb_instanced_arrays
+        if facade.get_context().get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
+            !facade.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return None;
         }
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, &data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
@@ -82,10 +83,10 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     /// Builds a new vertex buffer.
     ///
     /// This function will create a buffer that has better performance when it is modified frequently.
-    pub fn new_dynamic(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
+    pub fn new_dynamic<F>(facade: &F, data: Vec<T>) -> PerInstanceAttributesBuffer<T> where F: Facade {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, &data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
@@ -105,23 +106,24 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     ///
     /// Only available if the `gl_persistent_mapping` feature is enabled.
     #[cfg(all(feature = "gl_persistent_mapping", feature = "gl_instancing"))]
-    pub fn new_persistent(display: &Display, data: Vec<T>) -> PerInstanceAttributesBuffer<T> {
-        PerInstanceAttributesBuffer::new_persistent_if_supported(display, data).unwrap()
+    pub fn new_persistent<F>(facade: &F, data: Vec<T>) -> PerInstanceAttributesBuffer<T> where F: Facade {
+        PerInstanceAttributesBuffer::new_persistent_if_supported(facade, data).unwrap()
     }
 
     /// Builds a new vertex buffer with persistent mapping, or `None` if this is not supported.
-    pub fn new_persistent_if_supported(display: &Display, data: Vec<T>)
-                                       -> Option<PerInstanceAttributesBuffer<T>>
+    pub fn new_persistent_if_supported<F>(facade: &F, data: Vec<T>)
+                                          -> Option<PerInstanceAttributesBuffer<T>>
+                                          where F: Facade
     {
-        if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
-            !display.context.context.get_extensions().gl_arb_instanced_arrays
+        if facade.get_context().get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
+            !facade.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return None;
         }
 
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = match Buffer::new(display, &data, BufferType::ArrayBuffer,
+        let buffer = match Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                        BufferFlags::persistent())
         {
             Err(BufferCreationError::PersistentMappingNotSupported) => return None,
@@ -173,12 +175,13 @@ impl<T: Send + Copy + 'static> PerInstanceAttributesBuffer<T> {
     /// # }
     /// ```
     ///
-    pub unsafe fn new_raw(display: &Display, data: Vec<T>,
-                          bindings: VertexFormat, elements_size: usize) -> PerInstanceAttributesBuffer<T>
+    pub unsafe fn new_raw<F>(facade: &F, data: Vec<T>,
+                             bindings: VertexFormat, elements_size: usize)
+                             -> PerInstanceAttributesBuffer<T> where F: Facade
     {
         PerInstanceAttributesBuffer {
             buffer: PerInstanceAttributesBufferAny {
-                buffer: Buffer::new(display, &data, BufferType::ArrayBuffer,
+                buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                     BufferFlags::simple()).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,
