@@ -131,6 +131,17 @@ impl Context {
                       -> Result<(), GliumCreationError>
                       where B: Backend + 'static
     {
+        {
+            let mut ctxt = self.make_current();
+
+            // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
+            if let Some(ref fbos) = self.framebuffer_objects {
+                fbos.purge_all(&mut ctxt);
+            }
+
+            self.vertex_array_objects.purge_all(&mut ctxt);
+        }
+
         unsafe { new_backend.make_current() };
 
         *self.state.borrow_mut() = Default::default();
