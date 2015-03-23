@@ -16,10 +16,9 @@ pub trait Backend {
 
     /// Returns the address of an OpenGL function.
     ///
-    /// Must be called in the same thread and after the backend has been made current
-    /// with `make_current`.
+    /// Supposes that the context has been made current before this function is called.
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void;
-    
+
     /// Returns the dimensions of the window, or screen, etc.
     fn get_framebuffer_dimensions(&self) -> (u32, u32);
 

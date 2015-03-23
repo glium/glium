@@ -847,6 +847,7 @@ impl Drop for Frame {
 
 /// Objects that can build a facade object.
 pub trait DisplayBuild {
+    /// The object that this `DisplayBuild` builds.
     type Facade: backend::Facade;
 
     /// Build a context and a facade to draw on it.

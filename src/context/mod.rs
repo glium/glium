@@ -80,12 +80,20 @@ impl SharedDebugOutput {
 }
 
 impl Context {
-    pub fn new<B>(backend: B, check_current_context: bool)
-                  -> Result<Context, GliumCreationError>
-                  where B: Backend + 'static
+    /// Builds a new context.
+    ///
+    /// The `check_current_context` parameter tells the context whether it should check
+    /// if the backend's OpenGL context is the current one before each OpenGL operation.
+    ///
+    /// If you pass `false`, you must ensure that no other OpenGL context is going to be made
+    /// current in the same thread as this context. Passing `true` makes things safe but
+    /// is slightly slower.
+    pub unsafe fn new<B>(backend: B, check_current_context: bool)
+                         -> Result<Context, GliumCreationError>
+                         where B: Backend + 'static
     {
-        unsafe { backend.make_current() };
-        let gl = gl::Gl::load_with(|symbol| unsafe { backend.get_proc_address(symbol) });
+        backend.make_current();
+        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
 
         let gl_state = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
@@ -123,13 +131,17 @@ impl Context {
         })
     }
 
+    /// Calls `get_framebuffer_dimensions` on the backend object stored by this context.
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.backend.borrow().get_framebuffer_dimensions()
     }
 
-    pub fn rebuild<B>(&self, new_backend: B)
-                      -> Result<(), GliumCreationError>
-                      where B: Backend + 'static
+    /// Changes the OpenGL context associated with this context.
+    ///
+    /// The new context must have lists shared with the old one.
+    pub unsafe fn rebuild<B>(&self, new_backend: B)
+                             -> Result<(), GliumCreationError>
+                             where B: Backend + 'static
     {
         {
             let mut ctxt = self.make_current();
@@ -142,7 +154,7 @@ impl Context {
             self.vertex_array_objects.purge_all(&mut ctxt);
         }
 
-        unsafe { new_backend.make_current() };
+        new_backend.make_current();
 
         *self.state.borrow_mut() = Default::default();
         // FIXME: verify version, capabilities and extensions
@@ -171,6 +183,7 @@ impl Context {
         &self.capabilities
     }
 
+    /// Returns the OpenGL version detected by this context.
     pub fn get_version(&self) -> &GlVersion {
         &self.version
     }
@@ -201,14 +214,10 @@ impl Context {
 
     /// Releases the shader compiler, indicating that no new programs will be created for a while.
     ///
-    /// # Features
-    ///
-    /// This method is always available, but is a no-op if it's not available in
-    /// the implementation.
+    /// This method is a no-op if it's not available in the implementation.
     pub fn release_shader_compiler(&self) {
         unsafe {
             let ctxt = self.make_current();
-
 
             if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) ||
                 ctxt.version >= &GlVersion(Api::Gl, 4, 1)
