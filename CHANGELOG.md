@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+ - Added the `Backend` and `Facade` traits. `Display` implements the `Facade` trait.
+ - Changed all buffer/texture/etc. creation functions to take any type that implements `Facade` instead of a `Display`.
+ - Added `GlutinWindowBackend` and `GlutinHeadlessBackend` that implement the `Backend` trait.
+ - Changed the private `Context` struct to be public. This allows users to implement the `Facade` trait themselves.
+ - Added an associated type to the `DisplayBuild` trait.
  - Fixed scissor boxing not being disabled before a blit.
 
 ## Version 0.1.2 (2015-03-20)
