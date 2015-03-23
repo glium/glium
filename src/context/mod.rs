@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::default::Default;
 use std::cell::{RefCell, RefMut};
 use std::ffi::CStr;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use GliumCreationError;
@@ -51,6 +52,21 @@ pub struct Context {
     // we maintain a list of samplers for each possible behavior
     pub samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
                           DefaultState<util::FnvHasher>>>,
+}
+
+pub struct OpaqueContext(Rc<Context>);
+
+pub fn unwrap_ctxt(c: &OpaqueContext) -> &Rc<Context> {
+    &c.0
+}
+
+/// Builds a new `OpaqueContext` if you want to implement `Facade` yourself.
+pub unsafe fn build_context<B>(backend: B, check_current_context: bool)
+                               -> Result<OpaqueContext, GliumCreationError>
+                               where B: Backend + 'static
+{
+    let ctxt = try!(Context::new(backend, check_current_context));
+    Ok(OpaqueContext(Rc::new(ctxt)))
 }
 
 pub struct CommandContext<'a, 'b> {

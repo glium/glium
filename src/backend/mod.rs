@@ -3,6 +3,11 @@ use std::ops::Deref;
 
 use libc;
 
+use GliumCreationError;
+
+pub use context::OpaqueContext;
+pub use context::build_context;
+
 pub mod glutin_backend;
 
 /// Trait for types that can be used as a backend for a glium context.
@@ -24,6 +29,12 @@ pub trait Backend {
 
     /// Makes the OpenGL context the current context in the current thread.
     unsafe fn make_current(&self);
+}
+
+/// Trait for types that provide a safe access for glium functions.
+pub trait Facade {
+    /// Returns an opaque type 
+    fn get_context(&self) -> &OpaqueContext;
 }
 
 impl<T> Backend for Rc<T> where T: Backend {
