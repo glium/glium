@@ -3,14 +3,36 @@ use std::ops::Deref;
 
 use libc;
 
+use GliumCreationError;
+
+pub use context::Context;
+
 pub mod glutin_backend;
 
+/// Trait for types that can be used as a backend for a glium context.
 pub trait Backend {
+    /// Swaps buffers at the end of a frame.
     fn swap_buffers(&self);
-    fn get_proc_address(&self, symbol: &str) -> *const libc::c_void;
+
+    /// Returns the address of an OpenGL function.
+    ///
+    /// Supposes that the context has been made current before this function is called.
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void;
+
+    /// Returns the dimensions of the window, or screen, etc.
     fn get_framebuffer_dimensions(&self) -> (u32, u32);
+
+    /// Returns true if the OpenGL context is the current one in the thread.
     fn is_current(&self) -> bool;
-    fn make_current(&self);
+
+    /// Makes the OpenGL context the current context in the current thread.
+    unsafe fn make_current(&self);
+}
+
+/// Trait for types that provide a safe access for glium functions.
+pub trait Facade {
+    /// Returns an opaque type that contains the OpenGL state, extensions, version, etc.
+    fn get_context(&self) -> &Rc<Context>;
 }
 
 impl<T> Backend for Rc<T> where T: Backend {
@@ -18,7 +40,7 @@ impl<T> Backend for Rc<T> where T: Backend {
         self.deref().swap_buffers();
     }
 
-    fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
         self.deref().get_proc_address(symbol)
     }
 
@@ -30,7 +52,13 @@ impl<T> Backend for Rc<T> where T: Backend {
         self.deref().is_current()
     }
 
-    fn make_current(&self) {
+    unsafe fn make_current(&self) {
         self.deref().make_current();
+    }
+}
+
+impl Facade for Rc<Context> {
+    fn get_context(&self) -> &Rc<Context> {
+        self
     }
 }

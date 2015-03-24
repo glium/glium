@@ -37,6 +37,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 
 */
 use std::marker::PhantomData;
+use std::rc::Rc;
 
 use texture::Texture;
 use texture::Texture2d;
@@ -48,6 +49,9 @@ use texture::{Texture1dArrayMipmap, DepthTexture1dArrayMipmap, StencilTexture1dA
 use texture::{Texture2dArrayMipmap, DepthTexture2dArrayMipmap, StencilTexture2dArrayMipmap, DepthStencilTexture2dArrayMipmap};
 use texture::{Texture2dMultisampleArrayMipmap, DepthTexture2dMultisampleArrayMipmap, StencilTexture2dMultisampleArrayMipmap, DepthStencilTexture2dMultisampleArrayMipmap};
 
+use backend::Facade;
+use context::Context;
+
 use fbo::FramebufferAttachments;
 use FboAttachments;
 use Rect;
@@ -56,14 +60,14 @@ use ToGlEnum;
 use ops;
 use uniforms;
 
-use {Display, Program, Surface, GlObject};
+use {Program, Surface, GlObject};
 use DrawError;
 
 use {fbo, gl};
 
 /// A framebuffer which has only one color attachment.
 pub struct SimpleFrameBuffer<'a> {
-    display: Display,
+    context: Rc<Context>,
     attachments: FramebufferAttachments,
     marker: PhantomData<&'a ()>,
     dimensions: (u32, u32),
@@ -74,57 +78,60 @@ pub struct SimpleFrameBuffer<'a> {
 impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
-    pub fn new<C>(display: &Display, color: &'a C) -> SimpleFrameBuffer<'a>
-                  where C: ToColorAttachment
+    pub fn new<F, C>(facade: &F, color: &'a C) -> SimpleFrameBuffer<'a>
+                  where C: ToColorAttachment, F: Facade
     {
-        SimpleFrameBuffer::new_impl(display, color.to_color_attachment(), None, None, None)
+        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None, None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth
     /// buffer, but no stencil buffer.
-    pub fn with_depth_buffer<C, D>(display: &Display, color: &'a C, depth: &'a D)
-                                   -> SimpleFrameBuffer<'a>
-                                   where C: ToColorAttachment, D: ToDepthAttachment
+    pub fn with_depth_buffer<F, C, D>(facade: &F, color: &'a C, depth: &'a D)
+                                      -> SimpleFrameBuffer<'a>
+                                      where C: ToColorAttachment, D: ToDepthAttachment, F: Facade
     {
-        SimpleFrameBuffer::new_impl(display, color.to_color_attachment(),
+        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
                                     Some(depth.to_depth_attachment()), None, None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment, a depth
     /// buffer, and a stencil buffer.
-    pub fn with_depth_and_stencil_buffer<C, D, S>(display: &Display, color: &'a C, depth: &'a D,
-                                                  stencil: &'a S) -> SimpleFrameBuffer<'a>
-                                                  where C: ToColorAttachment, D: ToDepthAttachment,
-                                                  S: ToStencilAttachment
+    pub fn with_depth_and_stencil_buffer<F, C, D, S>(facade: &F, color: &'a C, depth: &'a D,
+                                                     stencil: &'a S) -> SimpleFrameBuffer<'a>
+                                                     where C: ToColorAttachment,
+                                                           D: ToDepthAttachment,
+                                                           S: ToStencilAttachment, F: Facade
     {
-        SimpleFrameBuffer::new_impl(display, color.to_color_attachment(),
+        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
                                     Some(depth.to_depth_attachment()),
                                     Some(stencil.to_stencil_attachment()), None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
     /// buffer, but no depth buffer.
-    pub fn with_stencil_buffer<C, S>(display: &Display, color: &'a C, stencil: &'a S)
-                                     -> SimpleFrameBuffer<'a>
-                                     where C: ToColorAttachment, S: ToStencilAttachment
+    pub fn with_stencil_buffer<F, C, S>(facade: &F, color: &'a C, stencil: &'a S)
+                                        -> SimpleFrameBuffer<'a>
+                                        where C: ToColorAttachment, S: ToStencilAttachment,
+                                              F: Facade
     {
-        SimpleFrameBuffer::new_impl(display, color.to_color_attachment(), None,
+        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None,
                                     Some(stencil.to_stencil_attachment()), None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
-    pub fn with_depth_stencil_buffer<C, D>(display: &Display, color: &'a C, depthstencil: &'a D)
-                                           -> SimpleFrameBuffer<'a>
-                                           where C: ToColorAttachment, D: ToDepthStencilAttachment
+    pub fn with_depth_stencil_buffer<F, C, D>(facade: &F, color: &'a C, depthstencil: &'a D)
+                                              -> SimpleFrameBuffer<'a>
+                                              where C: ToColorAttachment,
+                                                    D: ToDepthStencilAttachment, F: Facade
     {
-        SimpleFrameBuffer::new_impl(display, color.to_color_attachment(), None, None,
+        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None,
                                     Some(depthstencil.to_depth_stencil_attachment()))
     }
 
 
-    fn new_impl(display: &Display, color: ColorAttachment, depth: Option<DepthAttachment>,
-                stencil: Option<StencilAttachment>, depthstencil: Option<DepthStencilAttachment>)
-                -> SimpleFrameBuffer<'a>
+    fn new_impl<F>(facade: &F, color: ColorAttachment, depth: Option<DepthAttachment>,
+                   stencil: Option<StencilAttachment>, depthstencil: Option<DepthStencilAttachment>)
+                   -> SimpleFrameBuffer<'a> where F: Facade
     {
         // TODO: remove this
         if depthstencil.is_some() {
@@ -202,7 +209,7 @@ impl<'a> SimpleFrameBuffer<'a> {
         };
 
         SimpleFrameBuffer {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             attachments: FramebufferAttachments {
                 colors: vec![(0, color_attachment)],
                 depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
@@ -227,7 +234,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        ops::clear(&self.display, Some(&self.attachments), color, depth, stencil);
+        ops::clear(&self.context, Some(&self.attachments), color, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -256,19 +263,19 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+            if viewport.width > self.context.capabilities().max_viewport_dims.0
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+            if viewport.height > self.context.capabilities().max_viewport_dims.1
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.display, Some(&self.attachments), vb,
+        ops::draw(&self.context, Some(&self.attachments), vb,
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
@@ -281,7 +288,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, None, self.get_attachments(),
+        ops::blit(&self.context, None, self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -289,7 +296,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -297,7 +304,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 }
@@ -310,7 +317,7 @@ impl<'a> FboAttachments for SimpleFrameBuffer<'a> {
 
 /// This struct is useless for the moment.
 pub struct MultiOutputFrameBuffer<'a> {
-    display: Display,
+    context: Rc<Context>,
     marker: PhantomData<&'a ()>,
     dimensions: (u32, u32),
     color_attachments: Vec<(String, gl::types::GLuint)>,
@@ -326,12 +333,12 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     /// # Panic
     ///
     /// Panics if all attachments don't have the same dimensions.
-    pub fn new(display: &Display, color_attachments: &[(&str, &'a Texture2d)])
-               -> MultiOutputFrameBuffer<'a>
+    pub fn new<F>(facade: &F, color_attachments: &[(&str, &'a Texture2d)])
+                  -> MultiOutputFrameBuffer<'a> where F: Facade
     {
         use render_buffer;
 
-        MultiOutputFrameBuffer::new_impl(display, color_attachments,
+        MultiOutputFrameBuffer::new_impl(facade, color_attachments,
                                          None::<&render_buffer::DepthRenderBuffer>,
                                          None::<&render_buffer::StencilRenderBuffer>)
     }
@@ -341,19 +348,19 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     /// # Panic
     ///
     /// Panics if all attachments don't have the same dimensions.
-    pub fn with_depth_buffer<D>(display: &Display, color_attachments: &[(&str, &'a Texture2d)],
-                                depth: &'a D) -> MultiOutputFrameBuffer<'a>
-                                where D: ToDepthAttachment
+    pub fn with_depth_buffer<F, D>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
+                                   depth: &'a D) -> MultiOutputFrameBuffer<'a>
+                                   where D: ToDepthAttachment, F: Facade
     {
         use render_buffer;
         
-        MultiOutputFrameBuffer::new_impl(display, color_attachments, Some(depth),
+        MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
                                          None::<&render_buffer::StencilRenderBuffer>)
     }
 
-    fn new_impl<D, S>(display: &Display, color_attachments: &[(&str, &'a Texture2d)],
-                      depth: Option<&'a D>, stencil: Option<&'a S>)
-                      -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment
+    fn new_impl<F, D, S>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
+                         depth: Option<&'a D>, stencil: Option<&'a S>)
+                         -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment, F: Facade
     {
         assert!(stencil.is_none());     // not implemented yet
 
@@ -405,7 +412,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         };
 
         MultiOutputFrameBuffer {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             marker: PhantomData,
             dimensions: dimensions,
             color_attachments: attachments,
@@ -460,7 +467,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        ops::clear(&self.display, Some(&self.build_attachments_any()),
+        ops::clear(&self.context, Some(&self.build_attachments_any()),
                    color, depth, stencil);
     }
 
@@ -490,19 +497,19 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+            if viewport.width > self.context.capabilities().max_viewport_dims.0
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+            if viewport.height > self.context.capabilities().max_viewport_dims.1
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.display, Some(&self.build_attachments(program)), vb,
+        ops::draw(&self.context, Some(&self.build_attachments(program)), vb,
                   ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
     }
 
@@ -515,7 +522,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, None, self.get_attachments(),
+        ops::blit(&self.context, None, self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -523,7 +530,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -531,7 +538,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 }

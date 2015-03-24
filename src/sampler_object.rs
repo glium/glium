@@ -1,28 +1,30 @@
-use Display;
 use DrawError;
 
 use uniforms::SamplerBehavior;
 
+use std::collections::HashMap;
+use std::collections::hash_state::DefaultState;
+
 use gl;
+use util;
 use context::{self, GlVersion};
+use context::CommandContext;
 use version::Api;
 use GlObject;
 use ToGlEnum;
 
 /// An OpenGL sampler object.
 pub struct SamplerObject {
-    display: Display,
     id: gl::types::GLuint,
+    destroyed: bool,
 }
 
 impl SamplerObject {
     /// Builds a new sampler object.
-    pub fn new(display: &Display, behavior: &SamplerBehavior) -> SamplerObject {
+    pub fn new(ctxt: &mut CommandContext, behavior: &SamplerBehavior) -> SamplerObject {
         // making sure that the backend supports samplers
-        assert!(display.context.context.get_version() >= &GlVersion(Api::Gl, 3, 2) ||
-                display.context.context.get_extensions().gl_arb_sampler_objects);
-
-        let ctxt = display.context.context.make_current();
+        assert!(ctxt.version >= &GlVersion(Api::Gl, 3, 2) ||
+                ctxt.extensions.gl_arb_sampler_objects);
 
         let sampler = unsafe {
             use std::mem;
@@ -55,8 +57,17 @@ impl SamplerObject {
         }
 
         SamplerObject {
-            display: display.clone(),
             id: sampler,
+            destroyed: false,
+        }
+    }
+
+    /// 
+    pub fn destroy(mut self, ctxt: &mut CommandContext) {
+        self.destroyed = true;
+
+        unsafe {
+            ctxt.gl.DeleteSamplers(1, [self.id].as_ptr());
         }
     }
 }
@@ -71,32 +82,34 @@ impl GlObject for SamplerObject {
 
 impl Drop for SamplerObject {
     fn drop(&mut self) {
-        let ctxt = self.display.context.context.make_current();
-        unsafe { ctxt.gl.DeleteSamplers(1, [self.id].as_ptr()); }
+        assert!(self.destroyed);
     }
 }
 
 /// Returns the sampler corresponding to the given behavior, or a draw error if
 /// samplers are not supported.
-pub fn get_sampler(display: &Display, behavior: &SamplerBehavior)
+pub fn get_sampler(ctxt: &mut CommandContext,
+                   samplers: &mut HashMap<SamplerBehavior, SamplerObject,
+                                          DefaultState<util::FnvHasher>>,
+                   behavior: &SamplerBehavior)
                    -> Result<gl::types::GLuint, DrawError>
 {
     // checking for compatibility
-    if display.context.context.get_version() < &context::GlVersion(Api::Gl, 3, 2) &&
-        !display.context.context.get_extensions().gl_arb_sampler_objects
+    if ctxt.version < &context::GlVersion(Api::Gl, 3, 2) &&
+        !ctxt.extensions.gl_arb_sampler_objects
     {
         return Err(DrawError::SamplersNotSupported);
     }
 
     // looking for an existing sampler
-    match display.context.samplers.borrow_mut().get(behavior) {
+    match samplers.get(behavior) {
         Some(obj) => return Ok(obj.get_id()),
         None => ()
     };
 
     // builds a new sampler
-    let sampler = SamplerObject::new(display, behavior);
+    let sampler = SamplerObject::new(ctxt, behavior);
     let id = sampler.get_id();
-    display.context.samplers.borrow_mut().insert(behavior.clone(), sampler);
+    samplers.insert(behavior.clone(), sampler);
     Ok(id)
 }

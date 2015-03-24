@@ -1,8 +1,11 @@
-use Display;
-
 use context;
 use version::Api;
 use gl;
+
+use backend::Facade;
+use context::Context;
+use ContextExt;
+use std::rc::Rc;
 
 /// Provides a way to wait for a server-side operation to be finished.
 ///
@@ -19,7 +22,7 @@ use gl;
 /// fence.wait();   // blocks until the previous operations have finished
 /// ```
 pub struct SyncFence {
-    display: Display,
+    context: Rc<Context>,
     id: Option<gl::types::GLsync>,
 }
 
@@ -30,25 +33,25 @@ impl SyncFence {
     ///
     /// Only available if the `gl_sync` feature is enabled.
     #[cfg(feature = "gl_sync")]
-    pub fn new(display: &Display) -> SyncFence {
-        SyncFence::new_if_supported(display).unwrap()
+    pub fn new<F>(facade: &F) -> SyncFence where F: Facade {
+        SyncFence::new_if_supported(facade).unwrap()
     }
 
     /// Builds a new `SyncFence` that is injected in the server.
     ///
     /// Returns `None` is this is not supported by the backend.
-    pub fn new_if_supported(display: &Display) -> Option<SyncFence> {
-        let mut ctxt = display.context.context.make_current();
+    pub fn new_if_supported<F>(facade: &F) -> Option<SyncFence> where F: Facade {
+        let mut ctxt = facade.get_context().make_current();
 
         unsafe { new_linear_sync_fence_if_supported(&mut ctxt) }
-            .map(|f| f.into_sync_fence(display))
+            .map(|f| f.into_sync_fence(facade))
     }
 
     /// Blocks until the operation has finished on the server.
     pub fn wait(mut self) {
         let sync = self.id.take().unwrap();
 
-        let ctxt = self.display.context.context.make_current();
+        let ctxt = self.context.make_current();
 
         let result = unsafe {
             // waiting with a deadline of one year
@@ -74,7 +77,7 @@ impl Drop for SyncFence {
             Some(s) => s
         };
 
-        let ctxt = self.display.context.context.make_current();
+        let ctxt = self.context.make_current();
         unsafe { ctxt.gl.DeleteSync(sync); }
     }
 }
@@ -92,9 +95,9 @@ unsafe impl Send for LinearSyncFence {}
 
 impl LinearSyncFence {
     /// Turns the prototype into a real fence.
-    pub fn into_sync_fence(mut self, display: &Display) -> SyncFence {
+    pub fn into_sync_fence<F>(mut self, facade: &F) -> SyncFence where F: Facade {
         SyncFence {
-            display: display.clone(),
+            context: facade.get_context().clone(),
             id: self.id.take()
         }
     }

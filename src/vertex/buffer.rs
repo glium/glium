@@ -6,9 +6,10 @@ use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource};
 use vertex::format::VertexFormat;
 
-use Display;
 use BufferExt;
 use GlObject;
+
+use backend::Facade;
 
 use gl;
 use sync;
@@ -53,10 +54,10 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// # }
     /// ```
     ///
-    pub fn new(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
+    pub fn new<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, &data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
@@ -73,10 +74,10 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// Builds a new vertex buffer.
     ///
     /// This function will create a buffer that has better performance when it is modified frequently.
-    pub fn new_dynamic(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
+    pub fn new_dynamic<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(display, &data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
@@ -96,17 +97,18 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     ///
     /// Only available if the `gl_persistent_mapping` feature is enabled.
     #[cfg(feature = "gl_persistent_mapping")]
-    pub fn new_persistent(display: &Display, data: Vec<T>) -> VertexBuffer<T> {
-        VertexBuffer::new_persistent_if_supported(display, data).unwrap()
+    pub fn new_persistent<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
+        VertexBuffer::new_persistent_if_supported(facade, data).unwrap()
     }
 
     /// Builds a new vertex buffer with persistent mapping, or `None` if this is not supported.
-    pub fn new_persistent_if_supported(display: &Display, data: Vec<T>)
-                                       -> Option<VertexBuffer<T>>
+    pub fn new_persistent_if_supported<F>(facade: &F, data: Vec<T>)
+                                          -> Option<VertexBuffer<T>>
+                                          where F: Facade
     {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = match Buffer::new(display, &data, BufferType::ArrayBuffer,
+        let buffer = match Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                        BufferFlags::persistent())
         {
             Err(BufferCreationError::PersistentMappingNotSupported) => return None,
@@ -158,12 +160,13 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
     /// # }
     /// ```
     ///
-    pub unsafe fn new_raw(display: &Display, data: Vec<T>,
-                          bindings: VertexFormat, elements_size: usize) -> VertexBuffer<T>
+    pub unsafe fn new_raw<F>(facade: &F, data: Vec<T>,
+                             bindings: VertexFormat, elements_size: usize) -> VertexBuffer<T>
+                             where F: Facade
     {
         VertexBuffer {
             buffer: VertexBufferAny {
-                buffer: Buffer::new(display, &data, BufferType::ArrayBuffer,
+                buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
                                     BufferFlags::simple()).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,

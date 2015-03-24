@@ -45,6 +45,8 @@ use {gl, framebuffer};
 #[cfg(feature = "image")]
 use image;
 
+use backend::Facade;
+
 use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, IntoUniformValue, Sampler};
 use {Surface, GlObject};

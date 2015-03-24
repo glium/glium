@@ -17,7 +17,10 @@ use framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
 use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat};
 
 use {gl, context};
-use {GlObject, DisplayImpl, ToGlEnum};
+use {GlObject, ToGlEnum};
+use backend::Facade;
+use context::Context;
+use ContextExt;
 use version::Api;
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
@@ -29,11 +32,11 @@ pub struct RenderBuffer {
 
 impl RenderBuffer {
     /// Builds a new render buffer.
-    pub fn new(display: &::Display, format: UncompressedFloatFormat, width: u32, height: u32)
-               -> RenderBuffer
+    pub fn new<F>(facade: &F, format: UncompressedFloatFormat, width: u32, height: u32)
+                  -> RenderBuffer where F: Facade
     {
         RenderBuffer {
-            buffer: RenderBufferImpl::new(display, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
         }
     }
 
@@ -65,11 +68,11 @@ pub struct DepthRenderBuffer {
 
 impl DepthRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new(display: &::Display, format: DepthFormat, width: u32, height: u32)
-               -> DepthRenderBuffer
+    pub fn new<F>(facade: &F, format: DepthFormat, width: u32, height: u32)
+                  -> DepthRenderBuffer where F: Facade
     {
         DepthRenderBuffer {
-            buffer: RenderBufferImpl::new(display, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
         }
     }
 
@@ -101,11 +104,11 @@ pub struct StencilRenderBuffer {
 
 impl StencilRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new(display: &::Display, format: StencilFormat, width: u32, height: u32)
-               -> StencilRenderBuffer
+    pub fn new<F>(facade: &F, format: StencilFormat, width: u32, height: u32)
+                  -> StencilRenderBuffer where F: Facade
     {
         StencilRenderBuffer {
-            buffer: RenderBufferImpl::new(display, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
         }
     }
 
@@ -137,11 +140,11 @@ pub struct DepthStencilRenderBuffer {
 
 impl DepthStencilRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new(display: &::Display, format: DepthStencilFormat, width: u32, height: u32)
-               -> DepthStencilRenderBuffer
+    pub fn new<F>(facade: &F, format: DepthStencilFormat, width: u32, height: u32)
+                  -> DepthStencilRenderBuffer where F: Facade
     {
         DepthStencilRenderBuffer {
-            buffer: RenderBufferImpl::new(display, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
         }
     }
 
@@ -166,7 +169,7 @@ impl GlObject for DepthStencilRenderBuffer {
 
 /// The implementation
 struct RenderBufferImpl {
-    display: Rc<DisplayImpl>,
+    context: Rc<Context>,
     id: gl::types::GLuint,
     width: u32,
     height: u32,
@@ -174,11 +177,11 @@ struct RenderBufferImpl {
 
 impl RenderBufferImpl {
     /// Builds a new render buffer.
-    fn new(display: &::Display, format: gl::types::GLenum, width: u32, height: u32)
-           -> RenderBufferImpl
+    fn new<F>(facade: &F, format: gl::types::GLenum, width: u32, height: u32)
+              -> RenderBufferImpl where F: Facade
     {
         // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = facade.get_context().make_current();
 
         let id = unsafe {
             let mut id = mem::uninitialized();
@@ -217,7 +220,7 @@ impl RenderBufferImpl {
         };
 
         RenderBufferImpl {
-            display: display.context.clone(),
+            context: facade.get_context().clone(),
             id: id,
             width: width,
             height: height,
@@ -228,10 +231,10 @@ impl RenderBufferImpl {
 impl Drop for RenderBufferImpl {
     fn drop(&mut self) {
         unsafe {
-            let mut ctxt = self.display.context.make_current();
+            let mut ctxt = self.context.make_current();
 
             // removing FBOs which contain this buffer
-            self.display.framebuffer_objects.as_ref().unwrap()
+            self.context.framebuffer_objects.as_ref().unwrap()
                         .purge_renderbuffer(self.id, &mut ctxt);
 
             if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||

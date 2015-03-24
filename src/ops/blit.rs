@@ -1,6 +1,8 @@
-use Display;
 use BlitTarget;
 use Rect;
+
+use context::Context;
+use ContextExt;
 
 use fbo::FramebufferAttachments;
 
@@ -8,17 +10,17 @@ use gl;
 use context;
 use version::Api;
 
-pub fn blit(display: &Display, source: Option<&FramebufferAttachments>,
+pub fn blit(context: &Context, source: Option<&FramebufferAttachments>,
             target: Option<&FramebufferAttachments>, mask: gl::types::GLbitfield,
             src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
     unsafe {
-        let mut ctxt = display.context.context.make_current();
+        let mut ctxt = context.make_current();
 
         // FIXME: we don't draw on it
-        let source = display.context.framebuffer_objects.as_ref().unwrap()
+        let source = context.framebuffer_objects.as_ref().unwrap()
                             .get_framebuffer_for_drawing(source, &mut ctxt);
-        let target = display.context.framebuffer_objects.as_ref().unwrap()
+        let target = context.framebuffer_objects.as_ref().unwrap()
                             .get_framebuffer_for_drawing(target, &mut ctxt);
 
         // scissor testing influences blitting

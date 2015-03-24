@@ -195,6 +195,9 @@ use std::rc::Rc;
 use std::cell::Ref;
 use std::cell::RefCell;
 
+use context::Context;
+
+pub mod backend;
 pub mod debug;
 pub mod framebuffer;
 pub mod index;
@@ -212,7 +215,6 @@ pub mod index_buffer {
     pub use index::*;
 }
 
-mod backend;
 mod buffer;
 mod context;
 mod draw_parameters;
@@ -227,6 +229,8 @@ mod vertex_array_object;
 mod gl {
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
+
+pub type Display = backend::glutin_backend::GlutinFacade;
 
 /// Trait for objects that are OpenGL objects.
 pub trait GlObject {
@@ -258,6 +262,11 @@ trait ToGlEnum {
 /// Internal trait for buffers.
 trait BufferExt {
     fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>>;
+}
+
+/// Internal trait for contexts.
+trait ContextExt {
+    fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
 }
 
 /// Area of a surface in pixels.
@@ -733,7 +742,7 @@ impl std::fmt::Display for DrawError {
 /// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
 /// instantaneous, even when vsync is enabled.
 pub struct Frame {
-    display: Display,
+    context: Rc<Context>,
     dimensions: (u32, u32),
 }
 
@@ -747,7 +756,7 @@ impl Surface for Frame {
     fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
     {
-        ops::clear(&self.display, None, color, depth, stencil);
+        ops::clear(&self.context, None, color, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -755,11 +764,11 @@ impl Surface for Frame {
     }
 
     fn get_depth_buffer_bits(&self) -> Option<u16> {
-        self.display.context.context.capabilities().depth_bits
+        self.context.capabilities().depth_bits
     }
 
     fn get_stencil_buffer_bits(&self) -> Option<u16> {
-        self.display.context.context.capabilities().stencil_bits
+        self.context.capabilities().stencil_bits
     }
 
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
@@ -777,19 +786,19 @@ impl Surface for Frame {
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.display.context.context.capabilities().max_viewport_dims.0
+            if viewport.width > self.context.capabilities().max_viewport_dims.0
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.display.context.context.capabilities().max_viewport_dims.1
+            if viewport.height > self.context.capabilities().max_viewport_dims.1
                     as u32
             {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.display, None, vertex_buffer, index_buffer.to_indices_source(), program,
+        ops::draw(&self.context, None, vertex_buffer, index_buffer.to_indices_source(), program,
                   uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
@@ -802,7 +811,7 @@ impl Surface for Frame {
     fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, None, self.get_attachments(),
+        ops::blit(&self.context, None, self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -810,7 +819,7 @@ impl Surface for Frame {
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
@@ -818,7 +827,7 @@ impl Surface for Frame {
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
-        ops::blit(&self.display, source.get_attachments(), self.get_attachments(),
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 }
@@ -832,26 +841,29 @@ impl FboAttachments for Frame {
 #[unsafe_destructor]
 impl Drop for Frame {
     fn drop(&mut self) {
-        self.display.context.context.swap_buffers();
+        self.context.swap_buffers();
     }
 }
 
-/// Objects that can build a `Display` object.
+/// Objects that can build a facade object.
 pub trait DisplayBuild {
-    /// Build a context and a `Display` to draw on it.
+    /// The object that this `DisplayBuild` builds.
+    type Facade: backend::Facade;
+
+    /// Build a context and a facade to draw on it.
     ///
     /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
-    fn build_glium(self) -> Result<Display, GliumCreationError>;
+    fn build_glium(self) -> Result<Self::Facade, GliumCreationError>;
 
-    /// Build a context and a `Display` to draw on it
+    /// Build a context and a facade to draw on it
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError>;
+    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, GliumCreationError>;
 
-    /// Changes the settings of an existing `Display`.
-    fn rebuild_glium(self, &Display) -> Result<(), GliumCreationError>;
+    /// Changes the settings of an existing facade.
+    fn rebuild_glium(self, &Self::Facade) -> Result<(), GliumCreationError>;
 }
 
 /// Error that can happen while creating a glium display.
@@ -890,485 +902,6 @@ impl std::error::Error for GliumCreationError {
 impl std::error::FromError<glutin::CreationError> for GliumCreationError {
     fn from_error(err: glutin::CreationError) -> GliumCreationError {
         GliumCreationError::GlutinCreationError(err)
-    }
-}
-
-impl DisplayBuild for glutin::WindowBuilder<'static> {
-    fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
-
-        let display = Display {
-            context: Rc::new(DisplayImpl {
-                context: context,
-                backend: Some(RefCell::new(backend)),
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
-            }),
-        };
-
-        display.init_debug_callback();
-        Ok(display)
-    }
-
-    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
-        let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), false));
-
-        let display = Display {
-            context: Rc::new(DisplayImpl {
-                context: context,
-                backend: Some(RefCell::new(backend)),
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
-            }),
-        };
-
-        display.init_debug_callback();
-        Ok(display)
-    }
-
-    fn rebuild_glium(self, display: &Display) -> Result<(), GliumCreationError> {
-        {
-            let mut ctxt = display.context.context.make_current();
-
-            // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
-            if let Some(ref fbos) = display.context.framebuffer_objects {
-                fbos.purge_all(&mut ctxt);
-            }
-
-            display.context.vertex_array_objects.purge_all(&mut ctxt);
-        }
-
-        let mut existing_window = display.context.backend.as_ref()
-                                         .expect("can't rebuild a headless display").borrow_mut();
-        let new_backend = Rc::new(try!(existing_window.rebuild(self)));
-        try!(display.context.context.rebuild(new_backend.clone()));
-        *existing_window = new_backend;
-        Ok(())
-    }
-}
-
-#[cfg(feature = "headless")]
-impl DisplayBuild for glutin::HeadlessRendererBuilder {
-    fn build_glium(self) -> Result<Display, GliumCreationError> {
-        let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
-
-        let display = Display {
-            context: Rc::new(DisplayImpl {
-                context: context,
-                backend: None,
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
-            }),
-        };
-
-        display.init_debug_callback();
-        Ok(display)
-    }
-
-    unsafe fn build_glium_unchecked(self) -> Result<Display, GliumCreationError> {
-        let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let (context, shared_debug) = try!(context::Context::new(backend.clone(), true));
-
-        let display = Display {
-            context: Rc::new(DisplayImpl {
-                context: context,
-                backend: None,
-                debug_callback: RefCell::new(None),
-                shared_debug_output: shared_debug,
-                framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-                vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-                samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
-            }),
-        };
-
-        display.init_debug_callback();
-        Ok(display)
-    }
-
-    fn rebuild_glium(self, _: &Display) -> Result<(), GliumCreationError> {
-        unimplemented!()
-    }
-}
-
-/// The main object of this library. Controls the whole display.
-///
-/// This object contains a smart pointer to the real implementation.
-/// Cloning the display allows you to easily share the `Display` object throughout
-/// your program and between threads.
-#[derive(Clone)]
-pub struct Display {
-    context: Rc<DisplayImpl>,
-}
-
-struct DisplayImpl {
-    // contains everything related to the current context and its state
-    context: context::Context,
-
-    // contains the window
-    backend: Option<RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
-
-    // the callback used for debug messages
-    debug_callback: RefCell<Option<Box<FnMut(String, debug::Source, debug::MessageType, debug::Severity)
-                                     + Send + Sync>>>,
-
-    // holding the Rc to SharedDebugOutput
-    shared_debug_output: Rc<context::SharedDebugOutput>,
-
-    // we maintain a list of FBOs
-    // the option is here to destroy the container
-    framebuffer_objects: Option<fbo::FramebuffersContainer>,
-
-    vertex_array_objects: vertex_array_object::VertexAttributesSystem,
-
-    // we maintain a list of samplers for each possible behavior
-    samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
-                    DefaultState<util::FnvHasher>>>,
-}
-
-/// Iterator for all the events received by the window.
-pub struct PollEventsIter<'a> {
-    window: Option<&'a RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
-}
-
-impl<'a> Iterator for PollEventsIter<'a> {
-    type Item = glutin::Event;
-
-    fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(window) = self.window.as_ref() {
-            window.borrow().poll_events().next()
-        } else {
-            None
-        }
-    }
-}
-
-/// Blocking iterator over all the events received by the window.
-///
-/// This iterator polls for events, until the window associated with its context
-/// is closed.
-pub struct WaitEventsIter<'a> {
-    window: Option<&'a RefCell<Rc<backend::glutin_backend::GlutinWindowBackend>>>,
-}
-
-impl<'a> Iterator for WaitEventsIter<'a> {
-    type Item = glutin::Event;
-
-    fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(window) = self.window.as_ref() {
-            window.borrow().wait_events().next()
-        } else {
-            None
-        }
-    }
-}
-
-pub struct WinRef<'a>(Ref<'a, Rc<backend::glutin_backend::GlutinWindowBackend>>);
-
-impl<'a> Deref for WinRef<'a> {
-    type Target = glutin::Window;
-
-    fn deref(&self) -> &glutin::Window {
-        self.0.get_window()
-    }
-}
-
-impl Display {
-    /// Reads all events received by the window.
-    ///
-    /// This iterator polls for events and can be exhausted.
-    pub fn poll_events(&self) -> PollEventsIter {
-        PollEventsIter {
-            window: self.context.backend.as_ref(),
-        }
-    }
-
-    /// Reads all events received by the window.
-    pub fn wait_events(&self) -> WaitEventsIter {
-        WaitEventsIter {
-            window: self.context.backend.as_ref(),
-        }
-    }
-
-    /// Returns true if the window has been closed.
-    pub fn is_closed(&self) -> bool {
-        self.context.backend.as_ref().map(|b| b.borrow().is_closed()).unwrap_or(false)
-    }
-
-    /// Returns the underlying window, or `None` if glium uses a headless context.
-    pub fn get_window(&self) -> Option<WinRef> {
-        self.context.backend.as_ref().map(|w| WinRef(w.borrow()))
-    }
-
-    /// Returns the dimensions of the main framebuffer.
-    pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        self.context.context.get_framebuffer_dimensions()
-    }
-
-    /// Returns the OpenGL version of the current context.
-    pub fn get_opengl_version(&self) -> Version {
-        *self.context.context.get_version()
-    }
-
-    /// Returns the supported GLSL version.
-    pub fn get_supported_glsl_version(&self) -> Version {
-        version::get_supported_glsl_version(
-            self.context.context.get_version())
-    }
-
-    /// Start drawing on the backbuffer.
-    ///
-    /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
-    /// destroyed, the buffers are swapped.
-    ///
-    /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
-    pub fn draw(&self) -> Frame {
-        Frame {
-            display: self.clone(),
-            dimensions: self.get_framebuffer_dimensions(),
-        }
-    }
-
-    /// Returns the maximum value that can be used for anisotropic filtering, or `None`
-    /// if the hardware doesn't support it.
-    pub fn get_max_anisotropy_support(&self) -> Option<u16> {
-        self.context.context.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
-    }
-
-    /// Returns the maximum dimensions of the viewport.
-    ///
-    /// Glium will panic if you request a larger viewport than this when drawing.
-    pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
-        let d = self.context.context.capabilities().max_viewport_dims;
-        (d.0 as u32, d.1 as u32)
-    }
-
-    /// Releases the shader compiler, indicating that no new programs will be created for a while.
-    ///
-    /// # Features
-    ///
-    /// This method is always available, but is a no-op if it's not available in
-    /// the implementation.
-    pub fn release_shader_compiler(&self) {
-        unsafe {
-            let ctxt = self.context.context.make_current();
-
-
-            if ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0) ||
-                ctxt.version >= &context::GlVersion(Api::Gl, 4, 1)
-            {
-                if ctxt.capabilities.shader_compiler {
-                    ctxt.gl.ReleaseShaderCompiler();
-                }
-            }
-        }
-    }
-
-    /// Returns an estimate of the amount of video memory available in bytes.
-    ///
-    /// Returns `None` if no estimate is available.
-    pub fn get_free_video_memory(&self) -> Option<usize> {
-        use std::mem;
-
-        unsafe {
-            let ctxt = self.context.context.make_current();
-
-            let mut value: [gl::types::GLint; 4] = mem::uninitialized();
-
-            if ctxt.extensions.gl_nvx_gpu_memory_info {
-                ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
-                               &mut value[0]);
-                Some(value[0] as usize * 1024)
-
-            } else if ctxt.extensions.gl_ati_meminfo {
-                ctxt.gl.GetIntegerv(gl::TEXTURE_FREE_MEMORY_ATI, &mut value[0]);
-                Some(value[0] as usize * 1024)
-
-            } else {
-                return None;
-            }
-        }
-    }
-
-    // TODO: do this more properly
-    fn init_debug_callback(&self) {
-        if cfg!(ndebug) {
-            return;
-        }
-
-        if ::std::env::var("GLIUM_DISABLE_DEBUG_OUTPUT").is_ok() {
-            return;
-        }
-
-        // this is the C callback
-        extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
-            id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
-            message: *const gl::types::GLchar, user_param: *mut libc::c_void)
-        {
-            let user_param = user_param as *const context::SharedDebugOutput;
-            let user_param = unsafe { user_param.as_ref().unwrap() };
-
-            if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
-               (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
-                ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
-            {
-                if user_param.report_errors.load(std::sync::atomic::Ordering::Relaxed) {
-                    let message = unsafe {
-                        String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
-                    };
-
-                    panic!("Debug message with high or medium severity: `{}`.\n\
-                            Please report this error: https://github.com/tomaka/glium/issues",
-                            message);
-                }
-            }
-        }
-
-        struct SharedDebugOutputPtr(*const context::SharedDebugOutput);
-        unsafe impl Send for SharedDebugOutputPtr {}
-        let shared_debug_output_ptr = SharedDebugOutputPtr(self.context.shared_debug_output.deref());
-
-        // enabling the callback
-        let mut ctxt = self.context.context.make_current();
-
-        unsafe {
-            if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
-                ctxt.extensions.gl_arb_debug_output
-            {
-                if ctxt.state.enabled_debug_output_synchronous != true {
-                    ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                    ctxt.state.enabled_debug_output_synchronous = true;
-                }
-
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
-                    // TODO: with GLES, the GL_KHR_debug function has a `KHR` suffix
-                    //       but with GL only, it doesn't have one
-                    ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
-                                                                     as *const libc::c_void);
-                    ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
-                                                std::ptr::null(), gl::TRUE);
-
-                    if ctxt.state.enabled_debug_output != Some(true) {
-                        ctxt.gl.Enable(gl::DEBUG_OUTPUT);
-                        ctxt.state.enabled_debug_output = Some(true);
-                    }
-
-                } else {
-                    ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
-                                                                        as *const libc::c_void);
-                    ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
-                                                   0, std::ptr::null(), gl::TRUE);
-
-                    ctxt.state.enabled_debug_output = Some(true);
-                }
-            }
-        }
-    }
-
-    /// Reads the content of the front buffer.
-    ///
-    /// You will only see the data that has finished being drawn.
-    ///
-    /// This function can return any type that implements `Texture2dData`.
-    ///
-    /// ## Example
-    ///
-    /// ```no_run
-    /// # extern crate glium;
-    /// # extern crate glutin;
-    /// # fn main() {
-    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-    /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
-    /// # }
-    /// ```
-    pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
-                                   where P: texture::PixelValue + Clone + Send,
-                                   T: texture::Texture2dDataSink<Data = P>
-    {
-        ops::read_from_default_fb(gl::FRONT_LEFT, self)
-    }
-
-    /// Execute an arbitrary closure with the OpenGL context active. Useful if another
-    /// component needs to directly manipulate OpenGL state.
-    ///
-    /// **If action manipulates any OpenGL state, it must be restored before action
-    /// completes.**
-    pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
-                                            where T: Send + 'static,
-                                            F: FnOnce() -> T + 'a
-    {
-        let _ctxt = self.context.context.make_current();
-        action()
-    }
-
-    /// Asserts that there are no OpenGL errors pending.
-    ///
-    /// This function should be used in tests.
-    pub fn assert_no_error(&self) {
-        let mut ctxt = self.context.context.make_current();
-
-        match get_gl_error(&mut ctxt) {
-            Some(msg) => panic!("{}", msg),
-            None => ()
-        };
-    }
-
-    /// Waits until all the previous commands have finished being executed.
-    ///
-    /// When you execute OpenGL functions, they are not executed immediately. Instead they are
-    /// put in a queue. This function waits until all commands have finished being executed, and
-    /// the queue is empty.
-    ///
-    /// **You don't need to call this function manually, except when running benchmarks.**
-    pub fn synchronize(&self) {
-        let ctxt = self.context.context.make_current();
-        unsafe { ctxt.gl.Finish(); }
-    }
-}
-
-// this destructor is here because objects in `Display` contain an `Rc<DisplayImpl>`,
-// which would lead to a leak
-impl Drop for DisplayImpl {
-    fn drop(&mut self) {
-        // disabling callback
-        unsafe {
-            let mut ctxt = self.context.make_current();
-
-            if ctxt.state.enabled_debug_output != Some(false) {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
-                    ctxt.gl.Disable(gl::DEBUG_OUTPUT);
-                } else if ctxt.extensions.gl_arb_debug_output {
-                    ctxt.gl.DebugMessageCallbackARB(std::mem::transmute(0usize),
-                                                    std::ptr::null());
-                }
-
-                ctxt.state.enabled_debug_output = Some(false);
-                ctxt.gl.Finish();
-            }
-
-            {
-                let fbos = self.framebuffer_objects.take();
-                fbos.unwrap().cleanup(&mut ctxt);
-            }
-
-            self.vertex_array_objects.cleanup(&mut ctxt);
-        }
-
-        {
-            let mut samplers = self.samplers.borrow_mut();
-            samplers.clear();
-        }
     }
 }
 
