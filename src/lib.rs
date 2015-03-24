@@ -183,7 +183,7 @@ pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
-pub use version::{Api, Version};
+pub use version::{Api, Version, get_supported_glsl_version};
 
 use std::default::Default;
 use std::collections::hash_state::DefaultState;
@@ -747,6 +747,14 @@ pub struct Frame {
 }
 
 impl Frame {
+    /// Builds a new `Frame`. Use the `draw` function on `Display` instead of this function.
+    pub fn new(context: Rc<Context>, dimensions: (u32, u32)) -> Frame {
+        Frame {
+            context: context,
+            dimensions: dimensions,
+        }
+    }
+
     /// Stop drawing, and swap the buffers.
     pub fn finish(self) {
     }

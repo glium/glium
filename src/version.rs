@@ -54,6 +54,8 @@ pub fn get_gl_version(gl: &gl::Gl) -> Version {
     }
 }
 
+/// Given an API version, this function returns the GLSL version that the implementation is
+/// required to support.
 pub fn get_supported_glsl_version(gl_version: &Version) -> Version {
     match gl_version.0 {
         Api::Gl => {
