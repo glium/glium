@@ -133,10 +133,7 @@ impl GlutinFacade {
     ///
     /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
     pub fn draw(&self) -> Frame {
-        Frame {
-            context: self.context.clone(),
-            dimensions: self.get_framebuffer_dimensions(),
-        }
+        Frame::new(self.context.clone(), self.get_framebuffer_dimensions())
     }
 
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`
