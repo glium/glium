@@ -43,13 +43,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
     try!(draw_parameters::validate(context, draw_parameters));
 
-    // obtaining the identifier of the FBO to draw upon
-    let fbo_id = {
-        let mut ctxt = context.make_current();
-        context.framebuffer_objects.as_ref().unwrap()
-                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt)
-    };
-
     // using a base vertex is not yet supported
     // TODO: 
     for src in vertex_buffers.iter() {
@@ -103,58 +96,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
             }
         }
         instances_count
-    };
-
-    // list of the commands that can be executed
-    enum DrawCommand {
-        DrawArrays(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei),
-        DrawArraysInstanced(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei,
-                            gl::types::GLsizei),
-        DrawElements(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
-                     *const gl::types::GLvoid),
-        DrawElementsInstanced(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
-                              *const gl::types::GLvoid, gl::types::GLsizei),
-    }
-
-    // choosing the right command
-    let draw_command = {
-        let cmd = match &indices {
-            &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
-                let ptr: *const u8 = ptr::null_mut();
-                let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
-
-                DrawCommand::DrawElements(buffer.get_primitives_type().to_glenum(),
-                                          length as gl::types::GLsizei,
-                                          buffer.get_indices_type().to_glenum(),
-                                          ptr as *const libc::c_void)
-            },
-            &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
-                assert!(offset == 0);       // not yet implemented
-
-                DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
-                                          <I as index::Index>::get_type().to_glenum(),
-                                          pointer.as_ptr() as *const gl::types::GLvoid)
-            },
-            &IndicesSource::NoIndices { primitives } => {
-                let vertices_count = match vertices_count {
-                    Some(c) => c,
-                    None => return Err(DrawError::VerticesSourcesLengthMismatch)
-                };
-
-                DrawCommand::DrawArrays(primitives.to_glenum(), 0,
-                                        vertices_count as gl::types::GLsizei)
-            },
-        };
-
-        match (cmd, instances_count) {
-            (DrawCommand::DrawElements(a, b, c, d), Some(e)) => {
-                DrawCommand::DrawElementsInstanced(a, b, c, d, e as gl::types::GLsizei)
-            },
-            (DrawCommand::DrawArrays(a, b, c), Some(d)) => {
-                DrawCommand::DrawArraysInstanced(a, b, c, d as gl::types::GLsizei)
-            },
-            (a, _) => a
-        }
     };
 
     // handling tessellation
@@ -278,21 +219,21 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         (uniforms_storage, fences)
     };
 
-    // copying some stuff in order to send them
-    let program_id = program.get_id();
-    let DrawParameters { depth_test, depth_write, depth_range, blending_function,
-                         line_width, point_size, backface_culling, polygon_mode, multisampling,
-                         dithering, viewport, scissor, draw_primitives } = *draw_parameters;
-    
-    // the vertex array object to bind
-    let vao_id = context.vertex_array_objects.bind_vao(&mut ctxt,
-                                                               vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
-                                                               &indices, program);
+    // binding the vertex array object or vertex attributes
+    context.vertex_array_objects.bind_vao(&mut ctxt,
+                                          vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
+                                          &indices, program);
 
-    unsafe {
+    // binding the FBO to draw upon
+    {
+        let fbo_id = context.framebuffer_objects.as_ref().unwrap()
+                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
+    };
 
-        // binding program
+    // binding the program
+    unsafe {
+        let program_id = program.get_id();
         if ctxt.state.program != program_id {
             match program_id {
                 Handle::Id(id) => ctxt.gl.UseProgram(id),
@@ -300,40 +241,91 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
             }
             ctxt.state.program = program_id;
         }
+    }
 
-        // binding program uniforms
-        for binder in uniforms.into_iter() {
-            binder.call((&mut ctxt,));
-        }
+    // binding program uniforms
+    for binder in uniforms.into_iter() {
+        binder.call((&mut ctxt,));
+    }
 
-        // sync-ing parameters
-        sync_depth(&mut ctxt, depth_test, depth_write, depth_range);
-        sync_blending(&mut ctxt, blending_function);
-        sync_line_width(&mut ctxt, line_width);
-        sync_point_size(&mut ctxt, point_size);
-        sync_polygon_mode(&mut ctxt, backface_culling, polygon_mode);
-        sync_multisampling(&mut ctxt, multisampling);
-        sync_dithering(&mut ctxt, dithering);
-        sync_viewport_scissor(&mut ctxt, viewport, scissor, dimensions);
-        sync_rasterizer_discard(&mut ctxt, draw_primitives);
+    // sync-ing draw_parameters
+    unsafe {
+        sync_depth(&mut ctxt, draw_parameters.depth_test, draw_parameters.depth_write,
+                   draw_parameters.depth_range);
+        sync_blending(&mut ctxt, draw_parameters.blending_function);
+        sync_line_width(&mut ctxt, draw_parameters.line_width);
+        sync_point_size(&mut ctxt, draw_parameters.point_size);
+        sync_polygon_mode(&mut ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
+        sync_multisampling(&mut ctxt, draw_parameters.multisampling);
+        sync_dithering(&mut ctxt, draw_parameters.dithering);
+        sync_viewport_scissor(&mut ctxt, draw_parameters.viewport, draw_parameters.scissor,
+                              dimensions);
+        sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives);
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
+    }
 
-        // drawing
-        match draw_command {
-            DrawCommand::DrawArrays(a, b, c) => {
-                ctxt.gl.DrawArrays(a, b, c);
-            },
-            DrawCommand::DrawArraysInstanced(a, b, c, d) => {
-                ctxt.gl.DrawArraysInstanced(a, b, c, d);
-            },
-            DrawCommand::DrawElements(a, b, c, d) => {
-                ctxt.gl.DrawElements(a, b, c, d);
-            },
-            DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
-                ctxt.gl.DrawElementsInstanced(a, b, c, d, e);
-            },
-        }
+    // drawing
+    {
+        match &indices {
+            &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
+                let ptr: *const u8 = ptr::null_mut();
+                let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
 
+                unsafe {
+                    if let Some(instances_count) = instances_count {
+                        ctxt.gl.DrawElementsInstanced(buffer.get_primitives_type().to_glenum(),
+                                                      length as gl::types::GLsizei,
+                                                      buffer.get_indices_type().to_glenum(),
+                                                      ptr as *const libc::c_void,
+                                                      instances_count as gl::types::GLsizei);
+                    } else {
+                        ctxt.gl.DrawElements(buffer.get_primitives_type().to_glenum(),
+                                             length as gl::types::GLsizei,
+                                             buffer.get_indices_type().to_glenum(),
+                                             ptr as *const libc::c_void);
+                    }
+                }
+            },
+
+            &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
+                assert!(offset == 0);       // not yet implemented
+
+                unsafe {
+                    if let Some(instances_count) = instances_count {
+                        ctxt.gl.DrawElementsInstanced(primitives.to_glenum(),
+                                                      length as gl::types::GLsizei,
+                                                      <I as index::Index>::get_type().to_glenum(),
+                                                      pointer.as_ptr() as *const gl::types::GLvoid,
+                                                      instances_count as gl::types::GLsizei);
+                    } else {
+                        ctxt.gl.DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
+                                             <I as index::Index>::get_type().to_glenum(),
+                                             pointer.as_ptr() as *const gl::types::GLvoid);
+                    }
+                }
+            },
+
+            &IndicesSource::NoIndices { primitives } => {
+                let vertices_count = match vertices_count {
+                    Some(c) => c,
+                    None => return Err(DrawError::VerticesSourcesLengthMismatch)
+                };
+
+                unsafe {
+                    if let Some(instances_count) = instances_count {
+                        ctxt.gl.DrawArraysInstanced(primitives.to_glenum(), 0,
+                                                    vertices_count as gl::types::GLsizei,
+                                                    instances_count as gl::types::GLsizei);
+                    } else {
+                        ctxt.gl.DrawArrays(primitives.to_glenum(), 0,
+                                           vertices_count as gl::types::GLsizei);
+                    }
+                }
+            },
+        };
+    };
+
+    unsafe {
         // fulfilling the fences
         for fence in fences.into_iter() {
             fence.send(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap()).unwrap();
