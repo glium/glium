@@ -43,13 +43,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
     try!(draw_parameters::validate(context, draw_parameters));
 
-    // obtaining the identifier of the FBO to draw upon
-    let fbo_id = {
-        let mut ctxt = context.make_current();
-        context.framebuffer_objects.as_ref().unwrap()
-                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt)
-    };
-
     // using a base vertex is not yet supported
     // TODO: 
     for src in vertex_buffers.iter() {
@@ -105,58 +98,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         instances_count
     };
 
-    // list of the commands that can be executed
-    enum DrawCommand {
-        DrawArrays(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei),
-        DrawArraysInstanced(gl::types::GLenum, gl::types::GLint, gl::types::GLsizei,
-                            gl::types::GLsizei),
-        DrawElements(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
-                     *const gl::types::GLvoid),
-        DrawElementsInstanced(gl::types::GLenum, gl::types::GLsizei, gl::types::GLenum,
-                              *const gl::types::GLvoid, gl::types::GLsizei),
-    }
-
-    // choosing the right command
-    let draw_command = {
-        let cmd = match &indices {
-            &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
-                let ptr: *const u8 = ptr::null_mut();
-                let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
-
-                DrawCommand::DrawElements(buffer.get_primitives_type().to_glenum(),
-                                          length as gl::types::GLsizei,
-                                          buffer.get_indices_type().to_glenum(),
-                                          ptr as *const libc::c_void)
-            },
-            &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
-                assert!(offset == 0);       // not yet implemented
-
-                DrawCommand::DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
-                                          <I as index::Index>::get_type().to_glenum(),
-                                          pointer.as_ptr() as *const gl::types::GLvoid)
-            },
-            &IndicesSource::NoIndices { primitives } => {
-                let vertices_count = match vertices_count {
-                    Some(c) => c,
-                    None => return Err(DrawError::VerticesSourcesLengthMismatch)
-                };
-
-                DrawCommand::DrawArrays(primitives.to_glenum(), 0,
-                                        vertices_count as gl::types::GLsizei)
-            },
-        };
-
-        match (cmd, instances_count) {
-            (DrawCommand::DrawElements(a, b, c, d), Some(e)) => {
-                DrawCommand::DrawElementsInstanced(a, b, c, d, e as gl::types::GLsizei)
-            },
-            (DrawCommand::DrawArrays(a, b, c), Some(d)) => {
-                DrawCommand::DrawArraysInstanced(a, b, c, d as gl::types::GLsizei)
-            },
-            (a, _) => a
-        }
-    };
-
     // handling tessellation
     let vertices_per_patch = match indices.get_primitives_type() {
         index::PrimitiveType::Patches { vertices_per_patch } => {
@@ -190,13 +131,36 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     // sending the command
     let mut ctxt = context.make_current();
 
+    // binding the vertex array object or vertex attributes
+    context.vertex_array_objects.bind_vao(&mut ctxt,
+                                          vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
+                                          &indices, program);
+
+    // binding the FBO to draw upon
+    {
+        let fbo_id = context.framebuffer_objects.as_ref().unwrap()
+                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
+        fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
+    };
+
+    // binding the program
+    unsafe {
+        let program_id = program.get_id();
+        if ctxt.state.program != program_id {
+            match program_id {
+                Handle::Id(id) => ctxt.gl.UseProgram(id),
+                Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
+            }
+            ctxt.state.program = program_id;
+        }
+    }
+
     // building the list of uniforms binders and the fences that must be fulfilled
     // TODO: panic if uniforms of the program are not found in the parameter
-    let (uniforms, fences): (Vec<Box<Fn(&mut context::CommandContext) + Send>>, _) = {
+    let fences = {
         let mut active_texture = 0;
         let mut active_buffer_binding = 0;
 
-        let mut uniforms_storage = Vec::new();
         let mut fences = Vec::new();
 
         let mut visiting_result = Ok(());
@@ -214,32 +178,28 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                     return;
                 }
 
-                let binder = match uniform_to_binder(&mut ctxt, &mut context.samplers.borrow_mut(),
-                                                     value, uniform.location,
-                                                     &mut active_texture, name)
+                match bind_uniform(&mut ctxt, &mut context.samplers.borrow_mut(),
+                                   value, uniform.location,
+                                   &mut active_texture, name)
                 {
-                    Ok(b) => b,
+                    Ok(_) => (),
                     Err(e) => {
                         visiting_result = Err(e);
                         return;
                     }
                 };
-
-                uniforms_storage.push(binder);
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
-                let (binder, fence) = match block_to_binder(context, value, block,
-                                                            program.get_id(),
-                                                            &mut active_buffer_binding, name)
+                let fence = match bind_uniform_block(&mut ctxt, value, block,
+                                                     program.get_id(),
+                                                    &mut active_buffer_binding, name)
                 {
-                    Ok(b) => b,
+                    Ok(f) => f,
                     Err(e) => {
                         visiting_result = Err(e);
                         return;
                     }
                 };
-
-                uniforms_storage.push(binder);
 
                 if let Some(fence) = fence {
                     fences.push(fence);
@@ -275,65 +235,87 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
             _ => ()
         };
 
-        (uniforms_storage, fences)
+        fences
     };
 
-    // copying some stuff in order to send them
-    let program_id = program.get_id();
-    let DrawParameters { depth_test, depth_write, depth_range, blending_function,
-                         line_width, point_size, backface_culling, polygon_mode, multisampling,
-                         dithering, viewport, scissor, draw_primitives } = *draw_parameters;
-    
-    // the vertex array object to bind
-    let vao_id = context.vertex_array_objects.bind_vao(&mut ctxt,
-                                                               vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
-                                                               &indices, program);
+    // sync-ing draw_parameters
+    unsafe {
+        sync_depth(&mut ctxt, draw_parameters.depth_test, draw_parameters.depth_write,
+                   draw_parameters.depth_range);
+        sync_blending(&mut ctxt, draw_parameters.blending_function);
+        sync_line_width(&mut ctxt, draw_parameters.line_width);
+        sync_point_size(&mut ctxt, draw_parameters.point_size);
+        sync_polygon_mode(&mut ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
+        sync_multisampling(&mut ctxt, draw_parameters.multisampling);
+        sync_dithering(&mut ctxt, draw_parameters.dithering);
+        sync_viewport_scissor(&mut ctxt, draw_parameters.viewport, draw_parameters.scissor,
+                              dimensions);
+        sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives);
+        sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
+    }
+
+    // drawing
+    {
+        match &indices {
+            &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
+                let ptr: *const u8 = ptr::null_mut();
+                let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
+
+                unsafe {
+                    if let Some(instances_count) = instances_count {
+                        ctxt.gl.DrawElementsInstanced(buffer.get_primitives_type().to_glenum(),
+                                                      length as gl::types::GLsizei,
+                                                      buffer.get_indices_type().to_glenum(),
+                                                      ptr as *const libc::c_void,
+                                                      instances_count as gl::types::GLsizei);
+                    } else {
+                        ctxt.gl.DrawElements(buffer.get_primitives_type().to_glenum(),
+                                             length as gl::types::GLsizei,
+                                             buffer.get_indices_type().to_glenum(),
+                                             ptr as *const libc::c_void);
+                    }
+                }
+            },
+
+            &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
+                assert!(offset == 0);       // not yet implemented
+
+                unsafe {
+                    if let Some(instances_count) = instances_count {
+                        ctxt.gl.DrawElementsInstanced(primitives.to_glenum(),
+                                                      length as gl::types::GLsizei,
+                                                      <I as index::Index>::get_type().to_glenum(),
+                                                      pointer.as_ptr() as *const gl::types::GLvoid,
+                                                      instances_count as gl::types::GLsizei);
+                    } else {
+                        ctxt.gl.DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
+                                             <I as index::Index>::get_type().to_glenum(),
+                                             pointer.as_ptr() as *const gl::types::GLvoid);
+                    }
+                }
+            },
+
+            &IndicesSource::NoIndices { primitives } => {
+                let vertices_count = match vertices_count {
+                    Some(c) => c,
+                    None => return Err(DrawError::VerticesSourcesLengthMismatch)
+                };
+
+                unsafe {
+                    if let Some(instances_count) = instances_count {
+                        ctxt.gl.DrawArraysInstanced(primitives.to_glenum(), 0,
+                                                    vertices_count as gl::types::GLsizei,
+                                                    instances_count as gl::types::GLsizei);
+                    } else {
+                        ctxt.gl.DrawArrays(primitives.to_glenum(), 0,
+                                           vertices_count as gl::types::GLsizei);
+                    }
+                }
+            },
+        };
+    };
 
     unsafe {
-        fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
-
-        // binding program
-        if ctxt.state.program != program_id {
-            match program_id {
-                Handle::Id(id) => ctxt.gl.UseProgram(id),
-                Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
-            }
-            ctxt.state.program = program_id;
-        }
-
-        // binding program uniforms
-        for binder in uniforms.into_iter() {
-            binder.call((&mut ctxt,));
-        }
-
-        // sync-ing parameters
-        sync_depth(&mut ctxt, depth_test, depth_write, depth_range);
-        sync_blending(&mut ctxt, blending_function);
-        sync_line_width(&mut ctxt, line_width);
-        sync_point_size(&mut ctxt, point_size);
-        sync_polygon_mode(&mut ctxt, backface_culling, polygon_mode);
-        sync_multisampling(&mut ctxt, multisampling);
-        sync_dithering(&mut ctxt, dithering);
-        sync_viewport_scissor(&mut ctxt, viewport, scissor, dimensions);
-        sync_rasterizer_discard(&mut ctxt, draw_primitives);
-        sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
-
-        // drawing
-        match draw_command {
-            DrawCommand::DrawArrays(a, b, c) => {
-                ctxt.gl.DrawArrays(a, b, c);
-            },
-            DrawCommand::DrawArraysInstanced(a, b, c, d) => {
-                ctxt.gl.DrawArraysInstanced(a, b, c, d);
-            },
-            DrawCommand::DrawElements(a, b, c, d) => {
-                ctxt.gl.DrawElements(a, b, c, d);
-            },
-            DrawCommand::DrawElementsInstanced(a, b, c, d, e) => {
-                ctxt.gl.DrawElementsInstanced(a, b, c, d, e);
-            },
-        }
-
         // fulfilling the fences
         for fence in fences.into_iter() {
             fence.send(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap()).unwrap();
@@ -343,13 +325,12 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     Ok(())
 }
 
-// TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
-fn block_to_binder(context: &Context, value: &UniformValue, block: &program::UniformBlock,
-                   program: Handle, current_bind_point: &mut gl::types::GLuint, name: &str)
-                   -> Result<(Box<Fn(&mut context::CommandContext) + Send>,
-                       Option<Sender<sync::LinearSyncFence>>), DrawError>
+fn bind_uniform_block(ctxt: &mut context::CommandContext, value: &UniformValue,
+                      block: &program::UniformBlock,
+                      program: Handle, current_bind_point: &mut gl::types::GLuint, name: &str)
+                      -> Result<Option<Sender<sync::LinearSyncFence>>, DrawError>
 {
-    Ok(match value {
+    match value {
         &UniformValue::Block(ref buffer, ref layout) => {
             if !layout(block) {
                 return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
@@ -367,30 +348,27 @@ fn block_to_binder(context: &Context, value: &UniformValue, block: &program::Uni
                 _ => unreachable!()
             };
 
-            let bind_fn = Box::new(move |ctxt: &mut context::CommandContext| {
-                unsafe {
-                    ctxt.gl.BindBufferBase(gl::UNIFORM_BUFFER, bind_point as gl::types::GLuint,
-                                           buffer);
-                    ctxt.gl.UniformBlockBinding(program, binding,
-                                                bind_point as gl::types::GLuint);
-                }
-            });
+            unsafe {
+                ctxt.gl.BindBufferBase(gl::UNIFORM_BUFFER, bind_point as gl::types::GLuint,
+                                       buffer);
+                ctxt.gl.UniformBlockBinding(program, binding,
+                                            bind_point as gl::types::GLuint);
+            }
 
-            (bind_fn, fence)
+            Ok(fence)
         },
         _ => {
-            return Err(DrawError::UniformValueToBlock { name: name.to_string() });
+            Err(DrawError::UniformValueToBlock { name: name.to_string() })
         }
-    })
+    }
 }
 
-// TODO: we use a `Fn` instead of `FnOnce` because of that "std::thunk" issue
-fn uniform_to_binder(ctxt: &mut context::CommandContext,
-                     samplers: &mut HashMap<SamplerBehavior, SamplerObject,
-                                            DefaultState<util::FnvHasher>>,
-                     value: &UniformValue, location: gl::types::GLint,
-                     active_texture: &mut gl::types::GLenum, name: &str)
-                     -> Result<Box<Fn(&mut context::CommandContext) + Send>, DrawError>
+fn bind_uniform(ctxt: &mut context::CommandContext,
+                samplers: &mut HashMap<SamplerBehavior, SamplerObject,
+                                       DefaultState<util::FnvHasher>>,
+                value: &UniformValue, location: gl::types::GLint,
+                active_texture: &mut gl::types::GLenum, name: &str)
+                -> Result<(), DrawError>
 {
     macro_rules! uniform(
         ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
@@ -407,209 +385,201 @@ fn uniform_to_binder(ctxt: &mut context::CommandContext,
 
     match *value {
         UniformValue::Block(_, _) => {
-            return Err(DrawError::UniformBufferToValue {
+            Err(DrawError::UniformBufferToValue {
                 name: name.to_string(),
-            });
+            })
         },
         UniformValue::SignedInt(val) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, Uniform1i, Uniform1iARB, location, val);
-            }))
+            uniform!(ctxt, Uniform1i, Uniform1iARB, location, val);
+            Ok(())
         },
         UniformValue::UnsignedInt(val) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                // Uniform1uiARB doesn't exist
-                unsafe {
-                    if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
-                        ctxt.gl.Uniform1ui(location, val)
-                    } else {
-                        assert!(ctxt.extensions.gl_arb_shader_objects);
-                        ctxt.gl.Uniform1iARB(location, val as gl::types::GLint)
-                    }
+            // Uniform1uiARB doesn't exist
+            unsafe {
+                if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
+                    ctxt.gl.Uniform1ui(location, val)
+                } else {
+                    assert!(ctxt.extensions.gl_arb_shader_objects);
+                    ctxt.gl.Uniform1iARB(location, val as gl::types::GLint)
                 }
-            }))
+            }
+
+            Ok(())
         },
         UniformValue::Float(val) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, Uniform1f, Uniform1fARB, location, val);
-            }))
+            uniform!(ctxt, Uniform1f, Uniform1fARB, location, val);
+            Ok(())
         },
         UniformValue::Mat2(val, transpose) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
-                         location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
-            }))
+            uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
+                     location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
+            Ok(())
         },
         UniformValue::Mat3(val, transpose) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
-                         location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
-            }))
+            uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
+                     location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
+            Ok(())
         },
         UniformValue::Mat4(val, transpose) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
-                         location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
-            }))
+            uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
+                     location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
+            Ok(())
         },
         UniformValue::Vec2(val) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, Uniform2fv, Uniform2fvARB, location, 1, val.as_ptr() as *const f32);
-            }))
+            uniform!(ctxt, Uniform2fv, Uniform2fvARB, location, 1, val.as_ptr() as *const f32);
+            Ok(())
         },
         UniformValue::Vec3(val) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, Uniform3fv, Uniform3fvARB, location, 1, val.as_ptr() as *const f32);
-            }))
+            uniform!(ctxt, Uniform3fv, Uniform3fvARB, location, 1, val.as_ptr() as *const f32);
+            Ok(())
         },
         UniformValue::Vec4(val) => {
-            Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-                uniform!(ctxt, Uniform4fv, Uniform4fvARB, location, 1, val.as_ptr() as *const f32);
-            }))
+            uniform!(ctxt, Uniform4fv, Uniform4fvARB, location, 1, val.as_ptr() as *const f32);
+            Ok(())
         },
         UniformValue::Texture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::CompressedTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::IntegralTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::UnsignedTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::DepthTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D)
         },
         UniformValue::Texture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::CompressedTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::IntegralTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::UnsignedTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::DepthTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D)
         },
         UniformValue::Texture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::IntegralTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::UnsignedTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::DepthTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::Texture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::CompressedTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::IntegralTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::UnsignedTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::DepthTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_3D)
         },
         UniformValue::Texture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::CompressedTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::IntegralTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::UnsignedTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::DepthTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::Texture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::CompressedTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::IntegralTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::UnsignedTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::DepthTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::Texture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::IntegralTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::UnsignedTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::DepthTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            build_texture_binder(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
     }
 }
 
-fn build_texture_binder(ctxt: &mut context::CommandContext,
+fn bind_texture_uniform(ctxt: &mut context::CommandContext,
                         samplers: &mut HashMap<SamplerBehavior, SamplerObject,
                                                DefaultState<util::FnvHasher>>,
                         texture: gl::types::GLuint,
                         sampler: Option<SamplerBehavior>, location: gl::types::GLint,
                         active_texture: &mut gl::types::GLenum,
                         bind_point: gl::types::GLenum)
-                        -> Result<Box<Fn(&mut context::CommandContext) + Send>, DrawError>
+                        -> Result<(), DrawError>
 {
     assert!(*active_texture < ctxt.capabilities
                                   .max_combined_texture_image_units as gl::types::GLenum);
@@ -623,35 +593,35 @@ fn build_texture_binder(ctxt: &mut context::CommandContext,
     let current_texture = *active_texture;
     *active_texture += 1;
 
-    Ok(Box::new(move |ctxt: &mut context::CommandContext| {
-        unsafe {
-            // TODO: what if it's not supported?
-            let active_tex_enum = current_texture + gl::TEXTURE0;
-            if ctxt.state.active_texture != active_tex_enum {
-                ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
-                ctxt.state.active_texture = active_tex_enum;
-            }
-
-            ctxt.gl.BindTexture(bind_point, texture);
-
-            if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
-                ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
-            } else {
-                assert!(ctxt.extensions.gl_arb_shader_objects);
-                ctxt.gl.Uniform1iARB(location, current_texture as gl::types::GLint);
-            }
-
-            if let Some(sampler) = sampler {
-                assert!(ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
-                        ctxt.extensions.gl_arb_sampler_objects);
-                ctxt.gl.BindSampler(current_texture, sampler);
-            } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
-                ctxt.extensions.gl_arb_sampler_objects
-            {
-                ctxt.gl.BindSampler(current_texture, 0);
-            }
+    unsafe {
+        // TODO: what if it's not supported?
+        let active_tex_enum = current_texture + gl::TEXTURE0;
+        if ctxt.state.active_texture != active_tex_enum {
+            ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0);
+            ctxt.state.active_texture = active_tex_enum;
         }
-    }))
+
+        ctxt.gl.BindTexture(bind_point, texture);
+
+        if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
+            ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
+        } else {
+            assert!(ctxt.extensions.gl_arb_shader_objects);
+            ctxt.gl.Uniform1iARB(location, current_texture as gl::types::GLint);
+        }
+
+        if let Some(sampler) = sampler {
+            assert!(ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
+                    ctxt.extensions.gl_arb_sampler_objects);
+            ctxt.gl.BindSampler(current_texture, sampler);
+        } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
+            ctxt.extensions.gl_arb_sampler_objects
+        {
+            ctxt.gl.BindSampler(current_texture, 0);
+        }
+    }
+
+    Ok(())
 }
 
 fn sync_depth(ctxt: &mut context::CommandContext, depth_test: DepthTest, depth_write: bool,
