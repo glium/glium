@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 0.1.3 (2015-03-24)
+## Version 0.1.3 (2015-03-24) & 0.1.4 (2015-03-26)
 
  - Added the `Backend` and `Facade` traits. `Display` implements the `Facade` trait.
  - Changed all buffer/texture/etc. creation functions to take any type that implements `Facade` instead of a `Display`.
