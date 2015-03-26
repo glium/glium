@@ -1,3 +1,5 @@
+#![feature(std_misc, thread_sleep)]
+
 extern crate glutin;
 
 #[cfg(feature = "image")]
@@ -7,7 +9,7 @@ extern crate image;
 extern crate glium;
 
 #[cfg(feature = "image")]
-use std::old_io::BufReader;
+use std::io::Cursor;
 #[cfg(feature = "image")]
 use glium::Surface;
 
@@ -27,7 +29,7 @@ fn main() {
         .build_glium()
         .unwrap();
 
-    let image = image::load(BufReader::new(include_bytes!("../tests/fixture/opengl.png")),
+    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
         image::PNG).unwrap();
     let opengl_texture = glium::texture::CompressedTexture2d::new(&display, image);
 

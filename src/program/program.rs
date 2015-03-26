@@ -492,7 +492,7 @@ impl Program {
 
     /// Returns the list of transform feedback varyings.
     pub fn get_transform_feedback_varyings(&self) -> &[TransformFeedbackVarying] {
-        self.varyings.as_ref().map(|&(ref v, _)| v.as_slice()).unwrap_or(&[])
+        self.varyings.as_ref().map(|&(ref v, _)| &v[..]).unwrap_or(&[])
     }
 
     /// Returns the mode used for transform feedback, or `None` is transform feedback is not

@@ -22,7 +22,7 @@ impl<T> ToIndicesSource for PointsList<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::Points,
             offset: 0,
             length: self.0.len(),
@@ -44,7 +44,7 @@ impl<T> ToIndicesSource for LinesList<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::LinesList,
             offset: 0,
             length: self.0.len(),
@@ -71,7 +71,7 @@ impl<T> ToIndicesSource for LinesListAdjacency<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::LinesListAdjacency,
             offset: 0,
             length: self.0.len(),
@@ -93,7 +93,7 @@ impl<T> ToIndicesSource for LineStrip<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::LineStrip,
             offset: 0,
             length: self.0.len(),
@@ -120,7 +120,7 @@ impl<T> ToIndicesSource for LineStripAdjacency<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::LineStripAdjacency,
             offset: 0,
             length: self.0.len(),
@@ -142,7 +142,7 @@ impl<T> ToIndicesSource for TrianglesList<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::TrianglesList,
             offset: 0,
             length: self.0.len(),
@@ -169,7 +169,7 @@ impl<T> ToIndicesSource for TrianglesListAdjacency<T> where T: Index + Send + Co
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::TrianglesListAdjacency,
             offset: 0,
             length: self.0.len(),
@@ -191,7 +191,7 @@ impl<T> ToIndicesSource for TriangleStrip<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::TriangleStrip,
             offset: 0,
             length: self.0.len(),
@@ -218,7 +218,7 @@ impl<T> ToIndicesSource for TriangleStripAdjacency<T> where T: Index + Send + Co
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::TriangleStripAdjacency,
             offset: 0,
             length: self.0.len(),
@@ -240,7 +240,7 @@ impl<T> ToIndicesSource for TriangleFan<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::TriangleFan,
             offset: 0,
             length: self.0.len(),
@@ -264,7 +264,7 @@ impl<T> ToIndicesSource for Patches<T> where T: Index + Send + Copy {
 
     fn to_indices_source(&self) -> IndicesSource<T> {
         IndicesSource::Buffer {
-            pointer: self.0.as_slice(),
+            pointer: &self.0,
             primitives: PrimitiveType::Patches { vertices_per_patch: self.1 },
             offset: 0,
             length: self.0.len(),

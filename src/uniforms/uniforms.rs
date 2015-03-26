@@ -1,7 +1,3 @@
-use std::option::IntoIter;
-use std::iter::Chain;
-use std::cell::RefCell;
-
 use uniforms::{Uniforms, UniformValue, IntoUniformValue};
 
 /// Object that can be used when you don't have any uniforms.

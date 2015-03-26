@@ -3,8 +3,6 @@ use std::ops::Deref;
 
 use libc;
 
-use GliumCreationError;
-
 pub use context::Context;
 
 pub mod glutin_backend;

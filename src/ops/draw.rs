@@ -133,7 +133,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
     // binding the vertex array object or vertex attributes
     context.vertex_array_objects.bind_vao(&mut ctxt,
-                                          vertex_buffers.iter().map(|v| v).collect::<Vec<_>>().as_slice(),
+                                          &vertex_buffers.iter().map(|v| v).collect::<Vec<_>>(),
                                           &indices, program);
 
     // binding the FBO to draw upon

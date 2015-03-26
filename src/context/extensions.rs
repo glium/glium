@@ -133,7 +133,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
     };
 
     for extension in strings.into_iter() {
-        match extension.as_slice() {
+        match &extension[..] {
             "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
             "GL_ARB_direct_state_access" => extensions.gl_arb_direct_state_access = true,
             "GL_EXT_framebuffer_object" => extensions.gl_ext_framebuffer_object = true,

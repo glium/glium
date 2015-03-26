@@ -5,13 +5,14 @@ use std::env;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::Path;
 use gl_generator::generators::Generator;
 
 mod textures;
 
 fn main() {
-    let dest = PathBuf::new(&env::var("OUT_DIR").unwrap());
+    let dest = env::var("OUT_DIR").unwrap();
+    let dest = Path::new(&dest);
 
     textures::build_texture_file(&mut File::create(&dest.join("textures.rs")).unwrap());
 

@@ -1,3 +1,5 @@
+#![feature(std_misc, thread_sleep)]
+
 extern crate glutin;
 #[macro_use]
 extern crate glium;
@@ -10,7 +12,7 @@ use glium::Surface;
 use glium::DisplayBuild;
 #[cfg(feature = "cgmath")]
 use cgmath::FixedArray;
-use std::old_io::BufReader;
+use std::io::Cursor;
 
 mod support;
 
@@ -30,7 +32,7 @@ fn main() {
         .build_glium()
         .unwrap();
 
-    let image = image::load(BufReader::new(include_bytes!("../tests/fixture/opengl.png")), image::PNG).unwrap();
+    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap();
     let opengl_texture = glium::texture::Texture2d::new(&display, image);
 
     let floor_vertex_buffer = {
