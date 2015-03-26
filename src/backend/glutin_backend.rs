@@ -237,7 +237,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 
     unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let context = try!(unsafe { context::Context::new(backend.clone(), false) });
+        let context = try!(context::Context::new(backend.clone(), false));
 
         let display = GlutinFacade {
             context: Rc::new(context),
@@ -275,7 +275,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 
     unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let context = try!(unsafe { context::Context::new(backend.clone(), true) });
+        let context = try!(context::Context::new(backend.clone(), true));
 
         let display = GlutinFacade {
             context: Rc::new(context),

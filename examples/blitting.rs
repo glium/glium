@@ -1,3 +1,5 @@
+#![feature(std_misc, thread_sleep)]
+
 extern crate glutin;
 extern crate rand;
 
@@ -8,7 +10,7 @@ extern crate glium;
 extern crate image;
 
 #[cfg(feature = "image")]
-use std::old_io::BufReader;
+use std::io::Cursor;
 
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Texture, Surface};
@@ -29,7 +31,7 @@ fn main() {
         .unwrap();
 
     // building a texture with "OpenGL" drawn on it
-    let image = image::load(BufReader::new(include_bytes!("../tests/fixture/opengl.png")),
+    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
         image::PNG).unwrap();
     let opengl_texture = glium::Texture2d::new(&display, image);
 

@@ -230,7 +230,7 @@ impl<P: PixelValue> Texture2dDataSink for Vec<Vec<P>> where P: Copy + Clone + Se
     fn from_raw(data: RawImage2d<P>) -> Self {
         assert_eq!(data.format, <P as PixelValue>::get_format());
         let width = data.width;
-        data.data.as_slice().chunks(width as usize).map(|e| e.to_vec()).collect()
+        data.data.chunks(width as usize).map(|e| e.to_vec()).collect()
     }
 }
 
@@ -248,7 +248,6 @@ impl<'a, T, P> Texture2dDataSource<'a> for image::ImageBuffer<P, Vec<T>>
 
         // the image library gives us rows from bottom to top, so we need to flip them
         let data = self.into_raw()
-            .as_slice()
             .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
             .rev()
             .flat_map(|row| row.iter())
@@ -282,7 +281,6 @@ impl<T, P> Texture2dDataSink for image::ImageBuffer<P, Vec<T>>
 
         // opengl gives us rows from bottom to top, so we need to flip them
         let data = data.data
-            .as_slice()
             .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
             .rev()
             .flat_map(|row| row.iter())

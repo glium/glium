@@ -427,7 +427,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         let mut colors = Vec::new();
 
         for &(ref name, texture) in self.color_attachments.iter() {
-            let location = match program.get_frag_data_location(name.as_slice()) {
+            let location = match program.get_frag_data_location(&name) {
                 Some(l) => l,
                 None => panic!("The fragment output `{}` was not found in the program", name)
             };

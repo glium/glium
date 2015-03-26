@@ -155,7 +155,7 @@ target.finish();
 ```
 
 */
-#![feature(core, hash, std_misc, collections)]     // TODO: remove after 1.0 beta
+#![feature(core, std_misc, collections, str_words)]     // TODO: remove after 1.0 beta
 
 #![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
@@ -185,15 +185,8 @@ pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
 pub use version::{Api, Version, get_supported_glsl_version};
 
-use std::default::Default;
-use std::collections::hash_state::DefaultState;
-use std::collections::HashMap;
 use std::sync::mpsc::Sender;
-use std::ffi::CStr;
-use std::ops::Deref;
 use std::rc::Rc;
-use std::cell::Ref;
-use std::cell::RefCell;
 
 use context::Context;
 
