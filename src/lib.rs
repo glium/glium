@@ -259,6 +259,9 @@ trait BufferExt {
 
 /// Internal trait for contexts.
 trait ContextExt {
+    /// Sets whether the context's debug output callback should take errors into account.
+    fn set_report_debug_output_errors(&self, value: bool);
+
     fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
 }
 

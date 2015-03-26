@@ -228,7 +228,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         let context = try!(unsafe { context::Context::new(backend.clone(), true) });
 
         let display = GlutinFacade {
-            context: Rc::new(context),
+            context: context,
             backend: Rc::new(Some(RefCell::new(backend))),
         };
 
@@ -240,7 +240,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         let context = try!(context::Context::new(backend.clone(), false));
 
         let display = GlutinFacade {
-            context: Rc::new(context),
+            context: context,
             backend: Rc::new(Some(RefCell::new(backend))),
         };
 
@@ -266,7 +266,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         let context = try!(unsafe { context::Context::new(backend.clone(), true) });
 
         let display = GlutinFacade {
-            context: Rc::new(context),
+            context: context,
             backend: Rc::new(None),
         };
 
@@ -278,7 +278,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         let context = try!(context::Context::new(backend.clone(), true));
 
         let display = GlutinFacade {
-            context: Rc::new(context),
+            context: context,
             backend: Rc::new(None),
         };
 

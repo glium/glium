@@ -16,7 +16,6 @@ use std::collections::hash_map::{self, HashMap};
 use std::default::Default;
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::sync::atomic::Ordering;
 use util::FnvHasher;
 
 use GlObject;
@@ -282,7 +281,7 @@ impl Program {
             {
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-                ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
+                ctxt.report_debug_output_errors.set(false);
 
                 match id {
                     Handle::Id(id) => {
@@ -295,7 +294,7 @@ impl Program {
                     }
                 }
 
-                ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
+                ctxt.report_debug_output_errors.set(true);
             }
 
             // checking for errors
