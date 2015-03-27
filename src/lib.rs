@@ -838,7 +838,6 @@ impl FboAttachments for Frame {
     }
 }
 
-#[unsafe_destructor]
 impl Drop for Frame {
     fn drop(&mut self) {
         self.context.swap_buffers();
