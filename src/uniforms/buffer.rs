@@ -10,8 +10,8 @@ use backend::Facade;
 use GlObject;
 use BufferExt;
 use gl;
-use context;
 use sync;
+use version::Version;
 use version::Api;
 
 /// Buffer that contains a uniform block.
@@ -73,7 +73,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     fn new_impl<F>(facade: &F, data: T, persistent: bool) -> Option<UniformBuffer<T>>
                 where F: Facade
     {
-        if facade.get_context().get_version() < &context::GlVersion(Api::Gl, 3, 1) &&
+        if facade.get_context().get_version() < &Version(Api::Gl, 3, 1) &&
            !facade.get_context().get_extensions().gl_arb_uniform_buffer_object
         {
             None

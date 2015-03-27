@@ -16,11 +16,12 @@ use framebuffer::{StencilAttachment, ToStencilAttachment};
 use framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
 use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat};
 
-use {gl, context};
+use gl;
 use {GlObject, ToGlEnum};
 use backend::Facade;
 use context::Context;
 use ContextExt;
+use version::Version;
 use version::Api;
 
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
@@ -186,15 +187,15 @@ impl RenderBufferImpl {
         let id = unsafe {
             let mut id = mem::uninitialized();
 
-            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 5) ||
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                 ctxt.extensions.gl_arb_direct_state_access
             {
                 ctxt.gl.CreateRenderbuffers(1, &mut id);
                 ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
                                                  height as gl::types::GLsizei);
 
-            } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                      ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                      ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 ctxt.gl.GenRenderbuffers(1, &mut id);
                 ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
@@ -237,8 +238,8 @@ impl Drop for RenderBufferImpl {
             self.context.framebuffer_objects.as_ref().unwrap()
                         .purge_renderbuffer(self.id, &mut ctxt);
 
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-               ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 if ctxt.state.renderbuffer == self.id {
                     ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);

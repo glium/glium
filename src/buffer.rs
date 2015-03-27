@@ -1,7 +1,7 @@
 use backend::Facade;
-use context::{self, GlVersion};
 use context::CommandContext;
 use context::Context;
+use version::Version;
 use ContextExt;
 use gl;
 use libc;
@@ -259,13 +259,13 @@ impl Buffer {
         let mut ctxt = self.context.make_current();
 
         unsafe {
-            if invalidate_all && (ctxt.version >= &GlVersion(Api::Gl, 4, 3) ||
+            if invalidate_all && (ctxt.version >= &Version(Api::Gl, 4, 3) ||
                 ctxt.extensions.gl_arb_invalidate_subdata)
             {
                 ctxt.gl.InvalidateBufferData(self.id);
             }
 
-            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.NamedBufferSubData(self.id, offset as gl::types::GLintptr,
                                            buffer_size as gl::types::GLsizei,
                                            data.as_ptr() as *const libc::c_void)
@@ -275,8 +275,8 @@ impl Buffer {
                                               buffer_size as gl::types::GLsizeiptr,
                                               data.as_ptr() as *const libc::c_void)
 
-            } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+            } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                 ctxt.gl.BufferSubData(bind, offset as gl::types::GLintptr,
@@ -328,13 +328,13 @@ impl Buffer {
             let mut ctxt = self.context.make_current();
 
             // FIXME: incorrect flags
-            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.MapNamedBufferRange(self.id, offset_bytes as gl::types::GLintptr,
                                             size_bytes as gl::types::GLsizei,
                                             gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
 
-            } else if ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
-                ctxt.version >= &GlVersion(Api::GlEs, 3, 0) ||
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                 ctxt.extensions.gl_arb_map_buffer_range
             {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
@@ -381,12 +381,12 @@ impl Buffer {
             let mut data = Vec::with_capacity(size);
             data.set_len(size);
 
-            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.GetNamedBufferSubData(self.id, (offset * self.elements_size) as gl::types::GLintptr,
                     (size * self.elements_size) as gl::types::GLsizei,
                     data.as_mut_ptr() as *mut libc::c_void);
 
-            } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) {
+            } else if ctxt.version >= &Version(Api::Gl, 1, 5) {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                 ctxt.gl.GetBufferSubData(bind, (offset * self.elements_size) as gl::types::GLintptr,
                                          (size * self.elements_size) as gl::types::GLsizeiptr,
@@ -398,7 +398,7 @@ impl Buffer {
                                             (size * self.elements_size) as gl::types::GLsizeiptr,
                                             data.as_mut_ptr() as *mut libc::c_void);
 
-            } else if ctxt.version >= &GlVersion(Api::GlEs, 1, 0) {
+            } else if ctxt.version >= &Version(Api::GlEs, 1, 0) {
                 return None;
 
             } else {
@@ -451,8 +451,8 @@ impl Drop for Buffer {
         }
 
         unsafe {
-            if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 ctxt.gl.DeleteBuffers(1, [self.id].as_ptr());
             } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -489,11 +489,11 @@ impl<'a, D> Drop for Mapping<'a, D> {
         let mut ctxt = self.buffer.context.make_current();
 
         unsafe {
-            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.UnmapNamedBuffer(self.buffer.id);
 
-            } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                ctxt.version >= &GlVersion(Api::GlEs, 3, 0)
+            } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 0)
             {
                 let bind = bind_buffer(&mut ctxt, self.buffer.id, self.buffer.ty);
                 ctxt.gl.UnmapBuffer(bind);
@@ -545,7 +545,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
                                      BufferCreationError>
                            where D: Send + Copy + 'static
 {
-    if flags.is_persistent() && !(ctxt.version >= &context::GlVersion(Api::Gl, 4, 4)) &&
+    if flags.is_persistent() && !(ctxt.version >= &Version(Api::Gl, 4, 4)) &&
        !ctxt.extensions.gl_arb_buffer_storage
     {
         return Err(BufferCreationError::PersistentMappingNotSupported);
@@ -553,10 +553,10 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
 
     let mut id: gl::types::GLuint = mem::uninitialized();
 
-    if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         ctxt.gl.CreateBuffers(1, &mut id);
-    } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-        ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+        ctxt.version >= &Version(Api::GlEs, 2, 0)
     {
         ctxt.gl.GenBuffers(1, &mut id);
     } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -582,7 +582,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
 
     let mut obtained_size: gl::types::GLint = mem::uninitialized();
 
-    if ctxt.version >= &GlVersion(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         let flags = immutable_storage_flags(flags);
         ctxt.gl.NamedBufferStorage(id, buffer_size as gl::types::GLsizei,
                                    data_ptr as *const libc::c_void,
@@ -599,7 +599,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
         ctxt.gl.GetNamedBufferParameterivEXT(id, gl::BUFFER_SIZE, &mut obtained_size);
 
 
-    } else if ctxt.version >= &GlVersion(Api::Gl, 4, 4) ||
+    } else if ctxt.version >= &Version(Api::Gl, 4, 4) ||
               ctxt.extensions.gl_arb_buffer_storage
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
@@ -609,8 +609,8 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
                               flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
 
-    } else if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-        ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+        ctxt.version >= &Version(Api::GlEs, 2, 0)
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
         let flags = try!(mutable_storage_flags(&mut ctxt, flags));
@@ -630,8 +630,8 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
     }
 
     if buffer_size != obtained_size as usize {
-        if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-            ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+        if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+            ctxt.version >= &Version(Api::GlEs, 2, 0)
         {
             ctxt.gl.DeleteBuffers(1, [id].as_ptr());
         } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -644,12 +644,12 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
     }
 
     let persistent_mapping = if flags.is_persistent() {
-        assert!(ctxt.version >= &GlVersion(Api::Gl, 3, 0) ||
+        assert!(ctxt.version >= &Version(Api::Gl, 3, 0) ||
                 ctxt.extensions.gl_arb_map_buffer_range);
 
         // TODO: better handling of versions
         // FIXME: incorrect flags
-        let ptr = if ctxt.version >= &GlVersion(Api::Gl, 4, 5) {
+        let ptr = if ctxt.version >= &Version(Api::Gl, 4, 5) {
             ctxt.gl.MapNamedBufferRange(id, 0, buffer_size as gl::types::GLsizei,
                                         gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
                                         gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
@@ -683,8 +683,8 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
             if ctxt.state.array_buffer_binding != id {
                 ctxt.state.array_buffer_binding = id;
 
-                if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                    ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
                 {
                     ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, id);
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -701,8 +701,8 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
             if ctxt.state.pixel_pack_buffer_binding != id {
                 ctxt.state.pixel_pack_buffer_binding = id;
 
-                if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                    ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
                 {
                     ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, id);
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -719,8 +719,8 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
             if ctxt.state.pixel_unpack_buffer_binding != id {
                 ctxt.state.pixel_unpack_buffer_binding = id;
 
-                if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                    ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
                 {
                     ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, id);
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -737,8 +737,8 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
             if ctxt.state.uniform_buffer_binding != id {
                 ctxt.state.uniform_buffer_binding = id;
 
-                if ctxt.version >= &GlVersion(Api::Gl, 1, 5) ||
-                    ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
                 {
                     ctxt.gl.BindBuffer(gl::UNIFORM_BUFFER, id);
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {

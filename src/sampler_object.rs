@@ -7,8 +7,8 @@ use std::collections::hash_state::DefaultState;
 
 use gl;
 use util;
-use context::{self, GlVersion};
 use context::CommandContext;
+use version::Version;
 use version::Api;
 use GlObject;
 use ToGlEnum;
@@ -23,7 +23,7 @@ impl SamplerObject {
     /// Builds a new sampler object.
     pub fn new(ctxt: &mut CommandContext, behavior: &SamplerBehavior) -> SamplerObject {
         // making sure that the backend supports samplers
-        assert!(ctxt.version >= &GlVersion(Api::Gl, 3, 2) ||
+        assert!(ctxt.version >= &Version(Api::Gl, 3, 2) ||
                 ctxt.extensions.gl_arb_sampler_objects);
 
         let sampler = unsafe {
@@ -95,9 +95,7 @@ pub fn get_sampler(ctxt: &mut CommandContext,
                    -> Result<gl::types::GLuint, DrawError>
 {
     // checking for compatibility
-    if ctxt.version < &context::GlVersion(Api::Gl, 3, 2) &&
-        !ctxt.extensions.gl_arb_sampler_objects
-    {
+    if ctxt.version < &Version(Api::Gl, 3, 2) && !ctxt.extensions.gl_arb_sampler_objects {
         return Err(DrawError::SamplersNotSupported);
     }
 

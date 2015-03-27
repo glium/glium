@@ -1,6 +1,6 @@
 use gl;
 use context::CommandContext;
-use context::GlVersion;
+use version::Version;
 use version::Api;
 
 use backend::Facade;
@@ -37,7 +37,7 @@ impl Drop for Shader {
         unsafe {
             match self.id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                     ctxt.gl.DeleteShader(id);
                 },
                 Handle::Handle(id) => {
@@ -64,8 +64,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
         try!(check_shader_type_compatibility(&mut ctxt, shader_type));
 
-        let id = if ctxt.version >= &GlVersion(Api::Gl, 2, 0) ||
-                    ctxt.version >= &GlVersion(Api::GlEs, 2, 0)
+        let id = if ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
         {
             Handle::Id(ctxt.gl.CreateShader(shader_type))
         } else if ctxt.extensions.gl_arb_shader_objects {
@@ -80,8 +80,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0) ||
-                        ctxt.version >= &GlVersion(Api::GlEs, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
             },
             Handle::Handle(id) => {
@@ -98,8 +98,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
             match id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0)||
-                            ctxt.version >= &GlVersion(Api::GlEs, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0)||
+                            ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.CompileShader(id);
                 },
                 Handle::Handle(id) => {
@@ -116,8 +116,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
             let mut compilation_success: gl::types::GLint = mem::uninitialized();
             match id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0) ||
-                            ctxt.version >= &GlVersion(Api::GlEs, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                            ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
                 },
                 Handle::Handle(id) => {
@@ -135,8 +135,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
             match id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0) ||
-                            ctxt.version >= &GlVersion(Api::GlEs, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                            ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
                 },
                 Handle::Handle(id) => {
@@ -150,8 +150,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
             match id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0) ||
-                            ctxt.version >= &GlVersion(Api::GlEs, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                            ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
                                              error_log.as_mut_slice().as_mut_ptr()
                                                as *mut gl::types::GLchar);
@@ -183,22 +183,22 @@ fn check_shader_type_compatibility(ctxt: &mut CommandContext, shader_type: gl::t
     match shader_type {
         gl::VERTEX_SHADER | gl::FRAGMENT_SHADER => (),
         gl::GEOMETRY_SHADER => {
-            if !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) && !ctxt.extensions.gl_arb_geometry_shader4
+            if !(ctxt.version >= &Version(Api::Gl, 3, 0)) && !ctxt.extensions.gl_arb_geometry_shader4
                && !ctxt.extensions.gl_ext_geometry_shader4
             {
                 return Err(ProgramCreationError::ShaderTypeNotSupported);
             }
         },
         gl::TESS_CONTROL_SHADER | gl::TESS_EVALUATION_SHADER => {
-            if !(ctxt.version >= &GlVersion(Api::Gl, 4, 0)) &&
+            if !(ctxt.version >= &Version(Api::Gl, 4, 0)) &&
                !ctxt.extensions.gl_arb_tessellation_shader 
             {
                 return Err(ProgramCreationError::ShaderTypeNotSupported);
             }
         },
         gl::COMPUTE_SHADER => {
-            if !(ctxt.version >= &GlVersion(Api::Gl, 4, 3)) &&
-                !(ctxt.version >= &GlVersion(Api::GlEs, 3, 1)) &&
+            if !(ctxt.version >= &Version(Api::Gl, 4, 3)) &&
+                !(ctxt.version >= &Version(Api::GlEs, 3, 1)) &&
                 !ctxt.extensions.gl_arb_compute_shader
             {
                 return Err(ProgramCreationError::ShaderTypeNotSupported);

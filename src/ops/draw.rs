@@ -28,7 +28,7 @@ use program;
 use libc;
 use util;
 use {gl, context, draw_parameters};
-use context::GlVersion;
+use version::Version;
 use version::Api;
 
 /// Draws everything.
@@ -373,7 +373,7 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
     macro_rules! uniform(
         ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
             unsafe {
-                if $ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
+                if $ctxt.version >= &Version(Api::Gl, 1, 5) {
                     $ctxt.gl.$uniform($($params),+)
                 } else {
                     assert!($ctxt.extensions.gl_arb_shader_objects);
@@ -396,7 +396,7 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
         UniformValue::UnsignedInt(val) => {
             // Uniform1uiARB doesn't exist
             unsafe {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
+                if ctxt.version >= &Version(Api::Gl, 1, 5) {
                     ctxt.gl.Uniform1ui(location, val)
                 } else {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
@@ -603,7 +603,7 @@ fn bind_texture_uniform(ctxt: &mut context::CommandContext,
 
         ctxt.gl.BindTexture(bind_point, texture);
 
-        if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) {
+        if ctxt.version >= &Version(Api::Gl, 1, 5) {
             ctxt.gl.Uniform1i(location, current_texture as gl::types::GLint);
         } else {
             assert!(ctxt.extensions.gl_arb_shader_objects);
@@ -611,10 +611,10 @@ fn bind_texture_uniform(ctxt: &mut context::CommandContext,
         }
 
         if let Some(sampler) = sampler {
-            assert!(ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
+            assert!(ctxt.version >= &Version(Api::Gl, 3, 3) ||
                     ctxt.extensions.gl_arb_sampler_objects);
             ctxt.gl.BindSampler(current_texture, sampler);
-        } else if ctxt.version >= &context::GlVersion(Api::Gl, 3, 3) ||
+        } else if ctxt.version >= &Version(Api::Gl, 3, 3) ||
             ctxt.extensions.gl_arb_sampler_objects
         {
             ctxt.gl.BindSampler(current_texture, 0);
@@ -900,7 +900,7 @@ fn sync_viewport_scissor(ctxt: &mut context::CommandContext, viewport: Option<Re
 
 fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: bool) {
     if ctxt.state.enabled_rasterizer_discard == draw_primitives {
-        if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
+        if ctxt.version >= &Version(Api::Gl, 3, 0) {
             if draw_primitives {
                 unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD); }
                 ctxt.state.enabled_rasterizer_discard = false;

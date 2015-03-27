@@ -1,5 +1,6 @@
-use context;
+use context::CommandContext;
 use version::Api;
+use version::Version;
 use gl;
 
 use backend::Facade;
@@ -110,15 +111,15 @@ impl Drop for LinearSyncFence {
 }
 
 #[cfg(feature = "gl_sync")]
-pub unsafe fn new_linear_sync_fence(ctxt: &mut context::CommandContext) -> LinearSyncFence {
+pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext) -> LinearSyncFence {
     LinearSyncFence {
         id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
     }
 }
 
-pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut context::CommandContext) -> Option<LinearSyncFence> {
-    if !(ctxt.version >= &context::GlVersion(Api::Gl, 3, 2)) && !ctxt.extensions.gl_arb_sync
-        && !(ctxt.version >= &context::GlVersion(Api::GlEs, 3, 0))
+pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut CommandContext) -> Option<LinearSyncFence> {
+    if !(ctxt.version >= &Version(Api::Gl, 3, 2)) && !ctxt.extensions.gl_arb_sync
+        && !(ctxt.version >= &Version(Api::GlEs, 3, 0))
     {
         return None;
     }
@@ -130,7 +131,7 @@ pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut context::CommandCont
 
 /// Waits for this fence and destroys it, from within the commands context.
 pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
-                                              ctxt: &mut context::CommandContext)
+                                              ctxt: &mut CommandContext)
 {
     let fence = fence.id.take().unwrap();
 
