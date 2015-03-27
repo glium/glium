@@ -8,7 +8,6 @@ use context::Context;
 use ContextExt;
 
 use std::{ffi, mem, ptr};
-use std::sync::atomic::Ordering;
 use std::rc::Rc;
 
 use GlObject;
@@ -95,7 +94,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
         {
             let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-            ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
+            ctxt.report_debug_output_errors.set(false);
 
             match id {
                 Handle::Id(id) => {
@@ -109,7 +108,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                 }
             }
 
-            ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
+            ctxt.report_debug_output_errors.set(true);
         }
 
         // checking compilation success
