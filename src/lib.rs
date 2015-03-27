@@ -155,9 +155,8 @@ target.finish();
 ```
 
 */
-#![feature(core, std_misc, collections, str_words)]     // TODO: remove after 1.0 beta
+#![feature(core, std_misc, collections)]     // TODO: remove after 1.0 beta
 
-#![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
 #![warn(missing_docs)]

@@ -39,8 +39,8 @@ pub fn get_gl_version(gl: &gl::Gl) -> Version {
             (&version[..], false)
         };
 
-        let version = version.words().next().expect("glGetString(GL_VERSION) returned an empty \
-                                                     string");
+        let version = version.split(' ').next().expect("glGetString(GL_VERSION) returned an empty \
+                                                        string");
 
         let mut iter = version.split(move |c: char| c == '.');
         let major = iter.next().unwrap();
