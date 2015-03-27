@@ -11,8 +11,8 @@ use BufferExt;
 
 use backend::Facade;
 
-use context;
 use sync;
+use version::Version;
 use version::Api;
 use gl;
 
@@ -58,7 +58,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
     pub fn new_if_supported<F>(facade: &F, data: Vec<T>)
                                -> Option<PerInstanceAttributesBuffer<T>> where F: Facade
     {
-        if facade.get_context().get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
+        if facade.get_context().get_version() < &Version(Api::Gl, 3, 3) &&
             !facade.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return None;
@@ -115,7 +115,7 @@ impl<T: Vertex + 'static + Send> PerInstanceAttributesBuffer<T> {
                                           -> Option<PerInstanceAttributesBuffer<T>>
                                           where F: Facade
     {
-        if facade.get_context().get_version() < &context::GlVersion(Api::Gl, 3, 3) &&
+        if facade.get_context().get_version() < &Version(Api::Gl, 3, 3) &&
             !facade.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return None;

@@ -11,9 +11,10 @@ use index::IndicesSource;
 use vertex::{VerticesSource, AttributeType};
 use GlObject;
 
-use {libc, gl, context};
+use {libc, gl};
 use context::CommandContext;
 use version::Api;
+use version::Version;
 use util;
 
 /// Stores and handles vertex attributes.
@@ -208,8 +209,8 @@ impl VertexArrayObject {
         let id = unsafe {
             // building the VAO
             let mut id = mem::uninitialized();
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                ctxt.version >= &context::GlVersion(Api::GlEs, 3, 0) ||
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                 ctxt.extensions.gl_arb_vertex_array_object
             {
                 ctxt.gl.GenVertexArrays(1, &mut id);
@@ -228,8 +229,8 @@ impl VertexArrayObject {
             // binding index buffer
             // the ELEMENT_ARRAY_BUFFER is part of the state of the VAO
             // TODO: use a proper function
-            if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) ||
-                ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
             } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -243,8 +244,8 @@ impl VertexArrayObject {
                 // array buffer
                 // TODO: use a proper function
                 if ctxt.state.array_buffer_binding != vertex_buffer {
-                    if ctxt.version >= &context::GlVersion(Api::Gl, 1, 5) ||
-                        ctxt.version >= &context::GlVersion(Api::GlEs, 2, 0)
+                    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0)
                     {
                         ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
                     } else if ctxt.extensions.gl_arb_vertex_buffer_object {
@@ -311,8 +312,8 @@ impl VertexArrayObject {
         unsafe {
             // unbinding
             if ctxt.state.vertex_array == self.id {
-                if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                    ctxt.version >= &context::GlVersion(Api::GlEs, 3, 0) ||
+                if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                     ctxt.extensions.gl_arb_vertex_array_object
                 {
                     ctxt.gl.BindVertexArray(0);
@@ -328,8 +329,8 @@ impl VertexArrayObject {
             }
 
             // deleting
-            if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-                ctxt.version >= &context::GlVersion(Api::GlEs, 3, 0) ||
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                 ctxt.extensions.gl_arb_vertex_array_object
             {
                 ctxt.gl.DeleteVertexArrays(1, [ self.id ].as_ptr());
@@ -415,8 +416,8 @@ fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types
 
 fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
     if ctxt.state.vertex_array != vao_id {
-        if ctxt.version >= &context::GlVersion(Api::Gl, 3, 0) ||
-            ctxt.version >= &context::GlVersion(Api::GlEs, 3, 0) ||
+        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+            ctxt.version >= &Version(Api::GlEs, 3, 0) ||
             ctxt.extensions.gl_arb_vertex_array_object
         {
             unsafe { ctxt.gl.BindVertexArray(vao_id) };

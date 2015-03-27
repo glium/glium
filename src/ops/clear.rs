@@ -6,7 +6,7 @@ use ContextExt;
 use Surface;
 
 use Api;
-use context::GlVersion;
+use version::Version;
 use gl;
 
 
@@ -51,9 +51,9 @@ pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
             flags |= gl::DEPTH_BUFFER_BIT;
 
             if ctxt.state.clear_depth != depth {
-                if ctxt.version >= &GlVersion(Api::Gl, 1, 0) {
+                if ctxt.version >= &Version(Api::Gl, 1, 0) {
                     ctxt.gl.ClearDepth(depth as gl::types::GLclampd);
-                } else if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) {
+                } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
                     ctxt.gl.ClearDepthf(depth);
                 } else {
                     unreachable!();
