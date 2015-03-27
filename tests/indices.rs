@@ -324,7 +324,7 @@ fn triangle_fan_noindices() {
 fn empty_index_buffer() {
     let display = support::build_display();
 
-    let indices = glium::index_buffer::TriangleFan(Vec::<u16>::new());
+    let indices = glium::index::TriangleFan(Vec::<u16>::new());
     let _indices = glium::IndexBuffer::new(&display, indices);
 
     display.assert_no_error();
