@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Removed the deprecated `index_buffer` module. Use the `index` module instead.
+
 ## Version 0.1.3 (2015-03-24) & 0.1.4 (2015-03-26)
 
  - Added the `Backend` and `Facade` traits. `Display` implements the `Facade` trait.
