@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed viewport dimensions on retina screens.
+
 ## Version 0.1.3 (2015-03-24) & 0.1.4 (2015-03-26)
 
  - Added the `Backend` and `Facade` traits. `Display` implements the `Facade` trait.
