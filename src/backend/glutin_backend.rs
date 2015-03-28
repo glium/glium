@@ -305,7 +305,9 @@ impl Backend for GlutinWindowBackend {
     }
 
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        self.window.get_inner_size().unwrap_or((800, 600))      // TODO: 800x600 ?
+        let (width, height) = self.window.get_inner_size().unwrap_or((800, 600));      // TODO: 800x600 ?
+        let scale = self.window.hidpi_factor();
+        (width * scale as u32, height * scale as u32)
     }
 
     fn is_current(&self) -> bool {
