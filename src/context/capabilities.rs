@@ -1,4 +1,5 @@
-use context::{GlVersion, ExtensionsList};
+use context::ExtensionsList;
+use version::Version;
 use version::Api;
 use gl;
 
@@ -37,13 +38,13 @@ pub struct Capabilities {
 }
 
 /// Loads the capabilities.
-pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &ExtensionsList)
+pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
                         -> Capabilities
 {
     use std::mem;
 
     Capabilities {
-        shader_compiler: if version >= &GlVersion(Api::Gl, 1, 0) {
+        shader_compiler: if version >= &Version(Api::Gl, 1, 0) {
             true
         } else {
             unsafe {
@@ -54,7 +55,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
         },
 
         stereo: unsafe {
-            if version >= &GlVersion(Api::Gl, 1, 0) {
+            if version >= &Version(Api::Gl, 1, 0) {
                 let mut val: gl::types::GLboolean = mem::uninitialized();
                 gl.GetBooleanv(gl::STEREO, &mut val);
                 val != 0
@@ -66,7 +67,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
         depth_bits: unsafe {
             let mut value = mem::uninitialized();
 
-            if version >= &GlVersion(Api::Gl, 3, 0) {
+            if version >= &Version(Api::Gl, 3, 0) {
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
                                                        gl::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
                                                        &mut value);
@@ -83,7 +84,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
         stencil_bits: unsafe {
             let mut value = mem::uninitialized();
 
-            if version >= &GlVersion(Api::Gl, 3, 0) {
+            if version >= &Version(Api::Gl, 3, 0) {
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
                                                        gl::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
                                                        &mut value);
@@ -121,8 +122,8 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
         },
 
         max_draw_buffers: unsafe {
-            if version >= &GlVersion(Api::Gl, 2, 0) ||
-                version >= &GlVersion(Api::GlEs, 3, 0)
+            if version >= &Version(Api::Gl, 2, 0) ||
+                version >= &Version(Api::GlEs, 3, 0)
             {
                 let mut val = 1;
                 gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);
@@ -132,7 +133,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &GlVersion, extensions: &Extension
             }
         },
 
-        max_patch_vertices: if version >= &GlVersion(Api::Gl, 4, 0) ||
+        max_patch_vertices: if version >= &Version(Api::Gl, 4, 0) ||
             extensions.gl_arb_tessellation_shader
         {
             Some(unsafe {

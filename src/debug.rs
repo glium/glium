@@ -7,7 +7,8 @@ use backend::Facade;
 use context::Context;
 use ContextExt;
 use version::Api;
-use {context, gl};
+use version::Version;
+use gl;
 use std::rc::Rc;
 use std::mem;
 
@@ -115,7 +116,7 @@ impl TimestampQuery {
     pub fn new<F>(facade: &F) -> Option<TimestampQuery> where F: Facade {
         let ctxt = facade.get_context().make_current();
 
-        let id = if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+        let id = if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
                 let mut id = mem::uninitialized();
                 ctxt.gl.GenQueries(1, &mut id);
@@ -154,7 +155,7 @@ impl TimestampQuery {
 
         let ctxt = self.context.make_current();
 
-        if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+        if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectiv(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
@@ -181,7 +182,7 @@ impl TimestampQuery {
 
         let ctxt = self.context.make_current();
 
-        if ctxt.version >= &context::GlVersion(Api::Gl, 3, 2) {    // TODO: extension
+        if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectui64v(self.id, gl::QUERY_RESULT, &mut value);

@@ -7,15 +7,16 @@ use std::ptr;
 use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::default::Default;
-use std::cell::{RefCell, RefMut};
+use std::cell::{Cell, RefCell, RefMut};
 use std::ffi::CStr;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::rc::Rc;
 
 use GliumCreationError;
 use ContextExt;
 use backend::Backend;
 use version;
 use version::Api;
+use version::Version;
 
 use fbo;
 use ops;
@@ -28,7 +29,6 @@ use vertex_array_object;
 pub use self::capabilities::Capabilities;
 pub use self::extensions::ExtensionsList;
 pub use self::state::GLState;
-pub use version::Version as GlVersion;      // TODO: remove
 
 mod capabilities;
 mod extensions;
@@ -37,13 +37,14 @@ mod state;
 pub struct Context {
     gl: gl::Gl,
     state: RefCell<GLState>,
-    version: GlVersion,
+    version: Version,
     extensions: ExtensionsList,
     capabilities: Capabilities,
-    shared_debug_output: Box<SharedDebugOutput>,
 
     backend: RefCell<Box<Backend>>,
     check_current_context: bool,
+
+    report_debug_output_errors: Cell<bool>,
 
     // we maintain a list of FBOs
     // the option is here to destroy the container
@@ -59,24 +60,10 @@ pub struct Context {
 pub struct CommandContext<'a, 'b> {
     pub gl: &'a gl::Gl,
     pub state: RefMut<'b, GLState>,
-    pub version: &'a GlVersion,
+    pub version: &'a Version,
     pub extensions: &'a ExtensionsList,
     pub capabilities: &'a Capabilities,
-    pub shared_debug_output: &'a SharedDebugOutput,
-}
-
-/// Struct shared with the debug output callback.
-pub struct SharedDebugOutput {
-    /// Whether debug output should report errors
-    pub report_errors: AtomicBool,
-}
-
-impl SharedDebugOutput {
-    pub fn new() -> Box<SharedDebugOutput> {
-        Box::new(SharedDebugOutput {
-            report_errors: AtomicBool::new(true),
-        })
-    }
+    pub report_debug_output_errors: &'a Cell<bool>,
 }
 
 impl Context {
@@ -89,7 +76,7 @@ impl Context {
     /// current in the same thread as this context. Passing `true` makes things safe but
     /// is slightly slower.
     pub unsafe fn new<B>(backend: B, check_current_context: bool)
-                         -> Result<Context, GliumCreationError>
+                         -> Result<Rc<Context>, GliumCreationError>
                          where B: Backend + 'static
     {
         backend.make_current();
@@ -99,8 +86,7 @@ impl Context {
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
-
-        let shared_debug = SharedDebugOutput::new();
+        let report_debug_output_errors = Cell::new(true);
 
         {
             let mut ctxt = CommandContext {
@@ -109,26 +95,29 @@ impl Context {
                 version: &version,
                 extensions: &extensions,
                 capabilities: &capabilities,
-                shared_debug_output: &shared_debug,
+                report_debug_output_errors: &report_debug_output_errors,
             };
 
             try!(check_gl_compatibility(&mut ctxt));
-            init_debug_callback(&mut ctxt);
         }
 
-        Ok(Context {
+        let context = Rc::new(Context {
             gl: gl,
             state: gl_state,
             version: version,
             extensions: extensions,
             capabilities: capabilities,
-            shared_debug_output: shared_debug,
+            report_debug_output_errors: report_debug_output_errors,
             backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
             framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
             vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
             samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
-        })
+        });
+
+        init_debug_callback(&context);
+
+        Ok(context)
     }
 
     /// Calls `get_framebuffer_dimensions` on the backend object stored by this context.
@@ -184,7 +173,7 @@ impl Context {
     }
 
     /// Returns the OpenGL version detected by this context.
-    pub fn get_version(&self) -> &GlVersion {
+    pub fn get_version(&self) -> &Version {
         &self.version
     }
 
@@ -193,7 +182,7 @@ impl Context {
     }
 
     /// Returns the supported GLSL version.
-    pub fn get_supported_glsl_version(&self) -> GlVersion {
+    pub fn get_supported_glsl_version(&self) -> Version {
         version::get_supported_glsl_version(
             self.get_version())
     }
@@ -219,8 +208,8 @@ impl Context {
         unsafe {
             let ctxt = self.make_current();
 
-            if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) ||
-                ctxt.version >= &GlVersion(Api::Gl, 4, 1)
+            if ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+                ctxt.version >= &Version(Api::Gl, 4, 1)
             {
                 if ctxt.capabilities.shader_compiler {
                     ctxt.gl.ReleaseShaderCompiler();
@@ -315,6 +304,10 @@ impl Context {
 }
 
 impl ContextExt for Context {
+    fn set_report_debug_output_errors(&self, value: bool) {
+        self.report_debug_output_errors.set(value);
+    }
+
     fn make_current<'a>(&'a self) -> CommandContext<'a, 'a> {
         if self.check_current_context {
             let backend = self.backend.borrow();
@@ -329,7 +322,7 @@ impl ContextExt for Context {
             version: &self.version,
             extensions: &self.extensions,
             capabilities: &self.capabilities,
-            shared_debug_output: &*self.shared_debug_output,
+            report_debug_output_errors: &self.report_debug_output_errors,
         }
     }
 }
@@ -352,7 +345,7 @@ impl Drop for Context {
                 version: &self.version,
                 extensions: &self.extensions,
                 capabilities: &self.capabilities,
-                shared_debug_output: &*self.shared_debug_output,
+                report_debug_output_errors: &self.report_debug_output_errors,
             };
 
             let fbos = self.framebuffer_objects.take();
@@ -367,7 +360,7 @@ impl Drop for Context {
 
             // disabling callback
             if ctxt.state.enabled_debug_output != Some(false) {
-                if ctxt.version >= &GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
+                if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
                     ctxt.gl.Disable(gl::DEBUG_OUTPUT);
                 } else if ctxt.extensions.gl_arb_debug_output {
                     ctxt.gl.DebugMessageCallbackARB(mem::transmute(0usize),
@@ -384,29 +377,29 @@ impl Drop for Context {
 fn check_gl_compatibility(ctxt: &mut CommandContext) -> Result<(), GliumCreationError> {
     let mut result = Vec::new();
 
-    if !(ctxt.version >= &GlVersion(Api::Gl, 1, 5)) &&
-        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0)) &&
+    if !(ctxt.version >= &Version(Api::Gl, 1, 5)) &&
+        !(ctxt.version >= &Version(Api::GlEs, 2, 0)) &&
         (!ctxt.extensions.gl_arb_vertex_buffer_object || !ctxt.extensions.gl_arb_map_buffer_range)
     {
         result.push("OpenGL implementation doesn't support buffer objects");
     }
 
-    if !(ctxt.version >= &GlVersion(Api::Gl, 2, 0)) &&
-        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0)) &&
+    if !(ctxt.version >= &Version(Api::Gl, 2, 0)) &&
+        !(ctxt.version >= &Version(Api::GlEs, 2, 0)) &&
         (!ctxt.extensions.gl_arb_shader_objects ||
             !ctxt.extensions.gl_arb_vertex_shader || !ctxt.extensions.gl_arb_fragment_shader)
     {
         result.push("OpenGL implementation doesn't support vertex/fragment shaders");
     }
 
-    if !ctxt.extensions.gl_ext_framebuffer_object && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0))
+    if !ctxt.extensions.gl_ext_framebuffer_object && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
+        !(ctxt.version >= &Version(Api::GlEs, 2, 0))
     {
         result.push("OpenGL implementation doesn't support framebuffers");
     }
 
-    if !ctxt.extensions.gl_ext_framebuffer_blit && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &GlVersion(Api::GlEs, 2, 0))
+    if !ctxt.extensions.gl_ext_framebuffer_blit && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
+        !(ctxt.version >= &Version(Api::GlEs, 2, 0))
     {
         result.push("OpenGL implementation doesn't support blitting framebuffers");
     }
@@ -414,72 +407,72 @@ fn check_gl_compatibility(ctxt: &mut CommandContext) -> Result<(), GliumCreation
     if !ctxt.extensions.gl_arb_vertex_array_object &&
         !ctxt.extensions.gl_apple_vertex_array_object &&
         !ctxt.extensions.gl_oes_vertex_array_object &&
-        !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &GlVersion(Api::GlEs, 3, 0))
+        !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
+        !(ctxt.version >= &Version(Api::GlEs, 3, 0))
     {
         result.push("OpenGL implementation doesn't support vertex array objects");
     }
 
-    if cfg!(feature = "gl_uniform_blocks") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 1)) &&
+    if cfg!(feature = "gl_uniform_blocks") && !(ctxt.version >= &Version(Api::Gl, 3, 1)) &&
         !ctxt.extensions.gl_arb_uniform_buffer_object
     {
         result.push("OpenGL implementation doesn't support uniform blocks");
     }
 
-    if cfg!(feature = "gl_sync") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 2)) &&
-        !(ctxt.version >= &GlVersion(Api::GlEs, 3, 0)) && !ctxt.extensions.gl_arb_sync
+    if cfg!(feature = "gl_sync") && !(ctxt.version >= &Version(Api::Gl, 3, 2)) &&
+        !(ctxt.version >= &Version(Api::GlEs, 3, 0)) && !ctxt.extensions.gl_arb_sync
     {
         result.push("OpenGL implementation doesn't support synchronization objects");
     }
 
-    if cfg!(feature = "gl_persistent_mapping") && !(ctxt.version >= &GlVersion(Api::Gl, 4, 4)) &&
+    if cfg!(feature = "gl_persistent_mapping") && !(ctxt.version >= &Version(Api::Gl, 4, 4)) &&
         !ctxt.extensions.gl_arb_buffer_storage
     {
         result.push("OpenGL implementation doesn't support persistent mapping");
     }
 
-    if cfg!(feature = "gl_program_binary") && !(ctxt.version >= &GlVersion(Api::Gl, 4, 1)) &&
+    if cfg!(feature = "gl_program_binary") && !(ctxt.version >= &Version(Api::Gl, 4, 1)) &&
         !ctxt.extensions.gl_arb_get_programy_binary
     {
         result.push("OpenGL implementation doesn't support program binary");
     }
 
-    if cfg!(feature = "gl_tessellation") && !(ctxt.version >= &GlVersion(Api::Gl, 4, 0)) &&
+    if cfg!(feature = "gl_tessellation") && !(ctxt.version >= &Version(Api::Gl, 4, 0)) &&
         !ctxt.extensions.gl_arb_tessellation_shader
     {
         result.push("OpenGL implementation doesn't support tessellation");
     }
 
-    if cfg!(feature = "gl_instancing") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 3)) &&
+    if cfg!(feature = "gl_instancing") && !(ctxt.version >= &Version(Api::Gl, 3, 3)) &&
         !ctxt.extensions.gl_arb_instanced_arrays
     {
         result.push("OpenGL implementation doesn't support instancing");
     }
 
-    if cfg!(feature = "gl_integral_textures") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
+    if cfg!(feature = "gl_integral_textures") && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
         !ctxt.extensions.gl_ext_texture_integer
     {
         result.push("OpenGL implementation doesn't support integral textures");
     }
 
-    if cfg!(feature = "gl_depth_textures") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0)) &&
+    if cfg!(feature = "gl_depth_textures") && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
         (!ctxt.extensions.gl_arb_depth_texture || !ctxt.extensions.gl_ext_packed_depth_stencil)
     {
         result.push("OpenGL implementation doesn't support depth or depth-stencil textures");
     }
 
-    if cfg!(feature = "gl_stencil_textures") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 0))
+    if cfg!(feature = "gl_stencil_textures") && !(ctxt.version >= &Version(Api::Gl, 3, 0))
     {
         result.push("OpenGL implementation doesn't support stencil textures");
     }
 
-    if cfg!(feature = "gl_texture_multisample") && !(ctxt.version >= &GlVersion(Api::Gl, 3, 2))
+    if cfg!(feature = "gl_texture_multisample") && !(ctxt.version >= &Version(Api::Gl, 3, 2))
     {
         result.push("OpenGL implementation doesn't support multisample textures");
     }
 
     if cfg!(feature = "gl_texture_multisample_array") &&
-        !(ctxt.version >= &GlVersion(Api::Gl, 3, 2))
+        !(ctxt.version >= &Version(Api::Gl, 3, 2))
     {
         result.push("OpenGL implementation doesn't support arrays of multisample textures");
     }
@@ -491,7 +484,7 @@ fn check_gl_compatibility(ctxt: &mut CommandContext) -> Result<(), GliumCreation
     }
 }
 
-fn init_debug_callback(mut ctxt: &mut CommandContext) {
+fn init_debug_callback(context: &Rc<Context>) {
     if cfg!(ndebug) {
         return;
     }
@@ -502,17 +495,19 @@ fn init_debug_callback(mut ctxt: &mut CommandContext) {
 
     // this is the C callback
     extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
-        id: gl::types::GLuint, severity: gl::types::GLenum, _length: gl::types::GLsizei,
-        message: *const gl::types::GLchar, user_param: *mut libc::c_void)
+                                        id: gl::types::GLuint, severity: gl::types::GLenum,
+                                        _length: gl::types::GLsizei,
+                                        message: *const gl::types::GLchar,
+                                        user_param: *mut libc::c_void)
     {
-        let user_param = user_param as *const SharedDebugOutput;
+        let user_param = user_param as *const Context;
         let user_param = unsafe { user_param.as_ref().unwrap() };
 
         if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
            (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
             ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
         {
-            if user_param.report_errors.load(Ordering::Relaxed) {
+            if user_param.report_debug_output_errors.get() {
                 let message = unsafe {
                     String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
                 };
@@ -524,12 +519,14 @@ fn init_debug_callback(mut ctxt: &mut CommandContext) {
         }
     }
 
-    struct SharedDebugOutputPtr(*const SharedDebugOutput);
-    unsafe impl Send for SharedDebugOutputPtr {}
-    let shared_debug_output_ptr = SharedDebugOutputPtr(ctxt.shared_debug_output);
+    struct ContextRawPtr(*const Context);
+    unsafe impl Send for ContextRawPtr {}
+    let context_raw_ptr = ContextRawPtr(&**context);
 
     unsafe {
-        if ctxt.version >= &GlVersion(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
+        let mut ctxt = context.make_current();
+
+        if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
             ctxt.extensions.gl_arb_debug_output
         {
             if ctxt.state.enabled_debug_output_synchronous != true {
@@ -537,10 +534,10 @@ fn init_debug_callback(mut ctxt: &mut CommandContext) {
                 ctxt.state.enabled_debug_output_synchronous = true;
             }
 
-            if ctxt.version >= &GlVersion(Api::Gl, 4, 5) ||
-                (ctxt.version >= &GlVersion(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
             {
-                ctxt.gl.DebugMessageCallback(callback_wrapper, shared_debug_output_ptr.0
+                ctxt.gl.DebugMessageCallback(callback_wrapper, context_raw_ptr.0
                                                                  as *const libc::c_void);
                 ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                             ptr::null(), gl::TRUE);
@@ -550,10 +547,10 @@ fn init_debug_callback(mut ctxt: &mut CommandContext) {
                     ctxt.state.enabled_debug_output = Some(true);
                 }
 
-            } else if ctxt.version >= &GlVersion(Api::GlEs, 2, 0) &&
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) &&
                 ctxt.extensions.gl_khr_debug
             {
-                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, shared_debug_output_ptr.0
+                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, context_raw_ptr.0
                                                                  as *const libc::c_void);
                 ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                                ptr::null(), gl::TRUE);
@@ -564,7 +561,7 @@ fn init_debug_callback(mut ctxt: &mut CommandContext) {
                 }
 
             } else {
-                ctxt.gl.DebugMessageCallbackARB(callback_wrapper, shared_debug_output_ptr.0
+                ctxt.gl.DebugMessageCallbackARB(callback_wrapper, context_raw_ptr.0
                                                                     as *const libc::c_void);
                 ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
                                                0, ptr::null(), gl::TRUE);

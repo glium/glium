@@ -1,9 +1,8 @@
 use gl;
 use libc;
 
-use context;
 use context::CommandContext;
-use context::GlVersion;
+use version::Version;
 use version::Api;
 
 use backend::Facade;
@@ -16,7 +15,6 @@ use std::collections::hash_map::{self, HashMap};
 use std::default::Default;
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::sync::atomic::Ordering;
 use util::FnvHasher;
 
 use GlObject;
@@ -199,7 +197,7 @@ impl Program {
             }
 
             if transform_feedback_varyings.is_some() &&
-                (facade.get_context().get_version() >= &GlVersion(Api::Gl, 3, 0) ||
+                (facade.get_context().get_version() >= &Version(Api::Gl, 3, 0) ||
                     !facade.get_context().get_extensions().gl_ext_transform_feedback)
             {
                 return Err(ProgramCreationError::TransformFeedbackNotSupported);
@@ -230,7 +228,7 @@ impl Program {
             for sh in shaders_ids.iter() {
                 match (id, sh) {
                     (Handle::Id(id), &Handle::Id(sh)) => {
-                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                         ctxt.gl.AttachShader(id, sh);
                     },
                     (Handle::Handle(id), &Handle::Handle(sh)) => {
@@ -254,7 +252,7 @@ impl Program {
                 }).collect::<Vec<_>>();
                 let names_ptr = names.iter().map(|n| n.as_ptr()).collect::<Vec<_>>();
 
-                if ctxt.version >= &GlVersion(Api::Gl, 3, 0) {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) {
                     let mode = match mode {
                         TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS,
                         TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS,
@@ -282,11 +280,11 @@ impl Program {
             {
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-                ctxt.shared_debug_output.report_errors.store(false, Ordering::Relaxed);
+                ctxt.report_debug_output_errors.set(false);
 
                 match id {
                     Handle::Id(id) => {
-                        assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                         ctxt.gl.LinkProgram(id);
                     },
                     Handle::Handle(id) => {
@@ -295,7 +293,7 @@ impl Program {
                     }
                 }
 
-                ctxt.shared_debug_output.report_errors.store(true, Ordering::Relaxed);
+                ctxt.report_debug_output_errors.set(true);
             }
 
             // checking for errors
@@ -346,7 +344,7 @@ impl Program {
 
             match id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                     ctxt.gl.ProgramBinary(id, binary.format,
                                           binary.content.as_ptr() as *const _,
                                           binary.content.len() as gl::types::GLsizei);
@@ -402,7 +400,7 @@ impl Program {
         unsafe {
             let ctxt = self.context.make_current();
 
-            if ctxt.version >= &context::GlVersion(Api::Gl, 4, 1) ||
+            if ctxt.version >= &Version(Api::Gl, 4, 1) ||
                ctxt.extensions.gl_arb_get_programy_binary
             {
                 let id = match self.id {
@@ -455,7 +453,7 @@ impl Program {
         let value = unsafe {
             match self.id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                     ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
                                                 as *const libc::c_char)
                 },
@@ -541,7 +539,7 @@ impl Drop for Program {
         unsafe {
             match self.id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
 
                     if ctxt.state.program == Handle::Id(id) {
                         ctxt.gl.UseProgram(0);
@@ -567,7 +565,7 @@ impl Drop for Program {
 
 /// Builds an empty program from within the GL context.
 unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
-    let id = if ctxt.version >= &GlVersion(Api::Gl, 2, 0) {
+    let id = if ctxt.version >= &Version(Api::Gl, 2, 0) {
         Handle::Id(ctxt.gl.CreateProgram())
     } else if ctxt.extensions.gl_arb_shader_objects {
         Handle::Handle(ctxt.gl.CreateProgramObjectARB())
@@ -589,7 +587,7 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
     match id {
         Handle::Id(id) => {
-            assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+            assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
             ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
         },
         Handle::Handle(id) => {
@@ -622,7 +620,7 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                 ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
             },
             Handle::Handle(id) => {
@@ -636,7 +634,7 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &GlVersion(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                 ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
                                           error_log.as_mut_slice().as_mut_ptr()
                                             as *mut gl::types::GLchar);

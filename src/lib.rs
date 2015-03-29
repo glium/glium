@@ -155,9 +155,8 @@ target.finish();
 ```
 
 */
-#![feature(core, std_misc, collections, str_words)]     // TODO: remove after 1.0 beta
+#![feature(core, std_misc, collections)]     // TODO: remove after 1.0 beta
 
-#![feature(unboxed_closures)]
 #![feature(unsafe_destructor)]
 #![unstable]
 #![warn(missing_docs)]
@@ -253,6 +252,9 @@ trait BufferExt {
 
 /// Internal trait for contexts.
 trait ContextExt {
+    /// Sets whether the context's debug output callback should take errors into account.
+    fn set_report_debug_output_errors(&self, value: bool);
+
     fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
 }
 
@@ -833,7 +835,6 @@ impl FboAttachments for Frame {
     }
 }
 
-#[unsafe_destructor]
 impl Drop for Frame {
     fn drop(&mut self) {
         self.context.swap_buffers();
