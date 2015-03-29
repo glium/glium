@@ -295,7 +295,7 @@ pub struct GlutinWindowBackend {
     window: glutin::Window,
 }
 
-impl Backend for GlutinWindowBackend {
+unsafe impl Backend for GlutinWindowBackend {
     fn swap_buffers(&self) {
         self.window.swap_buffers();
     }
@@ -365,7 +365,7 @@ pub struct GlutinHeadlessBackend {
 }
 
 #[cfg(feature = "headless")]
-impl Backend for GlutinHeadlessBackend {
+unsafe impl Backend for GlutinHeadlessBackend {
     fn swap_buffers(&self) {
     }
 

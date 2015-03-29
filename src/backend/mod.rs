@@ -8,7 +8,10 @@ pub use context::Context;
 pub mod glutin_backend;
 
 /// Trait for types that can be used as a backend for a glium context.
-pub trait Backend {
+///
+/// This trait is unsafe, as you can get undefined behaviors or crashes if you don't implement
+/// the methods correctly.
+pub unsafe trait Backend {
     /// Swaps buffers at the end of a frame.
     fn swap_buffers(&self);
 
@@ -33,7 +36,7 @@ pub trait Facade {
     fn get_context(&self) -> &Rc<Context>;
 }
 
-impl<T> Backend for Rc<T> where T: Backend {
+unsafe impl<T> Backend for Rc<T> where T: Backend {
     fn swap_buffers(&self) {
         self.deref().swap_buffers();
     }
