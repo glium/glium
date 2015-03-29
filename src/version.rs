@@ -3,10 +3,14 @@ use std::ffi::CStr;
 use gl;
 
 /// Describes a version.
+///
+/// A version can only be compared to another version if they belong to the same API.
+/// For example, both `Version(Gl, 3, 0) >= Version(GlEs, 3, 0)` and `Version(GlEs, 3, 0) >= 
+/// Version(Gl, 3, 0)` return `false`.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Version(pub Api, pub u8, pub u8);
 
-/// Describes the corresponding API.
+/// Describes an OpenGL-related API.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Api {
     /// Regular OpenGL.
@@ -28,34 +32,42 @@ impl PartialOrd for Version {
     }
 }
 
-pub fn get_gl_version(gl: &gl::Gl) -> Version {
-    unsafe {
-        let version = gl.GetString(gl::VERSION) as *const i8;
-        let version = String::from_utf8(CStr::from_ptr(version).to_bytes().to_vec()).unwrap();
+/// Obtains the OpenGL version of the current context using the loaded functions.
+///
+/// # Unsafe
+///
+/// You must ensure that the functions belong to the current context, otherwise you will get
+/// an undefined behavior.
+pub unsafe fn get_gl_version(gl: &gl::Gl) -> Version {
+    let version = gl.GetString(gl::VERSION) as *const i8;
+    let version = String::from_utf8(CStr::from_ptr(version).to_bytes().to_vec()).unwrap();
 
-        let (version, gles) = if version.starts_with("OpenGL ES ") {
-            (&version[10..], true)
-        } else {
-            (&version[..], false)
-        };
+    let (version, api) = if version.starts_with("OpenGL ES ") {
+        (&version[10..], Api::GlEs)
+    } else {
+        (&version[..], Api::Gl)
+    };
 
-        let version = version.split(' ').next().expect("glGetString(GL_VERSION) returned an empty \
-                                                        string");
+    let version = version.split(' ').next().expect("glGetString(GL_VERSION) returned an empty \
+                                                    string");
 
-        let mut iter = version.split(move |c: char| c == '.');
-        let major = iter.next().unwrap();
-        let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
+    let mut iter = version.split(move |c: char| c == '.');
+    let major = iter.next().unwrap();
+    let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 
-        Version(
-            if gles { Api::GlEs } else { Api::Gl },
-            major.parse().ok().expect("failed to parse GL major version"),
-            minor.parse().ok().expect("failed to parse GL minor version"),
-        )
-    }
+    Version(
+        api,
+        major.parse().ok().expect("failed to parse GL major version"),
+        minor.parse().ok().expect("failed to parse GL minor version"),
+    )
 }
 
 /// Given an API version, this function returns the GLSL version that the implementation is
 /// required to support.
+///
+/// # Panic
+///
+/// Panics if the version is invalid or is not supposed to support a GLSL version.
 pub fn get_supported_glsl_version(gl_version: &Version) -> Version {
     match gl_version.0 {
         Api::Gl => {
