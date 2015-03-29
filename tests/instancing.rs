@@ -37,17 +37,19 @@ fn instancing() {
 
         implement_vertex!(Vertex, color);
 
-        match glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, 
+        glium::vertex::VertexBuffer::new(&display, 
             vec![
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
             ]
-        ) {
-            Some(b) => b,
-            None => return
-        }
+        )
+    };
+
+    let buffer2 = match buffer2.per_instance_if_supported() {
+        Some(b) => b,
+        None => return
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
@@ -89,7 +91,7 @@ fn instancing() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
+    texture.as_surface().draw((&buffer1, buffer2), &index_buffer, &program, &uniform!{},
                               &std::default::Default::default()).unwrap();
 
     let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
@@ -132,17 +134,19 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, color);
 
-        match glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, 
+        glium::vertex::VertexBuffer::new(&display, 
             vec![
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
             ]
-        ) {
-            Some(b) => b,
-            None => return
-        }
+        )
+    };
+
+    let buffer2 = match buffer2.per_instance_if_supported() {
+        Some(b) => b,
+        None => return
     };
 
     let buffer3 = {
@@ -153,16 +157,18 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, color);
 
-        match glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, 
+        glium::vertex::VertexBuffer::new(&display, 
             vec![
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
             ]
-        ) {
-            Some(b) => b,
-            None => return
-        }
+        )
+    };
+
+    let buffer3 = match buffer3.per_instance_if_supported() {
+        Some(b) => b,
+        None => return
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
@@ -185,7 +191,7 @@ fn per_instance_length_mismatch() {
         ",
         None).unwrap();
 
-    match display.draw().draw((&buffer1, &buffer2, &buffer3), &index_buffer, &program, &uniform!{},
+    match display.draw().draw((&buffer1, buffer2, buffer3), &index_buffer, &program, &uniform!{},
                               &std::default::Default::default())
     {
         Err(glium::DrawError::InstancesCountMismatch) => (),

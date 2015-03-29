@@ -63,29 +63,19 @@ use std::option::IntoIter;
 pub use self::buffer::{VertexBuffer, VertexBufferAny, Mapping};
 pub use self::buffer::{VertexBufferSlice, VertexBufferAnySlice};
 pub use self::format::{AttributeType, VertexFormat};
-pub use self::per_instance::{PerInstanceAttributesBuffer, PerInstanceAttributesBufferAny};
-pub use self::per_instance::Mapping as PerInstanceAttributesBufferMapping;
 
 mod buffer;
 mod format;
-mod per_instance;
 
 /// Describes the source to use for the vertices when drawing.
 #[derive(Clone)]
 pub enum VerticesSource<'a> {
     /// A buffer uploaded in the video memory.
     ///
-    /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
-    /// when the buffer stops being used.
-    ///
-    /// The third and fourth parameters are the offset and length of the buffer.
-    VertexBuffer(&'a VertexBufferAny, usize, usize),
-
-    /// A buffer uploaded in the video memory.
-    ///
-    /// If the second parameter is `Some`, then a fence *must* be sent with this sender for
-    /// when the buffer stops being used.
-    PerInstanceBuffer(&'a PerInstanceAttributesBufferAny),
+    /// The second and third parameters are the offset and length of the buffer.
+    /// The fourth parameter tells whether or not this buffer is "per instance" (true) or
+    // "per vertex" (false)
+    VertexBuffer(&'a VertexBufferAny, usize, usize, bool),
 }
 
 /// Objects that can be used as vertex sources.
@@ -97,6 +87,20 @@ pub trait IntoVerticesSource<'a> {
 impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
         self
+    }
+}
+
+/// Marker that instructs glium that the buffer is to be used per instance.
+pub struct PerInstance<'a>(VertexBufferAnySlice<'a>);
+
+impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
+        match self.0.into_vertices_source() {
+            VerticesSource::VertexBuffer(buf, off, len, false) => {
+                VerticesSource::VertexBuffer(buf, off, len, true)
+            },
+            _ => unreachable!()
+        }
     }
 }
 

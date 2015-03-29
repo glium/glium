@@ -3,13 +3,14 @@ use std::ops::{Deref, DerefMut};
 use std::sync::mpsc::Sender;
 
 use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
-use vertex::{Vertex, VerticesSource, IntoVerticesSource};
+use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
 use BufferExt;
 use GlObject;
 
 use backend::Facade;
+use version::{Api, Version};
 
 use gl;
 use sync;
@@ -257,6 +258,39 @@ impl<T> VertexBuffer<T> {
     pub fn len(&self) -> usize {
         self.buffer.len()
     }
+
+    /// Creates a marker that instructs glium to use multiple instances.
+    ///
+    /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
+    /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
+    /// geometry for each element in this buffer. The attributes are still passed to the
+    /// vertex shader, but each entry is passed for each different instance.
+    ///
+    /// Returns `None` if the backend doesn't support instancing.
+    pub fn per_instance_if_supported(&self) -> Option<PerInstance> {
+        if self.buffer.buffer.get_context().get_version() < &Version(Api::Gl, 3, 3) &&
+            !self.buffer.buffer.get_context().get_extensions().gl_arb_instanced_arrays
+        {
+            return None;
+        }
+
+        Some(PerInstance(VertexBufferAnySlice { buffer: &self.buffer, offset: 0, length: self.len() }))
+    }
+
+    /// Creates a marker that instructs glium to use multiple instances.
+    ///
+    /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
+    /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
+    /// geometry for each element in this buffer. The attributes are still passed to the
+    /// vertex shader, but each entry is passed for each different instance.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_instancing` feature is enabled.
+    #[cfg(feature = "gl_instancing")]
+    pub fn per_instance(&self) -> PerInstance {
+        self.per_instance_if_supported().unwrap()
+    }
 }
 
 impl<T> GlObject for VertexBuffer<T> {
@@ -319,7 +353,7 @@ impl<'a, T> BufferExt for VertexBufferSlice<'a, T> {
 
 impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(&self.buffer.buffer, self.offset, self.length)
+        VerticesSource::VertexBuffer(&self.buffer.buffer, self.offset, self.length, false)
     }
 }
 
@@ -399,13 +433,13 @@ impl GlObject for VertexBufferAny {
 
 impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self, 0, self.len())
+        VerticesSource::VertexBuffer(self, 0, self.len(), false)
     }
 }
 
 impl<'a> IntoVerticesSource<'a> for VertexBufferAnySlice<'a> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self.buffer, self.offset, self.length)
+        VerticesSource::VertexBuffer(self.buffer, self.offset, self.length, false)
     }
 }
 

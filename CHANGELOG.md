@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+ - Removed `PerInstanceAttributesBuffer` and `PerInstanceAttributesBufferAny`.
+ - Added `per_instance` and `per_instance_if_supported` to `VertexBuffer`.
  - Removed the deprecated `index_buffer` module. Use the `index` module instead.
  - Fixed viewport dimensions on retina screens.
 
