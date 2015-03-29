@@ -139,15 +139,14 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
                 ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint,
                                          uniform_name_tmp_len, &mut uniform_name_tmp_len,
                                          &mut data_size, &mut data_type,
-                                         uniform_name_tmp.as_mut_slice().as_mut_ptr()
-                                           as *mut gl::types::GLchar);
+                                         uniform_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
                 ctxt.gl.GetActiveUniformARB(program, uniform_id as gl::types::GLuint,
                                             uniform_name_tmp_len, &mut uniform_name_tmp_len,
                                             &mut data_size, &mut data_type,
-                                            uniform_name_tmp.as_mut_slice().as_mut_ptr()
+                                            uniform_name_tmp.as_mut_ptr()
                                               as *mut gl::types::GLchar);
             }
         };
@@ -214,14 +213,14 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
                 assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                 ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint,
                                         attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
-                                        &mut data_type, attr_name_tmp.as_mut_slice().as_mut_ptr()
+                                        &mut data_type, attr_name_tmp.as_mut_ptr()
                                           as *mut gl::types::GLchar);
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_vertex_shader);
                 ctxt.gl.GetActiveAttribARB(program, attribute_id as gl::types::GLuint,
                                            attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
-                                           &mut data_type, attr_name_tmp.as_mut_slice().as_mut_ptr()
+                                           &mut data_type, attr_name_tmp.as_mut_ptr()
                                              as *mut gl::types::GLchar);
             }
         };
@@ -289,8 +288,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
 
             ctxt.gl.GetActiveUniformBlockName(program, block_id as gl::types::GLuint,
                                               name_tmp_len, &mut name_tmp_len,
-                                              name_tmp.as_mut_slice().as_mut_ptr()
-                                              as *mut gl::types::GLchar);
+                                              name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
             name_tmp.set_len(name_tmp_len as usize);
             String::from_utf8(name_tmp).unwrap()
         };
