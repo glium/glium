@@ -52,7 +52,7 @@ pub fn expand(ecx: &mut base::ExtCtxt, span: codemap::Span,
             let ref attr = attr.node;
             let src = ::syntax::ext::quote::rt::ToSource::to_source(attr);
 
-            if src.as_slice().contains("derive") && src.as_slice().contains("Copy") {
+            if src.contains("derive") && src.contains("Copy") {
                 found = true;
                 break;
             }
