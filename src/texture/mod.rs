@@ -57,14 +57,14 @@ use Rect;
 use BlitTarget;
 use uniforms;
 
-use self::tex_impl::{TextureImplementation, TextureFormatRequest};
+use self::tex_impl::TextureImplementation;
+use image_format::TextureFormatRequest;
 
-pub use self::format::{ClientFormat, TextureFormat};
-pub use self::format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
-pub use self::format::{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat};
+pub use image_format::{ClientFormat, TextureFormat};
+pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
+pub use image_format::{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat};
 pub use self::pixel::PixelValue;
 
-mod format;
 mod pixel;
 mod tex_impl;
 

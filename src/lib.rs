@@ -205,6 +205,7 @@ mod buffer;
 mod context;
 mod draw_parameters;
 mod fbo;
+mod image_format;
 mod ops;
 mod sampler_object;
 mod sync;
