@@ -69,24 +69,24 @@ texture.as_surface().draw(&amp;vertex_buffer, &amp;index_buffer, &amp;program,
     <h3>Persistent mapping</h3>
 
     <pre><code>struct UniformBlockData {
-matrix: [[f32; 4]; 4],
-light: [f32; 3]
+    matrix: [[f32; 4]; 4],
+    light: [f32; 3]
 }
 
 let mut buffer = glium::UniformBuffer::new_persistent(&amp;display, UniformBlockData {
-matrix: build_identity_matrix(),
-light: [12.4, -0.4, 3.8]
+    matrix: build_identity_matrix(),
+    light: [12.4, -0.4, 3.8]
 });
 
 loop {
-buffer.map().light[0] += 0.1;   // `map()` returns the existing mapping
+    buffer.map().light[0] += 0.1;   // `map()` returns the existing mapping
 
-// the mapping must be released before using the buffer
-texture.as_surface().draw(&amp;vertex_buffer, &amp;index_buffer, &amp;program,
-                        uniforms! { MyBlock: &amp;buffer }, &amp;params).unwrap();
+    // the mapping must be released before using the buffer
+    texture.as_surface().draw(&amp;vertex_buffer, &amp;index_buffer, &amp;program,
+                              uniforms! { MyBlock: &amp;buffer }, &amp;params).unwrap();
 
-// at the next cycle, the call to `buffer.map()` will block until the GPU has finished
-// its draw call
+    // at the next cycle, the call to `buffer.map()` will block until the GPU has finished
+    // its draw call
 }</code></pre>
 
     <p>High-performance OpenGL applications need to reduce driver overhead by using
