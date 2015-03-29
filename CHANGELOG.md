@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Removed the deprecated `index_buffer` module. Use the `index` module instead.
  - Fixed viewport dimensions on retina screens.
 
 ## Version 0.1.3 (2015-03-24) & 0.1.4 (2015-03-26)
