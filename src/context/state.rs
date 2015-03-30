@@ -105,6 +105,24 @@ pub struct GLState {
     /// The latest values passed to `glDepthRange`.
     pub depth_range: (f32, f32),
 
+    /// The latest values passed to `glStencilFuncSeparate` with face `GL_FRONT`.
+    pub stencil_func_front: (gl::types::GLenum, gl::types::GLint, gl::types::GLuint),
+
+    /// The latest values passed to `glStencilFuncSeparate` with face `GL_BACK`.
+    pub stencil_func_back: (gl::types::GLenum, gl::types::GLint, gl::types::GLuint),
+
+    /// The latest value passed to `glStencilMaskSeparate` with face `GL_FRONT`.
+    pub stencil_mask_front: gl::types::GLuint,
+
+    /// The latest value passed to `glStencilMaskSeparate` with face `GL_BACK`.
+    pub stencil_mask_back: gl::types::GLuint,
+
+    /// The latest values passed to `glStencilOpSeparate` with face `GL_FRONT`.
+    pub stencil_op_front: (gl::types::GLenum, gl::types::GLenum, gl::types::GLenum),
+
+    /// The latest values passed to `glStencilOpSeparate` with face `GL_BACK`.
+    pub stencil_op_back: (gl::types::GLenum, gl::types::GLenum, gl::types::GLenum),
+
     /// The latest values passed to `glViewport`. `None` means unknown.
     pub viewport: Option<(gl::types::GLint, gl::types::GLint,
                           gl::types::GLsizei, gl::types::GLsizei)>,
@@ -172,6 +190,12 @@ impl Default for GLState {
             depth_func: gl::LESS,
             depth_mask: true,
             depth_range: (0.0, 1.0),
+            stencil_func_front: (gl::ALWAYS, 0, 0xffffffff),
+            stencil_func_back: (gl::ALWAYS, 0, 0xffffffff),
+            stencil_mask_front: 0xffffffff,
+            stencil_mask_back: 0xffffffff,
+            stencil_op_front: (gl::KEEP, gl::KEEP, gl::KEEP),
+            stencil_op_back: (gl::KEEP, gl::KEEP, gl::KEEP),
             blend_equation: gl::FUNC_ADD,
             blend_func: (gl::ONE, gl::ZERO),
             viewport: None,

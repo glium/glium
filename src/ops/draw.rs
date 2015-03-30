@@ -21,6 +21,7 @@ use vertex::{MultiVerticesSource, VerticesSource};
 use draw_parameters::DrawParameters;
 use draw_parameters::{BlendingFunction, BackfaceCullingMode};
 use draw_parameters::{DepthTest, PolygonMode};
+use draw_parameters::{StencilTest};
 use Rect;
 
 use program;
@@ -234,6 +235,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     unsafe {
         sync_depth(&mut ctxt, draw_parameters.depth_test, draw_parameters.depth_write,
                    draw_parameters.depth_range);
+        sync_stencil(&mut ctxt, &draw_parameters);
         sync_blending(&mut ctxt, draw_parameters.blending_function);
         sync_line_width(&mut ctxt, draw_parameters.line_width);
         sync_point_size(&mut ctxt, draw_parameters.point_size);
@@ -659,6 +661,80 @@ fn sync_depth(ctxt: &mut context::CommandContext, depth_test: DepthTest, depth_w
             ctxt.gl.DepthRange(depth_range.0 as f64, depth_range.1 as f64);
         }
         ctxt.state.depth_range = depth_range;
+    }
+}
+
+fn sync_stencil(ctxt: &mut context::CommandContext, params: &DrawParameters) {
+    // TODO: optimize me
+
+    let (test_cw, read_mask_cw) = match params.stencil_test_clockwise {
+        StencilTest::AlwaysPass => (gl::ALWAYS, 0),
+        StencilTest::AlwaysFail => (gl::NEVER, 0),
+        StencilTest::IfLess { mask } => (gl::LESS, mask),
+        StencilTest::IfLessOrEqual { mask } => (gl::LEQUAL, mask),
+        StencilTest::IfMore { mask } => (gl::GREATER, mask),
+        StencilTest::IfMoreOrEqual { mask } => (gl::GEQUAL, mask),
+        StencilTest::IfEqual { mask } => (gl::EQUAL, mask),
+        StencilTest::IfNotEqual { mask } => (gl::NOTEQUAL, mask),
+    };
+
+    let (test_ccw, read_mask_ccw) = match params.stencil_test_counter_clockwise {
+        StencilTest::AlwaysPass => (gl::ALWAYS, 0),
+        StencilTest::AlwaysFail => (gl::NEVER, 0),
+        StencilTest::IfLess { mask } => (gl::LESS, mask),
+        StencilTest::IfLessOrEqual { mask } => (gl::LEQUAL, mask),
+        StencilTest::IfMore { mask } => (gl::GREATER, mask),
+        StencilTest::IfMoreOrEqual { mask } => (gl::GEQUAL, mask),
+        StencilTest::IfEqual { mask } => (gl::EQUAL, mask),
+        StencilTest::IfNotEqual { mask } => (gl::NOTEQUAL, mask),
+    };
+
+    if ctxt.state.stencil_func_back != (test_cw, params.stencil_reference_value_clockwise, read_mask_cw) {
+        unsafe { ctxt.gl.StencilFuncSeparate(gl::BACK, test_cw, params.stencil_reference_value_clockwise, read_mask_cw) };
+        ctxt.state.stencil_func_back = (test_cw, params.stencil_reference_value_clockwise, read_mask_cw);
+    }
+
+    if ctxt.state.stencil_func_front != (test_ccw, params.stencil_reference_value_counter_clockwise, read_mask_ccw) {
+        unsafe { ctxt.gl.StencilFuncSeparate(gl::FRONT, test_cw, params.stencil_reference_value_clockwise, read_mask_cw) };
+        ctxt.state.stencil_func_front = (test_ccw, params.stencil_reference_value_counter_clockwise, read_mask_ccw);
+    }
+
+    if ctxt.state.stencil_mask_back != params.stencil_write_mask_clockwise {
+        unsafe { ctxt.gl.StencilMaskSeparate(gl::BACK, params.stencil_write_mask_clockwise) };
+        ctxt.state.stencil_mask_back = params.stencil_write_mask_clockwise;
+    }
+
+    if ctxt.state.stencil_mask_front != params.stencil_write_mask_clockwise {
+        unsafe { ctxt.gl.StencilMaskSeparate(gl::FRONT, params.stencil_write_mask_clockwise) };
+        ctxt.state.stencil_mask_front = params.stencil_write_mask_clockwise;
+    }
+
+    let op_back = (params.stencil_fail_operation_clockwise.to_glenum(),
+                   params.stencil_pass_depth_fail_operation_clockwise.to_glenum(),
+                   params.stencil_depth_pass_operation_clockwise.to_glenum());
+    if ctxt.state.stencil_op_back != op_back {
+        unsafe { ctxt.gl.StencilOpSeparate(gl::BACK, op_back.0, op_back.1, op_back.2) };
+        ctxt.state.stencil_op_back = op_back;
+    }
+
+    let op_front = (params.stencil_fail_operation_counter_clockwise.to_glenum(),
+                    params.stencil_pass_depth_fail_operation_counter_clockwise.to_glenum(),
+                    params.stencil_depth_pass_operation_counter_clockwise.to_glenum());
+    if ctxt.state.stencil_op_front != op_front {
+        unsafe { ctxt.gl.StencilOpSeparate(gl::FRONT, op_front.0, op_front.1, op_front.2) };
+        ctxt.state.stencil_op_front = op_front;
+    }
+
+    let enable_stencil = test_cw != gl::ALWAYS || test_ccw != gl::ALWAYS ||
+                         op_back.0 != gl::KEEP || op_front.0 != gl::KEEP;
+    if ctxt.state.enabled_stencil_test != enable_stencil {
+        if enable_stencil {
+            unsafe { ctxt.gl.Enable(gl::STENCIL_TEST) };
+        } else {
+            unsafe { ctxt.gl.Disable(gl::STENCIL_TEST) };
+        }
+
+        ctxt.state.enabled_stencil_test = enable_stencil;
     }
 }
 
