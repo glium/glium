@@ -636,14 +636,12 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
             Handle::Id(id) => {
                 assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                 ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
-                                          error_log.as_mut_slice().as_mut_ptr()
-                                            as *mut gl::types::GLchar);
+                                          error_log.as_mut_ptr() as *mut gl::types::GLchar);
             },
             Handle::Handle(id) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
                 ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
-                                      error_log.as_mut_slice().as_mut_ptr()
-                                        as *mut gl::types::GLchar);
+                                      error_log.as_mut_ptr() as *mut gl::types::GLchar);
             }
         }
 

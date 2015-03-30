@@ -153,14 +153,12 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                             ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
-                                             error_log.as_mut_slice().as_mut_ptr()
-                                               as *mut gl::types::GLchar);
+                                             error_log.as_mut_ptr() as *mut gl::types::GLchar);
                 },
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
                     ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
-                                          error_log.as_mut_slice().as_mut_ptr()
-                                            as *mut gl::types::GLchar);
+                                          error_log.as_mut_ptr() as *mut gl::types::GLchar);
                 }
             }
 
