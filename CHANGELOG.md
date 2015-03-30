@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.2.0 (2015-03-30)
 
  - Removed `PerInstanceAttributesBuffer` and `PerInstanceAttributesBufferAny`.
  - Added `per_instance` and `per_instance_if_supported` to `VertexBuffer`.
