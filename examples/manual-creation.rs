@@ -36,7 +36,7 @@ fn main() {
         window: Rc<glutin::Window>,
     }
 
-    impl glium::backend::Backend for Backend {
+    unsafe impl glium::backend::Backend for Backend {
         fn swap_buffers(&self) {
             self.window.swap_buffers();
         }
