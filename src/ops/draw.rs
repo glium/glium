@@ -410,19 +410,19 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
             uniform!(ctxt, Uniform1f, Uniform1fARB, location, val);
             Ok(())
         },
-        UniformValue::Mat2(val, transpose) => {
+        UniformValue::Mat2(val) => {
             uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
-                     location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
+                     location, 1, gl::FALSE, val.as_ptr() as *const f32);
             Ok(())
         },
-        UniformValue::Mat3(val, transpose) => {
+        UniformValue::Mat3(val) => {
             uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
-                     location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
+                     location, 1, gl::FALSE, val.as_ptr() as *const f32);
             Ok(())
         },
-        UniformValue::Mat4(val, transpose) => {
+        UniformValue::Mat4(val) => {
             uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
-                     location, 1, if transpose { 1 } else { 0 }, val.as_ptr() as *const f32);
+                     location, 1, gl::FALSE, val.as_ptr() as *const f32);
             Ok(())
         },
         UniformValue::Vec2(val) => {
