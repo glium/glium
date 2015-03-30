@@ -35,7 +35,7 @@ fn main() {
         )
     };
 
-    // building the instances buffer
+    // building the vertex buffer with the attributes per instance
     let per_instance = {
         #[derive(Copy)]
         struct Attr {
@@ -53,7 +53,7 @@ fn main() {
             }
         }
 
-        glium::vertex::PerInstanceAttributesBuffer::new_if_supported(&display, data).unwrap()
+        glium::vertex::VertexBuffer::new(&display, data)
     };
 
     let index_buffer = glium::IndexBuffer::new(&display,
@@ -85,7 +85,8 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw((&vertex_buffer, &per_instance), &index_buffer, &program, &uniform!{},
+        target.draw((&vertex_buffer, per_instance.per_instance_if_supported().unwrap()),
+                    &index_buffer, &program, &uniform!{},
                     &std::default::Default::default()).unwrap();
         target.finish();
 

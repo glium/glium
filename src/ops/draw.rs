@@ -47,12 +47,11 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     // TODO: 
     for src in vertex_buffers.iter() {
         match src {
-            &VerticesSource::VertexBuffer(_, offset, _) => {
+            &VerticesSource::VertexBuffer(_, offset, _, _) => {
                 if offset != 0 {
                     panic!("Using a base vertex different from 0 is not yet implemented");
                 }
             },
-            _ => ()
         }
     }
 
@@ -62,7 +61,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         let mut vertices_count: Option<usize> = None;
         for src in vertex_buffers.iter() {
             match src {
-                &VerticesSource::VertexBuffer(_, _, len) => {
+                &VerticesSource::VertexBuffer(_, _, len, false) => {
                     if let Some(curr) = vertices_count {
                         if curr != len {
                             vertices_count = None;
@@ -83,7 +82,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         let mut instances_count: Option<usize> = None;
         for src in vertex_buffers.iter() {
             match src {
-                &VerticesSource::PerInstanceBuffer(ref buffer) => {
+                &VerticesSource::VertexBuffer(ref buffer, _, _, true) => {
                     if let Some(curr) = instances_count {
                         if curr != buffer.len() {
                             return Err(DrawError::InstancesCountMismatch);
@@ -214,12 +213,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         // adding the vertex buffer and index buffer to the list of fences
         for vertex_buffer in vertex_buffers.iter_mut() {
             match vertex_buffer {
-                &mut VerticesSource::VertexBuffer(ref buffer, _, _) => {
-                    if let Some(fence) = buffer.add_fence() {
-                        fences.push(fence);
-                    }
-                }
-                &mut VerticesSource::PerInstanceBuffer(ref buffer) => {
+                &mut VerticesSource::VertexBuffer(ref buffer, _, _, _) => {
                     if let Some(fence) = buffer.add_fence() {
                         fences.push(fence);
                     }
