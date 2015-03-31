@@ -12,7 +12,7 @@ build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
 
 [features]
-default = ["image", "nalgebra", "gl_read_buffer", "gl_depth_textures"]
+default = ["image", "nalgebra", "cgmath", "gl_read_buffer", "gl_depth_textures"]
 gl_read_buffer = []
 gl_uniform_blocks = []
 gl_sync = []
