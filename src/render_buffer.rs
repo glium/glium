@@ -19,7 +19,7 @@ use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilF
 use image_format;
 
 use gl;
-use {GlObject, ToGlEnum};
+use GlObject;
 use backend::Facade;
 use context::Context;
 use ContextExt;
@@ -78,8 +78,12 @@ impl DepthRenderBuffer {
     pub fn new<F>(facade: &F, format: DepthFormat, width: u32, height: u32)
                   -> DepthRenderBuffer where F: Facade
     {
+        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthFormat(format));
+        let (_, format) = image_format::format_request_to_glenum(&facade.get_context(), None, format).unwrap();
+        let format = format.expect("Format not supported");
+
         DepthRenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format, width, height)
         }
     }
 
@@ -114,8 +118,12 @@ impl StencilRenderBuffer {
     pub fn new<F>(facade: &F, format: StencilFormat, width: u32, height: u32)
                   -> StencilRenderBuffer where F: Facade
     {
+        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::StencilFormat(format));
+        let (_, format) = image_format::format_request_to_glenum(&facade.get_context(), None, format).unwrap();
+        let format = format.expect("Format not supported");
+
         StencilRenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format, width, height)
         }
     }
 
@@ -150,8 +158,12 @@ impl DepthStencilRenderBuffer {
     pub fn new<F>(facade: &F, format: DepthStencilFormat, width: u32, height: u32)
                   -> DepthStencilRenderBuffer where F: Facade
     {
+        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthStencilFormat(format));
+        let (_, format) = image_format::format_request_to_glenum(&facade.get_context(), None, format).unwrap();
+        let format = format.expect("Format not supported");
+
         DepthStencilRenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format, width, height)
         }
     }
 
