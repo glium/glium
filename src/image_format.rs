@@ -12,21 +12,41 @@ use version::{Api, Version};
 #[derive(Copy, Debug)]
 pub struct FormatNotSupportedError;
 
-#[derive(Copy, Clone)]
+/// Texture format request.
+#[derive(Copy, Clone, Debug)]
 pub enum TextureFormatRequest {
+    /// Request a specific format.
     Specific(TextureFormat),
+
+    /// Request any floating-point format, normalized or not.
     AnyFloatingPoint,
+
+    // TODO: 
+    // /// Request any floating-point format represented with floats.
+    //AnyFloatingPointFloat,
+
+    /// Request any compressed format.
     AnyCompressed,
+
+    /// Request any integral format.
     AnyIntegral,
+
+    /// Request any unsigned format.
     AnyUnsigned,
+
+    /// Request any depth format.
     AnyDepth,
+
+    /// Request any stencil format.
     AnyStencil,
+
+    /// Request any depth-stencil format.
     AnyDepthStencil,
 }
 
 /// List of client-side pixel formats.
 ///
-/// These are all the possible formats of data when uploading to a texture.
+/// These are all the possible formats of input data when uploading to a texture.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClientFormat {
