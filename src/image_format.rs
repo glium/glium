@@ -479,6 +479,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
     let extensions = context.get_extensions();
 
     Ok(match format {
+        /*******************************************************************/
+        /*                           REGULAR                               */
+        /*******************************************************************/
         TextureFormatRequest::AnyFloatingPoint => {
             let size = client.map(|c| c.get_num_components());
 
@@ -789,6 +792,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
+        /*******************************************************************/
+        /*                         COMPRESSED                              */
+        /*******************************************************************/
         TextureFormatRequest::AnyCompressed => {
             let size = client.map(|c| c.get_num_components());
 
@@ -826,6 +832,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                 return Err(FormatNotSupportedError);
             }
         },
+
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatI)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_SIGNED_RED_RGTC1, Some(gl::COMPRESSED_SIGNED_RED_RGTC1))
@@ -833,6 +840,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                 return Err(FormatNotSupportedError);
             }
         },
+
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatUU)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_RG_RGTC2, Some(gl::COMPRESSED_RG_RGTC2))
@@ -840,6 +848,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                 return Err(FormatNotSupportedError);
             }
         },
+
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatII)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_SIGNED_RG_RGTC2, Some(gl::COMPRESSED_SIGNED_RG_RGTC2))
@@ -848,6 +857,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
+        /*******************************************************************/
+        /*                          INTEGRAL                               */
+        /*******************************************************************/
         TextureFormatRequest::AnyIntegral => {
             let size = client.map(|c| c.get_num_components());
 
@@ -993,6 +1005,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
+        /*******************************************************************/
+        /*                          UNSIGNED                               */
+        /*******************************************************************/
         TextureFormatRequest::AnyUnsigned => {
             let size = client.map(|c| c.get_num_components());
 
@@ -1147,7 +1162,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-
+        /*******************************************************************/
+        /*                            DEPTH                                */
+        /*******************************************************************/
         TextureFormatRequest::AnyDepth => {
             if version >= &Version(Api::Gl, 2, 0) {
                 (gl::DEPTH_COMPONENT, Some(gl::DEPTH_COMPONENT24))
@@ -1192,6 +1209,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
+        /*******************************************************************/
+        /*                           STENCIL                               */
+        /*******************************************************************/
         TextureFormatRequest::AnyStencil => {
             if version < &Version(Api::Gl, 3, 0) {
                 return Err(FormatNotSupportedError);
@@ -1208,6 +1228,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             unimplemented!();
         },
 
+        /*******************************************************************/
+        /*                        DEPTH-STENCIL                            */
+        /*******************************************************************/
         TextureFormatRequest::AnyDepthStencil => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::DEPTH_STENCIL, Some(gl::DEPTH24_STENCIL8))
