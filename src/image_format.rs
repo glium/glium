@@ -3,7 +3,6 @@ This private module handles the various image formats in OpenGL.
 
 */
 use gl;
-use ToGlEnum;
 use context::Context;
 
 use version::{Api, Version};
@@ -394,17 +393,6 @@ impl CompressedFormat {
     }
 }
 
-impl ToGlEnum for CompressedFormat {
-    fn to_glenum(&self) -> gl::types::GLenum {
-        match *self {
-            CompressedFormat::RGTCFormatU => gl::COMPRESSED_RED_RGTC1,
-            CompressedFormat::RGTCFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
-            CompressedFormat::RGTCFormatUU => gl::COMPRESSED_RG_RGTC2,
-            CompressedFormat::RGTCFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
-        }
-    }
-}
-
 /// List of formats available for depth textures.
 ///
 /// `I16`, `I24` and `I32` are still treated as if they were floating points.
@@ -526,7 +514,6 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                 (size.unwrap_or(4) as gl::types::GLenum, None)
             }
         },
-
 
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8)) => {
             if version >= &Version(Api::Gl, 3, 0) {
@@ -802,9 +789,60 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(f)) => {
-            if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
-                (f.to_glenum(), Some(f.to_glenum()))
+        TextureFormatRequest::AnyCompressed => {
+            let size = client.map(|c| c.get_num_components());
+
+            if version >= &Version(Api::Gl, 1, 1) {
+                match size {
+                    Some(1) => if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_rg {
+                        (gl::COMPRESSED_RED, None)
+                    } else {
+                        // format not supported
+                        (1, None)
+                    },
+                    Some(2) => if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_rg {
+                        (gl::COMPRESSED_RG, None)
+                    } else {
+                        // format not supported
+                        (2, None)
+                    },
+                    Some(3) => (gl::COMPRESSED_RGB, None),
+                    Some(4) => (gl::COMPRESSED_RGBA, None),
+                    None => (gl::COMPRESSED_RGBA, None),
+                    _ => unreachable!(),
+                }
+
+            } else {
+                // OpenGL 1.0 doesn't support compressed textures, so we use a
+                // regular float format instead
+                (size.unwrap_or(4) as gl::types::GLenum, None)
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatU)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::COMPRESSED_RED_RGTC1, Some(gl::COMPRESSED_RED_RGTC1))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatI)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::COMPRESSED_SIGNED_RED_RGTC1, Some(gl::COMPRESSED_SIGNED_RED_RGTC1))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatUU)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::COMPRESSED_RG_RGTC2, Some(gl::COMPRESSED_RG_RGTC2))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatII)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::COMPRESSED_SIGNED_RG_RGTC2, Some(gl::COMPRESSED_SIGNED_RG_RGTC2))
             } else {
                 return Err(FormatNotSupportedError);
             }
@@ -952,36 +990,6 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                 (gl::RGBA32I, Some(gl::RGBA32I))
             } else {
                 return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::AnyCompressed => {
-            let size = client.map(|c| c.get_num_components());
-
-            if version >= &Version(Api::Gl, 1, 1) {
-                match size {
-                    Some(1) => if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_rg {
-                        (gl::COMPRESSED_RED, None)
-                    } else {
-                        // format not supported
-                        (1, None)
-                    },
-                    Some(2) => if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_rg {
-                        (gl::COMPRESSED_RG, None)
-                    } else {
-                        // format not supported
-                        (2, None)
-                    },
-                    Some(3) => (gl::COMPRESSED_RGB, None),
-                    Some(4) => (gl::COMPRESSED_RGBA, None),
-                    None => (gl::COMPRESSED_RGBA, None),
-                    _ => unreachable!(),
-                }
-
-            } else {
-                // OpenGL 1.0 doesn't support compressed textures, so we use a
-                // regular float format instead
-                (size.unwrap_or(4) as gl::types::GLenum, None)
             }
         },
 
