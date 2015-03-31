@@ -315,47 +315,6 @@ impl UncompressedFloatFormat {
     }
 }
 
-impl ToGlEnum for UncompressedFloatFormat {
-    fn to_glenum(&self) -> gl::types::GLenum {
-        match *self {
-            UncompressedFloatFormat::U8 => gl::R8,
-            UncompressedFloatFormat::I8 => gl::R8_SNORM,
-            UncompressedFloatFormat::U16 => gl::R16,
-            UncompressedFloatFormat::I16 => gl::R16_SNORM,
-            UncompressedFloatFormat::U8U8 => gl::RG8,
-            UncompressedFloatFormat::I8I8 => gl::RG8_SNORM,
-            UncompressedFloatFormat::U16U16 => gl::RG16,
-            UncompressedFloatFormat::I16I16 => gl::RG16_SNORM,
-            UncompressedFloatFormat::U3U32U => gl::R3_G3_B2,
-            UncompressedFloatFormat::U4U4U4 => gl::RGB4,
-            UncompressedFloatFormat::U5U5U5 => gl::RGB5,
-            UncompressedFloatFormat::U8U8U8 => gl::RGB8,
-            UncompressedFloatFormat::I8I8I8 => gl::RGB8_SNORM,
-            UncompressedFloatFormat::U10U10U10 => gl::RGB10,
-            UncompressedFloatFormat::U12U12U12 => gl::RGB12,
-            UncompressedFloatFormat::I16I16I16 => gl::RGB16_SNORM,
-            UncompressedFloatFormat::U2U2U2U2 => gl::RGBA2,
-            UncompressedFloatFormat::U4U4U4U4 => gl::RGBA4,
-            UncompressedFloatFormat::U5U5U5U1 => gl::RGB5_A1,
-            UncompressedFloatFormat::U8U8U8U8 => gl::RGBA8,
-            UncompressedFloatFormat::I8I8I8I8 => gl::RGBA8_SNORM,
-            UncompressedFloatFormat::U10U10U10U2 => gl::RGB10_A2,
-            UncompressedFloatFormat::U12U12U12U12 => gl::RGBA12,
-            UncompressedFloatFormat::U16U16U16U16 => gl::RGBA16,
-            UncompressedFloatFormat::F16 => gl::R16F,
-            UncompressedFloatFormat::F16F16 => gl::RG16F,
-            UncompressedFloatFormat::F16F16F16 => gl::RGB16F,
-            UncompressedFloatFormat::F16F16F16F16 => gl::RGBA16F,
-            UncompressedFloatFormat::F32 => gl::R32F,
-            UncompressedFloatFormat::F32F32 => gl::RG32F,
-            UncompressedFloatFormat::F32F32F32 => gl::RGB32F,
-            UncompressedFloatFormat::F32F32F32F32 => gl::RGBA32F,
-            UncompressedFloatFormat::F11F11F10 => gl::R11F_G11F_B10F,
-            UncompressedFloatFormat::F9F9F9 => gl::RGB9_E5,
-        }
-    }
-}
-
 /// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -638,24 +597,278 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(f)) => {
-            let value = f.to_glenum();
-            match value {
-                gl::RGB | gl::RGBA => {
-                    (value, None)
-                },
-                gl::RGB4 | gl::RGB5 | gl::RGB8 | gl::RGB10 | gl::RGB12 | gl::RGB16 |
-                gl::RGBA2 | gl::RGBA4 | gl::RGB5_A1 | gl::RGBA8 | gl::RGB10_A2 |
-                gl::RGBA12 | gl::RGBA16 | gl::R3_G3_B2 => {
-                    (value, Some(value))
-                },
-                _ => {
-                    if version >= &Version(Api::Gl, 3, 0) {
-                        (value, Some(value))
-                    } else {
-                        return Err(FormatNotSupportedError);
-                    }
-                }
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R8, Some(gl::R8))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R8_SNORM, Some(gl::R8_SNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R16, Some(gl::R16))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R16_SNORM, Some(gl::R16_SNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RG8, Some(gl::RG8))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RG8_SNORM, Some(gl::RG8_SNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16U16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RG16, Some(gl::RG16))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RG16_SNORM, Some(gl::RG16_SNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U3U32U)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::R3_G3_B2, Some(gl::R3_G3_B2))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U4U4U4)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB4, Some(gl::RGB4))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U5U5U5)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB5, Some(gl::RGB5))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8U8)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB8, Some(gl::RGB8))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGB8_SNORM, Some(gl::RGB8_SNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U10U10U10)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB10, Some(gl::RGB10))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U12U12U12)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB12, Some(gl::RGB12))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I16I16I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGB16_SNORM, Some(gl::RGB16_SNORM))
+            } else if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB16, Some(gl::RGB16))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U2U2U2U2)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGBA2, Some(gl::RGBA2))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U4U4U4U4)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGBA4, Some(gl::RGBA4))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U5U5U5U1)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB5_A1, Some(gl::RGB5_A1))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U8U8U8U8)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGBA8, Some(gl::RGBA8))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::I8I8I8I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGBA8_SNORM, Some(gl::RGBA8_SNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U10U10U10U2)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGB10_A2, Some(gl::RGB10_A2))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U12U12U12U12)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGBA12, Some(gl::RGBA12))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::U16U16U16U16)) => {
+            if version >= &Version(Api::Gl, 1, 1) {
+                (gl::RGBA16, Some(gl::RGBA16))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R16F, Some(gl::R16F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RG16F, Some(gl::RG16F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16F16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGB16F, Some(gl::RGB16F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F16F16F16F16)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGBA16F, Some(gl::RGBA16F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R32F, Some(gl::R32F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RG32F, Some(gl::RG32F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32F32)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGB32F, Some(gl::RGB32F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F32F32F32F32)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGBA32F, Some(gl::RGBA32F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F11F11F10)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::R11F_G11F_B10F, Some(gl::R11F_G11F_B10F))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(UncompressedFloatFormat::F9F9F9)) => {
+            if version >= &Version(Api::Gl, 3, 0) {
+                (gl::RGB9_E5, Some(gl::RGB9_E5))
+            } else {
+                return Err(FormatNotSupportedError);
             }
         },
 

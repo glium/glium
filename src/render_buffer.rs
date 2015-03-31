@@ -16,6 +16,8 @@ use framebuffer::{StencilAttachment, ToStencilAttachment};
 use framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
 use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat};
 
+use image_format;
+
 use gl;
 use {GlObject, ToGlEnum};
 use backend::Facade;
@@ -36,8 +38,12 @@ impl RenderBuffer {
     pub fn new<F>(facade: &F, format: UncompressedFloatFormat, width: u32, height: u32)
                   -> RenderBuffer where F: Facade
     {
+        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::UncompressedFloat(format));
+        let (_, format) = image_format::format_request_to_glenum(&facade.get_context(), None, format).unwrap();
+        let format = format.expect("Format not supported");
+
         RenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format.to_glenum(), width, height)
+            buffer: RenderBufferImpl::new(facade, format, width, height)
         }
     }
 
