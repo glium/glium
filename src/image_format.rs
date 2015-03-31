@@ -812,10 +812,12 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
         },
 
         TextureFormatRequest::AnyDepth => {
-            if version >= &Version(Api::Gl, 1, 4) {
-                (gl::DEPTH_COMPONENT, None)
+            if version >= &Version(Api::Gl, 2, 0) {
+                (gl::DEPTH_COMPONENT, Some(gl::DEPTH_COMPONENT24))
+            } else if version >= &Version(Api::Gl, 1, 4) {
+                (gl::DEPTH_COMPONENT, None)     // TODO: sized format?
             } else if extensions.gl_arb_depth_texture {
-                (gl::DEPTH_COMPONENT, None)
+                (gl::DEPTH_COMPONENT, None)     // TODO: sized format?
             } else {
                 return Err(FormatNotSupportedError);
             }
@@ -835,9 +837,9 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
 
         TextureFormatRequest::AnyDepthStencil => {
             if version >= &Version(Api::Gl, 3, 0) {
-                (gl::DEPTH_STENCIL, None)
+                (gl::DEPTH_STENCIL, Some(gl::DEPTH24_STENCIL8))
             } else if extensions.gl_ext_packed_depth_stencil {
-                (gl::DEPTH_STENCIL_EXT, None)
+                (gl::DEPTH_STENCIL_EXT, Some(gl::DEPTH24_STENCIL8_EXT))
             } else {
                 return Err(FormatNotSupportedError);
             }
