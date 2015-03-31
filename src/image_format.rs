@@ -343,25 +343,6 @@ impl UncompressedIntFormat {
     }
 }
 
-impl ToGlEnum for UncompressedIntFormat {
-    fn to_glenum(&self) -> gl::types::GLenum {
-        match *self {
-            UncompressedIntFormat::I8 => gl::R8I,
-            UncompressedIntFormat::I16 => gl::R16I,
-            UncompressedIntFormat::I32 => gl::R32I,
-            UncompressedIntFormat::I8I8 => gl::RG8I,
-            UncompressedIntFormat::I16I16 => gl::RG16I,
-            UncompressedIntFormat::I32I32 => gl::RG32I,
-            UncompressedIntFormat::I8I8I8 => gl::RGB8I,
-            UncompressedIntFormat::I16I16I16 => gl::RGB16I,
-            UncompressedIntFormat::I32I32I32 => gl::RGB32I,
-            UncompressedIntFormat::I8I8I8I8 => gl::RGBA8I,
-            UncompressedIntFormat::I16I16I16I16 => gl::RGBA16I,
-            UncompressedIntFormat::I32I32I32I32 => gl::RGBA32I,
-        }
-    }
-}
-
 /// List of uncompressed pixel formats that contain unsigned integral data.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -880,9 +861,146 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(f)) => {
-            if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
-                (f.to_glenum(), Some(f.to_glenum()))
+        TextureFormatRequest::AnyIntegral => {
+            let size = client.map(|c| c.get_num_components());
+
+            if version >= &Version(Api::Gl, 3, 0) {
+                match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
+                    Some(1) => (gl::R32I, Some(gl::R32I)),
+                    Some(2) => (gl::RG32I, Some(gl::RG32I)),
+                    Some(3) => (gl::RGB32I, Some(gl::RGB32I)),
+                    Some(4) => (gl::RGBA32I, Some(gl::RGBA32I)),
+                    None => (gl::RGBA32I, Some(gl::RGBA32I)),
+                    _ => unreachable!(),
+                }
+
+            } else {
+                if !extensions.gl_ext_texture_integer {
+                    return Err(FormatNotSupportedError);
+                }
+
+                match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
+                    Some(1) => if extensions.gl_arb_texture_rg {
+                        (gl::R32I, Some(gl::R32I))
+                    } else {
+                        return Err(FormatNotSupportedError);
+                    },
+                    Some(2) => if extensions.gl_arb_texture_rg {
+                        (gl::RG32I, Some(gl::RG32I))
+                    } else {
+                        return Err(FormatNotSupportedError);
+                    },
+                    Some(3) => (gl::RGB32I_EXT, Some(gl::RGB32I_EXT)),
+                    Some(4) => (gl::RGBA32I_EXT, Some(gl::RGBA32I_EXT)),
+                    None => (gl::RGBA32I_EXT, Some(gl::RGBA32I_EXT)),
+                    _ => unreachable!(),
+                }
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
+                                                      extensions.gl_arb_texture_rg)
+            {
+                (gl::R8I, Some(gl::R8I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
+                                                      extensions.gl_arb_texture_rg)
+            {
+                (gl::R16I, Some(gl::R16I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32)) => {
+            if version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
+                                                      extensions.gl_arb_texture_rg)
+            {
+                (gl::R32I, Some(gl::R32I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
+                                                      extensions.gl_arb_texture_rg)
+            {
+                (gl::RG8I, Some(gl::RG8I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
+                                                      extensions.gl_arb_texture_rg)
+            {
+                (gl::RG16I, Some(gl::RG16I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32)) => {
+            if version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
+                                                      extensions.gl_arb_texture_rg)
+            {
+                (gl::RG32I, Some(gl::RG32I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer {
+                (gl::RGB8I, Some(gl::RGB8I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer {
+                (gl::RGB16I, Some(gl::RGB16I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32I32)) => {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer {
+                (gl::RGB32I, Some(gl::RGB32I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I8I8I8I8)) => {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer {
+                (gl::RGBA8I, Some(gl::RGBA8I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I16I16I16I16)) => {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer {
+                (gl::RGBA16I, Some(gl::RGBA16I))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(UncompressedIntFormat::I32I32I32I32)) => {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer {
+                (gl::RGBA32I, Some(gl::RGBA32I))
             } else {
                 return Err(FormatNotSupportedError);
             }
@@ -947,43 +1065,6 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                 // OpenGL 1.0 doesn't support compressed textures, so we use a
                 // regular float format instead
                 (size.unwrap_or(4) as gl::types::GLenum, None)
-            }
-        },
-
-        TextureFormatRequest::AnyIntegral => {
-            let size = client.map(|c| c.get_num_components());
-
-            if version >= &Version(Api::Gl, 3, 0) {
-                match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    Some(1) => (gl::R32I, Some(gl::R32I)),
-                    Some(2) => (gl::RG32I, Some(gl::RG32I)),
-                    Some(3) => (gl::RGB32I, Some(gl::RGB32I)),
-                    Some(4) => (gl::RGBA32I, Some(gl::RGBA32I)),
-                    None => (gl::RGBA32I, Some(gl::RGBA32I)),
-                    _ => unreachable!(),
-                }
-
-            } else {
-                if !extensions.gl_ext_texture_integer {
-                    return Err(FormatNotSupportedError);
-                }
-
-                match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
-                    Some(1) => if extensions.gl_arb_texture_rg {
-                        (gl::R32I, Some(gl::R32I))
-                    } else {
-                        return Err(FormatNotSupportedError);
-                    },
-                    Some(2) => if extensions.gl_arb_texture_rg {
-                        (gl::RG32I, Some(gl::RG32I))
-                    } else {
-                        return Err(FormatNotSupportedError);
-                    },
-                    Some(3) => (gl::RGB32I_EXT, Some(gl::RGB32I_EXT)),
-                    Some(4) => (gl::RGBA32I_EXT, Some(gl::RGBA32I_EXT)),
-                    None => (gl::RGBA32I_EXT, Some(gl::RGBA32I_EXT)),
-                    _ => unreachable!(),
-                }
             }
         },
 
