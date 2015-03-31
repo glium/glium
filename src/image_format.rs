@@ -6,10 +6,11 @@ use gl;
 use ToGlEnum;
 use context::Context;
 
-use texture::TextureMaybeSupportedCreationError;
-use texture::TextureCreationError;
-
 use version::{Api, Version};
+
+/// Error that is returned if the format is not supported by OpenGL.
+#[derive(Copy, Debug)]
+pub struct FormatNotSupportedError;
 
 #[derive(Copy, Clone)]
 pub enum TextureFormatRequest {
@@ -573,7 +574,7 @@ pub enum TextureFormat {
 /// the returned tuple is `true`, it is also suitable for `glTexStorage*D`.
 pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                                 format: TextureFormatRequest)
-                                -> Result<(gl::types::GLenum, bool), TextureMaybeSupportedCreationError>
+                                -> Result<(gl::types::GLenum, bool), FormatNotSupportedError>
 {
     let version = context.get_version();
     let extensions = context.get_extensions();
@@ -612,8 +613,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                     if version >= &Version(Api::Gl, 3, 0) {
                         (value, true)
                     } else {
-                        return Err(TextureMaybeSupportedCreationError::CreationError(
-                            TextureCreationError::UnsupportedFormat));
+                        return Err(FormatNotSupportedError);
                     }
                 }
             }
@@ -623,8 +623,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
-                return Err(TextureMaybeSupportedCreationError::CreationError(
-                    TextureCreationError::UnsupportedFormat));
+                return Err(FormatNotSupportedError);
             }
         },
 
@@ -632,8 +631,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
-                return Err(TextureMaybeSupportedCreationError::CreationError(
-                    TextureCreationError::UnsupportedFormat));
+                return Err(FormatNotSupportedError);
             }
         },
 
@@ -641,8 +639,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
-                return Err(TextureMaybeSupportedCreationError::CreationError(
-                    TextureCreationError::UnsupportedFormat));
+                return Err(FormatNotSupportedError);
             }
         },
 
@@ -650,8 +647,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
-                return Err(TextureMaybeSupportedCreationError::CreationError(
-                    TextureCreationError::UnsupportedFormat));
+                return Err(FormatNotSupportedError);
             }
         },
 
@@ -659,8 +655,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
-                return Err(TextureMaybeSupportedCreationError::CreationError(
-                    TextureCreationError::UnsupportedFormat));
+                return Err(FormatNotSupportedError);
             }
         },
 
@@ -668,8 +663,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             if version >= &Version(Api::Gl, 3, 0) {    // FIXME: 
                 (f.to_glenum(), true)
             } else {
-                return Err(TextureMaybeSupportedCreationError::CreationError(
-                    TextureCreationError::UnsupportedFormat));
+                return Err(FormatNotSupportedError);
             }
         },
 
@@ -718,19 +712,19 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
 
             } else {
                 if !extensions.gl_ext_texture_integer {
-                    return Err(TextureMaybeSupportedCreationError::NotSupported);
+                    return Err(FormatNotSupportedError);
                 }
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     Some(1) => if extensions.gl_arb_texture_rg {
                         (gl::R32I, true)
                     } else {
-                        return Err(TextureMaybeSupportedCreationError::NotSupported);
+                        return Err(FormatNotSupportedError);
                     },
                     Some(2) => if extensions.gl_arb_texture_rg {
                         (gl::RG32I, true)
                     } else {
-                        return Err(TextureMaybeSupportedCreationError::NotSupported);
+                        return Err(FormatNotSupportedError);
                     },
                     Some(3) => (gl::RGB32I_EXT, true),
                     Some(4) => (gl::RGBA32I_EXT, true),
@@ -755,19 +749,19 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
 
             } else {
                 if !extensions.gl_ext_texture_integer {
-                    return Err(TextureMaybeSupportedCreationError::NotSupported);
+                    return Err(FormatNotSupportedError);
                 }
 
                 match size {  // FIXME: choose between 8, 16 and 32 depending on the client format
                     Some(1) => if extensions.gl_arb_texture_rg {
                         (gl::R32UI, true)
                     } else {
-                        return Err(TextureMaybeSupportedCreationError::NotSupported);
+                        return Err(FormatNotSupportedError);
                     },
                     Some(2) => if extensions.gl_arb_texture_rg {
                         (gl::RG32UI, true)
                     } else {
-                        return Err(TextureMaybeSupportedCreationError::NotSupported);
+                        return Err(FormatNotSupportedError);
                     },
                     Some(3) => (gl::RGB32UI_EXT, true),
                     Some(4) => (gl::RGBA32UI_EXT, true),
@@ -783,13 +777,13 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             } else if extensions.gl_arb_depth_texture {
                 (gl::DEPTH_COMPONENT, false)
             } else {
-                return Err(TextureMaybeSupportedCreationError::NotSupported);
+                return Err(FormatNotSupportedError);
             }
         },
 
         TextureFormatRequest::AnyStencil => {
             if version < &Version(Api::Gl, 3, 0) {
-                return Err(TextureMaybeSupportedCreationError::NotSupported);
+                return Err(FormatNotSupportedError);
             }
 
             // TODO: we just request I8, but this could be more flexible
@@ -805,7 +799,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             } else if extensions.gl_ext_packed_depth_stencil {
                 (gl::DEPTH_STENCIL_EXT, false)
             } else {
-                return Err(TextureMaybeSupportedCreationError::NotSupported);
+                return Err(FormatNotSupportedError);
             }
         },
     })

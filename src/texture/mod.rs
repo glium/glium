@@ -39,6 +39,7 @@ being the width and height). These are what you will use most of the time.
 #![allow(unreachable_code)]     // TODO: remove
 
 use std::borrow::Cow;
+use std::error::FromError;
 
 use {gl, framebuffer};
 
@@ -58,7 +59,7 @@ use BlitTarget;
 use uniforms;
 
 use self::tex_impl::TextureImplementation;
-use image_format::TextureFormatRequest;
+use image_format::{TextureFormatRequest, FormatNotSupportedError};
 
 pub use image_format::{ClientFormat, TextureFormat};
 pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
@@ -470,4 +471,10 @@ pub enum TextureMaybeSupportedCreationError {
 
     /// The texture type is not supported by the backend.
     NotSupported,
+}
+
+impl FromError<FormatNotSupportedError> for TextureMaybeSupportedCreationError {
+    fn from_error(_: FormatNotSupportedError) -> TextureMaybeSupportedCreationError {
+        TextureMaybeSupportedCreationError::NotSupported
+    }
 }
