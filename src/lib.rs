@@ -217,6 +217,11 @@ mod gl {
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
 
+/// The main object of this library. Controls the whole display.
+///
+/// This object contains a smart pointer to the real implementation.
+/// Cloning the display allows you to easily share the `Display` object throughout
+/// your program and between threads.
 pub type Display = backend::glutin_backend::GlutinFacade;
 
 /// Trait for objects that are OpenGL objects.
@@ -248,6 +253,7 @@ trait ToGlEnum {
 
 /// Internal trait for buffers.
 trait BufferExt {
+    /// 
     fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>>;
 }
 
@@ -256,6 +262,7 @@ trait ContextExt {
     /// Sets whether the context's debug output callback should take errors into account.
     fn set_report_debug_output_errors(&self, value: bool);
 
+    /// Start executing OpenGL commands by checking the current context.
     fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
 }
 
@@ -602,6 +609,7 @@ pub trait Surface: Sized {
 
 /// Private trait for framebuffer-like objects that provide attachments.
 trait FboAttachments {
+    /// Returns the list of attachments of this FBO, or `None` if it is the default framebuffer.
     fn get_attachments(&self) -> Option<&fbo::FramebufferAttachments>;
 }
 

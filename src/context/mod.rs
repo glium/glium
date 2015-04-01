@@ -34,6 +34,8 @@ mod capabilities;
 mod extensions;
 mod state;
 
+/// Stores the state and information required for glium to execute commands. Most public glium
+/// functions require passing a `Context`.
 pub struct Context {
     gl: gl::Gl,
     state: RefCell<GLState>,
@@ -152,6 +154,7 @@ impl Context {
         Ok(())
     }
 
+    /// Swaps the buffers in the backend.
     pub fn swap_buffers(&self) {
         let backend = self.backend.borrow();
 
@@ -168,6 +171,7 @@ impl Context {
         backend.swap_buffers();
     }
 
+    // TODO: make me private
     pub fn capabilities(&self) -> &Capabilities {
         &self.capabilities
     }
@@ -177,14 +181,14 @@ impl Context {
         &self.version
     }
 
+    // TODO: make me private
     pub fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
     }
 
-    /// Returns the supported GLSL version.
+    /// Returns the GLSL version guaranteed to be supported.
     pub fn get_supported_glsl_version(&self) -> Version {
-        version::get_supported_glsl_version(
-            self.get_version())
+        version::get_supported_glsl_version(self.get_version())
     }
 
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`

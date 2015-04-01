@@ -1,3 +1,17 @@
+/*!
+
+The `backend` module allows one to link between glium and the OpenGL context..
+
+There are three concepts in play:
+
+ - The `Backend` trait describes the glue between glium and the OpenGL context provider like
+   glutin, SDL, GLFW, etc.
+ - The `Context` struct is the main brick of glium. It manages everything that glium needs to
+   execute OpenGL commands. Creating a `Context` requires a `Backend`.
+ - The `Facade` trait. Calling functions like `VertexBuffer::new` requires passing an object
+   that implements this trait. It is implemented on `Rc<Context>`.
+
+*/
 use std::rc::Rc;
 use std::ops::Deref;
 
