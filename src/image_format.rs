@@ -1270,21 +1270,90 @@ pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format:
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) =>
         {
-            client_format_to_gl_enum(&client)
+            match client {
+                ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
+                ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
+                ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
+                ClientFormat::U8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
+                ClientFormat::I8 => (gl::RED, gl::BYTE),
+                ClientFormat::I8I8 => (gl::RG, gl::BYTE),
+                ClientFormat::I8I8I8 => (gl::RGB, gl::BYTE),
+                ClientFormat::I8I8I8I8 => (gl::RGBA, gl::BYTE),
+                ClientFormat::U16 => (gl::RED, gl::UNSIGNED_SHORT),
+                ClientFormat::U16U16 => (gl::RG, gl::UNSIGNED_SHORT),
+                ClientFormat::U16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
+                ClientFormat::U16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
+                ClientFormat::I16 => (gl::RED, gl::SHORT),
+                ClientFormat::I16I16 => (gl::RG, gl::SHORT),
+                ClientFormat::I16I16I16 => (gl::RGB, gl::SHORT),
+                ClientFormat::I16I16I16I16 => (gl::RGBA, gl::SHORT),
+                ClientFormat::U32 => (gl::RED, gl::UNSIGNED_INT),
+                ClientFormat::U32U32 => (gl::RG, gl::UNSIGNED_INT),
+                ClientFormat::U32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
+                ClientFormat::U32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
+                ClientFormat::I32 => (gl::RED, gl::INT),
+                ClientFormat::I32I32 => (gl::RG, gl::INT),
+                ClientFormat::I32I32I32 => (gl::RGB, gl::INT),
+                ClientFormat::I32I32I32I32 => (gl::RGBA, gl::INT),
+                ClientFormat::U3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
+                ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
+                ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
+                ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
+                ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
+                ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
+                ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
+                ClientFormat::F16F16F16 => (gl::RGB, gl::HALF_FLOAT),
+                ClientFormat::F16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
+                ClientFormat::F32 => (gl::RED, gl::FLOAT),
+                ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
+                ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
+                ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
+            }
         },
 
-        TextureFormatRequest::AnyIntegral |
-        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) =>
-        {
-            client_format_to_gl_enum_int(&client).expect("Client format must \
-                                                          have an integral format")
-        },
-
-        TextureFormatRequest::AnyUnsigned |
+        TextureFormatRequest::AnyIntegral | TextureFormatRequest::AnyUnsigned |
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) |
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) =>
         {
-            client_format_to_gl_enum_uint(&client).expect("Client format must \
-                                                           have an integral format")
+            match client {
+                ClientFormat::U8 => (gl::RED_INTEGER, gl::UNSIGNED_BYTE),
+                ClientFormat::U8U8 => (gl::RG_INTEGER, gl::UNSIGNED_BYTE),
+                ClientFormat::U8U8U8 => (gl::RGB_INTEGER, gl::UNSIGNED_BYTE),
+                ClientFormat::U8U8U8U8 => (gl::RGBA_INTEGER, gl::UNSIGNED_BYTE),
+                ClientFormat::I8 => (gl::RED_INTEGER, gl::BYTE),
+                ClientFormat::I8I8 => (gl::RG_INTEGER, gl::BYTE),
+                ClientFormat::I8I8I8 => (gl::RGB_INTEGER, gl::BYTE),
+                ClientFormat::I8I8I8I8 => (gl::RGBA_INTEGER, gl::BYTE),
+                ClientFormat::U16 => (gl::RED_INTEGER, gl::UNSIGNED_SHORT),
+                ClientFormat::U16U16 => (gl::RG_INTEGER, gl::UNSIGNED_SHORT),
+                ClientFormat::U16U16U16 => (gl::RGB_INTEGER, gl::UNSIGNED_SHORT),
+                ClientFormat::U16U16U16U16 => (gl::RGBA_INTEGER, gl::UNSIGNED_SHORT),
+                ClientFormat::I16 => (gl::RED_INTEGER, gl::SHORT),
+                ClientFormat::I16I16 => (gl::RG_INTEGER, gl::SHORT),
+                ClientFormat::I16I16I16 => (gl::RGB_INTEGER, gl::SHORT),
+                ClientFormat::I16I16I16I16 => (gl::RGBA_INTEGER, gl::SHORT),
+                ClientFormat::U32 => (gl::RED_INTEGER, gl::UNSIGNED_INT),
+                ClientFormat::U32U32 => (gl::RG_INTEGER, gl::UNSIGNED_INT),
+                ClientFormat::U32U32U32 => (gl::RGB_INTEGER, gl::UNSIGNED_INT),
+                ClientFormat::U32U32U32U32 => (gl::RGBA_INTEGER, gl::UNSIGNED_INT),
+                ClientFormat::I32 => (gl::RED_INTEGER, gl::INT),
+                ClientFormat::I32I32 => (gl::RG_INTEGER, gl::INT),
+                ClientFormat::I32I32I32 => (gl::RGB_INTEGER, gl::INT),
+                ClientFormat::I32I32I32I32 => (gl::RGBA_INTEGER, gl::INT),
+                ClientFormat::U3U3U2 => (gl::RGB_INTEGER, gl::UNSIGNED_BYTE_3_3_2),
+                ClientFormat::U5U6U5 => (gl::RGB_INTEGER, gl::UNSIGNED_SHORT_5_6_5),
+                ClientFormat::U4U4U4U4 => (gl::RGBA_INTEGER, gl::UNSIGNED_SHORT_4_4_4_4),
+                ClientFormat::U5U5U5U1 => (gl::RGBA_INTEGER, gl::UNSIGNED_SHORT_5_5_5_1),
+                ClientFormat::U10U10U10U2 => (gl::RGBA_INTEGER, gl::UNSIGNED_INT_10_10_10_2),
+                ClientFormat::F16 => (gl::RED_INTEGER, gl::HALF_FLOAT),
+                ClientFormat::F16F16 => (gl::RG_INTEGER, gl::HALF_FLOAT),
+                ClientFormat::F16F16F16 => (gl::RGB_INTEGER, gl::HALF_FLOAT),
+                ClientFormat::F16F16F16F16 => (gl::RGBA_INTEGER, gl::HALF_FLOAT),
+                ClientFormat::F32 => (gl::RED_INTEGER, gl::FLOAT),
+                ClientFormat::F32F32 => (gl::RG_INTEGER, gl::FLOAT),
+                ClientFormat::F32F32F32 => (gl::RGB_INTEGER, gl::FLOAT),
+                ClientFormat::F32F32F32F32 => (gl::RGBA_INTEGER, gl::FLOAT),
+            }
         },
 
         TextureFormatRequest::AnyDepth |
@@ -1300,15 +1369,17 @@ pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format:
         TextureFormatRequest::AnyStencil |
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) =>
         {
-            let (format, ty) = client_format_to_gl_enum_int(&client).expect("Client format must \
-                                                                             have an integral \
-                                                                             format");
-
-            if format != gl::RED_INTEGER {
-                panic!("Can only have one component when uploading a stencil texture");
+            match client {
+                ClientFormat::U8 => (gl::RED_INTEGER, gl::UNSIGNED_BYTE),
+                ClientFormat::I8 => (gl::RED_INTEGER, gl::BYTE),
+                ClientFormat::U16 => (gl::RED_INTEGER, gl::UNSIGNED_SHORT),
+                ClientFormat::I16 => (gl::RED_INTEGER, gl::SHORT),
+                ClientFormat::U32 => (gl::RED_INTEGER, gl::UNSIGNED_INT),
+                ClientFormat::I32 => (gl::RED_INTEGER, gl::INT),
+                ClientFormat::F16 => (gl::RED_INTEGER, gl::HALF_FLOAT),
+                ClientFormat::F32 => (gl::RED_INTEGER, gl::FLOAT),
+                _ => panic!("Can't upload to a stencil texture with more than one channel")
             }
-
-            (gl::STENCIL_INDEX, ty)
         }
 
         TextureFormatRequest::AnyDepthStencil |
@@ -1316,146 +1387,5 @@ pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format:
         {
             unimplemented!();
         },
-    }
-}
-
-/// Returns the two `GLenum`s corresponding to this client format.
-fn client_format_to_gl_enum(format: &ClientFormat) -> (gl::types::GLenum, gl::types::GLenum) {
-    match *format {
-        ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
-        ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
-        ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
-        ClientFormat::U8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
-        ClientFormat::I8 => (gl::RED, gl::BYTE),
-        ClientFormat::I8I8 => (gl::RG, gl::BYTE),
-        ClientFormat::I8I8I8 => (gl::RGB, gl::BYTE),
-        ClientFormat::I8I8I8I8 => (gl::RGBA, gl::BYTE),
-        ClientFormat::U16 => (gl::RED, gl::UNSIGNED_SHORT),
-        ClientFormat::U16U16 => (gl::RG, gl::UNSIGNED_SHORT),
-        ClientFormat::U16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
-        ClientFormat::U16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
-        ClientFormat::I16 => (gl::RED, gl::SHORT),
-        ClientFormat::I16I16 => (gl::RG, gl::SHORT),
-        ClientFormat::I16I16I16 => (gl::RGB, gl::SHORT),
-        ClientFormat::I16I16I16I16 => (gl::RGBA, gl::SHORT),
-        ClientFormat::U32 => (gl::RED, gl::UNSIGNED_INT),
-        ClientFormat::U32U32 => (gl::RG, gl::UNSIGNED_INT),
-        ClientFormat::U32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
-        ClientFormat::U32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
-        ClientFormat::I32 => (gl::RED, gl::INT),
-        ClientFormat::I32I32 => (gl::RG, gl::INT),
-        ClientFormat::I32I32I32 => (gl::RGB, gl::INT),
-        ClientFormat::I32I32I32I32 => (gl::RGBA, gl::INT),
-        ClientFormat::U3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
-        ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
-        ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
-        ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
-        ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
-        ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
-        ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
-        ClientFormat::F16F16F16 => (gl::RGB, gl::HALF_FLOAT),
-        ClientFormat::F16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
-        ClientFormat::F32 => (gl::RED, gl::FLOAT),
-        ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
-        ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
-        ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
-    }
-}
-
-/// Returns the two `GLenum`s corresponding to this client format for the "signed integer" format,
-/// if possible
-fn client_format_to_gl_enum_int(format: &ClientFormat)
-                                -> Option<(gl::types::GLenum, gl::types::GLenum)>
-{
-    let (components, format) = client_format_to_gl_enum(format);
-
-    let components = match components {
-        gl::RED => gl::RED_INTEGER,
-        gl::RG => gl::RG_INTEGER,
-        gl::RGB => gl::RGB_INTEGER,
-        gl::RGBA => gl::RGBA_INTEGER,
-        _ => return None
-    };
-
-    match format {
-        gl::BYTE => (),
-        gl::SHORT => (),
-        gl::INT => (),
-        _ => return None
-    };
-
-    Some((components, format))
-}
-
-/// Returns the two `GLenum`s corresponding to this client format for the "unsigned integer" format,
-/// if possible
-fn client_format_to_gl_enum_uint(format: &ClientFormat)
-                                 -> Option<(gl::types::GLenum, gl::types::GLenum)>
-{
-    let (components, format) = client_format_to_gl_enum(format);
-
-    let components = match components {
-        gl::RED => gl::RED_INTEGER,
-        gl::RG => gl::RG_INTEGER,
-        gl::RGB => gl::RGB_INTEGER,
-        gl::RGBA => gl::RGBA_INTEGER,
-        _ => return None
-    };
-
-    match format {
-        gl::UNSIGNED_BYTE => (),
-        gl::UNSIGNED_SHORT => (),
-        gl::UNSIGNED_INT => (),
-        gl::UNSIGNED_BYTE_3_3_2 => (),
-        gl::UNSIGNED_SHORT_5_6_5 => (),
-        gl::UNSIGNED_SHORT_4_4_4_4 => (),
-        gl::UNSIGNED_SHORT_5_5_5_1 => (),
-        gl::UNSIGNED_INT_10_10_10_2 => (),
-        _ => return None
-    };
-
-    Some((components, format))
-}
-
-/// Returns the `UncompressedFloatFormat` most suitable for the `ClientFormat`.
-fn to_float_internal_format(format: &ClientFormat) -> Option<UncompressedFloatFormat> {
-    match *format {
-        ClientFormat::U8 => Some(UncompressedFloatFormat::U8),
-        ClientFormat::U8U8 => Some(UncompressedFloatFormat::U8U8),
-        ClientFormat::U8U8U8 => Some(UncompressedFloatFormat::U8U8U8),
-        ClientFormat::U8U8U8U8 => Some(UncompressedFloatFormat::U8U8U8U8),
-        ClientFormat::I8 => Some(UncompressedFloatFormat::I8),
-        ClientFormat::I8I8 => Some(UncompressedFloatFormat::I8I8),
-        ClientFormat::I8I8I8 => Some(UncompressedFloatFormat::I8I8I8),
-        ClientFormat::I8I8I8I8 => Some(UncompressedFloatFormat::I8I8I8I8),
-        ClientFormat::U16 => Some(UncompressedFloatFormat::U16),
-        ClientFormat::U16U16 => Some(UncompressedFloatFormat::U16U16),
-        ClientFormat::U16U16U16 => None,
-        ClientFormat::U16U16U16U16 => Some(UncompressedFloatFormat::U16U16U16U16),
-        ClientFormat::I16 => Some(UncompressedFloatFormat::I16),
-        ClientFormat::I16I16 => Some(UncompressedFloatFormat::I16I16),
-        ClientFormat::I16I16I16 => Some(UncompressedFloatFormat::I16I16I16),
-        ClientFormat::I16I16I16I16 => None,
-        ClientFormat::U32 => None,
-        ClientFormat::U32U32 => None,
-        ClientFormat::U32U32U32 => None,
-        ClientFormat::U32U32U32U32 => None,
-        ClientFormat::I32 => None,
-        ClientFormat::I32I32 => None,
-        ClientFormat::I32I32I32 => None,
-        ClientFormat::I32I32I32I32 => None,
-        ClientFormat::U3U3U2 => None,
-        ClientFormat::U5U6U5 => None,
-        ClientFormat::U4U4U4U4 => Some(UncompressedFloatFormat::U4U4U4U4),
-        ClientFormat::U5U5U5U1 => Some(UncompressedFloatFormat::U5U5U5U1),
-        ClientFormat::U10U10U10U2 => Some(UncompressedFloatFormat::U10U10U10U2),
-        ClientFormat::F16 => Some(UncompressedFloatFormat::F16),
-        ClientFormat::F16F16 => Some(UncompressedFloatFormat::F16F16),
-        ClientFormat::F16F16F16 => Some(UncompressedFloatFormat::F16F16F16),
-        ClientFormat::F16F16F16F16 => Some(UncompressedFloatFormat::F16F16F16F16),
-        ClientFormat::F32 => Some(UncompressedFloatFormat::F32),
-        ClientFormat::F32F32 => Some(UncompressedFloatFormat::F32F32),
-        ClientFormat::F32F32F32 => Some(UncompressedFloatFormat::F32F32F32),
-        ClientFormat::F32F32F32F32 => Some(UncompressedFloatFormat::F32F32F32F32),
     }
 }
