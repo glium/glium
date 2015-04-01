@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Creating a texture with a specific format now properly checks for available extensions.
+
 ## Version 0.2.0 (2015-03-30)
 
  - Removed `PerInstanceAttributesBuffer` and `PerInstanceAttributesBufferAny`.
