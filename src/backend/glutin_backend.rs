@@ -1,3 +1,8 @@
+/*!
+
+Backend implementation for the glutin library
+
+*/
 use libc;
 
 use glutin;
@@ -17,11 +22,7 @@ use std::cell::{RefCell, Ref};
 use std::rc::Rc;
 use std::ops::Deref;
 
-/// The main object of this library. Controls the whole display.
-///
-/// This object contains a smart pointer to the real implementation.
-/// Cloning the display allows you to easily share the `Display` object throughout
-/// your program and between threads.
+/// Facade implementation for glutin. Wraps both glium and glutin.
 #[derive(Clone)]
 pub struct GlutinFacade {
     // contains everything related to the current context and its state
@@ -74,6 +75,7 @@ impl<'a> Iterator for WaitEventsIter<'a> {
     }
 }
 
+/// Borrow of the glutin window.
 pub struct WinRef<'a>(Ref<'a, Rc<GlutinWindowBackend>>);
 
 impl<'a> Deref for WinRef<'a> {
@@ -319,6 +321,7 @@ unsafe impl Backend for GlutinWindowBackend {
     }
 }
 
+#[allow(missing_docs)]
 impl GlutinWindowBackend {
     /// Builds a new backend from the builder.
     pub fn new(builder: glutin::WindowBuilder)
