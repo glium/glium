@@ -54,8 +54,6 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                        -> Result<Shader, ProgramCreationError> where F: Facade
 {
     unsafe {
-        let source_code = ffi::CString::new(source_code.as_bytes()).unwrap();
-
         let mut ctxt = facade.get_context().make_current();
 
         if !ctxt.capabilities.shader_compiler {
@@ -63,6 +61,8 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
         }
 
         try!(check_shader_type_compatibility(&mut ctxt, shader_type));
+
+        let source_code = ffi::CString::new(source_code.as_bytes()).unwrap();
 
         let id = if ctxt.version >= &Version(Api::Gl, 2, 0) ||
                     ctxt.version >= &Version(Api::GlEs, 2, 0)
@@ -111,7 +111,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
             ctxt.report_debug_output_errors.set(true);
         }
 
-        // checking compilation success
+        // checking compilation success by reading a flag on the shader
         let compilation_success = {
             let mut compilation_success: gl::types::GLint = mem::uninitialized();
             match id {
@@ -129,7 +129,13 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
             compilation_success
         };
 
-        if compilation_success == 0 {
+        if compilation_success == 1 {
+            Ok(Shader {
+                context: facade.get_context().clone(),
+                id: id
+            })
+
+        } else {
             // compilation error
             let mut error_log_size: gl::types::GLint = mem::uninitialized();
 
@@ -164,14 +170,14 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
             error_log.set_len(error_log_size as usize);
 
-            let msg = String::from_utf8(error_log).unwrap();
-            return Err(ProgramCreationError::CompilationError(msg));
+            match String::from_utf8(error_log) {
+                Ok(msg) => Err(ProgramCreationError::CompilationError(msg)),
+                Err(_) => Err(
+                    ProgramCreationError::CompilationError("Could not convert the log \
+                                                            message to UTF-8".to_string())
+                ),
+            }
         }
-
-        Ok(Shader {
-            context: facade.get_context().clone(),
-            id: id
-        })
     }
 }
 

@@ -10,6 +10,7 @@ use context::Context;
 use ContextExt;
 
 use std::{ffi, fmt, mem};
+use std::error::Error;
 use std::collections::hash_state::DefaultState;
 use std::collections::hash_map::{self, HashMap};
 use std::default::Default;
@@ -50,8 +51,8 @@ pub enum ProgramCreationError {
     TransformFeedbackNotSupported,
 }
 
-impl ::std::fmt::Display for ProgramCreationError {
-    fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+impl fmt::Display for ProgramCreationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
             &ProgramCreationError::CompilationError(ref s) =>
                 formatter.write_fmt(format_args!("Compilation error in one of the shaders: {}", s)),
@@ -69,7 +70,7 @@ impl ::std::fmt::Display for ProgramCreationError {
     }
 }
 
-impl ::std::error::Error for ProgramCreationError {
+impl Error for ProgramCreationError {
     fn description(&self) -> &str {
         match self {
             &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
@@ -84,7 +85,7 @@ impl ::std::error::Error for ProgramCreationError {
         }
     }
 
-    fn cause(&self) -> Option<&::std::error::Error> {
+    fn cause(&self) -> Option<&Error> {
         None
     }
 }
