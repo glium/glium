@@ -152,8 +152,23 @@ pub struct GLState {
     /// The latest value passed to `glPatchParameter` with `GL_PATCH_VERTICES`.
     pub patch_patch_vertices: gl::types::GLint,
 
-    /// The latest value passed to `glActiveTexture`.
+    /// The id of the active texture unit.
+    /// IMPORTANT: this is a raw number (0, 1, 2, ...), not an
+    ///            enumeration (GL_TEXTURE0, GL_TEXTURE1, ...).
     pub active_texture: gl::types::GLenum,
+
+    /// List of texture units.
+    pub texture_units: Vec<TextureUnitState>,
+}
+
+/// State of a texture unit (the one designated by `glActiveTexture`).
+#[derive(Copy, Clone, Debug)]
+pub struct TextureUnitState {
+    /// Id of the texture.
+    pub texture: gl::types::GLuint,
+
+    /// Id of the sampler.
+    pub sampler: gl::types::GLuint,
 }
 
 impl Default for GLState {
@@ -207,7 +222,17 @@ impl Default for GLState {
             pixel_store_unpack_alignment: 4,
             pixel_store_pack_alignment: 4,
             patch_patch_vertices: 3,
-            active_texture: gl::TEXTURE0,
+            active_texture: 0,
+            texture_units: vec![Default::default()],
+        }
+    }
+}
+
+impl Default for TextureUnitState {
+    fn default() -> TextureUnitState {
+        TextureUnitState {
+            texture: 0,
+            sampler: 0,
         }
     }
 }

@@ -7,6 +7,7 @@ pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbac
 mod program;
 mod reflection;
 mod shader;
+mod uniforms_storage;
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
 /// in the GL thread every time we compile a shader or link a program.

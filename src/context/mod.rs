@@ -81,11 +81,16 @@ impl Context {
         backend.make_current();
         let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
 
-        let gl_state = RefCell::new(Default::default());
+        let gl_state: RefCell<GLState> = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
         let report_debug_output_errors = Cell::new(true);
+
+        {
+            let mut state = gl_state.borrow_mut();
+            state.texture_units.reserve(capabilities.max_combined_texture_image_units as usize);
+        }
 
         {
             let mut ctxt = CommandContext {

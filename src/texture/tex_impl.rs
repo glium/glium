@@ -142,7 +142,11 @@ impl TextureImplementation {
             let id: gl::types::GLuint = mem::uninitialized();
             ctxt.gl.GenTextures(1, mem::transmute(&id));
 
-            ctxt.gl.BindTexture(texture_type, id);
+            {
+                ctxt.gl.BindTexture(texture_type, id);
+                let act = ctxt.state.active_texture as usize;
+                ctxt.state.texture_units[act].texture = id;
+            }
 
             ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
             if height.is_some() || depth.is_some() || array_size.is_some() {
@@ -424,7 +428,11 @@ impl TextureImplementation {
                 ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
             }
 
-            ctxt.gl.BindTexture(bind_point, id);
+            {
+                ctxt.gl.BindTexture(bind_point, id);
+                let act = ctxt.state.active_texture as usize;
+                ctxt.state.texture_units[act].texture = id;
+            }
 
             if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
                 unimplemented!();
@@ -510,6 +518,13 @@ impl Drop for TextureImplementation {
         // removing FBOs which contain this texture
         self.context.framebuffer_objects.as_ref().unwrap()
                     .purge_texture(self.id, &mut ctxt);
+
+        // resetting the bindings
+        for tex_unit in &mut ctxt.state.texture_units {
+            if tex_unit.texture == self.id {
+                tex_unit.texture = 0;
+            }
+        }
 
         unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
     }
