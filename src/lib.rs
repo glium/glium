@@ -904,8 +904,8 @@ impl std::error::Error for GliumCreationError {
     }
 }
 
-impl std::error::FromError<glutin::CreationError> for GliumCreationError {
-    fn from_error(err: glutin::CreationError) -> GliumCreationError {
+impl std::convert::From<glutin::CreationError> for GliumCreationError {
+    fn from(err: glutin::CreationError) -> GliumCreationError {
         GliumCreationError::GlutinCreationError(err)
     }
 }
