@@ -149,7 +149,7 @@ pub enum BufferFlagsPersistent {
 }
 
 /// Type of a buffer.
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 pub enum BufferType {
     ArrayBuffer,
     PixelPackBuffer,

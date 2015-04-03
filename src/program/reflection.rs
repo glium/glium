@@ -15,7 +15,7 @@ use vertex::AttributeType;
 use Handle;
 
 /// Information about a uniform (except its name).
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 pub struct Uniform {
     /// The location of the uniform.
     ///
@@ -63,7 +63,7 @@ pub struct UniformBlockMember {
 /// Information about an attribute of a program (except its name).
 ///
 /// Internal struct. Not public.
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, Clone)]
 pub struct Attribute {
     /// The index of the uniform.
     ///

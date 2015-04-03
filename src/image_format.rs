@@ -8,7 +8,7 @@ use context::Context;
 use version::{Api, Version};
 
 /// Error that is returned if the format is not supported by OpenGL.
-#[derive(Copy, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct FormatNotSupportedError;
 
 /// Texture format request.
