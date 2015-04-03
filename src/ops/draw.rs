@@ -1,6 +1,5 @@
 use std::ptr;
 use std::sync::mpsc::Sender;
-use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 
 use BufferExt;
@@ -26,7 +25,6 @@ use Rect;
 
 use program;
 use libc;
-use util;
 use {gl, context, draw_parameters};
 use version::Version;
 use version::Api;
@@ -358,8 +356,7 @@ fn bind_uniform_block(ctxt: &mut context::CommandContext, value: &UniformValue,
 }
 
 fn bind_uniform(ctxt: &mut context::CommandContext,
-                samplers: &mut HashMap<SamplerBehavior, SamplerObject,
-                                       DefaultState<util::FnvHasher>>,
+                samplers: &mut HashMap<SamplerBehavior, SamplerObject>,
                 value: &UniformValue, location: gl::types::GLint,
                 active_texture: &mut gl::types::GLenum, name: &str)
                 -> Result<(), DrawError>
@@ -567,8 +564,7 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
 }
 
 fn bind_texture_uniform(ctxt: &mut context::CommandContext,
-                        samplers: &mut HashMap<SamplerBehavior, SamplerObject,
-                                               DefaultState<util::FnvHasher>>,
+                        samplers: &mut HashMap<SamplerBehavior, SamplerObject>,
                         texture: gl::types::GLuint,
                         sampler: Option<SamplerBehavior>, location: gl::types::GLint,
                         active_texture: &mut gl::types::GLenum,

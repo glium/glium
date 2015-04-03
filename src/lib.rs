@@ -155,15 +155,14 @@ target.finish();
 ```
 
 */
-#![feature(core, std_misc, collections)]     // TODO: remove after 1.0 beta
-
-#![feature(unsafe_destructor)]
-#![unstable]
 #![warn(missing_docs)]
 
 // TODO: remove these when everything is implemented
 #![allow(dead_code)]
 #![allow(unused_variables)]
+
+#[macro_use]
+extern crate lazy_static;
 
 #[cfg(feature = "cgmath")]
 extern crate cgmath;
@@ -209,7 +208,6 @@ mod image_format;
 mod ops;
 mod sampler_object;
 mod sync;
-mod util;
 mod version;
 mod vertex_array_object;
 

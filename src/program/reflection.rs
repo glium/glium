@@ -3,10 +3,7 @@ use libc;
 
 use std::ffi;
 use std::mem;
-use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
-use std::default::Default;
-use util::FnvHasher;
 
 use context::CommandContext;
 use version::Version;
@@ -104,10 +101,10 @@ pub enum TransformFeedbackMode {
 }
 
 pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
-                               -> HashMap<String, Uniform, DefaultState<FnvHasher>>
+                               -> HashMap<String, Uniform>
 {
     // reflecting program uniforms
-    let mut uniforms = HashMap::with_hash_state(Default::default());
+    let mut uniforms = HashMap::new();
 
     // number of active uniforms
     let active_uniforms = {
@@ -180,9 +177,9 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
 }
 
 pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
-                                 -> HashMap<String, Attribute, DefaultState<FnvHasher>>
+                                 -> HashMap<String, Attribute>
 {
-    let mut attributes = HashMap::with_hash_state(Default::default());
+    let mut attributes = HashMap::new();
 
     // number of active attributes
     let active_attributes = {
@@ -258,11 +255,11 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 }
 
 pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
-                                     -> HashMap<String, UniformBlock, DefaultState<FnvHasher>>
+                                     -> HashMap<String, UniformBlock>
 {
     // uniform blocks are not supported, so there's none
     if ctxt.version < &Version(Api::Gl, 3, 1) {
-        return HashMap::with_hash_state(Default::default());
+        return HashMap::new();
     }
 
     let program = match program {
@@ -270,7 +267,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
         _ => unreachable!()
     };
 
-    let mut blocks = HashMap::with_hash_state(Default::default());
+    let mut blocks = HashMap::new();
 
     let mut active_blocks: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCKS, &mut active_blocks);

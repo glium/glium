@@ -1,5 +1,3 @@
-#![feature(std_misc, thread_sleep)]
-
 extern crate glutin;
 
 #[macro_use]

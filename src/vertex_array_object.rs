@@ -1,8 +1,6 @@
 use std::borrow::Borrow;
 use std::cell::RefCell;
-use std::default::Default;
 use std::collections::HashMap;
-use std::collections::hash_state::DefaultState;
 use std::mem;
 
 use Handle;
@@ -15,20 +13,18 @@ use {libc, gl};
 use context::CommandContext;
 use version::Api;
 use version::Version;
-use util;
 
 /// Stores and handles vertex attributes.
 pub struct VertexAttributesSystem {
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (buffers-list, program) ; the buffers list must be sorted
-    vaos: RefCell<HashMap<(Vec<gl::types::GLuint>, Handle),
-                          VertexArrayObject, DefaultState<util::FnvHasher>>>,
+    vaos: RefCell<HashMap<(Vec<gl::types::GLuint>, Handle), VertexArrayObject>>,
 }
 
 impl VertexAttributesSystem {
     pub fn new() -> VertexAttributesSystem {
         VertexAttributesSystem {
-            vaos: RefCell::new(HashMap::with_hash_state(Default::default())),
+            vaos: RefCell::new(HashMap::new()),
         }
     }
 
@@ -84,7 +80,7 @@ impl VertexAttributesSystem {
 
     pub fn purge_all(&self, ctxt: &mut CommandContext) {
         let vaos = mem::replace(&mut *self.vaos.borrow_mut(),
-                                HashMap::with_hash_state(Default::default()));
+                                HashMap::new());
 
         for (_, vao) in vaos {
             vao.destroy(ctxt);
@@ -93,7 +89,7 @@ impl VertexAttributesSystem {
 
     pub fn cleanup(&mut self, ctxt: &mut CommandContext) {
         let vaos = mem::replace(&mut *self.vaos.borrow_mut(),
-                                HashMap::with_capacity_and_hash_state(0, Default::default()));
+                                HashMap::with_capacity(0));
 
         for (_, vao) in vaos {
             vao.destroy(ctxt);

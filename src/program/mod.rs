@@ -1,4 +1,4 @@
-use std::sync::{StaticMutex, MUTEX_INIT};
+use std::sync::Mutex;
 
 pub use self::program::{Program, ProgramCreationError};
 pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember};
@@ -10,7 +10,10 @@ mod shader;
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
 /// in the GL thread every time we compile a shader or link a program.
-static COMPILER_GLOBAL_LOCK: StaticMutex = MUTEX_INIT;
+// TODO: replace by a StaticMutex
+lazy_static! {
+    static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
+}
 
 /// Input when creating a program.
 pub enum ProgramCreationInput<'a> {

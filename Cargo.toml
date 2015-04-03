@@ -46,6 +46,7 @@ version = "*"
 optional = true
 
 [dependencies]
+lazy_static = "0.1"
 gl_common = "*"
 libc = "*"
 
