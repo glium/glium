@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.2.1 (2015-04-03)
 
  - Creating a texture with a specific format now properly checks for available extensions.
 
