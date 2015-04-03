@@ -39,7 +39,7 @@ being the width and height). These are what you will use most of the time.
 #![allow(unreachable_code)]     // TODO: remove
 
 use std::borrow::Cow;
-use std::error::FromError;
+use std::convert::From;
 
 use {gl, framebuffer};
 
@@ -473,8 +473,8 @@ pub enum TextureMaybeSupportedCreationError {
     NotSupported,
 }
 
-impl FromError<FormatNotSupportedError> for TextureMaybeSupportedCreationError {
-    fn from_error(_: FormatNotSupportedError) -> TextureMaybeSupportedCreationError {
+impl From<FormatNotSupportedError> for TextureMaybeSupportedCreationError {
+    fn from(_: FormatNotSupportedError) -> TextureMaybeSupportedCreationError {
         TextureMaybeSupportedCreationError::NotSupported
     }
 }
