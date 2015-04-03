@@ -50,9 +50,7 @@ If a layered image is attached to one attachment, then all attachments must be l
   with an array depth texture) (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS when false).
 
 */
-use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
-use std::default::Default;
 use std::mem;
 use std::cell::RefCell;
 
@@ -62,7 +60,6 @@ use gl;
 use context::CommandContext;
 use version::Version;
 use version::Api;
-use util::FnvHasher;
 
 #[derive(Hash, Clone, PartialEq, Eq)]
 pub struct FramebufferAttachments {
@@ -94,7 +91,7 @@ pub enum Attachment {
 ///
 /// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
 pub struct FramebuffersContainer {
-    framebuffers: RefCell<HashMap<FramebufferAttachments, FrameBufferObject, DefaultState<FnvHasher>>>,
+    framebuffers: RefCell<HashMap<FramebufferAttachments, FrameBufferObject>>,
 }
 
 /// Frame buffer.
@@ -106,7 +103,7 @@ struct FrameBufferObject {
 impl FramebuffersContainer {
     pub fn new() -> FramebuffersContainer {
         FramebuffersContainer {
-            framebuffers: RefCell::new(HashMap::with_hash_state(Default::default())),
+            framebuffers: RefCell::new(HashMap::new()),
         }
     }
 
@@ -178,7 +175,7 @@ impl FramebuffersContainer {
     }
 
     pub fn cleanup(self, ctxt: &mut CommandContext) {
-        let mut other = HashMap::with_hash_state(Default::default());
+        let mut other = HashMap::new();
         mem::swap(&mut *self.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {

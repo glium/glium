@@ -16,7 +16,6 @@ There are three concepts in play:
    means that you can direct pass the context.
 
 */
-
 extern crate libc;
 extern crate glutin;
 extern crate glium;

@@ -309,7 +309,7 @@ impl Buffer {
             // we have a `&mut self`, so there's no risk of deadlock when locking `fences`
             {
                 let mut fences = self.fences.lock().unwrap();
-                for fence in fences.drain() {
+                for fence in mem::replace(&mut *fences, Vec::with_capacity(0)) {
                     fence.recv().unwrap().into_sync_fence(&self.context).wait();
                 }
             }
@@ -478,7 +478,6 @@ pub struct Mapping<'b, D> {
     len: usize,
 }
 
-#[unsafe_destructor]
 impl<'a, D> Drop for Mapping<'a, D> {
     fn drop(&mut self) {
         // don't unmap if the buffer is persistent

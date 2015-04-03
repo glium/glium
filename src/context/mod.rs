@@ -4,7 +4,6 @@ use libc;
 use std::env;
 use std::mem;
 use std::ptr;
-use std::collections::hash_state::DefaultState;
 use std::collections::HashMap;
 use std::default::Default;
 use std::cell::{Cell, RefCell, RefMut};
@@ -23,7 +22,6 @@ use ops;
 use sampler_object;
 use texture;
 use uniforms;
-use util;
 use vertex_array_object;
 
 pub use self::capabilities::Capabilities;
@@ -55,8 +53,7 @@ pub struct Context {
     pub vertex_array_objects: vertex_array_object::VertexAttributesSystem,
 
     // we maintain a list of samplers for each possible behavior
-    pub samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, 
-                          DefaultState<util::FnvHasher>>>,
+    pub samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
 }
 
 pub struct CommandContext<'a, 'b> {
@@ -114,7 +111,7 @@ impl Context {
             check_current_context: check_current_context,
             framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
             vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
-            samplers: RefCell::new(HashMap::with_hash_state(Default::default())),
+            samplers: RefCell::new(HashMap::new()),
         });
 
         init_debug_callback(&context);
@@ -358,7 +355,7 @@ impl Drop for Context {
             self.vertex_array_objects.cleanup(&mut ctxt);
 
             let mut samplers = self.samplers.borrow_mut();
-            for (_, s) in samplers.drain() {
+            for (_, s) in mem::replace(&mut *samplers, HashMap::with_capacity(0)) {
                 s.destroy(&mut ctxt);
             }
 
@@ -505,7 +502,7 @@ fn init_debug_callback(context: &Rc<Context>) {
                                         user_param: *mut libc::c_void)
     {
         let user_param = user_param as *const Context;
-        let user_param = unsafe { user_param.as_ref().unwrap() };
+        let user_param: &Context = unsafe { mem::transmute(user_param) };
 
         if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
            (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||

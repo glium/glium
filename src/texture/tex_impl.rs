@@ -46,8 +46,6 @@ impl TextureImplementation {
                          -> Result<TextureImplementation, TextureMaybeSupportedCreationError>
                          where P: Send + Clone + 'a, F: Facade
     {
-        use std::num::Float;
-
         if let Some((client_format, ref data)) = data {
             if width as usize * height.unwrap_or(1) as usize * depth.unwrap_or(1) as usize *
                 array_size.unwrap_or(1) as usize * client_format.get_size() !=

@@ -11,12 +11,9 @@ use ContextExt;
 
 use std::{ffi, fmt, mem};
 use std::error::Error;
-use std::collections::hash_state::DefaultState;
 use std::collections::hash_map::{self, HashMap};
-use std::default::Default;
 use std::rc::Rc;
 use std::cell::RefCell;
-use util::FnvHasher;
 
 use GlObject;
 use Handle;
@@ -94,10 +91,10 @@ impl Error for ProgramCreationError {
 pub struct Program {
     context: Rc<Context>,
     id: Handle,
-    uniforms: HashMap<String, Uniform, DefaultState<FnvHasher>>,
-    uniform_blocks: HashMap<String, UniformBlock, DefaultState<FnvHasher>>,
-    attributes: HashMap<String, Attribute, DefaultState<FnvHasher>>,
-    frag_data_locations: RefCell<HashMap<String, Option<u32>, DefaultState<FnvHasher>>>,
+    uniforms: HashMap<String, Uniform>,
+    uniform_blocks: HashMap<String, UniformBlock>,
+    attributes: HashMap<String, Attribute>,
+    frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
     varyings: Option<(Vec<TransformFeedbackVarying>, TransformFeedbackMode)>,
     has_tessellation_shaders: bool,
 }
@@ -320,7 +317,7 @@ impl Program {
             uniforms: uniforms,
             uniform_blocks: blocks,
             attributes: attributes,
-            frag_data_locations: RefCell::new(HashMap::with_hash_state(Default::default())),
+            frag_data_locations: RefCell::new(HashMap::new()),
             varyings: varyings,
             has_tessellation_shaders: has_tessellation_shaders,
         })
@@ -374,7 +371,7 @@ impl Program {
             uniforms: uniforms,
             uniform_blocks: blocks,
             attributes: attributes,
-            frag_data_locations: RefCell::new(HashMap::with_hash_state(Default::default())),
+            frag_data_locations: RefCell::new(HashMap::new()),
             varyings: varyings,
             has_tessellation_shaders: true,     // FIXME: 
         })
@@ -485,7 +482,7 @@ impl Program {
     }
     
     /// Returns a list of uniform blocks.
-    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, DefaultState<FnvHasher>> {
+    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.uniform_blocks
     }
 

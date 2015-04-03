@@ -3,10 +3,8 @@ use DrawError;
 use uniforms::SamplerBehavior;
 
 use std::collections::HashMap;
-use std::collections::hash_state::DefaultState;
 
 use gl;
-use util;
 use context::CommandContext;
 use version::Version;
 use version::Api;
@@ -89,8 +87,7 @@ impl Drop for SamplerObject {
 /// Returns the sampler corresponding to the given behavior, or a draw error if
 /// samplers are not supported.
 pub fn get_sampler(ctxt: &mut CommandContext,
-                   samplers: &mut HashMap<SamplerBehavior, SamplerObject,
-                                          DefaultState<util::FnvHasher>>,
+                   samplers: &mut HashMap<SamplerBehavior, SamplerObject>,
                    behavior: &SamplerBehavior)
                    -> Result<gl::types::GLuint, DrawError>
 {
