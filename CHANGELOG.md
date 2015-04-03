@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed `GL_FRAMEBUFFER_SRGB` not being enabled, leading to different brightness depending on the target.
+
 ## Version 0.2.1 (2015-04-03)
 
  - Creating a texture with a specific format now properly checks for available extensions.
