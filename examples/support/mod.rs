@@ -42,7 +42,7 @@ pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
 
 /// Returns a vertex buffer that should be rendered as `TrianglesList`.
 pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         position: [f32; 3],
         normal: [f32; 3],

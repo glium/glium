@@ -11,7 +11,7 @@ mod support;
 fn attribute_types_mismatch() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [f32; 4],
     }
@@ -58,7 +58,7 @@ fn attribute_types_mismatch() {
 fn missing_attribute() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [f32; 4],
     }
@@ -106,7 +106,7 @@ macro_rules! attribute_test(
         fn $name() {
             let display = support::build_display();
 
-            #[derive(Copy)]
+            #[derive(Copy, Clone)]
             struct Vertex {
                 field1: $attr_ty,
             }

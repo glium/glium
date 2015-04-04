@@ -6,7 +6,7 @@ fn main() {
     use glium::{DisplayBuild, Surface};
     let display = glutin::WindowBuilder::new().build_glium().unwrap();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         position: [f32; 2],
     }

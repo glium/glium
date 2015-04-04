@@ -12,7 +12,7 @@ fn instancing() {
     let display = support::build_display();
 
     let buffer1 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }
@@ -30,7 +30,7 @@ fn instancing() {
     };
 
     let buffer2 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             color: [f32; 3],
         }
@@ -109,7 +109,7 @@ fn per_instance_length_mismatch() {
     let display = support::build_display();
 
     let buffer1 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }
@@ -127,7 +127,7 @@ fn per_instance_length_mismatch() {
     };
 
     let buffer2 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             color: [f32; 3],
         }
@@ -150,7 +150,7 @@ fn per_instance_length_mismatch() {
     };
 
     let buffer3 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             color: [f32; 3],
         }

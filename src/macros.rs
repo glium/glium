@@ -45,7 +45,7 @@ macro_rules! uniform {
 /// # #[macro_use]
 /// # extern crate glium;
 /// # fn main() {
-/// #[derive(Copy)]
+/// #[derive(Copy, Clone)]
 /// struct Vertex {
 ///     position: [f32; 3],
 ///     tex_coords: [f32; 2],

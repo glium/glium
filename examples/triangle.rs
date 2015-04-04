@@ -17,7 +17,7 @@ fn main() {
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
             color: [f32; 3],

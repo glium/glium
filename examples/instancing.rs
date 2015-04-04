@@ -17,7 +17,7 @@ fn main() {
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2]
         }
@@ -35,7 +35,7 @@ fn main() {
 
     // building the vertex buffer with the attributes per instance
     let per_instance = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Attr {
             world_position: [f32; 2],
         }

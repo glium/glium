@@ -39,7 +39,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
-    /// #[derive(Copy)]
+    /// #[derive(Copy, Clone)]
     /// struct Vertex {
     ///     position: [f32; 3],
     ///     texcoords: [f32; 2],
