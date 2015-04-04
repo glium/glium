@@ -13,7 +13,7 @@ with that.
 # extern crate glium;
 # extern crate glutin;
 # fn main() {
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 3],
     texcoords: [f32; 2],
@@ -28,7 +28,7 @@ Next, build a `Vec` of the vertices that you want to upload, and pass it to
 
 ```no_run
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# #[derive(Copy)]
+# #[derive(Copy, Clone)]
 # struct Vertex {
 #     position: [f32; 3],
 #     texcoords: [f32; 2],

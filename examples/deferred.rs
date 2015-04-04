@@ -34,7 +34,7 @@ fn main() {
     let opengl_texture = glium::texture::Texture2d::new(&display, image);
 
     let floor_vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 4],
             normal: [f32; 4],
@@ -57,7 +57,7 @@ fn main() {
         glium::index::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
 
     let quad_vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 4],
             texcoord: [f32; 2]
@@ -231,7 +231,7 @@ fn main() {
 
     /*// creating the uniforms structure
     #[uniforms]
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct PrepassUniforms<'a> {
         perspective_matrix: [[f32; 4]; 4],
         view_matrix: [[f32; 4]; 4],
@@ -240,7 +240,7 @@ fn main() {
     }
 
     #[uniforms]
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct LightingUniforms<'a> {
         matrix: [[f32; 4]; 4],
         position_texture: &'a glium::texture::Texture2d,
@@ -252,7 +252,7 @@ fn main() {
     }
 
     #[uniforms]
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct CompositionUniforms<'a> {
         matrix: [[f32; 4]; 4],
         decal_texture: &'a glium::texture::Texture2d,

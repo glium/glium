@@ -40,7 +40,7 @@ See the `vertex` module documentation for more informations.
 # #[macro_use]
 # extern crate glium;
 # fn main() {
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
     color: [f32; 3],

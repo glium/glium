@@ -7,7 +7,7 @@ use glium::Surface;
 
 mod support;
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
 }

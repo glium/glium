@@ -11,7 +11,7 @@ fn cull_clockwise() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }
@@ -71,7 +71,7 @@ fn cull_counterclockwise() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }
@@ -131,7 +131,7 @@ fn cull_clockwise_trianglestrip() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }
@@ -190,7 +190,7 @@ fn cull_counterclockwise_trianglestrip() {
     let display = support::build_display();
 
     let vertex_buffer = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }

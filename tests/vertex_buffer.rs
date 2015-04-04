@@ -11,7 +11,7 @@ mod support;
 fn vertex_buffer_creation() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [f32; 3],
         field2: [f32; 3],
@@ -34,7 +34,7 @@ fn vertex_buffer_creation() {
 fn vertex_buffer_mapping_read() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -60,7 +60,7 @@ fn vertex_buffer_mapping_read() {
 fn vertex_buffer_mapping_write() {
     let display = support::build_display();
     
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -91,7 +91,7 @@ fn vertex_buffer_mapping_write() {
 fn vertex_buffer_read() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -121,7 +121,7 @@ fn vertex_buffer_read() {
 fn vertex_buffer_read_slice() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -150,7 +150,7 @@ fn vertex_buffer_read_slice() {
 fn vertex_buffer_slice_out_of_bounds() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -174,7 +174,7 @@ fn vertex_buffer_slice_out_of_bounds() {
 fn vertex_buffer_any() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [f32; 3],
         field2: [f32; 3],
@@ -197,7 +197,7 @@ fn vertex_buffer_any() {
 fn vertex_buffer_write() {
     let display = support::build_display();
     
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -234,7 +234,7 @@ fn vertex_buffer_write() {
 fn vertex_buffer_write_slice() {
     let display = support::build_display();
     
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
         field2: [u8; 2],
@@ -269,7 +269,7 @@ fn multiple_buffers_source() {
     let display = support::build_display();
 
     let buffer1 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             position: [f32; 2],
         }
@@ -287,7 +287,7 @@ fn multiple_buffers_source() {
     };
 
     let buffer2 = {
-        #[derive(Copy)]
+        #[derive(Copy, Clone)]
         struct Vertex {
             color: [f32; 3],
         }
@@ -351,7 +351,7 @@ fn multiple_buffers_source() {
 fn zero_sized_vertex_buffer() {
     let display = support::build_display();
 
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         field1: [f32; 3],
         field2: [f32; 3],

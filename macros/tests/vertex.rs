@@ -7,7 +7,7 @@ extern crate glium;
 #[test]
 fn verify_shader() {
     #[vertex_format]
-    #[derive(Copy)]
+    #[derive(Copy, Clone)]
     struct Vertex {
         position: [f32; 2]
     }

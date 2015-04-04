@@ -28,7 +28,7 @@ fn build_program(display: &glium::Display) -> glium::Program {
         None).unwrap()
 }
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
 }
