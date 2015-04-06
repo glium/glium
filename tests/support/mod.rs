@@ -7,6 +7,7 @@ Test supports module.
 
 use glutin;
 use glium::{self, DisplayBuild};
+use glium::backend::Facade;
 
 use std::env;
 
@@ -38,20 +39,20 @@ pub fn build_display() -> glium::Display {
 }
 
 /// Builds a 2x2 unicolor texture.
-pub fn build_unicolor_texture2d(display: &glium::Display, red: f32, green: f32, blue: f32)
-    -> glium::Texture2d
+pub fn build_unicolor_texture2d<F>(facade: &F, red: f32, green: f32, blue: f32)
+    -> glium::Texture2d where F: Facade
 {
     let color = ((red * 255.0) as u8, (green * 255.0) as u8, (blue * 255.0) as u8);
 
-    glium::texture::Texture2d::new(display, vec![
+    glium::texture::Texture2d::new(facade, vec![
         vec![color, color],
         vec![color, color],
     ])
 }
 
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
-pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex::VertexBufferAny,
-    glium::IndexBuffer, glium::Program)
+pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBufferAny,
+    glium::IndexBuffer, glium::Program) where F: Facade
 {
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -61,14 +62,14 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
     implement_vertex!(Vertex, position);
 
     (
-        glium::VertexBuffer::new(display, vec![
+        glium::VertexBuffer::new(facade, vec![
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(display, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
+        glium::IndexBuffer::new(facade, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
 
-        glium::Program::from_source(display,
+        glium::Program::from_source(facade,
             "
                 #version 110
 
@@ -92,8 +93,8 @@ pub fn build_fullscreen_red_pipeline(display: &glium::Display) -> (glium::vertex
 /// Builds a vertex buffer and an index buffer corresponding to a rectangle.
 ///
 /// The vertex buffer has the "position" attribute of type "vec2".
-pub fn build_rectangle_vb_ib(display: &glium::Display)
-    -> (glium::vertex::VertexBufferAny, glium::IndexBuffer)
+pub fn build_rectangle_vb_ib<F>(facade: &F)
+    -> (glium::vertex::VertexBufferAny, glium::IndexBuffer) where F: Facade
 {
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -103,16 +104,16 @@ pub fn build_rectangle_vb_ib(display: &glium::Display)
     implement_vertex!(Vertex, position);
 
     (
-        glium::VertexBuffer::new(display, vec![
+        glium::VertexBuffer::new(facade, vec![
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(display, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
+        glium::IndexBuffer::new(facade, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
     )
 }
 
 /// Builds a texture suitable for rendering.
-pub fn build_renderable_texture(display: &glium::Display) -> glium::Texture2d {
-    glium::Texture2d::empty(display, 1024, 1024)
+pub fn build_renderable_texture<F>(facade: &F) -> glium::Texture2d where F: Facade {
+    glium::Texture2d::empty(facade, 1024, 1024)
 }
