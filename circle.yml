@@ -11,7 +11,7 @@ test:
     - cargo test --features "headless" --verbose -j 2
     - cargo test --no-default-features --features "headless" --verbose -j 2
     - cargo build --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_persistent_mapping gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures" --verbose -j 2
-    - cargo test --manifest-path macros/Cargo.toml -j 2
+    #- cargo test --manifest-path macros/Cargo.toml -j 2
 
 general:
   branches:
