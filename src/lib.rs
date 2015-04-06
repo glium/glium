@@ -174,7 +174,7 @@ extern crate libc;
 extern crate nalgebra;
 
 pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
-pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters};
+pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
 pub use index::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};

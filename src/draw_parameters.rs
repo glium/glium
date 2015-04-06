@@ -279,6 +279,95 @@ impl ToGlEnum for DepthTest {
     }
 }
 
+/// Specifies which comparaison the GPU will do to determine whether a sample passes the stencil
+/// test.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum StencilTest {
+    /// The stencil test always passes.
+    AlwaysPass,
+
+    /// The stencil test always fails.
+    AlwaysFail,
+
+    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
+    /// the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`), then compares them.
+    IfLess { mask: u32 },
+
+    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
+    /// the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`), then compares them.
+    IfLessOrEqual { mask: u32 },
+
+    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
+    /// the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`), then compares them.
+    IfMore { mask: u32 },
+
+    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
+    /// the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`), then compares them.
+    IfMoreOrEqual { mask: u32 },
+
+    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
+    /// the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`), then compares them.
+    IfEqual { mask: u32 },
+
+    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
+    /// the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`), then compares them.
+    IfNotEqual { mask: u32 },
+}
+
+/// Specificies which operation the GPU will do depending on the result of the stencil test.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum StencilOperation {
+    /// Keeps the value currently in the stencil buffer.
+    Keep,
+
+    /// Writes zero in the stencil buffer.
+    Zero,
+
+    /// Writes the reference value (`stencil_reference_value_clockwise` or
+    /// `stencil_reference_value_counter_clockwise`) in the stencil buffer.
+    Replace,
+
+    /// Increments the value currently in the stencil buffer. If the value is the
+    /// maximum, don't do anything.
+    Increment,
+
+    /// Increments the value currently in the stencil buffer. If the value is the
+    /// maximum, wrap to `0`.
+    IncrementWrap,
+
+    /// Decrements the value currently in the stencil buffer. If the value is `0`,
+    /// don't do anything.
+    Decrement,
+
+    /// Decrements the value currently in the stencil buffer. If the value is `0`,
+    /// wrap to `-1`.
+    DecrementWrap,
+
+    /// Inverts each bit of the value.
+    Invert,
+}
+
+impl ToGlEnum for StencilOperation {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            StencilOperation::Keep => gl::KEEP,
+            StencilOperation::Zero => gl::ZERO,
+            StencilOperation::Replace => gl::REPLACE,
+            StencilOperation::Increment => gl::INCR,
+            StencilOperation::IncrementWrap => gl::INCR_WRAP,
+            StencilOperation::Decrement => gl::DECR,
+            StencilOperation::DecrementWrap => gl::DECR_WRAP,
+            StencilOperation::Invert => gl::INVERT,
+        }
+    }
+}
+
 /// Defines how the device should render polygons.
 ///
 /// The usual value is `Fill`, which fills the content of polygon with the color. However other
@@ -369,6 +458,110 @@ pub struct DrawParameters {
     /// It is possible for the "near" value to be greater than the "far" value.
     pub depth_range: (f32, f32),
 
+    /// A comparaison against the existing value in the stencil buffer.
+    ///
+    /// Only relevant for faces that are clockwise on the target surface. Other faces, points and
+    /// lines use `stencil_test_counter_clockwise` instead.
+    ///
+    /// The default value is `AlwaysPass`.
+    pub stencil_test_clockwise: StencilTest,
+
+    /// Reference value that is used by `stencil_test_clockwise`, `stencil_fail_operation_clockwise`,
+    /// `stencil_pass_depth_fail_operation_clockwise` and `stencil_depth_pass_operation_clockwise`.
+    pub stencil_reference_value_clockwise: i32,
+
+    /// Allows specifying a mask when writing data on the stencil buffer.
+    ///
+    /// Only relevant for faces that are clockwise on the target surface. Other faces, points and
+    /// lines use `stencil_write_mask_counter_clockwise` instead.
+    ///
+    /// The default value is `0xffffffff`.
+    pub stencil_write_mask_clockwise: u32,
+
+    /// Specifies the operation to do when a fragment fails the stencil test.
+    ///
+    /// The stencil test is the test specified by `stencil_test_clockwise`.
+    ///
+    /// Only relevant for faces that are clockwise on the target surface. Other faces, points and
+    /// lines use `stencil_fail_operation_counter_clockwise` instead.
+    ///
+    /// The default value is `Keep`.
+    pub stencil_fail_operation_clockwise: StencilOperation,
+
+    /// Specifies the operation to do when a fragment passes the stencil test but fails
+    /// the depth test.
+    ///
+    /// The stencil test is the test specified by `stencil_test_clockwise`.
+    ///
+    /// Only relevant for faces that are clockwise on the target surface. Other faces, points and
+    /// lines use `stencil_pass_depth_fail_operation_counter_clockwise` instead.
+    ///
+    /// The default value is `Keep`.
+    pub stencil_pass_depth_fail_operation_clockwise: StencilOperation,
+
+    /// Specifies the operation to do when a fragment passes both the stencil and depth tests.
+    ///
+    /// The stencil test is the test specified by `stencil_test_clockwise`.
+    ///
+    /// Only relevant for faces that are clockwise on the target surface. Other faces, points and
+    /// lines use `stencil_depth_pass_operation_counter_clockwise` instead.
+    ///
+    /// The default value is `Keep`.
+    pub stencil_depth_pass_operation_clockwise: StencilOperation,
+
+    /// A comparaison against the existing value in the stencil buffer.
+    ///
+    /// Only relevant for points, lines and faces that are counter-clockwise on the target surface.
+    /// Other faces use `stencil_test_counter_clockwise` instead.
+    ///
+    /// The default value is `AlwaysPass`.
+    pub stencil_test_counter_clockwise: StencilTest,
+
+    /// Reference value that is used by `stencil_test_counter_clockwise`,
+    /// `stencil_fail_operation_counter_clockwise`,
+    /// `stencil_pass_depth_fail_operation_counter_clockwise` and
+    /// `stencil_depth_pass_operation_counter_clockwise`.
+    pub stencil_reference_value_counter_clockwise: i32,
+
+    /// Allows specifying a mask when writing data on the stencil buffer.
+    ///
+    /// Only relevant for points, lines and faces that are counter-clockwise on the target surface.
+    /// Other faces use `stencil_write_mask_clockwise` instead.
+    ///
+    /// The default value is `0xffffffff`.
+    pub stencil_write_mask_counter_clockwise: u32,
+
+    /// Specifies the operation to do when a fragment fails the stencil test.
+    ///
+    /// The stencil test is the test specified by `stencil_test_counter_clockwise`.
+    ///
+    /// Only relevant for faces that are counter-clockwise on the target surface. Other faces
+    /// use `stencil_fail_operation_clockwise` instead.
+    ///
+    /// The default value is `Keep`.
+    pub stencil_fail_operation_counter_clockwise: StencilOperation,
+
+    /// Specifies the operation to do when a fragment passes the stencil test but fails
+    /// the depth test.
+    ///
+    /// The stencil test is the test specified by `stencil_test_counter_clockwise`.
+    ///
+    /// Only relevant for faces that are counter-clockwise on the target surface. Other faces
+    /// use `stencil_pass_depth_fail_operation_clockwise` instead.
+    ///
+    /// The default value is `Keep`.
+    pub stencil_pass_depth_fail_operation_counter_clockwise: StencilOperation,
+
+    /// Specifies the operation to do when a fragment passes both the stencil and depth tests.
+    ///
+    /// The stencil test is the test specified by `stencil_test_counter_clockwise`.
+    ///
+    /// Only relevant for faces that are counter-clockwise on the target surface. Other faces
+    /// use `stencil_depth_pass_operation_clockwise` instead.
+    ///
+    /// The default value is `Keep`.
+    pub stencil_depth_pass_operation_counter_clockwise: StencilOperation,
+
     /// The function that the GPU will use to merge the existing pixel with the pixel that is
     /// being written.
     ///
@@ -446,6 +639,18 @@ impl Default for DrawParameters {
             depth_test: DepthTest::Overwrite,
             depth_write: false,
             depth_range: (0.0, 1.0),
+            stencil_test_clockwise: StencilTest::AlwaysPass,
+            stencil_reference_value_clockwise: 0,
+            stencil_write_mask_clockwise: 0xffffffff,
+            stencil_fail_operation_clockwise: StencilOperation::Keep,
+            stencil_pass_depth_fail_operation_clockwise: StencilOperation::Keep,
+            stencil_depth_pass_operation_clockwise: StencilOperation::Keep,
+            stencil_test_counter_clockwise: StencilTest::AlwaysPass,
+            stencil_reference_value_counter_clockwise: 0,
+            stencil_write_mask_counter_clockwise: 0xffffffff,
+            stencil_fail_operation_counter_clockwise: StencilOperation::Keep,
+            stencil_pass_depth_fail_operation_counter_clockwise: StencilOperation::Keep,
+            stencil_depth_pass_operation_counter_clockwise: StencilOperation::Keep,
             blending_function: Some(BlendingFunction::AlwaysReplace),
             line_width: None,
             point_size: None,
