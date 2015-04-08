@@ -95,8 +95,14 @@ impl TextureImplementation {
         };
 
         let texture_levels = if generate_mipmaps {
-            1 + (::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
-                                 depth.unwrap_or(1))) as f32).log2() as gl::types::GLsizei
+            let max = ::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
+                                 depth.unwrap_or(1))) as f32;
+
+            match max {
+                0.0 => 1,
+                a => 1 + a.log2() as gl::types::GLsizei
+            }
+
         } else {
             1
         };
@@ -160,64 +166,91 @@ impl TextureImplementation {
             }
 
             if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
+                let mut data_raw = data_raw;
+
+                let width = match width as gl::types::GLsizei {
+                    0 => { data_raw = ptr::null(); 1 },
+                    a => a
+                };
+
+                let height = match height.unwrap() as gl::types::GLsizei {
+                    0 => { data_raw = ptr::null(); 1 },
+                    a => a
+                };
+
+                let depth = match depth.or(array_size).unwrap() as gl::types::GLsizei {
+                    0 => { data_raw = ptr::null(); 1 },
+                    a => a
+                };
+
                 if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                     ctxt.gl.TexStorage3D(texture_type, texture_levels,
                                          storage_internal_format.unwrap() as gl::types::GLenum,
-                                         width as gl::types::GLsizei,
-                                         height.unwrap() as gl::types::GLsizei,
-                                         depth.or(array_size).unwrap() as gl::types::GLsizei);
+                                         width, height, depth);
 
                     if !data_raw.is_null() {
-                        ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0,
-                                              width as gl::types::GLsizei,
-                                              height.unwrap() as gl::types::GLsizei,
-                                              depth.or(array_size).unwrap() as gl::types::GLsizei,
+                        ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0, width, height, depth,
                                               client_format, client_type, data_raw);
                     }
 
                 } else {
-                    ctxt.gl.TexImage3D(texture_type, 0, teximg_internal_format as i32, width as i32,
-                                       height.unwrap() as i32,
-                                       depth.or(array_size).unwrap() as i32, 0,
-                                       client_format as u32, client_type, data_raw);
+                    ctxt.gl.TexImage3D(texture_type, 0, teximg_internal_format as i32, width,
+                                       height, depth, 0, client_format as u32, client_type,
+                                       data_raw);
                 }
 
             } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
+                let mut data_raw = data_raw;
+
+                let width = match width as gl::types::GLsizei {
+                    0 => { data_raw = ptr::null(); 1 },
+                    a => a
+                };
+
+                let height = match height.or(array_size).unwrap() as gl::types::GLsizei {
+                    0 => { data_raw = ptr::null(); 1 },
+                    a => a
+                };
+
                 if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                     ctxt.gl.TexStorage2D(texture_type, texture_levels,
                                          storage_internal_format.unwrap() as gl::types::GLenum,
-                                         width as gl::types::GLsizei,
-                                         height.or(array_size).unwrap() as gl::types::GLsizei);
+                                         width, height);
 
                     if !data_raw.is_null() {
-                        ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width as gl::types::GLsizei,
-                                              height.or(array_size).unwrap() as gl::types::GLsizei,
-                                              client_format, client_type, data_raw);
+                        ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width, height, client_format,
+                                              client_type, data_raw);
                     }
 
                 } else {
-                    ctxt.gl.TexImage2D(texture_type, 0, teximg_internal_format as i32, width as i32,
-                                       height.or(array_size).unwrap() as i32, 0,
-                                       client_format as u32, client_type, data_raw);
+                    ctxt.gl.TexImage2D(texture_type, 0, teximg_internal_format as i32, width,
+                                       height, 0, client_format as u32, client_type, data_raw);
                 }
 
             } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE {
                 assert!(data_raw.is_null());
+
+                let width = match width as gl::types::GLsizei {
+                    0 => 1,
+                    a => a
+                };
+
+                let height = match height.unwrap() as gl::types::GLsizei {
+                    0 => 1,
+                    a => a
+                };
+
                 if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                     ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
                                                     samples.unwrap() as gl::types::GLsizei,
                                                     storage_internal_format.unwrap() as gl::types::GLenum,
-                                                    width as gl::types::GLsizei,
-                                                    height.unwrap() as gl::types::GLsizei,
-                                                    gl::TRUE);
+                                                    width, height, gl::TRUE);
 
                 } else if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                     ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
                                                   samples.unwrap() as gl::types::GLsizei,
                                                   teximg_internal_format as gl::types::GLenum,
-                                                  width as gl::types::GLsizei,
-                                                  height.unwrap() as gl::types::GLsizei,
-                                                  gl::TRUE);
+                                                  width, height, gl::TRUE);
 
                 } else {
                     unreachable!();
@@ -225,22 +258,29 @@ impl TextureImplementation {
 
             } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
                 assert!(data_raw.is_null());
+
+                let width = match width as gl::types::GLsizei {
+                    0 => 1,
+                    a => a
+                };
+
+                let height = match height.unwrap() as gl::types::GLsizei {
+                    0 => 1,
+                    a => a
+                };
+
                 if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                     ctxt.gl.TexStorage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
                                                     samples.unwrap() as gl::types::GLsizei,
                                                     storage_internal_format.unwrap() as gl::types::GLenum,
-                                                    width as gl::types::GLsizei,
-                                                    height.unwrap() as gl::types::GLsizei,
-                                                    array_size.unwrap() as gl::types::GLsizei,
+                                                    width, height, array_size.unwrap() as gl::types::GLsizei,
                                                     gl::TRUE);
 
                 } else if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                     ctxt.gl.TexImage3DMultisample(gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
                                                   samples.unwrap() as gl::types::GLsizei,
                                                   teximg_internal_format as gl::types::GLenum,
-                                                  width as gl::types::GLsizei,
-                                                  height.unwrap() as gl::types::GLsizei,
-                                                  array_size.unwrap() as gl::types::GLsizei,
+                                                  width, height, array_size.unwrap() as gl::types::GLsizei,
                                                   gl::TRUE);
 
                 } else {
@@ -248,18 +288,25 @@ impl TextureImplementation {
                 }
 
             } else if texture_type == gl::TEXTURE_1D {
+                let mut data_raw = data_raw;
+
+                let width = match width as gl::types::GLsizei {
+                    0 => { data_raw = ptr::null(); 1 },
+                    a => a
+                };
+
                 if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                     ctxt.gl.TexStorage1D(texture_type, texture_levels,
                                          storage_internal_format.unwrap() as gl::types::GLenum,
-                                         width as gl::types::GLsizei);
+                                         width);
 
                     if !data_raw.is_null() {
-                        ctxt.gl.TexSubImage1D(texture_type, 0, 0, width as gl::types::GLsizei,
-                                              client_format, client_type, data_raw);
+                        ctxt.gl.TexSubImage1D(texture_type, 0, 0, width, client_format,
+                                              client_type, data_raw);
                     }
 
                 } else {
-                    ctxt.gl.TexImage1D(texture_type, 0, teximg_internal_format as i32, width as i32,
+                    ctxt.gl.TexImage1D(texture_type, 0, teximg_internal_format as i32, width,
                                        0, client_format as u32, client_type, data_raw);
                 }
 
