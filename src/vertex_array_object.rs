@@ -128,25 +128,64 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
 
     /// Finish binding the vertex attributes.
     pub fn bind(self) {
-        let mut buffers_list: Vec<_> = self.vertex_buffers.iter().map(|&(v, _, _, _)| v).collect();
-        buffers_list.push(self.element_array_buffer);
-        buffers_list.sort();
+        let ctxt = self.context;
 
-        let program_id = self.program.get_id();
-
-        if let Some(value) = self.system.vaos.borrow_mut()
-                                 .get(&(buffers_list.clone(), program_id))
+        if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+           ctxt.extensions.gl_arb_vertex_array_object || ctxt.extensions.gl_oes_vertex_array_object
+           || ctxt.extensions.gl_apple_vertex_array_object
         {
-            bind_vao(self.context, value.id);
-            return;
-        }
+            // VAOs are supported
+            let mut buffers_list: Vec<_> = self.vertex_buffers.iter()
+                                                              .map(|&(v, _, _, _)| v).collect();
+            buffers_list.push(self.element_array_buffer);
+            buffers_list.sort();
 
-        let new_vao = unsafe {
-            VertexArrayObject::new(self.context, &self.vertex_buffers,
-                                   self.element_array_buffer, self.program)
-        };
-        bind_vao(self.context, new_vao.id);
-        self.system.vaos.borrow_mut().insert((buffers_list, program_id), new_vao);
+            let program_id = self.program.get_id();
+
+            // trying to find an existing VAO in the cache
+            if let Some(value) = self.system.vaos.borrow_mut()
+                                     .get(&(buffers_list.clone(), program_id))
+            {
+                bind_vao(ctxt, value.id);
+                return;
+            }
+
+            // if not found, building a new one
+            let new_vao = unsafe {
+                VertexArrayObject::new(ctxt, &self.vertex_buffers,
+                                       self.element_array_buffer, self.program)
+            };
+
+            bind_vao(ctxt, new_vao.id);
+            self.system.vaos.borrow_mut().insert((buffers_list, program_id), new_vao);
+
+        } else {
+            // VAOs are not supported
+
+            // just in case
+            if ctxt.state.vertex_array != 0 {
+                bind_vao(ctxt, 0);
+                ctxt.state.vertex_array = 0;
+            }
+
+            unsafe {
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.element_array_buffer);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER_ARB, self.element_array_buffer);
+                } else {
+                    unreachable!();
+                }
+            }
+
+            for (vertex_buffer, bindings, stride, divisor) in self.vertex_buffers {
+                unsafe {
+                    bind_attribute(ctxt, self.program, vertex_buffer, &bindings, stride, divisor);
+                }
+            }
+        }
     }
 }
 
@@ -234,60 +273,7 @@ impl VertexArrayObject {
         }
 
         for &(vertex_buffer, ref bindings, stride, divisor) in vertex_buffers {
-            // glVertexAttribPointer uses the current array buffer
-            // TODO: use a proper function
-            if ctxt.state.array_buffer_binding != vertex_buffer {
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::ARRAY_BUFFER_ARB, vertex_buffer);
-                } else {
-                    unreachable!();
-                }
-                ctxt.state.array_buffer_binding = vertex_buffer;
-            }
-
-            // binding attributes
-            for &(ref name, offset, ty) in bindings {
-                let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
-
-                let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
-                    Some(a) => a,
-                    None => continue
-                };
-
-                let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
-
-                if attribute.location != -1 {
-                    match attribute_ty {
-                        gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
-                        gl::INT | gl::UNSIGNED_INT =>
-                            ctxt.gl.VertexAttribIPointer(attribute.location as u32,
-                                elements_count as gl::types::GLint, data_type,
-                                stride as i32, offset as *const libc::c_void),
-
-                        gl::DOUBLE | gl::DOUBLE_VEC2 | gl::DOUBLE_VEC3 | gl::DOUBLE_VEC4 |
-                        gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
-                        gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
-                        gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 =>
-                            ctxt.gl.VertexAttribLPointer(attribute.location as u32,
-                                elements_count as gl::types::GLint, data_type,
-                                stride as i32, offset as *const libc::c_void),
-
-                        _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
-                                elements_count as gl::types::GLint, data_type, 0,
-                                stride as i32, offset as *const libc::c_void)
-                    }
-
-                    if let Some(divisor) = divisor {
-                        ctxt.gl.VertexAttribDivisor(attribute.location as u32, divisor);
-                    }
-
-                    ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
-                }
-            }
+            bind_attribute(ctxt, program, vertex_buffer, bindings, stride, divisor);
         }
 
         VertexArrayObject {
@@ -415,5 +401,66 @@ fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
         }
 
         ctxt.state.vertex_array = vao_id;
+    }
+}
+
+/// Binds an individual attribute to the current VAO.
+unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
+                         vertex_buffer: gl::types::GLuint, bindings: &VertexFormat, stride: usize,
+                         divisor: Option<u32>)
+{
+    // glVertexAttribPointer uses the current array buffer
+    // TODO: use a proper function
+    if ctxt.state.array_buffer_binding != vertex_buffer {
+        if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+            ctxt.version >= &Version(Api::GlEs, 2, 0)
+        {
+            ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
+        } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+            ctxt.gl.BindBufferARB(gl::ARRAY_BUFFER_ARB, vertex_buffer);
+        } else {
+            unreachable!();
+        }
+        ctxt.state.array_buffer_binding = vertex_buffer;
+    }
+
+    // binding attributes
+    for &(ref name, offset, ty) in bindings {
+        let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
+
+        let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
+            Some(a) => a,
+            None => continue
+        };
+
+        let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
+
+        if attribute.location != -1 {
+            match attribute_ty {
+                gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
+                gl::INT | gl::UNSIGNED_INT =>
+                    ctxt.gl.VertexAttribIPointer(attribute.location as u32,
+                        elements_count as gl::types::GLint, data_type,
+                        stride as i32, offset as *const libc::c_void),
+
+                gl::DOUBLE | gl::DOUBLE_VEC2 | gl::DOUBLE_VEC3 | gl::DOUBLE_VEC4 |
+                gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
+                gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
+                gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 =>
+                    ctxt.gl.VertexAttribLPointer(attribute.location as u32,
+                        elements_count as gl::types::GLint, data_type,
+                        stride as i32, offset as *const libc::c_void),
+
+                _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
+                        elements_count as gl::types::GLint, data_type, 0,
+                        stride as i32, offset as *const libc::c_void)
+            }
+
+            if let Some(divisor) = divisor {
+                ctxt.gl.VertexAttribDivisor(attribute.location as u32, divisor);
+            }
+
+            ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
+        }
     }
 }

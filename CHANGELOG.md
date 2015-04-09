@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Added support for backends that don't have vertex array objects (like OpenGL ES 2/WebGL).
  - Added stencil operations in `DrawParameters`.
  - Fixed `GL_FRAMEBUFFER_SRGB` not being enabled, leading to different brightness depending on the target.
 

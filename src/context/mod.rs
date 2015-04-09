@@ -405,15 +405,6 @@ fn check_gl_compatibility(ctxt: &mut CommandContext) -> Result<(), GliumCreation
         result.push("OpenGL implementation doesn't support blitting framebuffers");
     }
 
-    if !ctxt.extensions.gl_arb_vertex_array_object &&
-        !ctxt.extensions.gl_apple_vertex_array_object &&
-        !ctxt.extensions.gl_oes_vertex_array_object &&
-        !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 3, 0))
-    {
-        result.push("OpenGL implementation doesn't support vertex array objects");
-    }
-
     if cfg!(feature = "gl_uniform_blocks") && !(ctxt.version >= &Version(Api::Gl, 3, 1)) &&
         !ctxt.extensions.gl_arb_uniform_buffer_object
     {
