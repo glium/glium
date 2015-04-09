@@ -130,9 +130,21 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     let mut ctxt = context.make_current();
 
     // binding the vertex array object or vertex attributes
-    context.vertex_array_objects.bind_vao(&mut ctxt,
-                                          &vertex_buffers.iter().map(|v| v).collect::<Vec<_>>(),
-                                          &indices, program);
+    {
+        let ib_id = match indices {
+            IndicesSource::Buffer { .. } => 0,
+            IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
+            IndicesSource::NoIndices { .. } => 0,
+        };
+
+        let mut binder = context.vertex_array_objects.start(&mut ctxt, program, ib_id);
+
+        for &VerticesSource::VertexBuffer(ref buffer, offset, _, per_instance) in &vertex_buffers {
+            binder = binder.add(buffer, offset, if per_instance { Some(1) } else { None });
+        }
+
+        binder.bind();
+    }
 
     // binding the FBO to draw upon
     {
