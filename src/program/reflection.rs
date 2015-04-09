@@ -111,7 +111,8 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         let mut active_uniforms: gl::types::GLint = mem::uninitialized();
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORMS, &mut active_uniforms);
             },
             Handle::Handle(program) => {
@@ -132,7 +133,8 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
 
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetActiveUniform(program, uniform_id as gl::types::GLuint,
                                          uniform_name_tmp_len, &mut uniform_name_tmp_len,
                                          &mut data_size, &mut data_type,
@@ -153,7 +155,8 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
         let location = match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetUniformLocation(program,
                                            ffi::CString::new(uniform_name.as_bytes()).unwrap()
                                              .as_bytes_with_nul().as_ptr() as *const libc::c_char)
@@ -186,7 +189,8 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
         let mut active_attributes: gl::types::GLint = mem::uninitialized();
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
             },
             Handle::Handle(program) => {
@@ -207,7 +211,8 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 
         match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint,
                                         attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
                                         &mut data_type, attr_name_tmp.as_mut_ptr()
@@ -231,7 +236,8 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 
         let location = match program {
             Handle::Id(program) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                        ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetAttribLocation(program,
                                           ffi::CString::new(attr_name.as_bytes()).unwrap()
                                             .as_bytes_with_nul().as_ptr() as *const libc::c_char)
@@ -384,7 +390,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
     };
 
     // transform feedback not supported
-    if ctxt.version < &Version(Api::Gl, 3, 0) && !ctxt.extensions.gl_ext_transform_feedback {
+    if !(ctxt.version >= &Version(Api::Gl, 3, 0)) && !ctxt.extensions.gl_ext_transform_feedback {
         return None;
     }
 
