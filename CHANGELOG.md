@@ -6,6 +6,7 @@
  - Glium now has basic support for OpenGL ES 2/WebGL.
  - Added stencil operations in `DrawParameters`.
  - Fixed `GL_FRAMEBUFFER_SRGB` not being enabled, leading to different brightness depending on the target.
+ - Fixed trailing commas not working in `implement_vertex!` and `uniform!`.
 
 ## Version 0.2.1 (2015-04-03)
 
