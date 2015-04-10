@@ -97,10 +97,49 @@ macro_rules! implement_vertex {
     );
 }
 
+/// Implements the `glium::uniforms::Uniforms` trait for the given type.
+///
+/// The parameters must be the name of the struct and the names of its fields.
+///
+/// ## Example
+///
+/// ```
+/// # #[macro_use]
+/// # extern crate glium;
+/// # fn main() {
+/// #[derive(Copy, Clone)]
+/// struct Values<'a> {
+///     texture: &'a glium::texture::Texture2d,
+///     color: [f32; 4]
+/// }
+///
+/// implement_uniforms!(Values, texture, color);
+/// # }
+/// ```
+///
+#[macro_export]
+macro_rules! implement_uniforms {
+    ($struct_name:ident, $($field_name:ident),+) => (
+        impl $crate::uniforms::Uniforms for $struct_name {
+            fn visit_values<F: FnMut(&str, &$crate::uniforms::UniformValue)>(self, mut output: F) {
+                use $crate::uniforms::IntoUniformValue;
+
+                $(
+                    output(stringify!($field_name), &IntoUniformValue::into_uniform_value(self.$field_name));
+                )+
+            }
+        }
+    );
+
+    ($struct_name:ident, $($field_name:ident),+,) => (
+        implement_uniforms!($struct_name, $($field_name),+);
+    );
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
-    fn trailing_comma_impl_uniforms() {
+    fn trailing_comma_uniform() {
         let u = uniform!{ a: 5, b: 6, };
     }
 
@@ -112,5 +151,15 @@ mod tests {
         }
 
         implement_vertex!(Foo, pos,);
+    }
+
+    #[test]
+    fn trailing_comma_impl_uniforms() {
+        #[derive(Copy, Clone)]
+        struct Foo {
+            val: f32,
+        }
+
+        implement_uniforms!(Foo, val,);
     }
 }
