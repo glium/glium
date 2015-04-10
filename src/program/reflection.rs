@@ -77,11 +77,29 @@ pub struct Attribute {
     pub size: usize,
 }
 
+/// Describes the layout of a buffer that can receive transform feedback output.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TransformFeedbackBuffer {
+    /// Slot of this buffer.
+    ///
+    /// This is internal information, you probably don't need to use it.
+    pub id: i32,
+
+    /// List of elements inside the buffer.
+    pub elements: Vec<TransformFeedbackVarying>,
+
+    /// Size in bytes between two consecutive elements.
+    pub stride: usize,
+}
+
 /// Describes a varying that is being output with transform feedback.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TransformFeedbackVarying {
     /// Name of the variable.
     pub name: String,
+
+    /// Number of bytes between the start of the first element and the start of this one.
+    pub offset: usize,
 
     /// Size in bytes of this value.
     pub size: usize,
@@ -90,8 +108,8 @@ pub struct TransformFeedbackVarying {
     pub ty: AttributeType,
 }
 
-/// Describes the mode that is used when transform feedback is enabled.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+/// Type of transform feedback. Only used with the legacy interface.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TransformFeedbackMode {
     /// Each value is interleaved in the same buffer.
     Interleaved,
@@ -380,18 +398,17 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
 }
 
 pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Handle)
-                                         -> Option<(Vec<TransformFeedbackVarying>,
-                                                    TransformFeedbackMode)>
+                                         -> Vec<TransformFeedbackBuffer>
 {
     let program = match program {
         // transform feedback not supported
-        Handle::Handle(_) => return None,
+        Handle::Handle(_) => return Vec::with_capacity(0),
         Handle::Id(id) => id
     };
 
     // transform feedback not supported
     if !(ctxt.version >= &Version(Api::Gl, 3, 0)) && !ctxt.extensions.gl_ext_transform_feedback {
-        return None;
+        return Vec::with_capacity(0);
     }
 
     // querying the number of varying
@@ -411,7 +428,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
 
     // no need to request other things if there are no varying
     if num_varyings == 0 {
-        return None;
+        return Vec::with_capacity(0);
     }
 
     // querying "interleaved" or "separate"
@@ -466,14 +483,45 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
         name_tmp.set_len(name_tmp_len as usize);
         let name = String::from_utf8(name_tmp).unwrap();
 
-        result.push(TransformFeedbackVarying {
-            name: name,
-            size: size as usize,
-            ty: glenum_to_attribute_type(ty as gl::types::GLenum),
-        });
+        if buffer_mode == TransformFeedbackMode::Interleaved {
+            if result.len() == 0 {
+                result.push(TransformFeedbackBuffer {
+                    id: 0,
+                    elements: vec![],
+                    stride: 0,
+                });
+            }
+
+            let prev_size = result[0].stride;
+            result[0].stride += size as usize;
+            result[0].elements.push(TransformFeedbackVarying {
+                name: name,
+                size: size as usize,
+                offset: prev_size,
+                ty: glenum_to_attribute_type(ty as gl::types::GLenum),
+            });
+
+        } else if buffer_mode == TransformFeedbackMode::Separate {
+            let id = result.len();
+            result.push(TransformFeedbackBuffer {
+                id: id as i32,
+                elements: vec![
+                    TransformFeedbackVarying {
+                        name: name,
+                        size: size as usize,
+                        offset: 0,
+                        ty: glenum_to_attribute_type(ty as gl::types::GLenum),
+                    }
+                ],
+                stride: size as usize,
+            });
+
+        } else {
+            unreachable!();
+        }
     }
 
-    Some((result, buffer_mode))
+    result
 }
 
 fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
