@@ -42,18 +42,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
     try!(draw_parameters::validate(context, draw_parameters));
 
-    // using a base vertex is not yet supported
-    // TODO: 
-    for src in vertex_buffers.iter() {
-        match src {
-            &VerticesSource::VertexBuffer(_, offset, _, _) => {
-                if offset != 0 {
-                    panic!("Using a base vertex different from 0 is not yet implemented");
-                }
-            },
-        }
-    }
-
     // getting the number of vertices in the vertices sources, or `None` if there is a
     // mismatch
     let vertices_count = {
