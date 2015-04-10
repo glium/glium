@@ -337,9 +337,9 @@ fn indexbuffer_slice_out_of_range() {
     let indices = glium::index::TrianglesList(vec![0u16, 1, 2, 2, 1, 3]);
     let indices = glium::IndexBuffer::new(&display, indices);
 
-    assert!(indices.slice(5, 3).is_none());
-    assert!(indices.slice(2, 9).is_none());
-    assert!(indices.slice(12, 1).is_none());
+    assert!(indices.slice(5 .. 8).is_none());
+    assert!(indices.slice(2 .. 11).is_none());
+    assert!(indices.slice(12 .. 13).is_none());
 
     display.assert_no_error();
 }
@@ -359,7 +359,7 @@ fn indexbuffer_slice_draw() {
 
     let texture1 = support::build_renderable_texture(&display);
     texture1.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture1.as_surface().draw(&vb, &indices.slice(3, 3).unwrap(), &program,
+    texture1.as_surface().draw(&vb, &indices.slice(3 .. 6).unwrap(), &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8)>> = texture1.read();
@@ -369,7 +369,7 @@ fn indexbuffer_slice_draw() {
 
     let texture2 = support::build_renderable_texture(&display);
     texture2.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture2.as_surface().draw(&vb, &indices.slice(0, 3).unwrap(), &program,
+    texture2.as_surface().draw(&vb, &indices.slice(0 .. 3).unwrap(), &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8)>> = texture2.read();
