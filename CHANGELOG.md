@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Changed transform feedback reflection API to be compatible with what OpenGL 4.4 or ARB_enhanced_layouts allow.
+
 ## Version 0.2.2 (2015-04-10)
 
  - Added support for backends that don't have vertex array objects (like OpenGL ES 2/WebGL).

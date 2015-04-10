@@ -388,24 +388,31 @@ fn get_transform_feedback_varyings() {
         Err(e) => panic!("{:?}", e)
     };
 
-    assert_eq!(program.get_transform_feedback_varyings()[0],
-                glium::program::TransformFeedbackVarying {
-                    name: "normal".to_string(),
-                    size: 2 * 4,
-                    ty: glium::vertex::AttributeType::F32F32,
+    assert_eq!(program.get_transform_feedback_buffers()[0],
+                glium::program::TransformFeedbackBuffer {
+                    id: 0,
+                    stride: 2 * 4,
+                    elements: vec![glium::program::TransformFeedbackVarying {
+                        name: "normal".to_string(),
+                        offset: 0,
+                        size: 2 * 4,
+                        ty: glium::vertex::AttributeType::F32F32,
+                    }]
                 });
 
-    assert_eq!(program.get_transform_feedback_varyings()[1],
-                glium::program::TransformFeedbackVarying {
-                    name: "color".to_string(),
-                    size: 4,
-                    ty: glium::vertex::AttributeType::U32,
+    assert_eq!(program.get_transform_feedback_buffers()[1],
+                glium::program::TransformFeedbackBuffer {
+                    id: 0,
+                    stride: 4,
+                    elements: vec![glium::program::TransformFeedbackVarying {
+                        name: "color".to_string(),
+                        offset: 0,
+                        size: 4,
+                        ty: glium::vertex::AttributeType::U32,
+                    }]
                 });
 
-    assert_eq!(program.get_transform_feedback_varyings().len(), 2);
+    assert_eq!(program.get_transform_feedback_buffers().len(), 2);
 
-    assert_eq!(program.get_transform_feedback_mode(),
-               Some(glium::program::TransformFeedbackMode::Separate));
-    
     display.assert_no_error();
 }

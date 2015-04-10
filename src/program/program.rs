@@ -21,7 +21,7 @@ use Handle;
 use program::{COMPILER_GLOBAL_LOCK, IntoProgramCreationInput, ProgramCreationInput, Binary};
 
 use program::reflection::{Uniform, UniformBlock};
-use program::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackMode};
+use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
 use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
 use program::reflection::{reflect_transform_feedback};
 use program::shader::build_shader;
@@ -95,7 +95,7 @@ pub struct Program {
     uniform_blocks: HashMap<String, UniformBlock>,
     attributes: HashMap<String, Attribute>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
-    varyings: Option<(Vec<TransformFeedbackVarying>, TransformFeedbackMode)>,
+    tf_buffers: Vec<TransformFeedbackBuffer>,
     has_tessellation_shaders: bool,
 }
 
@@ -302,7 +302,7 @@ impl Program {
             id
         };
 
-        let (uniforms, attributes, blocks, varyings) = {
+        let (uniforms, attributes, blocks, tf_buffers) = {
             unsafe {
                 (
                     reflect_uniforms(&mut ctxt, id),
@@ -320,7 +320,7 @@ impl Program {
             uniform_blocks: blocks,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
-            varyings: varyings,
+            tf_buffers: tf_buffers,
             has_tessellation_shaders: has_tessellation_shaders,
         })
     }
@@ -358,7 +358,7 @@ impl Program {
             id
         };
 
-        let (uniforms, attributes, blocks, varyings) = unsafe {
+        let (uniforms, attributes, blocks, tf_buffers) = unsafe {
             (
                 reflect_uniforms(&mut ctxt, id),
                 reflect_attributes(&mut ctxt, id),
@@ -374,7 +374,7 @@ impl Program {
             uniform_blocks: blocks,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
-            varyings: varyings,
+            tf_buffers: tf_buffers,
             has_tessellation_shaders: true,     // FIXME: 
         })
     }
@@ -489,14 +489,8 @@ impl Program {
     }
 
     /// Returns the list of transform feedback varyings.
-    pub fn get_transform_feedback_varyings(&self) -> &[TransformFeedbackVarying] {
-        self.varyings.as_ref().map(|&(ref v, _)| &v[..]).unwrap_or(&[])
-    }
-
-    /// Returns the mode used for transform feedback, or `None` is transform feedback is not
-    /// enabled in this program or not supported.
-    pub fn get_transform_feedback_mode(&self) -> Option<TransformFeedbackMode> {
-        self.varyings.as_ref().map(|&(_, m)| m)
+    pub fn get_transform_feedback_buffers(&self) -> &[TransformFeedbackBuffer] {
+        &self.tf_buffers
     }
 
     /// Returns true if the program contains a tessellation stage.
