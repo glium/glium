@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+ - Changed the `slice()` functions to take a `Range` instead of two parameters.
+
+## Unreleased
+
  - Fixed drawing with offsets in vertex buffers different than 0 not permitted.
  - Changed transform feedback reflection API to be compatible with what OpenGL 4.4 or ARB_enhanced_layouts allow.
 

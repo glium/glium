@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Range, Deref, DerefMut};
 use std::sync::mpsc::Sender;
 
 use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
@@ -179,14 +179,16 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
     /// Accesses a slice of the buffer.
     ///
     /// Returns `None` if the slice is out of range.
-    pub fn slice(&self, offset: usize, len: usize) -> Option<VertexBufferSlice<T>> {
-        if offset > self.len() || offset + len > self.len() {
+    pub fn slice(&self, Range { start, end }: Range<usize>) -> Option<VertexBufferSlice<T>> {
+        let len = end - start;
+
+        if start > self.len() || start + len > self.len() {
             return None;
         }
 
         Some(VertexBufferSlice {
             buffer: self,
-            offset: offset,
+            offset: start,
             length: len
         })
     }
@@ -405,14 +407,16 @@ impl VertexBufferAny {
     /// Accesses a slice of the buffer.
     ///
     /// Returns `None` if the slice is out of range.
-    pub fn slice(&self, offset: usize, len: usize) -> Option<VertexBufferAnySlice> {
-        if offset >= self.len() || offset + len >= self.len() {
+    pub fn slice(&self, Range { start, end }: Range<usize>) -> Option<VertexBufferAnySlice> {
+        let len = end - start;
+
+        if start >= self.len() || start + len >= self.len() {
             return None;
         }
 
         Some(VertexBufferAnySlice {
             buffer: self,
-            offset: offset,
+            offset: start,
             length: len
         })
     }
