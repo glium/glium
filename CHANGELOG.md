@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.2.2 (2015-04-10)
 
  - Added support for backends that don't have vertex array objects (like OpenGL ES 2/WebGL).
  - Glium now has basic support for OpenGL ES 2/WebGL.
