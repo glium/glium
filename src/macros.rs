@@ -33,6 +33,10 @@ macro_rules! uniform {
             uniforms
         }
     };
+
+    ($($field:ident: $value:expr),*,) => {
+        uniform!($($field: $value),*)
+    };
 }
 
 /// Implements the `glium::vertex::Vertex` trait for the given type.
@@ -86,5 +90,27 @@ macro_rules! implement_vertex {
                 ]
             }
         }
-    )
+    );
+
+    ($struct_name:ident, $($field_name:ident),+,) => (
+        implement_vertex!($struct_name, $($field_name),+);
+    );
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn trailing_comma_impl_uniforms() {
+        let u = uniform!{ a: 5, b: 6, };
+    }
+
+    #[test]
+    fn trailing_comma_impl_vertex() {
+        #[derive(Copy, Clone)]
+        struct Foo {
+            pos: [f32; 2],
+        }
+
+        implement_vertex!(Foo, pos,);
+    }
 }
