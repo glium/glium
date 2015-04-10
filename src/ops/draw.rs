@@ -385,7 +385,9 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
     macro_rules! uniform(
         ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
             unsafe {
-                if $ctxt.version >= &Version(Api::Gl, 1, 5) {
+                if $ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                   $ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
                     $ctxt.gl.$uniform($($params),+)
                 } else {
                     assert!($ctxt.extensions.gl_arb_shader_objects);
@@ -408,7 +410,9 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
         UniformValue::UnsignedInt(val) => {
             // Uniform1uiARB doesn't exist
             unsafe {
-                if ctxt.version >= &Version(Api::Gl, 1, 5) {
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                   ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
                     ctxt.gl.Uniform1ui(location, val)
                 } else {
                     assert!(ctxt.extensions.gl_arb_shader_objects);

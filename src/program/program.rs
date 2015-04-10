@@ -226,7 +226,8 @@ impl Program {
             for sh in shaders_ids.iter() {
                 match (id, sh) {
                     (Handle::Id(id), &Handle::Id(sh)) => {
-                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                                ctxt.version >= &Version(Api::GlEs, 2, 0));
                         ctxt.gl.AttachShader(id, sh);
                     },
                     (Handle::Handle(id), &Handle::Handle(sh)) => {
@@ -282,7 +283,8 @@ impl Program {
 
                 match id {
                     Handle::Id(id) => {
-                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                                ctxt.version >= &Version(Api::GlEs, 2, 0));
                         ctxt.gl.LinkProgram(id);
                     },
                     Handle::Handle(id) => {
@@ -537,7 +539,8 @@ impl Drop for Program {
         unsafe {
             match self.id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                            ctxt.version >= &Version(Api::GlEs, 2, 0));
 
                     if ctxt.state.program == Handle::Id(id) {
                         ctxt.gl.UseProgram(0);
@@ -563,7 +566,9 @@ impl Drop for Program {
 
 /// Builds an empty program from within the GL context.
 unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
-    let id = if ctxt.version >= &Version(Api::Gl, 2, 0) {
+    let id = if ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
+    {
         Handle::Id(ctxt.gl.CreateProgram())
     } else if ctxt.extensions.gl_arb_shader_objects {
         Handle::Handle(ctxt.gl.CreateProgramObjectARB())
@@ -585,7 +590,8 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
     match id {
         Handle::Id(id) => {
-            assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+            assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0));
             ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
         },
         Handle::Handle(id) => {
