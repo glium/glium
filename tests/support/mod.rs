@@ -69,24 +69,44 @@ pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuf
 
         glium::IndexBuffer::new(facade, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
 
-        glium::Program::from_source(facade,
-            "
-                #version 110
+        program!(facade,
+            110 => {
+                vertex: "
+                    #version 110
 
-                attribute vec2 position;
+                    attribute vec2 position;
 
-                void main() {
-                    gl_Position = vec4(position, 0.0, 1.0);
-                }
-            ",
-            "
-                #version 110
+                    void main() {
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }
+                ",
+                fragment: "
+                    #version 110
 
-                void main() {
-                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-                }
-            ",
-            None).unwrap()
+                    void main() {
+                        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                    }
+                ",
+            },
+            100 => {
+                vertex: "
+                    #version 100
+
+                    attribute lowp vec2 position;
+
+                    void main() {
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }
+                ",
+                fragment: "
+                    #version 100
+
+                    void main() {
+                        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                    }
+                ",
+            },
+        ).unwrap()
     )
 }
 

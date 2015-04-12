@@ -1,12 +1,15 @@
 use context::ExtensionsList;
 use version::Version;
 use version::Api;
+use std::mem;
 use gl;
 
 /// Represents the capabilities of the context.
 pub struct Capabilities {
-    /// Whether the context has a shader compiler.
-    pub shader_compiler: bool,
+    /// List of versions of GLSL that are supported by the compiler.
+    ///
+    /// An empty list means that the backend doesn't have a compiler.
+    pub supported_glsl_versions: Vec<Version>,
 
     /// Whether the context supports left and right buffers.
     pub stereo: bool,
@@ -44,14 +47,8 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
     use std::mem;
 
     Capabilities {
-        shader_compiler: if version >= &Version(Api::Gl, 1, 0) {
-            true
-        } else {
-            unsafe {
-                let mut val = mem::uninitialized();
-                gl.GetBooleanv(gl::SHADER_COMPILER, &mut val);
-                val != 0
-            }
+        supported_glsl_versions: {
+            get_supported_glsl(gl, version, extensions)
         },
 
         stereo: unsafe {
@@ -146,4 +143,78 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             None
         },
     }
+}
+
+/// Gets the list of GLSL versions supported by the backend.
+pub fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
+                          -> Vec<Version>
+{
+    // checking if the implementation has a shader compiler
+    // a compiler is optional in OpenGL ES
+    if version.0 == Api::GlEs {
+        unsafe {
+            let mut val = mem::uninitialized();
+            gl.GetBooleanv(gl::SHADER_COMPILER, &mut val);
+            if val == 0 {
+                return vec![];
+            }
+        }
+    }
+
+    // some recent versions have an API to determine the list of supported versions
+    if version >= &Version(Api::Gl, 4, 3) {
+        // FIXME: implement this and return the result directly
+    }
+
+    let mut result = Vec::with_capacity(8);
+
+    if version >= &Version(Api::GlEs, 2, 0) || version >= &Version(Api::Gl, 4, 1) ||
+       extensions.gl_arb_es2_compatibility
+    {
+        result.push(Version(Api::GlEs, 1, 0));
+    }
+
+    if version >= &Version(Api::GlEs, 3, 0) || version >= &Version(Api::Gl, 4, 3) ||
+       extensions.gl_arb_es3_compatibility
+    {
+        result.push(Version(Api::GlEs, 3, 0));
+    }
+
+    if version >= &Version(Api::GlEs, 3, 1) || version >= &Version(Api::Gl, 4, 5) ||
+       extensions.gl_arb_es3_1_compatibility
+    {
+        result.push(Version(Api::GlEs, 3, 1));
+    }
+
+    if version >= &Version(Api::Gl, 2, 0) && version <= &Version(Api::Gl, 3, 0) ||
+       extensions.gl_arb_compatibility
+    {
+        result.push(Version(Api::Gl, 1, 1));
+    }
+
+    if version >= &Version(Api::Gl, 2, 1) && version <= &Version(Api::Gl, 3, 0) ||
+       extensions.gl_arb_compatibility
+    {
+        result.push(Version(Api::Gl, 1, 2));
+    }
+
+    if version == &Version(Api::Gl, 3, 0) || extensions.gl_arb_compatibility {
+        result.push(Version(Api::Gl, 1, 3));
+    }
+
+    if version >= &Version(Api::Gl, 3, 1) {
+        result.push(Version(Api::Gl, 1, 4));
+    }
+
+    if version >= &Version(Api::Gl, 3, 2) {
+        result.push(Version(Api::Gl, 1, 5));
+    }
+
+    for &(major, minor) in &[(3, 3), (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5)] {
+        if version >= &Version(Api::Gl, major, minor) {
+            result.push(Version(Api::Gl, major, minor));
+        }
+    }
+
+    result
 }

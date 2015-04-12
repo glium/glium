@@ -125,7 +125,12 @@ impl GlutinFacade {
 
     /// Returns the supported GLSL version.
     pub fn get_supported_glsl_version(&self) -> Version {
-        ::version::get_supported_glsl_version(self.context.get_version())
+        self.context.get_supported_glsl_version()
+    }
+
+    /// Returns true if the given GLSL version is supported.
+    pub fn is_glsl_version_supported(&self, version: &Version) -> bool {
+        self.context.is_glsl_version_supported(version)
     }
 
     /// Start drawing on the backbuffer.

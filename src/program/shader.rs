@@ -57,7 +57,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
     unsafe {
         let mut ctxt = facade.get_context().make_current();
 
-        if !ctxt.capabilities.shader_compiler {
+        if ctxt.capabilities.supported_glsl_versions.is_empty() {
             return Err(ProgramCreationError::CompilationNotSupported);
         }
 
