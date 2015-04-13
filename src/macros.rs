@@ -241,8 +241,14 @@ macro_rules! program {
         let $fs = $src;
     );
 
-    (_parse_num_gl $num:expr) => ($crate::Version($crate::Api::Gl, $num / 100, ($num % 100) / 10));
-    (_parse_num_gl 100) => ($crate::Version($crate::Api::GlEs, 1, 0));
+    (_parse_num_gl $num:expr) => (
+        if $num == 100 {
+            $crate::Version($crate::Api::GlEs, 1, 0)
+        } else {
+            $crate::Version($crate::Api::Gl, $num / 100, ($num % 100) / 10)
+        }
+    );
+
     (_parse_num_gles $num:expr) => ($crate::Version($crate::Api::GlEs, $num / 100, ($num % 100) / 10));
 }
 
