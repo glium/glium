@@ -64,6 +64,8 @@ fn main() {
     
     // the main loop
     support::start_loop(|| {
+        camera.update();
+
         // building the uniforms
         let uniforms = uniform! {
             persp_matrix: camera.get_perspective(),
@@ -89,7 +91,7 @@ fn main() {
         for event in display.poll_events() {
             match event {
                 glutin::Event::Closed => return support::Action::Stop,
-                _ => ()
+                ev => camera.process_input(&ev),
             }
         }
 
