@@ -188,6 +188,11 @@ impl Context {
         version::get_supported_glsl_version(self.get_version())
     }
 
+    /// Returns true if the given GLSL version is supported.
+    pub fn is_glsl_version_supported(&self, version: &Version) -> bool {
+        self.capabilities().supported_glsl_versions.iter().find(|&v| v == version).is_some()
+    }
+
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`
     /// if the hardware doesn't support it.
     pub fn get_max_anisotropy_support(&self) -> Option<u16> {
@@ -212,7 +217,7 @@ impl Context {
             if ctxt.version >= &Version(Api::GlEs, 2, 0) ||
                 ctxt.version >= &Version(Api::Gl, 4, 1)
             {
-                if ctxt.capabilities.shader_compiler {
+                if !ctxt.capabilities.supported_glsl_versions.is_empty() {
                     ctxt.gl.ReleaseShaderCompiler();
                 }
             }

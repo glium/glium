@@ -16,6 +16,14 @@ pub struct ExtensionsList {
     pub gl_arb_depth_texture: bool,
     /// GL_ARB_direct_state_access
     pub gl_arb_direct_state_access: bool,
+    /// GL_ARB_compatibility
+    pub gl_arb_compatibility: bool,
+    /// GL_ARB_ES2_compatibility
+    pub gl_arb_es2_compatibility: bool,
+    /// GL_ARB_ES3_compatibility
+    pub gl_arb_es3_compatibility: bool,
+    /// GL_ARB_ES3_1_compatibility
+    pub gl_arb_es3_1_compatibility: bool,
     /// GL_ARB_fragment_shader
     pub gl_arb_fragment_shader: bool,
     /// GL_ARB_geometry_shader4
@@ -96,6 +104,10 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_debug_output: false,
         gl_arb_depth_texture: false,
         gl_arb_direct_state_access: false,
+        gl_arb_compatibility: false,
+        gl_arb_es2_compatibility: false,
+        gl_arb_es3_compatibility: false,
+        gl_arb_es3_1_compatibility: false,
         gl_arb_fragment_shader: false,
         gl_arb_geometry_shader4: false,
         gl_arb_get_programy_binary: false,
@@ -140,6 +152,10 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_debug_output" => extensions.gl_arb_debug_output = true,
             "GL_ARB_depth_texture" => extensions.gl_arb_depth_texture = true,
             "GL_ARB_direct_state_access" => extensions.gl_arb_direct_state_access = true,
+            "GL_ARB_compatibility" => extensions.gl_arb_compatibility = true,
+            "GL_ARB_ES2_compatibility" => extensions.gl_arb_es2_compatibility = true,
+            "GL_ARB_ES3_compatibility" => extensions.gl_arb_es3_compatibility = true,
+            "GL_ARB_ES3_1_compatibility" => extensions.gl_arb_es3_1_compatibility = true,
             "GL_ARB_fragment_shader" => extensions.gl_arb_fragment_shader = true,
             "GL_ARB_geometry_shader4" => extensions.gl_arb_geometry_shader4 = true,
             "GL_ARB_get_program_binary" => extensions.gl_arb_get_programy_binary = true,
