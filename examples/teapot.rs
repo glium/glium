@@ -25,7 +25,8 @@ fn main() {
         "
             #version 110
 
-            uniform mat4 matrix;
+            uniform mat4 persp_matrix;
+            uniform mat4 view_matrix;
 
             attribute vec3 position;
             attribute vec3 normal;
@@ -35,7 +36,7 @@ fn main() {
             void main() {
                 v_position = position;
                 v_normal = normal;
-                gl_Position = vec4(v_position, 1.0) * matrix;
+                gl_Position = persp_matrix * view_matrix * vec4(v_position * 0.005, 1.0);
             }
         ",
 
@@ -57,17 +58,16 @@ fn main() {
         // geometry shader
         None)
         .unwrap();
+
+    //
+    let mut camera = support::camera::CameraState::new();
     
     // the main loop
     support::start_loop(|| {
         // building the uniforms
         let uniforms = uniform! {
-            matrix: [
-                [0.005, 0.0, 0.0, 0.0],
-                [0.0, 0.005, 0.0, 0.0],
-                [0.0, 0.0, 0.005, 0.0],
-                [0.0, 0.0, 0.0, 1.0f32]
-            ]
+            persp_matrix: camera.get_perspective(),
+            view_matrix: camera.get_view(),
         };
 
         // draw parameters
