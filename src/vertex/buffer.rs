@@ -55,10 +55,10 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// # }
     /// ```
     ///
-    pub fn new<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
+    pub fn new<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                  BufferFlags::simple()).unwrap();
         let elements_size = buffer.get_elements_size();
 
