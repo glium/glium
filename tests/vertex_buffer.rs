@@ -32,6 +32,24 @@ fn vertex_buffer_creation() {
 }
 
 #[test]
+fn vertex_buffer_empty() {
+    let display = support::build_display();
+
+    #[derive(Copy, Clone)]
+    struct Vertex {
+        field1: [f32; 3],
+        field2: [f32; 3],
+    }
+
+    implement_vertex!(Vertex, field1, field2);
+
+    let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 12);
+    assert_eq!(vb.len(), 12);
+
+    display.assert_no_error();
+}
+
+#[test]
 fn vertex_buffer_mapping_read() {
     let display = support::build_display();
 

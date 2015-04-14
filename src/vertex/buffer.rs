@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::sync::mpsc::Sender;
+use std::mem;
 
 use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
@@ -126,6 +127,26 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
             },
             marker: PhantomData,
         })
+    }
+
+    /// Builds an empty vertex buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
+        let bindings = <T as Vertex>::build_bindings();
+
+        let buffer = Buffer::new_empty(facade, BufferType::ArrayBuffer, mem::size_of::<T>(),
+                                       elements, BufferFlags::simple()).unwrap();
+        let elements_size = buffer.get_elements_size();
+
+        VertexBuffer {
+            buffer: VertexBufferAny {
+                buffer: buffer,
+                bindings: bindings,
+                elements_size: elements_size,
+            },
+            marker: PhantomData,
+        }
     }
 }
 

@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Added a `program!` macro which builds a program. Glium chooses the right shaders depending on what the backend supports.
+ - Added a `VertexBuffer::empty` method that creates a vertex buffer with uninitialized data.
  - Fixed drawing with offsets in vertex buffers different than 0 not permitted.
  - Changed transform feedback reflection API to be compatible with what OpenGL 4.4 or ARB_enhanced_layouts allow.
  - `VertexBuffer::new` can now take a slice as parameter.
