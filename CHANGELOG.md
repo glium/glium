@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.2.3 (2015-04-14)
 
  - Added a `program!` macro which builds a program. Glium chooses the right shaders depending on what the backend supports.
  - Added a `VertexBuffer::empty` method that creates a vertex buffer with uninitialized data.
