@@ -246,13 +246,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                               dimensions);
         sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives);
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
-
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {        // TODO: extensions?
-            if !ctxt.state.enabled_framebuffer_srgb {
-                ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB);
-                ctxt.state.enabled_framebuffer_srgb = true;
-            }
-        }
     }
 
     // drawing
