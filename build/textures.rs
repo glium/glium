@@ -4,6 +4,8 @@ use std::io::Write;
 enum TextureType {
     Regular,
     Compressed,
+    Srgb,
+    CompressedSrgb,
     Integral,
     Unsigned,
     Depth,
@@ -43,6 +45,8 @@ impl TextureDimensions {
 pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1d);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture1d);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture1d);
@@ -50,6 +54,8 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture2d);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2d);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2d);
@@ -57,12 +63,15 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dMultisample);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisample);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture3d);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture3d);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture3d);
@@ -70,6 +79,8 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1dArray);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1dArray);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture1dArray);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture1dArray);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture1dArray);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture1dArray);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture1dArray);
@@ -77,12 +88,15 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture1dArray);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture2dArray);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2dArray);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArray);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2dMultisampleArray);
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dMultisampleArray);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dMultisampleArray);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisampleArray);
@@ -96,6 +110,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         let prefix = match ty {
             TextureType::Regular => "",
             TextureType::Compressed => "Compressed",
+            TextureType::Srgb => "Srgb",
+            TextureType::CompressedSrgb => "CompressedSrgb",
             TextureType::Integral => "Integral",
             TextureType::Unsigned => "Unsigned",
             TextureType::Depth => "Depth",
@@ -130,6 +146,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     let relevant_format = match ty {
         TextureType::Regular => "UncompressedFloatFormat",
         TextureType::Compressed => "CompressedFormat",
+        TextureType::Srgb => "SrgbFormat",
+        TextureType::CompressedSrgb => "CompressedSrgbFormat",
         TextureType::Integral => "UncompressedIntFormat",
         TextureType::Unsigned => "UncompressedUintFormat",
         TextureType::Depth => "DepthFormat",
@@ -141,6 +159,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     let default_format = match ty {
         TextureType::Compressed => "TextureFormatRequest::AnyCompressed",
         TextureType::Regular => "TextureFormatRequest::AnyFloatingPoint",
+        TextureType::CompressedSrgb => "TextureFormatRequest::AnyCompressedSrgb",
+        TextureType::Srgb => "TextureFormatRequest::AnySrgb",
         TextureType::Integral => "TextureFormatRequest::AnyIntegral",
         TextureType::Unsigned => "TextureFormatRequest::AnyUnsigned",
         TextureType::Depth => "TextureFormatRequest::AnyDepth",
@@ -228,6 +248,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     })).unwrap();
     (write!(dest, "{}", match ty {
         TextureType::Regular | TextureType::Compressed => " containing floating-point data",
+        TextureType::Srgb | TextureType::CompressedSrgb => " containing sRGB floating-point data",
         TextureType::Integral => " containing signed integral data",
         TextureType::Unsigned => " containing unsigned integral data",
         TextureType::Depth => " containing depth data",
@@ -282,6 +303,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     {
         match ty {
             TextureType::Regular | TextureType::Compressed |
+            TextureType::Srgb | TextureType::CompressedSrgb |
             TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
                 (writeln!(dest, "
                             impl<'a> IntoUniformValue<'a> for &'a {myname} {{
@@ -319,6 +341,15 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
                                 ::framebuffer::ColorAttachment::{suffix}(self.main_level())
+                            }}
+                        }}
+                    ", name = name, suffix = suffix)).unwrap();
+            },
+            TextureType::Srgb => {
+                (writeln!(dest, "
+                        impl ::framebuffer::ToColorAttachment for {name} {{
+                            fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
+                                ::framebuffer::ColorAttachment::Srgb{suffix}(self.main_level())
                             }}
                         }}
                     ", name = name, suffix = suffix)).unwrap();
@@ -602,7 +633,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `new_empty` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture.
@@ -622,7 +653,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `empty` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture.
@@ -644,7 +675,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `empty_if_supported` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture.
@@ -670,7 +701,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `empty_with_format` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture with a specific format.
@@ -700,7 +731,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `empty_with_format_if_supported` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture with a specific format.
@@ -727,7 +758,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `empty_with_mipmaps` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture. Specifies whether is has mipmaps.
@@ -751,7 +782,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `empty_with_mipmaps_if_supported` function
-    if ty != TextureType::Compressed {
+    if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
                 /// Creates an empty texture. Specifies whether is has mipmaps.

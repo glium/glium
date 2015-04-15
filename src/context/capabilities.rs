@@ -14,6 +14,9 @@ pub struct Capabilities {
     /// Whether the context supports left and right buffers.
     pub stereo: bool,
 
+    /// True if the default framebuffer is in sRGB.
+    pub srgb: bool,
+
     /// Number of bits in the default framebuffer's depth buffer
     pub depth_bits: Option<u16>,
 
@@ -56,6 +59,24 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
                 let mut val: gl::types::GLboolean = mem::uninitialized();
                 gl.GetBooleanv(gl::STEREO, &mut val);
                 val != 0
+            } else {
+                false
+            }
+        },
+
+        srgb: unsafe {
+            if version >= &Version(Api::Gl, 3, 0) {
+                let mut value = mem::uninitialized();
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::BACK_LEFT,
+                                                       gl::FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
+                                                       &mut value);
+                value as gl::types::GLenum == gl::SRGB
+
+            } else if extensions.gl_ext_framebuffer_srgb {
+                let mut value = mem::uninitialized();
+                gl.GetBooleanv(gl::FRAMEBUFFER_SRGB_CAPABLE_EXT, &mut value);
+                value != 0
+
             } else {
                 false
             }

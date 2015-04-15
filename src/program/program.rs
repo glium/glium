@@ -507,6 +507,11 @@ impl Program {
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.attributes.iter()
     }
+
+    /// Returns true if the program has been configured to output sRGB instead of RGB.
+    pub fn has_srgb_output(&self) -> bool {
+        false
+    }
 }
 
 impl fmt::Debug for Program {

@@ -26,6 +26,8 @@ pub struct ExtensionsList {
     pub gl_arb_es3_1_compatibility: bool,
     /// GL_ARB_fragment_shader
     pub gl_arb_fragment_shader: bool,
+    /// GL_ARB_framebuffer_sRGB
+    pub gl_arb_framebuffer_srgb: bool,
     /// GL_ARB_geometry_shader4
     pub gl_arb_geometry_shader4: bool,
     /// GL_ARB_get_program_binary
@@ -74,6 +76,8 @@ pub struct ExtensionsList {
     pub gl_ext_framebuffer_blit: bool,
     /// GL_EXT_framebuffer_object
     pub gl_ext_framebuffer_object: bool,
+    /// GL_EXT_framebuffer_sRGB
+    pub gl_ext_framebuffer_srgb: bool,
     /// GL_EXT_geometry_shader4
     pub gl_ext_geometry_shader4: bool,
     /// GL_EXT_gpu_shader4
@@ -84,6 +88,8 @@ pub struct ExtensionsList {
     pub gl_ext_texture_filter_anisotropic: bool,
     /// GL_EXT_texture_integer
     pub gl_ext_texture_integer: bool,
+    /// GL_EXT_texture_sRGB
+    pub gl_ext_texture_srgb: bool,
     /// GL_EXT_transform_feedback
     pub gl_ext_transform_feedback: bool,
     /// GL_KHR_debug
@@ -109,6 +115,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_es3_compatibility: false,
         gl_arb_es3_1_compatibility: false,
         gl_arb_fragment_shader: false,
+        gl_arb_framebuffer_srgb: false,
         gl_arb_geometry_shader4: false,
         gl_arb_get_programy_binary: false,
         gl_arb_instanced_arrays: false,
@@ -133,11 +140,13 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_disjoint_timer_query: false,
         gl_ext_framebuffer_blit: false,
         gl_ext_framebuffer_object: false,
+        gl_ext_framebuffer_srgb: false,
         gl_ext_geometry_shader4: false,
         gl_ext_gpu_shader4: false,
         gl_ext_packed_depth_stencil: false,
         gl_ext_texture_filter_anisotropic: false,
         gl_ext_texture_integer: false,
+        gl_ext_texture_srgb: false,
         gl_ext_transform_feedback: false,
         gl_khr_debug: false,
         gl_nvx_gpu_memory_info: false,
@@ -157,6 +166,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_ES3_compatibility" => extensions.gl_arb_es3_compatibility = true,
             "GL_ARB_ES3_1_compatibility" => extensions.gl_arb_es3_1_compatibility = true,
             "GL_ARB_fragment_shader" => extensions.gl_arb_fragment_shader = true,
+            "GL_ARB_framebuffer_sRGB" => extensions.gl_arb_framebuffer_srgb = true,
             "GL_ARB_geometry_shader4" => extensions.gl_arb_geometry_shader4 = true,
             "GL_ARB_get_program_binary" => extensions.gl_arb_get_programy_binary = true,
             "GL_ARB_instanced_arrays" => extensions.gl_arb_instanced_arrays = true,
@@ -181,11 +191,13 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_disjoint_timer_query" => extensions.gl_ext_disjoint_timer_query = true,
             "GL_EXT_framebuffer_blit" => extensions.gl_ext_framebuffer_blit = true,
             "GL_EXT_framebuffer_object" => extensions.gl_ext_framebuffer_object = true,
+            "GL_EXT_framebuffer_sRGB" => extensions.gl_ext_framebuffer_srgb = true,
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
             "GL_EXT_gpu_shader4" => extensions.gl_ext_gpu_shader4 = true,
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             "GL_EXT_texture_integer" => extensions.gl_ext_texture_integer = true,
+            "GL_EXT_texture_sRGB" => extensions.gl_ext_texture_srgb = true,
             "GL_EXT_transform_feedback" => extensions.gl_ext_transform_feedback = true,
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,

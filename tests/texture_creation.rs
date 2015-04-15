@@ -195,6 +195,11 @@ empty_texture_test!(empty_integraltexture1darray, maybe IntegralTexture1dArray, 
 empty_texture_test!(empty_integraltexture2d, maybe IntegralTexture2d, [64, 32], 64, Some(32), None, None);
 empty_texture_test!(empty_integraltexture2darray, maybe IntegralTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
 empty_texture_test!(empty_integraltexture3d, maybe IntegralTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+empty_texture_test!(empty_srgbtexture1d, maybe Texture1d, [64], 64, None, None, None);
+empty_texture_test!(empty_srgbtexture1darray, maybe Texture1dArray, [64, 32], 64, None, None, Some(32));
+empty_texture_test!(empty_srgbtexture2d, Texture2d, [64, 32], 64, Some(32), None, None);
+empty_texture_test!(empty_srgbtexture2darray, maybe Texture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
+empty_texture_test!(empty_srgbtexture3d, maybe Texture3d, [64, 32, 16], 64, Some(32), Some(16), None);
 empty_texture_test!(empty_stenciltexture1d, maybe StencilTexture1d, [64], 64, None, None, None);
 empty_texture_test!(empty_stenciltexture1darray, maybe StencilTexture1dArray, [64, 32], 64, None, None, Some(32));
 empty_texture_test!(empty_stenciltexture2d, maybe StencilTexture2d, [64, 32], 64, Some(32), None, None);

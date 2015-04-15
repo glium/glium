@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+ - Added `SrgbTexture` and `CompressedSrgbTexture` types.
+ - Added `SrgbFormat` and `CompressedSrgbFormat` enums.
+ - `GL_FRAMEBUFFER_SRGB` is now enabled by default.
+
 ## Version 0.2.3 (2015-04-14)
 
  - Added a `program!` macro which builds a program. Glium chooses the right shaders depending on what the backend supports.

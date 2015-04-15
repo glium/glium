@@ -147,3 +147,4 @@ read_texture_test!(read_unsignedtexture2darray, maybe UnsignedTexture2dArray, (u
     vec![vec![vec![(0, 1, 2, 3), (4, 5, 6, 7)], vec![(8, 9, 10, 11), (12, 13, 14, 15)]]]);
 read_texture_test!(read_unsignedtexture3d, maybe UnsignedTexture3d, (u8, u8, u8, u8),
     vec![vec![vec![(0, 1, 2, 3), (4, 5, 6, 7)], vec![(8, 9, 10, 11), (12, 13, 14, 15)]]]);*/
+// TODO: srgb textures
