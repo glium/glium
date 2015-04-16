@@ -580,12 +580,10 @@ pub trait Surface: Sized {
     ///
     /// Note that there is no alpha blending, depth/stencil checking, etc. This function just
     /// copies pixels.
-    #[unstable = "The name will likely change"]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
                      filter: uniforms::MagnifySamplerFilter) where S: Surface;
 
     /// Copies the entire surface to a target surface. See `blit_color`.
-    #[unstable = "The name will likely change"]
     fn blit_whole_color_to<S>(&self, target: &S, target_rect: &BlitTarget,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
@@ -595,7 +593,6 @@ pub trait Surface: Sized {
     }
 
     /// Copies the entire surface to the entire target. See `blit_color`.
-    #[unstable = "The name will likely change"]
     fn fill<S>(&self, target: &S, filter: uniforms::MagnifySamplerFilter) where S: Surface {
         let src_dim = self.get_dimensions();
         let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };

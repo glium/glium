@@ -132,7 +132,6 @@ impl Program {
     ///     Some(geometry_source));
     /// ```
     ///
-    #[unstable = "The list of shaders and the result error will probably change"]
     pub fn from_source<'a, F>(facade: &F, vertex_shader: &'a str, fragment_shader: &'a str,
                               geometry_shader: Option<&'a str>)
                               -> Result<Program, ProgramCreationError> where F: Facade
