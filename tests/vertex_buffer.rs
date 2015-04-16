@@ -155,7 +155,7 @@ fn vertex_buffer_read_slice() {
         ]
     );
 
-    let data = match vb.slice(1, 1).unwrap().read_if_supported() {
+    let data = match vb.slice(1 .. 2).unwrap().read_if_supported() {
         Some(d) => d,
         None => return
     };
@@ -184,7 +184,7 @@ fn vertex_buffer_slice_out_of_bounds() {
         ]
     );
 
-    assert!(vb.slice(0, 3).is_none());
+    assert!(vb.slice(0 .. 3).is_none());
 
     display.assert_no_error();
 }
@@ -268,7 +268,7 @@ fn vertex_buffer_write_slice() {
         ]
     );
 
-    vb.slice(1, 1).unwrap().write(vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
+    vb.slice(1 .. 2).unwrap().write(vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
 
     let data = match vb.read_if_supported() {
         Some(d) => d,
@@ -422,7 +422,7 @@ fn slice_draw_indices() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(vb.slice(1, 3).unwrap(), &indices, &program,
+    texture.as_surface().draw(vb.slice(1 .. 4).unwrap(), &indices, &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8)>> = texture.read();
@@ -470,7 +470,7 @@ fn slice_draw_noindices() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(vb.slice(1, 3).unwrap(), &indices, &program,
+    texture.as_surface().draw(vb.slice(1 .. 4).unwrap(), &indices, &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8)>> = texture.read();
@@ -541,7 +541,7 @@ fn slice_draw_multiple() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw((vb1.slice(1, 3).unwrap(), vb2.slice(3, 3).unwrap()), &indices,
+    texture.as_surface().draw((vb1.slice(1 .. 4).unwrap(), vb2.slice(3 .. 6).unwrap()), &indices,
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8)>> = texture.read();

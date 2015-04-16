@@ -15,6 +15,7 @@ use index::IndexType;
 use index::PrimitiveType;
 
 use std::mem;
+use std::ops::Range;
 use std::sync::mpsc::Sender;
 
 /// A list of indices loaded in the graphics card's memory.
@@ -62,16 +63,18 @@ impl IndexBuffer {
     }
 
     /// Returns `None` if out of range.
-    pub fn slice(&self, offset: usize, len: usize) -> Option<IndexBufferSlice> {
-        if offset > self.buffer.get_elements_count() ||
-            offset + len > self.buffer.get_elements_count()
+    pub fn slice(&self, Range { start, end }: Range<usize>) -> Option<IndexBufferSlice> {
+        let len = end - start;
+
+        if start > self.buffer.get_elements_count() ||
+            start + len > self.buffer.get_elements_count()
         {
             return None;
         }
 
         Some(IndexBufferSlice {
             buffer: self,
-            offset: offset,
+            offset: start,
             len: len,
         })
     }

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Changed the `slice()` functions to take a `Range` instead of two parameters.
  - Added `SrgbTexture` and `CompressedSrgbTexture` types.
  - Added `SrgbFormat` and `CompressedSrgbFormat` enums.
  - `GL_FRAMEBUFFER_SRGB` is now enabled by default.
