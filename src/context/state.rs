@@ -25,6 +25,9 @@ pub struct GLState {
     /// Whether GL_DITHER is enabled
     pub enabled_dither: bool,
 
+    /// Whether GL_FRAMEBUFFER_SRGB is enabled
+    pub enabled_framebuffer_srgb: bool,
+
     /// Whether GL_MULTISAMPLE is enabled
     pub enabled_multisample: bool,
 
@@ -162,6 +165,7 @@ impl Default for GLState {
             enabled_debug_output_synchronous: false,
             enabled_depth_test: false,
             enabled_dither: false,
+            enabled_framebuffer_srgb: false,
             enabled_multisample: true,
             enabled_polygon_offset_fill: false,
             enabled_rasterizer_discard: false,

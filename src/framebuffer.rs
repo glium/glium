@@ -41,13 +41,13 @@ use std::rc::Rc;
 
 use texture::Texture;
 use texture::Texture2d;
-use texture::{Texture1dMipmap, DepthTexture1dMipmap, StencilTexture1dMipmap, DepthStencilTexture1dMipmap};
-use texture::{Texture2dMipmap, DepthTexture2dMipmap, StencilTexture2dMipmap, DepthStencilTexture2dMipmap};
-use texture::{Texture2dMultisampleMipmap, DepthTexture2dMultisampleMipmap, StencilTexture2dMultisampleMipmap, DepthStencilTexture2dMultisampleMipmap};
-use texture::{Texture3dMipmap, DepthTexture3dMipmap, StencilTexture3dMipmap, DepthStencilTexture3dMipmap};
-use texture::{Texture1dArrayMipmap, DepthTexture1dArrayMipmap, StencilTexture1dArrayMipmap, DepthStencilTexture1dArrayMipmap};
-use texture::{Texture2dArrayMipmap, DepthTexture2dArrayMipmap, StencilTexture2dArrayMipmap, DepthStencilTexture2dArrayMipmap};
-use texture::{Texture2dMultisampleArrayMipmap, DepthTexture2dMultisampleArrayMipmap, StencilTexture2dMultisampleArrayMipmap, DepthStencilTexture2dMultisampleArrayMipmap};
+use texture::{Texture1dMipmap, SrgbTexture1dMipmap, DepthTexture1dMipmap, StencilTexture1dMipmap, DepthStencilTexture1dMipmap};
+use texture::{Texture2dMipmap, SrgbTexture2dMipmap, DepthTexture2dMipmap, StencilTexture2dMipmap, DepthStencilTexture2dMipmap};
+use texture::{Texture2dMultisampleMipmap, SrgbTexture2dMultisampleMipmap, DepthTexture2dMultisampleMipmap, StencilTexture2dMultisampleMipmap, DepthStencilTexture2dMultisampleMipmap};
+use texture::{Texture3dMipmap, SrgbTexture3dMipmap, DepthTexture3dMipmap, StencilTexture3dMipmap, DepthStencilTexture3dMipmap};
+use texture::{Texture1dArrayMipmap, SrgbTexture1dArrayMipmap, DepthTexture1dArrayMipmap, StencilTexture1dArrayMipmap, DepthStencilTexture1dArrayMipmap};
+use texture::{Texture2dArrayMipmap, SrgbTexture2dArrayMipmap, DepthTexture2dArrayMipmap, StencilTexture2dArrayMipmap, DepthStencilTexture2dArrayMipmap};
+use texture::{Texture2dMultisampleArrayMipmap, SrgbTexture2dMultisampleArrayMipmap, DepthTexture2dMultisampleArrayMipmap, StencilTexture2dMultisampleArrayMipmap, DepthStencilTexture2dMultisampleArrayMipmap};
 
 use backend::Facade;
 use context::Context;
@@ -555,17 +555,31 @@ pub enum ColorAttachment<'a> {
     /// A texture.
     Texture1d(Texture1dMipmap<'a>),
     /// A texture.
+    SrgbTexture1d(SrgbTexture1dMipmap<'a>),
+    /// A texture.
     Texture2d(Texture2dMipmap<'a>),
+    /// A texture.
+    SrgbTexture2d(SrgbTexture2dMipmap<'a>),
     /// A texture.
     Texture2dMultisample(Texture2dMultisampleMipmap<'a>),
     /// A texture.
+    SrgbTexture2dMultisample(SrgbTexture2dMultisampleMipmap<'a>),
+    /// A texture.
     Texture3d(Texture3dMipmap<'a>, u32),
+    /// A texture.
+    SrgbTexture3d(SrgbTexture3dMipmap<'a>, u32),
     /// A texture.
     Texture1dArray(Texture1dArrayMipmap<'a>),
     /// A texture.
+    SrgbTexture1dArray(SrgbTexture1dArrayMipmap<'a>),
+    /// A texture.
     Texture2dArray(Texture2dArrayMipmap<'a>),
     /// A texture.
+    SrgbTexture2dArray(SrgbTexture2dArrayMipmap<'a>),
+    /// A texture.
     Texture2dMultisampleArray(Texture2dMultisampleArrayMipmap<'a>),
+    /// A texture.
+    SrgbTexture2dMultisampleArray(SrgbTexture2dMultisampleArrayMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a ::render_buffer::RenderBuffer),
 }

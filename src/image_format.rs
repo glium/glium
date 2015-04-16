@@ -27,6 +27,12 @@ pub enum TextureFormatRequest {
     /// Request any compressed format.
     AnyCompressed,
 
+    /// Request any sRGB format.
+    AnySrgb,
+
+    /// Request any compressed sRGB format.
+    AnyCompressedSrgb,
+
     /// Request any integral format.
     AnyIntegral,
 
@@ -314,6 +320,21 @@ impl UncompressedFloatFormat {
     }
 }
 
+/// List of uncompressed pixel formats that contain floating-point data in the sRGB color space.
+#[allow(missing_docs)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SrgbFormat {
+    U8U8U8,
+    U8U8U8U8,
+}
+
+impl SrgbFormat {
+    /// Turns this format into a more generic `TextureFormat`.
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::Srgb(self)
+    }
+}
+
 /// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -393,6 +414,20 @@ impl CompressedFormat {
     }
 }
 
+/// List of compressed pixel formats in the sRGB color space.
+#[allow(missing_docs)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CompressedSrgbFormat {
+    // TODO: 
+}
+
+impl CompressedSrgbFormat {
+    /// Turns this format into a more generic `TextureFormat`.
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::CompressedSrgbFormat(self)
+    }
+}
+
 /// List of formats available for depth textures.
 ///
 /// `I16`, `I24` and `I32` are still treated as if they were floating points.
@@ -459,7 +494,9 @@ pub enum TextureFormat {
     UncompressedFloat(UncompressedFloatFormat),
     UncompressedIntegral(UncompressedIntFormat),
     UncompressedUnsigned(UncompressedUintFormat),
+    Srgb(SrgbFormat),
     CompressedFormat(CompressedFormat),
+    CompressedSrgbFormat(CompressedSrgbFormat),
     DepthFormat(DepthFormat),
     StencilFormat(StencilFormat),
     DepthStencilFormat(DepthStencilFormat),
@@ -855,6 +892,73 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             } else {
                 return Err(FormatNotSupportedError);
             }
+        },
+
+        /*******************************************************************/
+        /*                             SRGB                                */
+        /*******************************************************************/
+        TextureFormatRequest::AnySrgb => {
+            let size = client.map(|c| c.get_num_components());
+
+            if version >= &Version(Api::Gl, 2, 1) || version >= &Version(Api::GlEs, 3, 0) ||
+               extensions.gl_ext_texture_srgb
+            {
+                match size {
+                    Some(1 ... 3) => (gl::SRGB8, Some(gl::SRGB8)),
+                    Some(4) => (gl::SRGB8_ALPHA8, Some(gl::SRGB8_ALPHA8)),
+                    None => (gl::SRGB8, Some(gl::SRGB8_ALPHA8)),
+                    _ => unreachable!(),
+                }
+
+            } else {
+                // no support for sRGB
+                try!(format_request_to_glenum(context, client,
+                                              TextureFormatRequest::AnyFloatingPoint))
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::Srgb(SrgbFormat::U8U8U8)) => {
+            if version >= &Version(Api::Gl, 2, 1) || version >= &Version(Api::GlEs, 3, 0) ||
+               extensions.gl_ext_texture_srgb
+            {
+                (gl::SRGB8, Some(gl::SRGB8))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::Srgb(SrgbFormat::U8U8U8U8)) => {
+            if version >= &Version(Api::Gl, 2, 1) || version >= &Version(Api::GlEs, 3, 0) ||
+               extensions.gl_ext_texture_srgb
+            {
+                (gl::SRGB8_ALPHA8, Some(gl::SRGB8_ALPHA8))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        /*******************************************************************/
+        /*                        COMPRESSED SRGB                          */
+        /*******************************************************************/
+        TextureFormatRequest::AnyCompressedSrgb => {
+            let size = client.map(|c| c.get_num_components());
+
+            if version >= &Version(Api::Gl, 4, 0) || extensions.gl_ext_texture_srgb {
+                match size {
+                    Some(1 ... 3) => (gl::COMPRESSED_SRGB, None),
+                    Some(4) => (gl::COMPRESSED_SRGB_ALPHA, None),
+                    None => (gl::COMPRESSED_SRGB_ALPHA, None),
+                    _ => unreachable!(),
+                }
+
+            } else {
+                // no support for compressed srgb textures
+                try!(format_request_to_glenum(context, client, TextureFormatRequest::AnySrgb))
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(_)) => {
+            unreachable!();
         },
 
         /*******************************************************************/
@@ -1267,8 +1371,11 @@ pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format:
 {
     match format {
         TextureFormatRequest::AnyFloatingPoint | TextureFormatRequest::AnyCompressed |
+        TextureFormatRequest::AnySrgb | TextureFormatRequest::AnyCompressedSrgb |
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) =>
+        TextureFormatRequest::Specific(TextureFormat::Srgb(_)) |
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) |
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(_)) =>
         {
             match client {
                 ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
