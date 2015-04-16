@@ -1,7 +1,5 @@
 language: rust
 
-sudo: false
-
 rust:
     - nightly
     - 1.0.0-beta
@@ -26,7 +24,7 @@ script:
     # We run everything with `-j 1` or travis runs out of memory
     - cargo build -v --no-default-features --features "$FEATURES"
     - if [ "$TEST" -eq 1 ]; then cargo test -v -j 1 --no-default-features --features "$FEATURES"; fi
-    - if [ "$TRAVIS_RUST_VERSION" -eq "nightly" ]; then cargo test -v --manifest-path macros/Cargo.toml; fi
+    - if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then cargo test -v --manifest-path macros/Cargo.toml; fi
 
 after_success: 
     - |
