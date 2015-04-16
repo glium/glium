@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.0 (2015-04-16)
 
  - Changed the `slice()` functions to take a `Range` instead of two parameters.
  - Added `SrgbTexture` and `CompressedSrgbTexture` types.
