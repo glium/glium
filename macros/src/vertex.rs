@@ -62,7 +62,7 @@ fn body(ecx: &mut base::ExtCtxt, span: codemap::Span,
 
                     quote_expr!(ecx, {
                         let offset = {
-                            let dummy: &$self_ty = unsafe { mem::transmute(0us) };
+                            let dummy: &$self_ty = unsafe { mem::transmute(0usize) };
                             let dummy_field = &dummy.$ident;
                             let dummy_field: usize = unsafe { mem::transmute(dummy_field) };
                             dummy_field
