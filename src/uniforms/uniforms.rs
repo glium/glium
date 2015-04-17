@@ -1,46 +1,51 @@
-use uniforms::{Uniforms, UniformValue, IntoUniformValue};
+use uniforms::{Uniforms, UniformValue, AsUniformValue};
 
 /// Object that can be used when you don't have any uniforms.
 #[derive(Debug, Copy, Clone)]
 pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {
-    fn visit_values<F: FnMut(&str, &UniformValue)>(self, _: F) {
+    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, _: F) {
     }
 }
 
 /// Stores uniforms.
-pub struct UniformsStorage<'n, 'u> {
-    values: Vec<(&'n str, UniformValue<'u>)>,
+pub struct UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
+    name: &'n str,
+    value: T,
+    rest: R,
 }
 
-impl<'n, 'u> UniformsStorage<'n, 'u> {
+impl<'n, T> UniformsStorage<'n, T, EmptyUniforms> where T: AsUniformValue {
     /// Builds a new storage with a value.
-    pub fn new<T>(name: &'n str, value: T)
-                  -> UniformsStorage<'n, 'u>
-                  where T: IntoUniformValue<'u>
+    pub fn new(name: &'n str, value: T)
+               -> UniformsStorage<'n, T, EmptyUniforms>
     {
         UniformsStorage {
-            values: vec![(name, value.into_uniform_value())],
+            name: name,
+            value: value,
+            rest: EmptyUniforms,
         }
     }
 }
 
-impl<'n, 'u> UniformsStorage<'n, 'u> {
+impl<'n, T, R> UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
     /// Adds a value to the storage.
-    pub fn add<T>(mut self, name: &'n str, value: T)
-                  -> UniformsStorage<'n, 'u>
-                  where T: IntoUniformValue<'u>
+    pub fn add<U>(self, name: &'n str, value: U)
+                  -> UniformsStorage<'n, U, UniformsStorage<'n, T, R>>
+                  where U: AsUniformValue
     {
-        self.values.push((name, value.into_uniform_value()));
-        self
+        UniformsStorage {
+            name: name,
+            value: value,
+            rest: self,
+        }
     }
 }
 
-impl<'a, 'n, 'u> Uniforms for &'a UniformsStorage<'n, 'u> {
-    fn visit_values<F: FnMut(&str, &UniformValue)>(self, mut output: F) {
-        for &(n, ref v) in &self.values {
-            output(n, v)
-        }
+impl<'n, T, R> Uniforms for UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
+    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
+        output(self.name, self.value.as_uniform_value());
+        self.rest.visit_values(output);
     }
 }

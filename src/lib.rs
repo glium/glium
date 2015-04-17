@@ -549,7 +549,7 @@ pub trait Surface: Sized {
     /// - Panics if the depth range is outside of `(0, 1)`.
     /// - Panics if a value in the uniforms doesn't match the type requested by the program.
     ///
-    fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: U,
+    fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
         V: vertex::MultiVerticesSource<'b>, I: index::ToIndicesSource,
         U: uniforms::Uniforms;
@@ -773,7 +773,7 @@ impl Surface for Frame {
     }
 
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
-                         index_buffer: &I, program: &Program, uniforms: U,
+                         index_buffer: &I, program: &Program, uniforms: &U,
                          draw_parameters: &DrawParameters) -> Result<(), DrawError>
                          where I: index::ToIndicesSource, U: uniforms::Uniforms,
                          V: vertex::MultiVerticesSource<'b>

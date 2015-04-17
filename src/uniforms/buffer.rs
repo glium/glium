@@ -1,5 +1,5 @@
 use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
-use uniforms::{IntoUniformValue, UniformValue, UniformBlock};
+use uniforms::{AsUniformValue, UniformValue, UniformBlock};
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
@@ -174,8 +174,8 @@ impl<'a, T> DerefMut for Mapping<'a, T> {
     }
 }
 
-impl<'a, T> IntoUniformValue<'a> for &'a UniformBuffer<T> where T: UniformBlock {
-    fn into_uniform_value(self) -> UniformValue<'a> {
+impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock {
+    fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Block(&self.buffer, <T as UniformBlock>::matches)
     }
 }
