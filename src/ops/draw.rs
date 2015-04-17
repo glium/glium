@@ -33,7 +33,7 @@ use version::Api;
 /// Draws everything.
 pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachments>,
                          vertex_buffers: V, mut indices: IndicesSource<I>,
-                         program: &Program, uniforms: U, draw_parameters: &DrawParameters,
+                         program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
                          dimensions: (u32, u32)) -> Result<(), DrawError>
                          where U: Uniforms, I: index::Index, V: MultiVerticesSource<'a>
 {
@@ -177,7 +177,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                 }
 
                 match bind_uniform(&mut ctxt, &mut context.samplers.borrow_mut(),
-                                   value, uniform.location,
+                                   &value, uniform.location,
                                    &mut active_texture, name)
                 {
                     Ok(_) => (),
@@ -188,9 +188,9 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                 };
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
-                let fence = match bind_uniform_block(&mut ctxt, value, block,
+                let fence = match bind_uniform_block(&mut ctxt, &value, block,
                                                      program.get_id(),
-                                                    &mut active_buffer_binding, name)
+                                                     &mut active_buffer_binding, name)
                 {
                     Ok(f) => f,
                     Err(e) => {

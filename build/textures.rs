@@ -306,14 +306,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::Srgb | TextureType::CompressedSrgb |
             TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
                 (writeln!(dest, "
-                            impl<'a> IntoUniformValue<'a> for &'a {myname} {{
-                                fn into_uniform_value(self) -> UniformValue<'a> {{
-                                    UniformValue::{myname}(self, None)
+                            impl<'a> AsUniformValue for &'a {myname} {{
+                                fn as_uniform_value(&self) -> UniformValue {{
+                                    UniformValue::{myname}(*self, None)
                                 }}
                             }}
 
-                            impl<'a> IntoUniformValue<'a> for Sampler<'a, {myname}> {{
-                                fn into_uniform_value(self) -> UniformValue<'a> {{
+                            impl<'a> AsUniformValue for Sampler<'a, {myname}> {{
+                                fn as_uniform_value(&self) -> UniformValue {{
                                     UniformValue::{myname}(self.0, Some(self.1))
                                 }}
                             }}

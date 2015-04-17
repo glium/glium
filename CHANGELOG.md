@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed lifetime-related issues when using the `uniform!` macro.
+
 ## Version 0.3.0 (2015-04-16)
 
  - Changed the `slice()` functions to take a `Range` instead of two parameters.

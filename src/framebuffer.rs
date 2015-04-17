@@ -250,7 +250,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
+        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
         where I: ::index::ToIndicesSource, U: ::uniforms::Uniforms,
         V: ::vertex::MultiVerticesSource<'v>
     {
@@ -484,7 +484,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     }
 
     fn draw<'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
+        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
         where I: ::index::ToIndicesSource,
         U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {

@@ -49,7 +49,7 @@ use image;
 use backend::Facade;
 
 use pixel_buffer::PixelBuffer;
-use uniforms::{UniformValue, IntoUniformValue, Sampler};
+use uniforms::{UniformValue, AsUniformValue, Sampler};
 use {Surface, GlObject};
 
 use FboAttachments;
@@ -414,7 +414,7 @@ impl<'a> Surface for TextureSurface<'a> {
     }
 
     fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
-        uniforms: U, draw_parameters: &::DrawParameters) -> Result<(), ::DrawError>
+        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), ::DrawError>
         where I: ::index::ToIndicesSource,
         U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {

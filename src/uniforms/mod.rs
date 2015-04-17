@@ -95,7 +95,7 @@ pub use self::buffer::UniformBuffer;
 pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter};
 pub use self::sampler::{Sampler, SamplerBehavior};
 pub use self::uniforms::{EmptyUniforms, UniformsStorage};
-pub use self::value::{UniformValue, IntoUniformValue, UniformType};
+pub use self::value::{UniformValue, AsUniformValue, UniformType};
 
 use program;
 
@@ -107,19 +107,11 @@ mod value;
 /// Object that contains the values of all the uniforms to bind to a program.
 pub trait Uniforms {
     /// Calls the parameter once with the name and value of each uniform.
-    fn visit_values<F: FnMut(&str, &UniformValue)>(self, F);
+    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, F);
 }
 
 /// Objects that are suitable for being binded to a uniform block.
 pub trait UniformBlock: Copy {
     /// Checks whether the uniforms' layout matches the given block.
     fn matches(&program::UniformBlock) -> bool;
-}
-
-// TODO: hacky (see #189)
-impl<'a, T: 'a> Uniforms for &'a T where T: Uniforms + Copy {
-    fn visit_values<F: FnMut(&str, &UniformValue)>(self, output: F) {
-        let me = *self;
-        me.visit_values(output);
-    }
 }

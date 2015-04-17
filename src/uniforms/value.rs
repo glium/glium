@@ -126,10 +126,10 @@ pub enum UniformType {
     AtomicCounterUint,
 }
 
-/// Represents a value that can be used as the value of a uniform.
-pub trait IntoUniformValue<'a> {
+/// Value that can be used as the value of a uniform.
+pub trait AsUniformValue {
     /// Builds a `UniformValue`.
-    fn into_uniform_value(self) -> UniformValue<'a>;
+    fn as_uniform_value(&self) -> UniformValue;
 }
 
 /// Represents a value to bind to a uniform.
@@ -260,7 +260,7 @@ impl<'a> UniformValue<'a> {
 }
 
 // TODO: implement for each type individually instead
-impl<'a, T> UniformBlock for T where T: IntoUniformValue<'a> + Copy + Send + Default {
+impl<T> UniformBlock for T where T: AsUniformValue + Copy + Send + Default {
     fn matches(block: &program::UniformBlock) -> bool {
         use std::mem;
 
@@ -279,7 +279,7 @@ impl<'a, T> UniformBlock for T where T: IntoUniformValue<'a> + Copy + Send + Def
         }
 
         let me: T = Default::default();
-        if !me.into_uniform_value().is_usable_with(&member.ty) {
+        if !me.as_uniform_value().is_usable_with(&member.ty) {
             return false;
         }
 
@@ -291,297 +291,296 @@ impl<'a, T> UniformBlock for T where T: IntoUniformValue<'a> + Copy + Send + Def
     }
 }
 
-impl IntoUniformValue<'static> for i8 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::SignedInt(self as i32)
+impl AsUniformValue for i8 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::SignedInt(*self as i32)
     }
 }
 
-impl IntoUniformValue<'static> for u8 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::UnsignedInt(self as u32)
+impl AsUniformValue for u8 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt(*self as u32)
     }
 }
 
-impl IntoUniformValue<'static> for i16 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::SignedInt(self as i32)
+impl AsUniformValue for i16 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::SignedInt(*self as i32)
     }
 }
 
-impl IntoUniformValue<'static> for u16 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::UnsignedInt(self as u32)
+impl AsUniformValue for u16 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt(*self as u32)
     }
 }
 
-impl IntoUniformValue<'static> for i32 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::SignedInt(self as i32)
+impl AsUniformValue for i32 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::SignedInt(*self as i32)
     }
 }
 
-impl IntoUniformValue<'static> for u32 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::UnsignedInt(self as u32)
+impl AsUniformValue for u32 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt(*self as u32)
     }
 }
 
-impl IntoUniformValue<'static> for f32 {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Float(self)
+impl AsUniformValue for f32 {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Float(*self)
     }
 }
 
-impl IntoUniformValue<'static> for [[f32; 2]; 2] {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Mat2(self)
+impl AsUniformValue for [[f32; 2]; 2] {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Mat2(*self)
     }
 }
 
-impl IntoUniformValue<'static> for [[f32; 3]; 3] {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Mat3(self)
+impl AsUniformValue for [[f32; 3]; 3] {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Mat3(*self)
     }
 }
 
-impl IntoUniformValue<'static> for [[f32; 4]; 4] {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Mat4(self)
+impl AsUniformValue for [[f32; 4]; 4] {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Mat4(*self)
     }
 }
 
-impl IntoUniformValue<'static> for (f32, f32) {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for (f32, f32) {
+    fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec2([self.0, self.1])
     }
 }
 
-impl IntoUniformValue<'static> for (f32, f32, f32) {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for (f32, f32, f32) {
+    fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec3([self.0, self.1, self.2])
     }
 }
 
-impl IntoUniformValue<'static> for (f32, f32, f32, f32) {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for (f32, f32, f32, f32) {
+    fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec4([self.0, self.1, self.2, self.3])
     }
 }
 
-impl IntoUniformValue<'static> for [f32; 2] {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Vec2(self)
+impl AsUniformValue for [f32; 2] {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Vec2(*self)
     }
 }
 
-impl IntoUniformValue<'static> for [f32; 3] {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Vec3(self)
+impl AsUniformValue for [f32; 3] {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Vec3(*self)
     }
 }
 
-impl IntoUniformValue<'static> for [f32; 4] {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        UniformValue::Vec4(self)
+impl AsUniformValue for [f32; 4] {
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Vec4(*self)
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Mat2<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Mat2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Mat3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Mat3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Mat4<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Mat4<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Ortho3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Ortho3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.to_mat(); // Bind to a Mat4
-        my_value.into_uniform_value()
+        UniformValue::Mat4(*my_value.as_array())
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::OrthoMat3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::OrthoMat3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_mat(); // Bind to a Mat4
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Persp3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Persp3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.to_mat(); // Bind to a Mat4
-        my_value.into_uniform_value()
+        UniformValue::Mat4(*my_value.as_array())
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::PerspMat3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::PerspMat3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_mat(); // Bind to a Mat4
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Pnt2<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Pnt2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Pnt3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Pnt3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Pnt4<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Pnt4<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Quat<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Quat<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Rot2<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Rot2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.submat(); // Bind to a Mat2
-        my_value.into_uniform_value()
+        UniformValue::Mat2(*my_value.as_array())
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Rot3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Rot3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.submat(); // Bind to a Mat3
-        my_value.into_uniform_value()
+        UniformValue::Mat3(*my_value.as_array())
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Rot4<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Rot4<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.submat(); // Bind to a Mat4
-        my_value.into_uniform_value()
+        UniformValue::Mat4(*my_value.as_array())
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::UnitQuat<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::UnitQuat<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.quat(); // Bind to a Quat
-        my_value.into_uniform_value()
+        UniformValue::Vec4(*my_value.as_array())
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Vec2<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Vec2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Vec3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Vec3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "nalgebra")]
-impl IntoUniformValue<'static> for nalgebra::Vec4<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for nalgebra::Vec4<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
-        my_value.into_uniform_value()
-    }
-}
-
-
-#[cfg(feature = "cgmath")]
-impl IntoUniformValue<'static> for cgmath::Matrix2<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        my_value.into_uniform_value()
+        my_value.as_uniform_value()
     }
 }
 
 #[cfg(feature = "cgmath")]
-impl IntoUniformValue<'static> for cgmath::Matrix3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for cgmath::Matrix2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
-        my_value.into_uniform_value()
+        UniformValue::Mat2(my_value)
     }
 }
 
 #[cfg(feature = "cgmath")]
-impl IntoUniformValue<'static> for cgmath::Matrix4<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for cgmath::Matrix3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
-        my_value.into_uniform_value()
+        UniformValue::Mat3(my_value)
     }
 }
 
 #[cfg(feature = "cgmath")]
-impl IntoUniformValue<'static> for cgmath::Vector2<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for cgmath::Matrix4<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
-        my_value.into_uniform_value()
+        UniformValue::Mat4(my_value)
     }
 }
 
 #[cfg(feature = "cgmath")]
-impl IntoUniformValue<'static> for cgmath::Vector3<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for cgmath::Vector2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
-        my_value.into_uniform_value()
+        UniformValue::Vec2(my_value)
     }
 }
 
 #[cfg(feature = "cgmath")]
-impl IntoUniformValue<'static> for cgmath::Vector4<f32> {
-    fn into_uniform_value(self) -> UniformValue<'static> {
+impl AsUniformValue for cgmath::Vector3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
-        my_value.into_uniform_value()
+        UniformValue::Vec3(my_value)
+    }
+}
+
+#[cfg(feature = "cgmath")]
+impl AsUniformValue for cgmath::Vector4<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        UniformValue::Vec4(my_value)
     }
 }
