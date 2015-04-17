@@ -636,10 +636,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     if ty != TextureType::Compressed && ty != TextureType::CompressedSrgb {
         // opening function
         (writeln!(dest, "
-                /// Creates an empty texture.
-                ///
-                /// The texture will contain undefined data.
-                #[deprecated = \"Use `empty` instead\"]
+                /// DEPRECATED. Use `empty` instead.
                 pub fn new_empty<F>(facade: &F, format: {format}, {dim_params}) -> {name} where F: Facade {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
