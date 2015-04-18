@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.1 (2015-04-18)
 
  - Fixed lifetime-related issues when using the `uniform!` macro.
 
