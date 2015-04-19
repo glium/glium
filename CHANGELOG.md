@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Fixed the `Mapping` objects not implementing `Sync`.
+ - Fixed rendering to an sRGB texture not possible.
 
 ## Version 0.3.1 (2015-04-18)
 

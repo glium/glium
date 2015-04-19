@@ -145,7 +145,19 @@ impl<'a> SimpleFrameBuffer<'a> {
                 (dimensions, id)
             },
 
+            ColorAttachment::SrgbTexture2d(tex) => {
+                let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
+                let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 };
+                (dimensions, id)
+            },
+
             ColorAttachment::Texture2dMultisample(tex) => {
+                let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
+                let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D_MULTISAMPLE, level: 0, layer: 0 };
+                (dimensions, id)
+            },
+
+            ColorAttachment::SrgbTexture2dMultisample(tex) => {
                 let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
                 let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D_MULTISAMPLE, level: 0, layer: 0 };
                 (dimensions, id)
