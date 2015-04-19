@@ -478,6 +478,8 @@ pub struct Mapping<'b, D> {
     len: usize,
 }
 
+unsafe impl<'a, D> Sync for Mapping<'a, D> where D: Sync {}
+
 impl<'a, D> Drop for Mapping<'a, D> {
     fn drop(&mut self) {
         // don't unmap if the buffer is persistent
