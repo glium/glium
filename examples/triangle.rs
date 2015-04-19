@@ -39,37 +39,62 @@ fn main() {
         glium::index::TrianglesList(vec![0u16, 1, 2]));
 
     // compiling shaders and linking them together
-    let program = glium::Program::from_source(&display,
-        // vertex shader
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            uniform mat4 matrix;
+                uniform mat4 matrix;
 
-            attribute vec2 position;
-            attribute vec3 color;
+                in vec2 position;
+                in vec3 color;
 
-            varying vec3 vColor;
+                out vec3 vColor;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0) * matrix;
-                vColor = color;
-            }
-        ",
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                    vColor = color;
+                }
+            ",
 
-        // fragment shader
-        "
-            #version 110
-            varying vec3 vColor;
+            fragment: "
+                #version 140
+                in vec3 vColor;
+                out vec4 output;
 
-            void main() {
-                gl_FragColor = vec4(vColor, 1.0);
-            }
-        ",
+                void main() {
+                    output = vec4(vColor, 1.0);
+                }
+            "
+        },
 
-        // geometry shader
-        None)
-        .unwrap();
+        110 => {  
+            vertex: "
+                #version 110
+
+                uniform mat4 matrix;
+
+                attribute vec2 position;
+                attribute vec3 color;
+
+                varying vec3 vColor;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                    vColor = color;
+                }
+            ",
+
+            fragment: "
+                #version 110
+                varying vec3 vColor;
+
+                void main() {
+                    gl_FragColor = vec4(vColor, 1.0);
+                }
+            ",
+        },
+    ).unwrap();
     
     // the main loop
     support::start_loop(|| {

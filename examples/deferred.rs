@@ -82,7 +82,7 @@ fn main() {
     let prepass_program = glium::Program::from_source(&display,
         // vertex shader
         "
-            #version 130
+            #version 140
 
             uniform mat4 perspective_matrix;
             uniform mat4 view_matrix;
@@ -106,7 +106,7 @@ fn main() {
 
         // fragment shader
         "
-            #version 130
+            #version 140
             
             uniform sampler2D texture;
 
@@ -134,7 +134,7 @@ fn main() {
     let lighting_program = glium::Program::from_source(&display,
         // vertex shader
         "
-            #version 130
+            #version 140
 
             uniform mat4 matrix;
 
@@ -151,7 +151,7 @@ fn main() {
 
         // fragment shader
         "
-            #version 130
+            #version 140
             
             uniform sampler2D position_texture;
             uniform sampler2D normal_texture;
@@ -193,7 +193,7 @@ fn main() {
     let composition_program = glium::Program::from_source(&display,
         // vertex shader
         "
-            #version 130
+            #version 140
 
             uniform mat4 matrix;
 
@@ -210,7 +210,7 @@ fn main() {
 
         // fragment shader
         "
-            #version 130
+            #version 140
 
             uniform sampler2D decal_texture;
             uniform sampler2D lighting_texture;

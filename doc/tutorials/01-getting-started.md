@@ -165,25 +165,25 @@ The list of coordinates at the left of the schema represents the vertices of the
 The tricky part is that *we* need to write the vertex and fragment shaders. To do so, we have to write it using a programming language named *GLSL*, which is very similar to the C programming language. Teaching you GLSL would be a bit too complicated for now, so I will just give you the source codes. Here is the source code that we will use for the vertex shader:
 
     let vertex_shader_src = r#"
-        #version 110
+        #version 140
 
-        attribute vec2 position;
+        in vec2 position;
 
         void main() {
             gl_Position = vec4(position, 0.0, 1.0);
         }
     "#;
 
-First of all, the `#version 110` line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware don't support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.
+First of all, the `#version 140` line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware don't support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.
 
-When we defined the `Vertex` struct in our shape, we created a field named `position` which contains the position of our vertex. But contrary to what I let you think, this struct doesn't contain the actual position of the vertex but only a attribute whose value is passed to the vertex shader. OpenGL doesn't care about the name of the attribute, all it does is passing its value to the vertex shader. The `attribute vec2 position;` line of our shader is here to declare that we are expected to be passed an attribute named `position` whose type is `vec2` (which corresponds to `[f32; 2]` in Rust).
+When we defined the `Vertex` struct in our shape, we created a field named `position` which contains the position of our vertex. But contrary to what I let you think, this struct doesn't contain the actual position of the vertex but only a attribute whose value is passed to the vertex shader. OpenGL doesn't care about the name of the attribute, all it does is passing its value to the vertex shader. The `in vec2 position;` line of our shader is here to declare that we are expected to be passed an attribute named `position` whose type is `vec2` (which corresponds to `[f32; 2]` in Rust).
 
 The `main` function of our shader is called once per vertex, which means three times for our triangle. The first time, the value of `position` will be `[-0.5, -0.5]`, the second time it will be `[0, 0.5]`, and the third time `[0.5, -0.25]`. It is in this function that we actually tell OpenGL what the position of our vertex is, thanks to the `gl_Position = vec4(position, 0.0, 1.0);` line. We need to do a small conversion because OpenGL doesn't expect two-dimensional coordinates, but *four*-dimensional coordinates (the reason for this will be covered in a later tutorial).
 
 The second shader is called the fragment shader (sometimes also named *pixel shader*).
 
     let fragment_shader_src = r#"
-        #version 110
+        #version 140
 
         void main() {
             gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
@@ -244,9 +244,9 @@ Here is the final code of our `src/main.rs` file:
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         let vertex_shader_src = r#"
-            #version 110
+            #version 140
 
-            attribute vec2 position;
+            in vec2 position;
 
             void main() {
                 gl_Position = vec4(position, 0.0, 1.0);
@@ -254,7 +254,7 @@ Here is the final code of our `src/main.rs` file:
         "#;
 
         let fragment_shader_src = r#"
-            #version 110
+            #version 140
 
             void main() {
                 gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
