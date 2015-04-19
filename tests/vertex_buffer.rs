@@ -106,6 +106,36 @@ fn vertex_buffer_mapping_write() {
     display.assert_no_error();
 }
 
+// TODO: uncomment after std::thread::scoped has been stabilized
+/*#[test]
+fn vertex_buffer_mapping_multithread() {
+    let display = support::build_display();
+    
+    #[derive(Copy, Clone)]
+    struct Vertex {
+        field1: [u8; 2],
+        field2: [u8; 2],
+    }
+
+    implement_vertex!(Vertex, field1, field2);
+
+    let mut vb = glium::VertexBuffer::empty(&display, 2);
+
+    {
+        let mut mapping = vb.map();
+        std::thread::scoped(|| {
+            mapping[0].field1 = [0, 1];
+            mapping[1].field2 = [15, 17];
+        });
+    }
+
+    let mapping = vb.map();
+    assert_eq!(mapping[0].field1, [0, 1]);
+    assert_eq!(mapping[1].field2, [15, 17]);
+
+    display.assert_no_error();
+}*/
+
 #[test]
 fn vertex_buffer_read() {
     let display = support::build_display();
