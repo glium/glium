@@ -57,29 +57,64 @@ fn main() {
         glium::index::TriangleStrip(vec![1 as u16, 2, 0, 3]));
 
     // compiling shaders and linking them together
-    let program = glium::Program::from_source(&display, r"
-        #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-        uniform mat4 matrix;
+                uniform mat4 matrix;
 
-        attribute vec2 position;
-        attribute vec2 tex_coords;
+                in vec2 position;
+                in vec2 tex_coords;
 
-        varying vec2 v_tex_coords;
+                out vec2 v_tex_coords;
 
-        void main() {
-            gl_Position = matrix * vec4(position, 0.0, 1.0);
-            v_tex_coords = tex_coords;
-        }
-    ", r"
-        #version 110
-        uniform sampler2D texture;
-        varying vec2 v_tex_coords;
+                void main() {
+                    gl_Position = matrix * vec4(position, 0.0, 1.0);
+                    v_tex_coords = tex_coords;
+                }
+            ",
 
-        void main() {
-            gl_FragColor = texture2D(texture, v_tex_coords);
-        }
-    ", None).unwrap();
+            fragment: "
+                #version 140
+                uniform sampler2D texture;
+                in vec2 v_tex_coords;
+                out vec4 f_color;
+
+                void main() {
+                    f_color = texture2D(texture, v_tex_coords);
+                }
+            "
+        },
+
+        110 => {  
+            vertex: "
+                #version 110
+
+                uniform mat4 matrix;
+
+                attribute vec2 position;
+                attribute vec2 tex_coords;
+
+                varying vec2 v_tex_coords;
+
+                void main() {
+                    gl_Position = matrix * vec4(position, 0.0, 1.0);
+                    v_tex_coords = tex_coords;
+                }
+            ",
+
+            fragment: "
+                #version 110
+                uniform sampler2D texture;
+                varying vec2 v_tex_coords;
+
+                void main() {
+                    gl_FragColor = texture2D(texture, v_tex_coords);
+                }
+            ",
+        },
+    ).unwrap();
     
     // the main loop
     support::start_loop(|| {

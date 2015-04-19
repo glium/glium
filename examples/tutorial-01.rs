@@ -22,9 +22,9 @@ fn main() {
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
     let vertex_shader_src = r#"
-        #version 110
+        #version 140
 
-        attribute vec2 position;
+        in vec2 position;
 
         void main() {
             gl_Position = vec4(position, 0.0, 1.0);
@@ -32,7 +32,7 @@ fn main() {
     "#;
 
     let fragment_shader_src = r#"
-        #version 110
+        #version 140
 
         void main() {
             gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);

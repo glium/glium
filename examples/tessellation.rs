@@ -41,7 +41,7 @@ fn main() {
     let program = glium::Program::new(&display,
         glium::program::SourceCode {
             vertex_shader: "
-                #version 130
+                #version 140
 
                 in vec2 position;
 
@@ -50,7 +50,7 @@ fn main() {
                 }
             ",
             fragment_shader: "
-                #version 130
+                #version 140
 
                 in vec3 color;
 
