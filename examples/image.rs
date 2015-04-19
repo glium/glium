@@ -77,12 +77,12 @@ fn main() {
 
             fragment: "
                 #version 140
-                uniform sampler2D texture;
+                uniform sampler2D tex;
                 in vec2 v_tex_coords;
                 out vec4 f_color;
 
                 void main() {
-                    f_color = texture2D(texture, v_tex_coords);
+                    f_color = texture(tex, v_tex_coords);
                 }
             "
         },
@@ -106,11 +106,11 @@ fn main() {
 
             fragment: "
                 #version 110
-                uniform sampler2D texture;
+                uniform sampler2D tex;
                 varying vec2 v_tex_coords;
 
                 void main() {
-                    gl_FragColor = texture2D(texture, v_tex_coords);
+                    gl_FragColor = texture2D(tex, v_tex_coords);
                 }
             ",
         },
@@ -126,7 +126,7 @@ fn main() {
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0f32]
             ],
-            texture: &opengl_texture
+            tex: &opengl_texture
         };
 
         // drawing a frame

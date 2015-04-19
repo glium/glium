@@ -55,26 +55,27 @@ fn main() {
 
     // compiling shaders and linking them together
     let program = glium::Program::from_source(&display, r"
-        #version 110
+        #version 140
 
         uniform mat4 matrix;
 
-        attribute vec2 position;
-        attribute vec2 tex_coords;
+        in vec2 position;
+        in vec2 tex_coords;
 
-        varying vec2 v_tex_coords;
+        out vec2 v_tex_coords;
 
         void main() {
             gl_Position = matrix * vec4(position, 0.0, 1.0);
             v_tex_coords = tex_coords;
         }
     ", r"
-        #version 110
-        uniform sampler2D texture;
-        varying vec2 v_tex_coords;
+        #version 140
+        uniform sampler2D tex;
+        in vec2 v_tex_coords;
+        out vec4 color;
 
         void main() {
-            gl_FragColor = texture2D(texture, v_tex_coords);
+            color = texture(tex, v_tex_coords);
         }
     ", None).unwrap();
 
@@ -94,7 +95,7 @@ fn main() {
                     [0.0, 0.0, 0.5, 0.0],
                     [0.0, 0.0, 0.0, 1.0f32]
                 ],
-                texture: &opengl_texture
+                tex: &opengl_texture
             }, &std::default::Default::default()).unwrap();
         target.finish();
 

@@ -57,7 +57,7 @@ fn main() {
     let program = glium::Program::new(&display,
         glium::program::SourceCode {
             vertex_shader: "
-                #version 430
+                #version 400
 
                 in vec3 position;
                 in vec2 tex_coords;
@@ -73,7 +73,7 @@ fn main() {
                 }
             ",
             tessellation_control_shader: Some("
-                #version 430
+                #version 400
 
                 layout(vertices = 3) out;
 
@@ -102,7 +102,7 @@ fn main() {
                 }
             "),
             tessellation_evaluation_shader: Some("
-                #version 430
+                #version 400
 
                 layout(triangles, equal_spacing, ccw) in;
 
@@ -142,7 +142,7 @@ fn main() {
                 }
             "),
             geometry_shader: Some("
-                #version 430
+                #version 400
 
                 layout(triangles) in;
                 layout(triangle_strip, max_vertices = 3) out;
@@ -176,7 +176,7 @@ fn main() {
                 }
             "),
             fragment_shader: "
-                #version 430
+                #version 400
 
                 in vec3 g_normal;
                 in vec2 g_tex_coords;

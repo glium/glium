@@ -108,7 +108,7 @@ fn main() {
         "
             #version 140
             
-            uniform sampler2D texture;
+            uniform sampler2D tex;
 
             smooth in vec4 frag_position;
             smooth in vec4 frag_normal;
@@ -122,7 +122,7 @@ fn main() {
             void main() {
                 output1 = vec4(frag_position);
                 output2 = vec4(frag_normal);
-                output3 = texture2D(texture, frag_texcoord);
+                output3 = texture(tex, frag_texcoord);
                 output4 = vec4(1.0, 0.0, 1.0, 1.0);
             }
         ",
@@ -165,8 +165,8 @@ fn main() {
             out vec4 frag_output;
 
             void main() {
-                vec4 position = texture2D(position_texture, frag_texcoord);
-                vec4 normal = texture2D(normal_texture, frag_texcoord);
+                vec4 position = texture(position_texture, frag_texcoord);
+                vec4 normal = texture(normal_texture, frag_texcoord);
                 vec3 light_vector = light_position.xyz - position.xyz;
                 float light_distance = abs(length(light_vector));
                 vec3 normal_vector = normalize(normal.xyz);
@@ -220,8 +220,8 @@ fn main() {
             out vec4 frag_output;
 
             void main() {
-                vec4 lighting_value = texture2D(lighting_texture, frag_texcoord);
-                frag_output = vec4(texture2D(decal_texture, frag_texcoord).rgb * lighting_value.rgb, 1.0);
+                vec4 lighting_value = texture(lighting_texture, frag_texcoord);
+                frag_output = vec4(texture(decal_texture, frag_texcoord).rgb * lighting_value.rgb, 1.0);
             }
         ",
 
@@ -324,7 +324,7 @@ fn main() {
             perspective_matrix: *fixed_perspective_matrix,
             view_matrix: *fixed_view_matrix,
             model_matrix: *fixed_model_matrix,
-            texture: &opengl_texture
+            tex: &opengl_texture
         };
         framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
         framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &std::default::Default::default()).unwrap();

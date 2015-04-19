@@ -59,20 +59,22 @@ fn main() {
 
     let program = glium::Program::from_source(&display,
         "
-            #version 110
+            #version 140
 
-            attribute vec2 position;
-            attribute vec2 world_position;
+            in vec2 position;
+            in vec2 world_position;
 
             void main() {
                 gl_Position = vec4(position + world_position, 0.0, 1.0);
             }
         ",
         "
-            #version 110
+            #version 140
+
+            out vec4 color;
 
             void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                color = vec4(1.0, 0.0, 0.0, 1.0);
             }
         ",
         None)
