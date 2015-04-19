@@ -185,12 +185,14 @@ The second shader is called the fragment shader (sometimes also named *pixel sha
     let fragment_shader_src = r#"
         #version 140
 
+        out vec4 color;
+
         void main() {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            color = vec4(1.0, 0.0, 0.0, 1.0);
         }
     "#;
 
-This source code is very similar to our vertex shader above. This time the `main` function is executed once per pixel and has to return the color of this pixel, which we do with the `gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);` line. Just like with `clear_color` earlier, we need to pass the red, green, blue and alpha components of the pixel. Here we are returning an opaque red color. It is possible to return different values depending on the pixel, but this will be covered in the next tutorials.
+This source code is very similar to our vertex shader above. This time the `main` function is executed once per pixel and has to return the color of this pixel, which we do with the `color = vec4(1.0, 0.0, 0.0, 1.0);` line. Just like with `clear_color` earlier, we need to pass the red, green, blue and alpha components of the pixel. Here we are returning an opaque red color. It is possible to return different values depending on the pixel, but this will be covered in the next tutorials.
 
 Now that we have written our shaders' source codes, let's send them to the glium library:
 
@@ -256,8 +258,10 @@ Here is the final code of our `src/main.rs` file:
         let fragment_shader_src = r#"
             #version 140
 
+            out vec4 color;
+
             void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                color = vec4(1.0, 0.0, 0.0, 1.0);
             }
         "#;
 
