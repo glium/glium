@@ -218,6 +218,8 @@ The "draw command" designation could make you think that drawing is a heavy oper
 
 ![Our final result](01-triangle.png)
 
+[Click here for the second tutorial](02-animating-triangle.html)
+
 ### Final source code
 
 Here is the final code of our `src/main.rs` file:
