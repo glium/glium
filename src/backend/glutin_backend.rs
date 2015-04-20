@@ -229,8 +229,9 @@ impl GlutinFacade {
 
 impl DisplayBuild for glutin::WindowBuilder<'static> {
     type Facade = GlutinFacade;
+    type Err = GliumCreationError<glutin::CreationError>;
 
-    fn build_glium(self) -> Result<GlutinFacade, GliumCreationError> {
+    fn build_glium(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
         let context = try!(unsafe { context::Context::new(backend.clone(), true) });
 
@@ -242,7 +243,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         Ok(display)
     }
 
-    unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError> {
+    unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), false));
 
@@ -254,7 +255,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         Ok(display)
     }
 
-    fn rebuild_glium(self, display: &GlutinFacade) -> Result<(), GliumCreationError> {
+    fn rebuild_glium(self, display: &GlutinFacade) -> Result<(), GliumCreationError<glutin::CreationError>> {
         let mut existing_window = display.backend.as_ref()
                                          .expect("can't rebuild a headless display").borrow_mut();
         let new_backend = Rc::new(try!(existing_window.rebuild(self)));
@@ -267,8 +268,9 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 #[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     type Facade = GlutinFacade;
+    type Err = GliumCreationError<glutin::CreationError>;
 
-    fn build_glium(self) -> Result<GlutinFacade, GliumCreationError> {
+    fn build_glium(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
         let context = try!(unsafe { context::Context::new(backend.clone(), true) });
 
@@ -280,7 +282,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(display)
     }
 
-    unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError> {
+    unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), true));
 
@@ -292,7 +294,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(display)
     }
 
-    fn rebuild_glium(self, _: &GlutinFacade) -> Result<(), GliumCreationError> {
+    fn rebuild_glium(self, _: &GlutinFacade) -> Result<(), GliumCreationError<glutin::CreationError>> {
         unimplemented!()
     }
 }
@@ -330,7 +332,7 @@ unsafe impl Backend for GlutinWindowBackend {
 impl GlutinWindowBackend {
     /// Builds a new backend from the builder.
     pub fn new(builder: glutin::WindowBuilder)
-               -> Result<GlutinWindowBackend, GliumCreationError>
+               -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>>
     {
         let window = try!(builder.build());
 
@@ -356,7 +358,7 @@ impl GlutinWindowBackend {
     }
 
     pub fn rebuild(&self, builder: glutin::WindowBuilder)
-                   -> Result<GlutinWindowBackend, GliumCreationError>
+                   -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>>
     {
         let window = try!(builder.with_shared_lists(&self.window).build());
 
@@ -398,7 +400,7 @@ unsafe impl Backend for GlutinHeadlessBackend {
 impl GlutinHeadlessBackend {
     /// Builds a new backend from the builder.
     pub fn new(builder: glutin::HeadlessRendererBuilder)
-               -> Result<GlutinHeadlessBackend, GliumCreationError>
+               -> Result<GlutinHeadlessBackend, GliumCreationError<glutin::CreationError>>
     {
         let context = try!(builder.build());
 
