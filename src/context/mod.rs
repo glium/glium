@@ -482,7 +482,7 @@ fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreat
 }
 
 fn init_debug_callback(context: &Rc<Context>) {
-    if cfg!(ndebug) {
+    if !cfg!(debug_assertions) {
         return;
     }
 

@@ -6,6 +6,7 @@
  - Fixed rendering to an sRGB texture not possible.
  - `GliumCreationError` now has a template parameter indicating the backend creation error type.
  - The `DisplayBuild` trait has a new associated type indicating the error type.
+ - Fixed the debug output callback not being disabled when compiling with --release.
 
 ## Version 0.3.1 (2015-04-18)
 
