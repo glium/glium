@@ -345,3 +345,11 @@ fn multiple_displays() {
     display1.assert_no_error();
     display2.assert_no_error();
 }
+
+#[test]
+fn debug_string() {
+    use glium::backend::Facade;
+
+    let display = support::build_display();
+    display.get_context().insert_debug_marker("Hello world");
+}
