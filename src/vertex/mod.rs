@@ -73,8 +73,10 @@ pub enum VerticesSource<'a> {
     ///
     /// The second and third parameters are the offset and length of the buffer.
     /// The fourth parameter tells whether or not this buffer is "per instance" (true) or
-    // "per vertex" (false)
+    /// "per vertex" (false).
     VertexBuffer(&'a VertexBufferAny, usize, usize, bool),
+
+    Marker { len: usize, per_instance: bool },
 }
 
 /// Objects that can be used as vertex sources.
@@ -86,6 +88,24 @@ pub trait IntoVerticesSource<'a> {
 impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
         self
+    }
+}
+
+/// Marker that can be passed instead of a buffer to indicate an empty list of buffers.
+pub struct EmptyVertexAttributes { pub len: usize }
+
+impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
+        VerticesSource::Marker { len: self.len, per_instance: false }
+    }
+}
+
+/// Marker that can be passed instead of a buffer to indicate an empty list of buffers.
+pub struct EmptyInstanceAttributes { pub len: usize }
+
+impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
+    fn into_vertices_source(self) -> VerticesSource<'a> {
+        VerticesSource::Marker { len: self.len, per_instance: true }
     }
 }
 
