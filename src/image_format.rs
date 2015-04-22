@@ -393,18 +393,28 @@ impl UncompressedUintFormat {
 }
 
 /// List of compressed texture formats.
-///
-/// TODO: many formats are missing
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompressedFormat {
     /// Red/green compressed texture with one unsigned component.
-    RGTCFormatU,
+    RgtcFormatU,
     /// Red/green compressed texture with one signed component.
-    RGTCFormatI,
+    RgtcFormatI,
     /// Red/green compressed texture with two unsigned components.
-    RGTCFormatUU,
+    RgtcFormatUU,
     /// Red/green compressed texture with two signed components.
-    RGTCFormatII,
+    RgtcFormatII,
+
+    /// BPTC format with four components represented as integers.
+    BptcUnorm4,
+    /// BPTC format with three components (no alpha) represented as signed floats.
+    BptcSignedFloat3,
+    /// BPTC format with three components (no alpha) represented as unsigned floats.
+    BptcUnsignedFloat3,
+
+    S3tcDxt1NoAlpha,
+    S3tcDxt1Alpha,
+    S3tcDxt3Alpha,
+    S3tcDxt5Alpha,
 }
 
 impl CompressedFormat {
@@ -418,7 +428,12 @@ impl CompressedFormat {
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompressedSrgbFormat {
-    // TODO: 
+    /// BPTC format. sRGB with alpha. Also called `BC7` by DirectX.
+    Bptc,
+    S3tcDxt1NoAlpha,
+    S3tcDxt1Alpha,
+    S3tcDxt3Alpha,
+    S3tcDxt5Alpha,
 }
 
 impl CompressedSrgbFormat {
@@ -862,7 +877,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatU)) => {
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatU)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_RED_RGTC1, Some(gl::COMPRESSED_RED_RGTC1))
             } else {
@@ -870,7 +885,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatI)) => {
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatI)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_SIGNED_RED_RGTC1, Some(gl::COMPRESSED_SIGNED_RED_RGTC1))
             } else {
@@ -878,7 +893,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatUU)) => {
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatUU)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_RG_RGTC2, Some(gl::COMPRESSED_RG_RGTC2))
             } else {
@@ -886,9 +901,65 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RGTCFormatII)) => {
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatII)) => {
             if version >= &Version(Api::Gl, 3, 0) {
                 (gl::COMPRESSED_SIGNED_RG_RGTC2, Some(gl::COMPRESSED_SIGNED_RG_RGTC2))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::BptcUnorm4)) => {
+            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                (gl::COMPRESSED_RGBA_BPTC_UNORM, Some(gl::COMPRESSED_RGBA_BPTC_UNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::BptcSignedFloat3)) => {
+            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                (gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT, Some(gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::BptcUnsignedFloat3)) => {
+            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                (gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, Some(gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt1NoAlpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc {
+                (gl::COMPRESSED_RGB_S3TC_DXT1_EXT, Some(gl::COMPRESSED_RGB_S3TC_DXT1_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt1Alpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc {
+                (gl::COMPRESSED_RGBA_S3TC_DXT1_EXT, Some(gl::COMPRESSED_RGBA_S3TC_DXT1_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt3Alpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc {
+                (gl::COMPRESSED_RGBA_S3TC_DXT3_EXT, Some(gl::COMPRESSED_RGBA_S3TC_DXT3_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt5Alpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc {
+                (gl::COMPRESSED_RGBA_S3TC_DXT5_EXT, Some(gl::COMPRESSED_RGBA_S3TC_DXT5_EXT))
             } else {
                 return Err(FormatNotSupportedError);
             }
@@ -957,8 +1028,44 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(_)) => {
-            unreachable!();
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::Bptc)) => {
+            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                (gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM, Some(gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1NoAlpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                (gl::COMPRESSED_SRGB_S3TC_DXT1_EXT, Some(gl::COMPRESSED_SRGB_S3TC_DXT1_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1Alpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                (gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, Some(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt3Alpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                (gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, Some(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt5Alpha)) => {
+            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                (gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, Some(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
         },
 
         /*******************************************************************/

@@ -46,6 +46,8 @@ pub struct ExtensionsList {
     pub gl_arb_sync: bool,
     /// GL_ARB_tessellation_shader
     pub gl_arb_tessellation_shader: bool,
+    /// GL_ARB_texture_compression_bptc
+    pub gl_arb_texture_compression_bptc: bool,
     /// GL_ARB_texture_float
     pub gl_arb_texture_float: bool,
     /// GL_ARB_texture_multisample
@@ -84,6 +86,8 @@ pub struct ExtensionsList {
     pub gl_ext_gpu_shader4: bool,
     /// GL_EXT_packed_depth_stencil
     pub gl_ext_packed_depth_stencil: bool,
+    /// GL_EXT_texture_compression_s3tc
+    pub gl_ext_texture_compression_s3tc: bool,
     /// GL_EXT_texture_filter_anisotropic
     pub gl_ext_texture_filter_anisotropic: bool,
     /// GL_EXT_texture_integer
@@ -125,6 +129,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_shader_objects: false,
         gl_arb_sync: false,
         gl_arb_tessellation_shader: false,
+        gl_arb_texture_compression_bptc: false,
         gl_arb_texture_float: false,
         gl_arb_texture_multisample: false,
         gl_arb_texture_non_power_of_two: false,
@@ -144,6 +149,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_geometry_shader4: false,
         gl_ext_gpu_shader4: false,
         gl_ext_packed_depth_stencil: false,
+        gl_ext_texture_compression_s3tc: false,
         gl_ext_texture_filter_anisotropic: false,
         gl_ext_texture_integer: false,
         gl_ext_texture_srgb: false,
@@ -176,6 +182,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
             "GL_ARB_sync" => extensions.gl_arb_sync = true,
             "GL_ARB_tessellation_shader" => extensions.gl_arb_tessellation_shader = true,
+            "GL_ARB_texture_compression_bptc" => extensions.gl_arb_texture_compression_bptc = true,
             "GL_ARB_texture_float" => extensions.gl_arb_texture_float = true,
             "GL_ARB_texture_multisample" => extensions.gl_arb_texture_multisample = true,
             "GL_ARB_texture_non_power_of_two" => extensions.gl_arb_texture_non_power_of_two = true,
@@ -195,6 +202,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
             "GL_EXT_gpu_shader4" => extensions.gl_ext_gpu_shader4 = true,
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
+            "GL_EXT_texture_compression_s3tc" => extensions.gl_ext_texture_compression_s3tc = true,
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             "GL_EXT_texture_integer" => extensions.gl_ext_texture_integer = true,
             "GL_EXT_texture_sRGB" => extensions.gl_ext_texture_srgb = true,
