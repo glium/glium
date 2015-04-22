@@ -74,9 +74,9 @@ impl Context {
     /// If you pass `false`, you must ensure that no other OpenGL context is going to be made
     /// current in the same thread as this context. Passing `true` makes things safe but
     /// is slightly slower.
-    pub unsafe fn new<B>(backend: B, check_current_context: bool)
-                         -> Result<Rc<Context>, GliumCreationError>
-                         where B: Backend + 'static
+    pub unsafe fn new<B, E>(backend: B, check_current_context: bool)
+                            -> Result<Rc<Context>, GliumCreationError<E>>
+                            where B: Backend + 'static
     {
         backend.make_current();
         let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
@@ -127,9 +127,9 @@ impl Context {
     /// Changes the OpenGL context associated with this context.
     ///
     /// The new context must have lists shared with the old one.
-    pub unsafe fn rebuild<B>(&self, new_backend: B)
-                             -> Result<(), GliumCreationError>
-                             where B: Backend + 'static
+    pub unsafe fn rebuild<B, E>(&self, new_backend: B)
+                                -> Result<(), GliumCreationError<E>>
+                                where B: Backend + 'static
     {
         {
             let mut ctxt = self.make_current();
@@ -380,7 +380,7 @@ impl Drop for Context {
     }
 }
 
-fn check_gl_compatibility(ctxt: &mut CommandContext) -> Result<(), GliumCreationError> {
+fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreationError<T>> {
     let mut result = Vec::new();
 
     if !(ctxt.version >= &Version(Api::Gl, 1, 5)) &&

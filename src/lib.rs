@@ -850,58 +850,61 @@ pub trait DisplayBuild {
     /// The object that this `DisplayBuild` builds.
     type Facade: backend::Facade;
 
+    /// The type of error that initialization can return.
+    type Err;
+
     /// Build a context and a facade to draw on it.
     ///
     /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
-    fn build_glium(self) -> Result<Self::Facade, GliumCreationError>;
+    fn build_glium(self) -> Result<Self::Facade, Self::Err>;
 
     /// Build a context and a facade to draw on it
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, GliumCreationError>;
+    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err>;
 
     /// Changes the settings of an existing facade.
-    fn rebuild_glium(self, &Self::Facade) -> Result<(), GliumCreationError>;
+    fn rebuild_glium(self, &Self::Facade) -> Result<(), Self::Err>;
 }
 
 /// Error that can happen while creating a glium display.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum GliumCreationError {
-    /// An error has happened while creating the glutin window or headless renderer.
-    GlutinCreationError(glutin::CreationError),
+pub enum GliumCreationError<T> {
+    /// An error has happened while creating the backend.
+    BackendCreationError(T),
 
     /// The OpenGL implementation is too old.
     IncompatibleOpenGl(String),
 }
 
-impl std::fmt::Display for GliumCreationError {
+impl<T> std::fmt::Display for GliumCreationError<T> where T: std::error::Error {
     fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let self_error = self as &std::error::Error;
         formatter.write_str(self_error.description())
     }
 }
 
-impl std::error::Error for GliumCreationError {
+impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
     fn description(&self) -> &str {
         match self {
-            &GliumCreationError::GlutinCreationError(_) => "Error while creating glutin window or headless renderer",
+            &GliumCreationError::BackendCreationError(_) => "Error while creating the backend",
             &GliumCreationError::IncompatibleOpenGl(_) => "The OpenGL implementation is too old to work with glium",
         }
     }
 
     fn cause(&self) -> Option<&std::error::Error> {
         match self {
-            &GliumCreationError::GlutinCreationError(ref err) => Some(err as &std::error::Error),
+            &GliumCreationError::BackendCreationError(ref err) => Some(err as &std::error::Error),
             &GliumCreationError::IncompatibleOpenGl(_) => None,
         }
     }
 }
 
-impl std::convert::From<glutin::CreationError> for GliumCreationError {
-    fn from(err: glutin::CreationError) -> GliumCreationError {
-        GliumCreationError::GlutinCreationError(err)
+impl<T> std::convert::From<T> for GliumCreationError<T> {
+    fn from(err: T) -> GliumCreationError<T> {
+        GliumCreationError::BackendCreationError(err)
     }
 }
 

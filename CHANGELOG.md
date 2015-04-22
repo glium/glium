@@ -4,6 +4,8 @@
 
  - Fixed the `Mapping` objects not implementing `Sync`.
  - Fixed rendering to an sRGB texture not possible.
+ - `GliumCreationError` now has a template parameter indicating the backend creation error type.
+ - The `DisplayBuild` trait has a new associated type indicating the error type.
 
 ## Version 0.3.1 (2015-04-18)
 
