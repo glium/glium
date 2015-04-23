@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.2 (2015-04-23)
 
  - Added `vertex::EmptyVertexAttributes` and `vertex::EmptyInstanceAttributes` markers in order to draw without a vertex source.
  - Added more formats in `CompressedFormats` and `CompressedSrgbFormats`.
