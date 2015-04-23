@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Added `vertex::EmptyVertexAttributes` and `vertex::EmptyInstanceAttributes` markers in order to draw without a vertex source.
  - Fixed the `Mapping` objects not implementing `Sync`.
  - Fixed rendering to an sRGB texture not possible.
  - `GliumCreationError` now has a template parameter indicating the backend creation error type.

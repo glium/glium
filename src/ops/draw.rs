@@ -58,6 +58,16 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                         vertices_count = Some(len);
                     }
                 },
+                &VerticesSource::Marker { len, per_instance } if !per_instance => {
+                    if let Some(curr) = vertices_count {
+                        if curr != len {
+                            vertices_count = None;
+                            break;
+                        }
+                    } else {
+                        vertices_count = Some(len);
+                    }
+                },
                 _ => ()
             }
         }
@@ -69,13 +79,22 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         let mut instances_count: Option<usize> = None;
         for src in vertex_buffers.iter() {
             match src {
-                &VerticesSource::VertexBuffer(ref buffer, _, _, true) => {
+                &VerticesSource::VertexBuffer(_, _, len, true) => {
                     if let Some(curr) = instances_count {
-                        if curr != buffer.len() {
+                        if curr != len {
                             return Err(DrawError::InstancesCountMismatch);
                         }
                     } else {
-                        instances_count = Some(buffer.len());
+                        instances_count = Some(len);
+                    }
+                },
+                &VerticesSource::Marker { len, per_instance } if per_instance => {
+                    if let Some(curr) = instances_count {
+                        if curr != len {
+                            return Err(DrawError::InstancesCountMismatch);
+                        }
+                    } else {
+                        instances_count = Some(len);
                     }
                 },
                 _ => ()
@@ -127,8 +146,13 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
         let mut binder = context.vertex_array_objects.start(&mut ctxt, program, ib_id);
 
-        for &VerticesSource::VertexBuffer(ref buffer, offset, _, per_instance) in &vertex_buffers {
-            binder = binder.add(buffer, offset, if per_instance { Some(1) } else { None });
+        for b in &vertex_buffers {
+            match b {
+                &VerticesSource::VertexBuffer(ref buffer, offset, _, per_instance) => {
+                    binder = binder.add(buffer, offset, if per_instance { Some(1) } else { None });
+                },
+                _ => {}
+            }
         }
 
         binder.bind();
@@ -216,7 +240,8 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                     if let Some(fence) = buffer.add_fence() {
                         fences.push(fence);
                     }
-                }
+                },
+                _ => ()
             };
         }
         match &mut indices {
