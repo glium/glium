@@ -1,4 +1,4 @@
-use buffer::{Buffer, BufferFlags, BufferType};
+use buffer::{Buffer, BufferType};
 use gl;
 use BufferExt;
 use GlObject;
@@ -46,7 +46,7 @@ impl IndexBuffer {
                                                               packed in memory");
         IndexBuffer {
             buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
-                                BufferFlags::simple()).unwrap(),    // FIXME: ElementArrayBuffer
+                                false).unwrap(),    // FIXME: ElementArrayBuffer
             data_type: <T as Index>::get_type(),
             primitives: prim,
         }

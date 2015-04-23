@@ -209,10 +209,10 @@ fn block_wrong_type() {
 }
 
 #[test]
-fn persistent_uniform_buffer_write() {
+fn buffer_write() {
     let display = support::build_display();
 
-    let mut buf = match glium::uniforms::UniformBuffer::new_persistent_if_supported(&display, (5, 3)) {
+    let mut buf = match glium::uniforms::UniformBuffer::new_if_supported(&display, (5, 3)) {
         None => return,
         Some(b) => b
     };
@@ -264,7 +264,7 @@ fn persistent_block_race_condition() {
         Err(_) => return
     };
 
-    let mut buffer = match glium::uniforms::UniformBuffer::new_persistent_if_supported(&display, (0.5f32, 0.5f32, 0.5f32)) {
+    let mut buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, (0.5f32, 0.5f32, 0.5f32)) {
         None => return,
         Some(b) => b
     };

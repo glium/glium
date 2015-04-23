@@ -3,7 +3,7 @@ use std::ops::{Range, Deref, DerefMut};
 use std::sync::mpsc::Sender;
 use std::mem;
 
-use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
+use buffer::{self, Buffer, BufferType};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -33,6 +33,9 @@ pub struct VertexBufferSlice<'b, T: 'b> {
 impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// Builds a new vertex buffer.
     ///
+    /// Note that operations such as `write` will be very slow. If you want to modify the buffer
+    /// from time to time, you should use the `dynamic` function instead.
+    ///
     /// # Example
     ///
     /// ```no_run
@@ -60,7 +63,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
         let buffer = Buffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                 BufferFlags::simple()).unwrap();
+                                 false).unwrap();
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -71,16 +74,21 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
             },
             marker: PhantomData,
         }
+    }
+
+    /// DEPRECATED. Use `dynamic` instead.
+    pub fn new_dynamic<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
+        VertexBuffer::dynamic(facade, data)
     }
 
     /// Builds a new vertex buffer.
     ///
-    /// This function will create a buffer that has better performance when it is modified frequently.
-    pub fn new_dynamic<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
+    /// This function will create a buffer that is intended to be modified frequently.
+    pub fn dynamic<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
         let bindings = <T as Vertex>::build_bindings();
 
         let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
-                                 BufferFlags::simple()).unwrap();
+                                 true).unwrap();
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -91,42 +99,6 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
             },
             marker: PhantomData,
         }
-    }
-
-    /// Builds a new vertex buffer with persistent mapping.
-    ///
-    /// ## Features
-    ///
-    /// Only available if the `gl_persistent_mapping` feature is enabled.
-    #[cfg(feature = "gl_persistent_mapping")]
-    pub fn new_persistent<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
-        VertexBuffer::new_persistent_if_supported(facade, data).unwrap()
-    }
-
-    /// Builds a new vertex buffer with persistent mapping, or `None` if this is not supported.
-    pub fn new_persistent_if_supported<F>(facade: &F, data: Vec<T>)
-                                          -> Option<VertexBuffer<T>>
-                                          where F: Facade
-    {
-        let bindings = <T as Vertex>::build_bindings();
-
-        let buffer = match Buffer::new(facade, &data, BufferType::ArrayBuffer,
-                                       BufferFlags::persistent())
-        {
-            Err(BufferCreationError::PersistentMappingNotSupported) => return None,
-            b => b.unwrap()
-        };
-
-        let elements_size = buffer.get_elements_size();
-
-        Some(VertexBuffer {
-            buffer: VertexBufferAny {
-                buffer: buffer,
-                bindings: bindings,
-                elements_size: elements_size,
-            },
-            marker: PhantomData,
-        })
     }
 
     /// Builds an empty vertex buffer.
@@ -135,8 +107,28 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     pub fn empty<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new_empty(facade, BufferType::ArrayBuffer, mem::size_of::<T>(),
-                                       elements, BufferFlags::simple()).unwrap();
+        let buffer = Buffer::empty(facade, BufferType::ArrayBuffer, mem::size_of::<T>(),
+                                   elements, false).unwrap();
+        let elements_size = buffer.get_elements_size();
+
+        VertexBuffer {
+            buffer: VertexBufferAny {
+                buffer: buffer,
+                bindings: bindings,
+                elements_size: elements_size,
+            },
+            marker: PhantomData,
+        }
+    }
+
+    /// Builds an empty vertex buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_dynamic<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
+        let bindings = <T as Vertex>::build_bindings();
+
+        let buffer = Buffer::empty(facade, BufferType::ArrayBuffer, mem::size_of::<T>(),
+                                   elements, true).unwrap();
         let elements_size = buffer.get_elements_size();
 
         VertexBuffer {
@@ -189,7 +181,23 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
         VertexBuffer {
             buffer: VertexBufferAny {
                 buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
-                                    BufferFlags::simple()).unwrap(),
+                                    false).unwrap(),
+                bindings: bindings,
+                elements_size: elements_size,
+            },
+            marker: PhantomData,
+        }
+    }
+
+    /// Dynamic version of `new_raw`.
+    pub unsafe fn new_raw_dynamic<F>(facade: &F, data: Vec<T>,
+                             bindings: VertexFormat, elements_size: usize) -> VertexBuffer<T>
+                             where F: Facade
+    {
+        VertexBuffer {
+            buffer: VertexBufferAny {
+                buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
+                                    true).unwrap(),
                 bindings: bindings,
                 elements_size: elements_size,
             },
@@ -252,7 +260,7 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
     /// Panics if the length of `data` is different from the length of this buffer.
     pub fn write(&self, data: Vec<T>) {
         assert!(data.len() == self.len());
-        self.buffer.buffer.upload(0, data)
+        self.buffer.buffer.upload(0, &data)
     }
 }
 
@@ -364,7 +372,7 @@ impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy + 'static {
     /// Panics if the length of `data` is different from the length of this slice.
     pub fn write(&self, data: Vec<T>) {
         assert!(data.len() == self.length);
-        self.buffer.buffer.buffer.upload(self.offset, data)
+        self.buffer.buffer.buffer.upload(self.offset, &data)
     }
 }
 

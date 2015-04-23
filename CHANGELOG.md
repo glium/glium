@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+ - Removed the `gl_persistent_mapping` feature.
+ - Creating a dynamic buffer now creates a persistent mapped buffer automatically if supported.
+ - Creating a non-dynamic buffer now creates an immutable buffer. Modifying such a buffer is still possible but very expensive.
+ - Deprecated the `new_dynamic` function in favor of `dynamic`.
+
 ## Version 0.3.2 (2015-04-23)
 
  - Added `vertex::EmptyVertexAttributes` and `vertex::EmptyInstanceAttributes` markers in order to draw without a vertex source.
