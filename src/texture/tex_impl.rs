@@ -154,7 +154,9 @@ impl TextureImplementation {
                                       gl::LINEAR as i32);
             }
 
-            if !generate_mipmaps {
+            if !generate_mipmaps && (ctxt.version >= &Version(Api::Gl, 1, 2) ||
+                                     ctxt.version >= &Version(Api::GlEs, 3, 0))
+            {
                 ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_BASE_LEVEL, 0);
                 ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAX_LEVEL, 0);
             }
@@ -269,10 +271,14 @@ impl TextureImplementation {
 
             // only generate mipmaps for color textures
             if generate_mipmaps {
-                if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                   ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
                     ctxt.gl.GenerateMipmap(texture_type);
-                } else {
+                } else if ctxt.extensions.gl_ext_framebuffer_object {
                     ctxt.gl.GenerateMipmapEXT(texture_type);
+                } else {
+                    unreachable!();
                 }
             }
 
