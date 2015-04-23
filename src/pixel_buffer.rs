@@ -12,7 +12,7 @@ use backend::Facade;
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
 use GlObject;
-use buffer::{Buffer, BufferFlags, BufferType};
+use buffer::{Buffer, BufferType};
 use gl;
 
 /// Buffer that stores the content of a texture.
@@ -29,8 +29,8 @@ impl<T> PixelBuffer<T> {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
-            buffer: Buffer::new_empty(facade, BufferType::PixelPackBuffer, 1, capacity,
-                                      BufferFlags::simple()).unwrap(),
+            buffer: Buffer::empty(facade, BufferType::PixelPackBuffer, 1, capacity,
+                                  false).unwrap(),
             dimensions: None,
             format: None,
             marker: PhantomData,

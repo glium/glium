@@ -1,4 +1,4 @@
-use buffer::{self, Buffer, BufferFlags, BufferType, BufferCreationError};
+use buffer::{self, Buffer, BufferType};
 use uniforms::{AsUniformValue, UniformValue, UniformBlock};
 
 use std::marker::PhantomData;
@@ -35,60 +35,18 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Only available if the `gl_uniform_blocks` feature is enabled.
     #[cfg(feature = "gl_uniform_blocks")]
     pub fn new<F>(facade: &F, data: T) -> UniformBuffer<T> where F: Facade {
-        let buffer = Buffer::new(facade, &[data], BufferType::UniformBuffer,
-                                 BufferFlags::simple()).unwrap();
-
-        UniformBuffer {
-            buffer: TypelessUniformBuffer {
-                buffer: buffer,
-            },
-            marker: PhantomData,
-        }
+        UniformBuffer::new_if_supported(facade, data).unwrap()
     }
 
     /// Uploads data in the uniforms buffer.
     pub fn new_if_supported<F>(facade: &F, data: T) -> Option<UniformBuffer<T>> where F: Facade {
-        UniformBuffer::new_impl(facade, data, false)
-    }
-
-    /// Builds a new uniform buffer with persistent mapping.
-    ///
-    /// ## Features
-    ///
-    /// Only available if the `gl_uniform_blocks` and `gl_persistent_mapping` features are
-    /// both enabled.
-    #[cfg(all(feature = "gl_persistent_mapping", feature = "gl_uniform_blocks"))]
-    pub fn new_persistent<F>(facade: &F, data: T) -> UniformBuffer<T> where F: Facade {
-        UniformBuffer::new_persistent_if_supported(facade, data).unwrap()
-    }
-
-    /// Builds a new uniform buffer with persistent mapping, or `None` if this is not supported.
-    pub fn new_persistent_if_supported<F>(facade: &F, data: T)
-                                       -> Option<UniformBuffer<T>> where F: Facade
-    {
-        UniformBuffer::new_impl(facade, data, true)
-    }
-
-    /// Implementation of `new`.
-    fn new_impl<F>(facade: &F, data: T, persistent: bool) -> Option<UniformBuffer<T>>
-                where F: Facade
-    {
         if facade.get_context().get_version() < &Version(Api::Gl, 3, 1) &&
            !facade.get_context().get_extensions().gl_arb_uniform_buffer_object
         {
             None
 
         } else {
-            let buffer = match Buffer::new(facade, &[data], BufferType::UniformBuffer,
-                                           if persistent {
-                                               BufferFlags::persistent()
-                                           } else {
-                                               BufferFlags::simple()
-                                           })
-            {
-                Err(BufferCreationError::PersistentMappingNotSupported) => return None,
-                b => b.unwrap()
-            };
+            let buffer = Buffer::new(facade, &[data], BufferType::UniformBuffer, true).unwrap();
 
             Some(UniformBuffer {
                 buffer: TypelessUniformBuffer {
@@ -101,7 +59,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
 
     /// Modifies the content of the buffer.
     pub fn upload(&mut self, data: T) {
-        self.buffer.buffer.upload(0, vec![data])
+        self.buffer.buffer.upload(0, &[data])
     }
 
     /// Maps the buffer to allow write access to it.
