@@ -70,6 +70,8 @@ pub struct ExtensionsList {
     pub gl_arb_vertex_shader: bool,
     /// GL_ATI_meminfo
     pub gl_ati_meminfo: bool,
+    /// GL_EXT_debug_marker
+    pub gl_ext_debug_marker: bool,
     /// GL_EXT_direct_state_access
     pub gl_ext_direct_state_access: bool,
     /// GL_EXT_disjoint_timer_query
@@ -96,6 +98,8 @@ pub struct ExtensionsList {
     pub gl_ext_texture_srgb: bool,
     /// GL_EXT_transform_feedback
     pub gl_ext_transform_feedback: bool,
+    /// GL_GREMEDY_string_marker
+    pub gl_gremedy_string_marker: bool,
     /// GL_KHR_debug
     pub gl_khr_debug: bool,
     /// GL_NVX_gpu_memory_info
@@ -141,6 +145,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_arb_vertex_buffer_object: false,
         gl_arb_vertex_shader: false,
         gl_ati_meminfo: false,
+        gl_ext_debug_marker: false,
         gl_ext_direct_state_access: false,
         gl_ext_disjoint_timer_query: false,
         gl_ext_framebuffer_blit: false,
@@ -154,6 +159,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
         gl_ext_texture_integer: false,
         gl_ext_texture_srgb: false,
         gl_ext_transform_feedback: false,
+        gl_gremedy_string_marker: false,
         gl_khr_debug: false,
         gl_nvx_gpu_memory_info: false,
         gl_oes_vertex_array_object: false,
@@ -194,6 +200,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_ARB_vertex_buffer_object" => extensions.gl_arb_vertex_buffer_object = true,
             "GL_ARB_vertex_shader" => extensions.gl_arb_vertex_shader = true,
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
+            "GL_EXT_debug_marker" => extensions.gl_ext_debug_marker = true,
             "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
             "GL_EXT_disjoint_timer_query" => extensions.gl_ext_disjoint_timer_query = true,
             "GL_EXT_framebuffer_blit" => extensions.gl_ext_framebuffer_blit = true,
@@ -207,6 +214,7 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
             "GL_EXT_texture_integer" => extensions.gl_ext_texture_integer = true,
             "GL_EXT_texture_sRGB" => extensions.gl_ext_texture_srgb = true,
             "GL_EXT_transform_feedback" => extensions.gl_ext_transform_feedback = true,
+            "GL_GREMEDY_string_marker" => extensions.gl_gremedy_string_marker = true,
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_OES_vertex_array_object" => extensions.gl_oes_vertex_array_object = true,

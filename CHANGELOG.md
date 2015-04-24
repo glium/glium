@@ -7,6 +7,7 @@
  - Creating a non-dynamic buffer now creates an immutable buffer. Modifying such a buffer is still possible but very expensive.
  - Deprecated the `new_dynamic` function in favor of `dynamic`.
  - Fixed zero-sized textures triggering OpenGL errors.
+ - Added the possibility to add a debug string in the OpenGL commands queue.
 
 ## Version 0.3.2 (2015-04-23)
 

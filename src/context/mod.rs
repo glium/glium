@@ -307,6 +307,43 @@ impl Context {
         let ctxt = self.make_current();
         unsafe { ctxt.gl.Finish(); }
     }
+
+    /// Inserts a debugging string in the commands queue. If you use an OpenGL debugger, you will
+    /// be able to see that string.
+    ///
+    /// This is helpful to understand where you are when you have big applications.
+    ///
+    /// Returns `Err` if the backend doesn't support this functionnality. You can choose whether
+    /// to call `.unwrap()` if you want to make sure that it works, or `.ok()` if you don't care.
+    pub fn insert_debug_marker(&self, marker: &str) -> Result<(), ()> {
+        let ctxt = self.make_current();
+
+        if ctxt.extensions.gl_gremedy_string_marker {
+            let marker = marker.as_bytes();
+            unsafe { ctxt.gl.StringMarkerGREMEDY(marker.len() as gl::types::GLsizei,
+                                                 marker.as_ptr() as *const _) };
+            Ok(())
+
+        } else if ctxt.extensions.gl_ext_debug_marker {
+            let marker = marker.as_bytes();
+            unsafe { ctxt.gl.InsertEventMarkerEXT(marker.len() as gl::types::GLsizei,
+                                                  marker.as_ptr() as *const _) };
+            Ok(())
+
+        } else {
+            Err(())
+        }
+    }
+
+    /// Same as `insert_debug_marker`, except that if you don't compile with `debug_assertions`
+    /// it is a no-op and returns `Ok`.
+    pub fn debug_insert_debug_marker(&self, marker: &str) -> Result<(), ()> {
+        if cfg!(debug_assertions) {
+            self.insert_debug_marker(marker)
+        } else {
+            Ok(())
+        }
+    }
 }
 
 impl ContextExt for Context {
