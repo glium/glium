@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.3 (2015-04-24)
 
  - Removed the `gl_persistent_mapping` feature.
  - Creating a dynamic buffer now creates a persistent mapped buffer automatically if supported.
