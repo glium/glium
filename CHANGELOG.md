@@ -6,6 +6,7 @@
  - Creating a dynamic buffer now creates a persistent mapped buffer automatically if supported.
  - Creating a non-dynamic buffer now creates an immutable buffer. Modifying such a buffer is still possible but very expensive.
  - Deprecated the `new_dynamic` function in favor of `dynamic`.
+ - Fixed zero-sized textures triggering OpenGL errors.
 
 ## Version 0.3.2 (2015-04-23)
 

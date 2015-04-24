@@ -215,3 +215,51 @@ empty_texture_test!(empty_unsignedtexture1darray, maybe UnsignedTexture1dArray, 
 empty_texture_test!(empty_unsignedtexture2d, maybe UnsignedTexture2d, [64, 32], 64, Some(32), None, None);
 empty_texture_test!(empty_unsignedtexture2darray, maybe UnsignedTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
 empty_texture_test!(empty_unsignedtexture3d, maybe UnsignedTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+
+#[test]
+fn zero_sized_texture_1d_creation() {    
+    let display = support::build_display();
+
+    let texture = match glium::texture::Texture1d::new_if_supported(&display, Vec::<(u8, u8, u8, u8)>::new()) {
+        None => return,
+        Some(t) => t
+    };
+
+    assert_eq!(texture.get_width(), 0);
+    assert_eq!(texture.get_height(), None);
+    assert_eq!(texture.get_depth(), None);
+    assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
+}
+
+#[test]
+fn zero_sized_texture_2d_creation() {    
+    let display = support::build_display();
+
+    let texture = glium::texture::Texture2d::new(&display, Vec::<Vec<(u8, u8, u8, u8)>>::new());
+
+    assert_eq!(texture.get_width(), 0);
+    assert_eq!(texture.get_height(), Some(0));
+    assert_eq!(texture.get_depth(), None);
+    assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
+}
+
+#[test]
+fn zero_sized_texture_3d_creation() {    
+    let display = support::build_display();
+
+    let texture = match glium::texture::Texture3d::new_if_supported(&display, Vec::<Vec<Vec<(u8, u8, u8, u8)>>>::new()) {
+        None => return,
+        Some(t) => t
+    };
+
+    assert_eq!(texture.get_width(), 0);
+    assert_eq!(texture.get_height(), Some(0));
+    assert_eq!(texture.get_depth(), Some(0));
+    assert_eq!(texture.get_array_size(), None);
+
+    display.assert_no_error();
+}
