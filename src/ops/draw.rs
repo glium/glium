@@ -37,71 +37,11 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                          dimensions: (u32, u32)) -> Result<(), DrawError>
                          where U: Uniforms, I: index::Index, V: MultiVerticesSource<'a>
 {
-    // TODO: avoid this allocation
-    let mut vertex_buffers = vertex_buffers.iter().collect::<Vec<_>>();
-
     try!(draw_parameters::validate(context, draw_parameters));
 
-    // getting the number of vertices in the vertices sources, or `None` if there is a
-    // mismatch
-    let vertices_count = {
-        let mut vertices_count: Option<usize> = None;
-        for src in vertex_buffers.iter() {
-            match src {
-                &VerticesSource::VertexBuffer(_, _, len, false) => {
-                    if let Some(curr) = vertices_count {
-                        if curr != len {
-                            vertices_count = None;
-                            break;
-                        }
-                    } else {
-                        vertices_count = Some(len);
-                    }
-                },
-                &VerticesSource::Marker { len, per_instance } if !per_instance => {
-                    if let Some(curr) = vertices_count {
-                        if curr != len {
-                            vertices_count = None;
-                            break;
-                        }
-                    } else {
-                        vertices_count = Some(len);
-                    }
-                },
-                _ => ()
-            }
-        }
-        vertices_count
-    };
-
-    // getting the number of instances to draw
-    let instances_count = {
-        let mut instances_count: Option<usize> = None;
-        for src in vertex_buffers.iter() {
-            match src {
-                &VerticesSource::VertexBuffer(_, _, len, true) => {
-                    if let Some(curr) = instances_count {
-                        if curr != len {
-                            return Err(DrawError::InstancesCountMismatch);
-                        }
-                    } else {
-                        instances_count = Some(len);
-                    }
-                },
-                &VerticesSource::Marker { len, per_instance } if per_instance => {
-                    if let Some(curr) = instances_count {
-                        if curr != len {
-                            return Err(DrawError::InstancesCountMismatch);
-                        }
-                    } else {
-                        instances_count = Some(len);
-                    }
-                },
-                _ => ()
-            }
-        }
-        instances_count
-    };
+    // this contains the list of fences that will need to be fulfilled after the draw command
+    // has started
+    let mut fences = Vec::with_capacity(0);
 
     // handling tessellation
     let vertices_per_patch = match indices.get_primitives_type() {
@@ -136,27 +76,80 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     // sending the command
     let mut ctxt = context.make_current();
 
-    // binding the vertex array object or vertex attributes
-    {
+    // handling vertices source
+    let (vertices_count, instances_count) = {
         let ib_id = match indices {
             IndicesSource::Buffer { .. } => 0,
             IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
             IndicesSource::NoIndices { .. } => 0,
         };
 
+        // object that is used to build the bindings
         let mut binder = context.vertex_array_objects.start(&mut ctxt, program, ib_id);
+        // number of vertices in the vertices sources, or `None` if there is a mismatch
+        let mut vertices_count: Option<usize> = None;
+        // number of instances to draw
+        let mut instances_count: Option<usize> = None;
 
-        for b in &vertex_buffers {
-            match b {
-                &VerticesSource::VertexBuffer(ref buffer, offset, _, per_instance) => {
+        for src in vertex_buffers.iter() {
+            match src {
+                VerticesSource::VertexBuffer(ref buffer, offset, _, per_instance) => {
+                    if let Some(fence) = buffer.add_fence() {
+                        fences.push(fence);
+                    }
+
                     binder = binder.add(buffer, offset, if per_instance { Some(1) } else { None });
                 },
                 _ => {}
             }
+
+            match src {
+                VerticesSource::VertexBuffer(_, _, len, false) => {
+                    if let Some(curr) = vertices_count {
+                        if curr != len {
+                            vertices_count = None;
+                            break;
+                        }
+                    } else {
+                        vertices_count = Some(len);
+                    }
+                },
+                VerticesSource::VertexBuffer(_, _, len, true) => {
+                    if let Some(curr) = instances_count {
+                        if curr != len {
+                            return Err(DrawError::InstancesCountMismatch);
+                        }
+                    } else {
+                        instances_count = Some(len);
+                    }
+                },
+                VerticesSource::Marker { len, per_instance } if !per_instance => {
+                    if let Some(curr) = vertices_count {
+                        if curr != len {
+                            vertices_count = None;
+                            break;
+                        }
+                    } else {
+                        vertices_count = Some(len);
+                    }
+                },
+                VerticesSource::Marker { len, per_instance } if per_instance => {
+                    if let Some(curr) = instances_count {
+                        if curr != len {
+                            return Err(DrawError::InstancesCountMismatch);
+                        }
+                    } else {
+                        instances_count = Some(len);
+                    }
+                },
+                _ => ()
+            }
         }
 
         binder.bind();
-    }
+
+        (vertices_count, instances_count)
+    };
 
     // binding the FBO to draw upon
     {
@@ -182,8 +175,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     let fences = {
         let mut active_texture = 0;
         let mut active_buffer_binding = 0;
-
-        let mut fences = Vec::new();
 
         let mut visiting_result = Ok(());
         uniforms.visit_values(|name, value| {
@@ -233,17 +224,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
             return Err(e);
         }
 
-        // adding the vertex buffer and index buffer to the list of fences
-        for vertex_buffer in vertex_buffers.iter_mut() {
-            match vertex_buffer {
-                &mut VerticesSource::VertexBuffer(ref buffer, _, _, _) => {
-                    if let Some(fence) = buffer.add_fence() {
-                        fences.push(fence);
-                    }
-                },
-                _ => ()
-            };
-        }
         match &mut indices {
             &mut IndicesSource::IndexBuffer { ref buffer, .. } => {
                 if let Some(fence) = buffer.add_fence() {
