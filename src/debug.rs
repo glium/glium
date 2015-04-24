@@ -13,7 +13,7 @@ use std::rc::Rc;
 use std::mem;
 
 /// Severity of a debug message.
-#[derive(Clone, Copy, Debug, FromPrimitive, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Severity {
     /// Anything that isn't an error or performance issue.
@@ -32,7 +32,7 @@ pub enum Severity {
 }
 
 /// Source of a debug message.
-#[derive(Clone, Copy, Debug, FromPrimitive)]
+#[derive(Clone, Copy, Debug)]
 #[repr(u32)]
 pub enum Source {
     /// Calls to the OpenGL API.
@@ -57,7 +57,7 @@ pub enum Source {
 }
 
 /// Type of a debug message.
-#[derive(Clone, Copy, Debug, FromPrimitive)]
+#[derive(Clone, Copy, Debug)]
 #[repr(u32)]
 pub enum MessageType {
     /// An error, typically from the API
