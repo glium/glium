@@ -84,10 +84,10 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// Builds a new vertex buffer.
     ///
     /// This function will create a buffer that is intended to be modified frequently.
-    pub fn dynamic<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
+    pub fn dynamic<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<T> {
         let bindings = <T as Vertex>::build_bindings();
 
-        let buffer = Buffer::new(facade, &data, BufferType::ArrayBuffer,
+        let buffer = Buffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                  true).unwrap();
         let elements_size = buffer.get_elements_size();
 

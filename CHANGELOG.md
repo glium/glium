@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - `VertexBuffer::dynamic` can now take a  `&[T]` as well as a `Vec<T>`.
+
 ## Version 0.3.3 (2015-04-24)
 
  - Removed the `gl_persistent_mapping` feature.
