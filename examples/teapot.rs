@@ -88,7 +88,41 @@ fn main() {
                     gl_FragColor = vec4(color, 1.0);
                 }
             ",
-        }
+        },
+
+        100 => {
+            vertex: "
+                #version 100
+
+                uniform lowp mat4 persp_matrix;
+                uniform lowp mat4 view_matrix;
+
+                attribute lowp vec3 position;
+                attribute lowp vec3 normal;
+                varying lowp vec3 v_position;
+                varying lowp vec3 v_normal;
+
+                void main() {
+                    v_position = position;
+                    v_normal = normal;
+                    gl_Position = persp_matrix * view_matrix * vec4(v_position * 0.005, 1.0);
+                }
+            ",
+
+            fragment: "
+                #version 100
+
+                varying lowp vec3 v_normal;
+
+                const lowp vec3 LIGHT = vec3(-0.2, 0.8, 0.1);
+
+                void main() {
+                    lowp float lum = max(dot(normalize(v_normal), normalize(LIGHT)), 0.0);
+                    lowp vec3 color = (0.3 + 0.7 * lum) * vec3(1.0, 1.0, 1.0);
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            ",
+        },
     ).unwrap();
 
     //
