@@ -16,9 +16,12 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use GlObject;
+use ProgramExt;
 use Handle;
+use RawUniformValue;
 
 use program::{COMPILER_GLOBAL_LOCK, IntoProgramCreationInput, ProgramCreationInput, Binary};
+use program::uniforms_storage::UniformsStorage;
 
 use program::reflection::{Uniform, UniformBlock};
 use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
@@ -91,6 +94,7 @@ impl Error for ProgramCreationError {
 pub struct Program {
     context: Rc<Context>,
     id: Handle,
+    uniform_values: UniformsStorage,
     uniforms: HashMap<String, Uniform>,
     uniform_blocks: HashMap<String, UniformBlock>,
     attributes: HashMap<String, Attribute>,
@@ -316,6 +320,7 @@ impl Program {
             context: facade.get_context().clone(),
             id: id,
             uniforms: uniforms,
+            uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
@@ -370,6 +375,7 @@ impl Program {
             context: facade.get_context().clone(),
             id: id,
             uniforms: uniforms,
+            uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
@@ -523,6 +529,20 @@ impl GlObject for Program {
     type Id = Handle;
     fn get_id(&self) -> Handle {
         self.id
+    }
+}
+
+impl ProgramExt for Program {
+    fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
+                   value: &RawUniformValue)
+    {
+        self.uniform_values.set_uniform_value(ctxt, self.id, uniform_location, value);
+    }
+
+    fn set_block(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
+                 value: gl::types::GLuint)
+    {
+        self.uniform_values.set_block_binding(ctxt, self.id, block_location, value);
     }
 }
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Added caching some uniform values in the `Program` struct to avoid calls to `glUniform`.
  - `VertexBuffer::dynamic` and `write` can now take a  `&[T]` as well as a `Vec<T>`.
 
 ## Version 0.3.3 (2015-04-24)

@@ -264,6 +264,37 @@ trait ContextExt {
     fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
 }
 
+/// Internal trait for programs.
+trait ProgramExt {
+    /// Changes the value of a uniform of the program.
+    fn set_uniform(&self, ctxt: &mut context::CommandContext, uniform_location: gl::types::GLint,
+                   value: &RawUniformValue);
+
+    /// Changes the block binding of the program.
+    fn set_block(&self, ctxt: &mut context::CommandContext, block_location: gl::types::GLuint,
+                 value: gl::types::GLuint);
+}
+
+/// A raw value of a uniform. "Raw" means that it's passed directly with `glUniform`. Textures
+/// for example are just passed as integers.
+///
+/// Blocks and subroutines are not included.
+#[derive(Copy, Clone, Debug)]
+enum RawUniformValue {
+    SignedInt(gl::types::GLint),
+    UnsignedInt(gl::types::GLuint),
+    Float(gl::types::GLfloat),
+    /// 2x2 column-major matrix.
+    Mat2([[gl::types::GLfloat; 2]; 2]),
+    /// 3x3 column-major matrix.
+    Mat3([[gl::types::GLfloat; 3]; 3]),
+    /// 4x4 column-major matrix.
+    Mat4([[gl::types::GLfloat; 4]; 4]),
+    Vec2([gl::types::GLfloat; 2]),
+    Vec3([gl::types::GLfloat; 3]),
+    Vec4([gl::types::GLfloat; 4]),
+}
+
 /// Area of a surface in pixels.
 ///
 /// In the OpenGL ecosystem, the (0,0) coordinate is at the bottom-left hand corner of the images.
