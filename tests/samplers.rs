@@ -18,26 +18,47 @@ fn magnify_nearest_filtering() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        110 => {
+            vertex: "
+                #version 110
 
-            attribute vec2 position;
+                attribute vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
 
-            uniform sampler2D texture;
+                uniform sampler2D texture;
 
-            void main() {
-                gl_FragColor = texture2D(texture, vec2(0.51, 0.0));
-            }
-        ",
-        None).unwrap();
+                void main() {
+                    gl_FragColor = texture2D(texture, vec2(0.51, 0.0));
+                }
+            ",
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                uniform lowp sampler2D texture;
+
+                void main() {
+                    gl_FragColor = texture2D(texture, vec2(0.51, 0.0));
+                }
+            ",
+        }).unwrap();
 
     let texture_data = vec![vec![(0u8, 0, 0), (255, 255, 255)]];
     let texture = glium::texture::Texture2d::new(&display, texture_data);
