@@ -51,30 +51,53 @@ fn multiple_buffers_source() {
     let index_buffer = glium::IndexBuffer::new(&display,
         glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        110 => {
+            vertex: "
+                #version 110
 
-            attribute vec2 position;
-            attribute vec3 color;
+                attribute vec2 position;
+                attribute vec3 color;
 
-            varying vec3 v_color;
+                varying vec3 v_color;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-                v_color = color;
-            }
-        ",
-        "
-            #version 110
-            varying vec3 v_color;
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                    v_color = color;
+                }
+            ",
+            fragment: "
+                #version 110
+                varying vec3 v_color;
 
-            void main() {
-                gl_FragColor = vec4(v_color, 1.0);
-            }
-        ",
-        None)
-        .unwrap();
+                void main() {
+                    gl_FragColor = vec4(v_color, 1.0);
+                }
+            ",
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+                attribute lowp vec3 color;
+
+                varying lowp vec3 v_color;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                    v_color = color;
+                }
+            ",
+            fragment: "
+                #version 100
+                varying lowp vec3 v_color;
+
+                void main() {
+                    gl_FragColor = vec4(v_color, 1.0);
+                }
+            ",
+        }).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -101,24 +124,43 @@ fn slice_draw_indices() {
     implement_vertex!(Vertex, position);
 
     let display = support::build_display();
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        110 => {
+            vertex: "
+                #version 110
 
-            attribute vec2 position;
+                attribute vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None).unwrap();
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            ",
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            ",
+        }).unwrap();
 
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
@@ -150,24 +192,43 @@ fn slice_draw_noindices() {
     implement_vertex!(Vertex, position);
 
     let display = support::build_display();
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        110 => {
+            vertex: "
+                #version 110
 
-            attribute vec2 position;
+                attribute vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None).unwrap();
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            ",
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            ",
+        }).unwrap();
 
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
@@ -205,29 +266,54 @@ fn slice_draw_multiple() {
     implement_vertex!(Vertex2, position2);
 
     let display = support::build_display();
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        110 => {
+            vertex: "
+                #version 110
 
-            attribute vec2 position;
-            attribute vec2 position2;
+                attribute vec2 position;
+                attribute vec2 position2;
 
-            void main() {
-                if (position != position2) {
-                    gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-                } else {
-                    gl_Position = vec4(position, 0.0, 1.0);
+                void main() {
+                    if (position != position2) {
+                        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+                    } else {
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }
                 }
-            }
-        ",
-        "
-            #version 110
+            ",
+            fragment: "
+                #version 110
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None).unwrap();
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            ",
+        },
+
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+                attribute lowp vec2 position2;
+
+                void main() {
+                    if (position != position2) {
+                        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+                    } else {
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            ",
+        }).unwrap();
 
     // the 3 last elements will be drawn
     let vb1 = glium::VertexBuffer::new(&display, vec![
