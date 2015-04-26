@@ -14,7 +14,7 @@ fn magnify_nearest_filtering() {
     if ::std::env::var("TRAVIS").is_ok() {
         return;
     }
-    
+
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -80,5 +80,5 @@ fn magnify_nearest_filtering() {
     let data: Vec<Vec<(u8, u8, u8)>> = output.read();
     assert_eq!(data[0][0], (255, 255, 255));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

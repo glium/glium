@@ -56,7 +56,7 @@ struct Vertex {
 implement_vertex!(Vertex, position);
 
 #[test]
-fn triangles_list_cpu() {    
+fn triangles_list_cpu() {
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -77,7 +77,7 @@ fn triangles_list_cpu() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn triangle_strip_cpu() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn triangle_fan_cpu() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -154,7 +154,7 @@ fn triangles_list_gpu() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -179,8 +179,8 @@ fn triangle_strip_gpu() {
 
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -206,8 +206,8 @@ fn triangle_fan_gpu() {
 
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -219,7 +219,7 @@ fn get_primitives_type() {
 
     assert_eq!(indices.get_primitives_type(), glium::index::PrimitiveType::TriangleStrip);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -231,7 +231,7 @@ fn get_indices_type_u8() {
 
     assert_eq!(indices.get_indices_type(), glium::index::IndexType::U8);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -243,7 +243,7 @@ fn get_indices_type_u16() {
 
     assert_eq!(indices.get_indices_type(), glium::index::IndexType::U16);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -255,11 +255,11 @@ fn get_indices_type_u32() {
 
     assert_eq!(indices.get_indices_type(), glium::index::IndexType::U32);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn triangles_list_noindices() {    
+fn triangles_list_noindices() {
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -283,7 +283,7 @@ fn triangles_list_noindices() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -309,7 +309,7 @@ fn triangle_strip_noindices() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -337,7 +337,7 @@ fn triangle_fan_noindices() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -347,11 +347,11 @@ fn empty_index_buffer() {
     let indices = glium::index::TriangleFan(Vec::<u16>::new());
     let _indices = glium::IndexBuffer::new(&display, indices);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn indexbuffer_slice_out_of_range() {    
+fn indexbuffer_slice_out_of_range() {
     let display = support::build_display();
 
     let indices = glium::index::TrianglesList(vec![0u16, 1, 2, 2, 1, 3]);
@@ -361,11 +361,11 @@ fn indexbuffer_slice_out_of_range() {
     assert!(indices.slice(2 .. 11).is_none());
     assert!(indices.slice(12 .. 13).is_none());
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn indexbuffer_slice_draw() {    
+fn indexbuffer_slice_draw() {
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -397,5 +397,5 @@ fn indexbuffer_slice_draw() {
     assert_eq!(data.last().unwrap().last().unwrap(), &(0, 0, 0));
 
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

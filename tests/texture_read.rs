@@ -10,7 +10,7 @@ fn empty_pixel_buffer() {
     let display = support::build_display();
 
     let pixel_buffer = glium::pixel_buffer::PixelBuffer::new_empty(&display, 128 * 128);
-    display.assert_no_error();
+    display.assert_no_error(None);
 
     let _: Vec<Vec<(u8, u8, u8)>> = pixel_buffer.read_if_supported().unwrap();
 }
@@ -36,7 +36,7 @@ fn texture_2d_read_pixelbuffer() {
     assert_eq!(read_back[1][0], (32, 64, 128));
     assert_eq!(read_back[1][1], (32, 16, 4));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 macro_rules! read_texture_test {
@@ -51,7 +51,7 @@ macro_rules! read_texture_test {
 
             assert_eq!(read_back, $data);
 
-            display.assert_no_error();
+            display.assert_no_error(None);
         }
     );
 
@@ -69,7 +69,7 @@ macro_rules! read_texture_test {
 
             assert_eq!(read_back, $data);
 
-            display.assert_no_error();
+            display.assert_no_error(None);
         }
     );
 }

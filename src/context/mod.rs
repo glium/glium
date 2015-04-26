@@ -292,12 +292,13 @@ impl Context {
     /// Asserts that there are no OpenGL errors pending.
     ///
     /// This function should be used in tests.
-    pub fn assert_no_error(&self) {
+    pub fn assert_no_error(&self, user_msg: Option<&str>) {
         let mut ctxt = self.make_current();
 
-        match ::get_gl_error(&mut ctxt) {
-            Some(msg) => panic!("{}", msg),
-            None => ()
+        match (::get_gl_error(&mut ctxt), user_msg) {
+            (Some(msg), None) => panic!("{}", msg),
+            (Some(msg), Some(user_msg)) => panic!("{} : {}", user_msg, msg),
+            (None, _) => ()
         };
     }
 
@@ -536,7 +537,7 @@ fn init_debug_callback(context: &Rc<Context>) {
         let user_param = user_param as *const Context;
         let user_param: &Context = unsafe { mem::transmute(user_param) };
 
-        if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) && 
+        if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) &&
            (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
             ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
         {

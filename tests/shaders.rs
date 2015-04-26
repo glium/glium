@@ -47,7 +47,7 @@ fn program_creation() {
         // geometry shader
         None).unwrap();
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn program_compilation_error() {
         _ => panic!()
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 // This test is disabled because some OpenGL drivers don't catch
@@ -118,12 +118,12 @@ fn program_linking_error() {
         Err(glium::LinkingError(_)) => (),
         _ => panic!()
     };
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
-fn get_frag_data_location() {    
+fn get_frag_data_location() {
     let display = support::build_display();
 
     let program = glium::Program::from_source(&display,
@@ -153,12 +153,12 @@ fn get_frag_data_location() {
 
     assert!(program.get_frag_data_location("color").is_some());
     assert!(program.get_frag_data_location("unexisting").is_none());
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
-fn get_uniform_blocks() {    
+fn get_uniform_blocks() {
     let display = support::build_display();
 
     let program = glium::Program::from_source(&display,
@@ -213,7 +213,7 @@ fn get_uniform_blocks() {
     assert_eq!(members[1].size, Some(12));
     assert!(members[1].offset >= 4 * 3);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -254,7 +254,7 @@ fn get_program_binary() {
 
     assert!(binary.content.len() >= 1);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -295,7 +295,7 @@ fn program_binary_reload() {
 
     let _program2 = glium::Program::new(&display, binary).unwrap();
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -341,11 +341,11 @@ fn program_binary_working() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn get_transform_feedback_varyings() {    
+fn get_transform_feedback_varyings() {
     let display = support::build_display();
 
     let source = glium::program::ProgramCreationInput::SourceCode {
@@ -414,5 +414,5 @@ fn get_transform_feedback_varyings() {
 
     assert_eq!(program.get_transform_feedback_buffers().len(), 2);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

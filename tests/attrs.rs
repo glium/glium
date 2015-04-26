@@ -49,8 +49,8 @@ fn attribute_types_mismatch() {
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
                 &std::default::Default::default()).unwrap();
     target.finish();
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -96,8 +96,8 @@ fn missing_attribute() {
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
                 &std::default::Default::default()).unwrap();
     target.finish();
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 macro_rules! attribute_test(
@@ -143,8 +143,8 @@ macro_rules! attribute_test(
             target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
                         &std::default::Default::default()).unwrap();
             target.finish();
-            
-            display.assert_no_error();
+
+            display.assert_no_error(None);
         }
 
     )

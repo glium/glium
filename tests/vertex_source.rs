@@ -20,7 +20,7 @@ fn multiple_buffers_source() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [-1.0,  1.0] },
                 Vertex { position: [ 1.0,  1.0] },
@@ -38,7 +38,7 @@ fn multiple_buffers_source() {
 
         implement_vertex!(Vertex, color);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             vec![
                 Vertex { color: [1.0, 0.0, 0.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
@@ -110,8 +110,8 @@ fn multiple_buffers_source() {
             assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
         }
     }
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -179,7 +179,7 @@ fn slice_draw_indices() {
     assert_eq!(data.last().unwrap()[0], (0, 0, 0));
     assert_eq!(data[0].last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -246,7 +246,7 @@ fn slice_draw_noindices() {
     assert_eq!(data.last().unwrap()[0], (0, 0, 0));
     assert_eq!(data[0].last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -342,7 +342,7 @@ fn slice_draw_multiple() {
     assert_eq!(data.last().unwrap()[0], (0, 0, 0));
     assert_eq!(data[0].last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -392,8 +392,8 @@ fn attributes_marker() {
             assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
         }
     }
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -444,6 +444,6 @@ fn attributes_marker_indices() {
             assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
         }
     }
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }

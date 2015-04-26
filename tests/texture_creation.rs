@@ -14,13 +14,13 @@ fn empty_texture1d_u8u8u8u8() {
                                                        glium::texture::UncompressedFloatFormat::
                                                            U8U8U8U8, 128);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
     drop(texture);
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn depth_texture_1d_creation() {    
+fn depth_texture_1d_creation() {
     let display = support::build_display();
 
     let texture = match glium::texture::DepthTexture1d::new_if_supported(&display, vec![0.0, 0.0, 0.0, 0.0f32]) {
@@ -33,11 +33,11 @@ fn depth_texture_1d_creation() {
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn texture_2d_creation() {    
+fn texture_2d_creation() {
     let display = support::build_display();
 
     let texture = glium::texture::Texture2d::new(&display, vec![
@@ -51,7 +51,7 @@ fn texture_2d_creation() {
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -63,13 +63,13 @@ fn empty_texture2d_u8u8u8u8() {
                                                            U8U8U8U8,
                                                        128, 128);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
     drop(texture);
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn depth_texture_2d_creation() {    
+fn depth_texture_2d_creation() {
     let display = support::build_display();
 
     let texture = glium::texture::DepthTexture2d::new_if_supported(&display, vec![
@@ -88,7 +88,7 @@ fn depth_texture_2d_creation() {
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -100,9 +100,9 @@ fn empty_depth_texture2d_f32() {
                                                             glium::texture::DepthFormat::F32,
                                                             128, 128);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
     drop(texture);
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -120,7 +120,7 @@ fn compressed_texture_2d_creation() {
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 macro_rules! empty_texture_test {
@@ -140,9 +140,9 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
 
-            display.assert_no_error();
+            display.assert_no_error(None);
             drop(texture);
-            display.assert_no_error();
+            display.assert_no_error(None);
         }
     );
 
@@ -165,9 +165,9 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
 
-            display.assert_no_error();
+            display.assert_no_error(None);
             drop(texture);
-            display.assert_no_error();
+            display.assert_no_error(None);
         }
     );
 }
@@ -217,7 +217,7 @@ empty_texture_test!(empty_unsignedtexture2darray, maybe UnsignedTexture2dArray, 
 empty_texture_test!(empty_unsignedtexture3d, maybe UnsignedTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
 
 #[test]
-fn zero_sized_texture_1d_creation() {    
+fn zero_sized_texture_1d_creation() {
     let display = support::build_display();
 
     let texture = match glium::texture::Texture1d::new_if_supported(&display, Vec::<(u8, u8, u8, u8)>::new()) {
@@ -230,11 +230,11 @@ fn zero_sized_texture_1d_creation() {
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn zero_sized_texture_2d_creation() {    
+fn zero_sized_texture_2d_creation() {
     let display = support::build_display();
 
     let texture = glium::texture::Texture2d::new(&display, Vec::<Vec<(u8, u8, u8, u8)>>::new());
@@ -244,11 +244,11 @@ fn zero_sized_texture_2d_creation() {
     assert_eq!(texture.get_depth(), None);
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn zero_sized_texture_3d_creation() {    
+fn zero_sized_texture_3d_creation() {
     let display = support::build_display();
 
     let texture = match glium::texture::Texture3d::new_if_supported(&display, Vec::<Vec<Vec<(u8, u8, u8, u8)>>>::new()) {
@@ -261,5 +261,5 @@ fn zero_sized_texture_3d_creation() {
     assert_eq!(texture.get_depth(), Some(0));
     assert_eq!(texture.get_array_size(), None);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

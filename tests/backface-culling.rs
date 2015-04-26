@@ -62,8 +62,8 @@ fn cull_clockwise() {
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     assert_eq!(read_back[0].last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back.last().unwrap()[0], (0.0, 0.0, 0.0, 0.0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -122,8 +122,8 @@ fn cull_counterclockwise() {
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     assert_eq!(read_back[0].last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
     assert_eq!(read_back.last().unwrap()[0], (1.0, 0.0, 0.0, 1.0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -181,8 +181,8 @@ fn cull_clockwise_trianglestrip() {
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     assert_eq!(read_back[0][0], (0.0, 0.0, 0.0, 0.0));
     assert_eq!(read_back.last().unwrap().last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -240,6 +240,6 @@ fn cull_counterclockwise_trianglestrip() {
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back.last().unwrap().last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }

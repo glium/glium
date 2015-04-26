@@ -53,7 +53,7 @@ macro_rules! blending_test {
                 }
             }
 
-            display.assert_no_error();
+            display.assert_no_error(None);
         }
     )
 }
