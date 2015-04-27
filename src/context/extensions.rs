@@ -1,4 +1,6 @@
 use std::ffi::CStr;
+use version::Version;
+use version::Api;
 use gl;
 
 /// Contains data about the list of extensions
@@ -108,8 +110,8 @@ pub struct ExtensionsList {
     pub gl_oes_vertex_array_object: bool,
 }
 
-pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
-    let strings = get_extensions_strings(gl);
+pub fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
+    let strings = get_extensions_strings(gl, version);
 
     let mut extensions = ExtensionsList {
         gl_apple_vertex_array_object: false,
@@ -225,11 +227,9 @@ pub fn get_extensions(gl: &gl::Gl) -> ExtensionsList {
     extensions
 }
 
-fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
+fn get_extensions_strings(gl: &gl::Gl, version: &Version) -> Vec<String> {
     unsafe {
-        let list = gl.GetString(gl::EXTENSIONS);
-
-        if list.is_null() {
+        if version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) {
             let mut num_extensions = 0;
             gl.GetIntegerv(gl::NUM_EXTENSIONS, &mut num_extensions);
 
@@ -239,8 +239,12 @@ fn get_extensions_strings(gl: &gl::Gl) -> Vec<String> {
             }).collect()
 
         } else {
-            let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec()).unwrap();
+            let list = gl.GetString(gl::EXTENSIONS);
+            assert!(!list.is_null());
+            let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec())
+                                         .unwrap();
             list.split(' ').map(|e| e.to_string()).collect()
+
         }
     }
 }

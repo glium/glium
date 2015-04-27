@@ -83,7 +83,7 @@ impl Context {
 
         let gl_state: RefCell<GLState> = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
-        let extensions = extensions::get_extensions(&gl);
+        let extensions = extensions::get_extensions(&gl, &version);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
         let report_debug_output_errors = Cell::new(true);
 
