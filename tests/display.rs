@@ -11,7 +11,7 @@ mod support;
 fn get_opengl_version() {
     let display = support::build_display();
     let version = display.get_opengl_version();
-    display.assert_no_error();
+    display.assert_no_error(None);
 
     assert!(version.1 >= 1);
 }
@@ -31,14 +31,14 @@ fn clear_color() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn release_shader_compiler() {
     let display = support::build_display();
     display.release_shader_compiler();
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -56,13 +56,13 @@ fn viewport_too_large() {
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
-    
+
     match display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
         Err(glium::DrawError::ViewportTooLarge) => (),
         a => panic!("{:?}", a)
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -80,7 +80,7 @@ fn timestamp_query() {
         _ => ()
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -93,13 +93,13 @@ fn wrong_depth_range() {
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
-    
+
     match display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
         Err(glium::DrawError::InvalidDepthRange) => (),
         a => panic!("{:?}", a)
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -135,17 +135,17 @@ fn scissor() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn sync() {    
+fn sync() {
     let display = support::build_display();
 
     let fence = glium::SyncFence::new_if_supported(&display);
     fence.map(|f| f.wait());
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -177,7 +177,7 @@ fn scissor_followed_by_clear() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -209,7 +209,7 @@ fn viewport_followed_by_clear() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -245,7 +245,7 @@ fn viewport() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -274,7 +274,7 @@ fn dont_draw_primitives() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -304,7 +304,7 @@ fn dont_draw_primitives_then_draw() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -342,8 +342,8 @@ fn multiple_displays() {
         }
     }
 
-    display1.assert_no_error();
-    display2.assert_no_error();
+    display1.assert_no_error(None);
+    display2.assert_no_error(None);
 }
 
 #[test]

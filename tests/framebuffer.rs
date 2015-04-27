@@ -27,7 +27,7 @@ fn no_depth_buffer_depth_test() {
         a => panic!("{:?}", a)
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn no_depth_buffer_depth_write() {
         a => panic!("{:?}", a)
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -65,7 +65,7 @@ fn simple_dimensions() {
     let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
     assert_eq!(framebuffer.get_dimensions(), (128, 128));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -87,8 +87,8 @@ fn simple_render_to_texture() {
     assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back[64][64], (1.0, 0.0, 0.0, 1.0));
     assert_eq!(read_back[127][127], (1.0, 0.0, 0.0, 1.0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -167,7 +167,7 @@ fn depth_texture2d() {
     assert_eq!(read_back[0][0], (1.0, 1.0, 1.0, 1.0));
     assert_eq!(read_back[127][127], (0.0, 0.0, 0.0, 1.0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -238,5 +238,5 @@ fn multioutput() {
     }
 
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

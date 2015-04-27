@@ -23,5 +23,5 @@ fn texture_2d_write() {
     assert_eq!(read_back[1][0], (32, 64, 128));
     assert_eq!(read_back[1][1], (128, 64, 2));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

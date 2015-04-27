@@ -20,7 +20,7 @@ fn vertex_buffer_immutable_creation() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display, 
+    glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
@@ -28,7 +28,7 @@ fn vertex_buffer_immutable_creation() {
         ]
     );
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -43,7 +43,7 @@ fn vertex_buffer_dynamic_creation() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::dynamic(&display, 
+    glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
@@ -51,7 +51,7 @@ fn vertex_buffer_dynamic_creation() {
         ]
     );
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -69,7 +69,7 @@ fn vertex_buffer_immutable_empty_creation() {
     let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 12);
     assert_eq!(vb.len(), 12);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn vertex_buffer_dynamic_empty_creation() {
     let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty_dynamic(&display, 12);
     assert_eq!(vb.len(), 12);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn vertex_buffer_immutable_mapping_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::new(&display, 
+    let mut vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -113,7 +113,7 @@ fn vertex_buffer_immutable_mapping_read() {
     assert_eq!(mapping[0].field1, [2, 3]);
     assert_eq!(mapping[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn vertex_buffer_dynamic_mapping_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::dynamic(&display, 
+    let mut vb = glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -139,13 +139,13 @@ fn vertex_buffer_dynamic_mapping_read() {
     assert_eq!(mapping[0].field1, [2, 3]);
     assert_eq!(mapping[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn vertex_buffer_immutable_mapping_write() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -154,7 +154,7 @@ fn vertex_buffer_immutable_mapping_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::new(&display, 
+    let mut vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -170,13 +170,13 @@ fn vertex_buffer_immutable_mapping_write() {
     assert_eq!(mapping[0].field1, [0, 1]);
     assert_eq!(mapping[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn vertex_buffer_dynamic_mapping_write() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -185,7 +185,7 @@ fn vertex_buffer_dynamic_mapping_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::dynamic(&display, 
+    let mut vb = glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -201,14 +201,14 @@ fn vertex_buffer_dynamic_mapping_write() {
     assert_eq!(mapping[0].field1, [0, 1]);
     assert_eq!(mapping[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 // TODO: uncomment after std::thread::scoped has been stabilized
 /*#[test]
 fn vertex_buffer_mapping_multithread() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -231,7 +231,7 @@ fn vertex_buffer_mapping_multithread() {
     assert_eq!(mapping[0].field1, [0, 1]);
     assert_eq!(mapping[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }*/
 
 #[test]
@@ -246,7 +246,7 @@ fn vertex_buffer_immutable_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -261,7 +261,7 @@ fn vertex_buffer_immutable_read() {
     assert_eq!(data[0].field1, [2, 3]);
     assert_eq!(data[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -276,7 +276,7 @@ fn vertex_buffer_dynamic_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display, 
+    let vb = glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -291,7 +291,7 @@ fn vertex_buffer_dynamic_read() {
     assert_eq!(data[0].field1, [2, 3]);
     assert_eq!(data[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -306,7 +306,7 @@ fn vertex_buffer_immutable_read_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -319,8 +319,8 @@ fn vertex_buffer_immutable_read_slice() {
     };
 
     assert_eq!(data[0].field2, [15, 17]);
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -335,7 +335,7 @@ fn vertex_buffer_dynamic_read_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display, 
+    let vb = glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -348,8 +348,8 @@ fn vertex_buffer_dynamic_read_slice() {
     };
 
     assert_eq!(data[0].field2, [15, 17]);
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -364,7 +364,7 @@ fn vertex_buffer_slice_out_of_bounds() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
@@ -373,7 +373,7 @@ fn vertex_buffer_slice_out_of_bounds() {
 
     assert!(vb.slice(0 .. 3).is_none());
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -388,7 +388,7 @@ fn vertex_buffer_any() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display, 
+    glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
@@ -396,13 +396,13 @@ fn vertex_buffer_any() {
         ]
     ).into_vertex_buffer_any();
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn vertex_buffer_immutable_write() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -411,7 +411,7 @@ fn vertex_buffer_immutable_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
@@ -433,13 +433,13 @@ fn vertex_buffer_immutable_write() {
     assert_eq!(data[1].field1, [12, 13]);
     assert_eq!(data[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn vertex_buffer_dynamic_write() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -448,7 +448,7 @@ fn vertex_buffer_dynamic_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display, 
+    let vb = glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
@@ -470,13 +470,13 @@ fn vertex_buffer_dynamic_write() {
     assert_eq!(data[1].field1, [12, 13]);
     assert_eq!(data[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn vertex_buffer_immutable_write_slice() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -485,7 +485,7 @@ fn vertex_buffer_immutable_write_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display, 
+    let vb = glium::VertexBuffer::new(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
@@ -504,13 +504,13 @@ fn vertex_buffer_immutable_write_slice() {
     assert_eq!(data[1].field1, [12, 13]);
     assert_eq!(data[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
 fn vertex_buffer_dynamic_write_slice() {
     let display = support::build_display();
-    
+
     #[derive(Copy, Clone)]
     struct Vertex {
         field1: [u8; 2],
@@ -519,7 +519,7 @@ fn vertex_buffer_dynamic_write_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display, 
+    let vb = glium::VertexBuffer::dynamic(&display,
         vec![
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
@@ -538,7 +538,7 @@ fn vertex_buffer_dynamic_write_slice() {
     assert_eq!(data[1].field1, [12, 13]);
     assert_eq!(data[1].field2, [15, 17]);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -555,7 +555,7 @@ fn zero_sized_immutable_vertex_buffer() {
 
     glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -572,5 +572,5 @@ fn zero_sized_dynamic_vertex_buffer() {
 
     glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

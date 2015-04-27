@@ -15,7 +15,7 @@ struct Vertex {
 implement_vertex!(Vertex, position);
 
 #[test]
-fn uniforms_storage_single_value() {    
+fn uniforms_storage_single_value() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -50,11 +50,11 @@ fn uniforms_storage_single_value() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn uniforms_storage_multiple_values() {    
+fn uniforms_storage_multiple_values() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -91,11 +91,11 @@ fn uniforms_storage_multiple_values() {
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
-fn uniforms_storage_ignore_inactive_uniforms() {    
+fn uniforms_storage_ignore_inactive_uniforms() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -131,12 +131,12 @@ fn uniforms_storage_ignore_inactive_uniforms() {
     let data: Vec<Vec<(u8, u8, u8)>> = texture.read();
     assert_eq!(data[0][0], (255, 0, 0));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
-    
-    display.assert_no_error();
+
+    display.assert_no_error(None);
 }
 
 #[test]
-fn uniform_wrong_type() {    
+fn uniform_wrong_type() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -171,5 +171,5 @@ fn uniform_wrong_type() {
     };
     target.finish();
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

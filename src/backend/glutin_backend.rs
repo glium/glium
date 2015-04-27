@@ -211,8 +211,8 @@ impl GlutinFacade {
     /// Asserts that there are no OpenGL errors pending.
     ///
     /// This function should be used in tests.
-    pub fn assert_no_error(&self) {
-        self.context.assert_no_error()
+    pub fn assert_no_error(&self, user_msg: Option<&str>) {
+        self.context.assert_no_error(user_msg)
     }
 
     /// Waits until all the previous commands have finished being executed.

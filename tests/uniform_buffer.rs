@@ -14,7 +14,7 @@ fn uniform_buffer_creation() {
 
     glium::uniforms::UniformBuffer::new_if_supported(&display, 12);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn uniform_buffer_mapping_read() {
     let mapping = vb.map();
     assert_eq!(*mapping, 12);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -49,7 +49,7 @@ fn uniform_buffer_mapping_write() {
     let mapping = vb.map();
     assert_eq!(*mapping, 15);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -68,7 +68,7 @@ fn uniform_buffer_read() {
 
     assert_eq!(data, 12);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn uniform_buffer_write() {
 
     assert_eq!(data, 24);
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -148,7 +148,7 @@ fn block() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -198,14 +198,14 @@ fn block_wrong_type() {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    
+
     match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
         Err(glium::DrawError::UniformBlockLayoutMismatch { ref name })
             if name == &"MyBlock" => (),
         a => panic!("{:?}", a)
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -225,7 +225,7 @@ fn buffer_write() {
     let mapping = buf.map();
     assert_eq!(*mapping, (5, 8));
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -308,7 +308,7 @@ fn persistent_block_race_condition() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -320,5 +320,5 @@ fn empty_uniform_buffer() {
         Some(b) => b
     };
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }

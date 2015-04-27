@@ -48,7 +48,7 @@ macro_rules! texture_draw_test {
             texture.as_surface().draw(&vb, &ib, &program, &uniform!{ texture: &texture },
                                      &Default::default()).unwrap();
 
-            display.assert_no_error();
+            display.assert_no_error(None);
 
             let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
             for row in data.iter() {
@@ -57,7 +57,7 @@ macro_rules! texture_draw_test {
                 }
             }
 
-            display.assert_no_error();
+            display.assert_no_error(None);
         }
     );
 }

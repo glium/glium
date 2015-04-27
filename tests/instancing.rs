@@ -19,7 +19,7 @@ fn instancing() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [-1.0,  1.0] },
                 Vertex { position: [ 1.0,  1.0] },
@@ -37,7 +37,7 @@ fn instancing() {
 
         implement_vertex!(Vertex, color);
 
-        glium::vertex::VertexBuffer::new(&display, 
+        glium::vertex::VertexBuffer::new(&display,
             vec![
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
@@ -101,7 +101,7 @@ fn instancing() {
         }
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
 
 #[test]
@@ -116,7 +116,7 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [-1.0,  1.0] },
                 Vertex { position: [ 1.0,  1.0] },
@@ -134,7 +134,7 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, color);
 
-        glium::vertex::VertexBuffer::new(&display, 
+        glium::vertex::VertexBuffer::new(&display,
             vec![
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
@@ -157,7 +157,7 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, color);
 
-        glium::vertex::VertexBuffer::new(&display, 
+        glium::vertex::VertexBuffer::new(&display,
             vec![
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
@@ -215,5 +215,5 @@ fn per_instance_length_mismatch() {
         a => panic!("{:?}", a)
     }
 
-    display.assert_no_error();
+    display.assert_no_error(None);
 }
