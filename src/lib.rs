@@ -208,6 +208,7 @@ mod image_format;
 mod ops;
 mod sampler_object;
 mod sync;
+mod utils;
 mod version;
 mod vertex_array_object;
 
