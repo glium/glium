@@ -12,6 +12,8 @@ use RawUniformValue;
 use context::Context;
 use ContextExt;
 
+use utils::bitsfield::Bitsfield;
+
 use fbo::{self, FramebufferAttachments};
 
 use sync;
@@ -176,8 +178,8 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     // building the list of uniforms binders and the fences that must be fulfilled
     // TODO: panic if uniforms of the program are not found in the parameter
     {
-        let mut active_texture = 0;
-        let mut active_buffer_binding = 0;
+        let mut texture_bind_points = Bitsfield::new();
+        let mut buffer_bind_points = Bitsfield::new();
 
         let mut visiting_result = Ok(());
         uniforms.visit_values(|name, value| {
@@ -196,7 +198,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
                 match bind_uniform(&mut ctxt, &mut context.samplers.borrow_mut(),
                                    &value, program, uniform.location,
-                                   &mut active_texture, name)
+                                   &mut texture_bind_points, name)
                 {
                     Ok(_) => (),
                     Err(e) => {
@@ -207,7 +209,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
                 let fence = match bind_uniform_block(&mut ctxt, &value, block,
-                                                     program, &mut active_buffer_binding, name)
+                                                     program, &mut buffer_bind_points, name)
                 {
                     Ok(f) => f,
                     Err(e) => {
@@ -337,7 +339,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
 fn bind_uniform_block(ctxt: &mut context::CommandContext, value: &UniformValue,
                       block: &program::UniformBlock,
-                      program: &Program, current_bind_point: &mut gl::types::GLuint, name: &str)
+                      program: &Program, buffer_bind_points: &mut Bitsfield, name: &str)
                       -> Result<Option<Sender<sync::LinearSyncFence>>, DrawError>
 {
     match value {
@@ -346,8 +348,8 @@ fn bind_uniform_block(ctxt: &mut context::CommandContext, value: &UniformValue,
                 return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
             }
 
-            let bind_point = *current_bind_point;
-            *current_bind_point += 1;
+            let bind_point = buffer_bind_points.get_unused().expect("Not enough buffer units");
+            buffer_bind_points.set_used(bind_point);
 
             let fence = buffer.add_fence();
             let buffer = buffer.get_id();
@@ -370,7 +372,7 @@ fn bind_uniform_block(ctxt: &mut context::CommandContext, value: &UniformValue,
 fn bind_uniform(ctxt: &mut context::CommandContext,
                 samplers: &mut HashMap<SamplerBehavior, SamplerObject>,
                 value: &UniformValue, program: &Program, location: gl::types::GLint,
-                active_texture: &mut gl::types::GLenum, name: &str)
+                texture_bind_points: &mut Bitsfield, name: &str)
                 -> Result<(), DrawError>
 {
     assert!(location >= 0);
@@ -419,183 +421,183 @@ fn bind_uniform(ctxt: &mut context::CommandContext,
         },
         UniformValue::Texture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::CompressedTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::SrgbTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::CompressedSrgbTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::IntegralTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::UnsignedTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::DepthTexture1d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D)
         },
         UniformValue::Texture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::CompressedTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::SrgbTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::CompressedSrgbTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::IntegralTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::UnsignedTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::DepthTexture2d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D)
         },
         UniformValue::Texture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::SrgbTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::IntegralTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::UnsignedTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::DepthTexture2dMultisample(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE)
         },
         UniformValue::Texture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::CompressedTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::SrgbTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::CompressedSrgbTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::IntegralTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::UnsignedTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::DepthTexture3d(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_3D)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_3D)
         },
         UniformValue::Texture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::CompressedTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::SrgbTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::CompressedSrgbTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::IntegralTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::UnsignedTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::DepthTexture1dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_1D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_1D_ARRAY)
         },
         UniformValue::Texture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::CompressedTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::SrgbTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::CompressedSrgbTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::IntegralTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::UnsignedTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::DepthTexture2dArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_ARRAY)
         },
         UniformValue::Texture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::SrgbTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::IntegralTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::UnsignedTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
         UniformValue::DepthTexture2dMultisampleArray(texture, sampler) => {
             let texture = texture.get_id();
-            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, active_texture, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
+            bind_texture_uniform(ctxt, samplers, texture, sampler, location, program, texture_bind_points, gl::TEXTURE_2D_MULTISAMPLE_ARRAY)
         },
     }
 }
@@ -605,13 +607,10 @@ fn bind_texture_uniform(mut ctxt: &mut context::CommandContext,
                         texture: gl::types::GLuint,
                         sampler: Option<SamplerBehavior>, location: gl::types::GLint,
                         program: &Program,
-                        active_texture: &mut gl::types::GLenum,
+                        texture_bind_points: &mut Bitsfield,
                         bind_point: gl::types::GLenum)
                         -> Result<(), DrawError>
 {
-    assert!(*active_texture < ctxt.capabilities
-                                  .max_combined_texture_image_units as gl::types::GLenum);
-
     let sampler = if let Some(sampler) = sampler {
         Some(try!(::sampler_object::get_sampler(ctxt, samplers, &sampler)))
     } else {
@@ -620,38 +619,62 @@ fn bind_texture_uniform(mut ctxt: &mut context::CommandContext,
 
     let sampler = sampler.unwrap_or(0);
 
-    let current_texture = *active_texture;
-    *active_texture += 1;
+    // finding an appropriate texture unit
+    let texture_unit =
+        ctxt.state.texture_units
+            .iter().enumerate()
+            .find(|&(unit, content)| {
+                content.texture == texture && (content.sampler == sampler ||
+                                               !texture_bind_points.is_used(unit as u8))
+            })
+            .map(|(unit, _)| unit as u8)
+            .or_else(|| {
+                if ctxt.state.texture_units.len() <
+                    ctxt.capabilities.max_combined_texture_image_units as usize
+                {
+                    Some(ctxt.state.texture_units.len() as u8)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| {
+                texture_bind_points.get_unused().expect("Not enough texture units available")
+            });
+    assert!((texture_unit as gl::types::GLint) <
+            ctxt.capabilities.max_combined_texture_image_units);
+    texture_bind_points.set_used(texture_unit);
 
+    // updating the program to use the right unit
     program.set_uniform(ctxt, location,
-                        &RawUniformValue::SignedInt(current_texture as gl::types::GLint));
+                        &RawUniformValue::SignedInt(texture_unit as gl::types::GLint));
 
-    if ctxt.state.texture_units.len() <= current_texture as usize {
-        for _ in (ctxt.state.texture_units.len() .. current_texture as usize + 1) {
+    // updating the state of the texture unit
+    if ctxt.state.texture_units.len() <= texture_unit as usize {
+        for _ in (ctxt.state.texture_units.len() .. texture_unit as usize + 1) {
             ctxt.state.texture_units.push(Default::default());
         }
     }
 
-    if ctxt.state.texture_units[current_texture as usize].texture != texture ||
-       ctxt.state.texture_units[current_texture as usize].sampler != sampler
+    if ctxt.state.texture_units[texture_unit as usize].texture != texture ||
+       ctxt.state.texture_units[texture_unit as usize].sampler != sampler
     {
         // TODO: what if it's not supported?
-        if ctxt.state.active_texture != current_texture {
-            unsafe { ctxt.gl.ActiveTexture(current_texture + gl::TEXTURE0) };
-            ctxt.state.active_texture = current_texture;
+        if ctxt.state.active_texture != texture_unit as gl::types::GLenum {
+            unsafe { ctxt.gl.ActiveTexture(texture_unit as gl::types::GLenum + gl::TEXTURE0) };
+            ctxt.state.active_texture = texture_unit as gl::types::GLenum;
         }
 
-        if ctxt.state.texture_units[current_texture as usize].texture != texture {
+        if ctxt.state.texture_units[texture_unit as usize].texture != texture {
             unsafe { ctxt.gl.BindTexture(bind_point, texture); }
-            ctxt.state.texture_units[current_texture as usize].texture = texture;
+            ctxt.state.texture_units[texture_unit as usize].texture = texture;
         }
 
-        if ctxt.state.texture_units[current_texture as usize].sampler != sampler {
+        if ctxt.state.texture_units[texture_unit as usize].sampler != sampler {
             assert!(ctxt.version >= &Version(Api::Gl, 3, 3) ||
                     ctxt.extensions.gl_arb_sampler_objects);
 
-            unsafe { ctxt.gl.BindSampler(current_texture, sampler); }
-            ctxt.state.texture_units[current_texture as usize].sampler = sampler;
+            unsafe { ctxt.gl.BindSampler(texture_unit as gl::types::GLenum, sampler); }
+            ctxt.state.texture_units[texture_unit as usize].sampler = sampler;
         }
     }
 
