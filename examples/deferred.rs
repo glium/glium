@@ -1,4 +1,3 @@
-extern crate glutin;
 #[macro_use]
 extern crate glium;
 #[cfg(feature = "cgmath")]
@@ -6,6 +5,7 @@ extern crate cgmath;
 #[cfg(feature = "image")]
 extern crate image;
 
+use glium::glutin;
 use glium::Surface;
 use glium::DisplayBuild;
 #[cfg(feature = "cgmath")]

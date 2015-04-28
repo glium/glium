@@ -1,11 +1,10 @@
-extern crate glutin;
-
 #[cfg(feature = "image")]
 extern crate image;
 
 #[macro_use]
 extern crate glium;
 
+use glium::glutin;
 #[cfg(feature = "image")]
 use std::io::Cursor;
 #[cfg(feature = "image")]

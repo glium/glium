@@ -17,10 +17,10 @@ There are three concepts in play:
 
 */
 extern crate libc;
-extern crate glutin;
 extern crate glium;
 
 use glium::Surface;
+use glium::glutin;
 use std::rc::Rc;
 
 fn main() {

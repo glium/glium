@@ -1,9 +1,8 @@
-extern crate glutin;
-
 #[macro_use]
 extern crate glium;
 
 use glium::Surface;
+use glium::glutin;
 
 mod support;
 

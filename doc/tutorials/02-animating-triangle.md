@@ -164,11 +164,10 @@ Here is the final code of our `src/main.rs` file:
 
     #[macro_use]
     extern crate glium;
-    extern crate glutin;
 
     fn main() {
         use glium::{DisplayBuild, Surface};
-        let display = glutin::WindowBuilder::new().build_glium().unwrap();
+        let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
 
         #[derive(Copy, Clone)]
         struct Vertex {

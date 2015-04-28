@@ -1,5 +1,3 @@
-extern crate glutin;
-
 #[macro_use]
 extern crate glium;
 
