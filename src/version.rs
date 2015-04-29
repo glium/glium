@@ -44,6 +44,8 @@ pub unsafe fn get_gl_version(gl: &gl::Gl) -> Version {
 
     let (version, api) = if version.starts_with("OpenGL ES ") {
         (&version[10..], Api::GlEs)
+    } else if version.starts_with("OpenGL ES-") {
+        (&version[13..], Api::GlEs)
     } else {
         (&version[..], Api::Gl)
     };
