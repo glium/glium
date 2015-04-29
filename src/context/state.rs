@@ -77,6 +77,12 @@ pub struct GLState {
     /// The latest buffer bound to `GL_UNIFORM_BUFFER`.
     pub uniform_buffer_binding: gl::types::GLuint,
 
+    /// The latest buffer bound to `GL_COPY_READ_BUFFER`.
+    pub copy_read_buffer_binding: gl::types::GLuint,
+
+    /// The latest buffer bound to `GL_COPY_WRITE_BUFFER`.
+    pub copy_write_buffer_binding: gl::types::GLuint,
+
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: gl::types::GLuint,
 
@@ -198,6 +204,8 @@ impl Default for GLState {
             pixel_pack_buffer_binding: 0,
             pixel_unpack_buffer_binding: 0,
             uniform_buffer_binding: 0,
+            copy_read_buffer_binding: 0,
+            copy_write_buffer_binding: 0,
             read_framebuffer: 0,
             draw_framebuffer: 0,
             default_framebuffer_read: None,

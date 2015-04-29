@@ -60,6 +60,8 @@ pub enum BufferType {
     PixelPackBuffer,
     PixelUnpackBuffer,
     UniformBuffer,
+    CopyReadBuffer,
+    CopyWriteBuffer,
 }
 
 /// A mapping of a buffer.
@@ -77,6 +79,8 @@ impl BufferType {
             BufferType::PixelPackBuffer => gl::PIXEL_PACK_BUFFER,
             BufferType::PixelUnpackBuffer => gl::PIXEL_UNPACK_BUFFER,
             BufferType::UniformBuffer => gl::UNIFORM_BUFFER,
+            BufferType::CopyReadBuffer => gl::COPY_READ_BUFFER,
+            BufferType::CopyWriteBuffer => gl::COPY_WRITE_BUFFER,
         }
     }
 }
@@ -193,7 +197,8 @@ impl Buffer {
 
             if self.immutable {
                 let (tmp_buffer, _, _) = create_buffer(&mut ctxt, self.elements_size, data.len(),
-                                                       Some(data), self.ty, true, true).unwrap();
+                                                       Some(data), BufferType::CopyReadBuffer,
+                                                       true, true).unwrap();
                 copy_buffer(&mut ctxt, tmp_buffer, 0, self.id, offset, buffer_size);
                 destroy_buffer(&mut ctxt, tmp_buffer);
 
@@ -262,7 +267,8 @@ impl Buffer {
             let temporary_buffer = unsafe {
                 let mut ctxt = self.context.make_current();
                 let (temporary_buffer, _, _) = create_buffer::<D>(&mut ctxt, self.elements_size, size,
-                                                                  None, self.ty, true, true).unwrap();
+                                                                  None, BufferType::CopyWriteBuffer,
+                                                                  true, true).unwrap();
                 temporary_buffer
             };
 
@@ -744,6 +750,42 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
 
             gl::UNIFORM_BUFFER
         },
+
+        BufferType::CopyReadBuffer => {
+            if ctxt.state.copy_read_buffer_binding != id {
+                ctxt.state.copy_read_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::COPY_READ_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::COPY_READ_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::COPY_READ_BUFFER
+        },
+
+        BufferType::CopyWriteBuffer => {
+            if ctxt.state.copy_write_buffer_binding != id {
+                ctxt.state.copy_write_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::COPY_WRITE_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::COPY_WRITE_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::COPY_WRITE_BUFFER
+        },
     }
 }
 
@@ -762,8 +804,65 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
                                           dest_offset as gl::types::GLintptr,
                                           size as gl::types::GLsizeiptr);
 
+    } else if ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0)
+           || ctxt.extensions.gl_arb_copy_buffer || ctxt.extensions.gl_nv_copy_buffer
+    {
+        fn find_bind_point(ctxt: &mut CommandContext, id: gl::types::GLuint)
+                           -> Option<gl::types::GLenum>
+        {
+            if ctxt.state.array_buffer_binding == id {
+                Some(gl::ARRAY_BUFFER)
+            } else if ctxt.state.pixel_pack_buffer_binding == id {
+                Some(gl::PIXEL_PACK_BUFFER)
+            } else if ctxt.state.pixel_unpack_buffer_binding == id {
+                Some(gl::PIXEL_UNPACK_BUFFER)
+            } else if ctxt.state.uniform_buffer_binding == id {
+                Some(gl::UNIFORM_BUFFER)
+            } else if ctxt.state.copy_read_buffer_binding == id {
+                Some(gl::COPY_READ_BUFFER)
+            } else if ctxt.state.copy_write_buffer_binding == id {
+                Some(gl::COPY_WRITE_BUFFER)
+            } else {
+                None
+            }
+        }
+
+        let source_bind_point = match find_bind_point(ctxt, source) {
+            Some(p) => p,
+            None => {
+                // if the source is not binded and the destination is binded to COPY_READ,
+                // we bind the source to COPY_WRITE instead, to avoid a state change
+                if ctxt.state.copy_read_buffer_binding == dest {
+                    bind_buffer(ctxt, source, BufferType::CopyWriteBuffer)
+                } else {
+                    bind_buffer(ctxt, source, BufferType::CopyReadBuffer)
+                }
+            }
+        };
+
+        let dest_bind_point = match find_bind_point(ctxt, dest) {
+            Some(p) => p,
+            None => bind_buffer(ctxt, dest, BufferType::CopyWriteBuffer)
+        };
+
+        if ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0)
+            || ctxt.extensions.gl_arb_copy_buffer
+        {
+            ctxt.gl.CopyBufferSubData(source_bind_point, dest_bind_point,
+                                      source_offset as gl::types::GLintptr,
+                                      dest_offset as gl::types::GLintptr,
+                                      size as gl::types::GLsizeiptr);
+        } else if ctxt.extensions.gl_nv_copy_buffer {
+            ctxt.gl.CopyBufferSubDataNV(source_bind_point, dest_bind_point,
+                                        source_offset as gl::types::GLintptr,
+                                        dest_offset as gl::types::GLintptr,
+                                        size as gl::types::GLsizeiptr);
+        } else {
+            unreachable!();
+        }
+
     } else {
-        unimplemented!();
+        panic!("Buffers copy are not supported");
     }
 }
 
