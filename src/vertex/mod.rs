@@ -1,12 +1,14 @@
 /*!
-Contains everything related to vertex buffers.
+Contains everything related to vertex sources.
 
-The main struct is the `VertexBuffer`, which represents a buffer in the video memory,
-containing a list of vertices.
+When you draw, you need to pass one or several sources of vertex attributes. This is done with
+the first parameter to the `draw` function.
 
-In order to create a vertex buffer, you must first create a struct that represents each vertex,
-and implement the `glium::vertex::Vertex` trait on it. The `implement_vertex!` macro helps you
-with that.
+## Vertex
+
+The main trait of this module is `Vertex`, which must be implemented on structs whose instances
+describe individual vertices. The trait is unsafe to implement, so you are encouraged to use the
+`implement_vertex!` macro instead:
 
 ```
 # #[macro_use]
@@ -14,39 +16,41 @@ with that.
 # extern crate glutin;
 # fn main() {
 #[derive(Copy, Clone)]
-struct Vertex {
+struct MyVertex {
     position: [f32; 3],
     texcoords: [f32; 2],
 }
 
-implement_vertex!(Vertex, position, texcoords);
+// you must pass the list of members to the macro
+implement_vertex!(MyVertex, position, texcoords);
 # }
 ```
 
-Next, build a `Vec` of the vertices that you want to upload, and pass it to
-`VertexBuffer::new`.
+## Vertex buffer
+
+Once you have a struct that implements the `Vertex` trait, you can build an array of vertices and
+upload it to the video memory by creating a `VertexBuffer`.
 
 ```no_run
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
 # #[derive(Copy, Clone)]
-# struct Vertex {
+# struct MyVertex {
 #     position: [f32; 3],
 #     texcoords: [f32; 2],
 # }
-# impl glium::vertex::Vertex for Vertex {
-#     fn build_bindings() -> glium::vertex::VertexFormat {
-#         unimplemented!() }
+# impl glium::vertex::Vertex for MyVertex {
+#     fn build_bindings() -> glium::vertex::VertexFormat { unimplemented!() }
 # }
-let data = vec![
-    Vertex {
+let data = &[
+    MyVertex {
         position: [0.0, 0.0, 0.4],
         texcoords: [0.0, 1.0]
     },
-    Vertex {
+    MyVertex {
         position: [12.0, 4.5, -1.8],
         texcoords: [1.0, 0.5]
     },
-    Vertex {
+    MyVertex {
         position: [-7.124, 0.1, 0.0],
         texcoords: [0.0, 0.4]
     },
@@ -54,6 +58,68 @@ let data = vec![
 
 let vertex_buffer = glium::vertex::VertexBuffer::new(&display, data);
 ```
+
+## Drawing
+
+When you draw, you can pass either a single vertex source or a tuple of multiple sources.
+Each source can be:
+
+ - A reference to a `VertexBuffer`.
+ - A slice of a vertex buffer, by calling `vertex_buffer.slice(start .. end).unwrap()`.
+ - A vertex buffer where each element corresponds to an instance, by
+   caling `vertex_buffer.per_instance()`.
+ - The same with a slice, by calling `vertex_buffer.slice(start .. end).unwrap().per_instance()`.
+ - A marker indicating a number of vertex sources, with `glium::vertex::EmptyVertexAttributes`.
+ - A marker indicating a number of instances, with `glium::vertex::EmptyInstanceAttributes`.
+
+```no_run
+# use std::default::Default;
+# use glium::Surface;
+# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# #[derive(Copy, Clone)]
+# struct MyVertex { position: [f32; 3], texcoords: [f32; 2], }
+# impl glium::vertex::Vertex for MyVertex {
+#     fn build_bindings() -> glium::vertex::VertexFormat { unimplemented!() }
+# }
+# let program: glium::program::Program = unsafe { ::std::mem::uninitialized() };
+# let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+# let uniforms = glium::uniforms::EmptyUniforms;
+# let vertex_buffer: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::uninitialized() };
+# let vertex_buffer2: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::uninitialized() };
+# let mut frame = display.draw();
+// drawing with a single vertex buffer
+frame.draw(&vertex_buffer, &indices, &program, &uniforms, &Default::default()).unwrap();
+
+// drawing with two parallel vertex buffers
+frame.draw((&vertex_buffer, &vertex_buffer2), &indices, &program,
+           &uniforms, &Default::default()).unwrap();
+
+// drawing without a vertex source
+frame.draw(glium::vertex::EmptyVertexAttributes { len: 12 }, &indices, &program,
+           &uniforms, &Default::default()).unwrap();
+
+// drawing a slice of a vertex buffer
+frame.draw(vertex_buffer.slice(6 .. 24).unwrap(), &indices, &program,
+           &uniforms, &Default::default()).unwrap();
+
+// drawing slices of two vertex buffers
+frame.draw((vertex_buffer.slice(6 .. 24).unwrap(), vertex_buffer2.slice(128 .. 146).unwrap()),
+           &indices, &program, &uniforms, &Default::default()).unwrap();
+
+// treating `vertex_buffer2` as a source of attributes per-instance instead of per-vertex
+frame.draw((&vertex_buffer, vertex_buffer2.per_instance_if_supported().unwrap()), &indices,
+           &program, &uniforms, &Default::default()).unwrap();
+
+// instancing without any per-instance attribute
+frame.draw((&vertex_buffer, glium::vertex::EmptyInstanceAttributes { len: 36 }), &indices,
+           &program, &uniforms, &Default::default()).unwrap();
+```
+
+Note that if you use `index::EmptyIndices` as indices the length of all vertex sources must
+be the same, or a `DrawError::VerticesSourcesLengthMismatch` will be produced.
+
+In all situation, the length of all per-instance sources must match, or
+`DrawError::InstancesCountMismatch` will be retured.
 
 */
 use std::iter::Chain;
