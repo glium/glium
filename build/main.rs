@@ -33,6 +33,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_APPLE_vertex_array_object".to_string(),
                 "GL_ARB_buffer_storage".to_string(),
                 "GL_ARB_compute_shader".to_string(),
+                "GL_ARB_copy_buffer".to_string(),
                 "GL_ARB_debug_output".to_string(),
                 "GL_ARB_depth_texture".to_string(),
                 "GL_ARB_direct_state_access".to_string(),
@@ -83,6 +84,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             extensions: vec![
                 "GL_EXT_disjoint_timer_query".to_string(),
                 "GL_KHR_debug".to_string(),
+                "GL_NV_copy_buffer".to_string(),
                 "GL_OES_texture_npot".to_string(),
                 "GL_OES_vertex_array_object".to_string(),
             ],
