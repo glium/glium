@@ -282,7 +282,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
                                      -> HashMap<String, UniformBlock>
 {
     // uniform blocks are not supported, so there's none
-    if ctxt.version < &Version(Api::Gl, 3, 1) {
+    if !(ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0)) {
         return HashMap::new();
     }
 
