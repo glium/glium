@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Glium now reexports glutin. You can access glutin with `glium::glutin`.
+
 ## Version 0.3.4 (2015-04-28)
 
  - Added caching some uniform values in the `Program` struct to avoid calls to `glUniform`.

@@ -166,13 +166,13 @@ extern crate lazy_static;
 
 #[cfg(feature = "cgmath")]
 extern crate cgmath;
-extern crate glutin;
 #[cfg(feature = "image")]
 extern crate image;
 extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 
+pub use backend::glutin_backend::glutin;
 pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
 pub use index::IndexBuffer;

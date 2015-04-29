@@ -5,8 +5,7 @@ Test supports module.
 
 #![allow(dead_code)]
 
-use glutin;
-use glium::{self, DisplayBuild};
+use glium::{self, glutin, DisplayBuild};
 use glium::backend::Facade;
 
 use std::env;

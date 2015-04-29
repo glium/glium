@@ -1,11 +1,10 @@
-extern crate glutin;
-
 #[macro_use]
 extern crate glium;
 
 mod support;
 
 use glium::Surface;
+use glium::glutin;
 
 fn main() {
     use glium::DisplayBuild;

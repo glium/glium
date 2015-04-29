@@ -15,17 +15,15 @@ To start this tutorial, we will create a new project from scratch. Even though i
 
 The directory you have just created should contain a `Cargo.toml` file which contains our project's metadata, plus a `src/main.rs` file which contains the Rust source code. If you have `src/lib.rs` file instead, that means that you forgot the `--bin` flag ; just rename the file.
 
-In order to use the glutin and glium libraries, we need to add them as dependencies in our `Cargo.toml` file:
+In order to use the glium library, we need to add them as dependencies in our `Cargo.toml` file:
 
     [dependencies]
     glium = "*"
-    glutin = "*"
 
-Before we can use them, we also need to import these libraries in our `src/main.rs` file, like this:
+Before we can use them, we also need to import this library in our `src/main.rs` file, like this:
 
     #[macro_use]
     extern crate glium;
-    extern crate glutin;
 
     fn main() {
     }
@@ -36,11 +34,11 @@ It is now time to start filling the `main` function!
 
 The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the **glutin** library shines.
 
-Initializing a window with glutin can be done by calling `glutin::WindowBuilder()::new().build().unwrap()`. However we don't want to create a *glutin* window but a *glium* window. Instead of calling `build()` we going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
+Initializing a window with glutin can be done by calling `glium::glutin::WindowBuilder()::new().build().unwrap()`. However we don't want to create a *glutin* window but a *glium* window. Instead of calling `build()` we going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
 
     fn main() {
         use glium::DisplayBuild;
-        let display = glutin::WindowBuilder::new().build_glium().unwrap();
+        let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
     }
 
 But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we are just going to add an infinite loop until we detect that the window has been closed:
@@ -86,7 +84,7 @@ Here is our full `main` function after this step:
 
     fn main() {
         use glium::{DisplayBuild, Surface};
-        let display = glutin::WindowBuilder::new().build_glium().unwrap();
+        let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
 
         loop {
             let mut target = display.draw();
@@ -226,11 +224,10 @@ Here is the final code of our `src/main.rs` file:
 
     #[macro_use]
     extern crate glium;
-    extern crate glutin;
 
     fn main() {
         use glium::{DisplayBuild, Surface};
-        let display = glutin::WindowBuilder::new().build_glium().unwrap();
+        let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
 
         #[derive(Copy, Clone)]
         struct Vertex {

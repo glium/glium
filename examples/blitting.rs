@@ -1,4 +1,3 @@
-extern crate glutin;
 extern crate rand;
 
 #[macro_use]
@@ -12,6 +11,8 @@ use std::io::Cursor;
 
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Texture, Surface};
+
+use glium::glutin;
 
 mod support;
 

@@ -3,9 +3,9 @@
 Backend implementation for the glutin library
 
 */
-use libc;
+extern crate glutin;
 
-use glutin;
+use libc;
 
 use DisplayBuild;
 use Frame;
