@@ -625,14 +625,14 @@ fn bind_texture_uniform(mut ctxt: &mut context::CommandContext,
             .iter().enumerate()
             .find(|&(unit, content)| {
                 content.texture == texture && (content.sampler == sampler ||
-                                               !texture_bind_points.is_used(unit as u8))
+                                               !texture_bind_points.is_used(unit as u16))
             })
-            .map(|(unit, _)| unit as u8)
+            .map(|(unit, _)| unit as u16)
             .or_else(|| {
                 if ctxt.state.texture_units.len() <
                     ctxt.capabilities.max_combined_texture_image_units as usize
                 {
-                    Some(ctxt.state.texture_units.len() as u8)
+                    Some(ctxt.state.texture_units.len() as u16)
                 } else {
                     None
                 }
