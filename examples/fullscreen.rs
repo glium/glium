@@ -4,12 +4,13 @@ extern crate glium;
 #[cfg(feature = "image")]
 extern crate image;
 
+extern crate glutin;
+
 #[cfg(feature = "image")]
 use std::io::Cursor;
 
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Surface};
-use glium::glutin;
 
 mod support;
 
