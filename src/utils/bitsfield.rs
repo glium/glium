@@ -1,83 +1,89 @@
+const NUM_DWORDS: usize = 8;
+
 /// 64-bits bitsfield
 pub struct Bitsfield {
-    data1: u32,
-    data2: u32,
+    data: [u32; NUM_DWORDS],
 }
 
 impl Bitsfield {
     pub fn new() -> Bitsfield {
         Bitsfield {
-            data1: 0xffffffff,
-            data2: 0xffffffff,
+            data: [0xffffffff; NUM_DWORDS],
         }
     }
 
-    pub fn set_used(&mut self, mut bit: u8) {
-        if bit < 32 {
-            let mask: u32 = 1 << bit;
-            let mask = !mask;
-            self.data1 &= mask;
-            return;
+    pub fn set_used(&mut self, mut bit: u16) {
+        let mut offset = 0;
+
+        loop {
+            if offset >= NUM_DWORDS {
+                unimplemented!();
+            }
+
+            if bit < 32 {
+                let mask: u32 = 1 << bit;
+                let mask = !mask;
+                self.data[offset] &= mask;
+                return;
+            }
+
+            bit -= 32;
+            offset += 1;
         }
-
-        bit -= 32;
-
-        if bit < 32 {
-            let mask: u32 = 1 << bit;
-            let mask = !mask;
-            self.data2 &= mask;
-            return;
-        }
-
-        unimplemented!();
     }
 
-    pub fn set_unused(&mut self, mut bit: u8) {
-        if bit < 32 {
-            let mask: u32 = 1 << bit;
-            self.data1 |= mask;
-            return;
+    pub fn set_unused(&mut self, mut bit: u16) {
+        let mut offset = 0;
+
+        loop {
+            if offset >= NUM_DWORDS {
+                unimplemented!();
+            }
+
+            if bit < 32 {
+                let mask: u32 = 1 << bit;
+                self.data[offset] |= mask;
+                return;
+            }
+
+            bit -= 32;
+            offset += 1;
         }
-
-        bit -= 32;
-
-        if bit < 32 {
-            let mask: u32 = 1 << bit;
-            self.data2 |= mask;
-            return;
-        }
-
-        unimplemented!();
     }
 
-    pub fn is_used(&self, mut bit: u8) -> bool {
-        if bit < 32 {
-            let mask: u32 = 1 << bit;
-            return self.data1 & mask == 0;
+    pub fn is_used(&self, mut bit: u16) -> bool {
+        let mut offset = 0;
+
+        loop {
+            if offset >= NUM_DWORDS {
+                unimplemented!();
+            }
+
+            if bit < 32 {
+                let mask: u32 = 1 << bit;
+                return self.data[offset] & mask == 0;
+            }
+
+            bit -= 32;
+            offset += 1;
         }
-
-        bit -= 32;
-
-        if bit < 32 {
-            let mask: u32 = 1 << bit;
-            return self.data2 & mask == 0;
-        }
-
-        unimplemented!();
     }
 
-    pub fn get_unused(&self) -> Option<u8> {
-        let v = self.data1.trailing_zeros() as u8;
-        if v < 32 {
-            return Some(v);
-        }
+    pub fn get_unused(&self) -> Option<u16> {
+        let mut offset = 0;
 
-        let v = self.data2.trailing_zeros() as u8;
-        if v < 32 {
-            return Some(v + 32);
-        }
+        loop {
+            if offset >= NUM_DWORDS {
+                return None;
+            }
 
-        None
+            let v = self.data[offset].trailing_zeros() as u16;
+            if v < 32 {
+                return Some(v + offset as u16 * 32);
+            }
+
+            offset += 1;
+        }
     }
 }
 
