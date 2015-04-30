@@ -12,7 +12,7 @@ use std::io::Cursor;
 #[cfg(feature = "image")]
 use glium::{DisplayBuild, Texture, Surface};
 
-use glium::glutin;
+extern crate glutin;
 
 mod support;
 

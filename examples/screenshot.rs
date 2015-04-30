@@ -4,8 +4,9 @@ extern crate glium;
 #[cfg(feature = "image")]
 extern crate image;
 
+extern crate glutin;
+
 use glium::Surface;
-use glium::glutin;
 use std::path::Path;
 
 #[cfg(not(feature = "image"))]
