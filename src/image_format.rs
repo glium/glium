@@ -20,7 +20,7 @@ pub enum TextureFormatRequest {
     /// Request any floating-point format, normalized or not.
     AnyFloatingPoint,
 
-    // TODO: 
+    // TODO:
     // /// Request any floating-point format represented with floats.
     //AnyFloatingPointFloat,
 
@@ -191,117 +191,117 @@ impl ClientFormat {
 /// is not supported by the backend, it will automatically fall back to a larger format.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U8U8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I8I8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U16U16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I16I16,
-    /// 
+    ///
     U3U32U,
-    /// 
+    ///
     U4U4U4,
-    /// 
+    ///
     U5U5U5,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     U8U8U8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I8I8I8,
-    /// 
+    ///
     U10U10U10,
-    /// 
+    ///
     U12U12U12,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I16I16I16,
-    /// 
+    ///
     U2U2U2U2,
-    /// 
+    ///
     U4U4U4U4,
-    /// 
+    ///
     U5U5U5U1,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U8U8U8U8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     I8I8I8I8,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U10U10U10U2,
-    /// 
+    ///
     U12U12U12U12,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U16U16U16U16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F16F16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     F16F16F16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F16F16F16F16,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F32,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F32F32,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for textures.
     F32F32F32,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F32F32F32F32,
-    /// 
+    ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     F11F11F10,
@@ -411,9 +411,13 @@ pub enum CompressedFormat {
     /// BPTC format with three components (no alpha) represented as unsigned floats.
     BptcUnsignedFloat3,
 
+    /// S3TC DXT1 without alpha, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt1NoAlpha,
+    /// S3TC DXT1 with 1-bit alpha, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt1Alpha,
+    /// S3TC DXT3, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt3Alpha,
+    /// S3TC DXT5, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt5Alpha,
 }
 
