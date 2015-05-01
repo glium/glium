@@ -78,7 +78,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         },
     };
 
-    // sending the command
+    // starting the state changes
     let mut ctxt = context.make_current();
 
     // handling vertices source
@@ -227,15 +227,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         if let Err(e) = visiting_result {
             return Err(e);
         }
-
-        match &mut indices {
-            &mut IndicesSource::IndexBuffer { ref buffer, .. } => {
-                if let Some(fence) = buffer.add_fence() {
-                    fences.push(fence);
-                }
-            },
-            _ => ()
-        };
     }
 
     // sync-ing draw_parameters
@@ -272,6 +263,10 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
             &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
+
+                if let Some(fence) = buffer.add_fence() {
+                    fences.push(fence);
+                }
 
                 unsafe {
                     if let Some(instances_count) = instances_count {
@@ -327,9 +322,9 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         };
     };
 
-    unsafe {
-        // fulfilling the fences
-        for fence in fences.into_iter() {
+    // fulfilling the fences
+    for fence in fences.into_iter() {
+        unsafe {
             fence.send(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap()).unwrap();
         }
     }
