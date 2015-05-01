@@ -350,5 +350,5 @@ fn debug_string() {
     use glium::backend::Facade;
 
     let display = support::build_display();
-    display.get_context().insert_debug_marker("Hello world").unwrap();
+    display.get_context().insert_debug_marker("Hello world").ok();
 }
