@@ -1,7 +1,19 @@
 //! Defines useful macros for glium usage.
 
+/// Calls the `assert_no_error` method on a `glium::Display` instance
+/// with file and line number information.
+///
+/// Aside from the first argument which must be the display,
+/// the arguments of this macro match the `println!` macro.
+///
+/// ## Example
+/// ```ignore rust
+/// assert_no_gl_error!(my_display);
+/// assert_no_gl_error!(my_display, "custom message");
+/// assert_no_gl_error!(my_display, "custom format {}", 5);
+/// ```
 #[macro_export]
-macro_rules! assert_no_error {
+macro_rules! assert_no_gl_error {
     ($display: expr) => {
         {
             let message = format!("{}:{}", file!(), line!());
@@ -297,10 +309,10 @@ mod tests {
             fn assert_no_error(&self, _: Option<&str>) { }
         }
 
-        assert_no_error!(Dummy);
+        assert_no_gl_error!(Dummy);
 
-        assert_no_error!(Dummy, "hi");
+        assert_no_gl_error!(Dummy, "hi");
 
-        assert_no_error!(Dummy, "{} {}", 1, 2);
+        assert_no_gl_error!(Dummy, "{} {}", 1, 2);
     }
 }
