@@ -279,8 +279,10 @@ impl ToGlEnum for DepthTest {
     }
 }
 
-/// Specifies which comparaison the GPU will do to determine whether a sample passes the stencil
-/// test.
+/// Specifies which comparison the GPU will do to determine whether a sample passes the stencil
+/// test. The general equation is `(ref & mask) CMP (stencil & mask)`, where `ref` is the reference
+/// value (`stencil_reference_value_clockwise` or `stencil_reference_value_counter_clockwise`),
+/// `CMP` is the comparison chosen, and `stencil` is the current value in the stencil buffer.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum StencilTest {
     /// The stencil test always passes.
@@ -289,35 +291,41 @@ pub enum StencilTest {
     /// The stencil test always fails.
     AlwaysFail,
 
-    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
-    /// the reference value (`stencil_reference_value_clockwise` or
-    /// `stencil_reference_value_counter_clockwise`), then compares them.
-    IfLess { mask: u32 },
+    /// `(ref & mask) < (stencil & mask)`
+    IfLess {
+        /// The mask that is and'ed with the reference value and stencil buffer.
+        mask: u32
+    },
 
-    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
-    /// the reference value (`stencil_reference_value_clockwise` or
-    /// `stencil_reference_value_counter_clockwise`), then compares them.
-    IfLessOrEqual { mask: u32 },
+    /// `(ref & mask) <= (stencil & mask)`
+    IfLessOrEqual {
+        /// The mask that is and'ed with the reference value and stencil buffer.
+        mask: u32,
+    },
 
-    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
-    /// the reference value (`stencil_reference_value_clockwise` or
-    /// `stencil_reference_value_counter_clockwise`), then compares them.
-    IfMore { mask: u32 },
+    /// `(ref & mask) > (stencil & mask)`
+    IfMore {
+        /// The mask that is and'ed with the reference value and stencil buffer.
+        mask: u32,
+    },
 
-    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
-    /// the reference value (`stencil_reference_value_clockwise` or
-    /// `stencil_reference_value_counter_clockwise`), then compares them.
-    IfMoreOrEqual { mask: u32 },
+    /// `(ref & mask) >= (stencil & mask)`
+    IfMoreOrEqual {
+        /// The mask that is and'ed with the reference value and stencil buffer.
+        mask: u32,
+    },
 
-    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
-    /// the reference value (`stencil_reference_value_clockwise` or
-    /// `stencil_reference_value_counter_clockwise`), then compares them.
-    IfEqual { mask: u32 },
+    /// `(ref & mask) == (stencil & mask)`
+    IfEqual {
+        /// The mask that is and'ed with the reference value and stencil buffer.
+        mask: u32,
+    },
 
-    /// Applies the mask as a bitfield to both the value currently in the stencil buffer and
-    /// the reference value (`stencil_reference_value_clockwise` or
-    /// `stencil_reference_value_counter_clockwise`), then compares them.
-    IfNotEqual { mask: u32 },
+    /// `(ref & mask) != (stencil & mask)`
+    IfNotEqual {
+        /// The mask that is and'ed with the reference value and stencil buffer.
+        mask: u32,
+    },
 }
 
 /// Specificies which operation the GPU will do depending on the result of the stencil test.
@@ -434,7 +442,7 @@ pub struct DrawParameters {
     ///
     /// The default is `Overwrite`.
     pub depth_test: DepthTest,
-    
+
     /// Sets whether the GPU will write the depth values on the depth buffer if they pass the
     /// depth test.
     ///
@@ -573,7 +581,7 @@ pub struct DrawParameters {
     /// `None` means "don't care". Use this when you don't draw lines.
     pub line_width: Option<f32>,
 
-    /// Diameter in pixels of the points to draw when drawing points. 
+    /// Diameter in pixels of the points to draw when drawing points.
     ///
     /// `None` means "don't care". Use this when you don't draw points.
     pub point_size: Option<f32>,
