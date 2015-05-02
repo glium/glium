@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed the `program!` macro not usable with version numbers >= 256.
+
 ## Version 0.3.5 (2015-05-02)
 
  - Glium now reexports glutin. You can access glutin with `glium::glutin`.
