@@ -1,5 +1,27 @@
 //! Defines useful macros for glium usage.
 
+#[macro_export]
+macro_rules! assert_no_error {
+    ($display: expr) => {
+        {
+            let message = format!("{}:{}", file!(), line!());
+            $display.assert_no_error(Some(&message[..]));
+        }
+    };
+    ($display: expr, $msg: expr) => {
+        {
+            let message = format!("{}:{}  {}", file!(), line!(), $msg);
+            $display.assert_no_error(Some(&message[..]));
+        }
+    };
+    ($display: expr, $fmt: expr, $($arg:tt)+) => {
+        {
+            let message = format!(concat!("{}:{} ", $fmt), file!(), line!(), $($arg)+);
+            $display.assert_no_error(Some(&message[..]));
+        }
+    }
+}
+
 /// Returns an implementation-defined type which implements the `Uniform` trait.
 ///
 /// ## Example
@@ -112,7 +134,7 @@ macro_rules! implement_vertex {
 ///     300 => {
 ///         vertex: r#"
 ///             #version 300
-///             
+///
 ///             fn main() {
 ///                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 ///             }
@@ -129,7 +151,7 @@ macro_rules! implement_vertex {
 ///     110 => {
 ///         vertex: r#"
 ///             #version 110
-///             
+///
 ///             fn main() {
 ///                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 ///             }
@@ -145,7 +167,7 @@ macro_rules! implement_vertex {
 ///     300 es => {
 ///         vertex: r#"
 ///             #version 110
-///             
+///
 ///             fn main() {
 ///                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 ///             }
@@ -167,7 +189,7 @@ macro_rules! program {
     ($facade:expr,) => (
         panic!("No version found");     // TODO: handle better
     );
-    
+
     ($facade:expr,,$($rest:tt)*) => (
         program!($facade,$($rest)*)
     );
@@ -216,7 +238,7 @@ macro_rules! program {
             program!($context, $($rest)*)
         }
     );
-    
+
     (_inner, $context:ident, $vers:ident, {$($ty:ident:$src:expr),+,}$($rest:tt)*) => (
         program!(_inner, $context, $vers, {$($ty:$src),+} $($rest)*);
     );
@@ -267,5 +289,18 @@ mod tests {
         }
 
         implement_vertex!(Foo, pos,);
+    }
+    #[test]
+    fn assert_no_error_macro() {
+        struct Dummy;
+        impl Dummy {
+            fn assert_no_error(&self, _: Option<&str>) { }
+        }
+
+        assert_no_error!(Dummy);
+
+        assert_no_error!(Dummy, "hi");
+
+        assert_no_error!(Dummy, "{} {}", 1, 2);
     }
 }
