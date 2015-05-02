@@ -279,11 +279,15 @@ macro_rules! program {
         if $num == 100 {
             $crate::Version($crate::Api::GlEs, 1, 0)
         } else {
-            $crate::Version($crate::Api::Gl, $num / 100, ($num % 100) / 10)
+            let num: u32 = $num;
+            $crate::Version($crate::Api::Gl, ($num / 100) as u8, ((num % 100) / 10) as u8)
         }
     );
 
-    (_parse_num_gles $num:expr) => ($crate::Version($crate::Api::GlEs, $num / 100, ($num % 100) / 10));
+    (_parse_num_gles $num:expr) => ({
+        let num: u32 = $num;
+        $crate::Version($crate::Api::GlEs, ($num / 100) as u8, (($num % 100) / 10) as u8)
+    });
 }
 
 #[cfg(test)]
@@ -302,6 +306,7 @@ mod tests {
 
         implement_vertex!(Foo, pos,);
     }
+
     #[test]
     fn assert_no_error_macro() {
         struct Dummy;
