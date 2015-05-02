@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.5 (2015-05-02)
 
  - Glium now reexports glutin. You can access glutin with `glium::glutin`.
  - Fixed trying to retreive uniform blocks on OpenGL ES 2.
