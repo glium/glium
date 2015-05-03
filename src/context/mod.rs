@@ -1,3 +1,5 @@
+//! Contains everything related to the interface between glium and the OpenGL implementation.
+
 use gl;
 use libc;
 
@@ -7,6 +9,7 @@ use std::ptr;
 use std::collections::HashMap;
 use std::default::Default;
 use std::cell::{Cell, RefCell, RefMut};
+use std::marker::PhantomData;
 use std::ffi::CStr;
 use std::rc::Rc;
 
@@ -26,43 +29,83 @@ use vertex_array_object;
 
 pub use self::capabilities::Capabilities;
 pub use self::extensions::ExtensionsList;
-pub use self::state::GLState;
+pub use self::state::GlState;
 
 mod capabilities;
 mod extensions;
 mod state;
 
 /// Stores the state and information required for glium to execute commands. Most public glium
-/// functions require passing a `Context`.
+/// functions require passing a `Rc<Context>`.
 pub struct Context {
+    /// Contains the pointers to OpenGL functions.
     gl: gl::Gl,
-    state: RefCell<GLState>,
+
+    /// The current state of the OpenGL state machine. Contains for example which buffer is binded
+    /// to which bind point, whether depth testing is activated, etc.
+    state: RefCell<GlState>,
+
+    /// Version of OpenGL of the backend.
     version: Version,
+
+    /// Tells whether or not the backend supports each extension.
     extensions: ExtensionsList,
+
+    /// Constants defined by the backend and retreived at initialization. For example, number
+    /// of texture units, maximum size of the viewport, etc.
     capabilities: Capabilities,
 
+    /// Glue between glium and the code that handles windowing. Contains functions that allows
+    /// you to swap buffers, retreive the size of the framebuffer, etc.
     backend: RefCell<Box<Backend>>,
+
+    /// Whether or not glium must check that the OpenGL context is the current one before each
+    /// call.
     check_current_context: bool,
 
+    /// Whether or not errors triggered by ARB_debug_output (and similar extensions) should be
+    /// reported to the user (by panicking). This must be set to `false` in some situations,
+    /// like compiling/linking shaders.
     report_debug_output_errors: Cell<bool>,
 
-    // we maintain a list of FBOs
-    // the option is here to destroy the container
+    /// We maintain a cache of FBOs.
+    /// The `Option` is here in order to destroy the container. It must be filled at all time
+    /// is a normal situation.
     pub framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
+    /// We maintain a list of vertex array objecs.
     pub vertex_array_objects: vertex_array_object::VertexAttributesSystem,
 
-    // we maintain a list of samplers for each possible behavior
+    /// We maintain a list of samplers for each possible behavior.
     pub samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
 }
 
-pub struct CommandContext<'a, 'b> {
+/// This struct is a guard that is returned when you want to access the OpenGL backend.
+pub struct CommandContext<'a> {
+    /// Source of OpenGL function pointers.
     pub gl: &'a gl::Gl,
-    pub state: RefMut<'b, GLState>,
+
+    /// Refers to the state of the OpenGL backend. Maintained between multiple calls.
+    /// **Must** be synchronized with the real state of the backend.
+    pub state: RefMut<'a, GlState>,
+
+    /// Version of the backend.
     pub version: &'a Version,
+
+    /// Extensions supported by the backend.
     pub extensions: &'a ExtensionsList,
+
+    /// Capabilities of the backend.
     pub capabilities: &'a Capabilities,
+
+    /// Whether or not errors triggered by ARB_debug_output (and similar extensions) should be
+    /// reported to the user (by panicking).
     pub report_debug_output_errors: &'a Cell<bool>,
+
+    /// This marker is here to prevent `CommandContext` from implementing `Send`
+    // TODO: use this when possible
+    //impl<'a, 'b> !Send for CommandContext<'a, 'b> {}
+    marker: PhantomData<*mut u8>,
 }
 
 impl Context {
@@ -74,14 +117,18 @@ impl Context {
     /// If you pass `false`, you must ensure that no other OpenGL context is going to be made
     /// current in the same thread as this context. Passing `true` makes things safe but
     /// is slightly slower.
+    ///
+    /// The OpenGL context must be newly-created. If you make modifications to the context before
+    /// passing it to this function, glium's state cache may mismatch the actual one.
+    ///
     pub unsafe fn new<B, E>(backend: B, check_current_context: bool)
                             -> Result<Rc<Context>, GliumCreationError<E>>
                             where B: Backend + 'static
     {
         backend.make_current();
-        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
 
-        let gl_state: RefCell<GLState> = RefCell::new(Default::default());
+        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
+        let gl_state: RefCell<GlState> = RefCell::new(Default::default());
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl, &version);
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
@@ -92,6 +139,8 @@ impl Context {
             state.texture_units.reserve(capabilities.max_combined_texture_image_units as usize);
         }
 
+        // checking whether the backend supports glium
+        // TODO: do this more properly
         {
             let mut ctxt = CommandContext {
                 gl: &gl,
@@ -100,6 +149,7 @@ impl Context {
                 extensions: &extensions,
                 capabilities: &capabilities,
                 report_debug_output_errors: &report_debug_output_errors,
+                marker: PhantomData,
             };
 
             try!(check_gl_compatibility(&mut ctxt));
@@ -131,15 +181,16 @@ impl Context {
 
     /// Changes the OpenGL context associated with this context.
     ///
-    /// The new context must have lists shared with the old one.
+    /// The new context **must** have lists shared with the old one.
     pub unsafe fn rebuild<B, E>(&self, new_backend: B)
                                 -> Result<(), GliumCreationError<E>>
                                 where B: Backend + 'static
     {
+        // framebuffer objects and vertex array objects aren't shared,
+        // so we have to destroy them
         {
             let mut ctxt = self.make_current();
 
-            // framebuffer objects and vertex array objects aren't shared, so we have to destroy them
             if let Some(ref fbos) = self.framebuffer_objects {
                 fbos.purge_all(&mut ctxt);
             }
@@ -279,7 +330,7 @@ impl Context {
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another
     /// component needs to directly manipulate OpenGL state.
     ///
-    /// **If action manipulates any OpenGL state, it must be restored before action
+    /// **If `action` manipulates any OpenGL state, it must be restored before `action`
     /// completes.**
     pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
                                             where T: Send + 'static,
@@ -308,7 +359,7 @@ impl Context {
     /// put in a queue. This function waits until all commands have finished being executed, and
     /// the queue is empty.
     ///
-    /// **You don't need to call this function manually, except when running benchmarks.**
+    /// You normally don't need to call this function manually, except for debugging purposes.
     pub fn synchronize(&self) {
         let ctxt = self.make_current();
         unsafe { ctxt.gl.Finish(); }
@@ -357,7 +408,7 @@ impl ContextExt for Context {
         self.report_debug_output_errors.set(value);
     }
 
-    fn make_current<'a>(&'a self) -> CommandContext<'a, 'a> {
+    fn make_current(&self) -> CommandContext {
         if self.check_current_context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
@@ -372,6 +423,7 @@ impl ContextExt for Context {
             extensions: &self.extensions,
             capabilities: &self.capabilities,
             report_debug_output_errors: &self.report_debug_output_errors,
+            marker: PhantomData,
         }
     }
 }
@@ -395,6 +447,7 @@ impl Drop for Context {
                 extensions: &self.extensions,
                 capabilities: &self.capabilities,
                 report_debug_output_errors: &self.report_debug_output_errors,
+                marker: PhantomData,
             };
 
             let fbos = self.framebuffer_objects.take();
@@ -423,8 +476,9 @@ impl Drop for Context {
     }
 }
 
+/// Checks whether the backend supports glium. Returns an `Err` if it doesn't.
 fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreationError<T>> {
-    let mut result = Vec::new();
+    let mut result = Vec::with_capacity(0);
 
     if !(ctxt.version >= &Version(Api::Gl, 1, 5)) &&
         !(ctxt.version >= &Version(Api::GlEs, 2, 0)) &&
@@ -518,11 +572,14 @@ fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreat
     }
 }
 
+/// Initializes `GL_KHR_debug`, `GL_ARB_debug`, or a similar extension so that the debug output
+/// is reported.
 fn init_debug_callback(context: &Rc<Context>) {
     if !cfg!(debug_assertions) {
         return;
     }
 
+    // TODO: remove this
     if env::var("GLIUM_DISABLE_DEBUG_OUTPUT").is_ok() {
         return;
     }
@@ -542,6 +599,7 @@ fn init_debug_callback(context: &Rc<Context>) {
             ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
         {
             if user_param.report_debug_output_errors.get() {
+                // reporting
                 let message = unsafe {
                     String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
                 };

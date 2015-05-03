@@ -6,7 +6,7 @@ use std::default::Default;
 /// Represents the current OpenGL state.
 ///
 /// The current state is passed to each function and can be freely updated.
-pub struct GLState {
+pub struct GlState {
     /// Whether GL_BLEND is enabled
     pub enabled_blend: bool,
 
@@ -177,9 +177,10 @@ pub struct TextureUnitState {
     pub sampler: gl::types::GLuint,
 }
 
-impl Default for GLState {
-    fn default() -> GLState {
-        GLState {
+/// Builds the `GlState` corresponding to a newly-created OpenGL context.
+impl Default for GlState {
+    fn default() -> GlState {
+        GlState {
             enabled_blend: false,
             enabled_cull_face: false,
             enabled_debug_output: None,

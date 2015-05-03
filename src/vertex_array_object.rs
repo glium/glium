@@ -24,7 +24,7 @@ pub struct VertexAttributesSystem {
 
 /// Object allowing one to bind vertex attributes to the current context.
 pub struct Binder<'a, 'c, 'd: 'c> {
-    context: &'c mut CommandContext<'d, 'd>,
+    context: &'c mut CommandContext<'d>,
     program: &'a Program,
     system: &'a VertexAttributesSystem,
     element_array_buffer: gl::types::GLuint,
@@ -40,7 +40,7 @@ impl VertexAttributesSystem {
     }
 
     /// Starts the process of binding vertex attributes.
-    pub fn start<'a, 'c, 'd>(&'a self, ctxt: &'c mut CommandContext<'d, 'd>, program: &'a Program,
+    pub fn start<'a, 'c, 'd>(&'a self, ctxt: &'c mut CommandContext<'d>, program: &'a Program,
                              indices: gl::types::GLuint) -> Binder<'a, 'c, 'd>
     {
         Binder {

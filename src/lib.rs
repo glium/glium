@@ -262,7 +262,7 @@ trait ContextExt {
     fn set_report_debug_output_errors(&self, value: bool);
 
     /// Start executing OpenGL commands by checking the current context.
-    fn make_current<'a>(&'a self) -> context::CommandContext<'a, 'a>;
+    fn make_current(&self) -> context::CommandContext;
 }
 
 /// Internal trait for programs.
