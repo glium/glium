@@ -65,6 +65,11 @@ use DrawError;
 
 use {fbo, gl};
 
+pub use self::render_buffer::{RenderBuffer, DepthRenderBuffer};
+pub use self::render_buffer::{StencilRenderBuffer, DepthStencilRenderBuffer};
+
+mod render_buffer;
+
 /// A framebuffer which has only one color attachment.
 pub struct SimpleFrameBuffer<'a> {
     context: Rc<Context>,
@@ -348,11 +353,9 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     pub fn new<F>(facade: &F, color_attachments: &[(&str, &'a Texture2d)])
                   -> MultiOutputFrameBuffer<'a> where F: Facade
     {
-        use render_buffer;
-
         MultiOutputFrameBuffer::new_impl(facade, color_attachments,
-                                         None::<&render_buffer::DepthRenderBuffer>,
-                                         None::<&render_buffer::StencilRenderBuffer>)
+                                         None::<&DepthRenderBuffer>,
+                                         None::<&StencilRenderBuffer>)
     }
 
     /// Creates a `MultiOutputFrameBuffer` with a depth buffer.
@@ -364,10 +367,8 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                                    depth: &'a D) -> MultiOutputFrameBuffer<'a>
                                    where D: ToDepthAttachment, F: Facade
     {
-        use render_buffer;
-        
         MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
-                                         None::<&render_buffer::StencilRenderBuffer>)
+                                         None::<&StencilRenderBuffer>)
     }
 
     fn new_impl<F, D, S>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
@@ -593,7 +594,7 @@ pub enum ColorAttachment<'a> {
     /// A texture.
     SrgbTexture2dMultisampleArray(SrgbTexture2dMultisampleArrayMipmap<'a>),
     /// A render buffer.
-    RenderBuffer(&'a ::render_buffer::RenderBuffer),
+    RenderBuffer(&'a RenderBuffer),
 }
 
 /// Trait for objects that can be used as color attachments.
@@ -620,7 +621,7 @@ pub enum DepthAttachment<'a> {
     /// A texture.
     Texture2dMultisampleArray(DepthTexture2dMultisampleArrayMipmap<'a>),
     /// A render buffer.
-    RenderBuffer(&'a ::render_buffer::DepthRenderBuffer),
+    RenderBuffer(&'a DepthRenderBuffer),
 }
 
 /// Trait for objects that can be used as depth attachments.
@@ -647,7 +648,7 @@ pub enum StencilAttachment<'a> {
     /// A texture.
     Texture2dMultisampleArray(StencilTexture2dMultisampleArrayMipmap<'a>),
     /// A render buffer.
-    RenderBuffer(&'a ::render_buffer::StencilRenderBuffer),
+    RenderBuffer(&'a StencilRenderBuffer),
 }
 
 /// Trait for objects that can be used as stencil attachments.
@@ -674,7 +675,7 @@ pub enum DepthStencilAttachment<'a> {
     /// A texture.
     Texture2dMultisampleArray(DepthStencilTexture2dMultisampleArrayMipmap<'a>),
     /// A render buffer.
-    RenderBuffer(&'a ::render_buffer::DepthStencilRenderBuffer),
+    RenderBuffer(&'a DepthStencilRenderBuffer),
 }
 
 /// Trait for objects that can be used as depth and stencil attachments.

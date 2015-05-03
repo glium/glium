@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Fixed the `program!` macro not usable with version numbers >= 256.
+ - Moved the content of the `render_buffer` module to `framebuffer`. `render_buffer` still exists but is deprecated.
 
 ## Version 0.3.5 (2015-05-02)
 
