@@ -2,6 +2,7 @@ use fbo::{self, FramebufferAttachments};
 
 use context::Context;
 use ContextExt;
+use Rect;
 
 use Surface;
 
@@ -11,7 +12,8 @@ use gl;
 
 
 pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
-             color: Option<(f32, f32, f32, f32)>, depth: Option<f32>, stencil: Option<i32>)
+             rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
+             stencil: Option<i32>)
 {
     unsafe {
         let mut ctxt = context.make_current();
@@ -26,9 +28,25 @@ pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
             ctxt.state.enabled_rasterizer_discard = false;
         }
 
-        if ctxt.state.enabled_scissor_test {
-            ctxt.gl.Disable(gl::SCISSOR_TEST);
-            ctxt.state.enabled_scissor_test = false;
+        if let Some(rect) = rect {
+            let rect = (rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
+                        rect.width as gl::types::GLsizei, rect.height as gl::types::GLsizei);
+
+            if ctxt.state.scissor != Some(rect) {
+                ctxt.gl.Scissor(rect.0, rect.1, rect.2, rect.3);
+                ctxt.state.scissor = Some(rect);
+            }
+
+            if !ctxt.state.enabled_scissor_test {
+                ctxt.gl.Enable(gl::SCISSOR_TEST);
+                ctxt.state.enabled_scissor_test = true;
+            }
+
+        } else {
+            if ctxt.state.enabled_scissor_test {
+                ctxt.gl.Disable(gl::SCISSOR_TEST);
+                ctxt.state.enabled_scissor_test = false;
+            }
         }
 
         let mut flags = 0;

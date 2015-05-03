@@ -40,7 +40,7 @@ macro_rules! blending_test {
                 None).unwrap();
 
             let texture = support::build_renderable_texture(&display);
-            texture.as_surface().clear(Some($source), None, None);
+            texture.as_surface().clear(None, Some($source), None, None);
             texture.as_surface().draw(&vb, &ib, &program, &uniform!{ color: $dest },
                                       &params).unwrap();
 
