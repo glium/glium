@@ -395,10 +395,10 @@ impl<P> Texture3dDataSink for Vec<Vec<Vec<P>>> where P: PixelValue + Clone {
 pub struct TextureSurface<'a>(framebuffer::SimpleFrameBuffer<'a>);
 
 impl<'a> Surface for TextureSurface<'a> {
-    fn clear(&mut self, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
-             stencil: Option<i32>)
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
+             depth: Option<f32>, stencil: Option<i32>)
     {
-        self.0.clear(color, depth, stencil)
+        self.0.clear(rect, color, depth, stencil)
     }
 
     fn get_dimensions(&self) -> (u32, u32) {

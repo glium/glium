@@ -34,6 +34,31 @@ fn clear_color() {
 }
 
 #[test]
+fn clear_color_rect() {
+    let display = support::build_display();
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(1.0, 0.0, 0.0, 1.0);
+
+    let rect = glium::Rect { left: 512, bottom: 0, width: 512, height: 1024 };
+    texture.as_surface().clear(Some(&rect), Some((0.0, 1.0, 0.0, 1.0)), None, None);
+
+    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+
+    for row in data.iter() {
+        for (col, pixel) in row.iter().enumerate() {
+            if col >= 512 {
+                assert_eq!(pixel, &(0.0, 1.0, 0.0));
+            } else {
+                assert_eq!(pixel, &(1.0, 0.0, 0.0));
+            }
+        }
+    }
+
+    display.assert_no_error(None);
+}
+
+#[test]
 fn release_shader_compiler() {
     let display = support::build_display();
     display.release_shader_compiler();
