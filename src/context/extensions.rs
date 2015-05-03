@@ -3,7 +3,7 @@ use version::Version;
 use version::Api;
 use gl;
 
-/// Contains data about the list of extensions
+/// Contains data about the list of extensions.
 #[derive(Debug, Clone, Copy)]
 pub struct ExtensionsList {
     /// GL_APPLE_vertex_array_object
@@ -114,7 +114,18 @@ pub struct ExtensionsList {
     pub gl_oes_vertex_array_object: bool,
 }
 
-pub fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
+/// Returns the list of extensions supported by the backend.
+///
+/// The version must match the one of the backend.
+///
+/// *Safety*: the OpenGL context corresponding to `gl` must be current in the thread.
+///
+/// ## Panic
+///
+/// Can panic if the version number doesn't match the backend, leading to unloaded functions
+/// being called.
+///
+pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
     let strings = get_extensions_strings(gl, version);
 
     let mut extensions = ExtensionsList {
@@ -235,24 +246,32 @@ pub fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
     extensions
 }
 
-fn get_extensions_strings(gl: &gl::Gl, version: &Version) -> Vec<String> {
-    unsafe {
-        if version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) {
-            let mut num_extensions = 0;
-            gl.GetIntegerv(gl::NUM_EXTENSIONS, &mut num_extensions);
+/// Returns the list of all extension names supported by the OpenGL implementation.
+///
+/// The version must match the one of the backend.
+///
+/// *Safety*: the OpenGL context corresponding to `gl` must be current in the thread.
+///
+/// ## Panic
+///
+/// Can panic if the version number doesn't match the backend, leading to unloaded functions
+/// being called.
+///
+unsafe fn get_extensions_strings(gl: &gl::Gl, version: &Version) -> Vec<String> {
+    if version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) {
+        let mut num_extensions = 0;
+        gl.GetIntegerv(gl::NUM_EXTENSIONS, &mut num_extensions);
 
-            (0 .. num_extensions).map(|num| {
-                let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
-                String::from_utf8(CStr::from_ptr(ext as *const i8).to_bytes().to_vec()).unwrap()
-            }).collect()
+        (0 .. num_extensions).map(|num| {
+            let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
+            String::from_utf8(CStr::from_ptr(ext as *const i8).to_bytes().to_vec()).unwrap()
+        }).collect()
 
-        } else {
-            let list = gl.GetString(gl::EXTENSIONS);
-            assert!(!list.is_null());
-            let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec())
-                                         .unwrap();
-            list.split(' ').map(|e| e.to_string()).collect()
-
-        }
+    } else {
+        let list = gl.GetString(gl::EXTENSIONS);
+        assert!(!list.is_null());
+        let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec())
+                                     .unwrap();
+        list.split(' ').map(|e| e.to_string()).collect()
     }
 }

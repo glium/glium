@@ -44,8 +44,16 @@ pub struct Capabilities {
 }
 
 /// Loads the capabilities.
-pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
-                        -> Capabilities
+///
+/// *Safety*: the OpenGL context corresponding to `gl` must be current in the thread.
+///
+/// ## Panic
+///
+/// Can panic if the version number or extensions list don't match the backend, leading to
+/// unloaded functions being called.
+///
+pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
+                               -> Capabilities
 {
     use std::mem;
 
@@ -54,7 +62,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             get_supported_glsl(gl, version, extensions)
         },
 
-        stereo: unsafe {
+        stereo: {
             if version >= &Version(Api::Gl, 1, 0) {
                 let mut val: gl::types::GLboolean = mem::uninitialized();
                 gl.GetBooleanv(gl::STEREO, &mut val);
@@ -64,7 +72,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             }
         },
 
-        srgb: unsafe {
+        srgb: {
             if version >= &Version(Api::Gl, 3, 0) {
                 let mut value = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::BACK_LEFT,
@@ -82,7 +90,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             }
         },
 
-        depth_bits: unsafe {
+        depth_bits: {
             let mut value = mem::uninitialized();
 
             if version >= &Version(Api::Gl, 3, 0) {
@@ -99,7 +107,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             }
         },
 
-        stencil_bits: unsafe {
+        stencil_bits: {
             let mut value = mem::uninitialized();
 
             if version >= &Version(Api::Gl, 3, 0) {
@@ -116,7 +124,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             }
         },
 
-        max_combined_texture_image_units: unsafe {
+        max_combined_texture_image_units: {
             let mut val = 2;
             gl.GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, &mut val);
             val
@@ -126,20 +134,20 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
             None
 
         } else {
-            Some(unsafe {
+            Some({
                 let mut val = mem::uninitialized();
                 gl.GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut val);
                 val
             })
         },
 
-        max_viewport_dims: unsafe {
+        max_viewport_dims: {
             let mut val: [gl::types::GLint; 2] = [ 0, 0 ];
             gl.GetIntegerv(gl::MAX_VIEWPORT_DIMS, val.as_mut_ptr());
             (val[0], val[1])
         },
 
-        max_draw_buffers: unsafe {
+        max_draw_buffers: {
             if version >= &Version(Api::Gl, 2, 0) ||
                 version >= &Version(Api::GlEs, 3, 0)
             {
@@ -154,7 +162,7 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
         max_patch_vertices: if version >= &Version(Api::Gl, 4, 0) ||
             extensions.gl_arb_tessellation_shader
         {
-            Some(unsafe {
+            Some({
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_PATCH_VERTICES, &mut val);
                 val
@@ -167,18 +175,24 @@ pub fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsL
 }
 
 /// Gets the list of GLSL versions supported by the backend.
-pub fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
-                          -> Vec<Version>
+///
+/// *Safety*: the OpenGL context corresponding to `gl` must be current in the thread.
+///
+/// ## Panic
+///
+/// Can panic if the version number or extensions list don't match the backend, leading to
+/// unloaded functions being called.
+///
+pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
+                                 -> Vec<Version>
 {
     // checking if the implementation has a shader compiler
     // a compiler is optional in OpenGL ES
     if version.0 == Api::GlEs {
-        unsafe {
-            let mut val = mem::uninitialized();
-            gl.GetBooleanv(gl::SHADER_COMPILER, &mut val);
-            if val == 0 {
-                return vec![];
-            }
+        let mut val = mem::uninitialized();
+        gl.GetBooleanv(gl::SHADER_COMPILER, &mut val);
+        if val == 0 {
+            return vec![];
         }
     }
 
