@@ -190,10 +190,10 @@ use context::Context;
 
 pub mod backend;
 pub mod debug;
+pub mod draw_parameters;
 pub mod framebuffer;
 pub mod index;
 pub mod pixel_buffer;
-pub mod macros;
 pub mod program;
 pub mod render_buffer;
 pub mod uniforms;
@@ -202,9 +202,9 @@ pub mod texture;
 
 mod buffer;
 mod context;
-mod draw_parameters;
 mod fbo;
 mod image_format;
+mod macros;
 mod ops;
 mod sampler_object;
 mod sync;
