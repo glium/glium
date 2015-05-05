@@ -282,7 +282,8 @@ impl Buffer {
 
                 if ctxt.version >= &Version(Api::Gl, 4, 5) {
                     ctxt.gl.MapNamedBufferRange(temporary_buffer, 0, size_bytes as gl::types::GLsizei,
-                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
+                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                                gl::MAP_FLUSH_EXPLICIT_BIT)
 
                 } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                     ctxt.version >= &Version(Api::GlEs, 3, 0) ||
@@ -290,7 +291,8 @@ impl Buffer {
                 {
                     let bind = bind_buffer(&mut ctxt, temporary_buffer, self.ty);
                     ctxt.gl.MapBufferRange(bind, 0, size_bytes as gl::types::GLsizeiptr,
-                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
+                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                           gl::MAP_FLUSH_EXPLICIT_BIT)
 
                 } else {
                     unimplemented!();       // FIXME: 
@@ -314,7 +316,8 @@ impl Buffer {
                 if ctxt.version >= &Version(Api::Gl, 4, 5) {
                     ctxt.gl.MapNamedBufferRange(self.id, offset_bytes as gl::types::GLintptr,
                                                 size_bytes as gl::types::GLsizei,
-                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
+                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                                gl::MAP_FLUSH_EXPLICIT_BIT)
 
                 } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                     ctxt.version >= &Version(Api::GlEs, 3, 0) ||
@@ -323,7 +326,8 @@ impl Buffer {
                     let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                     ctxt.gl.MapBufferRange(bind, offset_bytes as gl::types::GLintptr,
                                            size_bytes as gl::types::GLsizeiptr,
-                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT)
+                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                           gl::MAP_FLUSH_EXPLICIT_BIT)
 
                 } else {
                     unimplemented!();       // FIXME: 
@@ -446,12 +450,40 @@ unsafe impl<'a, D> Sync for Mapping<'a, D> where D: Sync {}
 
 impl<'a, D> Drop for Mapping<'a, D> {
     fn drop(&mut self) {
+        let mut ctxt = self.buffer.context.make_current();
+
+        // flushing the written data
+        let to_flush = if let Some((temporary_buffer, _)) = self.temporary_buffer {
+            temporary_buffer
+        } else {
+            self.buffer.id
+        };
+
+        if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+            unsafe {
+                ctxt.gl.FlushMappedNamedBufferRange(to_flush, 0,
+                                                    (self.len * self.buffer.elements_size)
+                                                    as gl::types::GLsizei);
+            }
+
+        } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                  ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+                  ctxt.extensions.gl_arb_map_buffer_range
+        {
+            unsafe {
+                let bind = bind_buffer(&mut ctxt, to_flush, self.buffer.ty);
+                ctxt.gl.FlushMappedBufferRange(bind, 0, (self.len * self.buffer.elements_size)
+                                               as gl::types::GLsizeiptr)
+            }
+
+        } else {
+            unreachable!();
+        }
+
         // don't unmap if the buffer is persistent
         if self.buffer.is_persistent() {
             return;
         }
-
-        let mut ctxt = self.buffer.context.make_current();
 
         if let Some((temporary_buffer, offset_bytes)) = self.temporary_buffer {
             unsafe {
@@ -578,7 +610,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
     let immutable_storage_flags = if dynamic && avoid_persistent {
         gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT
     } else if dynamic {
-        gl::MAP_PERSISTENT_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT | gl::MAP_COHERENT_BIT
+        gl::MAP_PERSISTENT_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT
     } else {
         0
     };
@@ -647,7 +679,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
         let ptr = if ctxt.version >= &Version(Api::Gl, 4, 5) {
             ctxt.gl.MapNamedBufferRange(id, 0, buffer_size as gl::types::GLsizei,
                                         gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                        gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
+                                        gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
 
         } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                   ctxt.extensions.gl_arb_map_buffer_range
@@ -655,7 +687,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
             let bind = bind_buffer(&mut ctxt, id, ty);
             ctxt.gl.MapBufferRange(bind, 0, buffer_size as gl::types::GLsizeiptr,
                                    gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                   gl::MAP_PERSISTENT_BIT | gl::MAP_COHERENT_BIT)
+                                   gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
         } else {
             unreachable!();
         };
