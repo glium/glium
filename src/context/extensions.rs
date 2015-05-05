@@ -110,6 +110,10 @@ pub struct ExtensionsList {
     pub gl_nv_copy_buffer: bool,
     /// GL_NVX_gpu_memory_info
     pub gl_nvx_gpu_memory_info: bool,
+    /// GL_OES_depth_texture
+    pub gl_oes_depth_texture: bool,
+    /// GL_OES_packed_depth_stencil
+    pub gl_oes_packed_depth_stencil: bool,
     /// GL_OES_vertex_array_object
     pub gl_oes_vertex_array_object: bool,
 }
@@ -181,6 +185,8 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_khr_debug: false,
         gl_nv_copy_buffer: false,
         gl_nvx_gpu_memory_info: false,
+        gl_oes_depth_texture: false,
+        gl_oes_packed_depth_stencil: false,
         gl_oes_vertex_array_object: false,
     };
 
@@ -238,6 +244,8 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
             "GL_NV_copy_buffer" => extensions.gl_nv_copy_buffer = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
+            "GL_OES_depth_texture" => extensions.gl_oes_depth_texture = true,
+            "GL_OES_packed_depth_stencil" => extensions.gl_oes_packed_depth_stencil = true,
             "GL_OES_vertex_array_object" => extensions.gl_oes_vertex_array_object = true,
             _ => ()
         }

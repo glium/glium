@@ -541,7 +541,8 @@ fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreat
     }
 
     if cfg!(feature = "gl_depth_textures") && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
-        (!ctxt.extensions.gl_arb_depth_texture || !ctxt.extensions.gl_ext_packed_depth_stencil)
+        (!ctxt.extensions.gl_arb_depth_texture || !ctxt.extensions.gl_ext_packed_depth_stencil) &&
+        (!ctxt.extensions.gl_oes_depth_texture || !ctxt.extensions.gl_oes_packed_depth_stencil)
     {
         result.push("OpenGL implementation doesn't support depth or depth-stencil textures");
     }
