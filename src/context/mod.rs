@@ -217,9 +217,6 @@ impl Context {
             }
         }
 
-        // this is necessary on Windows 8, or nothing is being displayed
-        unsafe { self.gl.Flush(); }
-
         // swapping
         backend.swap_buffers();
     }
