@@ -5,6 +5,7 @@
  - Buffers are no longer mapped with `GL_MAP_COHERENT_BIT`. Flushing is handled by glium.
  - Changed `Surface::clear` to take an additional optional `Rect` parameter that specifies the rectangle to clear.
  - Fixed the `program!` macro not usable with version numbers >= 256.
+ - Added support for `GL_OES_depth_texture` and `GL_OES_packed_depth_stencil`.
  - Moved the content of the `render_buffer` module to `framebuffer`. `render_buffer` still exists but is deprecated.
 
 ## Version 0.3.5 (2015-05-02)

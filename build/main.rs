@@ -85,6 +85,8 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_EXT_disjoint_timer_query".to_string(),
                 "GL_KHR_debug".to_string(),
                 "GL_NV_copy_buffer".to_string(),
+                "GL_OES_depth_texture".to_string(),
+                "GL_OES_packed_depth_stencil".to_string(),
                 "GL_OES_texture_npot".to_string(),
                 "GL_OES_vertex_array_object".to_string(),
             ],
