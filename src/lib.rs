@@ -3,156 +3,54 @@ Easy-to-use, high-level, OpenGL3+ wrapper.
 
 # Initialization
 
-This library defines the `DisplayBuild` trait which is curently implemented only on
-`glutin::WindowBuilder`.
+This library defines the `DisplayBuild` trait which is implemented on
+`glium::glutin::WindowBuilder`.
 
 Initialization is done by creating a `WindowBuilder` and calling `build_glium`.
 
 ```no_run
-extern crate glutin;
 extern crate glium;
 
 fn main() {
     use glium::DisplayBuild;
 
-    let display = glutin::WindowBuilder::new()
+    let display = glium::glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
         .with_title(format!("Hello world"))
-        .build_glium().unwrap();
+        .build_glium()
+        .unwrap();
 }
 ```
 
-The `display` object is the most important object of this library.
+The `display` object is the most important object of this library and is used when you build
+buffers, textures, etc. and when you draw.
+You can clone it and pass it around. However it doesn't implement the `Send` and `Sync` traits,
+meaning that you can't pass it to another thread.
 
-The window you are drawing on will produce events. They can be received by calling
-`display.poll_events()`.
+The display has ownership of the window, and also provides some methods related to domains such
+as events handling.
 
-# Complete example
+# Overview
 
-The first step is to create the vertex buffer, which contains the list of all the points that
-make up our mesh. The elements that we pass to `VertexBuffer::new` must implement the
-`glium::vertex::VertexFormat` trait, which can be easily added for any custom struct thanks to the
-`implement_vertex!` macro.
+OpenGL is similar to a drawing software: you draw something, then draw over it, then over it
+again, etc. until you are satisfied of the result.
 
-See the `vertex` module documentation for more informations.
+Once you have a `display`, you can call `let mut frame = display.draw();` to start drawing. This
+`frame` object implements [the `Surface` trait](trait.Surface.html) and provides some functions
+such as `clear_color`, but also allows you to draw with the rendering pipeline.
 
-```no_run
-# #[macro_use]
-# extern crate glium;
-# fn main() {
-#[derive(Copy, Clone)]
-struct Vertex {
-    position: [f32; 2],
-    color: [f32; 3],
-}
+In order to draw something, you will need to pass:
 
-implement_vertex!(Vertex, position, color);
+ - A source of vertices (see the [`vertex`](vertex/index.html) module)
+ - A source of indices (see the [`index`](index/index.html) module)
+ - A program that contains the shader that the GPU will execute (see the
+   [`program`](program/index.html) module)
+ - A list of uniforms for the program (see the [`uniforms`](uniforms/index.html) module)
+ - Draw parameters to customize the drawing process (see the
+   [`draw_parameters`](draw_parameters/index.html) module)
 
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-let vertex = glium::VertexBuffer::new(&display, vec![
-    Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
-    Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
-    Vertex { position: [ 0.5, -0.5], color: [1.0, 0.0, 0.0] },
-]);
-# }
-```
-
-We will also need to tell glium how the vertices must be linked together. We could create an index
-buffer, but since we only have a single triangle the simpler solution here is not to use indices.
-
-```no_run
-use glium::index;
-let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
-```
-
-Next, we create the program, which is composed of a *vertex shader*, a program executed once for
-each element in our vertex buffer, and a *fragment shader*, a program executed once for each
-pixel before it is written on the final image.
-
-The purpose of a program is to instruct the GPU how to process our mesh, in order to obtain pixels.
-
-```no_run
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-let program = glium::Program::from_source(&display,
-    // vertex shader
-    "   #version 110
-
-        uniform mat4 matrix;
-
-        attribute vec2 position;
-        attribute vec3 color;
-
-        varying vec3 v_color;
-
-        void main() {
-            gl_Position = vec4(position, 0.0, 1.0) * matrix;
-            v_color = color;
-        }
-    ",
-
-    // fragment shader
-    "   #version 110
-        varying vec3 v_color;
-
-        void main() {
-            gl_FragColor = vec4(v_color, 1.0);
-        }
-    ",
-
-    // optional geometry shader
-    None
-).unwrap();
-```
-
-*Note: teaching you the GLSL language is not covered by this guide.*
-
-You may notice that the `attribute` declarations in the vertex shader match the field names and
-types of the elements in the vertex buffer. This is required, otherwise drawing will result in
-an error.
-
-In the example above, one of our shaders contains `uniform mat4 matrix;`. Uniforms are global
-variables in our program whose values are chosen by the application.
-
-```no_run
-# #[macro_use]
-# extern crate glium;
-# fn main() {
-let uniforms = uniform! {
-    matrix: [
-        [ 1.0, 0.0, 0.0, 0.0 ],
-        [ 0.0, 1.0, 0.0, 0.0 ],
-        [ 0.0, 0.0, 1.0, 0.0 ],
-        [ 0.0, 0.0, 0.0, 1.0 ]
-    ]
-};
-# }
-```
-
-The value of uniforms can be of any type that implements `glium::uniforms::UniformValue`.
-This includes textures and samplers (not covered here). See the `uniforms` module documentation 
-for more informations.
-
-Now that everything is initialized, we can finally draw something. The `display.draw()` function
-will start drawing a new frame and return a `Frame` object. This `Frame` object has a `draw`
-function, which you can use to draw things.
-
-Its arguments are the source of vertices, source of indices, program, uniforms, and an object of
-type `DrawParameters` which  contains miscellaneous information specifying how everything should
-be rendered (depth test, blending, backface culling, etc.).
-
-```no_run
-use glium::Surface;
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let vertex_buffer: glium::VertexBuffer<u8> = unsafe { std::mem::uninitialized() };
-# let indices: glium::IndexBuffer = unsafe { std::mem::uninitialized() };
-# let program: glium::Program = unsafe { std::mem::uninitialized() };
-# let uniforms = glium::uniforms::EmptyUniforms;
-let mut target = display.draw();
-target.clear_color(0.0, 0.0, 0.0, 0.0);  // filling the output with the black color
-target.draw(&vertex_buffer, &indices, &program, &uniforms,
-            &std::default::Default::default()).unwrap();
-target.finish();
-```
+Once you have finished drawing, you can call `frame.finish()` to swap buffers and present the
+result to the user.
 
 */
 #![warn(missing_docs)]
@@ -220,7 +118,7 @@ mod gl {
 ///
 /// This object contains a smart pointer to the real implementation.
 /// Cloning the display allows you to easily share the `Display` object throughout
-/// your program and between threads.
+/// your program.
 pub type Display = backend::glutin_backend::GlutinFacade;
 
 /// Trait for objects that are OpenGL objects.
