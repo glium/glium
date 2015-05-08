@@ -180,6 +180,8 @@ fn main() {
                 in vec3 g_normal;
                 in vec2 g_tex_coords;
 
+                out vec4 o_color;
+
                 uniform sampler2D color_texture;
 
                 const vec3 LIGHT = vec3(-0.2, 0.1, 0.8);
@@ -188,7 +190,7 @@ fn main() {
                     float lum = max(dot(normalize(g_normal), normalize(LIGHT)), 0.0);
                     vec3 tex_color = texture(color_texture, g_tex_coords).rgb;
                     vec3 color = (0.6 + 0.4 * lum) * tex_color;
-                    gl_FragColor = vec4(color, 1.0);
+                    o_color = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
         }).unwrap();
