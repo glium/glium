@@ -278,6 +278,15 @@ trait ProgramExt {
                  value: gl::types::GLuint);
 }
 
+/// Internal trait for queries.
+trait QueryExt {
+    /// Returns true if the query has never been used.
+    fn is_unused(&self) -> bool;
+
+    /// Sets the query as having been used.
+    fn set_used(&self);
+}
+
 /// A raw value of a uniform. "Raw" means that it's passed directly with `glUniform`. Textures
 /// for example are just passed as integers.
 ///
@@ -710,6 +719,9 @@ pub enum DrawError {
 
     /// You requested not to draw primitives, but this is not supported by the backend.
     TransformFeedbackNotSupported,
+
+    // TODO: document me
+    WrongQueryOperation,
 }
 
 impl std::fmt::Display for DrawError {
@@ -760,6 +772,7 @@ impl std::fmt::Display for DrawError {
             &DrawError::TransformFeedbackNotSupported => write!(fmt, "Requested not to draw \
                                                                       primitves, but this is not \
                                                                       supported by the backend."),
+            &DrawError::WrongQueryOperation => write!(fmt, "Wrong query operation."),
         }
     }
 }
