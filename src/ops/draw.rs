@@ -1,5 +1,6 @@
 use std::ptr;
-use std::sync::mpsc::Sender;
+use std::mem;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::default::Default;
 
@@ -324,18 +325,24 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
     // fulfilling the fences
     for fence in fences.into_iter() {
-        unsafe {
-            fence.send(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap()).unwrap();
+        let mut new_fence = Some(unsafe {
+            sync::new_linear_sync_fence_if_supported(&mut ctxt)
+        }.unwrap());
+
+        mem::swap(&mut new_fence, &mut *fence.borrow_mut());
+
+        if let Some(new_fence) = new_fence {
+            unsafe { sync::destroy_linear_sync_fence(&mut ctxt, new_fence) };
         }
     }
 
     Ok(())
 }
 
-fn bind_uniform_block(ctxt: &mut context::CommandContext, value: &UniformValue,
-                      block: &program::UniformBlock,
-                      program: &Program, buffer_bind_points: &mut Bitsfield, name: &str)
-                      -> Result<Option<Sender<sync::LinearSyncFence>>, DrawError>
+fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
+                          block: &program::UniformBlock,
+                          program: &Program, buffer_bind_points: &mut Bitsfield, name: &str)
+                          -> Result<Option<&'a RefCell<Option<sync::LinearSyncFence>>>, DrawError>
 {
     match value {
         &UniformValue::Block(ref buffer, ref layout) => {

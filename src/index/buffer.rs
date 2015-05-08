@@ -16,7 +16,7 @@ use index::PrimitiveType;
 
 use std::mem;
 use std::ops::Range;
-use std::sync::mpsc::Sender;
+use std::cell::RefCell;
 
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
@@ -81,7 +81,7 @@ impl IndexBuffer {
 }
 
 impl BufferExt for IndexBuffer {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         self.buffer.add_fence()
     }
 }

@@ -3,7 +3,7 @@ use uniforms::{AsUniformValue, UniformValue, UniformBlock};
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
-use std::sync::mpsc::Sender;
+use std::cell::RefCell;
 
 use backend::Facade;
 
@@ -105,13 +105,13 @@ impl GlObject for TypelessUniformBuffer {
 }
 
 impl<T> BufferExt for UniformBuffer<T> {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         self.buffer.add_fence()
     }
 }
 
 impl BufferExt for TypelessUniformBuffer {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         self.buffer.add_fence()
     }
 }

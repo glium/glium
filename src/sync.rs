@@ -151,3 +151,9 @@ pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
                            365 * 24 * 3600 * 1000 * 1000 * 1000);
     ctxt.gl.DeleteSync(fence);
 }
+
+/// Destroys a fence, from within the commands context.
+pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext, mut fence: LinearSyncFence) {
+    let fence = fence.id.take().unwrap();
+    ctxt.gl.DeleteSync(fence);
+}
