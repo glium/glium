@@ -183,7 +183,7 @@ pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
 pub use version::{Api, Version, get_supported_glsl_version};
 
-use std::sync::mpsc::Sender;
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use context::Context;
@@ -252,8 +252,10 @@ trait ToGlEnum {
 
 /// Internal trait for buffers.
 trait BufferExt {
-    /// 
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>>;
+    /// Tries to get a reference to a `RefCell` where to write a fence.
+    ///
+    /// If this function returns `None`, no fence will be created nor written.
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>>;
 }
 
 /// Internal trait for contexts.

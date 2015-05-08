@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 use std::ops::{Range, Deref, DerefMut};
-use std::sync::mpsc::Sender;
+use std::cell::RefCell;
 use std::mem;
 
 use buffer::{self, Buffer, BufferType};
@@ -333,7 +333,7 @@ impl<T> GlObject for VertexBuffer<T> {
 }
 
 impl<T> BufferExt for VertexBuffer<T> {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         self.buffer.add_fence()
     }
 }
@@ -379,7 +379,7 @@ impl<'b, T> VertexBufferSlice<'b, T> where T: Send + Copy + 'static {
 }
 
 impl<'a, T> BufferExt for VertexBufferSlice<'a, T> {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         self.buffer.add_fence()
     }
 }
@@ -454,7 +454,7 @@ impl VertexBufferAny {
 }
 
 impl BufferExt for VertexBufferAny {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         self.buffer.add_fence()
     }
 }

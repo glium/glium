@@ -6,9 +6,8 @@ use ContextExt;
 use gl;
 use libc;
 use std::{fmt, mem, ptr, slice};
-use std::sync::Mutex;
-use std::sync::mpsc::{channel, Sender, Receiver};
 use std::rc::Rc;
+use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use GlObject;
 use BufferExt;
@@ -39,8 +38,8 @@ pub struct Buffer {
     /// the persistent mapping.
     immutable: bool,
 
-    /// Fences that the buffer must wait on before locking the permanent mapping.
-    fences: Mutex<Vec<Receiver<sync::LinearSyncFence>>>,
+    /// Fence that the buffer must wait on before locking the permanent mapping.
+    fence: RefCell<Option<sync::LinearSyncFence>>,
 }
 
 /// Error that can happen when creating a buffer.
@@ -107,7 +106,7 @@ impl Buffer {
             elements_count: elements_count,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
-            fences: Mutex::new(Vec::new()),
+            fence: RefCell::new(None),
         })
     }
 
@@ -129,7 +128,7 @@ impl Buffer {
             elements_count: elements_count,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
-            fences: Mutex::new(Vec::new()),
+            fence: RefCell::new(None),
         })
     }
 
@@ -245,11 +244,10 @@ impl Buffer {
         }
 
         if let Some(existing_mapping) = self.persistent_mapping.clone() {
-            // we have a `&mut self`, so there's no risk of deadlock when locking `fences`
             {
-                let mut fences = self.fences.lock().unwrap();
-                for fence in mem::replace(&mut *fences, Vec::with_capacity(0)) {
-                    fence.recv().unwrap().into_sync_fence(&self.context).wait();
+                let mut fence = self.fence.borrow_mut();
+                if let Some(fence) = fence.take() {
+                    fence.into_sync_fence(&self.context).wait();
                 }
             }
 
@@ -412,14 +410,12 @@ impl Buffer {
 }
 
 impl BufferExt for Buffer {
-    fn add_fence(&self) -> Option<Sender<sync::LinearSyncFence>> {
+    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
         if self.persistent_mapping.is_none() {
             return None;
         }
 
-        let (tx, rx) = channel();
-        self.fences.lock().unwrap().push(rx);
-        Some(tx)
+        Some(&self.fence)
     }
 }
 
