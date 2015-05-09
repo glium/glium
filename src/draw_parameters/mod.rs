@@ -9,6 +9,10 @@ use ToGlEnum;
 
 use std::default::Default;
 
+pub use self::query::{SamplesPassedQuery, TimeElapsedQuery};
+
+mod query;
+
 /// Function that the GPU will use for blending.
 ///
 /// Blending happens at the end of the rendering process, when the GPU wants to write the
@@ -433,8 +437,8 @@ impl ToGlEnum for PolygonMode {
 /// };
 /// ```
 ///
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct DrawParameters {
+#[derive(Clone, Copy, Debug)]
+pub struct DrawParameters<'a> {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target. Don't forget to set `depth_write` appropriately if you use a depth test.
     ///
@@ -639,10 +643,18 @@ pub struct DrawParameters {
     /// This parameter may seem pointless, but it can be useful when you use transform
     /// feedback or if you just use your shaders to write to a buffer.
     pub draw_primitives: bool,
+
+    /// If set, each sample (ie. usually each pixel) written to the output adds one to the
+    /// counter of the `SamplesPassedQuery`.
+    pub samples_passed_query: Option<&'a SamplesPassedQuery>,
+
+    /// If set, the time it took for the GPU to execute this draw command is added to the total
+    /// stored inside the `TimeElapsedQuery`.
+    pub time_elapsed_query: Option<&'a TimeElapsedQuery>,
 }
 
-impl Default for DrawParameters {
-    fn default() -> DrawParameters {
+impl<'a> Default for DrawParameters<'a> {
+    fn default() -> DrawParameters<'a> {
         DrawParameters {
             depth_test: DepthTest::Overwrite,
             depth_write: false,
@@ -669,6 +681,8 @@ impl Default for DrawParameters {
             viewport: None,
             scissor: None,
             draw_primitives: true,
+            samples_passed_query: None,
+            time_elapsed_query: None,
         }
     }
 }

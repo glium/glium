@@ -12,6 +12,7 @@ use RawUniformValue;
 
 use context::Context;
 use ContextExt;
+use QueryExt;
 
 use utils::bitsfield::Bitsfield;
 
@@ -28,6 +29,7 @@ use draw_parameters::DrawParameters;
 use draw_parameters::{BlendingFunction, BackfaceCullingMode};
 use draw_parameters::{DepthTest, PolygonMode};
 use draw_parameters::{StencilTest};
+use draw_parameters::{SamplesPassedQuery, TimeElapsedQuery};
 use Rect;
 
 use program;
@@ -245,6 +247,8 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                               dimensions);
         sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives);
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
+        try!(sync_queries(&mut ctxt, draw_parameters.samples_passed_query,
+                          draw_parameters.time_elapsed_query));
 
         if !program.has_srgb_output() {
             if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
@@ -1065,4 +1069,39 @@ unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext, vertices_p
             ctxt.state.patch_patch_vertices = vertices_per_patch;
         }
     }
+}
+
+fn sync_queries(ctxt: &mut context::CommandContext,
+                samples_passed_query: Option<&SamplesPassedQuery>,
+                time_elapsed_query: Option<&TimeElapsedQuery>)
+                -> Result<(), DrawError>
+{
+    // FIXME: doesn't use ARB/EXT variants
+
+    macro_rules! test {
+        ($state:ident, $new:expr, $glenum:expr) => {
+            match (&mut ctxt.state.samples_passed_query, samples_passed_query) {
+                (&mut 0, None) => (),
+                (&mut existing, Some(new)) if existing == new.get_id() => (),
+                (existing, Some(new)) => {
+                    if !new.is_unused() {
+                        return Err(DrawError::WrongQueryOperation);
+                    }
+
+                    new.set_used();
+                    *existing = new.get_id();
+                    unsafe { ctxt.gl.BeginQuery($glenum, *existing); }
+                },
+                (existing, None) => {
+                    *existing = 0;
+                    unsafe { ctxt.gl.EndQuery($glenum); }
+                }
+            }
+        }
+    }
+
+    test!(samples_passed_query, samples_passed_query, gl::SAMPLES_PASSED);
+    test!(time_elapsed_query, time_elapsed_query, gl::TIME_ELAPSED);
+
+    Ok(())
 }

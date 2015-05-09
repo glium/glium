@@ -165,6 +165,22 @@ pub struct GlState {
 
     /// List of texture units.
     pub texture_units: Vec<TextureUnitState>,
+
+    /// Current query being used for GL_SAMPLES_PASSED​.
+    pub samples_passed_query: gl::types::GLuint,
+
+    /// Current query being used for GL_ANY_SAMPLES_PASSED​.
+    pub any_samples_passed_query: gl::types::GLuint,
+
+    /// Current query being used for GL_PRIMITIVES_GENERATED​.
+    pub primitives_generated_query: gl::types::GLuint,
+
+    /// Current query being used for GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN​.
+    pub transform_feedback_primitives_written_query: gl::types::GLuint,
+
+    /// Current query being used for GL_TIME_ELAPSED​.
+    pub time_elapsed_query: gl::types::GLuint,
+
 }
 
 /// State of a texture unit (the one designated by `glActiveTexture`).
@@ -233,6 +249,11 @@ impl Default for GlState {
             patch_patch_vertices: 3,
             active_texture: 0,
             texture_units: vec![Default::default()],
+            samples_passed_query: 0,
+            any_samples_passed_query: 0,
+            primitives_generated_query: 0,
+            transform_feedback_primitives_written_query: 0,
+            time_elapsed_query: 0,
         }
     }
 }
