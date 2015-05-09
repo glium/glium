@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.6 (2015-05-09)
 
  - Added `SamplesPassedQuery` and `TimeElapsedQuery` types. They can be passed to the draw parameters.
  - Buffers are no longer mapped with `GL_MAP_COHERENT_BIT`. Flushing is handled by glium.
