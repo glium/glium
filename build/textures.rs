@@ -317,6 +317,27 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                                     UniformValue::{myname}(self.0, Some(self.1))
                                 }}
                             }}
+
+                            impl {myname} {{
+                                /// Builds a `Sampler` marker object that allows you to indicate
+                                /// how the texture should be sampled from inside a shader.
+                                ///
+                                /// # Example
+                                ///
+                                /// ```no_run
+                                /// # #[macro_use] extern crate glium;
+                                /// # fn main() {{
+                                /// # let texture: glium::texture::Texture2d = unsafe {{
+                                /// # ::std::mem::uninitialized() }};
+                                /// let uniforms = uniform! {{
+                                ///     color_texture: texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
+                                /// }};
+                                /// # }}
+                                /// ```
+                                pub fn sampled(&self) -> Sampler<{myname}> {{
+                                    Sampler(self, Default::default())
+                                }}
+                            }}
                         ", myname = name)).unwrap();
             },
             _ => ()

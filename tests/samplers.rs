@@ -63,8 +63,7 @@ fn magnify_nearest_filtering() {
     let texture = glium::texture::Texture2d::new(&display, texture_data);
 
     let uniforms = uniform! {
-        texture: glium::uniforms::Sampler::new(&texture)
-                        .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
+        texture: texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
     };
 
     let output = support::build_renderable_texture(&display);

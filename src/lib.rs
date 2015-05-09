@@ -53,6 +53,7 @@ Once you have finished drawing, you can call `frame.finish()` to swap buffers an
 result to the user.
 
 */
+#![allow(mutable_transmutes)]
 #![warn(missing_docs)]
 
 // TODO: remove these when everything is implemented
