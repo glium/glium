@@ -9,7 +9,6 @@ High-level OpenGL wrapper for the Rust language.
 ```toml
 [dependencies]
 glium = "*"
-glutin = "*"
 ```
 
 Its objectives:
