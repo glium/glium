@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Textures now have a `sampled()` method to make it easier to create a `Sampler`.
+
 ## Version 0.3.6 (2015-05-09)
 
  - Added `SamplesPassedQuery` and `TimeElapsedQuery` types. They can be passed to the draw parameters.
