@@ -300,13 +300,7 @@ impl<T> VertexBuffer<T> {
     ///
     /// Returns `None` if the backend doesn't support instancing.
     pub fn per_instance_if_supported(&self) -> Option<PerInstance> {
-        if self.buffer.buffer.get_context().get_version() < &Version(Api::Gl, 3, 3) &&
-            !self.buffer.buffer.get_context().get_extensions().gl_arb_instanced_arrays
-        {
-            return None;
-        }
-
-        Some(PerInstance(VertexBufferAnySlice { buffer: &self.buffer, offset: 0, length: self.len() }))
+        self.buffer.per_instance_if_supported()
     }
 
     /// Creates a marker that instructs glium to use multiple instances.
@@ -321,7 +315,7 @@ impl<T> VertexBuffer<T> {
     /// Only available if the `gl_instancing` feature is enabled.
     #[cfg(feature = "gl_instancing")]
     pub fn per_instance(&self) -> PerInstance {
-        self.per_instance_if_supported().unwrap()
+        self.buffer.per_instance()
     }
 }
 
@@ -450,6 +444,39 @@ impl VertexBufferAny {
             offset: start,
             length: len
         })
+    }
+
+    /// Creates a marker that instructs glium to use multiple instances.
+    ///
+    /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
+    /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
+    /// geometry for each element in this buffer. The attributes are still passed to the
+    /// vertex shader, but each entry is passed for each different instance.
+    ///
+    /// Returns `None` if the backend doesn't support instancing.
+    pub fn per_instance_if_supported(&self) -> Option<PerInstance> {
+        if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
+            !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
+        {
+            return None;
+        }
+
+        Some(PerInstance(VertexBufferAnySlice { buffer: self, offset: 0, length: self.len() }))
+    }
+
+    /// Creates a marker that instructs glium to use multiple instances.
+    ///
+    /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
+    /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
+    /// geometry for each element in this buffer. The attributes are still passed to the
+    /// vertex shader, but each entry is passed for each different instance.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_instancing` feature is enabled.
+    #[cfg(feature = "gl_instancing")]
+    pub fn per_instance(&self) -> PerInstance {
+        self.per_instance_if_supported().unwrap()
     }
 }
 
