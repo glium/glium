@@ -262,6 +262,11 @@ impl RawQuery {
             ctxt.state.any_samples_passed_query = 0;
         }
 
+        if ctxt.state.any_samples_passed_conservative_query == self.id {
+            unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE) };
+            ctxt.state.any_samples_passed_conservative_query = 0;
+        }
+
         if ctxt.state.primitives_generated_query == self.id {
             unsafe { ctxt.gl.EndQuery(gl::PRIMITIVES_GENERATED) };
             ctxt.state.primitives_generated_query = 0;
@@ -300,6 +305,10 @@ impl QueryExt for RawQuery {
 
     fn set_used(&self) {
         self.has_been_used.set(true);
+    }
+
+    fn get_type(&self) -> gl::types::GLenum {
+        self.ty.to_glenum()
     }
 }
 
@@ -354,6 +363,10 @@ macro_rules! impl_helper {
 
             fn set_used(&self) {
                 self.query.set_used()
+            }
+
+            fn get_type(&self) -> gl::types::GLenum {
+                self.query.get_type()
             }
         }
     };
