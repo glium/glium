@@ -58,26 +58,60 @@ impl RawQuery {
         let ctxt = facade.get_context().make_current();
 
         // FIXME: handle Timestamp separately
-        // FIXME: compatibility not totally correct
 
         let id = unsafe {
             let mut id = mem::uninitialized();
 
-            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-               ctxt.extensions.gl_arb_direct_state_access
-            {
-                ctxt.gl.CreateQueries(ty.to_glenum(), 1, &mut id);
-
-            } else if ctxt.version >= &Version(Api::Gl, 1, 5) {
-                ctxt.gl.GenQueries(1, &mut id);
-
-            } else if ctxt.version >= &Version(Api::Gl, 1, 5) {
+            if ctxt.version >= &Version(Api::Gl, 3, 3) {
                 match ty {
-                    QueryType::SamplesPassed => (),
+                    QueryType::AnySamplesPassed | QueryType::SamplesPassed |
+                    QueryType::PrimitivesGenerated | QueryType::TimeElapsed |
+                    QueryType::TransformFeedbackPrimitivesWritten => (),
+                    QueryType::AnySamplesPassedConservative if
+                            ctxt.extensions.gl_arb_es3_compatibility ||
+                            ctxt.version >= &Version(Api:: Gl, 4, 3) => (),
+                    _ => return None
+                };
+
+                if ctxt.version >= &Version(Api:: Gl, 4, 5) ||
+                   ctxt.extensions.gl_arb_direct_state_access
+                {
+                    ctxt.gl.CreateQueries(ty.to_glenum(), 1, &mut id);
+                } else {
+                    ctxt.gl.GenQueries(1, &mut id);
+                }
+
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                match ty {
+                    QueryType::SamplesPassed | QueryType::PrimitivesGenerated |
+                    QueryType::TransformFeedbackPrimitivesWritten => (),
+                    QueryType::AnySamplesPassed if ctxt.extensions.gl_arb_occlusion_query2 => (),
+                    QueryType::AnySamplesPassedConservative if ctxt.extensions.gl_arb_es3_compatibility => (),
+                    QueryType::TimeElapsed if ctxt.extensions.gl_arb_timer_query => (),
+
                     _ => return None
                 };
 
                 ctxt.gl.GenQueries(1, &mut id);
+
+            } else if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.extensions.gl_arb_occlusion_query {
+                match ty {
+                    QueryType::SamplesPassed => (),
+                    QueryType::AnySamplesPassed if ctxt.extensions.gl_arb_occlusion_query2 => (),
+                    QueryType::AnySamplesPassedConservative if ctxt.extensions.gl_arb_es3_compatibility => (),
+                    QueryType::PrimitivesGenerated if ctxt.extensions.gl_ext_transform_feedback => (),
+                    QueryType::TransformFeedbackPrimitivesWritten if ctxt.extensions.gl_ext_transform_feedback => (),
+                    QueryType::TimeElapsed if ctxt.extensions.gl_arb_timer_query => (),
+                    _ => return None
+                };
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) {
+                    ctxt.gl.GenQueries(1, &mut id);
+                } else if ctxt.extensions.gl_arb_occlusion_query {
+                    ctxt.gl.GenQueriesARB(1, &mut id);
+                } else {
+                    unreachable!();
+                }
 
             } else if ctxt.version >= &Version(Api::GlEs, 3, 0) {
                 match ty {
@@ -87,14 +121,6 @@ impl RawQuery {
                 };
 
                 ctxt.gl.GenQueries(1, &mut id);
-
-            } else if ctxt.extensions.gl_arb_occlusion_query {
-                match ty {
-                    QueryType::SamplesPassed => (),
-                    _ => return None
-                };
-
-                ctxt.gl.GenQueriesARB(1, &mut id);
 
             } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
                 match ty {
