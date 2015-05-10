@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Textures now have a `sampled()` method to make it easier to create a `Sampler`.
+ - Added `per_instance` and `per_instance_if_supported` to `VertexBufferAny`.
 
 ## Version 0.3.6 (2015-05-09)
 
