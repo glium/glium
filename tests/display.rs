@@ -69,15 +69,13 @@ fn release_shader_compiler() {
 fn viewport_too_large() {
     let display = support::build_display();
 
-    let params = glium::DrawParameters {
-        viewport: Some(glium::Rect {
-            left: 0,
-            bottom: 0,
-            width: 4294967295,
-            height: 4294967295,
-        }),
-        .. Default::default()
-    };
+    let params = glium::DrawParameters::new(&display)
+                    .with_viewport(glium::Rect {
+                        left: 0,
+                        bottom: 0,
+                        width: 4294967295,
+                        height: 4294967295,
+                    });
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 

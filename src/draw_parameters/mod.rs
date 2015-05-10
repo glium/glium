@@ -1,4 +1,5 @@
 use gl;
+use backend::Facade;
 use context::Context;
 use version::Version;
 use version::Api;
@@ -8,6 +9,8 @@ use Rect;
 use ToGlEnum;
 
 use std::default::Default;
+use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
 
 pub use self::query::{SamplesPassedQuery, TimeElapsedQuery};
 
@@ -684,6 +687,141 @@ impl<'a> Default for DrawParameters<'a> {
             samples_passed_query: None,
             time_elapsed_query: None,
         }
+    }
+}
+
+/// This is what the new API of `DrawParameters` will look like in a future version.
+///
+/// FIXME: add the missing functions (with a better API)
+pub struct DrawParametersBuilder<'a> {
+    context: &'a Rc<Context>,
+    params: DrawParameters<'a>,
+}
+
+impl<'a> DrawParameters<'a> {
+    /// Start building draw parameters.
+    pub fn new<F>(facade: &'a F) -> DrawParametersBuilder<'a> where F: Facade {
+        DrawParametersBuilder {
+            context: facade.get_context(),
+            params: Default::default(),
+        }
+    }
+}
+
+impl<'a> DrawParametersBuilder<'a> {
+    /// Sets the depth operation to use while drawing.
+    ///
+    /// For a simple depth buffer usage, the common parameters
+    /// are `(DepthTest::IfLess, true, (0.0, 1.0))`.
+    pub fn with_depth(mut self, test: DepthTest, write: bool, range: (f32, f32))
+                      -> DrawParametersBuilder<'a>
+    {
+        assert!(range.0 >= 0.0);
+        assert!(range.1 >= 0.0);
+        assert!(range.0 <= 1.0);
+        assert!(range.1 <= 1.0);
+
+        self.params.depth_test = test;
+        self.params.depth_write = write;
+        self.params.depth_range = range;
+        self
+    }
+
+    /// Sets the function that the GPU will use to merge the existing pixel with the pixel that is
+    /// being written.
+    pub fn with_blending_function(mut self, blending: BlendingFunction)
+                                 -> DrawParametersBuilder<'a>
+    {
+        self.params.blending_function = Some(blending);
+        self
+    }
+
+    /// Sets whether to cull faces, and which ones.
+    pub fn with_backface_culling(mut self, culling: BackfaceCullingMode)
+                                 -> DrawParametersBuilder<'a>
+    {
+        self.params.backface_culling = culling;
+        self
+    }
+
+    /// Sets the viewport to use.
+    ///
+    /// By default, the whole surface is used.
+    pub fn with_viewport(mut self, viewport: Rect) -> DrawParametersBuilder<'a> {
+        self.params.viewport = Some(viewport);
+        self
+    }
+
+    /// Sets the scissor box to use.
+    ///
+    /// By default, no scissor box is used.
+    pub fn with_scissor(mut self, scissor: Rect) -> DrawParametersBuilder<'a> {
+        self.params.scissor = Some(scissor);
+        self
+    }
+
+    /// Sets that the output of the rasterized must be discarded.
+    ///
+    /// It is not discarded by default.
+    ///
+    /// Returns `Err` if the backend doesn't support this operation.
+    pub fn with_rasterizer_discard_if_supported(mut self) -> Result<DrawParametersBuilder<'a>,
+                                                                    DrawParametersBuilder<'a>>
+    {
+        if !(self.context.get_version() >= &Version(Api::Gl, 3, 0)) &&
+            !self.context.get_extensions().gl_ext_transform_feedback
+        {
+            return Err(self);
+        }
+
+        self.params.draw_primitives = false;
+        Ok(self)
+    }
+
+    /// Sets that multisampling must not be used.
+    ///
+    /// Multisampling is active by default.
+    pub fn without_multisampling(mut self) -> DrawParametersBuilder<'a> {
+        self.params.multisampling = false;
+        self
+    }
+
+    /// Sets that dithering must not be used.
+    ///
+    /// Dithering is active by default.
+    pub fn without_dithering(mut self) -> DrawParametersBuilder<'a> {
+        self.params.dithering = false;
+        self
+    }
+
+    /// Sets the query to store the number of samples that are written to the output.
+    pub fn with_samples_passed_query(mut self, query: &'a SamplesPassedQuery)
+                                     -> DrawParametersBuilder<'a>
+    {
+        self.params.samples_passed_query = Some(query);
+        self
+    }
+
+    /// Sets the query to store the time that it takes to execute the commands.
+    pub fn with_time_elapsed_query(mut self, query: &'a TimeElapsedQuery)
+                                   -> DrawParametersBuilder<'a>
+    {
+        self.params.time_elapsed_query = Some(query);
+        self
+    }
+}
+
+impl<'a> Deref for DrawParametersBuilder<'a> {
+    type Target = DrawParameters<'a>;
+
+    fn deref(&self) -> &DrawParameters<'a> {
+        &self.params
+    }
+}
+
+impl<'a> DerefMut for DrawParametersBuilder<'a> {
+    fn deref_mut(&mut self) -> &mut DrawParameters<'a> {
+        &mut self.params
     }
 }
 
