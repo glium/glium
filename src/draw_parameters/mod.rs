@@ -584,6 +584,16 @@ pub struct DrawParameters<'a> {
     /// `None` means "don't care" (usually when you know that the alpha is always 1).
     pub blending_function: Option<BlendingFunction>,
 
+    /// Allows you to disable some color components.
+    ///
+    /// This affects all attachments to the framebuffer. It's at the same level as the
+    /// blending function.
+    ///
+    /// The parameters are in order: red, green, blue, alpha. `true` means that the given
+    /// component will be written, `false` means that it will be ignored. The default value
+    /// is `(true, true, true, true)`.
+    pub color_mask: (bool, bool, bool, bool),
+
     /// Width in pixels of the lines to draw when drawing lines.
     ///
     /// `None` means "don't care". Use this when you don't draw lines.
@@ -723,6 +733,7 @@ impl<'a> Default for DrawParameters<'a> {
             stencil_pass_depth_fail_operation_counter_clockwise: StencilOperation::Keep,
             stencil_depth_pass_operation_counter_clockwise: StencilOperation::Keep,
             blending_function: Some(BlendingFunction::AlwaysReplace),
+            color_mask: (true, true, true, true),
             line_width: None,
             point_size: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,

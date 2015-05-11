@@ -238,6 +238,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                    draw_parameters.depth_range);
         sync_stencil(&mut ctxt, &draw_parameters);
         sync_blending(&mut ctxt, draw_parameters.blending_function);
+        sync_color_mask(&mut ctxt, draw_parameters.color_mask);
         sync_line_width(&mut ctxt, draw_parameters.line_width);
         sync_point_size(&mut ctxt, draw_parameters.point_size);
         sync_polygon_mode(&mut ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
@@ -880,6 +881,23 @@ fn sync_blending(ctxt: &mut context::CommandContext, blending_function: Option<B
             ctxt.state.blend_func = (source, destination);
         }
     };
+}
+
+fn sync_color_mask(ctxt: &mut context::CommandContext, mask: (bool, bool, bool, bool)) {
+    let mask = (
+        if mask.0 { 1 } else { 0 },
+        if mask.1 { 1 } else { 0 },
+        if mask.2 { 1 } else { 0 },
+        if mask.3 { 1 } else { 0 },
+    );
+
+    if ctxt.state.color_mask != mask {
+        unsafe {
+            ctxt.gl.ColorMask(mask.0, mask.1, mask.2, mask.3);
+        }
+
+        ctxt.state.color_mask = mask;
+    }
 }
 
 fn sync_line_width(ctxt: &mut context::CommandContext, line_width: Option<f32>) {

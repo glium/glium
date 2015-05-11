@@ -65,6 +65,10 @@ pub struct GlState {
     // The latest value passed to `glClearStencil`.
     pub clear_stencil: gl::types::GLint,
 
+    /// The latest values passed to ``glColorMask`.
+    pub color_mask: (gl::types::GLboolean, gl::types::GLboolean,
+                     gl::types::GLboolean, gl::types::GLboolean),
+
     /// The latest buffer bound to `GL_ARRAY_BUFFER`.
     pub array_buffer_binding: gl::types::GLuint,
 
@@ -223,6 +227,7 @@ impl Default for GlState {
             clear_color: (0.0, 0.0, 0.0, 0.0),
             clear_depth: 1.0,
             clear_stencil: 0,
+            color_mask: (1, 1, 1, 1),
             array_buffer_binding: 0,
             pixel_pack_buffer_binding: 0,
             pixel_unpack_buffer_binding: 0,
