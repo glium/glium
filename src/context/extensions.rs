@@ -116,6 +116,8 @@ pub struct ExtensionsList {
     pub gl_khr_debug: bool,
     /// GL_NV_copy_buffer
     pub gl_nv_copy_buffer: bool,
+    /// GL_NV_conditional_render
+    pub gl_nv_conditional_render: bool,
     /// GL_NVX_gpu_memory_info
     pub gl_nvx_gpu_memory_info: bool,
     /// GL_OES_depth_texture
@@ -195,6 +197,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_ext_transform_feedback: false,
         gl_gremedy_string_marker: false,
         gl_khr_debug: false,
+        gl_nv_conditional_render: false,
         gl_nv_copy_buffer: false,
         gl_nvx_gpu_memory_info: false,
         gl_oes_depth_texture: false,
@@ -258,6 +261,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_EXT_transform_feedback" => extensions.gl_ext_transform_feedback = true,
             "GL_GREMEDY_string_marker" => extensions.gl_gremedy_string_marker = true,
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
+            "GL_NV_conditional_render" => extensions.gl_nv_conditional_render = true,
             "GL_NV_copy_buffer" => extensions.gl_nv_copy_buffer = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_OES_depth_texture" => extensions.gl_oes_depth_texture = true,

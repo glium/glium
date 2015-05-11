@@ -292,6 +292,18 @@ impl Drop for RawQuery {
 
         self.deactivate(&mut ctxt);
 
+        if let Some((id, _)) = ctxt.state.conditional_render {
+            if id == self.id {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                    unsafe { ctxt.gl.EndConditionalRender() };
+                } else if ctxt.extensions.gl_nv_conditional_render {
+                    unsafe { ctxt.gl.EndConditionalRenderNV() };
+                } else {
+                    unreachable!();
+                }
+            }
+        }
+
         unsafe {
             ctxt.gl.DeleteQueries(1, [self.id].as_ptr())
         }

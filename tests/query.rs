@@ -186,3 +186,74 @@ fn primitives_generated() {
 
     display.assert_no_error(None);
 }
+
+// FIXME: add test for transform feedback query
+
+// FIXME: add more tests for conditional rendering
+
+#[test]
+#[ignore]       // FIXME: problem with query not having a type yet when passed to BeginConditionalRender
+fn conditional_render_nodraw() {
+    let display = support::build_display();
+
+    let query = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, false) {
+        Some(q) => q,
+        None => return
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+
+    {
+        let params = glium::DrawParameters::new(&display)
+                        .with_conditional_rendering(&query, true, false);
+
+        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+               .unwrap();
+    }
+
+    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(0.0, 0.0, 0.0, 0.0));
+        }
+    }
+
+    display.assert_no_error(None);
+}
+
+#[test]
+#[ignore]       // FIXME: not implemented yet
+fn conditional_render_simultaneous_query() {
+    //! we try to draw with a query and simultaneously use conditional
+    //! rendering with the same query
+
+    let display = support::build_display();
+
+    let query = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, false) {
+        Some(q) => q,
+        None => return
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+
+    let params = glium::DrawParameters::new(&display)
+                    .with_samples_passed_query(&query)
+                    .with_conditional_rendering(&query, true, false);
+
+    let res = texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
+                                        &params);
+
+    match res {
+        Err(glium::DrawError::WrongQueryOperation) => (),
+        _ => panic!()
+    };
+
+    display.assert_no_error(None);
+}

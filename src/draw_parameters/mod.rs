@@ -662,6 +662,25 @@ pub struct DrawParameters<'a> {
     /// If set, the number of vertices written by transform feedback.
     pub transform_feedback_primitives_written_query:
                                     Option<&'a TransformFeedbackPrimitivesWrittenQuery>,
+
+    /// If set, the commands will only be executed if the specified query contains `true` or
+    /// a number different than 0.
+    pub condition: Option<ConditionalRendering<'a>>,
+}
+
+/// Condition whether to render or not.
+#[derive(Debug, Copy, Clone)]
+pub struct ConditionalRendering<'a> {
+    /// The query to use.
+    pub query: SamplesQueryParam<'a>,
+
+    /// If true, the GPU will wait until the query result has been obtained. If false, the GPU
+    /// is free to ignore the query and draw anyway.
+    pub wait: bool,
+
+    /// If true, only samples that match those that were written with the query active will
+    /// be drawn.
+    pub per_region: bool,
 }
 
 /// The query to use for samples counting.
@@ -717,6 +736,7 @@ impl<'a> Default for DrawParameters<'a> {
             time_elapsed_query: None,
             primitives_generated_query: None,
             transform_feedback_primitives_written_query: None,
+            condition: None,
         }
     }
 }
@@ -857,6 +877,20 @@ impl<'a> DrawParametersBuilder<'a> {
                 -> DrawParametersBuilder<'a>
     {
         self.params.transform_feedback_primitives_written_query = Some(query);
+        self
+    }
+
+    /// See the `ConditionalRendering` struct.
+    pub fn with_conditional_rendering<Q>(mut self, query: Q, wait: bool, per_region: bool)
+                                         -> DrawParametersBuilder<'a>
+                                         where Q: Into<SamplesQueryParam<'a>>
+    {
+        self.params.condition = Some(ConditionalRendering {
+            query: query.into(),
+            wait: wait,
+            per_region: per_region,
+        });
+
         self
     }
 }

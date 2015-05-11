@@ -67,6 +67,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_GREMEDY_string_marker".to_string(),
                 "GL_KHR_robustness".to_string(),
                 "GL_NVX_gpu_memory_info".to_string(),
+                "GL_NV_conditional_render".to_string(),
             ],
             version: "4.5".to_string(),
             profile: "compatibility".to_string(),
