@@ -248,7 +248,7 @@ impl<'a, T, P> Texture2dDataSource<'a> for image::ImageBuffer<P, Vec<T>>
 
         let (width, height) = self.dimensions();
 
-        // the image library gives us rows from bottom to top, so we need to flip them
+        // the image library gives us rows from top to bottom, so we need to flip them
         let data = self.into_raw()
             .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
             .rev()
