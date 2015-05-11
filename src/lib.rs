@@ -52,6 +52,35 @@ In order to draw something, you will need to pass:
 Once you have finished drawing, you can call `frame.finish()` to swap buffers and present the
 result to the user.
 
+# OpenGL equivalents in glium
+
+ - **Bind points**: Glium automatically binds and unbinds buffers, textures, etc. in an optimized
+   way.
+ - **Buffers**: Buffers are strongly typed and can be used through `vertex::VertexBuffer`,
+   `index::IndexBuffer` or `uniforms::UniformBuffer`.
+ - **Debug output**: If you compile in debug mode, glium registers a debug output callback and
+   panicks if an OpenGL error happens.
+ - **Framebuffer Objects**: FBOs are automatically managed by glium and are stored in the `Context`
+   object. You can specify the attachments that you wish with the `framebuffer` module.
+ - **Instancing**: Instancing is done either by passing a `vertex::EmptyInstanceAttributes` marker
+   or one or several references to vertex buffers wrapped inside a `PerInstance` struct. See the
+   `vertex` module for more infos.
+ - **Programs**: See the `program` module.
+ - **Query objects**: The corresponding structs are in the `draw_parameters` module. They are
+   passed as draw parameters.
+ - **Renderbuffer**: See the `framebuffer` module.
+ - **Render to texture**: If you just want to draw on a texture, you can call
+   `texture.as_surface()`. For more advanced options, see the `framebuffer` module.
+ - **Samplers**: Samplers are automatically managed by glium and are stored in the `Context`
+   object. You can specify how a texture should be sampled by using a `Sampler` dummy object
+   in the `uniforms` module.
+ - **Shaders**: You can't manually create individual shaders. Instead you must create whole
+   programs at once.
+ - **Textures**: Textures are strongly typed and are found in the `texture` module.
+ - **Uniform blocks**: If your program uses uniform blocks, you must pass a reference to a
+   uniform buffer for the name of the block when drawing.
+ - **Vertex array objects**: VAOs are automatically managed by glium if the backend supports them.
+
 */
 #![allow(mutable_transmutes)]
 #![warn(missing_docs)]
