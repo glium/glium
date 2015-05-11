@@ -6,7 +6,7 @@ extern crate obj;
 
 use std::thread;
 use glium::{self, Display};
-use glium::vertex::VertexBufferAny;
+use glium::vertex::VertexBuffer;
 
 pub mod camera;
 
@@ -40,16 +40,19 @@ pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
     }
 }
 
-/// Returns a vertex buffer that should be rendered as `TrianglesList`.
-pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 3],
-        normal: [f32; 3],
-        texture: [f32; 2],
-    }
+/// Vertex type returned by `load_wavefront`.
+#[derive(Copy, Clone)]
+#[allow(missing_docs)]
+pub struct WavefrontVertex {
+    pub position: [f32; 3],
+    pub normal: [f32; 3],
+    pub texture: [f32; 2],
+}
 
-    implement_vertex!(Vertex, position, normal, texture);
+implement_vertex!(WavefrontVertex, position, normal, texture);
+
+/// Returns a vertex buffer that should be rendered as `TrianglesList`.
+pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBuffer<WavefrontVertex> {
 
     let mut data = ::std::io::BufReader::new(data);
     let data = obj::Obj::load(&mut data);
@@ -67,7 +70,7 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
                     let texture = texture.unwrap_or([0.0, 0.0]);
                     let normal = normal.unwrap_or([0.0, 0.0, 0.0]);
 
-                    vertex_data.push(Vertex {
+                    vertex_data.push(WavefrontVertex {
                         position: position,
                         normal: normal,
                         texture: texture,
@@ -78,5 +81,5 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
         }
     }
 
-    glium::vertex::VertexBuffer::new(display, vertex_data).into_vertex_buffer_any()
+    glium::vertex::VertexBuffer::new(display, vertex_data)
 }
