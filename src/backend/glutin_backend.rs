@@ -265,7 +265,6 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     }
 }
 
-#[cfg(feature = "headless")]
 impl DisplayBuild for glutin::HeadlessRendererBuilder {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
@@ -369,12 +368,10 @@ impl GlutinWindowBackend {
 }
 
 /// An implementation of the `Backend` trait for a glutin headless context.
-#[cfg(feature = "headless")]
 pub struct GlutinHeadlessBackend {
     context: glutin::HeadlessContext,
 }
 
-#[cfg(feature = "headless")]
 unsafe impl Backend for GlutinHeadlessBackend {
     fn swap_buffers(&self) {
     }
@@ -396,7 +393,6 @@ unsafe impl Backend for GlutinHeadlessBackend {
     }
 }
 
-#[cfg(feature = "headless")]
 impl GlutinHeadlessBackend {
     /// Builds a new backend from the builder.
     pub fn new(builder: glutin::HeadlessRendererBuilder)

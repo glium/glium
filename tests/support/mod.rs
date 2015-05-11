@@ -10,31 +10,46 @@ use glium::backend::Facade;
 
 use std::env;
 
-/// Returns true if we are executing headless tests.
-pub fn is_headless() -> bool {
-    env::var("HEADLESS_TESTS").is_ok()
-}
-
 /// Builds a headless display for tests.
-#[cfg(feature = "headless")]
 pub fn build_display() -> glium::Display {
-    let display = if is_headless() {
+    let version = match env::var("GLIUM_GL_VERSION") {
+        Ok(version) => {
+            // expects "OpenGL 3.3" for example
+
+            let mut iter = version.rsplitn(2, ' ');
+
+            let version = iter.next().unwrap();
+            let ty = iter.next().unwrap();
+
+            let mut iter = version.split('.');
+            let major = iter.next().unwrap().parse().unwrap();
+            let minor = iter.next().unwrap().parse().unwrap();
+
+            let ty = if ty == "OpenGL" {
+                glutin::Api::OpenGl
+            } else if ty == "OpenGL ES" {
+                glutin::Api::OpenGlEs
+            } else if ty == "WebGL" {
+                glutin::Api::WebGl
+            } else {
+                panic!();
+            };
+
+            glutin::GlRequest::Specific(ty, (major, minor))
+        },
+        Err(_) => glutin::GlRequest::Latest,
+    };
+
+    let display = if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
         glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
+                                                       .with_gl(version)
                                                        .build_glium().unwrap()
     } else {
         glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
-                                    .build_glium().unwrap()
+                                    .with_gl(version).build_glium().unwrap()
     };
 
     display
-}
-
-/// Builds a headless display for tests.
-#[cfg(not(feature = "headless"))]
-pub fn build_display() -> glium::Display {
-    assert!(!is_headless());
-    glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
-                                .build_glium().unwrap()
 }
 
 /// Builds a 2x2 unicolor texture.
