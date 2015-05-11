@@ -184,6 +184,9 @@ pub struct GlState {
     /// Current query being used for GL_TIME_ELAPSED​.
     pub time_elapsed_query: gl::types::GLuint,
 
+    /// Latest value passed to `glBeginConditionalRender​`.
+    pub conditional_render: Option<(gl::types::GLuint, gl::types::GLenum)>,
+
 }
 
 /// State of a texture unit (the one designated by `glActiveTexture`).
@@ -258,6 +261,7 @@ impl Default for GlState {
             primitives_generated_query: 0,
             transform_feedback_primitives_written_query: 0,
             time_elapsed_query: 0,
+            conditional_render: None,
         }
     }
 }

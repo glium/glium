@@ -4,6 +4,7 @@
 
  - Added `AnySamplesPassedQuery`, `PrimitivesGeneratedQuery` and `TransformFeedbackPrimitivesWrittenQuery`, and corresponding fields in `DrawParameters`.
  - The `samples_passed_query` draw parameter can now also take a `AnySamplesPassedQuery`.
+ - Added a `condition` parameter to the draw parameters, allowing you to use conditional rendering.
  - Textures now have a `sampled()` method to make it easier to create a `Sampler`.
  - Added `per_instance` and `per_instance_if_supported` to `VertexBufferAny`.
 

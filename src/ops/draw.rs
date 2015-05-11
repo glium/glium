@@ -29,7 +29,7 @@ use draw_parameters::DrawParameters;
 use draw_parameters::{BlendingFunction, BackfaceCullingMode};
 use draw_parameters::{DepthTest, PolygonMode, StencilTest};
 use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
-use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery};
+use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery, ConditionalRendering};
 use Rect;
 
 use program;
@@ -251,6 +251,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                           draw_parameters.time_elapsed_query,
                           draw_parameters.primitives_generated_query,
                           draw_parameters.transform_feedback_primitives_written_query));
+        sync_conditional_render(&mut ctxt, draw_parameters.condition);
 
         if !program.has_srgb_output() {
             if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
@@ -1216,4 +1217,90 @@ fn sync_queries(ctxt: &mut context::CommandContext,
           gl::TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
     Ok(())
+}
+
+fn sync_conditional_render(ctxt: &mut context::CommandContext,
+                           condition: Option<ConditionalRendering>)
+{
+    fn get_mode(wait: bool, per_region: bool) -> gl::types::GLenum {
+        match (wait, per_region) {
+            (true, true) => gl::QUERY_BY_REGION_WAIT,
+            (true, false) => gl::QUERY_WAIT,
+            (false, true) => gl::QUERY_BY_REGION_NO_WAIT,
+            (false, false) => gl::QUERY_NO_WAIT,
+        }
+    }
+
+    fn get_id(q: &SamplesQueryParam) -> gl::types::GLuint {
+        match q {
+            &SamplesQueryParam::SamplesPassedQuery(ref q) => q.get_id(),
+            &SamplesQueryParam::AnySamplesPassedQuery(ref q) => q.get_id(),
+        }
+    }
+
+    // FIXME: check whether the query is binded to a query slot
+
+    match (&mut ctxt.state.conditional_render, condition) {
+        (&mut None, None) => (),
+
+        (cur @ &mut Some(_), None) => {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                unsafe { ctxt.gl.EndConditionalRender() };
+            } else if ctxt.extensions.gl_nv_conditional_render {
+                unsafe { ctxt.gl.EndConditionalRenderNV() };
+            } else {
+                unreachable!();
+            }
+            
+            *cur = None;
+        },
+
+        (cur @ &mut None, Some(ConditionalRendering { query, wait, per_region })) => {
+            let mode = get_mode(wait, per_region);
+            let id = get_id(&query);
+
+            if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                unsafe { ctxt.gl.BeginConditionalRender(id, mode) };
+            } else if ctxt.extensions.gl_nv_conditional_render {
+                unsafe { ctxt.gl.BeginConditionalRenderNV(id, mode) };
+            } else {
+                unreachable!();
+            }
+            
+            *cur = Some((id, mode));
+        },
+
+        (&mut Some((ref mut id, ref mut mode)), Some(ConditionalRendering { query, wait, per_region })) => {
+            let new_mode = get_mode(wait, per_region);
+            let new_id = get_id(&query);
+
+            // determining whether we have to change the mode
+            // if the new mode is "no_wait" but he old mode is "wait", we don't need to change it
+            let no_mode_change = match (new_mode, *mode) {
+                (a, b) if a == b => true,
+                (gl::QUERY_NO_WAIT, gl::QUERY_WAIT) => true,
+                (gl::QUERY_BY_REGION_NO_WAIT, gl::QUERY_BY_REGION_WAIT) => true,
+                _ => false,
+            };
+
+            if !no_mode_change || new_id != *id {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                    unsafe {
+                        ctxt.gl.EndConditionalRender();
+                        ctxt.gl.BeginConditionalRender(new_id, new_mode);
+                    }
+                } else if ctxt.extensions.gl_nv_conditional_render {
+                    unsafe {
+                        ctxt.gl.EndConditionalRenderNV();
+                        ctxt.gl.BeginConditionalRenderNV(new_id, new_mode);
+                    }
+                } else {
+                    unreachable!();
+                }
+            }
+
+            *id = new_id;
+            *mode = new_mode;
+        },
+    }
 }

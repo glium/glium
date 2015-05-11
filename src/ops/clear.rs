@@ -28,6 +28,16 @@ pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
             ctxt.state.enabled_rasterizer_discard = false;
         }
 
+        if let Some(_) = ctxt.state.conditional_render {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                ctxt.gl.EndConditionalRender();
+            } else if ctxt.extensions.gl_nv_conditional_render {
+                ctxt.gl.EndConditionalRenderNV();
+            } else {
+                unreachable!();
+            }
+        }
+
         if let Some(rect) = rect {
             let rect = (rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
                         rect.width as gl::types::GLsizei, rect.height as gl::types::GLsizei);
