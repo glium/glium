@@ -5,7 +5,7 @@ machine:
     - ./rustup.sh --yes
     - sudo apt-get install libXxf86vm-dev libosmesa6-dev
   environment:
-    HEADLESS_TESTS: 1
+    GLIUM_HEADLESS_TESTS: 1
 
 test:
   override:
