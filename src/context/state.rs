@@ -172,6 +172,9 @@ pub struct GlState {
     /// Current query being used for GL_ANY_SAMPLES_PASSED​.
     pub any_samples_passed_query: gl::types::GLuint,
 
+    /// Current query being used for GL_ANY_SAMPLES_PASSED​_CONSERVATIVE.
+    pub any_samples_passed_conservative_query: gl::types::GLuint,
+
     /// Current query being used for GL_PRIMITIVES_GENERATED​.
     pub primitives_generated_query: gl::types::GLuint,
 
@@ -251,6 +254,7 @@ impl Default for GlState {
             texture_units: vec![Default::default()],
             samples_passed_query: 0,
             any_samples_passed_query: 0,
+            any_samples_passed_conservative_query: 0,
             primitives_generated_query: 0,
             transform_feedback_primitives_written_query: 0,
             time_elapsed_query: 0,

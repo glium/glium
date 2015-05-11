@@ -184,6 +184,9 @@ trait QueryExt {
 
     /// Sets the query as having been used.
     fn set_used(&self);
+
+    /// Returns the type of this query object.
+    fn get_type(&self) -> gl::types::GLenum;
 }
 
 /// A raw value of a uniform. "Raw" means that it's passed directly with `glUniform`. Textures

@@ -27,9 +27,9 @@ use vertex::{MultiVerticesSource, VerticesSource};
 
 use draw_parameters::DrawParameters;
 use draw_parameters::{BlendingFunction, BackfaceCullingMode};
-use draw_parameters::{DepthTest, PolygonMode};
-use draw_parameters::{StencilTest};
-use draw_parameters::{SamplesPassedQuery, TimeElapsedQuery};
+use draw_parameters::{DepthTest, PolygonMode, StencilTest};
+use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
+use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery};
 use Rect;
 
 use program;
@@ -248,7 +248,9 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
         sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives);
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
         try!(sync_queries(&mut ctxt, draw_parameters.samples_passed_query,
-                          draw_parameters.time_elapsed_query));
+                          draw_parameters.time_elapsed_query,
+                          draw_parameters.primitives_generated_query,
+                          draw_parameters.transform_feedback_primitives_written_query));
 
         if !program.has_srgb_output() {
             if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
@@ -1072,15 +1074,123 @@ unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext, vertices_p
 }
 
 fn sync_queries(ctxt: &mut context::CommandContext,
-                samples_passed_query: Option<&SamplesPassedQuery>,
-                time_elapsed_query: Option<&TimeElapsedQuery>)
+                samples_passed_query: Option<SamplesQueryParam>,
+                time_elapsed_query: Option<&TimeElapsedQuery>,
+                primitives_generated_query: Option<&PrimitivesGeneratedQuery>,
+                transform_feedback_primitives_written_query:
+                                            Option<&TransformFeedbackPrimitivesWrittenQuery>)
                 -> Result<(), DrawError>
 {
     // FIXME: doesn't use ARB/EXT variants
 
+    if let Some(spq) = samples_passed_query {
+        let (ty, id, unused) = match spq {
+            SamplesQueryParam::SamplesPassedQuery(q) => (q.get_type(), q.get_id(), q.is_unused()),
+            SamplesQueryParam::AnySamplesPassedQuery(q) => (q.get_type(), q.get_id(), q.is_unused()),
+        };
+
+        if ty == gl::SAMPLES_PASSED {
+            if ctxt.state.any_samples_passed_query != 0 {
+                ctxt.state.any_samples_passed_query = 0;
+                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
+            }
+
+            if ctxt.state.any_samples_passed_conservative_query != 0 {
+                ctxt.state.any_samples_passed_conservative_query = 0;
+                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+            }
+
+            if ctxt.state.samples_passed_query != id {
+                if !unused {
+                    return Err(DrawError::WrongQueryOperation);
+                }
+                if ctxt.state.samples_passed_query != 0 {
+                    unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
+                }
+                unsafe { ctxt.gl.BeginQuery(gl::SAMPLES_PASSED, id); }
+                ctxt.state.samples_passed_query = id;
+                match spq {
+                    SamplesQueryParam::SamplesPassedQuery(q) => q.set_used(),
+                    SamplesQueryParam::AnySamplesPassedQuery(q) => q.set_used(),
+                };
+            }
+
+        } else if ty == gl::ANY_SAMPLES_PASSED {
+            if ctxt.state.samples_passed_query != 0 {
+                ctxt.state.samples_passed_query = 0;
+                unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
+            }
+
+            if ctxt.state.any_samples_passed_conservative_query != 0 {
+                ctxt.state.any_samples_passed_conservative_query = 0;
+                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+            }
+
+            if ctxt.state.any_samples_passed_query != id {
+                if !unused {
+                    return Err(DrawError::WrongQueryOperation);
+                }
+                if ctxt.state.any_samples_passed_query != 0 {
+                    unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
+                }
+                unsafe { ctxt.gl.BeginQuery(gl::ANY_SAMPLES_PASSED, id); }
+                ctxt.state.any_samples_passed_query = id;
+                match spq {
+                    SamplesQueryParam::SamplesPassedQuery(q) => q.set_used(),
+                    SamplesQueryParam::AnySamplesPassedQuery(q) => q.set_used(),
+                };
+            }
+
+        } else if ty == gl::ANY_SAMPLES_PASSED_CONSERVATIVE {
+            if ctxt.state.samples_passed_query != 0 {
+                ctxt.state.samples_passed_query = 0;
+                unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
+            }
+
+            if ctxt.state.any_samples_passed_query != 0 {
+                ctxt.state.any_samples_passed_query = 0;
+                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
+            }
+
+            if ctxt.state.any_samples_passed_conservative_query != id {
+                if !unused {
+                    return Err(DrawError::WrongQueryOperation);
+                }
+                if ctxt.state.any_samples_passed_conservative_query != 0 {
+                    unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+                }
+                unsafe { ctxt.gl.BeginQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE, id); }
+                ctxt.state.any_samples_passed_conservative_query = id;
+                match spq {
+                    SamplesQueryParam::SamplesPassedQuery(q) => q.set_used(),
+                    SamplesQueryParam::AnySamplesPassedQuery(q) => q.set_used(),
+                };
+            }
+
+        } else {
+            unreachable!();
+        }
+
+    } else {
+        if ctxt.state.samples_passed_query != 0 {
+            ctxt.state.samples_passed_query = 0;
+            unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
+        }
+
+        if ctxt.state.any_samples_passed_query != 0 {
+            ctxt.state.any_samples_passed_query = 0;
+            unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
+        }
+
+        if ctxt.state.any_samples_passed_conservative_query != 0 {
+            ctxt.state.any_samples_passed_conservative_query = 0;
+            unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+        }
+    }
+
     macro_rules! test {
         ($state:ident, $new:expr, $glenum:expr) => {
-            match (&mut ctxt.state.samples_passed_query, samples_passed_query) {
+            match (&mut ctxt.state.$state, $state) {
                 (&mut 0, None) => (),
                 (&mut existing, Some(new)) if existing == new.get_id() => (),
                 (existing, Some(new)) => {
@@ -1100,8 +1210,10 @@ fn sync_queries(ctxt: &mut context::CommandContext,
         }
     }
 
-    test!(samples_passed_query, samples_passed_query, gl::SAMPLES_PASSED);
     test!(time_elapsed_query, time_elapsed_query, gl::TIME_ELAPSED);
+    test!(primitives_generated_query, primitives_generated_query, gl::PRIMITIVES_GENERATED);
+    test!(transform_feedback_primitives_written_query, transform_feedback_primitives_written_query,
+          gl::TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
     Ok(())
 }
