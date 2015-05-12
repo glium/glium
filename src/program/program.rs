@@ -20,7 +20,7 @@ use ProgramExt;
 use Handle;
 use RawUniformValue;
 
-use program::{COMPILER_GLOBAL_LOCK, IntoProgramCreationInput, ProgramCreationInput, Binary};
+use program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, Binary};
 use program::uniforms_storage::UniformsStorage;
 
 use program::reflection::{Uniform, UniformBlock};
@@ -106,9 +106,9 @@ pub struct Program {
 impl Program {
     /// Builds a new program.
     pub fn new<'a, F, I>(facade: &F, input: I) -> Result<Program, ProgramCreationError>
-                         where I: IntoProgramCreationInput<'a>, F: Facade
+                         where I: Into<ProgramCreationInput<'a>>, F: Facade
     {
-        let input = input.into_program_creation_input();
+        let input = input.into();
 
         if let ProgramCreationInput::SourceCode { .. } = input {
             Program::from_source_impl(facade, input)
