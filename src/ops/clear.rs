@@ -36,6 +36,8 @@ pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
             } else {
                 unreachable!();
             }
+
+            ctxt.state.conditional_render = None;
         }
 
         if let Some(rect) = rect {
