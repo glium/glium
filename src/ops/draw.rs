@@ -167,16 +167,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     };
 
     // binding the program
-    unsafe {
-        let program_id = program.get_id();
-        if ctxt.state.program != program_id {
-            match program_id {
-                Handle::Id(id) => ctxt.gl.UseProgram(id),
-                Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
-            }
-            ctxt.state.program = program_id;
-        }
-    }
+    program.use_program(&mut ctxt);
 
     // building the list of uniforms binders and the fences that must be fulfilled
     // TODO: panic if uniforms of the program are not found in the parameter
