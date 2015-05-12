@@ -6,6 +6,7 @@
  - The `samples_passed_query` draw parameter can now also take a `AnySamplesPassedQuery`.
  - Added a `condition` parameter to the draw parameters, allowing you to use conditional rendering.
  - Textures now have a `sampled()` method to make it easier to create a `Sampler`.
+ - Added a `color_mask` member to the draw parameters.
  - Added `per_instance` and `per_instance_if_supported` to `VertexBufferAny`.
 
 ## Version 0.3.6 (2015-05-09)

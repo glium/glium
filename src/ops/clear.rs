@@ -28,6 +28,11 @@ pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
             ctxt.state.enabled_rasterizer_discard = false;
         }
 
+        if ctxt.state.color_mask != (1, 1, 1, 1) {
+            ctxt.state.color_mask = (1, 1, 1, 1);
+            ctxt.gl.ColorMask(1, 1, 1, 1);
+        }
+
         if let Some(_) = ctxt.state.conditional_render {
             if ctxt.version >= &Version(Api::Gl, 3, 0) {
                 ctxt.gl.EndConditionalRender();
