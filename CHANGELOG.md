@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.3.7 (2015-05-12)
 
  - Added `AnySamplesPassedQuery`, `PrimitivesGeneratedQuery` and `TransformFeedbackPrimitivesWrittenQuery`, and corresponding fields in `DrawParameters`.
  - The `samples_passed_query` draw parameter can now also take a `AnySamplesPassedQuery`.
