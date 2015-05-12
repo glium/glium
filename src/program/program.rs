@@ -484,11 +484,29 @@ impl Program {
     }
     
     /// Returns an iterator to the list of uniforms.
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (name, uniform) in program.uniforms() {
+    ///     println!("Name: {} - Type: {:?}", name, uniform.ty);
+    /// }
+    /// ```
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.uniforms.iter()
     }
     
     /// Returns a list of uniform blocks.
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (name, uniform) in program.get_uniform_blocks() {
+    ///     println!("Name: {}", name);
+    /// }
+    /// ```
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.uniform_blocks
     }
@@ -509,6 +527,15 @@ impl Program {
     }
 
     /// Returns an iterator to the list of attributes.
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (name, attribute) in program.attributes() {
+    ///     println!("Name: {} - Type: {:?}", name, attribute.ty);
+    /// }
+    /// ```
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.attributes.iter()
     }
