@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Replaced the `IntoProgramCreationInput` trait with `Into<ProgramCreationInput>`.
+
 ## Version 0.3.7 (2015-05-12)
 
  - Added `AnySamplesPassedQuery`, `PrimitivesGeneratedQuery` and `TransformFeedbackPrimitivesWrittenQuery`, and corresponding fields in `DrawParameters`.

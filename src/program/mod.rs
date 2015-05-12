@@ -49,18 +49,6 @@ pub enum ProgramCreationInput<'a> {
     }
 }
 
-impl<'a> IntoProgramCreationInput<'a> for ProgramCreationInput<'a> {
-    fn into_program_creation_input(self) -> ProgramCreationInput<'a> {
-        self
-    }
-}
-
-/// Traits for objects that can be turned into `ProgramCreationInput`.
-pub trait IntoProgramCreationInput<'a> {
-    /// Builds the `ProgramCreationInput`.
-    fn into_program_creation_input(self) -> ProgramCreationInput<'a>;
-}
-
 /// Represents the source code of a program.
 pub struct SourceCode<'a> {
     /// Source code of the vertex shader.
@@ -79,10 +67,10 @@ pub struct SourceCode<'a> {
     pub fragment_shader: &'a str,
 }
 
-impl<'a> IntoProgramCreationInput<'a> for SourceCode<'a> {
-    fn into_program_creation_input(self) -> ProgramCreationInput<'a> {
+impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
+    fn from(code: SourceCode<'a>) -> ProgramCreationInput<'a> {
         let SourceCode { vertex_shader, fragment_shader, geometry_shader,
-                         tessellation_control_shader, tessellation_evaluation_shader } = self;
+                         tessellation_control_shader, tessellation_evaluation_shader } = code;
 
         ProgramCreationInput::SourceCode {
             vertex_shader: vertex_shader,
@@ -104,10 +92,10 @@ pub struct Binary {
     pub content: Vec<u8>,
 }
 
-impl IntoProgramCreationInput<'static> for Binary {
-    fn into_program_creation_input(self) -> ProgramCreationInput<'static> {
+impl<'a> From<Binary> for ProgramCreationInput<'a> {
+    fn from(binary: Binary) -> ProgramCreationInput<'a> {
         ProgramCreationInput::Binary {
-            data: self,
+            data: binary,
         }
     }
 }
