@@ -55,83 +55,7 @@ struct Vertex {
 implement_vertex!(Vertex, position);
 
 #[test]
-fn triangles_list_cpu() {
-    let display = support::build_display();
-    let program = build_program(&display);
-
-    let vb = glium::VertexBuffer::new(&display, vec![
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
-
-    let indices = glium::index::TrianglesList(vec![0u16, 1, 2, 2, 1, 3]);
-
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
-
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
-
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
-
-    display.assert_no_error(None);
-}
-
-#[test]
-fn triangle_strip_cpu() {
-    let display = support::build_display();
-    let program = build_program(&display);
-
-    let vb = glium::VertexBuffer::new(&display, vec![
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
-
-    let indices = glium::index::TriangleStrip(vec![0u16, 1, 2, 3]);
-
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
-
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
-
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
-
-    display.assert_no_error(None);
-}
-
-#[test]
-fn triangle_fan_cpu() {
-    let display = support::build_display();
-    let program = build_program(&display);
-
-    let vb = glium::VertexBuffer::new(&display, vec![
-        Vertex { position: [0.0,  0.0] },
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
-
-    let indices = glium::index::TriangleFan(vec![0u16, 1, 2, 4, 3, 1]);
-
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
-
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
-
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
-
-    display.assert_no_error(None);
-}
-
-#[test]
-fn triangles_list_gpu() {
+fn triangles_list() {
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -157,7 +81,7 @@ fn triangles_list_gpu() {
 }
 
 #[test]
-fn triangle_strip_gpu() {
+fn triangle_strip() {
     let display = support::build_display();
     let program = build_program(&display);
 
@@ -183,7 +107,7 @@ fn triangle_strip_gpu() {
 }
 
 #[test]
-fn triangle_fan_gpu() {
+fn triangle_fan() {
     let display = support::build_display();
     let program = build_program(&display);
 

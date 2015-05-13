@@ -49,32 +49,17 @@ mod local;
 
 /// Can be used as a source of indices when drawing.
 pub trait ToIndicesSource {
-    /// The type of data.
-    type Data: Index;
-
     /// Builds the `IndicesSource`.
-    fn to_indices_source<'a>(&'a self) -> IndicesSource<'a, Self::Data>;
+    fn to_indices_source<'a>(&'a self) -> IndicesSource<'a>;
 }
 
 /// Describes a source of indices used for drawing.
 #[derive(Clone)]
-pub enum IndicesSource<'a, T: 'a> {
+pub enum IndicesSource<'a> {
     /// A buffer uploaded in video memory.
     IndexBuffer {
         /// The buffer.
         buffer: &'a IndexBuffer,
-        /// Offset of the first element of the buffer to use.
-        offset: usize,
-        /// Number of elements in the buffer to use.
-        length: usize,
-    },
-
-    /// A buffer in RAM.
-    Buffer {
-        /// Slice of data to use.
-        pointer: &'a [T],
-        /// Type of primitives contained in the buffer.
-        primitives: PrimitiveType,
         /// Offset of the first element of the buffer to use.
         offset: usize,
         /// Number of elements in the buffer to use.
@@ -89,12 +74,11 @@ pub enum IndicesSource<'a, T: 'a> {
     },
 }
 
-impl<'a, T> IndicesSource<'a, T> where T: Index {
+impl<'a> IndicesSource<'a> {
     /// Returns the type of the primitives.
     pub fn get_primitives_type(&self) -> PrimitiveType {
         match self {
             &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_primitives_type(),
-            &IndicesSource::Buffer { primitives, .. } => primitives,
             &IndicesSource::NoIndices { primitives } => primitives,
         }
     }
@@ -156,9 +140,7 @@ impl ToGlEnum for PrimitiveType {
 pub struct NoIndices(pub PrimitiveType);
 
 impl ToIndicesSource for NoIndices {
-    type Data = u16;      // TODO: u16?
-
-    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
+    fn to_indices_source(&self) -> IndicesSource {
         IndicesSource::NoIndices {
             primitives: self.0,
         }
