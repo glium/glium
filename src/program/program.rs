@@ -158,6 +158,8 @@ impl Program {
                            -> Result<Program, ProgramCreationError>
                            where F: Facade
     {
+        let _lock = COMPILER_GLOBAL_LOCK.lock();
+
         let mut has_tessellation_shaders = false;
 
         // getting an array of the source codes and their type
@@ -280,8 +282,6 @@ impl Program {
 
             // linking
             {
-                let _lock = COMPILER_GLOBAL_LOCK.lock();
-
                 ctxt.report_debug_output_errors.set(false);
 
                 match id {

@@ -93,8 +93,6 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
         // compiling
         {
-            let _lock = COMPILER_GLOBAL_LOCK.lock();
-
             ctxt.report_debug_output_errors.set(false);
 
             match id {
