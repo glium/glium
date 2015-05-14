@@ -12,6 +12,7 @@ use image_format::{self, TextureFormatRequest};
 use texture::{Texture2dDataSink, PixelValue};
 use texture::{TextureFormat, ClientFormat};
 use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
+use texture::{get_format, InternalFormat};
 
 use libc;
 use std::fmt;
@@ -470,6 +471,13 @@ impl TextureImplementation {
         &self.context
     }
 
+    /// Returns the bind point of this texture.
+    ///
+    /// The returned GLenum is guaranteed to be supported by the context.
+    pub fn get_bind_point(&self) -> gl::types::GLenum {
+        self.bind_point
+    }
+
     /// Returns the width of the texture.
     pub fn get_width(&self) -> u32 {
         self.width
@@ -493,6 +501,15 @@ impl TextureImplementation {
     /// Returns the number of mipmap levels of the texture.
     pub fn get_mipmap_levels(&self) -> u32 {
         self.levels
+    }
+
+    /// Determines the internal format of this texture.
+    ///
+    /// Returns `None` if the backend doesn't allow querying the actual format.
+    pub fn get_internal_format_if_supported(&self) -> Option<InternalFormat> {
+        // TODO: cache this value in the texture
+        let mut ctxt = self.context.make_current();
+        get_format::get_format_if_supported(&mut ctxt, self)
     }
 }
 

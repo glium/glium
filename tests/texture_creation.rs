@@ -19,6 +19,37 @@ fn empty_texture1d_u8u8u8u8() {
 }
 
 #[test]
+fn get_format_u8u8u8u8() {
+    let display = support::build_display();
+
+    let texture = glium::texture::Texture2d::new_empty(&display,
+                                                       glium::texture::UncompressedFloatFormat::
+                                                           U8U8U8U8, 128, 128);
+
+    display.assert_no_error(None);
+
+    let format = match texture.get_internal_format_if_supported() {
+        None => return,
+        Some(f) => f
+    };
+
+    match format {
+        glium::texture::InternalFormat::FourComponents { ty1, bits1, ty2, bits2, ty3, bits3, ty4, bits4 } => {
+            assert_eq!(ty1, glium::texture::InternalFormatType::UnsignedNormalized);
+            assert_eq!(ty2, glium::texture::InternalFormatType::UnsignedNormalized);
+            assert_eq!(ty3, glium::texture::InternalFormatType::UnsignedNormalized);
+            assert_eq!(ty4, glium::texture::InternalFormatType::UnsignedNormalized);
+
+            assert!(bits1 >= 8);
+            assert!(bits2 >= 8);
+            assert!(bits3 >= 8);
+            assert!(bits4 >= 8);
+        },
+        _ => panic!()
+    }
+}
+
+#[test]
 fn depth_texture_1d_creation() {
     let display = support::build_display();
 
