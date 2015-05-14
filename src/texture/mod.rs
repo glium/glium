@@ -65,8 +65,10 @@ pub use image_format::{ClientFormat, TextureFormat};
 pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
 pub use image_format::{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat};
 pub use image_format::{CompressedSrgbFormat, SrgbFormat};
+pub use self::get_format::{InternalFormat, InternalFormatType};
 pub use self::pixel::PixelValue;
 
+mod get_format;
 mod pixel;
 mod tex_impl;
 
