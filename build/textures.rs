@@ -909,7 +909,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// You should avoid doing this at all cost during performance-critical
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
-                pub fn read<P, T>(&self) -> T where T: Texture2dDataSink<Data = P>, P: PixelValue + Clone {{
+                pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
                     self.0.read(0)
                 }}
             "#)).unwrap();
@@ -920,10 +920,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// This operation copies the texture's data into a buffer in video memory
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
-                pub fn read_to_pixel_buffer<P, T>(&self) -> PixelBuffer<T>
-                                                  where T: Texture2dDataSink<Data = P>,
-                                                        P: PixelValue + Clone
-                {{
+                pub fn read_to_pixel_buffer<T>(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
                     self.0.read_to_pixel_buffer(0)
                 }}
             "#)).unwrap();

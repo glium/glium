@@ -96,9 +96,9 @@ fn cull_clockwise() {
             .. Default::default()
         }).unwrap();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
-    assert_eq!(read_back[0].last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back.last().unwrap()[0], (0.0, 0.0, 0.0, 0.0));
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(read_back[0].last().unwrap(), &(255, 0, 0, 255));
+    assert_eq!(read_back.last().unwrap()[0], (0, 0, 0, 0));
 
     display.assert_no_error(None);
 }
@@ -194,9 +194,9 @@ fn cull_counterclockwise() {
             .. Default::default()
         }).unwrap();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
-    assert_eq!(read_back[0].last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
-    assert_eq!(read_back.last().unwrap()[0], (1.0, 0.0, 0.0, 1.0));
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(read_back[0].last().unwrap(), &(0, 0, 0, 0));
+    assert_eq!(read_back.last().unwrap()[0], (255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -291,9 +291,9 @@ fn cull_clockwise_trianglestrip() {
             .. Default::default()
         }).unwrap();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
-    assert_eq!(read_back[0][0], (0.0, 0.0, 0.0, 0.0));
-    assert_eq!(read_back.last().unwrap().last().unwrap(), &(0.0, 0.0, 0.0, 0.0));
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(read_back[0][0], (0, 0, 0, 0));
+    assert_eq!(read_back.last().unwrap().last().unwrap(), &(0, 0, 0, 0));
 
     display.assert_no_error(None);
 }
@@ -388,9 +388,9 @@ fn cull_counterclockwise_trianglestrip() {
             .. Default::default()
         }).unwrap();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
-    assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back.last().unwrap().last().unwrap(), &(1.0, 0.0, 0.0, 1.0));
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(read_back[0][0], (255, 0, 0, 255));
+    assert_eq!(read_back.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }

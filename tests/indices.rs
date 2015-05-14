@@ -71,10 +71,10 @@ fn triangles_list() {
     target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -97,10 +97,10 @@ fn triangle_strip() {
     target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -124,10 +124,10 @@ fn triangle_fan() {
     target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -200,10 +200,10 @@ fn triangles_list_noindices() {
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -226,10 +226,10 @@ fn triangle_strip_noindices() {
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -254,10 +254,10 @@ fn triangle_fan_noindices() {
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -304,9 +304,9 @@ fn indexbuffer_slice_draw() {
     texture1.as_surface().draw(&vb, &indices.slice(3 .. 6).unwrap(), &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = texture1.read();
-    assert_eq!(data[0][0], (0, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0));
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture1.read();
+    assert_eq!(data[0][0], (0, 0, 0, 0));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
 
 
     let texture2 = support::build_renderable_texture(&display);
@@ -314,9 +314,9 @@ fn indexbuffer_slice_draw() {
     texture2.as_surface().draw(&vb, &indices.slice(0 .. 3).unwrap(), &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = texture2.read();
-    assert_eq!(data[0][0], (255, 0, 0));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(0, 0, 0));
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture2.read();
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(0, 0, 0, 0));
 
 
     display.assert_no_error(None);

@@ -79,11 +79,11 @@ fn simple_render_to_texture() {
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
-    assert_eq!(read_back[0][0], (1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back[64][64], (1.0, 0.0, 0.0, 1.0));
-    assert_eq!(read_back[127][127], (1.0, 0.0, 0.0, 1.0));
+    assert_eq!(read_back[0][0], (255, 0, 0, 255));
+    assert_eq!(read_back[64][64], (255, 0, 0, 255));
+    assert_eq!(read_back[127][127], (255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -159,10 +159,10 @@ fn depth_texture2d() {
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
     // reading back the color
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = color.read();
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = color.read();
 
-    assert_eq!(read_back[0][0], (1.0, 1.0, 1.0, 1.0));
-    assert_eq!(read_back[127][127], (0.0, 0.0, 0.0, 1.0));
+    assert_eq!(read_back[0][0], (255, 255, 255, 255));
+    assert_eq!(read_back[127][127], (0, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -219,18 +219,18 @@ fn multioutput() {
                      &Default::default()).unwrap();
 
     // checking color1
-    let read_back1: Vec<Vec<(f32, f32, f32, f32)>> = color1.read();
+    let read_back1: Vec<Vec<(u8, u8, u8, u8)>> = color1.read();
     for row in read_back1.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 1.0, 1.0, 1.0));
+            assert_eq!(pixel, &(255, 255, 255, 255));
         }
     }
 
     // checking color2
-    let read_back2: Vec<Vec<(f32, f32, f32, f32)>> = color2.read();
+    let read_back2: Vec<Vec<(u8, u8, u8, u8)>> = color2.read();
     for row in read_back2.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 

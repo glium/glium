@@ -21,11 +21,11 @@ fn clear_color() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(1.0, 0.0, 0.0, 1.0);
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 
@@ -42,14 +42,14 @@ fn clear_color_rect() {
     let rect = glium::Rect { left: 512, bottom: 0, width: 512, height: 1024 };
     texture.as_surface().clear(Some(&rect), Some((0.0, 1.0, 0.0, 1.0)), None, None);
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     for row in data.iter() {
         for (col, pixel) in row.iter().enumerate() {
             if col >= 512 {
-                assert_eq!(pixel, &(0.0, 1.0, 0.0));
+                assert_eq!(pixel, &(0, 255, 0, 255));
             } else {
-                assert_eq!(pixel, &(1.0, 0.0, 0.0));
+                assert_eq!(pixel, &(255, 0, 0, 255));
             }
         }
     }
@@ -143,16 +143,16 @@ fn scissor() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
-    assert_eq!(data[0][0], (1.0, 0.0, 0.0));
-    assert_eq!(data[1][0], (0.0, 0.0, 0.0));
-    assert_eq!(data[0][1], (0.0, 0.0, 0.0));
-    assert_eq!(data[1][1], (0.0, 0.0, 0.0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data[1][0], (0, 0, 0, 0));
+    assert_eq!(data[0][1], (0, 0, 0, 0));
+    assert_eq!(data[1][1], (0, 0, 0, 0));
 
     for row in data.iter().skip(1) {
         for pixel in row.iter().skip(1) {
-            assert_eq!(pixel, &(0.0, 0.0, 0.0));
+            assert_eq!(pixel, &(0, 0, 0, 0));
         }
     }
 
@@ -191,10 +191,10 @@ fn scissor_followed_by_clear() {
                               &params).unwrap();
     texture.as_surface().clear_color(1.0, 0.0, 1.0, 1.0);
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 1.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 255, 255));
         }
     }
 
@@ -223,10 +223,10 @@ fn viewport_followed_by_clear() {
                               &params).unwrap();
     texture.as_surface().clear_color(1.0, 0.0, 1.0, 1.0);
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 1.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 255, 255));
         }
     }
 
@@ -253,16 +253,16 @@ fn viewport() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
-    assert_eq!(data[0][0], (1.0, 0.0, 0.0));
-    assert_eq!(data[1][0], (0.0, 0.0, 0.0));
-    assert_eq!(data[0][1], (0.0, 0.0, 0.0));
-    assert_eq!(data[1][1], (0.0, 0.0, 0.0));
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data[1][0], (0, 0, 0, 0));
+    assert_eq!(data[0][1], (0, 0, 0, 0));
+    assert_eq!(data[1][1], (0, 0, 0, 0));
 
     for row in data.iter().skip(1) {
         for pixel in row.iter().skip(1) {
-            assert_eq!(pixel, &(0.0, 0.0, 0.0));
+            assert_eq!(pixel, &(0, 0, 0, 0));
         }
     }
 
@@ -288,10 +288,10 @@ fn dont_draw_primitives() {
         e => e.unwrap()
     }
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(0.0, 1.0, 0.0));
+            assert_eq!(pixel, &(0, 255, 0, 0));
         }
     }
 
@@ -318,10 +318,10 @@ fn dont_draw_primitives_then_draw() {
     }
     texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 
@@ -349,17 +349,17 @@ fn multiple_displays() {
                                &Default::default()).unwrap();
     texture2.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture1.read();
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture1.read();
     for row in read_back.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 
-    let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture2.read();
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture2.read();
     for row in read_back.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(0.0, 1.0, 0.0, 0.0));
+            assert_eq!(pixel, &(0, 255, 0, 0));
         }
     }
 

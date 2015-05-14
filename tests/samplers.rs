@@ -74,8 +74,8 @@ fn magnify_nearest_filtering() {
         Err(e) => panic!("{:?}", e)
     };
 
-    let data: Vec<Vec<(u8, u8, u8)>> = output.read();
-    assert_eq!(data[0][0], (255, 255, 255));
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = output.read();
+    assert_eq!(data[0][0], (255, 255, 255, 255));
 
     display.assert_no_error(None);
 }

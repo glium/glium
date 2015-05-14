@@ -98,16 +98,15 @@ pub trait Texture1dDataSource<'a> {
     fn into_raw(self) -> RawImage1d<'a, Self::Data>;
 }
 
-/// Trait that describes data for a one-dimensional texture.
-pub trait Texture1dDataSink {
-    /// The type of each pixel.
-    type Data: Send + Copy + 'static;
-
-    /// Returns the list of accepted formats.
-    fn get_preferred_formats() -> Vec<ClientFormat>;
-
+/// Trait that describes types that can be built from one-dimensional texture data.
+///
+/// The parameter indicates the type of pixels accepted by this sink.
+///
+/// You are especially encouraged to implement this trait with the parameter `(u8, u8, u8, u8)`,
+/// as this is the only format that is guaranteed to be supported by OpenGL when reading pixels.
+pub trait Texture1dDataSink<T> {
     /// Builds a new object from raw data.
-    fn from_raw(RawImage1d<Self::Data>) -> Self;
+    fn from_raw(data: Cow<[T]>, width: u32) -> Self;
 }
 
 /// Represents raw data for a two-dimensional image.
@@ -148,16 +147,9 @@ impl<'a, P: PixelValue + Clone> Texture1dDataSource<'a> for RawImage1d<'a, P> {
     }
 }
 
-impl<P: PixelValue> Texture1dDataSink for Vec<P> where P: Copy + Clone + Send {
-    type Data = P;
-
-    fn get_preferred_formats() -> Vec<ClientFormat> {
-        vec![<P as PixelValue>::get_format()]
-    }
-
-    fn from_raw(data: RawImage1d<P>) -> Self {
-        assert_eq!(data.format, <P as PixelValue>::get_format());
-        data.data.into_owned()
+impl<P> Texture1dDataSink<P> for Vec<P> where P: Copy + Clone + Send {
+    fn from_raw(data: Cow<[P]>, _width: u32) -> Self {
+        data.into_owned()
     }
 }
 
@@ -184,16 +176,15 @@ pub trait Texture2dDataSource<'a> {
     fn into_raw(self) -> RawImage2d<'a, Self::Data>;
 }
 
-/// Trait that describes data for a two-dimensional texture.
-pub trait Texture2dDataSink {
-    /// The type of each pixel.
-    type Data: Send + Copy + Clone + 'static;
-
-    /// Returns the list of accepted formats.
-    fn get_preferred_formats() -> Vec<ClientFormat>;
-
+/// Trait that describes types that can be built from two-dimensional texture data.
+///
+/// The parameter indicates the type of pixels accepted by this sink.
+///
+/// You are especially encouraged to implement this trait with the parameter `(u8, u8, u8, u8)`,
+/// as this is the only format that is guaranteed to be supported by OpenGL when reading pixels.
+pub trait Texture2dDataSink<T> {
     /// Builds a new object from raw data.
-    fn from_raw(RawImage2d<Self::Data>) -> Self;
+    fn from_raw(data: Cow<[T]>, width: u32, height: u32) -> Self;
 }
 
 /// Represents raw data for a two-dimensional image.
@@ -269,17 +260,9 @@ impl<'a, P: PixelValue + Clone> Texture2dDataSource<'a> for RawImage2d<'a, P> {
     }
 }
 
-impl<P: PixelValue> Texture2dDataSink for Vec<Vec<P>> where P: Copy + Clone + Send {
-    type Data = P;
-
-    fn get_preferred_formats() -> Vec<ClientFormat> {
-        vec![<P as PixelValue>::get_format()]
-    }
-
-    fn from_raw(data: RawImage2d<P>) -> Self {
-        assert_eq!(data.format, <P as PixelValue>::get_format());
-        let width = data.width;
-        data.data.chunks(width as usize).map(|e| e.to_vec()).collect()
+impl<P> Texture2dDataSink<P> for Vec<Vec<P>> where P: Copy + Clone {
+    fn from_raw(data: Cow<[P]>, width: u32, height: u32) -> Self {
+        data.chunks(width as usize).map(|e| e.to_vec()).collect()
     }
 }
 
@@ -313,27 +296,18 @@ impl<'a, T, P> Texture2dDataSource<'a> for image::ImageBuffer<P, Vec<T>>
 }
 
 #[cfg(feature = "image")]
-impl<T, P> Texture2dDataSink for image::ImageBuffer<P, Vec<T>>
-                                 where T: image::Primitive + Send + 'static,
-                                       P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
+impl<T, P> Texture2dDataSink<P> for image::ImageBuffer<P, Vec<T>>
+                                    where T: image::Primitive + Send + 'static,
+                                          P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
 {
-    type Data = T;
-
-    fn get_preferred_formats() -> Vec<ClientFormat> {
-        vec![<P as PixelValue>::get_format()]
-    }
-
-    fn from_raw(data: RawImage2d<T>) -> Self {
-        let pixels_size = <P as image::Pixel>::channel_count();
-        let width = data.width;
-        let height = data.height;
-
+    fn from_raw(data: Cow<[P]>, width: u32, height: u32) -> Self {
         // opengl gives us rows from bottom to top, so we need to flip them
-        let data = data.data
-            .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
+        let data = data
+            .chunks(width as usize)
             .rev()
             .flat_map(|row| row.iter())
-            .map(|p| p.clone())
+            .flat_map(|pixel| pixel.channels().iter())
+            .cloned()
             .collect();
 
         image::ImageBuffer::from_raw(width, height, data).unwrap()
@@ -350,15 +324,10 @@ impl<'a> Texture2dDataSource<'a> for image::DynamicImage {
 }
 
 #[cfg(feature = "image")]
-impl Texture2dDataSink for image::DynamicImage {
-    type Data = u8;
-
-    fn get_preferred_formats() -> Vec<ClientFormat> {
-        vec![ClientFormat::U8U8U8U8]
-    }
-
-    fn from_raw(data: RawImage2d<u8>) -> image::DynamicImage {
-        image::DynamicImage::ImageRgba8(Texture2dDataSink::from_raw(data))
+impl Texture2dDataSink<(u8, u8, u8, u8)> for image::DynamicImage {
+    fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, w: u32, h: u32) -> image::DynamicImage {
+        let data = unsafe { ::std::mem::transmute(data) };     // FIXME: <-
+        image::DynamicImage::ImageRgba8(Texture2dDataSink::from_raw(data, w, h))
     }
 }
 
@@ -371,16 +340,15 @@ pub trait Texture3dDataSource<'a> {
     fn into_raw(self) -> RawImage3d<'a, Self::Data>;
 }
 
-/// Trait that describes data for a two-dimensional texture.
-pub trait Texture3dDataSink {
-    /// The type of each pixel.
-    type Data: Send + Copy + 'static;
-
-    /// Returns the list of accepted formats.
-    fn get_preferred_formats() -> Vec<ClientFormat>;
-
+/// Trait that describes types that can be built from one-dimensional texture data.
+///
+/// The parameter indicates the type of pixels accepted by this sink.
+///
+/// You are especially encouraged to implement this trait with the parameter `(u8, u8, u8, u8)`,
+/// as this is the only format that is guaranteed to be supported by OpenGL when reading pixels.
+pub trait Texture3dDataSink<T> {
     /// Builds a new object from raw data.
-    fn from_raw(RawImage3d<Self::Data>) -> Self;
+    fn from_raw(data: Cow<[T]>, width: u32, height: u32, depth: u32) -> Self;
 }
 
 /// Represents raw data for a two-dimensional image.
@@ -462,15 +430,8 @@ impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for RawImage3d<'a, P> {
     }
 }
 
-impl<P> Texture3dDataSink for Vec<Vec<Vec<P>>> where P: PixelValue + Clone {
-    type Data = P;
-
-    fn get_preferred_formats() -> Vec<ClientFormat> {
-        vec![<P as PixelValue>::get_format()]
-    }
-
-    fn from_raw(data: RawImage3d<P>) -> Self {
-        assert_eq!(data.format, <P as PixelValue>::get_format());
+impl<P> Texture3dDataSink<P> for Vec<Vec<Vec<P>>> where P: Copy + Clone {
+    fn from_raw(_data: Cow<[P]>, _width: u32, _height: u32, _depth: u32) -> Self {
         unimplemented!()
     }
 }

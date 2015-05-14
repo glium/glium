@@ -6,10 +6,11 @@ use version::Version;
 use context::Context;
 use ContextExt;
 use version::Api;
+use Rect;
 
 use pixel_buffer::PixelBuffer;
 use image_format::{self, TextureFormatRequest};
-use texture::{Texture2dDataSink, PixelValue};
+use texture::Texture2dDataSink;
 use texture::{TextureFormat, ClientFormat};
 use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
 use texture::{get_format, InternalFormat};
@@ -437,9 +438,8 @@ impl TextureAny {
     /// UNSTABLE. Reads the content of a mipmap level of the texture.
     // TODO: this function only works for level 0 right now
     //       width/height need adjustements
-    pub fn read<P, T>(&self, level: u32) -> T
-                      where P: PixelValue + Clone + Send,
-                      T: Texture2dDataSink<Data = P>
+    pub fn read<T>(&self, level: u32) -> T
+                   where T: Texture2dDataSink<(u8, u8, u8, u8)>
             // TODO: remove Clone for P
     {
         assert_eq!(level, 0);   // TODO:
@@ -451,21 +451,27 @@ impl TextureAny {
             level: 0
         };
 
-        ops::read_attachment(&attachment, (self.width, self.height.unwrap_or(1)), &self.context)
+        let rect = Rect {
+            bottom: 0,
+            left: 0,
+            width: self.width,
+            height: self.height.unwrap_or(1),
+        };
+
+        let mut ctxt = self.context.make_current();
+
+        let mut data = Vec::with_capacity(0);
+        ops::read(&mut ctxt, ops::Source::Attachment(&attachment, &self.context.get_framebuffer_objects()), &rect, &mut data);
+        T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
     }
 
     /// UNSTABLE. Reads the content of a mipmap level of the texture to a pixel buffer.
     // TODO: this function only works for level 0 right now
     //       width/height need adjustements
-    pub fn read_to_pixel_buffer<P, T>(&self, level: u32) -> PixelBuffer<T>
-                                      where P: PixelValue + Clone + Send,
-                                      T: Texture2dDataSink<Data = P>
-            // TODO: remove Clone for P
-    {
+    pub fn read_to_pixel_buffer(&self, level: u32) -> PixelBuffer<(u8, u8, u8, u8)> {
         assert_eq!(level, 0);   // TODO:
 
-        let size = self.width as usize * self.height.unwrap_or(1) as usize *
-                   <T as Texture2dDataSink>::get_preferred_formats()[0].get_size();
+        let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
 
         let attachment = fbo::Attachment::Texture {
             id: self.id,
@@ -474,9 +480,17 @@ impl TextureAny {
             level: 0
         };
 
-        let mut pb = PixelBuffer::new_empty(&self.context, size);
-        ops::read_attachment_to_pb(&attachment, (self.width, self.height.unwrap_or(1)),
-                                   &mut pb, &self.context);
+        let rect = Rect {
+            bottom: 0,
+            left: 0,
+            width: self.width,
+            height: self.height.unwrap_or(1),
+        };
+
+        let pb = PixelBuffer::new_empty(&self.context, size);
+
+        let mut ctxt = self.context.make_current();
+        ops::read(&mut ctxt, ops::Source::Attachment(&attachment, &self.context.get_framebuffer_objects()), &rect, &pb);
         pb
     }
 

@@ -43,10 +43,10 @@ macro_rules! texture_sample_test {
             output.as_surface().draw(&vb, &ib, &program, &uniform!{ texture: &texture },
                                      &Default::default()).unwrap();
 
-            let data: Vec<Vec<(f32, f32, f32, f32)>> = output.read();
+            let data: Vec<Vec<(u8, u8, u8, u8)>> = output.read();
             for row in data.iter() {
                 for pixel in row.iter() {
-                    assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+                    assert_eq!(pixel, &(255, 0, 0, 255));
                 }
             }
 

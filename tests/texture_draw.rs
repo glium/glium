@@ -47,7 +47,7 @@ macro_rules! texture_draw_test {
 
             display.assert_no_error(None);
 
-            let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+            let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
             for row in data.iter() {
                 for pixel in row.iter() {
                     assert_eq!(pixel, &$rust_value);
@@ -60,4 +60,4 @@ macro_rules! texture_draw_test {
 }
 
 texture_draw_test!(texture_2d_draw, Texture2d, [1024, 1024], "vec4",
-                   "vec4(1.0, 0.0, 1.0, 0.0)", (1.0, 0.0, 1.0, 0.0));
+                   "vec4(1.0, 0.0, 1.0, 0.0)", (255, 0, 255, 0));

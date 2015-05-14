@@ -6,6 +6,7 @@ use libc;
 use std::env;
 use std::mem;
 use std::ptr;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::cell::{Cell, RefCell, RefMut};
 use std::marker::PhantomData;
@@ -309,14 +310,19 @@ impl Context {
     /// # extern crate glutin;
     /// # fn main() {
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-    /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
+    /// let pixels: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
     /// # }
     /// ```
-    pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
-                                   where P: texture::PixelValue + Clone + Send,
-                                   T: texture::Texture2dDataSink<Data = P>
+    pub fn read_front_buffer<T>(&self) -> T
+                                where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
     {
-        ops::read_from_default_fb(gl::FRONT_LEFT, &self)
+        let mut ctxt = self.make_current();
+        let dimensions = self.get_framebuffer_dimensions();
+        let rect = ::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
+
+        let mut data = Vec::with_capacity(0);
+        ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect, &mut data);
+        T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
     }
 
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another

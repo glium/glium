@@ -39,28 +39,28 @@ fn blit_texture_to_window() {
 
     target.finish();
 
-    let data: Vec<Vec<(f32, f32, f32)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
-    assert_eq!(data[1][1], (0.0, 1.0, 0.0));
-    assert_eq!(data[1][2], (0.0, 1.0, 0.0));
-    assert_eq!(data[2][1], (0.0, 1.0, 0.0));
-    assert_eq!(data[2][2], (0.0, 1.0, 0.0));
+    assert_eq!(data[1][1], (0, 255, 0, 255));
+    assert_eq!(data[1][2], (0, 255, 0, 255));
+    assert_eq!(data[2][1], (0, 255, 0, 255));
+    assert_eq!(data[2][2], (0, 255, 0, 255));
 
-    assert_eq!(data[0][0], (0.0, 0.0, 0.0));
+    assert_eq!(data[0][0], (0, 0, 0, 0));
 
-    assert_eq!(data[0][1], (0.0, 0.0, 0.0));
-    assert_eq!(data[0][2], (0.0, 0.0, 0.0));
+    assert_eq!(data[0][1], (0, 0, 0, 0));
+    assert_eq!(data[0][2], (0, 0, 0, 0));
 
-    assert_eq!(data[1][0], (0.0, 0.0, 0.0));
-    assert_eq!(data[2][0], (0.0, 0.0, 0.0));
+    assert_eq!(data[1][0], (0, 0, 0, 0));
+    assert_eq!(data[2][0], (0, 0, 0, 0));
 
-    assert_eq!(data[3][1], (0.0, 0.0, 0.0));
-    assert_eq!(data[3][2], (0.0, 0.0, 0.0));
+    assert_eq!(data[3][1], (0, 0, 0, 0));
+    assert_eq!(data[3][2], (0, 0, 0, 0));
 
-    assert_eq!(data[2][3], (0.0, 0.0, 0.0));
-    assert_eq!(data[1][3], (0.0, 0.0, 0.0));
+    assert_eq!(data[2][3], (0, 0, 0, 0));
+    assert_eq!(data[1][3], (0, 0, 0, 0));
 
-    assert_eq!(data[3][3], (0.0, 0.0, 0.0));
+    assert_eq!(data[3][3], (0, 0, 0, 0));
 
     display.assert_no_error(None);
 }
