@@ -197,6 +197,9 @@ trait ContextExt {
 
 /// Internal trait for programs.
 trait ProgramExt {
+    /// Calls `glUseProgram`.
+    fn use_program(&self, ctxt: &mut context::CommandContext);
+
     /// Changes the value of a uniform of the program.
     fn set_uniform(&self, ctxt: &mut context::CommandContext, uniform_location: gl::types::GLint,
                    value: &RawUniformValue);

@@ -560,6 +560,19 @@ impl GlObject for Program {
 }
 
 impl ProgramExt for Program {
+    fn use_program(&self, ctxt: &mut CommandContext) {
+        unsafe {
+            let program_id = self.get_id();
+            if ctxt.state.program != program_id {
+                match program_id {
+                    Handle::Id(id) => ctxt.gl.UseProgram(id),
+                    Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
+                }
+                ctxt.state.program = program_id;
+            }
+        }
+    }
+
     fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
