@@ -2,7 +2,8 @@ use program;
 use texture;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
-use uniforms::buffer::TypelessUniformBuffer;
+
+use buffer::SubBufferAnySlice;
 
 use std::default::Default;
 
@@ -140,7 +141,7 @@ pub enum UniformValue<'a> {
     /// can be binded on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
-    Block(&'a TypelessUniformBuffer, fn(&program::UniformBlock) -> bool),
+    Block(SubBufferAnySlice<'a>, fn(&program::UniformBlock) -> bool),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),

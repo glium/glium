@@ -1,30 +1,29 @@
-use buffer::{self, Buffer, BufferType};
+use buffer::{SubBuffer, SubBufferAny, BufferType};
+use buffer::Mapping as BufferMapping;
 use uniforms::{AsUniformValue, UniformValue, UniformBlock};
 
-use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
-use std::cell::RefCell;
 
 use backend::Facade;
 
-use GlObject;
-use BufferExt;
-use gl;
-use sync;
 use version::Version;
 use version::Api;
 
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
-pub struct UniformBuffer<T> {
-    buffer: TypelessUniformBuffer,
-    marker: PhantomData<T>,
+pub struct UniformBuffer<T> where T: Copy + Send + 'static {
+    buffer: SubBuffer<T>,
+}
+
+/// Mapping of a buffer in memory.
+pub struct Mapping<'a, T> {
+    mapping: BufferMapping<'a, T>,
 }
 
 /// Same as `UniformBuffer` but doesn't contain any information about the type.
 #[derive(Debug)]
 pub struct TypelessUniformBuffer {
-    buffer: Buffer,
+    buffer: SubBufferAny,
 }
 
 impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
@@ -46,94 +45,66 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
             None
 
         } else {
-            let buffer = Buffer::new(facade, &[data], BufferType::UniformBuffer, true).unwrap();
+            let buffer = SubBuffer::new(facade, &[data], BufferType::UniformBuffer, true).unwrap();
 
             Some(UniformBuffer {
-                buffer: TypelessUniformBuffer {
-                    buffer: buffer,
-                },
-                marker: PhantomData,
+                buffer: buffer,
             })
         }
     }
 
     /// Modifies the content of the buffer.
     pub fn upload(&mut self, data: T) {
-        self.buffer.buffer.upload(0, &[data])
+        self.write(&[data]);
     }
 
-    /// Maps the buffer to allow write access to it.
-    ///
-    /// This function will block until the buffer stops being used by the backend.
-    /// This operation is much faster if the buffer is persistent.
-    pub fn map<'a>(&'a mut self) -> Mapping<'a, T> {
-        Mapping(self.buffer.buffer.map(0, 1))
+    /// Reads the content of the buffer if supported.
+    pub fn read_if_supported(&self) -> Option<T> {
+        self.buffer.read_if_supported().and_then(|buf| buf.into_iter().next())
     }
 
     /// Reads the content of the buffer.
-    ///
-    /// This function is usually better if are just doing one punctual read, while `map`
-    /// is better if you want to have multiple small reads.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
     #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> T {
-        self.buffer.buffer.read().into_iter().next().unwrap()
+        self.read_if_supported().unwrap()
     }
 
-    /// Reads the content of the buffer.
-    pub fn read_if_supported(&self) -> Option<T> {
-        let res = self.buffer.buffer.read_if_supported();
-        res.map(|res| res.into_iter().next().unwrap())
-    }
-}
-
-impl<T> GlObject for UniformBuffer<T> {
-    type Id = gl::types::GLuint;
-    fn get_id(&self) -> gl::types::GLuint {
-        self.buffer.get_id()
+    /// Maps the buffer in memory.
+    pub fn map(&mut self) -> Mapping<T> {
+        Mapping { mapping: self.buffer.map() }
     }
 }
 
-impl GlObject for TypelessUniformBuffer {
-    type Id = gl::types::GLuint;
-    fn get_id(&self) -> gl::types::GLuint {
-        self.buffer.get_id()
+impl<T> Deref for UniformBuffer<T> where T: Send + Copy + 'static {
+    type Target = SubBuffer<T>;
+
+    fn deref(&self) -> &SubBuffer<T> {
+        &self.buffer
     }
 }
 
-impl<T> BufferExt for UniformBuffer<T> {
-    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
-        self.buffer.add_fence()
+impl<'a, D> Deref for Mapping<'a, D> {
+    type Target = D;
+
+    fn deref(&self) -> &D {
+        &self.mapping.deref()[0]
     }
 }
 
-impl BufferExt for TypelessUniformBuffer {
-    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
-        self.buffer.add_fence()
+impl<'a, D> DerefMut for Mapping<'a, D> {
+    fn deref_mut(&mut self) -> &mut D {
+        &mut self.mapping.deref_mut()[0]
     }
 }
 
-/// A mapping of a uniform buffer.
-pub struct Mapping<'a, T>(buffer::Mapping<'a, T>);
-
-impl<'a, T> Deref for Mapping<'a, T> {
-    type Target = T;
-    fn deref<'b>(&'b self) -> &'b T {
-        self.0.deref().get(0).unwrap()
+impl<T> DerefMut for UniformBuffer<T> where T: Send + Copy + 'static {
+    fn deref_mut(&mut self) -> &mut SubBuffer<T> {
+        &mut self.buffer
     }
 }
 
-impl<'a, T> DerefMut for Mapping<'a, T> {
-    fn deref_mut<'b>(&'b mut self) -> &'b mut T {
-        self.0.deref_mut().get_mut(0).unwrap()
-    }
-}
-
-impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock {
+impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Send + Copy + 'static {
     fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Block(&self.buffer, <T as UniformBlock>::matches)
+        UniformValue::Block(self.buffer.as_slice_any(), <T as UniformBlock>::matches)
     }
 }

@@ -4,7 +4,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::default::Default;
 
-use BufferExt;
+use SubBufferExt;
+use SubBufferSliceExt;
 use ProgramExt;
 use DrawError;
 use Handle;
@@ -101,34 +102,36 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
         for src in vertex_buffers.iter() {
             match src {
-                VerticesSource::VertexBuffer(ref buffer, offset, _, per_instance) => {
+                VerticesSource::VertexBuffer(buffer, format, per_instance) => {
+                    // TODO: assert!(buffer.get_elements_size() == total_size(format));
+
                     if let Some(fence) = buffer.add_fence() {
                         fences.push(fence);
                     }
 
-                    binder = binder.add(buffer, offset, if per_instance { Some(1) } else { None });
+                    binder = binder.add(&buffer, format, if per_instance { Some(1) } else { None });
                 },
                 _ => {}
             }
 
             match src {
-                VerticesSource::VertexBuffer(_, _, len, false) => {
+                VerticesSource::VertexBuffer(ref buffer, _, false) => {
                     if let Some(curr) = vertices_count {
-                        if curr != len {
+                        if curr != buffer.get_elements_count() {
                             vertices_count = None;
                             break;
                         }
                     } else {
-                        vertices_count = Some(len);
+                        vertices_count = Some(buffer.get_elements_count());
                     }
                 },
-                VerticesSource::VertexBuffer(_, _, len, true) => {
+                VerticesSource::VertexBuffer(ref buffer, _, true) => {
                     if let Some(curr) = instances_count {
-                        if curr != len {
+                        if curr != buffer.get_elements_count() {
                             return Err(DrawError::InstancesCountMismatch);
                         }
                     } else {
-                        instances_count = Some(len);
+                        instances_count = Some(buffer.get_elements_count());
                     }
                 },
                 VerticesSource::Marker { len, per_instance } if !per_instance => {
@@ -264,9 +267,10 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
 
-                if let Some(fence) = buffer.add_fence() {
+                // FIXME: fence the index buffers (this is not a problem yet as IB aren't writable)
+                /*if let Some(fence) = buffer.add_fence() {
                     fences.push(fence);
-                }
+                }*/
 
                 unsafe {
                     if let Some(instances_count) = instances_count {
@@ -344,7 +348,7 @@ fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformVal
                           -> Result<Option<&'a RefCell<Option<sync::LinearSyncFence>>>, DrawError>
 {
     match value {
-        &UniformValue::Block(ref buffer, ref layout) => {
+        &UniformValue::Block(buffer, ref layout) => {
             if !layout(block) {
                 return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
             }
@@ -352,8 +356,9 @@ fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformVal
             let bind_point = buffer_bind_points.get_unused().expect("Not enough buffer units");
             buffer_bind_points.set_used(bind_point);
 
+            assert!(buffer.get_offset_bytes() == 0);     // TODO: not implemented
             let fence = buffer.add_fence();
-            let buffer = buffer.get_id();
+            let buffer = buffer.get_buffer_id();
             let binding = block.binding as gl::types::GLuint;
 
             unsafe {

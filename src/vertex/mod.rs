@@ -125,9 +125,11 @@ In all situation, the length of all per-instance sources must match, or
 use std::iter::Chain;
 use std::option::IntoIter;
 
-pub use self::buffer::{VertexBuffer, VertexBufferAny, Mapping};
-pub use self::buffer::{VertexBufferSlice, VertexBufferAnySlice};
+pub use self::buffer::{VertexBuffer, VertexBufferAny};
+pub use self::buffer::VertexBufferSlice;
 pub use self::format::{AttributeType, VertexFormat};
+
+use buffer::SubBufferAnySlice;
 
 mod buffer;
 mod format;
@@ -137,10 +139,11 @@ mod format;
 pub enum VerticesSource<'a> {
     /// A buffer uploaded in the video memory.
     ///
-    /// The second and third parameters are the offset and length of the buffer.
-    /// The fourth parameter tells whether or not this buffer is "per instance" (true) or
+    /// The second parameter is the number of vertices in the buffer.
+    ///
+    /// The third parameter tells whether or not this buffer is "per instance" (true) or
     /// "per vertex" (false).
-    VertexBuffer(&'a VertexBufferAny, usize, usize, bool),
+    VertexBuffer(SubBufferAnySlice<'a>, &'a VertexFormat, bool),
 
     Marker { len: usize, per_instance: bool },
 }
@@ -176,16 +179,11 @@ impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
 }
 
 /// Marker that instructs glium that the buffer is to be used per instance.
-pub struct PerInstance<'a>(VertexBufferAnySlice<'a>);
+pub struct PerInstance<'a>(SubBufferAnySlice<'a>, &'a VertexFormat);
 
 impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        match self.0.into_vertices_source() {
-            VerticesSource::VertexBuffer(buf, off, len, false) => {
-                VerticesSource::VertexBuffer(buf, off, len, true)
-            },
-            _ => unreachable!()
-        }
+        VerticesSource::VertexBuffer(self.0, self.1, true)
     }
 }
 

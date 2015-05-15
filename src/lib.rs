@@ -117,6 +117,7 @@ use std::rc::Rc;
 use context::Context;
 
 pub mod backend;
+pub mod buffer;
 pub mod debug;
 pub mod draw_parameters;
 pub mod framebuffer;
@@ -128,7 +129,6 @@ pub mod uniforms;
 pub mod vertex;
 pub mod texture;
 
-mod buffer;
 mod context;
 mod fbo;
 mod image_format;
@@ -178,12 +178,21 @@ trait ToGlEnum {
     fn to_glenum(&self) -> gl::types::GLenum;
 }
 
-/// Internal trait for buffers.
-trait BufferExt {
+/// Internal trait for subbuffers.
+trait SubBufferExt {
+    /// Returns the number of bytes from the start of the buffer to this subbuffer.
+    fn get_offset_bytes(&self) -> usize;
+
+    /// Returns the ID of the buffer.
+    fn get_buffer_id(&self) -> gl::types::GLuint;
+}
+
+/// Internal trait for subbuffer slices.
+trait SubBufferSliceExt<'a> {
     /// Tries to get a reference to a `RefCell` where to write a fence.
     ///
     /// If this function returns `None`, no fence will be created nor written.
-    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>>;
+    fn add_fence(&self) -> Option<&'a RefCell<Option<sync::LinearSyncFence>>>;
 }
 
 /// Internal trait for contexts.

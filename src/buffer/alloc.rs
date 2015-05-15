@@ -5,14 +5,13 @@ use version::Version;
 use ContextExt;
 use gl;
 use libc;
-use std::{fmt, mem, ptr, slice};
+use std::{fmt, mem, ptr, slice, cmp};
 use std::rc::Rc;
-use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use GlObject;
-use BufferExt;
 
-use sync;
+use buffer::{BufferType, BufferCreationError};
+
 use version::Api;
 
 /// A buffer in the graphics card's memory.
@@ -25,11 +24,8 @@ pub struct Buffer {
     /// Type of buffer.
     ty: BufferType,
 
-    /// Size in bytes in each element of the buffer.
-    elements_size: usize,
-
-    /// Number of elements in the buffer.
-    elements_count: usize,
+    /// Size in bytes of the buffer.
+    size: usize,
 
     /// A pointer to the persistent mapping of this buffer in memory, if there is one.
     persistent_mapping: Option<*mut libc::c_void>,
@@ -37,51 +33,14 @@ pub struct Buffer {
     /// If true, then this buffer can only be modified by calls to `glCopyBufferSubData` or through
     /// the persistent mapping.
     immutable: bool,
-
-    /// Fence that the buffer must wait on before locking the permanent mapping.
-    fence: RefCell<Option<sync::LinearSyncFence>>,
-}
-
-/// Error that can happen when creating a buffer.
-#[derive(Debug)]
-pub enum BufferCreationError {
-    /// Not enough memory to create the buffer.
-    OutOfMemory,
-
-    /// This type of buffer is not supported.
-    BufferTypeNotSupported,
-}
-
-/// Type of a buffer.
-#[derive(Debug, Copy, Clone)]
-pub enum BufferType {
-    ArrayBuffer,
-    PixelPackBuffer,
-    PixelUnpackBuffer,
-    UniformBuffer,
-    CopyReadBuffer,
-    CopyWriteBuffer,
 }
 
 /// A mapping of a buffer.
 pub struct Mapping<'b, D> {
-    buffer: &'b mut Buffer,
+    buffer: &'b Buffer,
     temporary_buffer: Option<(gl::types::GLuint, usize)>,
     data: *mut D,
     len: usize,
-}
-
-impl BufferType {
-    fn to_glenum(&self) -> gl::types::GLenum {
-        match *self {
-            BufferType::ArrayBuffer => gl::ARRAY_BUFFER,
-            BufferType::PixelPackBuffer => gl::PIXEL_PACK_BUFFER,
-            BufferType::PixelUnpackBuffer => gl::PIXEL_UNPACK_BUFFER,
-            BufferType::UniformBuffer => gl::UNIFORM_BUFFER,
-            BufferType::CopyReadBuffer => gl::COPY_READ_BUFFER,
-            BufferType::CopyWriteBuffer => gl::COPY_WRITE_BUFFER,
-        }
-    }
 }
 
 impl Buffer {
@@ -89,66 +48,56 @@ impl Buffer {
                      -> Result<Buffer, BufferCreationError>
                      where D: Send + Copy + 'static, F: Facade
     {
+        assert!(mem::size_of::<D>() > 0);
+
         let mut ctxt = facade.get_context().make_current();
 
-        let elements_size = get_elements_size(data);
-        let elements_count = data.len();
+        let size = data.len() * mem::size_of::<D>();
 
         let (id, immutable, persistent_mapping) = try!(unsafe {
-            create_buffer(&mut ctxt, elements_size, elements_count, Some(&data), ty, dynamic, false)
+            create_buffer(&mut ctxt, size, Some(&data), ty, dynamic, false)
         });
 
         Ok(Buffer {
             context: facade.get_context().clone(),
             id: id,
             ty: ty,
-            elements_size: elements_size,
-            elements_count: elements_count,
+            size: size,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
-            fence: RefCell::new(None),
         })
     }
 
-    pub fn empty<F>(facade: &F, ty: BufferType, elements_size: usize,
-                    elements_count: usize, dynamic: bool)
+    pub fn empty<F>(facade: &F, ty: BufferType, size: usize, dynamic: bool)
                     -> Result<Buffer, BufferCreationError> where F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
 
         let (id, immutable, persistent_mapping) = try!(unsafe {
-            create_buffer::<()>(&mut ctxt, elements_size, elements_count, None, ty, dynamic, false)
+            create_buffer::<()>(&mut ctxt, size, None, ty, dynamic, false)
         });
 
         Ok(Buffer {
             context: facade.get_context().clone(),
             id: id,
             ty: ty,
-            elements_size: elements_size,
-            elements_count: elements_count,
+            size: size,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
-            fence: RefCell::new(None),
         })
     }
 
+    /// Returns the context corresponding to this buffer.
     pub fn get_context(&self) -> &Rc<Context> {
         &self.context
     }
 
-    pub fn get_elements_size(&self) -> usize {
-        self.elements_size
+    /// Returns the total size in bytes of this buffer.
+    pub fn get_size(&self) -> usize {
+        self.size
     }
 
-    pub fn get_elements_count(&self) -> usize {
-        self.elements_count
-    }
-
-    pub fn get_total_size(&self) -> usize {
-        self.elements_count * self.elements_size
-    }
-
-    pub fn is_persistent(&self) -> bool {
+    pub fn uses_persistent_mapping(&self) -> bool {
         self.persistent_mapping.is_some()
     }
 
@@ -163,117 +112,128 @@ impl Buffer {
     ///
     /// This function considers that the buffer is filled of elements of type `D`. The offset
     /// is a number of elements, not a number of bytes.
-    pub fn upload<D>(&self, offset: usize, data: &[D])
-                     where D: Copy + Send + 'static
+    ///
+    /// # Panic
+    ///
+    /// Panics if `offset_bytes` is out of range.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn upload<D>(&self, offset_bytes: usize, data: &[D])
+                            where D: Copy + Send + 'static
     {
+        let to_upload = mem::size_of::<D>() * data.len();
+        assert!(offset_bytes + to_upload <= self.size);
+
         if self.persistent_mapping.is_some() {
-            // FIXME: this code is safe, but ugly
-            let me: &mut Buffer = unsafe { mem::transmute(self) };
-            let mut mapping = me.map(offset, data.len());
-            unsafe {
-                ptr::copy_nonoverlapping(data.as_ptr(), mapping.deref_mut().as_mut_ptr(),
-                                         data.len());
-            }
-            return;
-        }
+            let mut mapping = self.map(offset_bytes, data.len());
+            ptr::copy_nonoverlapping(data.as_ptr(), mapping.deref_mut().as_mut_ptr(), data.len());
 
-        let offset = offset * get_elements_size(data);
-        let buffer_size = get_elements_size(data) * data.len();
+        } else if self.immutable {
+            let mut ctxt = self.context.make_current();
 
-        assert!(offset <= self.get_total_size());
-        assert!(offset + buffer_size <= self.get_total_size());
+            let (tmp_buffer, _, _) = create_buffer(&mut ctxt, to_upload, Some(data),
+                                                   BufferType::CopyReadBuffer,
+                                                   true, true).unwrap();
+            copy_buffer(&mut ctxt, tmp_buffer, 0, self.id, offset_bytes, to_upload);
+            destroy_buffer(&mut ctxt, tmp_buffer);
 
-        let invalidate_all = (offset == 0) && (buffer_size == self.get_total_size());
+        } else {
+            assert!(offset_bytes < self.size);
 
-        let mut ctxt = self.context.make_current();
+            let invalidate_all = offset_bytes == 0 && to_upload == self.size;
 
-        unsafe {
+            let mut ctxt = self.context.make_current();
+
             if invalidate_all && (ctxt.version >= &Version(Api::Gl, 4, 3) ||
                 ctxt.extensions.gl_arb_invalidate_subdata)
             {
                 ctxt.gl.InvalidateBufferData(self.id);
             }
 
-            if self.immutable {
-                let (tmp_buffer, _, _) = create_buffer(&mut ctxt, self.elements_size, data.len(),
-                                                       Some(data), BufferType::CopyReadBuffer,
-                                                       true, true).unwrap();
-                copy_buffer(&mut ctxt, tmp_buffer, 0, self.id, offset, buffer_size);
-                destroy_buffer(&mut ctxt, tmp_buffer);
+            if ctxt.version >= &Version(Api::Gl, 4, 5) {
+                ctxt.gl.NamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
+                                           to_upload as gl::types::GLsizei,
+                                           data.as_ptr() as *const libc::c_void)
+
+            } else if ctxt.extensions.gl_ext_direct_state_access {
+                ctxt.gl.NamedBufferSubDataEXT(self.id, offset_bytes as gl::types::GLintptr,
+                                              to_upload as gl::types::GLsizeiptr,
+                                              data.as_ptr() as *const libc::c_void)
+
+            } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
+            {
+                let bind = bind_buffer(&mut ctxt, self.id, self.ty);
+                ctxt.gl.BufferSubData(bind, offset_bytes as gl::types::GLintptr,
+                                      to_upload as gl::types::GLsizeiptr,
+                                      data.as_ptr() as *const libc::c_void);
+
+            } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                let bind = bind_buffer(&mut ctxt, self.id, self.ty);
+                ctxt.gl.BufferSubDataARB(bind, offset_bytes as gl::types::GLintptr,
+                                         to_upload as gl::types::GLsizeiptr,
+                                         data.as_ptr() as *const libc::c_void);
 
             } else {
-                if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                    ctxt.gl.NamedBufferSubData(self.id, offset as gl::types::GLintptr,
-                                               buffer_size as gl::types::GLsizei,
-                                               data.as_ptr() as *const libc::c_void)
-
-                } else if ctxt.extensions.gl_ext_direct_state_access {
-                    ctxt.gl.NamedBufferSubDataEXT(self.id, offset as gl::types::GLintptr,
-                                                  buffer_size as gl::types::GLsizeiptr,
-                                                  data.as_ptr() as *const libc::c_void)
-
-                } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                    ctxt.gl.BufferSubData(bind, offset as gl::types::GLintptr,
-                                          buffer_size as gl::types::GLsizeiptr,
-                                          data.as_ptr() as *const libc::c_void);
-
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                    ctxt.gl.BufferSubDataARB(bind, offset as gl::types::GLintptr,
-                                             buffer_size as gl::types::GLsizeiptr,
-                                             data.as_ptr() as *const libc::c_void);
-
-                } else {
-                    unreachable!();
-                }
+                unreachable!();
             }
-
-            // TODO: fence in case of persistent mapping
         }
     }
 
-    /// Offset and size should be specified as number of elements
-    pub fn map<'a, D>(&'a mut self, offset: usize, size: usize)
-                      -> Mapping<'a, D> where D: Copy + Send + 'static
+    /// Returns a mapping in memory of the content of the buffer.
+    ///
+    /// There are two possibilities:
+    ///
+    ///  - If the buffer uses persistent mapping, it will simply return a pointer to the
+    ///    existing mapping.
+    ///  - If the buffer doesn't use persistent mapping, it will create a temporary buffer which
+    ///    will be mapped. After the mapping is released, the temporary buffer will be copied
+    ///    to the real buffer.
+    ///
+    /// In the second case, the changes will only be written when the mapping is released.
+    /// Therefore this API is error-prone and shouldn't be exposed directly to the user. Instead
+    /// `map` public functions should take a `&mut self` instead of a `&self` to prevent users
+    /// from manipulating the buffer while it is mapped.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn map<D>(&self, offset_bytes: usize, elements: usize)
+                         -> Mapping<D> where D: Copy + Send + 'static
     {
-        if offset > self.elements_count || (offset + size) > self.elements_count {
-            panic!("Trying to map out of range of buffer");
-        }
+        assert!(offset_bytes % mem::size_of::<D>() == 0);
+        assert!(offset_bytes <= self.size);
+        assert!(offset_bytes + elements * mem::size_of::<D>() <= self.size);
 
         if let Some(existing_mapping) = self.persistent_mapping.clone() {
-            {
-                let mut fence = self.fence.borrow_mut();
-                if let Some(fence) = fence.take() {
-                    fence.into_sync_fence(&self.context).wait();
-                }
-            }
-
             Mapping {
                 buffer: self,
                 temporary_buffer: None,
-                data: unsafe { (existing_mapping as *mut D).offset(offset as isize) },
-                len: size,
+                data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
+                len: elements,
             }
 
-        } else if self.immutable {
+        } else {
+            let size_bytes = elements * mem::size_of::<D>();
+
             // we have to construct a temporary buffer that we will map in memory
             // then after the Mapping is destroyed, we will copy from the temporary buffer to the
             // real one
-            let temporary_buffer = unsafe {
+            let temporary_buffer = {
                 let mut ctxt = self.context.make_current();
-                let (temporary_buffer, _, _) = create_buffer::<D>(&mut ctxt, self.elements_size, size,
+                let (temporary_buffer, _, _) = create_buffer::<D>(&mut ctxt, size_bytes,
                                                                   None, BufferType::CopyWriteBuffer,
                                                                   true, true).unwrap();
                 temporary_buffer
             };
 
-            let offset_bytes = offset * self.elements_size;
-            let size_bytes = size * self.elements_size;
-
-            let ptr = unsafe {
+            let ptr = {
                 let mut ctxt = self.context.make_current();
 
                 copy_buffer(&mut ctxt, self.id, offset_bytes, temporary_buffer, 0, size_bytes);
@@ -301,127 +261,69 @@ impl Buffer {
                 buffer: self,
                 temporary_buffer: Some((temporary_buffer, offset_bytes)),
                 data: ptr as *mut D,
-                len: size,
+                len: elements,
             }
 
-        } else {
-            let offset_bytes = offset * self.elements_size;
-            let size_bytes = size * self.elements_size;
-
-            let ptr = unsafe {
-                let mut ctxt = self.context.make_current();
-
-                if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                    ctxt.gl.MapNamedBufferRange(self.id, offset_bytes as gl::types::GLintptr,
-                                                size_bytes as gl::types::GLsizei,
-                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                                gl::MAP_FLUSH_EXPLICIT_BIT)
-
-                } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                    ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-                    ctxt.extensions.gl_arb_map_buffer_range
-                {
-                    let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                    ctxt.gl.MapBufferRange(bind, offset_bytes as gl::types::GLintptr,
-                                           size_bytes as gl::types::GLsizeiptr,
-                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                           gl::MAP_FLUSH_EXPLICIT_BIT)
-
-                } else {
-                    unimplemented!();       // FIXME: 
-                }
-            };
-
-            Mapping {
-                buffer: self,
-                temporary_buffer: None,
-                data: ptr as *mut D,
-                len: size,
-            }
         }
     }
 
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read<D>(&self) -> Vec<D> where D: Copy + Send + 'static {
-        self.read_if_supported().unwrap()
-    }
-
-    pub fn read_if_supported<D>(&self) -> Option<Vec<D>> where D: Copy + Send + 'static {
-        self.read_slice_if_supported(0, self.elements_count)
-    }
-
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read_slice<D>(&self, offset: usize, size: usize)
-                         -> Vec<D> where D: Copy + Send + 'static
+    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn read_if_supported<D>(&self, offset_bytes: usize, output: &mut [D])
+                                       -> Result<(), ()> where D: Copy + Send + 'static
     {
-        self.read_slice_if_supported(offset, size).unwrap()
-    }
-
-    pub fn read_slice_if_supported<D>(&self, offset: usize, size: usize)
-                                      -> Option<Vec<D>> where D: Copy + Send + 'static
-    {
-        assert!(offset + size <= self.elements_count);
+        assert!(offset_bytes <= self.size);
+        assert!(offset_bytes + output.len() * mem::size_of::<D>() <= self.size);
 
         if self.persistent_mapping.is_some() {
-            // FIXME: this code is safe, but ugly
-            let me: &mut Buffer = unsafe { mem::transmute(self) };
-            let mapping = me.map(offset, size);
-            let mut result = Vec::with_capacity(size);
-            unsafe {
-                ptr::copy_nonoverlapping(mapping.as_ptr(), result.as_mut_ptr(), size);
-                result.set_len(size);
-            }
-            return Some(result);
-        }
+            let mapping = self.map(offset_bytes, output.len());
+            ptr::copy_nonoverlapping(mapping.as_ptr(), output.as_mut_ptr(),
+                                     output.len() * mem::size_of::<D>());
+            Ok(())
 
-        let mut ctxt = self.context.make_current();
-
-        unsafe {
-            let mut data = Vec::with_capacity(size);
-            data.set_len(size);
+        } else {
+            let mut ctxt = self.context.make_current();
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                ctxt.gl.GetNamedBufferSubData(self.id, (offset * self.elements_size) as gl::types::GLintptr,
-                    (size * self.elements_size) as gl::types::GLsizei,
-                    data.as_mut_ptr() as *mut libc::c_void);
+                ctxt.gl.GetNamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
+                                              (output.len() * mem::size_of::<D>())
+                                              as gl::types::GLsizei, output.as_mut_ptr()
+                                              as *mut libc::c_void);
 
             } else if ctxt.version >= &Version(Api::Gl, 1, 5) {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                ctxt.gl.GetBufferSubData(bind, (offset * self.elements_size) as gl::types::GLintptr,
-                                         (size * self.elements_size) as gl::types::GLsizeiptr,
-                                         data.as_mut_ptr() as *mut libc::c_void);
+                ctxt.gl.GetBufferSubData(bind, offset_bytes as gl::types::GLintptr,
+                                         (output.len() * mem::size_of::<D>())
+                                         as gl::types::GLsizeiptr, output.as_mut_ptr()
+                                         as *mut libc::c_void);
 
             } else if ctxt.extensions.gl_arb_vertex_buffer_object {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                ctxt.gl.GetBufferSubDataARB(bind, (offset * self.elements_size) as gl::types::GLintptr,
-                                            (size * self.elements_size) as gl::types::GLsizeiptr,
-                                            data.as_mut_ptr() as *mut libc::c_void);
+                ctxt.gl.GetBufferSubDataARB(bind, offset_bytes as gl::types::GLintptr,
+                                            (output.len() * mem::size_of::<D>())
+                                            as gl::types::GLsizeiptr, output.as_mut_ptr()
+                                            as *mut libc::c_void);
 
             } else if ctxt.version >= &Version(Api::GlEs, 1, 0) {
-                return None;
+                return Err(());
 
             } else {
                 unreachable!()
             }
 
-            Some(data)
+            Ok(())
         }
-    }
-}
-
-impl BufferExt for Buffer {
-    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
-        if self.persistent_mapping.is_none() {
-            return None;
-        }
-
-        Some(&self.fence)
     }
 }
 
 impl fmt::Debug for Buffer {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "Buffer #{} (size: {} bytes)", self.id, self.get_total_size())
+        write!(fmt, "Buffer #{} (size: {} bytes)", self.id, self.size)
     }
 }
 
@@ -458,7 +360,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
         if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
             unsafe {
                 ctxt.gl.FlushMappedNamedBufferRange(to_flush, 0,
-                                                    (self.len * self.buffer.elements_size)
+                                                    (self.len * mem::size_of::<D>())
                                                     as gl::types::GLsizei);
             }
 
@@ -468,7 +370,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
         {
             unsafe {
                 let bind = bind_buffer(&mut ctxt, to_flush, self.buffer.ty);
-                ctxt.gl.FlushMappedBufferRange(bind, 0, (self.len * self.buffer.elements_size)
+                ctxt.gl.FlushMappedBufferRange(bind, 0, (self.len * mem::size_of::<D>())
                                                as gl::types::GLsizeiptr)
             }
 
@@ -477,7 +379,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
         }
 
         // don't unmap if the buffer is persistent
-        if self.buffer.is_persistent() {
+        if self.buffer.uses_persistent_mapping() {
             return;
         }
 
@@ -501,7 +403,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
                 }
 
                 copy_buffer(&mut ctxt, temporary_buffer, 0, self.buffer.id, offset_bytes,
-                            self.len * self.buffer.elements_size);
+                            self.len * mem::size_of::<D>());
 
                 destroy_buffer(&mut ctxt, temporary_buffer);
             }
@@ -546,25 +448,22 @@ impl<'a, D> DerefMut for Mapping<'a, D> {
     }
 }
 
-/// Returns the size of each element inside the vec.
-fn get_elements_size<T>(data: &[T]) -> usize {
-    if data.len() <= 1 {
-        mem::size_of::<T>()
-    } else {
-        let d0: *const T = &data[0];
-        let d1: *const T = &data[1];
-        (d1 as usize) - (d0 as usize)
-    }
-}
-
 /// Creates a new buffer.
-unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
-                           elements_count: usize, data: Option<&[D]>, ty: BufferType,
-                           dynamic: bool, avoid_persistent: bool)
+///
+/// # Panic
+///
+/// Panics if `data.len() * size_of::<D>() < size` or if `size % size_of::<D>() != 0`.
+unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Option<&[D]>,
+                           ty: BufferType, dynamic: bool, avoid_persistent: bool)
                            -> Result<(gl::types::GLuint, bool, Option<*mut libc::c_void>),
                                      BufferCreationError>
                            where D: Send + Copy + 'static
 {
+    if let Some(ref data) = data {
+        assert!(data.len() * mem::size_of::<D>() >= size);
+        assert!(size % mem::size_of::<D>() == 0);
+    }
+
     let mut id: gl::types::GLuint = mem::uninitialized();
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
@@ -579,19 +478,19 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
         unreachable!();
     }
 
-    let buffer_size = match elements_count * elements_size {
-        0 => 1,     // use size 1 instead of 0, or nvidia drivers complain
-        a => a
-    };
-
     let data_ptr = if let Some(data) = data {
-        if elements_count * elements_size == 0 {
+        if size == 0 {
             ptr::null()
         } else {
             data.as_ptr()
         }
     } else {
         ptr::null()
+    };
+
+    let size = match size {
+        0 => 1,     // use size 1 instead of 0, or nvidia drivers complain
+        a => a
     };
 
     let mut obtained_size: gl::types::GLint = mem::uninitialized();
@@ -612,7 +511,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
     };
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-        ctxt.gl.NamedBufferStorage(id, buffer_size as gl::types::GLsizei,
+        ctxt.gl.NamedBufferStorage(id, size as gl::types::GLsizei,
                                    data_ptr as *const libc::c_void,
                                    immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameteriv(id, gl::BUFFER_SIZE, &mut obtained_size);
@@ -621,7 +520,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
     } else if ctxt.extensions.gl_arb_buffer_storage &&
               ctxt.extensions.gl_ext_direct_state_access
     {
-        ctxt.gl.NamedBufferStorageEXT(id, buffer_size as gl::types::GLsizeiptr,
+        ctxt.gl.NamedBufferStorageEXT(id, size as gl::types::GLsizeiptr,
                                       data_ptr as *const libc::c_void,
                                       immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameterivEXT(id, gl::BUFFER_SIZE, &mut obtained_size);
@@ -631,7 +530,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
               ctxt.extensions.gl_arb_buffer_storage
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
-        ctxt.gl.BufferStorage(bind, buffer_size as gl::types::GLsizeiptr,
+        ctxt.gl.BufferStorage(bind, size as gl::types::GLsizeiptr,
                               data_ptr as *const libc::c_void,
                               immutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
@@ -641,14 +540,14 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
         ctxt.version >= &Version(Api::GlEs, 2, 0)
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
-        ctxt.gl.BufferData(bind, buffer_size as gl::types::GLsizeiptr,
+        ctxt.gl.BufferData(bind, size as gl::types::GLsizeiptr,
                            data_ptr as *const libc::c_void, mutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = false;
 
     } else if ctxt.extensions.gl_arb_vertex_buffer_object {
         let bind = bind_buffer(&mut ctxt, id, ty);
-        ctxt.gl.BufferDataARB(bind, buffer_size as gl::types::GLsizeiptr,
+        ctxt.gl.BufferDataARB(bind, size as gl::types::GLsizeiptr,
                               data_ptr as *const libc::c_void, mutable_storage_flags);
         ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = false;
@@ -657,7 +556,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
         unreachable!();
     }
 
-    if buffer_size != obtained_size as usize {
+    if size != obtained_size as usize {
         if ctxt.version >= &Version(Api::Gl, 1, 5) ||
             ctxt.version >= &Version(Api::GlEs, 2, 0)
         {
@@ -673,7 +572,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
 
     let persistent_mapping = if immutable && dynamic && !avoid_persistent {
         let ptr = if ctxt.version >= &Version(Api::Gl, 4, 5) {
-            ctxt.gl.MapNamedBufferRange(id, 0, buffer_size as gl::types::GLsizei,
+            ctxt.gl.MapNamedBufferRange(id, 0, size as gl::types::GLsizei,
                                         gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
                                         gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
 
@@ -681,7 +580,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, elements_size: usize,
                   ctxt.extensions.gl_arb_map_buffer_range
         {
             let bind = bind_buffer(&mut ctxt, id, ty);
-            ctxt.gl.MapBufferRange(bind, 0, buffer_size as gl::types::GLsizeiptr,
+            ctxt.gl.MapBufferRange(bind, 0, size as gl::types::GLsizeiptr,
                                    gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
                                    gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
         } else {
