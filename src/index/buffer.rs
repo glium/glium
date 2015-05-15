@@ -15,6 +15,7 @@ use index::IndexType;
 use index::PrimitiveType;
 
 use std::mem;
+use std::convert::AsRef;
 use std::ops::Range;
 use std::cell::RefCell;
 
@@ -39,13 +40,13 @@ impl IndexBuffer {
     }
 
     /// Builds a new index buffer from raw data and a primitive type.
-    pub fn from_raw<T, F>(facade: &F, data: Vec<T>, prim: PrimitiveType) -> IndexBuffer
-                       where T: Index, F: Facade
+    pub fn from_raw<T, F, D>(facade: &F, data: D, prim: PrimitiveType) -> IndexBuffer
+                       where T: Index, F: Facade, D: AsRef<[T]>
     {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new(facade, &data, BufferType::ArrayBuffer,
+            buffer: Buffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                 false).unwrap(),    // FIXME: ElementArrayBuffer
             data_type: <T as Index>::get_type(),
             primitives: prim,
