@@ -206,7 +206,7 @@ impl VertexArrayObject {
     {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {
-            for &(ref name, _, ty) in bindings {
+            for &(ref name, _, ty) in bindings.iter() {
                 let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
                     Some(a) => a,
                     None => continue
@@ -425,7 +425,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
     }
 
     // binding attributes
-    for &(ref name, offset, ty) in bindings {
+    for &(ref name, offset, ty) in bindings.iter() {
         let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
 
         let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {

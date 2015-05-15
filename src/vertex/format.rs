@@ -149,7 +149,7 @@ impl AttributeType {
 ///
 /// The first element is the name of the binding, the second element is the offset
 /// from the start of each vertex to this element, and the third element is the type.
-pub type VertexFormat = Vec<(Cow<'static, str>, usize, AttributeType)>;
+pub type VertexFormat = Cow<'static, [(Cow<'static, str>, usize, AttributeType)]>;
 
 unsafe impl Attribute for i8 {
     fn get_type() -> AttributeType {

@@ -100,7 +100,9 @@ macro_rules! implement_vertex {
             fn build_bindings() -> $crate::vertex::VertexFormat {
                 use std::borrow::Cow;
 
-                vec![
+                // TODO: use a &'static [] if possible
+
+                Cow::Owned(vec![
                     $(
                         (
                             Cow::Borrowed(stringify!($field_name)),
@@ -121,7 +123,7 @@ macro_rules! implement_vertex {
                             },
                         )
                     ),+
-                ]
+                ])
             }
         }
     );

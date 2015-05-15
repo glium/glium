@@ -153,14 +153,14 @@ impl<T: Send + Copy + 'static> VertexBuffer<T> {
     /// # fn main() {
     /// use std::borrow::Cow;
     ///
-    /// let bindings = vec![(
+    /// let bindings = Cow::Owned(vec![(
     ///         Cow::Borrowed("position"), 0,
     ///         glium::vertex::AttributeType::F32F32,
     ///     ), (
     ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
     ///         glium::vertex::AttributeType::F32,
     ///     ),
-    /// ];
+    /// ]);
     ///
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
     /// let data = vec![
