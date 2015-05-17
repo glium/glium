@@ -16,7 +16,7 @@ fn no_depth_buffer_depth_test() {
 
     let parameters = glium::DrawParameters {
         depth_test: glium::DepthTest::IfLess,
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     match framebuffer.draw(&vertex_buffer, &index_buffer, &program,
@@ -40,7 +40,7 @@ fn no_depth_buffer_depth_write() {
 
     let parameters = glium::DrawParameters {
         depth_write: true,
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     match framebuffer.draw(&vertex_buffer, &index_buffer, &program,
@@ -69,8 +69,6 @@ fn simple_dimensions() {
 
 #[test]
 fn simple_render_to_texture() {
-    use std::default::Default;
-
     let display = support::build_display();
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
@@ -154,7 +152,7 @@ fn depth_texture2d() {
                                                                                    &color, &depth);
     let params = glium::DrawParameters {
         depth_test: glium::DepthTest::IfLess,
-        .. std::default::Default::default()
+        .. Default::default()
     };
 
     framebuffer.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -218,7 +216,7 @@ fn multioutput() {
                                              &[("color1", &color1), ("color2", &color2)]);
 
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
-                     &std::default::Default::default()).unwrap();
+                     &Default::default()).unwrap();
 
     // checking color1
     let read_back1: Vec<Vec<(f32, f32, f32, f32)>> = color1.read();

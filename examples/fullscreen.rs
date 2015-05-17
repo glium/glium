@@ -95,7 +95,7 @@ fn main() {
                     [0.0, 0.0, 0.0, 1.0f32]
                 ],
                 tex: &opengl_texture
-            }, &std::default::Default::default()).unwrap();
+            }, &Default::default()).unwrap();
         target.finish();
 
         // polling and handling the events received by the window

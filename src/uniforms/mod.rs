@@ -1,6 +1,6 @@
 /*!
 A uniform is a global variable in your program. In order to draw something, you will need to
-give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are 
+give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are
 here to do that.
 
 There are two primarly ways to do this. The first one is to create your own structure and put
@@ -34,7 +34,6 @@ In order to customize the way a texture is being sampled, you must use a `Sample
 extern crate glium;
 
 # fn main() {
-use std::default::Default;
 # let display: glium::Display = unsafe { std::mem::uninitialized() };
 # let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
 let uniforms = uniform! {

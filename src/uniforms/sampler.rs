@@ -1,4 +1,3 @@
-use std::default::Default;
 use ToGlEnum;
 use gl;
 

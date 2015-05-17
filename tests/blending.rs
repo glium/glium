@@ -13,7 +13,7 @@ macro_rules! blending_test {
 
             let params = glium::DrawParameters {
                 blending_function: Some($func),
-                .. std::default::Default::default()
+                .. Default::default()
             };
 
             let (vb, ib) = support::build_rectangle_vb_ib(&display);

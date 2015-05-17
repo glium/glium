@@ -86,7 +86,7 @@ fn main() {
         target.clear_color(0.0, 0.0, 0.0, 0.0);
         target.draw((&vertex_buffer, per_instance.per_instance_if_supported().unwrap()),
                     &index_buffer, &program, &uniform!{},
-                    &std::default::Default::default()).unwrap();
+                    &Default::default()).unwrap();
         target.finish();
 
         // polling and handling the events received by the window

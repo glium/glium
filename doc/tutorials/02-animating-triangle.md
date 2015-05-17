@@ -30,7 +30,7 @@ Our first approach will be to create a variable named `t` which represents the s
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &std::default::Default::default()).unwrap();
+                    &Default::default()).unwrap();
         target.finish();
 
         if display.is_closed() {
@@ -70,7 +70,7 @@ Let's reset our program to what it was at the end of the first tutorial, but kee
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &std::default::Default::default()).unwrap();
+                    &Default::default()).unwrap();
         target.finish();
 
         if display.is_closed() {
@@ -97,7 +97,7 @@ And instead we are going to do a small change in our vertex shader:
 You may notice that this is exactly the operation that we've been doing above, except that this time it is done on the GPU side. We have added a variable `t` in our shader, which is declared as a **uniform**. A uniform is a global variable whose value is set when we draw by passing its value to the `draw` function. The easiest way to do so is to use the `uniform!` macro:
 
     target.draw(&vertex_buffer, &indices, &program, &uniform! { t: t },
-                &std::default::Default::default()).unwrap();
+                &Default::default()).unwrap();
 
 Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of `t` (a single float) instead of the whole shape.
 
@@ -143,7 +143,7 @@ We also need to pass the matrix when calling the `draw` function:
     };
 
     target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                &std::default::Default::default()).unwrap();
+                &Default::default()).unwrap();
 
 You should see exactly the same thing as previously, but what we now have is much more flexible. For example, if instead we want to rotate the triangle we can try this matrix instead:
 
@@ -230,7 +230,7 @@ Here is the final code of our `src/main.rs` file:
             };
 
             target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                        &std::default::Default::default()).unwrap();
+                        &Default::default()).unwrap();
             target.finish();
 
             if display.is_closed() {

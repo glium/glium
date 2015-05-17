@@ -141,7 +141,7 @@ fn main() {
         let params = glium::DrawParameters {
             depth_test: glium::DepthTest::IfLess,
             depth_write: true,
-            .. std::default::Default::default()
+            .. Default::default()
         };
 
         // drawing a frame
