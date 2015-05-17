@@ -1,15 +1,9 @@
 # Change Log
 
-## Unreleased (major)
+## Version 0.4.0 (2015-05-17)
 
  - Removed support for using indices in RAM.
-
-## Unreleased
-
  - `IndexBuffer`, `VertexBuffer` and `UniformBuffer` now deref to `SubBuffer`/`SubBufferAny`.
-
-## Unreleased
-
  - Added a `get_internal_format_if_supported` method to textures.
  - Replaced the `IntoProgramCreationInput` trait with `Into<ProgramCreationInput>`.
  - The `VertexFormat` type is now a `Cow<'static, []>` instead of a `Vec`.
