@@ -46,7 +46,7 @@ fn main() {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &std::default::Default::default()).unwrap();
+                    &Default::default()).unwrap();
         target.finish();
 
         if display.is_closed() {

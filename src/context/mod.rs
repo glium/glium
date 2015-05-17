@@ -7,7 +7,6 @@ use std::env;
 use std::mem;
 use std::ptr;
 use std::collections::HashMap;
-use std::default::Default;
 use std::cell::{Cell, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::ffi::CStr;

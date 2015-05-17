@@ -223,7 +223,7 @@ fn main() {
                         vertices_per_patch: 3
                     }),
                     &program, &uniforms,
-                    &std::default::Default::default()).unwrap();
+                    &Default::default()).unwrap();
         target.finish();
 
         // polling and handling the events received by the window

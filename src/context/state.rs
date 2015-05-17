@@ -1,8 +1,6 @@
 use Handle;
 use gl;
 
-use std::default::Default;
-
 /// Represents the current OpenGL state.
 ///
 /// The current state is passed to each function and can be freely updated.

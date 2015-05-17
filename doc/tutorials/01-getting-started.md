@@ -210,7 +210,7 @@ Remember the `target` object? We will need to use it to start a draw operation.
 Starting a draw operation needs several things: a source of vertices (here we use our `vertex_buffer`), a source of indices (we use our `indices` variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing a `EmptyUniforms` marker and by building the default draw parameters.
 
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                &std::default::Default::default()).unwrap();
+                &Default::default()).unwrap();
 
 The "draw command" designation could make you think that drawing is a heavy operation that takes a lot of time. In reality drawing a triangle takes less than a few microseconds, and if everything goes well you should see a nice little triangle:
 
@@ -270,7 +270,7 @@ Here is the final code of our `src/main.rs` file:
             let mut target = display.draw();
             target.clear_color(0.0, 0.0, 1.0, 1.0);
             target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                        &std::default::Default::default()).unwrap();
+                        &Default::default()).unwrap();
             target.finish();
 
             if display.is_closed() {

@@ -24,7 +24,7 @@ fn main() {
 
         implement_vertex!(Vertex, position, color);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             vec![
                 Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
                 Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
@@ -67,7 +67,7 @@ fn main() {
             "
         },
 
-        110 => {  
+        110 => {
             vertex: "
                 #version 110
 
@@ -94,7 +94,7 @@ fn main() {
             ",
         },
 
-        100 => {  
+        100 => {
             vertex: "
                 #version 100
 
@@ -121,7 +121,7 @@ fn main() {
             ",
         },
     ).unwrap();
-    
+
     // the main loop
     support::start_loop(|| {
         // building the uniforms
@@ -137,7 +137,7 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()).unwrap();
+        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
         target.finish();
 
         // polling and handling the events received by the window

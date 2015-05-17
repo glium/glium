@@ -2,7 +2,6 @@ use std::ptr;
 use std::mem;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::default::Default;
 
 use BufferExt;
 use ProgramExt;
@@ -64,7 +63,7 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
 
             // TODO: programs created from binaries have the wrong value
             // for `has_tessellation_shaders`
-            /*if !program.has_tessellation_shaders() {    // TODO: 
+            /*if !program.has_tessellation_shaders() {    // TODO:
                 panic!("Default tessellation level is not supported yet");
             }*/
 
@@ -1260,7 +1259,7 @@ fn sync_conditional_render(ctxt: &mut context::CommandContext,
             } else {
                 unreachable!();
             }
-            
+
             *cur = None;
         },
 
@@ -1275,7 +1274,7 @@ fn sync_conditional_render(ctxt: &mut context::CommandContext,
             } else {
                 unreachable!();
             }
-            
+
             *cur = Some((id, mode));
         },
 

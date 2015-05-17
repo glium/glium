@@ -3,7 +3,6 @@ extern crate glium;
 extern crate rand;
 
 use glium::Surface;
-use std::default::Default;
 
 mod support;
 

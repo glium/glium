@@ -2,7 +2,6 @@
 extern crate glium;
 
 use glium::Surface;
-use std::default::Default;
 
 mod support;
 
@@ -100,7 +99,7 @@ fn multiple_buffers_source() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
-                              &std::default::Default::default()).unwrap();
+                              &Default::default()).unwrap();
 
     let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     for row in data.iter() {
@@ -382,7 +381,7 @@ fn attributes_marker() {
     texture.as_surface().draw(glium::vertex::EmptyVertexAttributes { len: 4 },
                               &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
                               &program, &uniform!{},
-                              &std::default::Default::default()).unwrap();
+                              &Default::default()).unwrap();
 
     let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     for row in data.iter() {
@@ -434,7 +433,7 @@ fn attributes_marker_indices() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(glium::vertex::EmptyVertexAttributes { len: 4 },
                               &indices, &program, &uniform!{},
-                              &std::default::Default::default()).unwrap();
+                              &Default::default()).unwrap();
 
     let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     for row in data.iter() {
@@ -531,7 +530,7 @@ fn instancing() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw((&buffer1, buffer2), &index_buffer, &program, &uniform!{},
-                              &std::default::Default::default()).unwrap();
+                              &Default::default()).unwrap();
 
     let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
     for row in data.iter() {
@@ -648,7 +647,7 @@ fn per_instance_length_mismatch() {
         }).unwrap();
 
     match display.draw().draw((&buffer1, buffer2, buffer3), &index_buffer, &program, &uniform!{},
-                              &std::default::Default::default())
+                              &Default::default())
     {
         Err(glium::DrawError::InstancesCountMismatch) => (),
         a => panic!("{:?}", a)

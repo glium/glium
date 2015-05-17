@@ -4,8 +4,6 @@ use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
 use uniforms::buffer::TypelessUniformBuffer;
 
-use std::default::Default;
-
 #[cfg(feature = "cgmath")]
 use cgmath;
 #[cfg(feature = "nalgebra")]

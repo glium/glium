@@ -66,7 +66,7 @@ fn main() {
         };
 
         target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                    &std::default::Default::default()).unwrap();
+                    &Default::default()).unwrap();
         target.finish();
 
         if display.is_closed() {

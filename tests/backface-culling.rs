@@ -55,7 +55,7 @@ fn cull_clockwise() {
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullClockWise,
-            .. std::default::Default::default()
+            .. Default::default()
         }).unwrap();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
@@ -115,7 +115,7 @@ fn cull_counterclockwise() {
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
-            .. std::default::Default::default()
+            .. Default::default()
         }).unwrap();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
@@ -174,7 +174,7 @@ fn cull_clockwise_trianglestrip() {
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullClockWise,
-            .. std::default::Default::default()
+            .. Default::default()
         }).unwrap();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
@@ -233,7 +233,7 @@ fn cull_counterclockwise_trianglestrip() {
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
-            .. std::default::Default::default()
+            .. Default::default()
         }).unwrap();
 
     let read_back: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();

@@ -4,7 +4,6 @@
 #[macro_use]
 extern crate glium;
 
-use std::default::Default;
 use glium::Surface;
 
 mod support;

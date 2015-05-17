@@ -327,7 +327,7 @@ fn main() {
             tex: &opengl_texture
         };
         framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
-        framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &std::default::Default::default()).unwrap();
+        framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &Default::default()).unwrap();
 
         // lighting
         let draw_params = glium::DrawParameters {
@@ -336,7 +336,7 @@ fn main() {
                 source: glium::LinearBlendingFactor::One,
                 destination: glium::LinearBlendingFactor::One
             }),
-            .. std::default::Default::default()
+            .. Default::default()
         };
         light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);
         for light in lights.iter() {
@@ -360,7 +360,7 @@ fn main() {
         };
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &std::default::Default::default()).unwrap();
+        target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &Default::default()).unwrap();
         target.finish();
 
         // polling and handling the events received by the window

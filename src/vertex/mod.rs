@@ -73,7 +73,6 @@ Each source can be:
  - A marker indicating a number of instances, with `glium::vertex::EmptyInstanceAttributes`.
 
 ```no_run
-# use std::default::Default;
 # use glium::Surface;
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
 # #[derive(Copy, Clone)]

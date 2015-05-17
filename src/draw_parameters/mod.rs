@@ -8,7 +8,6 @@ use DrawError;
 use Rect;
 use ToGlEnum;
 
-use std::default::Default;
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
@@ -437,7 +436,7 @@ impl ToGlEnum for PolygonMode {
 /// let params = glium::DrawParameters {
 ///     depth_test: glium::DepthTest::IfLess,
 ///     depth_write: true,
-///     .. std::default::Default::default()
+///     .. Default::default()
 /// };
 /// ```
 ///

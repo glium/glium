@@ -119,7 +119,7 @@ fn main() {
     // drawing a frame
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &std::default::Default::default()).unwrap();
+    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
     target.finish();
 
     // reading the front buffer into an image
