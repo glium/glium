@@ -1,11 +1,9 @@
-use buffer::{Buffer, BufferType};
+use buffer::{SubBuffer, SubBufferAny, BufferType};
 use gl;
-use BufferExt;
+use SubBufferExt;
 use GlObject;
 
 use backend::Facade;
-
-use sync;
 
 use index::IndicesSource;
 use index::ToIndicesSource;
@@ -17,12 +15,11 @@ use index::PrimitiveType;
 use std::mem;
 use std::convert::AsRef;
 use std::ops::Range;
-use std::cell::RefCell;
 
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct IndexBuffer {
-    buffer: Buffer,
+    buffer: SubBufferAny,
     data_type: IndexType,
     primitives: PrimitiveType,
 }
@@ -46,8 +43,8 @@ impl IndexBuffer {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: Buffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                false).unwrap(),    // FIXME: ElementArrayBuffer
+            buffer: SubBuffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
+                                   false).unwrap().into(),    // FIXME: ElementArrayBuffer
             data_type: <T as Index>::get_type(),
             primitives: prim,
         }
@@ -81,16 +78,22 @@ impl IndexBuffer {
     }
 }
 
-impl BufferExt for IndexBuffer {
-    fn add_fence(&self) -> Option<&RefCell<Option<sync::LinearSyncFence>>> {
-        self.buffer.add_fence()
+impl SubBufferExt for IndexBuffer {
+    fn get_offset_bytes(&self) -> usize {
+        self.buffer.get_offset_bytes()
+    }
+
+    fn get_buffer_id(&self) -> gl::types::GLuint {
+        self.buffer.get_buffer_id()
     }
 }
 
+// TODO: remove this
 impl GlObject for IndexBuffer {
     type Id = gl::types::GLuint;
+
     fn get_id(&self) -> gl::types::GLuint {
-        self.buffer.get_id()
+        self.buffer.get_buffer_id()
     }
 }
 

@@ -12,14 +12,15 @@ use backend::Facade;
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
 use GlObject;
-use buffer::{Buffer, BufferType};
+use SubBufferExt;
+use buffer::{SubBuffer, SubBufferAny, BufferType};
 use gl;
 
 /// Buffer that stores the content of a texture.
 ///
 /// The generic type represents the type of pixels that the buffer contains.
 pub struct PixelBuffer<T> {
-    buffer: Buffer,
+    buffer: SubBufferAny,
     dimensions: Option<(u32, u32)>,
     format: Option<ClientFormat>,
     marker: PhantomData<T>,
@@ -29,8 +30,8 @@ impl<T> PixelBuffer<T> {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
-            buffer: Buffer::empty(facade, BufferType::PixelPackBuffer, 1, capacity,
-                                  false).unwrap(),
+            buffer: SubBuffer::<u8>::empty(facade, BufferType::PixelPackBuffer, capacity,
+                                           false).unwrap().into(),
             dimensions: None,
             format: None,
             marker: PhantomData,
@@ -39,7 +40,7 @@ impl<T> PixelBuffer<T> {
 
     /// Returns the size of the buffer, in bytes.
     pub fn get_size(&self) -> usize {
-        self.buffer.get_total_size()
+        self.buffer.get_size()
     }
 }
 
@@ -69,7 +70,7 @@ impl<T> PixelBuffer<T> where T: Texture2dDataSink {
     ///
     /// Panics if the pixel buffer is empty.
     pub fn read_if_supported(&self) -> Option<T> {
-        let data = match self.buffer.read_if_supported() {
+        let data = match unsafe { self.buffer.read_if_supported() } {
             Some(d) => d,
             None => return None
         };
@@ -87,10 +88,11 @@ impl<T> PixelBuffer<T> where T: Texture2dDataSink {
     }
 }
 
+// TODO: rework this
 impl<T> GlObject for PixelBuffer<T> {
     type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
-        self.buffer.get_id()
+        self.buffer.get_buffer_id()
     }
 }
 

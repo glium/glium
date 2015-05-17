@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+ - `IndexBuffer`, `VertexBuffer` and `UniformBuffer` now deref to `SubBuffer`/`SubBufferAny`.
+
+## Unreleased
+
  - Added a `get_internal_format_if_supported` method to textures.
  - Replaced the `IntoProgramCreationInput` trait with `Into<ProgramCreationInput>`.
  - The `VertexFormat` type is now a `Cow<'static, []>` instead of a `Vec`.

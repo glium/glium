@@ -4,11 +4,12 @@ use std::collections::HashMap;
 use std::mem;
 
 use Handle;
+use buffer::SubBufferAnySlice;
 use program::Program;
 use vertex::AttributeType;
-use vertex::VertexBufferAny;
 use vertex::VertexFormat;
 use GlObject;
+use SubBufferExt;
 
 use {libc, gl};
 use context::CommandContext;
@@ -114,13 +115,14 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
     /// - `buffer`: The buffer to bind.
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
-    pub fn add(mut self, buffer: &VertexBufferAny, first: usize, divisor: Option<u32>)
+    pub fn add(mut self, buffer: &SubBufferAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
                -> Binder<'a, 'c, 'd>
     {
-        let (buffer, format, stride) = (buffer.get_id(), buffer.get_bindings().clone(),
+        let offset = buffer.get_offset_bytes();
+        let (buffer, format, stride) = (buffer.get_buffer_id(), bindings.clone(),
                                         buffer.get_elements_size());
 
-        self.vertex_buffers.push((buffer, format, first * stride, stride, divisor));
+        self.vertex_buffers.push((buffer, format, offset, stride, divisor));
         self
     }
 
