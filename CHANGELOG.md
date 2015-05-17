@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased (major)
+
+ - Removed support for using indices in RAM.
+
 ## Unreleased
 
  - `IndexBuffer`, `VertexBuffer` and `UniformBuffer` now deref to `SubBuffer`/`SubBufferAny`.

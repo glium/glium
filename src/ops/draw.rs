@@ -39,11 +39,11 @@ use version::Version;
 use version::Api;
 
 /// Draws everything.
-pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachments>,
-                         vertex_buffers: V, mut indices: IndicesSource<I>,
-                         program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
-                         dimensions: (u32, u32)) -> Result<(), DrawError>
-                         where U: Uniforms, I: index::Index, V: MultiVerticesSource<'a>
+pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachments>,
+                      vertex_buffers: V, mut indices: IndicesSource,
+                      program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
+                      dimensions: (u32, u32)) -> Result<(), DrawError>
+                      where U: Uniforms, V: MultiVerticesSource<'a>
 {
     try!(draw_parameters::validate(context, draw_parameters));
 
@@ -87,7 +87,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
     // handling vertices source
     let (vertices_count, instances_count) = {
         let ib_id = match indices {
-            IndicesSource::Buffer { .. } => 0,
             IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
             IndicesSource::NoIndices { .. } => 0,
         };
@@ -283,24 +282,6 @@ pub fn draw<'a, I, U, V>(context: &Context, framebuffer: Option<&FramebufferAtta
                                              length as gl::types::GLsizei,
                                              buffer.get_indices_type().to_glenum(),
                                              ptr as *const libc::c_void);
-                    }
-                }
-            },
-
-            &IndicesSource::Buffer { ref pointer, primitives, offset, length } => {
-                assert!(offset == 0);       // not yet implemented
-
-                unsafe {
-                    if let Some(instances_count) = instances_count {
-                        ctxt.gl.DrawElementsInstanced(primitives.to_glenum(),
-                                                      length as gl::types::GLsizei,
-                                                      <I as index::Index>::get_type().to_glenum(),
-                                                      pointer.as_ptr() as *const gl::types::GLvoid,
-                                                      instances_count as gl::types::GLsizei);
-                    } else {
-                        ctxt.gl.DrawElements(primitives.to_glenum(), length as gl::types::GLsizei,
-                                             <I as index::Index>::get_type().to_glenum(),
-                                             pointer.as_ptr() as *const gl::types::GLvoid);
                     }
                 }
             },

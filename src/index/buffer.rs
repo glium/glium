@@ -98,9 +98,7 @@ impl GlObject for IndexBuffer {
 }
 
 impl ToIndicesSource for IndexBuffer {
-    type Data = u16;      // TODO: u16?
-
-    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
+    fn to_indices_source(&self) -> IndicesSource {
         IndicesSource::IndexBuffer {
             buffer: self,
             offset: 0,
@@ -110,9 +108,7 @@ impl ToIndicesSource for IndexBuffer {
 }
 
 impl<'a> ToIndicesSource for IndexBufferSlice<'a> {
-    type Data = u16;      // TODO: u16?
-
-    fn to_indices_source(&self) -> IndicesSource<u16> {     // TODO: u16?
+    fn to_indices_source(&self) -> IndicesSource {
         IndicesSource::IndexBuffer {
             buffer: self.buffer,
             offset: self.offset,

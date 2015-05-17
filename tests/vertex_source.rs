@@ -428,6 +428,7 @@ fn attributes_marker_indices() {
     };
 
     let indices = glium::index::TriangleStrip(vec![0u16, 1, 2, 3]);
+    let indices = glium::index::IndexBuffer::new(&display, indices);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
