@@ -1,3 +1,77 @@
+//! Describes miscellaneous parameters to be used when drawing.
+//!
+//! # Example
+//!
+//! ```rust
+//! let params = glium::DrawParameters {
+//!     depth_test: glium::draw_parameters::DepthTest::IfLess,
+//!     depth_write: true,
+//!     scissor: Some(glium::Rect { bottom: 0, left: 100, width: 100, height: 200 }),
+//!     .. Default::default()
+//! };
+//! ```
+//!
+//! # The new API
+//!
+//! A new API is currently in construction. Example:
+//!
+//! ```ignore
+//! # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+//! let params = glium::DrawParameters::new(&display)
+//!                 .with_rasterizer_discard_if_supported().unwrap()
+//!                 .With_scissor(glium::Rect { bottom: 0, left: 100, width: 100, height: 200 });
+//! ```
+//!
+//! Instead of the draw command generating errors because of non-supported parameters, the errors
+//! will be generated directly when creating the parameters.
+//!
+//! # Queries
+//!
+//! Query objects allow you to obtain information about the rendering process. For example, a
+//! `SamplesPassedQuery` allows you to know the number of samples that have been drawn.
+//!
+//! ```no_run
+//! # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+//! let query = glium::draw_parameters::SamplesPassedQuery::new_if_supported(&display).unwrap();
+//! let params = glium::DrawParameters {
+//!     samples_passed_query: Some((&query).into()),
+//!     .. Default::default()
+//! };
+//! ```
+//!
+//! After drawing with these parameters, you can retreive the value inside the query:
+//!
+//! ```no_run
+//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::uninitialized() };
+//! let value = query.get();
+//! ```
+//!
+//! This operation will consume the query and block until the GPU has finished drawing. Instead,
+//! you can also use the query as a condition for drawing:
+//!
+//! ```no_run
+//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::uninitialized() };
+//! let params = glium::DrawParameters {
+//!     condition: Some(glium::draw_parameters::ConditionalRendering {
+//!         query: (&query).into(),
+//!         wait: true,
+//!         per_region: true,
+//!     }),
+//!     .. Default::default()
+//! };
+//! ```
+//!
+//! If you use conditional rendering, glium will submit the draw command but the GPU will execute
+//! it only if the query contains a value different from 0.
+//!
+//! ## WrongQueryOperation errors
+//!
+//! OpenGL puts some restrictions about the usage of queries. If you draw one or several times
+//! with a query, then draw *without* that query, then the query cannot be used again. Trying
+//! to draw with it results in a `WrongQueryOperation` error returned by the `draw` function.
+//!
+//! For the same reasons, as soon as you call `is_ready` on a query it will stop being usable.
+//!
 use gl;
 use backend::Facade;
 use context::Context;
