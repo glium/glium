@@ -22,6 +22,12 @@ Its objectives:
 
 The documentation contains examples showing how to use Glium.
 
+## Links to a work-in-progress tutorial
+
+ - [Part 1](http://tomaka.github.io/glium/tutorials/01-getting-started.html)
+ - [Part 2](http://tomaka.github.io/glium/tutorials/02-animating-triangle.html)
+ - [Part 3](http://tomaka.github.io/glium/tutorials/03-colors.html)
+
 ## Why should I use Glium instead of raw OpenGL calls?
 
 Easy to use:
