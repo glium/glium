@@ -1,4 +1,16 @@
-pub use self::sub::{SubBuffer, SubBufferAny, SubBufferSlice, SubBufferAnySlice, Mapping};
+//! # Buffers management in glium
+//!
+//! There are three levels of abstraction in glium:
+//!
+//!  - A `Buffer` corresponds to an OpenGL buffer object. This type is not public.
+//!  - A `SubBuffer` corresponds to a part of a `Buffer`. One buffer can contain one or multiple
+//!    subbuffers.
+//!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, ... types are
+//!    abstractions over a subbuffer indicating their specific purpose. They implement `Deref`
+//!    for the subbuffer. These types are in the `vertex`, `index`, ... modules.
+//!
+pub use self::sub::{SubBuffer, SubBufferAny, SubBufferMutSlice};
+pub use self::sub::{SubBufferSlice, SubBufferAnySlice, Mapping};
 
 use gl;
 
@@ -16,6 +28,7 @@ pub enum BufferCreationError {
 }
 
 /// Type of a buffer.
+#[doc(hidden)]
 #[derive(Debug, Copy, Clone)]
 pub enum BufferType {
     ArrayBuffer,

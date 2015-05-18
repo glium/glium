@@ -24,13 +24,9 @@ use buffer::alloc::Mapping as BufferMapping;
 /// Represents a sub-part of a buffer.
 pub struct SubBuffer<T> where T: Copy + Send + 'static {
     alloc: Buffer,
-
     offset_bytes: usize,
-
     num_elements: usize,
-
     fence: RefCell<Option<LinearSyncFence>>,
-
     marker: PhantomData<T>,
 }
 
@@ -62,13 +58,9 @@ impl<'a, T> DerefMut for Mapping<'a, T> {
 #[derive(Copy, Clone)]
 pub struct SubBufferSlice<'a, T> where T: Copy + Send + 'static {
     alloc: &'a Buffer,
-
     offset_bytes: usize,
-
     num_elements: usize,
-
     fence: &'a RefCell<Option<LinearSyncFence>>,
-
     marker: PhantomData<T>,
 }
 
@@ -82,13 +74,9 @@ impl<'a, T> fmt::Debug for SubBufferSlice<'a, T> where T: Copy + Send + 'static 
 #[derive(Copy, Clone)]
 pub struct SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
     alloc: &'a Buffer,
-
     offset_bytes: usize,
-
     num_elements: usize,
-
     fence: &'a RefCell<Option<LinearSyncFence>>,
-
     marker: PhantomData<T>,
 }
 
@@ -103,12 +91,9 @@ impl<'a, T> fmt::Debug for SubBufferMutSlice<'a, T> where T: Copy + Send + 'stat
 /// Doesn't contain any information about the content, contrary to `SubBuffer`.
 pub struct SubBufferAny {
     alloc: Buffer,
-
     offset_bytes: usize,
-
     elements_size: usize,
     elements_count: usize,
-
     fence: RefCell<Option<LinearSyncFence>>,
 }
 
@@ -147,6 +132,14 @@ impl<T> From<SubBuffer<T>> for SubBufferAny where T: Copy + Send + 'static {
 }
 
 impl<T> SubBuffer<T> where T: Copy + Send + 'static {
+    /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
+    /// of the data.
+    ///
+    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
+    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
+    ///
+    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
+    /// synchronizations manually.
     pub fn new<F>(facade: &F, data: &[T], ty: BufferType, dynamic: bool)
                   -> Result<SubBuffer<T>, BufferCreationError>
                   where F: Facade
@@ -165,6 +158,13 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
             })
     }
 
+    /// Builds a new buffer of the given size.
+    ///
+    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
+    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
+    ///
+    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
+    /// synchronizations manually.
     pub fn empty<F>(facade: &F, ty: BufferType, len: usize, dynamic: bool)
                     -> Result<SubBuffer<T>, BufferCreationError> where F: Facade
     {
@@ -428,10 +428,18 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
 }
 
 impl SubBufferAny {
+    /// Returns the size of each element in this buffer.
+    ///
+    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// this object.
     pub fn get_elements_size(&self) -> usize {
         self.elements_size
     }
 
+    /// Returns the number of elements in this buffer.
+    ///
+    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// this object.
     pub fn get_elements_count(&self) -> usize {
         self.elements_count
     }
@@ -442,7 +450,17 @@ impl SubBufferAny {
     }
 
     /// UNSTABLE. This function can be removed at any moment without any further notice.
+    ///
+    /// Considers that the buffer is filled with elements of type `T` and reads them.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size of the buffer is not a multiple of the size of the data.
+    /// For example, trying to read some `(u8, u8, u8, u8)`s from a buffer of 7 bytes will panic.
+    ///
     pub unsafe fn read_if_supported<T>(&self) -> Option<Vec<T>> where T: Copy + Send + 'static {
+        assert!(self.get_size() % mem::size_of::<T>() == 0);
+
         consume_fence(self.alloc.get_context(), &self.fence);
 
         let len = self.get_size() / mem::size_of::<T>();
@@ -459,15 +477,23 @@ impl SubBufferAny {
 }
 
 impl<'a> SubBufferAnySlice<'a> {
+    /// Returns the size of each element in this buffer.
+    ///
+    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// this object.
     pub fn get_elements_size(&self) -> usize {
         self.elements_size
     }
 
+    /// Returns the number of elements in this buffer.
+    ///
+    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// this object.
     pub fn get_elements_count(&self) -> usize {
         self.elements_count
     }
 
-    /// Returns the number of bytes in this subbuffer.
+    /// Returns the number of bytes in this slice.
     pub fn get_size(&self) -> usize {
         self.elements_size * self.elements_count
     }
@@ -533,6 +559,7 @@ impl<'a> SubBufferExt for SubBufferAnySlice<'a> {
     }
 }
 
+/// Waits for the fence to be sync'ed.
 fn consume_fence(context: &Rc<Context>, fence: &RefCell<Option<LinearSyncFence>>) {
     let fence = fence.borrow_mut().take();
     if let Some(fence) = fence {

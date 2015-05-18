@@ -44,6 +44,8 @@ pub struct Mapping<'b, D> {
 }
 
 impl Buffer {
+    /// Builds a new buffer containing the given data. The size of the buffer is equal to the
+    /// size of the data.
     pub fn new<D, F>(facade: &F, data: &[D], ty: BufferType, dynamic: bool)
                      -> Result<Buffer, BufferCreationError>
                      where D: Send + Copy + 'static, F: Facade
@@ -68,6 +70,7 @@ impl Buffer {
         })
     }
 
+    /// Builds a new empty buffer of the given size.
     pub fn empty<F>(facade: &F, ty: BufferType, size: usize, dynamic: bool)
                     -> Result<Buffer, BufferCreationError> where F: Facade
     {
@@ -97,6 +100,7 @@ impl Buffer {
         self.size
     }
 
+    /// Returns true if the buffer is persistently mapped in memory.
     pub fn uses_persistent_mapping(&self) -> bool {
         self.persistent_mapping.is_some()
     }
@@ -110,12 +114,11 @@ impl Buffer {
 
     /// Uploads data in the buffer.
     ///
-    /// This function considers that the buffer is filled of elements of type `D`. The offset
-    /// is a number of elements, not a number of bytes.
+    /// The data must fit inside the buffer.
     ///
     /// # Panic
     ///
-    /// Panics if `offset_bytes` is out of range.
+    /// Panics if `offset_bytes` is out of range or the data is too large to fit in the buffer.
     ///
     /// # Unsafety
     ///
@@ -188,8 +191,8 @@ impl Buffer {
     ///
     /// There are two possibilities:
     ///
-    ///  - If the buffer uses persistent mapping, it will simply return a pointer to the
-    ///    existing mapping.
+    ///  - If the buffer uses persistent mapping, it will simply return a wrapper around the
+    ///    pointer to the existing mapping.
     ///  - If the buffer doesn't use persistent mapping, it will create a temporary buffer which
     ///    will be mapped. After the mapping is released, the temporary buffer will be copied
     ///    to the real buffer.
@@ -197,7 +200,7 @@ impl Buffer {
     /// In the second case, the changes will only be written when the mapping is released.
     /// Therefore this API is error-prone and shouldn't be exposed directly to the user. Instead
     /// `map` public functions should take a `&mut self` instead of a `&self` to prevent users
-    /// from manipulating the buffer while it is mapped.
+    /// from manipulating the buffer while it is "mapped".
     ///
     /// # Unsafety
     ///
@@ -267,7 +270,11 @@ impl Buffer {
         }
     }
 
-    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
+    /// Reads the content of the buffer. Returns `None` if this operation is not supported.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if out of range.
     ///
     /// # Unsafety
     ///
@@ -789,10 +796,12 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
         }
 
     } else {
+        // TODO: use proper error result
         panic!("Buffers copy are not supported");
     }
 }
 
+/// Destroys a buffer.
 unsafe fn destroy_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint) {
     // FIXME: uncomment this and move it from Buffer's destructor
     //self.context.vertex_array_objects.purge_buffer(&mut ctxt, id);
