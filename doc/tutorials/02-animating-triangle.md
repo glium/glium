@@ -158,6 +158,8 @@ You should see exactly the same thing as previously, but what we now have is muc
         ]
     };
 
+[Click here for the third tutorial](03-colors.html)
+
 ### Final source code
 
 Here is the final code of our `src/main.rs` file:
