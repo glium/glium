@@ -1,7 +1,5 @@
 use backend::Facade;
 
-use index::IndicesSource;
-use index::ToIndicesSource;
 use index::IntoIndexBuffer;
 use index::IndexBuffer;
 use index::Index;

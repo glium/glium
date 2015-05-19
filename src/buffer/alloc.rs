@@ -5,7 +5,7 @@ use version::Version;
 use ContextExt;
 use gl;
 use libc;
-use std::{fmt, mem, ptr, slice, cmp};
+use std::{fmt, mem, ptr, slice};
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut};
 use GlObject;
