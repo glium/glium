@@ -644,11 +644,16 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
             TextureDimensions::Texture2dArray => (write!(dest, "
                     let array_size = 0;
-                    let data = Cow::Owned(Vec::<u8>::new());
+                    let internal_data: Cow<'a, [u8]>  = Cow::Owned(Vec::<u8>::new());
                     let width = 0;
                     let height = 0;
-                    let client_format = unsafe {{ ::std::mem::uninitialized() }};
-                    unimplemented!();
+                    let client_format: ClientFormat = unsafe {{ ::std::mem::uninitialized() }};
+                    let mut vec_raw = Vec::new();
+                    for ite in data {{
+                        vec_raw.push(ite.into_raw());
+                    }}
+                    let RawImage3d {{data: internal_data, width, height, depth: array_size, format: client_format }} = RawImage3d::from_vec_raw2d(&vec_raw);
+                    let data = internal_data;
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
 
             _ => unreachable!()

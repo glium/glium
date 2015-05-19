@@ -358,6 +358,35 @@ pub struct RawImage3d<'a, T: Clone + 'a> {
     pub format: ClientFormat,
 }
 
+impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
+    ///Transforms a Vec<RawImage2d> into a RawImage3d
+    pub fn from_vec_raw2d(arr: &Vec<RawImage2d<'a, T>>) -> RawImage3d<'a, T> {
+        let depth   = arr.len();
+        let width   = arr[0].width;
+        let height  = arr[0].height;
+        let format  = arr[0].format;
+        let clo = |v, w, h, d, f| {
+            let mut vec = Vec::<T>::new();
+            for i in arr {
+                if width != i.width || height != i.height || format != i.format {
+                    panic!("Varying dimensions or formats were found.");
+                }
+                for j in i.data.iter() {
+                    vec.push(j.clone());
+                }
+            }
+            vec
+        };
+        RawImage3d {
+            data: Cow::Owned(clo(arr, width, height, depth, format)),
+            width: width,
+            height: height,
+            depth: depth as u32,
+            format: format,
+        }
+    }
+}
+
 impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for Vec<Vec<Vec<P>>> {
     type Data = P;
 
