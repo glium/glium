@@ -50,14 +50,9 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// ```
     ///
     pub fn new<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
-        let bindings = <T as Vertex>::build_bindings();
         let buffer = SubBuffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                     false).unwrap();
-
-        VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
-        }
+        buffer.into()
     }
 
     /// DEPRECATED. Use `dynamic` instead.
@@ -69,40 +64,25 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     ///
     /// This function will create a buffer that is intended to be modified frequently.
     pub fn dynamic<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
-        let bindings = <T as Vertex>::build_bindings();
         let buffer = SubBuffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                     true).unwrap();
-
-        VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
-        }
+        buffer.into()
     }
 
     /// Builds an empty vertex buffer.
     ///
     /// The parameter indicates the number of elements.
     pub fn empty<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
-        let bindings = <T as Vertex>::build_bindings();
         let buffer = SubBuffer::empty(facade, BufferType::ArrayBuffer, elements, false).unwrap();
-
-        VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
-        }
+        buffer.into()
     }
 
     /// Builds an empty vertex buffer.
     ///
     /// The parameter indicates the number of elements.
     pub fn empty_dynamic<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
-        let bindings = <T as Vertex>::build_bindings();
         let buffer = SubBuffer::empty(facade, BufferType::ArrayBuffer, elements, true).unwrap();
-
-        VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
-        }
+        buffer.into()
     }
 }
 
@@ -224,6 +204,17 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
     }
 }
 
+impl<T> From<SubBuffer<T>> for VertexBuffer<T> where T: Vertex + Send + Copy + 'static {
+    fn from(buffer: SubBuffer<T>) -> VertexBuffer<T> {
+        let bindings = <T as Vertex>::build_bindings();
+
+        VertexBuffer {
+            buffer: buffer,
+            bindings: bindings,
+        }
+    }
+}
+
 impl<T> Deref for VertexBuffer<T> where T: Send + Copy + 'static {
     type Target = SubBuffer<T>;
 
@@ -330,6 +321,13 @@ impl VertexBufferAny {
     #[cfg(feature = "gl_instancing")]
     pub fn per_instance(&self) -> PerInstance {
         self.per_instance_if_supported().unwrap()
+    }
+}
+
+impl<T> From<SubBuffer<T>> for VertexBufferAny where T: Vertex + Send + Copy + 'static {
+    fn from(buf: SubBuffer<T>) -> VertexBufferAny {
+        let buf: VertexBuffer<T> = buf.into();
+        buf.into_vertex_buffer_any()
     }
 }
 
