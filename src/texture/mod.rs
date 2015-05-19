@@ -360,7 +360,7 @@ pub struct RawImage3d<'a, T: Clone + 'a> {
 
 impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
     ///Transforms a Vec<RawImage2d> into a RawImage3d
-    pub fn from_vec_raw2d(arr: &Vec<RawImage2d<'a, T>>) -> Result<RawImage3d<'a, T>, TextureMaybeSupportedCreationError> {
+    pub fn from_vec_raw2d(arr: &Vec<RawImage2d<'a, T>>) -> RawImage3d<'a, T> {
         let depth   = arr.len();
         let width   = arr[0].width;
         let height  = arr[0].height;
@@ -369,10 +369,9 @@ impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
             let mut vec = Vec::<T>::with_capacity((width * height * depth as u32) as usize);
             for i in arr {
                 if width != i.width || height != i.height {
-                    return Err(TextureMaybeSupportedCreationError::CreationError(TextureCreationError::DimensionsNotSupported));
-                }
-                if format != i.format {
-                    return Err(TextureMaybeSupportedCreationError::CreationError(TextureCreationError::UnsupportedFormat));
+                    panic!("Varying dimensions were found.");
+                } else if format != i.format {
+                    panic!("Varying formats were found.");
                 }
                 for j in i.data.iter() {
                     vec.push(j.clone());
@@ -380,13 +379,13 @@ impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
             }
             vec
         };
-        Ok(RawImage3d {
+        RawImage3d {
             data: Cow::Owned(raw_data),
             width: width,
             height: height,
             depth: depth as u32,
             format: format,
-        })
+        }
     }
 }
 
