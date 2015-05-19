@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added a `buffer::Builder` type to build multiple sub-buffers within the same buffer.
+
 ## Version 0.4.0 (2015-05-17)
 
  - Removed support for using indices in RAM.

@@ -9,12 +9,14 @@
 //!    abstractions over a subbuffer indicating their specific purpose. They implement `Deref`
 //!    for the subbuffer. These types are in the `vertex`, `index`, ... modules.
 //!
+pub use self::builder::Builder;
 pub use self::sub::{SubBuffer, SubBufferAny, SubBufferMutSlice};
 pub use self::sub::{SubBufferSlice, SubBufferAnySlice, Mapping};
 
 use gl;
 
 mod alloc;
+mod builder;
 mod sub;
 
 /// Error that can happen when creating a buffer.
