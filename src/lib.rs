@@ -82,7 +82,6 @@ result to the user.
  - **Vertex array objects**: VAOs are automatically managed by glium if the backend supports them.
 
 */
-#![allow(mutable_transmutes)]
 #![warn(missing_docs)]
 
 // TODO: remove these when everything is implemented

@@ -13,7 +13,6 @@ use std::rc::Rc;
 use GlObject;
 use Handle;
 
-use program::COMPILER_GLOBAL_LOCK;
 use program::ProgramCreationError;
 
 /// A single, compiled but unlinked, shader.

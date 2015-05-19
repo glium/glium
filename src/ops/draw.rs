@@ -7,7 +7,6 @@ use SubBufferExt;
 use SubBufferSliceExt;
 use ProgramExt;
 use DrawError;
-use Handle;
 use RawUniformValue;
 
 use context::Context;
@@ -40,7 +39,7 @@ use version::Api;
 
 /// Draws everything.
 pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachments>,
-                      vertex_buffers: V, mut indices: IndicesSource,
+                      vertex_buffers: V, indices: IndicesSource,
                       program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
                       dimensions: (u32, u32)) -> Result<(), DrawError>
                       where U: Uniforms, V: MultiVerticesSource<'a>
