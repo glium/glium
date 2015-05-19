@@ -366,7 +366,7 @@ impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
         let height  = arr[0].height;
         let format  = arr[0].format;
         let raw_data = {
-            let mut vec = Vec::<T>::new();
+            let mut vec = Vec::<T>::with_capacity((width * height * depth as u32) as usize);
             for i in arr {
                 if width != i.width || height != i.height {
                     return Err(TextureMaybeSupportedCreationError::CreationError(TextureCreationError::DimensionsNotSupported));

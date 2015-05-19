@@ -643,7 +643,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ")).unwrap(),   // TODO: panic if dimensions are inconsistent
 
             TextureDimensions::Texture2dArray => (write!(dest, "
-                    let mut vec_raw = data.into_iter().map(|e| e.into_raw()).collect();
+                    let vec_raw = data.into_iter().map(|e| e.into_raw()).collect();
                     let RawImage3d {{data, width, height, depth: array_size, format: client_format }} = match RawImage3d::from_vec_raw2d(&vec_raw) {{
                         Ok(var)  => var,
                         Err(reason) => {{return Err(reason);}}
