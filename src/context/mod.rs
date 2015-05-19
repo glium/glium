@@ -221,6 +221,7 @@ impl Context {
     }
 
     // TODO: make me private
+    #[allow(missing_docs)]
     pub fn capabilities(&self) -> &Capabilities {
         &self.capabilities
     }
@@ -231,6 +232,7 @@ impl Context {
     }
 
     // TODO: make me private
+    #[allow(missing_docs)]
     pub fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
     }

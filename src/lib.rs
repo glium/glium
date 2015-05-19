@@ -662,7 +662,7 @@ pub enum DrawError {
     /// You requested not to draw primitives, but this is not supported by the backend.
     TransformFeedbackNotSupported,
 
-    // TODO: document me
+    /// See the documentation of the `draw_parameters` module for infos.
     WrongQueryOperation,
 }
 

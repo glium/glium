@@ -144,7 +144,14 @@ pub enum VerticesSource<'a> {
     /// "per vertex" (false).
     VertexBuffer(SubBufferAnySlice<'a>, &'a VertexFormat, bool),
 
-    Marker { len: usize, per_instance: bool },
+    /// A marker indicating a "phantom list of attributes".
+    Marker {
+        /// Number of attributes.
+        len: usize,
+
+        /// Whether or not this buffer is "per instance" (true) or "per vertex" (false).
+        per_instance: bool,
+    },
 }
 
 /// Objects that can be used as vertex sources.
@@ -160,7 +167,10 @@ impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
 }
 
 /// Marker that can be passed instead of a buffer to indicate an empty list of buffers.
-pub struct EmptyVertexAttributes { pub len: usize }
+pub struct EmptyVertexAttributes {
+    /// Number of phantom vertices.
+    pub len: usize,
+}
 
 impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
     fn into_vertices_source(self) -> VerticesSource<'a> {
@@ -169,7 +179,10 @@ impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
 }
 
 /// Marker that can be passed instead of a buffer to indicate an empty list of buffers.
-pub struct EmptyInstanceAttributes { pub len: usize }
+pub struct EmptyInstanceAttributes {
+    /// Number of phantom vertices.
+    pub len: usize,
+}
 
 impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
     fn into_vertices_source(self) -> VerticesSource<'a> {
