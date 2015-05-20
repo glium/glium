@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate glium;
+extern crate rand;
 
 use glium::Surface;
 use glium::glutin;
@@ -9,84 +10,115 @@ mod support;
 fn main() {
     use glium::DisplayBuild;
 
+    println!("This example draws 10,000 instanced teapots. Each teapot gets a random position and \
+              direction at initialization. Then the CPU updates and uploads the positions of each \
+              teapot at each frame.");
+
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()
+        .with_depth_buffer(24)
         .build_glium()
         .unwrap();
 
-    // building the vertex buffer, which contains all the vertices that we will draw
-    let vertex_buffer = {
-        #[derive(Copy, Clone)]
-        struct Vertex {
-            position: [f32; 2]
-        }
+    // building the vertex and index buffers
+    let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
+    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
-        implement_vertex!(Vertex, position);
-
-        glium::VertexBuffer::new(&display, 
-            vec![
-                Vertex { position: [-0.005, -0.005] },
-                Vertex { position: [  0.0 , 0.005] },
-                Vertex { position: [ 0.005, -0.005] },
-            ]
-        )
-    };
+    // list of teapots with position and direction
+    let mut teapots = (0 .. 10000)
+        .map(|_| {
+            let pos: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
+            let dir: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
+            let pos = (pos.0 * 1.5 - 0.75, pos.1 * 1.5 - 0.75, pos.2 * 1.5 - 0.75);
+            let dir = (dir.0 * 1.5 - 0.75, dir.1 * 1.5 - 0.75, dir.2 * 1.5 - 0.75);
+            (pos, dir)
+        })
+        .collect::<Vec<_>>();
 
     // building the vertex buffer with the attributes per instance
-    let per_instance = {
+    let mut per_instance = {
         #[derive(Copy, Clone)]
         struct Attr {
-            world_position: [f32; 2],
+            world_position: (f32, f32, f32),
         }
 
         implement_vertex!(Attr, world_position);
 
-        let mut data = Vec::new();
-        for x in (0u32 .. 104) {
-            for y in (0u32 .. 82) {
-                data.push(Attr {
-                    world_position: [((x as f32) / 50.0) - 1.0, ((y as f32) / 40.0) - 1.0],
-                });
+        let data = teapots.iter().map(|_| {
+            Attr {
+                world_position: (0.0, 0.0, 0.0),
             }
-        }
+        }).collect::<Vec<_>>();
 
-        glium::vertex::VertexBuffer::new(&display, data)
+        glium::vertex::VertexBuffer::dynamic(&display, data)
     };
-
-    let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::TrianglesList(vec![0u16, 1, 2]));
 
     let program = glium::Program::from_source(&display,
         "
             #version 140
 
-            in vec2 position;
-            in vec2 world_position;
+            in vec3 position;
+            in vec3 normal;
+            in vec3 world_position;
+            out vec3 v_position;
+            out vec3 v_normal;
+            out vec3 v_color;
 
             void main() {
-                gl_Position = vec4(position + world_position, 0.0, 1.0);
+                v_position = position;
+                v_normal = normal;
+                v_color = vec3(float(gl_InstanceID) / 10000.0, 1.0, 1.0);
+                gl_Position = vec4(position * 0.0005 + world_position, 1.0);
             }
         ",
         "
             #version 140
 
-            out vec4 color;
+            in vec3 v_normal;
+            in vec3 v_color;
+            out vec4 f_color;
+
+            const vec3 LIGHT = vec3(-0.2, 0.8, 0.1);
 
             void main() {
-                color = vec4(1.0, 0.0, 0.0, 1.0);
+                float lum = max(dot(normalize(v_normal), normalize(LIGHT)), 0.0);
+                vec3 color = (0.3 + 0.7 * lum) * v_color;
+                f_color = vec4(color, 1.0);
             }
         ",
         None)
         .unwrap();
+
+    let camera = support::camera::CameraState::new();
     
     // the main loop
     support::start_loop(|| {
+        // updating the teapots
+        {
+            let mut mapping = per_instance.map();
+            for (src, dest) in teapots.iter_mut().zip(mapping.iter_mut()) {
+                (src.0).0 += (src.1).0 * 0.001;
+                (src.0).1 += (src.1).1 * 0.001;
+                (src.0).2 += (src.1).2 * 0.001;
+
+                dest.world_position = src.0;
+            }
+        }
+
         // drawing a frame
+        let params = glium::DrawParameters {
+            depth_test: glium::DepthTest::IfLess,
+            depth_write: true,
+            .. Default::default()
+        };
+
         let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 0.0);
+        target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
         target.draw((&vertex_buffer, per_instance.per_instance_if_supported().unwrap()),
-                    &index_buffer, &program, &uniform!{},
-                    &Default::default()).unwrap();
+                    &indices, &program, &uniform!{
+                        matrix: camera.get_perspective()
+                    },
+                    &params).unwrap();
         target.finish();
 
         // polling and handling the events received by the window
