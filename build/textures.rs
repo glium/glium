@@ -172,10 +172,18 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     let cfg_attribute = {
         let format = match ty {
             TextureType::Integral | TextureType::Unsigned => {
-                "#[cfg(feature = \"gl_integral_textures\")]"
+                "///
+                /// ## Features
+                ///
+                /// Only available if the \"gl_integral_textures\" feature is enabled.
+                #[cfg(feature = \"gl_integral_textures\")]"
             },
             TextureType::Depth | TextureType::DepthStencil => {
-                "#[cfg(feature = \"gl_depth_textures\")]"
+                "///
+                /// ## Features
+                ///
+                /// Only available if the \"gl_depth_textures\" feature is enabled.
+                #[cfg(feature = \"gl_depth_textures\")]"
             },
             TextureType::Stencil => "#[cfg(feature = \"gl_stencil_textures\")]",
             _ => ""
@@ -183,16 +191,32 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         let dim = match dimensions {
             TextureDimensions::Texture1d => {
-                "#[cfg(feature = \"gl_texture_1d\")]"
+                "///
+                /// ## Features
+                ///
+                /// Only available if the \"gl_texture_1d\" feature is enabled.
+                #[cfg(feature = \"gl_texture_1d\")]"
             },
             TextureDimensions::Texture2dArray | TextureDimensions::Texture3d => {
-                "#[cfg(feature = \"gl_texture_3d\")]"
+                "///
+                /// ## Features
+                /// 
+                /// Only available if the \"gl_texture_3d\" feature is enabled.
+                #[cfg(feature = \"gl_texture_3d\")]"
             },
             TextureDimensions::Texture2dMultisample => {
-                "#[cfg(feature = \"gl_texture_multisample\")]"
+                "///
+                /// ## Features
+                /// 
+                /// Only available if the \"gl_texture_multisample\" feature is enabled.
+                #[cfg(feature = \"gl_texture_multisample\")]"
             },
             TextureDimensions::Texture2dMultisampleArray => {
-                "#[cfg(feature = \"gl_texture_multisample_array\")]"
+                "///
+                /// ## Features
+                ///
+                /// Only available if the \"gl_texture_multisample_array\" feature is enabled.
+                #[cfg(feature = \"gl_texture_multisample_array\")]"
             },
             _ => ""
         };
