@@ -33,6 +33,9 @@ pub struct Buffer {
     /// If true, then this buffer can only be modified by calls to `glCopyBufferSubData` or through
     /// the persistent mapping.
     immutable: bool,
+
+    /// If true, the buffer was created with the "dynamic" flag.
+    dynamic_creation_flag: bool,
 }
 
 /// A mapping of a buffer.
@@ -67,6 +70,7 @@ impl Buffer {
             size: size,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
+            dynamic_creation_flag: dynamic,
         })
     }
 
@@ -87,6 +91,7 @@ impl Buffer {
             size: size,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
+            dynamic_creation_flag: dynamic,
         })
     }
 
@@ -183,6 +188,60 @@ impl Buffer {
 
             } else {
                 unreachable!();
+            }
+        }
+    }
+
+    /// Invalidates the content of the buffer. The data becomes undefined.
+    ///
+    /// `offset` and `size` are both in bytes.
+    ///
+    /// # Panic
+    ///
+    /// Panics if out of range.
+    ///
+    pub fn invalidate(&self, offset: usize, size: usize) {
+        assert!(offset + size <= self.size);
+
+        let is_whole_buffer = offset == 0 && size == self.size;
+
+        let mut ctxt = self.context.make_current();
+
+        if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_invalidate_subdata {
+            if is_whole_buffer {
+                unsafe { ctxt.gl.InvalidateBufferData(self.id) };
+            } else {
+                unsafe { ctxt.gl.InvalidateBufferSubData(self.id, offset as gl::types::GLintptr,
+                                                         size as gl::types::GLsizeiptr) };
+            }
+
+        } else if !self.immutable {
+            if is_whole_buffer {
+                let flags = if self.dynamic_creation_flag {
+                    gl::DYNAMIC_DRAW
+                } else {
+                    gl::STATIC_DRAW
+                };
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    unsafe {
+                        let bind = bind_buffer(&mut ctxt, self.id, self.ty);
+                        ctxt.gl.BufferData(bind, size as gl::types::GLsizeiptr,
+                                           ptr::null(), flags);
+                    }
+
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    unsafe {
+                        let bind = bind_buffer(&mut ctxt, self.id, self.ty);
+                        ctxt.gl.BufferDataARB(bind, size as gl::types::GLsizeiptr,
+                                              ptr::null(), flags);
+                    }
+
+                } else {
+                    unreachable!();
+                }
             }
         }
     }

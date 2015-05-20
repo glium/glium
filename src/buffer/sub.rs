@@ -222,6 +222,16 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
         self.as_slice().write(data);
     }
 
+    /// Invalidates the content of the buffer. The data becomes undefined.
+    ///
+    /// You should call this if you only use parts of a buffer. For example if you want to use
+    /// the first half of the buffer, you invalidate the whole buffer then write the first half.
+    ///
+    /// This operation is a no-op if the backend doesn't support it.
+    pub fn invalidate(&self) {
+        self.as_slice().invalidate()
+    }
+
     /// Reads the content of the buffer.
     ///
     /// # Features
@@ -316,6 +326,13 @@ impl<'a, T> SubBufferSlice<'a, T> where T: Copy + Send + 'static {
         unsafe { self.get_buffer().upload(self.offset_bytes, data); }
     }
 
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it.
+    pub fn invalidate(&self) {
+        self.get_buffer().invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
+    }
+
     /// Reads the content of the slice. Returns `None` if this operation is not supported.
     pub fn read_if_supported(&self) -> Option<Vec<T>> {
         consume_fence(self.get_buffer().get_context(), self.fence);
@@ -394,6 +411,13 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
 
         consume_fence(self.get_buffer().get_context(), self.fence);
         unsafe { self.get_buffer().upload(self.offset_bytes, data); }
+    }
+
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it.
+    pub fn invalidate(&self) {
+        self.get_buffer().invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
     }
 
     /// Reads the content of the buffer.
@@ -490,6 +514,13 @@ impl SubBufferAny {
         self.elements_size * self.elements_count
     }
 
+    /// Invalidates the content of the buffer. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it.
+    pub fn invalidate(&self) {
+        self.get_buffer().invalidate(self.offset_bytes, self.elements_count * self.elements_size);
+    }
+
     /// UNSTABLE. This function can be removed at any moment without any further notice.
     ///
     /// Considers that the buffer is filled with elements of type `T` and reads them.
@@ -545,6 +576,13 @@ impl<'a> SubBufferAnySlice<'a> {
     /// Returns the number of bytes in this slice.
     pub fn get_size(&self) -> usize {
         self.elements_size * self.elements_count
+    }
+
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it.
+    pub fn invalidate(&self) {
+        self.get_buffer().invalidate(self.offset_bytes, self.get_size());
     }
 
     /// Returns the buffer.

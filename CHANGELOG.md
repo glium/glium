@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Added a `buffer::Builder` type to build multiple sub-buffers within the same buffer.
+ - Added an `invalidate` method to buffers.
 
 ## Version 0.4.0 (2015-05-17)
 
