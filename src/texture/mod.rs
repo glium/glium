@@ -208,6 +208,35 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
     pub format: ClientFormat,
 }
 
+impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
+    ///Transforms a Vec<RawImage1d> into a RawImage2d
+    pub fn from_vec_raw1d(arr: &Vec<RawImage1d<'a, T>>) -> RawImage2d<'a, T> {
+        let width   = arr[0].width;
+        let height  = arr.len() as u32;
+        let format  = arr[0].format;
+        let raw_data = {
+            let mut vec = Vec::<T>::with_capacity((width * height) as usize);
+            for i in arr {
+                if width != i.width {
+                    panic!("Varying dimensions were found.");
+                } else if format != i.format {
+                    panic!("Varying formats were found.");
+                }
+                for j in i.data.iter() {
+                    vec.push(j.clone());
+                }
+            }
+            vec
+        };
+        RawImage2d {
+            data: Cow::Owned(raw_data),
+            width: width,
+            height: height,
+            format: format,
+        }
+    }
+}
+
 impl<'a, P: PixelValue + Clone> Texture2dDataSource<'a> for Vec<Vec<P>> {
     type Data = P;
 
@@ -361,12 +390,12 @@ pub struct RawImage3d<'a, T: Clone + 'a> {
 impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
     ///Transforms a Vec<RawImage2d> into a RawImage3d
     pub fn from_vec_raw2d(arr: &Vec<RawImage2d<'a, T>>) -> RawImage3d<'a, T> {
-        let depth   = arr.len();
+        let depth   = arr.len() as u32;
         let width   = arr[0].width;
         let height  = arr[0].height;
         let format  = arr[0].format;
         let raw_data = {
-            let mut vec = Vec::<T>::with_capacity((width * height * depth as u32) as usize);
+            let mut vec = Vec::<T>::with_capacity((width * height * depth) as usize);
             for i in arr {
                 if width != i.width || height != i.height {
                     panic!("Varying dimensions were found.");
@@ -383,7 +412,7 @@ impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
             data: Cow::Owned(raw_data),
             width: width,
             height: height,
-            depth: depth as u32,
+            depth: depth,
             format: format,
         }
     }
