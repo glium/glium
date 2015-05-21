@@ -140,6 +140,14 @@ impl<'a, P: PixelValue> Texture1dDataSource<'a> for Vec<P> where P: Copy + Clone
     }
 }
 
+impl<'a, P: PixelValue + Clone> Texture1dDataSource<'a> for RawImage1d<'a, P> {
+    type Data = P;
+
+    fn into_raw(self) -> RawImage1d<'a, P> {
+        self
+    }
+}
+
 impl<P: PixelValue> Texture1dDataSink for Vec<P> where P: Copy + Clone + Send {
     type Data = P;
 
@@ -250,6 +258,14 @@ impl<'a, P: PixelValue + Clone> Texture2dDataSource<'a> for Vec<Vec<P>> {
             height: height,
             format: <P as PixelValue>::get_format(),
         }
+    }
+}
+
+impl<'a, P: PixelValue + Clone> Texture2dDataSource<'a> for RawImage2d<'a, P> {
+    type Data = P;
+
+    fn into_raw(self) -> RawImage2d<'a, P> {
+        self
     }
 }
 
@@ -435,6 +451,14 @@ impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for Vec<Vec<Vec<P>>> {
             depth: depth,
             format: <P as PixelValue>::get_format(),
         }
+    }
+}
+
+impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for RawImage3d<'a, P> {
+    type Data = P;
+
+    fn into_raw(self) -> RawImage3d<'a, P> {
+        self
     }
 }
 
