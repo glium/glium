@@ -7,7 +7,7 @@ use gl;
 use libc;
 use std::{fmt, mem, ptr, slice};
 use std::rc::Rc;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Range};
 use GlObject;
 
 use buffer::{BufferType, BufferCreationError};
@@ -40,10 +40,31 @@ pub struct Buffer {
 
 /// A mapping of a buffer.
 pub struct Mapping<'b, D> {
-    buffer: &'b Buffer,
-    temporary_buffer: Option<(gl::types::GLuint, usize)>,
-    data: *mut D,
-    len: usize,
+    mapping: MappingImpl<'b, D>,
+}
+
+/// A mapping of a buffer. Private object.
+enum MappingImpl<'b, D> {
+    PersistentMapping {
+        buffer: &'b Buffer,
+        offset_bytes: usize,
+        data: *mut D,
+        len: usize,
+    },
+
+    TemporaryBuffer {
+        original_buffer: &'b Buffer,
+        original_buffer_offset: usize,
+        temporary_buffer: gl::types::GLuint,
+        temporary_buffer_data: *mut D,
+        temporary_buffer_len: usize,
+    },
+
+    RegularMapping {
+        buffer: &'b Buffer,
+        data: *mut D,
+        len: usize,
+    },
 }
 
 impl Buffer {
@@ -275,10 +296,12 @@ impl Buffer {
 
         if let Some(existing_mapping) = self.persistent_mapping.clone() {
             Mapping {
-                buffer: self,
-                temporary_buffer: None,
-                data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
-                len: elements,
+                mapping: MappingImpl::PersistentMapping {
+                    buffer: self,
+                    offset_bytes: offset_bytes,
+                    data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
+                    len: elements,
+                },
             }
 
         } else {
@@ -320,10 +343,13 @@ impl Buffer {
             };
 
             Mapping {
-                buffer: self,
-                temporary_buffer: Some((temporary_buffer, offset_bytes)),
-                data: ptr as *mut D,
-                len: elements,
+                mapping: MappingImpl::TemporaryBuffer {
+                    original_buffer: self,
+                    original_buffer_offset: offset_bytes,
+                    temporary_buffer: temporary_buffer,
+                    temporary_buffer_data: ptr as *mut D,
+                    temporary_buffer_len: elements,
+                }
             }
 
         }
@@ -414,102 +440,110 @@ unsafe impl<'a, D> Sync for Mapping<'a, D> where D: Sync {}
 
 impl<'a, D> Drop for Mapping<'a, D> {
     fn drop(&mut self) {
-        let mut ctxt = self.buffer.context.make_current();
-
-        // flushing the written data
-        let to_flush = if let Some((temporary_buffer, _)) = self.temporary_buffer {
-            temporary_buffer
-        } else {
-            self.buffer.id
-        };
-
-        if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-            unsafe {
-                ctxt.gl.FlushMappedNamedBufferRange(to_flush, 0,
-                                                    (self.len * mem::size_of::<D>())
-                                                    as gl::types::GLsizei);
-            }
-
-        } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                  ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-                  ctxt.extensions.gl_arb_map_buffer_range
-        {
-            unsafe {
-                let bind = bind_buffer(&mut ctxt, to_flush, self.buffer.ty);
-                ctxt.gl.FlushMappedBufferRange(bind, 0, (self.len * mem::size_of::<D>())
-                                               as gl::types::GLsizeiptr)
-            }
-
-        } else {
-            unreachable!();
-        }
-
-        // don't unmap if the buffer is persistent
-        if self.buffer.uses_persistent_mapping() {
-            return;
-        }
-
-        if let Some((temporary_buffer, offset_bytes)) = self.temporary_buffer {
-            unsafe {
-                if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                    ctxt.gl.UnmapNamedBuffer(temporary_buffer);
-
-                } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 3, 0)
-                {
-                    let bind = bind_buffer(&mut ctxt, temporary_buffer, self.buffer.ty);
-                    ctxt.gl.UnmapBuffer(bind);
-
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    let bind = bind_buffer(&mut ctxt, temporary_buffer, self.buffer.ty);
-                    ctxt.gl.UnmapBufferARB(bind);
-
-                } else {
-                    unreachable!();
+        match self.mapping {
+            MappingImpl::PersistentMapping { buffer, offset_bytes, data, len } => {
+                let mut ctxt = buffer.context.make_current();
+                unsafe {
+                    flush_range(&mut ctxt, buffer.id, buffer.ty,
+                                offset_bytes .. offset_bytes + len * mem::size_of::<D>());
                 }
+            },
 
-                copy_buffer(&mut ctxt, temporary_buffer, 0, self.buffer.id, offset_bytes,
-                            self.len * mem::size_of::<D>());
+            MappingImpl::TemporaryBuffer { original_buffer, original_buffer_offset,
+                                           temporary_buffer, temporary_buffer_data,
+                                           temporary_buffer_len } =>
+            {
+                let mut ctxt = original_buffer.context.make_current();
 
-                destroy_buffer(&mut ctxt, temporary_buffer);
-            }
+                unsafe {
+                    flush_range(&mut ctxt, temporary_buffer, original_buffer.ty,
+                                0 .. temporary_buffer_len * mem::size_of::<D>());
 
-        } else {
-            unsafe {
-                if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                    ctxt.gl.UnmapNamedBuffer(self.buffer.id);
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) {
+                        ctxt.gl.UnmapNamedBuffer(temporary_buffer);
 
-                } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 3, 0)
-                {
-                    let bind = bind_buffer(&mut ctxt, self.buffer.id, self.buffer.ty);
-                    ctxt.gl.UnmapBuffer(bind);
+                    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                        ctxt.version >= &Version(Api::GlEs, 3, 0)
+                    {
+                        let bind = bind_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
+                        ctxt.gl.UnmapBuffer(bind);
 
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    let bind = bind_buffer(&mut ctxt, self.buffer.id, self.buffer.ty);
-                    ctxt.gl.UnmapBufferARB(bind);
+                    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                        let bind = bind_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
+                        ctxt.gl.UnmapBufferARB(bind);
 
-                } else {
-                    unreachable!();
+                    } else {
+                        unreachable!();
+                    }
+
+                    copy_buffer(&mut ctxt, temporary_buffer, 0, original_buffer.id,
+                                original_buffer_offset, temporary_buffer_len * mem::size_of::<D>());
+
+                    destroy_buffer(&mut ctxt, temporary_buffer);
                 }
-            }
+            },
+
+            MappingImpl::RegularMapping { buffer, data, len } => {
+                let mut ctxt = buffer.context.make_current();
+
+                unsafe {
+                    flush_range(&mut ctxt, buffer.id, buffer.ty, 0 .. len * mem::size_of::<D>());
+
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) {
+                        ctxt.gl.UnmapNamedBuffer(buffer.id);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                        ctxt.version >= &Version(Api::GlEs, 3, 0)
+                    {
+                        let bind = bind_buffer(&mut ctxt, buffer.id, buffer.ty);
+                        ctxt.gl.UnmapBuffer(bind);
+
+                    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                        let bind = bind_buffer(&mut ctxt, buffer.id, buffer.ty);
+                        ctxt.gl.UnmapBufferARB(bind);
+
+                    } else {
+                        unreachable!();
+                    }
+                }
+            },
         }
     }
 }
 
 impl<'a, D> Deref for Mapping<'a, D> {
     type Target = [D];
-    fn deref<'b>(&'b self) -> &'b [D] {
-        unsafe {
-            slice::from_raw_parts_mut(self.data, self.len)
+    fn deref(&self) -> &[D] {
+        match self.mapping {
+            MappingImpl::PersistentMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
+
+            MappingImpl::TemporaryBuffer { temporary_buffer_data, temporary_buffer_len, .. } => {
+                unsafe { slice::from_raw_parts_mut(temporary_buffer_data, temporary_buffer_len) }
+            },
+
+            MappingImpl::RegularMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
         }
     }
 }
 
 impl<'a, D> DerefMut for Mapping<'a, D> {
-    fn deref_mut<'b>(&'b mut self) -> &'b mut [D] {
-        unsafe {
-            slice::from_raw_parts_mut(self.data, self.len)
+    fn deref_mut(&mut self) -> &mut [D] {
+        match self.mapping {
+            MappingImpl::PersistentMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
+
+            MappingImpl::TemporaryBuffer { temporary_buffer_data, temporary_buffer_len, .. } => {
+                unsafe { slice::from_raw_parts_mut(temporary_buffer_data, temporary_buffer_len) }
+            },
+
+            MappingImpl::RegularMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
         }
     }
 }
@@ -891,3 +925,25 @@ unsafe fn destroy_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint) {
         unreachable!();
     }
 }
+
+/// Flushes a range of a mapped buffer.
+unsafe fn flush_range(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+                      range: Range<usize>)
+{
+    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+        ctxt.gl.FlushMappedNamedBufferRange(id, range.start as gl::types::GLintptr,
+                                            (range.end - range.start) as gl::types::GLsizei);
+
+    } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+              ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+              ctxt.extensions.gl_arb_map_buffer_range
+    {
+        let bind = bind_buffer(&mut ctxt, id, ty);
+        ctxt.gl.FlushMappedBufferRange(bind, range.start as gl::types::GLintptr,
+                                       (range.end - range.start) as gl::types::GLsizeiptr)
+
+    } else {
+        unreachable!();
+    }
+}
+
