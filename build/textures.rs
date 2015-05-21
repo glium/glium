@@ -280,7 +280,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureType::DepthStencil => " containing both depth and stencil data",
     })).unwrap();
     (writeln!(dest, ".")).unwrap();
-    (writeln!(dest, "pub struct {}(TextureImplementation);", name)).unwrap();
+    (writeln!(dest, "pub struct {}(TextureAny);", name)).unwrap();
 
     // `Texture` trait impl
     (writeln!(dest, "
@@ -672,7 +672,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         }
 
         // writing the constructor
-        (write!(dest, "Ok({}(try!(TextureImplementation::new(facade, format, \
+        (write!(dest, "Ok({}(try!(TextureAny::new(facade, format, \
                        Some((client_format, data)), mipmaps, {}", name, dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "))))")).unwrap();
 
@@ -691,7 +691,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<_, u8>(facade, format, None, true, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
+        (write!(dest, "{}(TextureAny::new::<_, u8>(facade, format, None, true, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -713,7 +713,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<_, u8>(facade, format, None, false, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
+        (write!(dest, "{}(TextureAny::new::<_, u8>(facade, format, None, false, {}).unwrap())", name, dimensions_parameters_passing)).unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -733,7 +733,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             ", format = default_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "match TextureImplementation::new::<_, u8>(facade, format, None, false, {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "match TextureAny::new::<_, u8>(facade, format, None, false, {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             {{
                 Ok(t) => Some({}(t)),
@@ -763,7 +763,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "let t = TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {});", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "let t = TextureAny::new::<_, u8>(facade, format, None, mipmaps, {});", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             match t {{
                 Ok(t) => Ok({}(t)),
@@ -795,7 +795,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "TextureAny::new::<_, u8>(facade, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, ".map(|t| {}(t))", name)).unwrap();
 
         // closing function
@@ -819,7 +819,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 cfg_attr = cfg_attribute)).unwrap();
 
         // writing the constructor
-        (write!(dest, "{}(TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {})", name, dimensions_parameters_passing)).unwrap();
+        (write!(dest, "{}(TextureAny::new::<_, u8>(facade, format, None, mipmaps, {})", name, dimensions_parameters_passing)).unwrap();
         (writeln!(dest, ".unwrap())")).unwrap();
 
         // closing function
@@ -842,7 +842,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             ", format = default_format, dim_params = dimensions_parameters_input, name = name)).unwrap();
 
         // writing the constructor
-        (write!(dest, "match TextureImplementation::new::<_, u8>(facade, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "match TextureAny::new::<_, u8>(facade, format, None, mipmaps, {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             {{
                 Ok(t) => Some({}(t)),

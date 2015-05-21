@@ -58,7 +58,7 @@ use Rect;
 use BlitTarget;
 use uniforms;
 
-use self::tex_impl::TextureImplementation;
+use self::any::TextureAny;
 use image_format::{TextureFormatRequest, FormatNotSupportedError};
 
 pub use image_format::{ClientFormat, TextureFormat};
@@ -68,9 +68,9 @@ pub use image_format::{CompressedSrgbFormat, SrgbFormat};
 pub use self::get_format::{InternalFormat, InternalFormatType};
 pub use self::pixel::PixelValue;
 
+mod any;
 mod get_format;
 mod pixel;
-mod tex_impl;
 
 include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
