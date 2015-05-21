@@ -18,26 +18,63 @@ macro_rules! blending_test {
 
             let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-            let program = glium::Program::from_source(&display,
-                "
-                    #version 110
+            let program = program!(&display,
+                140 => {
+                    vertex: "
+                        #version 140
 
-                    attribute vec2 position;
+                        in vec2 position;
 
-                    void main() {
-                        gl_Position = vec4(position, 0.0, 1.0);
-                    }
-                ",
-                "
-                    #version 110
+                        void main() {
+                            gl_Position = vec4(position, 0.0, 1.0);
+                        }
+                    ",
+                    fragment: "
+                        #version 140
 
-                    uniform vec4 color;
+                        out vec4 color;
+                        void main() {
+                            color = vec4(1.0, 0.0, 0.0, 1.0);
+                        }
+                    "
+                },
+                110 => {
+                    vertex: "
+                        #version 110
 
-                    void main() {
-                        gl_FragColor = color;
-                    }
-                ",
-                None).unwrap();
+                        attribute vec2 position;
+
+                        void main() {
+                            gl_Position = vec4(position, 0.0, 1.0);
+                        }
+                    ",
+                    fragment: "
+                        #version 110
+
+                        void main() {
+                            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                        }
+                    "
+                },
+                100 => {
+                    vertex: "
+                        #version 100
+
+                        attribute lowp vec2 position;
+
+                        void main() {
+                            gl_Position = vec4(position, 0.0, 1.0);
+                        }
+                    ",
+                    fragment: "
+                        #version 100
+
+                        void main() {
+                            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                        }
+                    "
+                },
+            ).unwrap();
 
             let texture = support::build_renderable_texture(&display);
             texture.as_surface().clear(None, Some($source), None, None);

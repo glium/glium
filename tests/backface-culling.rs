@@ -30,25 +30,63 @@ fn cull_clockwise() {
     let index_buffer = glium::IndexBuffer::new(&display,
         glium::index::TrianglesList(vec![0u16, 1, 2, 1, 2, 3]));
 
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            attribute vec2 position;
+                in vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None)
-        .unwrap();
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -90,25 +128,63 @@ fn cull_counterclockwise() {
     let index_buffer = glium::IndexBuffer::new(&display,
         glium::index::TrianglesList(vec![0u16, 1, 2, 1, 2, 3]));
 
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            attribute vec2 position;
+                in vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None)
-        .unwrap();
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -149,25 +225,63 @@ fn cull_clockwise_trianglestrip() {
     let index_buffer = glium::IndexBuffer::new(&display,
         glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            attribute vec2 position;
+                in vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None)
-        .unwrap();
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -208,25 +322,63 @@ fn cull_counterclockwise_trianglestrip() {
     let index_buffer = glium::IndexBuffer::new(&display,
         glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
 
-    let program = glium::Program::from_source(&display,
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            attribute vec2 position;
+                in vec2 position;
 
-            void main() {
-                gl_Position = vec4(position, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
 
-            void main() {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        ",
-        None)
-        .unwrap();
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
