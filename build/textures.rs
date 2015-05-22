@@ -323,6 +323,17 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 }}
             ", name)).unwrap();
 
+    // 'Deref' impl to common type.
+    (writeln!(dest, "
+                impl ::std::ops::Deref for {} {{
+                    type Target = TextureAny;
+                    
+                    fn deref<'a>(&'a self) -> &'a TextureAny {{
+                        &self.0
+                    }}
+                }}
+            ", name)).unwrap();
+
     // `UniformValue` trait impl
     {
         match ty {
