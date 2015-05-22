@@ -19,6 +19,7 @@ use libc;
 
 pub use context::Context;
 
+#[cfg(feature = "glutin")]
 pub mod glutin_backend;
 
 /// Trait for types that can be used as a backend for a glium context.
