@@ -24,7 +24,7 @@ use std::rc::Rc;
 use ops;
 use fbo;
 
-pub struct TextureImplementation {
+pub struct TextureAny {
     context: Rc<Context>,
     id: gl::types::GLuint,
     requested_format: TextureFormatRequest,
@@ -38,13 +38,13 @@ pub struct TextureImplementation {
     levels: u32,
 }
 
-impl TextureImplementation {
+impl TextureAny {
     /// Builds a new texture.
     pub fn new<'a, F, P>(facade: &F, format: TextureFormatRequest,
                          data: Option<(ClientFormat, Cow<'a, [P]>)>, generate_mipmaps: bool,
                          width: u32, height: Option<u32>, depth: Option<u32>,
                          array_size: Option<u32>, samples: Option<u32>)
-                         -> Result<TextureImplementation, TextureMaybeSupportedCreationError>
+                         -> Result<TextureAny, TextureMaybeSupportedCreationError>
                          where P: Send + Clone + 'a, F: Facade
     {
         if let Some((client_format, ref data)) = data {
@@ -337,7 +337,7 @@ impl TextureImplementation {
             id
         };
 
-        Ok(TextureImplementation {
+        Ok(TextureAny {
             context: facade.get_context().clone(),
             id: id,
             requested_format: format,
@@ -513,14 +513,14 @@ impl TextureImplementation {
     }
 }
 
-impl GlObject for TextureImplementation {
+impl GlObject for TextureAny {
     type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }
 }
 
-impl fmt::Debug for TextureImplementation {
+impl fmt::Debug for TextureAny {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "Texture #{} (dimensions: {}x{}x{}x{})", self.id,
                self.width, self.height.unwrap_or(1), self.depth.unwrap_or(1),
@@ -528,7 +528,7 @@ impl fmt::Debug for TextureImplementation {
     }
 }
 
-impl Drop for TextureImplementation {
+impl Drop for TextureAny {
     fn drop(&mut self) {
         let mut ctxt = self.context.make_current();
 

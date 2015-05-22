@@ -6,7 +6,7 @@ use gl;
 
 use std::mem;
 
-use texture::tex_impl::TextureImplementation;
+use texture::any::TextureAny;
 
 /// Internal format of a texture.
 ///
@@ -104,8 +104,8 @@ impl InternalFormatType {
 /// Determines the format of a texture.
 /// Returns `None` if the backend doesn't support this operation.
 ///
-/// A `TextureImplementation` is guaranteed to have the same format for each mipmap.
-pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureImplementation)
+/// A `TextureAny` is guaranteed to have the same format for each mipmap.
+pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
                                -> Option<InternalFormat>
 {
     if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
