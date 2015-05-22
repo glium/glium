@@ -18,9 +18,9 @@ pub fn blit(context: &Context, source: Option<&FramebufferAttachments>,
         let mut ctxt = context.make_current();
 
         // FIXME: we don't draw on it
-        let source = context.framebuffer_objects.as_ref().unwrap()
+        let source = context.get_framebuffer_objects()
                             .get_framebuffer_for_drawing(source, &mut ctxt);
-        let target = context.framebuffer_objects.as_ref().unwrap()
+        let target = context.get_framebuffer_objects()
                             .get_framebuffer_for_drawing(target, &mut ctxt);
 
         // scissor testing influences blitting

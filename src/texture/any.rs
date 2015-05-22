@@ -540,7 +540,7 @@ impl Drop for TextureAny {
         let mut ctxt = self.context.make_current();
 
         // removing FBOs which contain this texture
-        self.context.framebuffer_objects.as_ref().unwrap()
+        self.context.get_framebuffer_objects()
                     .purge_texture(self.id, &mut ctxt);
 
         // resetting the bindings

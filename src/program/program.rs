@@ -591,7 +591,7 @@ impl Drop for Program {
         let mut ctxt = self.context.make_current();
 
         // removing VAOs which contain this program
-        self.context.vertex_array_objects.purge_program(&mut ctxt, self.id);
+        self.context.get_vertex_array_objects().purge_program(&mut ctxt, self.id);
 
         // sending the destroy command
         unsafe {

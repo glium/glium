@@ -91,7 +91,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
         };
 
         // object that is used to build the bindings
-        let mut binder = context.vertex_array_objects.start(&mut ctxt, program, ib_id);
+        let mut binder = context.get_vertex_array_objects().start(&mut ctxt, program, ib_id);
         // number of vertices in the vertices sources, or `None` if there is a mismatch
         let mut vertices_count: Option<usize> = None;
         // number of instances to draw
@@ -161,7 +161,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
 
     // binding the FBO to draw upon
     {
-        let fbo_id = context.framebuffer_objects.as_ref().unwrap()
+        let fbo_id = context.get_framebuffer_objects()
                             .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
     };
@@ -190,7 +190,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
                     return;
                 }
 
-                match bind_uniform(&mut ctxt, &mut context.samplers.borrow_mut(),
+                match bind_uniform(&mut ctxt, &mut context.get_samplers().borrow_mut(),
                                    &value, program, uniform.location,
                                    &mut texture_bind_points, name)
                 {

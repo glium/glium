@@ -7,6 +7,8 @@ use vertex::format::VertexFormat;
 use backend::Facade;
 use version::{Api, Version};
 
+use ContextExt;
+
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct VertexBuffer<T> where T: Copy + Send + 'static {

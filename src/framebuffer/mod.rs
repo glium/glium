@@ -56,6 +56,7 @@ use fbo::FramebufferAttachments;
 use FboAttachments;
 use Rect;
 use BlitTarget;
+use ContextExt;
 use ToGlEnum;
 use ops;
 use uniforms;

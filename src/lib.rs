@@ -111,6 +111,7 @@ pub use texture::{Texture, Texture2d};
 pub use version::{Api, Version, get_supported_glsl_version};
 
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 use context::Context;
@@ -201,6 +202,22 @@ trait ContextExt {
 
     /// Start executing OpenGL commands by checking the current context.
     fn make_current(&self) -> context::CommandContext;
+
+    /// Returns the list of framebuffer objects.
+    fn get_framebuffer_objects(&self) -> &fbo::FramebuffersContainer;
+
+    /// Returns the list of vertex array objects.
+    fn get_vertex_array_objects(&self) -> &vertex_array_object::VertexAttributesSystem;
+
+    /// Returns the list of samplers.
+    fn get_samplers(&self) -> &RefCell<HashMap<uniforms::SamplerBehavior,
+                                               sampler_object::SamplerObject>>;
+
+    /// Returns the capabilities of the backend.
+    fn capabilities(&self) -> &context::Capabilities;
+
+    /// Returns the list of extensions supported by the backend.
+    fn get_extensions(&self) -> &context::ExtensionsList;
 }
 
 /// Internal trait for programs.

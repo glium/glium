@@ -9,6 +9,8 @@ use backend::Facade;
 use version::Version;
 use version::Api;
 
+use ContextExt;
+
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
 pub struct UniformBuffer<T> where T: Copy + Send + 'static {
