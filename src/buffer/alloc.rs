@@ -459,7 +459,7 @@ impl Drop for Buffer {
     fn drop(&mut self) {
         unsafe {
             let mut ctxt = self.context.make_current();
-            self.context.vertex_array_objects.purge_buffer(&mut ctxt, self.id);
+            self.context.get_vertex_array_objects().purge_buffer(&mut ctxt, self.id);
             destroy_buffer(&mut ctxt, self.id);
         }
     }

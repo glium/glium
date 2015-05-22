@@ -3,6 +3,7 @@ This private module handles the various image formats in OpenGL.
 
 */
 use gl;
+use ContextExt;
 use context::Context;
 
 use version::{Api, Version};

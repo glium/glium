@@ -18,7 +18,7 @@ pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
     unsafe {
         let mut ctxt = context.make_current();
 
-        let fbo_id = context.framebuffer_objects.as_ref().unwrap()
+        let fbo_id = context.get_framebuffer_objects()
                             .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
 
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);

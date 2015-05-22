@@ -21,8 +21,8 @@ pub fn read_attachment<P, T>(attachment: &fbo::Attachment, dimensions: (u32, u32
 {
     let mut ctxt = context.make_current();
 
-    let (fbo, atch) = context.framebuffer_objects.as_ref().unwrap()
-                            .get_framebuffer_for_reading(attachment, &mut ctxt);
+    let (fbo, atch) = context.get_framebuffer_objects()
+                             .get_framebuffer_for_reading(attachment, &mut ctxt);
 
     read_impl(fbo, atch, dimensions, None, &mut ctxt).unwrap()
 }
@@ -35,8 +35,8 @@ pub fn read_attachment_to_pb<P, T>(attachment: &fbo::Attachment, dimensions: (u3
 {
     let mut ctxt = context.make_current();
 
-    let (fbo, atch) = context.framebuffer_objects.as_ref().unwrap()
-                            .get_framebuffer_for_reading(attachment, &mut ctxt);
+    let (fbo, atch) = context.get_framebuffer_objects()
+                             .get_framebuffer_for_reading(attachment, &mut ctxt);
 
     read_impl(fbo, atch, dimensions, Some(dest), &mut ctxt);
 }

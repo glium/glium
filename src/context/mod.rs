@@ -70,13 +70,13 @@ pub struct Context {
     /// We maintain a cache of FBOs.
     /// The `Option` is here in order to destroy the container. It must be filled at all time
     /// is a normal situation.
-    pub framebuffer_objects: Option<fbo::FramebuffersContainer>,
+    framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
     /// We maintain a list of vertex array objecs.
-    pub vertex_array_objects: vertex_array_object::VertexAttributesSystem,
+    vertex_array_objects: vertex_array_object::VertexAttributesSystem,
 
     /// We maintain a list of samplers for each possible behavior.
-    pub samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
+    samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
 }
 
 /// This struct is a guard that is returned when you want to access the OpenGL backend.
@@ -220,21 +220,9 @@ impl Context {
         backend.swap_buffers();
     }
 
-    // TODO: make me private
-    #[allow(missing_docs)]
-    pub fn capabilities(&self) -> &Capabilities {
-        &self.capabilities
-    }
-
     /// Returns the OpenGL version detected by this context.
     pub fn get_version(&self) -> &Version {
         &self.version
-    }
-
-    // TODO: make me private
-    #[allow(missing_docs)]
-    pub fn get_extensions(&self) -> &ExtensionsList {
-        &self.extensions
     }
 
     /// Returns the GLSL version guaranteed to be supported.
@@ -423,6 +411,28 @@ impl ContextExt for Context {
             report_debug_output_errors: &self.report_debug_output_errors,
             marker: PhantomData,
         }
+    }
+
+    fn get_framebuffer_objects(&self) -> &fbo::FramebuffersContainer {
+        self.framebuffer_objects.as_ref().unwrap()
+    }
+
+    fn get_vertex_array_objects(&self) -> &vertex_array_object::VertexAttributesSystem {
+        &self.vertex_array_objects
+    }
+
+    fn get_samplers(&self) -> &RefCell<HashMap<uniforms::SamplerBehavior,
+                                               sampler_object::SamplerObject>>
+    {
+        &self.samplers
+    }
+
+    fn capabilities(&self) -> &Capabilities {
+        &self.capabilities
+    }
+
+    fn get_extensions(&self) -> &ExtensionsList {
+        &self.extensions
     }
 }
 
