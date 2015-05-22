@@ -6,7 +6,7 @@ use gl;
 
 use std::mem;
 
-use texture::any::TextureAny;
+use texture::any::{self, TextureAny};
 
 /// Internal format of a texture.
 ///
@@ -114,7 +114,7 @@ pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
         {
             // TODO: use DSA if available
 
-            let bind_point = texture.get_bind_point();
+            let bind_point = any::get_bind_point(texture);
             ctxt.gl.BindTexture(bind_point, texture.get_id());
 
             let mut red_sz = mem::uninitialized();
