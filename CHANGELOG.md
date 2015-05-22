@@ -1,9 +1,10 @@
 # Change Log
 
-## Unreleased
+## Version 0.4.1 (2015-02-22)
 
  - Added a `buffer::Builder` type to build multiple sub-buffers within the same buffer.
  - Added an `invalidate` method to buffers.
+ - Updated glutin to 0.1.6.
 
 ## Version 0.4.0 (2015-05-17)
 
