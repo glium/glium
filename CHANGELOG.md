@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - `Display`/`GlutinFacade` now derefs to `Context`.
+
 ## Version 0.4.1 (2015-02-22)
 
  - Added a `buffer::Builder` type to build multiple sub-buffers within the same buffer.

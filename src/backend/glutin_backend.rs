@@ -10,7 +10,6 @@ use libc;
 use DisplayBuild;
 use Frame;
 use GliumCreationError;
-use texture;
 
 use context;
 use backend;
@@ -113,24 +112,10 @@ impl GlutinFacade {
         self.backend.as_ref().map(|w| WinRef(w.borrow()))
     }
 
-    /// Returns the dimensions of the main framebuffer.
-    pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        self.context.get_framebuffer_dimensions()
-    }
-
     /// Returns the OpenGL version of the current context.
+    // TODO: change Context so that this function derefs from it as well
     pub fn get_opengl_version(&self) -> Version {
         *self.context.get_version()
-    }
-
-    /// Returns the supported GLSL version.
-    pub fn get_supported_glsl_version(&self) -> Version {
-        self.context.get_supported_glsl_version()
-    }
-
-    /// Returns true if the given GLSL version is supported.
-    pub fn is_glsl_version_supported(&self, version: &Version) -> bool {
-        self.context.is_glsl_version_supported(version)
     }
 
     /// Start drawing on the backbuffer.
@@ -142,88 +127,13 @@ impl GlutinFacade {
     pub fn draw(&self) -> Frame {
         Frame::new(self.context.clone(), self.get_framebuffer_dimensions())
     }
+}
 
-    /// Returns the maximum value that can be used for anisotropic filtering, or `None`
-    /// if the hardware doesn't support it.
-    pub fn get_max_anisotropy_support(&self) -> Option<u16> {
-        self.context.get_max_anisotropy_support()
-    }
+impl Deref for GlutinFacade {
+    type Target = Context;
 
-    /// Returns the maximum dimensions of the viewport.
-    ///
-    /// Glium will panic if you request a larger viewport than this when drawing.
-    pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
-        self.context.get_max_viewport_dimensions()
-    }
-
-    /// Releases the shader compiler, indicating that no new programs will be created for a while.
-    ///
-    /// # Features
-    ///
-    /// This method is always available, but is a no-op if it's not available in
-    /// the implementation.
-    pub fn release_shader_compiler(&self) {
-        self.context.release_shader_compiler()
-    }
-
-    /// Returns an estimate of the amount of video memory available in bytes.
-    ///
-    /// Returns `None` if no estimate is available.
-    pub fn get_free_video_memory(&self) -> Option<usize> {
-        self.context.get_free_video_memory()
-    }
-
-    /// Reads the content of the front buffer.
-    ///
-    /// You will only see the data that has finished being drawn.
-    ///
-    /// This function can return any type that implements `Texture2dData`.
-    ///
-    /// ## Example
-    ///
-    /// ```no_run
-    /// # extern crate glium;
-    /// # extern crate glutin;
-    /// # fn main() {
-    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-    /// let pixels: Vec<Vec<(u8, u8, u8)>> = display.read_front_buffer();
-    /// # }
-    /// ```
-    pub fn read_front_buffer<P, T>(&self) -> T          // TODO: remove Clone for P
-                                   where P: texture::PixelValue + Clone + Send,
-                                   T: texture::Texture2dDataSink<Data = P>
-    {
-        self.context.read_front_buffer()
-    }
-
-    /// Execute an arbitrary closure with the OpenGL context active. Useful if another
-    /// component needs to directly manipulate OpenGL state.
-    ///
-    /// **If action manipulates any OpenGL state, it must be restored before action
-    /// completes.**
-    pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
-                                            where T: Send + 'static,
-                                            F: FnOnce() -> T + 'a
-    {
-        self.context.exec_in_context(action)
-    }
-
-    /// Asserts that there are no OpenGL errors pending.
-    ///
-    /// This function should be used in tests.
-    pub fn assert_no_error(&self, user_msg: Option<&str>) {
-        self.context.assert_no_error(user_msg)
-    }
-
-    /// Waits until all the previous commands have finished being executed.
-    ///
-    /// When you execute OpenGL functions, they are not executed immediately. Instead they are
-    /// put in a queue. This function waits until all commands have finished being executed, and
-    /// the queue is empty.
-    ///
-    /// **You don't need to call this function manually, except when running benchmarks.**
-    pub fn synchronize(&self) {
-        self.context.synchronize()
+    fn deref(&self) -> &Context {
+        &self.context
     }
 }
 
