@@ -3,6 +3,7 @@
 ## Unreleased
 
  - `Display`/`GlutinFacade` now derefs to `Context`.
+ - Mapping a buffer now simply calls `glMapBuffer` again, instead of writing to a temporary buffer.
 
 ## Version 0.4.1 (2015-02-22)
 
