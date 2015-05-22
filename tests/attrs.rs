@@ -118,24 +118,60 @@ macro_rules! attribute_test(
             let index_buffer = glium::IndexBuffer::new(&display,
                                     glium::index::PointsList(vec![0u16]));
 
-            let program = glium::Program::from_source(&display,
-                &format!("
-                    #version 110
+            let program = program!(&display,
+                140 => {
+                    vertex: &format!("
+                        #version 140
 
-                    attribute {} field1;
+                        in {} field1;
 
-                    void main() {{
-                        gl_Position = {};
-                    }}
-                ", $glsl_ty, $gl_pos),
-                "
-                    #version 110
-                    void main() {
-                        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-                    }
-                ",
-                None)
-                .unwrap();
+                        void main() {{
+                            gl_Position = {};
+                        }}
+                    ", $glsl_ty, $gl_pos),
+                    fragment: "
+                        #version 140
+                        out vec4 color;
+                        void main() {
+                            color = vec4(0.0, 0.0, 0.0, 1.0);
+                        }
+                    "
+                },
+                110 => {
+                    vertex: &format!("
+                        #version 110
+
+                        attribute {} field1;
+
+                        void main() {{
+                            gl_Position = {};
+                        }}
+                    ", $glsl_ty, $gl_pos),
+                    fragment: "
+                        #version 110
+                        void main() {
+                            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                        }
+                    "
+                },
+                100 => {
+                    vertex: &format!("
+                        #version 100
+
+                        attribute lowp {} field1;
+
+                        void main() {{
+                            gl_Position = {};
+                        }}
+                    ", $glsl_ty, $gl_pos),
+                    fragment: "
+                        #version 100
+                        void main() {
+                            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                        }
+                    "
+                }
+            ).unwrap();
 
             // drawing a frame
             let mut target = display.draw();
