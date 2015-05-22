@@ -58,13 +58,13 @@ use Rect;
 use BlitTarget;
 use uniforms;
 
-use self::any::TextureAny;
 use image_format::{TextureFormatRequest, FormatNotSupportedError};
 
 pub use image_format::{ClientFormat, TextureFormat};
 pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
 pub use image_format::{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat};
 pub use image_format::{CompressedSrgbFormat, SrgbFormat};
+pub use self::any::TextureAny;
 pub use self::get_format::{InternalFormat, InternalFormatType};
 pub use self::pixel::PixelValue;
 
