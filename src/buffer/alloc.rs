@@ -282,6 +282,9 @@ impl Buffer {
     /// `map` public functions should take a `&mut self` instead of a `&self` to prevent users
     /// from manipulating the buffer while it is "mapped".
     ///
+    /// Contrary to `map_mut`, this function only requires a `&self` and can thus be used even
+    /// with a `Rc<Buffer>` for example.
+    ///
     /// # Unsafety
     ///
     /// If the buffer uses persistent mapping, the caller of this function must handle
@@ -322,24 +325,8 @@ impl Buffer {
                 let mut ctxt = self.context.make_current();
 
                 copy_buffer(&mut ctxt, self.id, offset_bytes, temporary_buffer, 0, size_bytes);
-
-                if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                    ctxt.gl.MapNamedBufferRange(temporary_buffer, 0, size_bytes as gl::types::GLsizei,
-                                                gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                                gl::MAP_FLUSH_EXPLICIT_BIT)
-
-                } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                    ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-                    ctxt.extensions.gl_arb_map_buffer_range
-                {
-                    let bind = bind_buffer(&mut ctxt, temporary_buffer, self.ty);
-                    ctxt.gl.MapBufferRange(bind, 0, size_bytes as gl::types::GLsizeiptr,
-                                           gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                           gl::MAP_FLUSH_EXPLICIT_BIT)
-
-                } else {
-                    unimplemented!();       // FIXME: 
-                }
+                map_buffer(&mut ctxt, temporary_buffer, self.ty, 0 .. size_bytes, true, true)
+                                    .expect("Buffer mapping is not supported by the backend")
             };
 
             Mapping {
@@ -351,7 +338,56 @@ impl Buffer {
                     temporary_buffer_len: elements,
                 }
             }
+        }
+    }
 
+    /// Returns a mapping in memory of the content of the buffer.
+    ///
+    /// There are two possibilities:
+    ///
+    ///  - If the buffer uses persistent mapping, it will simply return a wrapper around the
+    ///    pointer to the existing mapping.
+    ///  - If the buffer doesn't use persistent mapping, it will map the buffer.
+    ///
+    /// Contrary to `map`, this function requires a `&mut self`. It can only be used if you
+    /// have exclusive access to the buffer.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn map_mut<D>(&self, offset_bytes: usize, elements: usize)
+                         -> Mapping<D> where D: Copy + Send + 'static
+    {
+        assert!(offset_bytes % mem::size_of::<D>() == 0);
+        assert!(offset_bytes <= self.size);
+        assert!(offset_bytes + elements * mem::size_of::<D>() <= self.size);
+
+        if let Some(existing_mapping) = self.persistent_mapping.clone() {
+            Mapping {
+                mapping: MappingImpl::PersistentMapping {
+                    buffer: self,
+                    offset_bytes: offset_bytes,
+                    data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
+                    len: elements,
+                },
+            }
+
+        } else {
+            let size_bytes = elements * mem::size_of::<D>();
+            let mut ctxt = self.context.make_current();
+            let ptr = map_buffer(&mut ctxt, self.id, self.ty,
+                                 offset_bytes .. offset_bytes + size_bytes, true, true)
+                                   .expect("Buffer mapping is not supported by the backend");
+
+            Mapping {
+                mapping: MappingImpl::RegularMapping {
+                    buffer: self,
+                    data: ptr as *mut D,
+                    len: elements,
+                }
+            }
         }
     }
 
@@ -947,3 +983,34 @@ unsafe fn flush_range(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
     }
 }
 
+/// Maps a range of a buffer.
+///
+/// *Warning*: always passes `GL_MAP_FLUSH_EXPLICIT_BIT`.
+unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+                     range: Range<usize>, read: bool, write: bool) -> Option<*const libc::c_void>
+{
+    let flags = match (read, write) {
+        (true, true) => gl::MAP_FLUSH_EXPLICIT_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT,
+        (true, false) => gl::MAP_FLUSH_EXPLICIT_BIT | gl::MAP_READ_BIT,
+        (false, true) => gl::MAP_FLUSH_EXPLICIT_BIT | gl::MAP_WRITE_BIT,
+        (false, false) => gl::MAP_FLUSH_EXPLICIT_BIT
+    };
+
+    if ctxt.version >= &Version(Api::Gl, 4, 5) {
+        Some(ctxt.gl.MapNamedBufferRange(id, range.start as gl::types::GLintptr,
+                                         (range.end - range.start) as gl::types::GLsizei,
+                                         flags))
+
+    } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+        ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+        ctxt.extensions.gl_arb_map_buffer_range
+    {
+        let bind = bind_buffer(&mut ctxt, id, ty);
+        Some(ctxt.gl.MapBufferRange(bind, range.start as gl::types::GLintptr,
+                                    (range.end - range.start) as gl::types::GLsizeiptr,
+                                    flags))
+
+    } else {
+        None       // FIXME: 
+    }
+}

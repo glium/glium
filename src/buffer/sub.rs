@@ -89,9 +89,8 @@ impl<'a, T> fmt::Debug for SubBufferSlice<'a, T> where T: Copy + Send + 'static 
 }
 
 /// Represents a sub-part of a buffer.
-#[derive(Copy, Clone)]
 pub struct SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
-    alloc: &'a Alloc,
+    alloc: &'a mut Alloc,
     offset_bytes: usize,
     num_elements: usize,
     fence: &'a RefCell<Option<LinearSyncFence>>,
@@ -261,7 +260,7 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
-    pub fn slice_mut(&self, range: Range<usize>) -> Option<SubBufferMutSlice<T>> {
+    pub fn slice_mut(&mut self, range: Range<usize>) -> Option<SubBufferMutSlice<T>> {
         self.as_mut_slice().slice(range)
     }
 
@@ -277,9 +276,9 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice containing the whole subbuffer.
-    pub fn as_mut_slice(&self) -> SubBufferMutSlice<T> {
+    pub fn as_mut_slice(&mut self) -> SubBufferMutSlice<T> {
         SubBufferMutSlice {
-            alloc: &self.alloc,
+            alloc: &mut self.alloc,
             offset_bytes: self.offset_bytes,
             num_elements: self.num_elements,
             fence: &self.fence,
@@ -392,11 +391,17 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Maps the buffer in memory.
-    pub fn map(&mut self) -> Mapping<'a, T> {
+    pub fn map(self) -> Mapping<'a, T> {
         consume_fence(self.get_buffer().get_context(), self.fence);
 
         unsafe {
-            Mapping { mapping: self.get_buffer().map(self.offset_bytes, self.num_elements) }
+            Mapping {
+                mapping: match self.alloc {
+                    &mut Alloc::Unique(ref mut buf) => buf.map_mut(self.offset_bytes,
+                                                                   self.num_elements),
+                    &mut Alloc::Shared(ref buf) => buf.map(self.offset_bytes, self.num_elements),
+                }
+            }
         }
     }
 
@@ -457,7 +462,7 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
-    pub fn as_slice_any(&self) -> SubBufferAnySlice<'a> {
+    pub fn as_slice_any(self) -> SubBufferAnySlice<'a> {
         SubBufferAnySlice {
             alloc: self.alloc,
             offset_bytes: self.offset_bytes,
@@ -468,10 +473,10 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Returns the buffer.
-    fn get_buffer(&self) -> &'a Buffer {
+    fn get_buffer(&self) -> &Buffer {
         match self.alloc {
-            &Alloc::Unique(ref buf) => buf,
-            &Alloc::Shared(ref buf) => buf.deref(),
+            &mut Alloc::Unique(ref buf) => buf,
+            &mut Alloc::Shared(ref buf) => buf.deref(),
         }
     }
 }
