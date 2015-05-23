@@ -99,6 +99,7 @@ extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 
+#[cfg(feature = "glutin")]
 pub use backend::glutin_backend::glutin;
 pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
@@ -149,6 +150,7 @@ mod gl {
 /// This object contains a smart pointer to the real implementation.
 /// Cloning the display allows you to easily share the `Display` object throughout
 /// your program.
+#[cfg(feature = "glutin")]
 pub type Display = backend::glutin_backend::GlutinFacade;
 
 /// Trait for objects that are OpenGL objects.

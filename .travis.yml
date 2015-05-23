@@ -14,9 +14,10 @@ env:
     - secure: "AfE+PLANOT0mgUKpgGUu4yIrSNKxoNST5zFBeajONEEE0wl/bZVE6iGqucNPR0EaIgMfk+NGgCLLM7VFfy+HF5alBiqUUOapef+fc91iHVzoBgtlLXOO7E1UntrieBQCodURTaBtotCMe7jtlkNajkvUD6atKTYh1AYJ3JY2bHA="
     - GLIUM_HEADLESS_TESTS=1
   matrix:
-    - FEATURES='headless' TEST=1
-    - FEATURES='headless image cgmath nalgebra gl_read_buffer gl_depth_textures' TEST=1
-    - FEATURES='headless image cgmath nalgebra gl_read_buffer gl_depth_textures gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures' TEST=0
+    - FEATURES='' TEST=0
+    - FEATURES='headless glutin' TEST=1
+    - FEATURES='headless glutin image cgmath nalgebra gl_read_buffer gl_depth_textures' TEST=1
+    - FEATURES='headless glutin image cgmath nalgebra gl_read_buffer gl_depth_textures gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures' TEST=0
 
 addons:
   apt:
