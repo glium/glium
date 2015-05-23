@@ -4,6 +4,7 @@
 
  - `Display`/`GlutinFacade` now derefs to `Context`.
  - Mapping a buffer now simply calls `glMapBuffer` again, instead of writing to a temporary buffer.
+ - `glutin` is now an optional dependency (enabled by default).
 
 ## Version 0.4.1 (2015-02-22)
 
