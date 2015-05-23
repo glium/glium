@@ -1,3 +1,8 @@
+//! A buffer is a memory location accessible to the video card.
+//!
+//! The purpose of buffers is to serve as a space where the GPU can read from or write data to.
+//! It can contain a list of vertices, indices, uniform data, etc.
+//!
 //! # Buffers management in glium
 //!
 //! There are three levels of abstraction in glium:
