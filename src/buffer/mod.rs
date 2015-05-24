@@ -8,21 +8,19 @@
 //! There are three levels of abstraction in glium:
 //!
 //!  - A `Buffer` corresponds to an OpenGL buffer object. This type is not public.
-//!  - A `SubBuffer` corresponds to a part of a `Buffer`. One buffer can contain one or multiple
+//!  - A `BufferView` corresponds to a part of a `Buffer`. One buffer can contain one or multiple
 //!    subbuffers.
 //!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, ... types are
 //!    abstractions over a subbuffer indicating their specific purpose. They implement `Deref`
 //!    for the subbuffer. These types are in the `vertex`, `index`, ... modules.
 //!
-pub use self::builder::Builder;
-pub use self::sub::{SubBuffer, SubBufferAny, SubBufferMutSlice};
-pub use self::sub::{SubBufferSlice, SubBufferAnySlice, Mapping};
+pub use self::view::{BufferView, BufferViewAny, BufferViewMutSlice};
+pub use self::view::{BufferViewSlice, BufferViewAnySlice, Mapping};
 
 use gl;
 
 mod alloc;
-mod builder;
-mod sub;
+mod view;
 
 /// Error that can happen when creating a buffer.
 #[derive(Debug)]

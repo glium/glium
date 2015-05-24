@@ -1,6 +1,6 @@
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{SubBuffer, SubBufferSlice, SubBufferAny, BufferType};
+use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -12,13 +12,13 @@ use ContextExt;
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct VertexBuffer<T> where T: Copy + Send + 'static {
-    buffer: SubBuffer<T>,
+    buffer: BufferView<T>,
     bindings: VertexFormat,
 }
 
 /// Represents a slice of a `VertexBuffer`.
 pub struct VertexBufferSlice<'b, T: 'b> where T: Copy + Send + 'static {
-    buffer: SubBufferSlice<'b, T>,
+    buffer: BufferViewSlice<'b, T>,
     bindings: &'b VertexFormat,
 }
 
@@ -52,7 +52,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     /// ```
     ///
     pub fn new<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
-        let buffer = SubBuffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
+        let buffer = BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                     false).unwrap();
         buffer.into()
     }
@@ -66,7 +66,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     ///
     /// This function will create a buffer that is intended to be modified frequently.
     pub fn dynamic<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
-        let buffer = SubBuffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
+        let buffer = BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
                                     true).unwrap();
         buffer.into()
     }
@@ -75,7 +75,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     ///
     /// The parameter indicates the number of elements.
     pub fn empty<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
-        let buffer = SubBuffer::empty(facade, BufferType::ArrayBuffer, elements, false).unwrap();
+        let buffer = BufferView::empty(facade, BufferType::ArrayBuffer, elements, false).unwrap();
         buffer.into()
     }
 
@@ -83,7 +83,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     ///
     /// The parameter indicates the number of elements.
     pub fn empty_dynamic<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
-        let buffer = SubBuffer::empty(facade, BufferType::ArrayBuffer, elements, true).unwrap();
+        let buffer = BufferView::empty(facade, BufferType::ArrayBuffer, elements, true).unwrap();
         buffer.into()
     }
 }
@@ -125,7 +125,7 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
                              where F: Facade
     {
         VertexBuffer {
-            buffer: SubBuffer::new(facade, &data, BufferType::ArrayBuffer,
+            buffer: BufferView::new(facade, &data, BufferType::ArrayBuffer,
                                    false).unwrap(),
             bindings: bindings,
         }
@@ -137,7 +137,7 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
                              where F: Facade
     {
         VertexBuffer {
-            buffer: SubBuffer::new(facade, &data, BufferType::ArrayBuffer,
+            buffer: BufferView::new(facade, &data, BufferType::ArrayBuffer,
                                    true).unwrap(),
             bindings: bindings,
         }
@@ -206,8 +206,8 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
     }
 }
 
-impl<T> From<SubBuffer<T>> for VertexBuffer<T> where T: Vertex + Send + Copy + 'static {
-    fn from(buffer: SubBuffer<T>) -> VertexBuffer<T> {
+impl<T> From<BufferView<T>> for VertexBuffer<T> where T: Vertex + Send + Copy + 'static {
+    fn from(buffer: BufferView<T>) -> VertexBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
         VertexBuffer {
@@ -218,15 +218,15 @@ impl<T> From<SubBuffer<T>> for VertexBuffer<T> where T: Vertex + Send + Copy + '
 }
 
 impl<T> Deref for VertexBuffer<T> where T: Send + Copy + 'static {
-    type Target = SubBuffer<T>;
+    type Target = BufferView<T>;
 
-    fn deref(&self) -> &SubBuffer<T> {
+    fn deref(&self) -> &BufferView<T> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for VertexBuffer<T> where T: Send + Copy + 'static {
-    fn deref_mut(&mut self) -> &mut SubBuffer<T> {
+    fn deref_mut(&mut self) -> &mut BufferView<T> {
         &mut self.buffer
     }
 }
@@ -238,15 +238,15 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Send + Copy 
 }
 
 impl<'a, T> Deref for VertexBufferSlice<'a, T> where T: Send + Copy + 'static {
-    type Target = SubBufferSlice<'a, T>;
+    type Target = BufferViewSlice<'a, T>;
 
-    fn deref(&self) -> &SubBufferSlice<'a, T> {
+    fn deref(&self) -> &BufferViewSlice<'a, T> {
         &self.buffer
     }
 }
 
 impl<'a, T> DerefMut for VertexBufferSlice<'a, T> where T: Send + Copy + 'static {
-    fn deref_mut(&mut self) -> &mut SubBufferSlice<'a, T> {
+    fn deref_mut(&mut self) -> &mut BufferViewSlice<'a, T> {
         &mut self.buffer
     }
 }
@@ -266,7 +266,7 @@ impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy + 
 /// or return a `VertexBufferAny` instead of a `VertexBuffer<MyPrivateVertexType>`.
 #[derive(Debug)]
 pub struct VertexBufferAny {
-    buffer: SubBufferAny,
+    buffer: BufferViewAny,
     bindings: VertexFormat,
 }
 
@@ -326,8 +326,8 @@ impl VertexBufferAny {
     }
 }
 
-impl<T> From<SubBuffer<T>> for VertexBufferAny where T: Vertex + Send + Copy + 'static {
-    fn from(buf: SubBuffer<T>) -> VertexBufferAny {
+impl<T> From<BufferView<T>> for VertexBufferAny where T: Vertex + Send + Copy + 'static {
+    fn from(buf: BufferView<T>) -> VertexBufferAny {
         let buf: VertexBuffer<T> = buf.into();
         buf.into_vertex_buffer_any()
     }

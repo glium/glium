@@ -181,7 +181,7 @@ trait ToGlEnum {
 }
 
 /// Internal trait for subbuffers.
-trait SubBufferExt {
+trait BufferViewExt {
     /// Returns the number of bytes from the start of the buffer to this subbuffer.
     fn get_offset_bytes(&self) -> usize;
 
@@ -190,7 +190,7 @@ trait SubBufferExt {
 }
 
 /// Internal trait for subbuffer slices.
-trait SubBufferSliceExt<'a> {
+trait BufferViewSliceExt<'a> {
     /// Tries to get a reference to a `RefCell` where to write a fence.
     ///
     /// If this function returns `None`, no fence will be created nor written.

@@ -361,21 +361,14 @@ impl Buffer {
     pub unsafe fn map_mut<D>(&self, offset_bytes: usize, elements: usize)
                          -> Mapping<D> where D: Copy + Send + 'static
     {
-        assert!(offset_bytes % mem::size_of::<D>() == 0);
-        assert!(offset_bytes <= self.size);
-        assert!(offset_bytes + elements * mem::size_of::<D>() <= self.size);
-
-        if let Some(existing_mapping) = self.persistent_mapping.clone() {
-            Mapping {
-                mapping: MappingImpl::PersistentMapping {
-                    buffer: self,
-                    offset_bytes: offset_bytes,
-                    data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
-                    len: elements,
-                },
-            }
+        if self.persistent_mapping.is_some() || self.immutable {
+            self.map(offset_bytes, elements)
 
         } else {
+            assert!(offset_bytes % mem::size_of::<D>() == 0);
+            assert!(offset_bytes <= self.size);
+            assert!(offset_bytes + elements * mem::size_of::<D>() <= self.size);
+
             let size_bytes = elements * mem::size_of::<D>();
             let mut ctxt = self.context.make_current();
             let ptr = map_buffer(&mut ctxt, self.id, self.ty,

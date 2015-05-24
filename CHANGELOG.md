@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+ - Removed the `buffer::Builder` type as it was proven unsound.
+ - Renamed `SubBuffer` to `BufferView`.
  - `Display`/`GlutinFacade` now derefs to `Context`.
  - Mapping a buffer now simply calls `glMapBuffer` again, instead of writing to a temporary buffer.
  - `glutin` is now an optional dependency (enabled by default).
