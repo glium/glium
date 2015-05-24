@@ -101,6 +101,9 @@ pub struct CommandContext<'a> {
     /// reported to the user (by panicking).
     pub report_debug_output_errors: &'a Cell<bool>,
 
+    /// The list of vertex array objects.
+    pub vertex_array_objects: &'a vertex_array_object::VertexAttributesSystem,
+
     /// This marker is here to prevent `CommandContext` from implementing `Send`
     // TODO: use this when possible
     //impl<'a, 'b> !Send for CommandContext<'a, 'b> {}
@@ -138,6 +141,8 @@ impl Context {
             state.texture_units.reserve(capabilities.max_combined_texture_image_units as usize);
         }
 
+        let vertex_array_objects = vertex_array_object::VertexAttributesSystem::new();
+
         // checking whether the backend supports glium
         // TODO: do this more properly
         {
@@ -148,6 +153,7 @@ impl Context {
                 extensions: &extensions,
                 capabilities: &capabilities,
                 report_debug_output_errors: &report_debug_output_errors,
+                vertex_array_objects: &vertex_array_objects,
                 marker: PhantomData,
             };
 
@@ -164,7 +170,7 @@ impl Context {
             backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
             framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
-            vertex_array_objects: vertex_array_object::VertexAttributesSystem::new(),
+            vertex_array_objects: vertex_array_objects,
             samplers: RefCell::new(HashMap::new()),
         });
 
@@ -194,7 +200,7 @@ impl Context {
                 fbos.purge_all(&mut ctxt);
             }
 
-            self.vertex_array_objects.purge_all(&mut ctxt);
+            vertex_array_object::VertexAttributesSystem::purge_all(&mut ctxt);
         }
 
         new_backend.make_current();
@@ -409,16 +415,13 @@ impl ContextExt for Context {
             extensions: &self.extensions,
             capabilities: &self.capabilities,
             report_debug_output_errors: &self.report_debug_output_errors,
+            vertex_array_objects: &self.vertex_array_objects,
             marker: PhantomData,
         }
     }
 
     fn get_framebuffer_objects(&self) -> &fbo::FramebuffersContainer {
         self.framebuffer_objects.as_ref().unwrap()
-    }
-
-    fn get_vertex_array_objects(&self) -> &vertex_array_object::VertexAttributesSystem {
-        &self.vertex_array_objects
     }
 
     fn get_samplers(&self) -> &RefCell<HashMap<uniforms::SamplerBehavior,
@@ -455,13 +458,14 @@ impl Drop for Context {
                 extensions: &self.extensions,
                 capabilities: &self.capabilities,
                 report_debug_output_errors: &self.report_debug_output_errors,
+                vertex_array_objects: &self.vertex_array_objects,
                 marker: PhantomData,
             };
 
             let fbos = self.framebuffer_objects.take();
             fbos.unwrap().cleanup(&mut ctxt);
 
-            self.vertex_array_objects.cleanup(&mut ctxt);
+            vertex_array_object::VertexAttributesSystem::cleanup(&mut ctxt);
 
             let mut samplers = self.samplers.borrow_mut();
             for (_, s) in mem::replace(&mut *samplers, HashMap::with_capacity(0)) {

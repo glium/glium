@@ -29,6 +29,8 @@ use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_
 use program::reflection::{reflect_transform_feedback};
 use program::shader::build_shader;
 
+use vertex_array_object::VertexAttributesSystem;
+
 /// Error that can be triggered when creating a `Program`.
 #[derive(Clone, Debug)]
 pub enum ProgramCreationError {
@@ -591,7 +593,7 @@ impl Drop for Program {
         let mut ctxt = self.context.make_current();
 
         // removing VAOs which contain this program
-        self.context.get_vertex_array_objects().purge_program(&mut ctxt, self.id);
+        VertexAttributesSystem::purge_program(&mut ctxt, self.id);
 
         // sending the destroy command
         unsafe {

@@ -11,6 +11,7 @@ use std::ops::{Deref, DerefMut, Range};
 use GlObject;
 
 use buffer::{BufferType, BufferCreationError};
+use vertex_array_object::VertexAttributesSystem;
 
 use version::Api;
 
@@ -459,7 +460,7 @@ impl Drop for Buffer {
     fn drop(&mut self) {
         unsafe {
             let mut ctxt = self.context.make_current();
-            self.context.get_vertex_array_objects().purge_buffer(&mut ctxt, self.id);
+            VertexAttributesSystem::purge_buffer(&mut ctxt, self.id);
             destroy_buffer(&mut ctxt, self.id);
         }
     }
@@ -758,6 +759,23 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
             }
 
             gl::ARRAY_BUFFER
+        },
+
+        BufferType::ElementArrayBuffer => {
+            // TODO: the state if the current buffer is not cached
+            VertexAttributesSystem::hijack_current_element_array_buffer(ctxt);
+
+            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
+            {
+                ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
+            } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER, id);    // bind points are the same in the ext
+            } else {
+                unreachable!();
+            }
+
+            gl::ELEMENT_ARRAY_BUFFER
         },
 
         BufferType::PixelPackBuffer => {
