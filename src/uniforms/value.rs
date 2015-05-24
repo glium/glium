@@ -3,7 +3,7 @@ use texture;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
 
-use buffer::SubBufferAnySlice;
+use buffer::BufferViewAnySlice;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
@@ -139,7 +139,7 @@ pub enum UniformValue<'a> {
     /// can be binded on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
-    Block(SubBufferAnySlice<'a>, fn(&program::UniformBlock) -> bool),
+    Block(BufferViewAnySlice<'a>, fn(&program::UniformBlock) -> bool),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),

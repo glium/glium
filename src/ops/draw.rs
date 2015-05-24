@@ -3,8 +3,8 @@ use std::mem;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use SubBufferExt;
-use SubBufferSliceExt;
+use BufferViewExt;
+use BufferViewSliceExt;
 use ProgramExt;
 use DrawError;
 use RawUniformValue;

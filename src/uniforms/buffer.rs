@@ -1,4 +1,4 @@
-use buffer::{SubBuffer, SubBufferAny, BufferType};
+use buffer::{BufferView, BufferViewAny, BufferType};
 use buffer::Mapping as BufferMapping;
 use uniforms::{AsUniformValue, UniformValue, UniformBlock};
 
@@ -14,7 +14,7 @@ use ContextExt;
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
 pub struct UniformBuffer<T> where T: Copy + Send + 'static {
-    buffer: SubBuffer<T>,
+    buffer: BufferView<T>,
 }
 
 /// Mapping of a buffer in memory.
@@ -25,7 +25,7 @@ pub struct Mapping<'a, T> {
 /// Same as `UniformBuffer` but doesn't contain any information about the type.
 #[derive(Debug)]
 pub struct TypelessUniformBuffer {
-    buffer: SubBufferAny,
+    buffer: BufferViewAny,
 }
 
 impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
@@ -47,7 +47,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
             None
 
         } else {
-            let buffer = SubBuffer::new(facade, &[data], BufferType::UniformBuffer, true).unwrap();
+            let buffer = BufferView::new(facade, &[data], BufferType::UniformBuffer, true).unwrap();
 
             Some(UniformBuffer {
                 buffer: buffer,
@@ -78,9 +78,9 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
 }
 
 impl<T> Deref for UniformBuffer<T> where T: Send + Copy + 'static {
-    type Target = SubBuffer<T>;
+    type Target = BufferView<T>;
 
-    fn deref(&self) -> &SubBuffer<T> {
+    fn deref(&self) -> &BufferView<T> {
         &self.buffer
     }
 }
@@ -100,7 +100,7 @@ impl<'a, D> DerefMut for Mapping<'a, D> {
 }
 
 impl<T> DerefMut for UniformBuffer<T> where T: Send + Copy + 'static {
-    fn deref_mut(&mut self) -> &mut SubBuffer<T> {
+    fn deref_mut(&mut self) -> &mut BufferView<T> {
         &mut self.buffer
     }
 }

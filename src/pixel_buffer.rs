@@ -12,15 +12,15 @@ use backend::Facade;
 use texture::{RawImage2d, Texture2dDataSink, ClientFormat};
 
 use GlObject;
-use SubBufferExt;
-use buffer::{SubBuffer, SubBufferAny, BufferType};
+use BufferViewExt;
+use buffer::{BufferView, BufferViewAny, BufferType};
 use gl;
 
 /// Buffer that stores the content of a texture.
 ///
 /// The generic type represents the type of pixels that the buffer contains.
 pub struct PixelBuffer<T> {
-    buffer: SubBufferAny,
+    buffer: BufferViewAny,
     dimensions: Option<(u32, u32)>,
     format: Option<ClientFormat>,
     marker: PhantomData<T>,
@@ -30,7 +30,7 @@ impl<T> PixelBuffer<T> {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
-            buffer: SubBuffer::<u8>::empty(facade, BufferType::PixelPackBuffer, capacity,
+            buffer: BufferView::<u8>::empty(facade, BufferType::PixelPackBuffer, capacity,
                                            false).unwrap().into(),
             dimensions: None,
             format: None,

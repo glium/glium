@@ -128,7 +128,7 @@ pub use self::buffer::{VertexBuffer, VertexBufferAny};
 pub use self::buffer::VertexBufferSlice;
 pub use self::format::{AttributeType, VertexFormat};
 
-use buffer::SubBufferAnySlice;
+use buffer::BufferViewAnySlice;
 
 mod buffer;
 mod format;
@@ -142,7 +142,7 @@ pub enum VerticesSource<'a> {
     ///
     /// The third parameter tells whether or not this buffer is "per instance" (true) or
     /// "per vertex" (false).
-    VertexBuffer(SubBufferAnySlice<'a>, &'a VertexFormat, bool),
+    VertexBuffer(BufferViewAnySlice<'a>, &'a VertexFormat, bool),
 
     /// A marker indicating a "phantom list of attributes".
     Marker {
@@ -191,7 +191,7 @@ impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
 }
 
 /// Marker that instructs glium that the buffer is to be used per instance.
-pub struct PerInstance<'a>(SubBufferAnySlice<'a>, &'a VertexFormat);
+pub struct PerInstance<'a>(BufferViewAnySlice<'a>, &'a VertexFormat);
 
 impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
     fn into_vertices_source(self) -> VerticesSource<'a> {

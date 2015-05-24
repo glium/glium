@@ -9,8 +9,8 @@ use sync::LinearSyncFence;
 use gl;
 
 use backend::Facade;
-use SubBufferExt;
-use SubBufferSliceExt;
+use BufferViewExt;
+use BufferViewSliceExt;
 use GlObject;
 
 use context::Context;
@@ -21,36 +21,17 @@ use buffer::BufferCreationError;
 use buffer::alloc::Buffer;
 use buffer::alloc::Mapping as BufferMapping;
 
-/// Represents a sub-part of a buffer.
-pub struct SubBuffer<T> where T: Copy + Send + 'static {
-    alloc: Alloc,
-    offset_bytes: usize,
+/// Represents a view of a buffer.
+pub struct BufferView<T> where T: Copy + Send + 'static {
+    alloc: Buffer,
     num_elements: usize,
     fence: RefCell<Option<LinearSyncFence>>,
     marker: PhantomData<T>,
 }
 
-pub enum Alloc {
-    Unique(Buffer),
-    Shared(Rc<Buffer>),
-}
-
-/// Builds a `SubBuffer` from a part of a buffer.
-pub fn build_sub_buffer<T>(buffer: Rc<Buffer>, offset_bytes: usize, num_elements: usize)
-                           -> SubBuffer<T> where T: Copy + Send + 'static
-{
-    SubBuffer {
-        alloc: Alloc::Shared(buffer),
-        offset_bytes: offset_bytes,
-        num_elements: num_elements,
-        fence: RefCell::new(None),
-        marker: PhantomData,
-    }
-}
-
-impl<T> fmt::Debug for SubBuffer<T> where T: Copy + Send + 'static {
+impl<T> fmt::Debug for BufferView<T> where T: Copy + Send + 'static {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.get_buffer())
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
@@ -74,73 +55,71 @@ impl<'a, T> DerefMut for Mapping<'a, T> {
 
 /// Represents a sub-part of a buffer.
 #[derive(Copy, Clone)]
-pub struct SubBufferSlice<'a, T> where T: Copy + Send + 'static {
-    alloc: &'a Alloc,
+pub struct BufferViewSlice<'a, T> where T: Copy + Send + 'static {
+    alloc: &'a Buffer,
     offset_bytes: usize,
     num_elements: usize,
     fence: &'a RefCell<Option<LinearSyncFence>>,
     marker: PhantomData<T>,
 }
 
-impl<'a, T> fmt::Debug for SubBufferSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> fmt::Debug for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.get_buffer())
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
 /// Represents a sub-part of a buffer.
-pub struct SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
-    alloc: &'a mut Alloc,
+pub struct BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
+    alloc: &'a mut Buffer,
     offset_bytes: usize,
     num_elements: usize,
     fence: &'a RefCell<Option<LinearSyncFence>>,
     marker: PhantomData<T>,
 }
 
-impl<'a, T> fmt::Debug for SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> fmt::Debug for BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.get_buffer())
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
 /// Represents a sub-part of a buffer.
 ///
-/// Doesn't contain any information about the content, contrary to `SubBuffer`.
-pub struct SubBufferAny {
-    alloc: Alloc,
-    offset_bytes: usize,
+/// Doesn't contain any information about the content, contrary to `BufferView`.
+pub struct BufferViewAny {
+    alloc: Buffer,
     elements_size: usize,
     elements_count: usize,
     fence: RefCell<Option<LinearSyncFence>>,
 }
 
-impl fmt::Debug for SubBufferAny {
+impl fmt::Debug for BufferViewAny {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.get_buffer())
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
-/// Slice of a `SubBuffer` without any type info.
+/// Slice of a `BufferView` without any type info.
 #[derive(Copy, Clone)]
-pub struct SubBufferAnySlice<'a> {
-    alloc: &'a Alloc,
+pub struct BufferViewAnySlice<'a> {
+    alloc: &'a Buffer,
     offset_bytes: usize,
     elements_size: usize,
     elements_count: usize,
     fence: &'a RefCell<Option<LinearSyncFence>>,
 }
 
-impl<'a> fmt::Debug for SubBufferAnySlice<'a> {
+impl<'a> fmt::Debug for BufferViewAnySlice<'a> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.get_buffer())
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
-impl<T> From<SubBuffer<T>> for SubBufferAny where T: Copy + Send + 'static {
-    fn from(buffer: SubBuffer<T>) -> SubBufferAny {
-        SubBufferAny {
+impl<T> From<BufferView<T>> for BufferViewAny where T: Copy + Send + 'static {
+    fn from(buffer: BufferView<T>) -> BufferViewAny {
+        BufferViewAny {
             alloc: buffer.alloc,
-            offset_bytes: buffer.offset_bytes,
             elements_size: mem::size_of::<T>(),
             elements_count: buffer.num_elements,
             fence: buffer.fence,
@@ -148,7 +127,7 @@ impl<T> From<SubBuffer<T>> for SubBufferAny where T: Copy + Send + 'static {
     }
 }
 
-impl<T> SubBuffer<T> where T: Copy + Send + 'static {
+impl<T> BufferView<T> where T: Copy + Send + 'static {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
     ///
@@ -158,16 +137,15 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
     /// synchronizations manually.
     pub fn new<F>(facade: &F, data: &[T], ty: BufferType, dynamic: bool)
-                  -> Result<SubBuffer<T>, BufferCreationError>
+                  -> Result<BufferView<T>, BufferCreationError>
                   where F: Facade
     {
         let len = data.len();
 
         Buffer::new(facade, data, ty, dynamic)
             .map(|buffer| {
-                SubBuffer {
-                    alloc: Alloc::Unique(buffer),
-                    offset_bytes: 0,
+                BufferView {
+                    alloc: buffer,
                     num_elements: len,
                     fence: RefCell::new(None),
                     marker: PhantomData,
@@ -183,13 +161,12 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
     /// synchronizations manually.
     pub fn empty<F>(facade: &F, ty: BufferType, len: usize, dynamic: bool)
-                    -> Result<SubBuffer<T>, BufferCreationError> where F: Facade
+                    -> Result<BufferView<T>, BufferCreationError> where F: Facade
     {
         Buffer::empty(facade, ty, len * mem::size_of::<T>(), dynamic)
             .map(|buffer| {
-                SubBuffer {
-                    alloc: Alloc::Unique(buffer),
-                    offset_bytes: 0,
+                BufferView {
+                    alloc: buffer,
                     num_elements: len,
                     fence: RefCell::new(None),
                     marker: PhantomData,
@@ -199,7 +176,7 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
 
     /// Returns the context corresponding to this buffer.
     pub fn get_context(&self) -> &Rc<Context> {
-        self.get_buffer().get_context()
+        self.alloc.get_context()
     }
 
     /// Returns the number of elements in this subbuffer.
@@ -209,7 +186,7 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
 
     /// Returns true if this buffer uses persistent mapping.
     pub fn is_persistent(&self) -> bool {
-        self.get_buffer().uses_persistent_mapping()
+        self.alloc.uses_persistent_mapping()
     }
 
     /// Uploads some data in this buffer.
@@ -255,20 +232,20 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
-    pub fn slice(&self, range: Range<usize>) -> Option<SubBufferSlice<T>> {
+    pub fn slice(&self, range: Range<usize>) -> Option<BufferViewSlice<T>> {
         self.as_slice().slice(range)
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
-    pub fn slice_mut(&mut self, range: Range<usize>) -> Option<SubBufferMutSlice<T>> {
+    pub fn slice_mut(&mut self, range: Range<usize>) -> Option<BufferViewMutSlice<T>> {
         self.as_mut_slice().slice(range)
     }
 
     /// Builds a slice containing the whole subbuffer.
-    pub fn as_slice(&self) -> SubBufferSlice<T> {
-        SubBufferSlice {
+    pub fn as_slice(&self) -> BufferViewSlice<T> {
+        BufferViewSlice {
             alloc: &self.alloc,
-            offset_bytes: self.offset_bytes,
+            offset_bytes: 0,
             num_elements: self.num_elements,
             fence: &self.fence,
             marker: PhantomData,
@@ -276,10 +253,10 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice containing the whole subbuffer.
-    pub fn as_mut_slice(&mut self) -> SubBufferMutSlice<T> {
-        SubBufferMutSlice {
+    pub fn as_mut_slice(&mut self) -> BufferViewMutSlice<T> {
+        BufferViewMutSlice {
             alloc: &mut self.alloc,
-            offset_bytes: self.offset_bytes,
+            offset_bytes: 0,
             num_elements: self.num_elements,
             fence: &self.fence,
             marker: PhantomData,
@@ -287,26 +264,18 @@ impl<T> SubBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
-    pub fn as_slice_any(&self) -> SubBufferAnySlice {
-        SubBufferAnySlice {
+    pub fn as_slice_any(&self) -> BufferViewAnySlice {
+        BufferViewAnySlice {
             alloc: &self.alloc,
-            offset_bytes: self.offset_bytes,
+            offset_bytes: 0,
             elements_size: mem::size_of::<T>(),
             elements_count: self.num_elements,
             fence: &self.fence,
         }
     }
-
-    /// Returns the buffer.
-    fn get_buffer(&self) -> &Buffer {
-        match self.alloc {
-            Alloc::Unique(ref buf) => buf,
-            Alloc::Shared(ref buf) => buf.deref(),
-        }
-    }
 }
 
-impl<'a, T> SubBufferSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     /// Returns the number of elements in this slice.
     pub fn len(&self) -> usize {
         self.num_elements
@@ -321,26 +290,26 @@ impl<'a, T> SubBufferSlice<'a, T> where T: Copy + Send + 'static {
         let data = data.as_ref();
         assert!(data.len() == self.num_elements);
 
-        consume_fence(self.get_buffer().get_context(), self.fence);
-        unsafe { self.get_buffer().upload(self.offset_bytes, data); }
+        consume_fence(self.alloc.get_context(), self.fence);
+        unsafe { self.alloc.upload(self.offset_bytes, data); }
     }
 
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
     /// This operation is a no-op if the backend doesn't support it.
     pub fn invalidate(&self) {
-        self.get_buffer().invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
+        self.alloc.invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
     }
 
     /// Reads the content of the slice. Returns `None` if this operation is not supported.
     pub fn read_if_supported(&self) -> Option<Vec<T>> {
-        consume_fence(self.get_buffer().get_context(), self.fence);
+        consume_fence(self.alloc.get_context(), self.fence);
 
         unsafe {
             let mut data = Vec::with_capacity(self.num_elements);
             data.set_len(self.num_elements);        // TODO: is this safe?
 
-            match self.get_buffer().read_if_supported(self.offset_bytes, &mut data) {
+            match self.alloc.read_if_supported(self.offset_bytes, &mut data) {
                 Err(_) => return None,
                 Ok(_) => ()
             };
@@ -350,12 +319,12 @@ impl<'a, T> SubBufferSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Builds a subslice of this slice. Returns `None` if out of range.
-    pub fn slice(&self, range: Range<usize>) -> Option<SubBufferSlice<'a, T>> {
+    pub fn slice(&self, range: Range<usize>) -> Option<BufferViewSlice<'a, T>> {
         if range.start > self.num_elements || range.end > self.num_elements {
             return None;
         }
 
-        Some(SubBufferSlice {
+        Some(BufferViewSlice {
             alloc: self.alloc,
             offset_bytes: self.offset_bytes + range.start * mem::size_of::<T>(),
             num_elements: range.end - range.start,
@@ -365,8 +334,8 @@ impl<'a, T> SubBufferSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
-    pub fn as_slice_any(&self) -> SubBufferAnySlice<'a> {
-        SubBufferAnySlice {
+    pub fn as_slice_any(&self) -> BufferViewAnySlice<'a> {
+        BufferViewAnySlice {
             alloc: self.alloc,
             offset_bytes: self.offset_bytes,
             elements_size: mem::size_of::<T>(),
@@ -374,17 +343,9 @@ impl<'a, T> SubBufferSlice<'a, T> where T: Copy + Send + 'static {
             fence: self.fence,
         }
     }
-
-    /// Returns the buffer.
-    fn get_buffer(&self) -> &'a Buffer {
-        match self.alloc {
-            &Alloc::Unique(ref buf) => buf,
-            &Alloc::Shared(ref buf) => buf.deref(),
-        }
-    }
 }
 
-impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
     /// Returns the number of elements in this slice.
     pub fn len(&self) -> usize {
         self.num_elements
@@ -392,15 +353,11 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
 
     /// Maps the buffer in memory.
     pub fn map(self) -> Mapping<'a, T> {
-        consume_fence(self.get_buffer().get_context(), self.fence);
+        consume_fence(self.alloc.get_context(), self.fence);
 
         unsafe {
             Mapping {
-                mapping: match self.alloc {
-                    &mut Alloc::Unique(ref mut buf) => buf.map_mut(self.offset_bytes,
-                                                                   self.num_elements),
-                    &mut Alloc::Shared(ref buf) => buf.map(self.offset_bytes, self.num_elements),
-                }
+                mapping: self.alloc.map_mut(self.offset_bytes, self.num_elements),
             }
         }
     }
@@ -414,15 +371,15 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
         let data = data.as_ref();
         assert!(data.len() == self.num_elements);
 
-        consume_fence(self.get_buffer().get_context(), self.fence);
-        unsafe { self.get_buffer().upload(self.offset_bytes, data); }
+        consume_fence(self.alloc.get_context(), self.fence);
+        unsafe { self.alloc.upload(self.offset_bytes, data); }
     }
 
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
     /// This operation is a no-op if the backend doesn't support it.
     pub fn invalidate(&self) {
-        self.get_buffer().invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
+        self.alloc.invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
     }
 
     /// Reads the content of the buffer.
@@ -437,7 +394,7 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
             let mut data = Vec::with_capacity(self.num_elements);
             data.set_len(self.num_elements);        // TODO: is this safe?
 
-            match self.get_buffer().read_if_supported(self.offset_bytes, &mut data) {
+            match self.alloc.read_if_supported(self.offset_bytes, &mut data) {
                 Err(_) => return None,
                 Ok(_) => ()
             };
@@ -447,12 +404,12 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Builds a subslice of this slice. Returns `None` if out of range.
-    pub fn slice(self, range: Range<usize>) -> Option<SubBufferMutSlice<'a, T>> {
+    pub fn slice(self, range: Range<usize>) -> Option<BufferViewMutSlice<'a, T>> {
         if range.start > self.num_elements || range.end > self.num_elements {
             return None;
         }
 
-        Some(SubBufferMutSlice {
+        Some(BufferViewMutSlice {
             alloc: self.alloc,
             offset_bytes: self.offset_bytes + range.start * mem::size_of::<T>(),
             num_elements: range.end - range.start,
@@ -462,8 +419,8 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
-    pub fn as_slice_any(self) -> SubBufferAnySlice<'a> {
-        SubBufferAnySlice {
+    pub fn as_slice_any(self) -> BufferViewAnySlice<'a> {
+        BufferViewAnySlice {
             alloc: self.alloc,
             offset_bytes: self.offset_bytes,
             elements_size: mem::size_of::<T>(),
@@ -471,22 +428,14 @@ impl<'a, T> SubBufferMutSlice<'a, T> where T: Copy + Send + 'static {
             fence: self.fence,
         }
     }
-
-    /// Returns the buffer.
-    fn get_buffer(&self) -> &Buffer {
-        match self.alloc {
-            &mut Alloc::Unique(ref buf) => buf,
-            &mut Alloc::Shared(ref buf) => buf.deref(),
-        }
-    }
 }
 
-impl SubBufferAny {
+impl BufferViewAny {
     /// Builds a slice-any containing the whole subbuffer.
-    pub fn as_slice_any(&self) -> SubBufferAnySlice {
-        SubBufferAnySlice {
+    pub fn as_slice_any(&self) -> BufferViewAnySlice {
+        BufferViewAnySlice {
             alloc: &self.alloc,
-            offset_bytes: self.offset_bytes,
+            offset_bytes: 0,
             elements_size: self.elements_size,
             elements_count: self.elements_count,
             fence: &self.fence,
@@ -495,12 +444,12 @@ impl SubBufferAny {
     
     /// Returns the context corresponding to this buffer.
     pub fn get_context(&self) -> &Rc<Context> {
-        self.get_buffer().get_context()
+        self.alloc.get_context()
     }
 
     /// Returns the size of each element in this buffer.
     ///
-    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// This information is taken from the original `BufferView` that was used to construct
     /// this object.
     pub fn get_elements_size(&self) -> usize {
         self.elements_size
@@ -508,7 +457,7 @@ impl SubBufferAny {
 
     /// Returns the number of elements in this buffer.
     ///
-    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// This information is taken from the original `BufferView` that was used to construct
     /// this object.
     pub fn get_elements_count(&self) -> usize {
         self.elements_count
@@ -523,7 +472,7 @@ impl SubBufferAny {
     ///
     /// This operation is a no-op if the backend doesn't support it.
     pub fn invalidate(&self) {
-        self.get_buffer().invalidate(self.offset_bytes, self.elements_count * self.elements_size);
+        self.alloc.invalidate(0, self.elements_count * self.elements_size);
     }
 
     /// UNSTABLE. This function can be removed at any moment without any further notice.
@@ -538,33 +487,25 @@ impl SubBufferAny {
     pub unsafe fn read_if_supported<T>(&self) -> Option<Vec<T>> where T: Copy + Send + 'static {
         assert!(self.get_size() % mem::size_of::<T>() == 0);
 
-        consume_fence(self.get_buffer().get_context(), &self.fence);
+        consume_fence(self.alloc.get_context(), &self.fence);
 
         let len = self.get_size() / mem::size_of::<T>();
         let mut data = Vec::with_capacity(len);
         data.set_len(len);        // TODO: is this safe?
 
-        match self.get_buffer().read_if_supported(self.offset_bytes, &mut data) {
+        match self.alloc.read_if_supported(0, &mut data) {
             Err(_) => return None,
             Ok(_) => ()
         };
 
         Some(data)
     }
-
-    /// Returns the buffer.
-    fn get_buffer(&self) -> &Buffer {
-        match self.alloc {
-            Alloc::Unique(ref buf) => buf,
-            Alloc::Shared(ref buf) => buf.deref(),
-        }
-    }
 }
 
-impl<'a> SubBufferAnySlice<'a> {
+impl<'a> BufferViewAnySlice<'a> {
     /// Returns the size of each element in this buffer.
     ///
-    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// This information is taken from the original `BufferView` that was used to construct
     /// this object.
     pub fn get_elements_size(&self) -> usize {
         self.elements_size
@@ -572,7 +513,7 @@ impl<'a> SubBufferAnySlice<'a> {
 
     /// Returns the number of elements in this buffer.
     ///
-    /// This information is taken from the original `SubBuffer` that was used to construct
+    /// This information is taken from the original `BufferView` that was used to construct
     /// this object.
     pub fn get_elements_count(&self) -> usize {
         self.elements_count
@@ -587,31 +528,23 @@ impl<'a> SubBufferAnySlice<'a> {
     ///
     /// This operation is a no-op if the backend doesn't support it.
     pub fn invalidate(&self) {
-        self.get_buffer().invalidate(self.offset_bytes, self.get_size());
-    }
-
-    /// Returns the buffer.
-    fn get_buffer(&self) -> &Buffer {
-        match self.alloc {
-            &Alloc::Unique(ref buf) => buf,
-            &Alloc::Shared(ref buf) => buf.deref(),
-        }
+        self.alloc.invalidate(self.offset_bytes, self.get_size());
     }
 }
 
-impl<T> SubBufferExt for SubBuffer<T> where T: Copy + Send + 'static {
+impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
     fn get_offset_bytes(&self) -> usize {
-        self.offset_bytes
+        0
     }
 
     fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.get_buffer().get_id()
+        self.alloc.get_id()
     }
 }
 
-impl<'a, T> SubBufferSliceExt<'a> for SubBufferSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     fn add_fence(&self) -> Option<&'a RefCell<Option<LinearSyncFence>>> {
-        if !self.get_buffer().uses_persistent_mapping() {
+        if !self.alloc.uses_persistent_mapping() {
             return None;
         }
 
@@ -619,29 +552,29 @@ impl<'a, T> SubBufferSliceExt<'a> for SubBufferSlice<'a, T> where T: Copy + Send
     }
 }
 
-impl<'a, T> SubBufferExt for SubBufferSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     fn get_offset_bytes(&self) -> usize {
         self.offset_bytes
     }
 
     fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.get_buffer().get_id()
+        self.alloc.get_id()
     }
 }
 
-impl SubBufferExt for SubBufferAny {
+impl BufferViewExt for BufferViewAny {
     fn get_offset_bytes(&self) -> usize {
-        self.offset_bytes
+        0
     }
 
     fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.get_buffer().get_id()
+        self.alloc.get_id()
     }
 }
 
-impl<'a> SubBufferSliceExt<'a> for SubBufferAnySlice<'a> {
+impl<'a> BufferViewSliceExt<'a> for BufferViewAnySlice<'a> {
     fn add_fence(&self) -> Option<&'a RefCell<Option<LinearSyncFence>>> {
-        if !self.get_buffer().uses_persistent_mapping() {
+        if !self.alloc.uses_persistent_mapping() {
             return None;
         }
 
@@ -649,13 +582,13 @@ impl<'a> SubBufferSliceExt<'a> for SubBufferAnySlice<'a> {
     }
 }
 
-impl<'a> SubBufferExt for SubBufferAnySlice<'a> {
+impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
     fn get_offset_bytes(&self) -> usize {
         self.offset_bytes
     }
 
     fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.get_buffer().get_id()
+        self.alloc.get_id()
     }
 }
 

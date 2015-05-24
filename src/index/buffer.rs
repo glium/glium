@@ -1,6 +1,6 @@
-use buffer::{SubBuffer, SubBufferAny, BufferType};
+use buffer::{BufferView, BufferViewAny, BufferType};
 use gl;
-use SubBufferExt;
+use BufferViewExt;
 use GlObject;
 
 use backend::Facade;
@@ -19,7 +19,7 @@ use std::ops::Range;
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct IndexBuffer {
-    buffer: SubBufferAny,
+    buffer: BufferViewAny,
     data_type: IndexType,
     primitives: PrimitiveType,
 }
@@ -43,7 +43,7 @@ impl IndexBuffer {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: SubBuffer::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
+            buffer: BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
                                    false).unwrap().into(),
             data_type: <T as Index>::get_type(),
             primitives: prim,
@@ -78,7 +78,7 @@ impl IndexBuffer {
     }
 }
 
-impl SubBufferExt for IndexBuffer {
+impl BufferViewExt for IndexBuffer {
     fn get_offset_bytes(&self) -> usize {
         self.buffer.get_offset_bytes()
     }
