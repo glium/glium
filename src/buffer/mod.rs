@@ -44,6 +44,14 @@ pub enum BufferType {
     UniformBuffer,
     CopyReadBuffer,
     CopyWriteBuffer,
+    AtomicCounterBuffer,
+    DispatchIndirectBuffer,
+    DrawIndirectBuffer,
+    QueryBuffer,
+    ShaderStorageBuffer,
+    TextureBuffer,
+    //TransformFeedbackBuffer,
+    //ElementArrayBuffer,
 }
 
 impl BufferType {
@@ -55,6 +63,14 @@ impl BufferType {
             BufferType::UniformBuffer => gl::UNIFORM_BUFFER,
             BufferType::CopyReadBuffer => gl::COPY_READ_BUFFER,
             BufferType::CopyWriteBuffer => gl::COPY_WRITE_BUFFER,
+            BufferType::AtomicCounterBuffer => gl::ATOMIC_COUNTER_BUFFER,
+            BufferType::DispatchIndirectBuffer => gl::DISPATCH_INDIRECT_BUFFER,
+            BufferType::DrawIndirectBuffer => gl::DRAW_INDIRECT_BUFFER,
+            BufferType::QueryBuffer => gl::QUERY_BUFFER,
+            BufferType::ShaderStorageBuffer => gl::SHADER_STORAGE_BUFFER,
+            BufferType::TextureBuffer => gl::TEXTURE_BUFFER,
+            //BufferType::TransformFeedbackBuffer => gl::TRANSFORM_FEEDBACK_BUFFER,
+            //BufferType::ElementArrayBuffer => gl::ELEMENT_ARRAY_BUFFER,
         }
     }
 }

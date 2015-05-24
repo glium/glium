@@ -85,6 +85,24 @@ pub struct GlState {
     /// The latest buffer bound to `GL_COPY_WRITE_BUFFER`.
     pub copy_write_buffer_binding: gl::types::GLuint,
 
+    /// The latest buffer bound to `GL_DISPATCH_INDIRECT_BUFFER`.
+    pub dispatch_indirect_buffer_binding: gl::types::GLuint,
+
+    /// The latest buffer bound to `GL_DRAW_INDIRECT_BUFFER`.
+    pub draw_indirect_buffer_binding: gl::types::GLuint,
+
+    /// The latest buffer bound to `GL_QUERY_BUFFER`.
+    pub query_buffer_binding: gl::types::GLuint,
+
+    /// The latest buffer bound to `GL_TEXTURE_BUFFER`.
+    pub texture_buffer_binding: gl::types::GLuint,
+
+    /// The latest buffer bound to `GL_ATOMIC_COUNTER_BUFFER`.
+    pub atomic_counter_buffer_binding: gl::types::GLuint,
+
+    /// The latest buffer bound to `GL_SHADER_STORAGE_BUFFER`.
+    pub shader_storage_buffer_binding: gl::types::GLuint,
+
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: gl::types::GLuint,
 
@@ -232,6 +250,12 @@ impl Default for GlState {
             uniform_buffer_binding: 0,
             copy_read_buffer_binding: 0,
             copy_write_buffer_binding: 0,
+            dispatch_indirect_buffer_binding: 0,
+            draw_indirect_buffer_binding: 0,
+            query_buffer_binding: 0,
+            texture_buffer_binding: 0,
+            atomic_counter_buffer_binding: 0,
+            shader_storage_buffer_binding: 0,
             read_framebuffer: 0,
             draw_framebuffer: 0,
             default_framebuffer_read: None,

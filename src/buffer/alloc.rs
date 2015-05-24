@@ -849,6 +849,114 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
 
             gl::COPY_WRITE_BUFFER
         },
+
+        BufferType::DispatchIndirectBuffer => {
+            if ctxt.state.dispatch_indirect_buffer_binding != id {
+                ctxt.state.dispatch_indirect_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::DISPATCH_INDIRECT_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::DISPATCH_INDIRECT_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::DISPATCH_INDIRECT_BUFFER
+        },
+
+        BufferType::DrawIndirectBuffer => {
+            if ctxt.state.draw_indirect_buffer_binding != id {
+                ctxt.state.draw_indirect_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::DRAW_INDIRECT_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::DRAW_INDIRECT_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::DRAW_INDIRECT_BUFFER
+        },
+
+        BufferType::QueryBuffer => {
+            if ctxt.state.query_buffer_binding != id {
+                ctxt.state.query_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::QUERY_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::QUERY_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::QUERY_BUFFER
+        },
+
+        BufferType::TextureBuffer => {
+            if ctxt.state.texture_buffer_binding != id {
+                ctxt.state.texture_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::TEXTURE_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::TEXTURE_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::TEXTURE_BUFFER
+        },
+
+        BufferType::AtomicCounterBuffer => {
+            if ctxt.state.atomic_counter_buffer_binding != id {
+                ctxt.state.atomic_counter_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::ATOMIC_COUNTER_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::ATOMIC_COUNTER_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::ATOMIC_COUNTER_BUFFER
+        },
+
+        BufferType::ShaderStorageBuffer => {
+            if ctxt.state.shader_storage_buffer_binding != id {
+                ctxt.state.shader_storage_buffer_binding = id;
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::SHADER_STORAGE_BUFFER, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::SHADER_STORAGE_BUFFER, id);    // bind points are the same in the ext
+                } else {
+                    unreachable!();
+                }
+            }
+
+            gl::SHADER_STORAGE_BUFFER
+        },
     }
 }
 
