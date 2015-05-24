@@ -1,5 +1,5 @@
 use std::borrow::Borrow;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::mem;
 
@@ -27,7 +27,6 @@ pub struct VertexAttributesSystem {
 pub struct Binder<'a, 'c, 'd: 'c> {
     context: &'c mut CommandContext<'d>,
     program: &'a Program,
-    system: &'a VertexAttributesSystem,
     element_array_buffer: gl::types::GLuint,
     vertex_buffers: Vec<(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)>,
 }
@@ -41,13 +40,12 @@ impl VertexAttributesSystem {
     }
 
     /// Starts the process of binding vertex attributes.
-    pub fn start<'a, 'c, 'd>(&'a self, ctxt: &'c mut CommandContext<'d>, program: &'a Program,
+    pub fn start<'a, 'c, 'd>(ctxt: &'c mut CommandContext<'d>, program: &'a Program,
                              indices: gl::types::GLuint) -> Binder<'a, 'c, 'd>
     {
         Binder {
             context: ctxt,
             program: program,
-            system: self,
             element_array_buffer: indices,
             vertex_buffers: Vec::with_capacity(1),
         }
@@ -55,21 +53,21 @@ impl VertexAttributesSystem {
 
     /// This function *must* be called whenever you destroy a buffer so that the system can
     /// purge its VAOs cache.
-    pub fn purge_buffer(&self, ctxt: &mut CommandContext, id: gl::types::GLuint) {
-        self.purge_if(ctxt, |&(ref buffers, _)| {
+    pub fn purge_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint) {
+        VertexAttributesSystem::purge_if(ctxt, |&(ref buffers, _)| {
             buffers.iter().find(|&&(b, _)| b == id).is_some()
         })
     }
 
     /// This function *must* be called whenever you destroy a program so that the system can
     /// purge its VAOs cache.
-    pub fn purge_program(&self, ctxt: &mut CommandContext, program: Handle) {
-        self.purge_if(ctxt, |&(_, p)| p == program)
+    pub fn purge_program(ctxt: &mut CommandContext, program: Handle) {
+        VertexAttributesSystem::purge_if(ctxt, |&(_, p)| p == program)
     }
 
     /// Purges the VAOs cache.
-    pub fn purge_all(&self, ctxt: &mut CommandContext) {
-        let vaos = mem::replace(&mut *self.vaos.borrow_mut(),
+    pub fn purge_all(ctxt: &mut CommandContext) {
+        let vaos = mem::replace(&mut *ctxt.vertex_array_objects.vaos.borrow_mut(),
                                 HashMap::new());
 
         for (_, vao) in vaos {
@@ -79,8 +77,8 @@ impl VertexAttributesSystem {
 
     /// Purges the VAOs cache. Contrary to `purge_all`, this function expects the system to be
     /// destroyed soon.
-    pub fn cleanup(&mut self, ctxt: &mut CommandContext) {
-        let vaos = mem::replace(&mut *self.vaos.borrow_mut(),
+    pub fn cleanup(ctxt: &mut CommandContext) {
+        let vaos = mem::replace(&mut *ctxt.vertex_array_objects.vaos.borrow_mut(),
                                 HashMap::with_capacity(0));
 
         for (_, vao) in vaos {
@@ -88,11 +86,23 @@ impl VertexAttributesSystem {
         }
     }
 
+    /// Tells the VAOs system that the currently binded element array buffer will change.
+    pub fn hijack_current_element_array_buffer(ctxt: &mut CommandContext) {
+        let vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
+
+        for (_, vao) in vaos.iter() {
+            if vao.id == ctxt.state.vertex_array {
+                vao.element_array_buffer_hijacked.set(true);
+                return;
+            }
+        }
+    }
+
     /// Purges VAOs that match a certain condition.
-    fn purge_if<F>(&self, ctxt: &mut CommandContext, mut condition: F)
+    fn purge_if<F>(ctxt: &mut CommandContext, mut condition: F)
                    where F: FnMut(&(Vec<(gl::types::GLuint, usize)>, Handle)) -> bool
     {
-        let mut vaos = self.vaos.borrow_mut();
+        let mut vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
 
         let mut keys = Vec::with_capacity(4);
         for (key, _) in &*vaos {
@@ -144,10 +154,10 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
             let program_id = self.program.get_id();
 
             // trying to find an existing VAO in the cache
-            if let Some(value) = self.system.vaos.borrow_mut()
+            if let Some(value) = ctxt.vertex_array_objects.vaos.borrow_mut()
                                      .get(&(buffers_list.clone(), program_id))
             {
-                bind_vao(ctxt, value.id);
+                value.bind(ctxt);
                 return;
             }
 
@@ -157,8 +167,8 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
                                        self.element_array_buffer, self.program)
             };
 
-            bind_vao(ctxt, new_vao.id);
-            self.system.vaos.borrow_mut().insert((buffers_list, program_id), new_vao);
+            new_vao.bind(ctxt);
+            ctxt.vertex_array_objects.vaos.borrow_mut().insert((buffers_list, program_id), new_vao);
 
         } else {
             // VAOs are not supported
@@ -195,6 +205,8 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
 struct VertexArrayObject {
     id: gl::types::GLuint,
     destroyed: bool,
+    element_array_buffer: gl::types::GLuint,
+    element_array_buffer_hijacked: Cell<bool>,
 }
 
 impl VertexArrayObject {
@@ -281,6 +293,30 @@ impl VertexArrayObject {
         VertexArrayObject {
             id: id,
             destroyed: false,
+            element_array_buffer: ib_id,
+            element_array_buffer_hijacked: Cell::new(false),
+        }
+    }
+
+    /// Sets this VAO as the current VAO.
+    fn bind(&self, ctxt: &mut CommandContext) {
+        unsafe {
+            bind_vao(ctxt, self.id);
+
+            if self.element_array_buffer_hijacked.get() {
+                // TODO: use a proper function
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.element_array_buffer);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER_ARB, self.element_array_buffer);
+                } else {
+                    unreachable!();
+                }
+
+                self.element_array_buffer_hijacked.set(false);
+            }
         }
     }
 

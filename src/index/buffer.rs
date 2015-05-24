@@ -43,8 +43,8 @@ impl IndexBuffer {
         assert!(mem::align_of::<T>() <= mem::size_of::<T>(), "Buffer elements are not \
                                                               packed in memory");
         IndexBuffer {
-            buffer: SubBuffer::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                   false).unwrap().into(),    // FIXME: ElementArrayBuffer
+            buffer: SubBuffer::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
+                                   false).unwrap().into(),
             data_type: <T as Index>::get_type(),
             primitives: prim,
         }

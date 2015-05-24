@@ -23,6 +23,7 @@ use sampler_object::SamplerObject;
 use {Program, GlObject, ToGlEnum};
 use index::{self, IndicesSource};
 use vertex::{MultiVerticesSource, VerticesSource};
+use vertex_array_object::VertexAttributesSystem;
 
 use draw_parameters::DrawParameters;
 use draw_parameters::{BlendingFunction, BackfaceCullingMode};
@@ -91,7 +92,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
         };
 
         // object that is used to build the bindings
-        let mut binder = context.get_vertex_array_objects().start(&mut ctxt, program, ib_id);
+        let mut binder = VertexAttributesSystem::start(&mut ctxt, program, ib_id);
         // number of vertices in the vertices sources, or `None` if there is a mismatch
         let mut vertices_count: Option<usize> = None;
         // number of instances to draw

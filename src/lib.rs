@@ -208,9 +208,6 @@ trait ContextExt {
     /// Returns the list of framebuffer objects.
     fn get_framebuffer_objects(&self) -> &fbo::FramebuffersContainer;
 
-    /// Returns the list of vertex array objects.
-    fn get_vertex_array_objects(&self) -> &vertex_array_object::VertexAttributesSystem;
-
     /// Returns the list of samplers.
     fn get_samplers(&self) -> &RefCell<HashMap<uniforms::SamplerBehavior,
                                                sampler_object::SamplerObject>>;
