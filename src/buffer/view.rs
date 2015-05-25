@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::marker::PhantomData;
 
-use sync::LinearSyncFence;
+use sync::{self, LinearSyncFence};
 use gl;
 
 use backend::Facade;
@@ -15,6 +15,7 @@ use GlObject;
 
 use context::Context;
 use std::rc::Rc;
+use ContextExt;
 
 use buffer::BufferType;
 use buffer::BufferCreationError;
@@ -23,7 +24,8 @@ use buffer::alloc::Mapping as BufferMapping;
 
 /// Represents a view of a buffer.
 pub struct BufferView<T> where T: Copy + Send + 'static {
-    alloc: Buffer,
+    // TODO: this `Option` is here because we have a destructor and need to be able to move out
+    alloc: Option<Buffer>,
     num_elements: usize,
     fence: RefCell<Option<LinearSyncFence>>,
     marker: PhantomData<T>,
@@ -31,7 +33,18 @@ pub struct BufferView<T> where T: Copy + Send + 'static {
 
 impl<T> fmt::Debug for BufferView<T> where T: Copy + Send + 'static {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.alloc)
+        write!(fmt, "{:?}", self.alloc.as_ref().unwrap())
+    }
+}
+
+impl<T> Drop for BufferView<T> where T: Copy + Send + 'static {
+    fn drop(&mut self) {
+        let fence = self.fence.borrow_mut().take();
+
+        if let Some(fence) = fence {
+            let mut ctxt = self.alloc.as_ref().unwrap().get_context().make_current();
+            unsafe { sync::destroy_linear_sync_fence(&mut ctxt, fence) };
+        }
     }
 }
 
@@ -94,6 +107,17 @@ pub struct BufferViewAny {
     fence: RefCell<Option<LinearSyncFence>>,
 }
 
+impl Drop for BufferViewAny {
+    fn drop(&mut self) {
+        let fence = self.fence.borrow_mut().take();
+
+        if let Some(fence) = fence {
+            let mut ctxt = self.alloc.get_context().make_current();
+            unsafe { sync::destroy_linear_sync_fence(&mut ctxt, fence) };
+        }
+    }
+}
+
 impl fmt::Debug for BufferViewAny {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
@@ -117,12 +141,12 @@ impl<'a> fmt::Debug for BufferViewAnySlice<'a> {
 }
 
 impl<T> From<BufferView<T>> for BufferViewAny where T: Copy + Send + 'static {
-    fn from(buffer: BufferView<T>) -> BufferViewAny {
+    fn from(mut buffer: BufferView<T>) -> BufferViewAny {
         BufferViewAny {
-            alloc: buffer.alloc,
+            alloc: buffer.alloc.take().unwrap(),
             elements_size: mem::size_of::<T>(),
             elements_count: buffer.num_elements,
-            fence: buffer.fence,
+            fence: RefCell::new(buffer.fence.borrow_mut().take()),
         }
     }
 }
@@ -145,7 +169,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
         Buffer::new(facade, data, ty, dynamic)
             .map(|buffer| {
                 BufferView {
-                    alloc: buffer,
+                    alloc: Some(buffer),
                     num_elements: len,
                     fence: RefCell::new(None),
                     marker: PhantomData,
@@ -166,7 +190,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
         Buffer::empty(facade, ty, len * mem::size_of::<T>(), dynamic)
             .map(|buffer| {
                 BufferView {
-                    alloc: buffer,
+                    alloc: Some(buffer),
                     num_elements: len,
                     fence: RefCell::new(None),
                     marker: PhantomData,
@@ -176,7 +200,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
 
     /// Returns the context corresponding to this buffer.
     pub fn get_context(&self) -> &Rc<Context> {
-        self.alloc.get_context()
+        self.alloc.as_ref().unwrap().get_context()
     }
 
     /// Returns the number of elements in this subbuffer.
@@ -186,7 +210,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
 
     /// Returns true if this buffer uses persistent mapping.
     pub fn is_persistent(&self) -> bool {
-        self.alloc.uses_persistent_mapping()
+        self.alloc.as_ref().unwrap().uses_persistent_mapping()
     }
 
     /// Uploads some data in this buffer.
@@ -244,7 +268,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
     /// Builds a slice containing the whole subbuffer.
     pub fn as_slice(&self) -> BufferViewSlice<T> {
         BufferViewSlice {
-            alloc: &self.alloc,
+            alloc: self.alloc.as_ref().unwrap(),
             offset_bytes: 0,
             num_elements: self.num_elements,
             fence: &self.fence,
@@ -255,7 +279,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
     /// Builds a slice containing the whole subbuffer.
     pub fn as_mut_slice(&mut self) -> BufferViewMutSlice<T> {
         BufferViewMutSlice {
-            alloc: &mut self.alloc,
+            alloc: self.alloc.as_mut().unwrap(),
             offset_bytes: 0,
             num_elements: self.num_elements,
             fence: &self.fence,
@@ -266,7 +290,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
     /// Builds a slice-any containing the whole subbuffer.
     pub fn as_slice_any(&self) -> BufferViewAnySlice {
         BufferViewAnySlice {
-            alloc: &self.alloc,
+            alloc: self.alloc.as_ref().unwrap(),
             offset_bytes: 0,
             elements_size: mem::size_of::<T>(),
             elements_count: self.num_elements,
@@ -538,7 +562,7 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
     }
 
     fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.alloc.get_id()
+        self.alloc.as_ref().unwrap().get_id()
     }
 }
 

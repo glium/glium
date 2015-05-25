@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed a panic when destroying a buffer with persistent mapping.
+
 ## Version 0.4.2 (2015-05-25)
 
  - Removed the `buffer::Builder` type as it was proven unsound.
