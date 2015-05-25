@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.4.2 (2015-05-25)
 
  - Removed the `buffer::Builder` type as it was proven unsound.
  - Renamed `SubBuffer` to `BufferView`.
@@ -9,7 +9,7 @@
  - `glutin` is now an optional dependency (enabled by default).
  - Creating an index buffer now correctly uses a `GL_ELEMENT_ARRAY_BUFFER`.
 
-## Version 0.4.1 (2015-02-22)
+## Version 0.4.1 (2015-05-22)
 
  - Added a `buffer::Builder` type to build multiple sub-buffers within the same buffer.
  - Added an `invalidate` method to buffers.
