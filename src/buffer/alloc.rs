@@ -75,8 +75,6 @@ impl Buffer {
                      -> Result<Buffer, BufferCreationError>
                      where D: Send + Copy + 'static, F: Facade
     {
-        assert!(mem::size_of::<D>() > 0);
-
         let mut ctxt = facade.get_context().make_current();
 
         let size = data.len() * mem::size_of::<D>();
@@ -589,6 +587,10 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
                                      BufferCreationError>
                            where D: Send + Copy + 'static
 {
+    if !is_buffer_type_supported(ctxt, ty) {
+        return Err(BufferCreationError::BufferTypeNotSupported);
+    }
+
     if let Some(ref data) = data {
         assert!(data.len() * mem::size_of::<D>() >= size);
         assert!(size % mem::size_of::<D>() == 0);
@@ -731,244 +733,97 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
     Ok((id, immutable, persistent_mapping))
 }
 
-/// Binds a buffer of the given type, and returns the GLenum of the bind point.
-unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType)
-                      -> gl::types::GLenum
-{
+/// Returns true if a given buffer type is supported on a platform.
+fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
     match ty {
-        BufferType::ArrayBuffer => {
-            if ctxt.state.array_buffer_binding != id {
-                ctxt.state.array_buffer_binding = id;
+        // glium fails to initialize if they are not supported
+        BufferType::ArrayBuffer | BufferType::ElementArrayBuffer => true,
 
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::ARRAY_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::ARRAY_BUFFER
-        },
-
-        BufferType::ElementArrayBuffer => {
-            // TODO: the state if the current buffer is not cached
-            VertexAttributesSystem::hijack_current_element_array_buffer(ctxt);
-
-            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                ctxt.version >= &Version(Api::GlEs, 2, 0)
-            {
-                ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
-            } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER, id);    // bind points are the same in the ext
-            } else {
-                unreachable!();
-            }
-
-            gl::ELEMENT_ARRAY_BUFFER
-        },
-
-        BufferType::PixelPackBuffer => {
-            if ctxt.state.pixel_pack_buffer_binding != id {
-                ctxt.state.pixel_pack_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::PIXEL_PACK_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::PIXEL_PACK_BUFFER
-        },
-
-        BufferType::PixelUnpackBuffer => {
-            if ctxt.state.pixel_unpack_buffer_binding != id {
-                ctxt.state.pixel_unpack_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::PIXEL_UNPACK_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::PIXEL_UNPACK_BUFFER
+        BufferType::PixelPackBuffer | BufferType::PixelUnpackBuffer => {
+            ctxt.version >= &Version(Api::Gl, 2, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+            ctxt.extensions.gl_arb_pixel_buffer_object || ctxt.extensions.gl_nv_pixel_buffer_object
         },
 
         BufferType::UniformBuffer => {
-            if ctxt.state.uniform_buffer_binding != id {
-                ctxt.state.uniform_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::UNIFORM_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::UNIFORM_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::UNIFORM_BUFFER
+            ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+            ctxt.extensions.gl_arb_uniform_buffer_object
         },
 
         BufferType::CopyReadBuffer => {
-            if ctxt.state.copy_read_buffer_binding != id {
-                ctxt.state.copy_read_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::COPY_READ_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::COPY_READ_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::COPY_READ_BUFFER
+            ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.extensions.gl_arb_copy_buffer ||
+            ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_nv_copy_buffer
         },
 
         BufferType::CopyWriteBuffer => {
-            if ctxt.state.copy_write_buffer_binding != id {
-                ctxt.state.copy_write_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::COPY_WRITE_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::COPY_WRITE_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::COPY_WRITE_BUFFER
+            ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_copy_buffer ||
+            ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_nv_copy_buffer
         },
 
-        BufferType::DispatchIndirectBuffer => {
-            if ctxt.state.dispatch_indirect_buffer_binding != id {
-                ctxt.state.dispatch_indirect_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::DISPATCH_INDIRECT_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::DISPATCH_INDIRECT_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::DISPATCH_INDIRECT_BUFFER
-        },
-
-        BufferType::DrawIndirectBuffer => {
-            if ctxt.state.draw_indirect_buffer_binding != id {
-                ctxt.state.draw_indirect_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::DRAW_INDIRECT_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::DRAW_INDIRECT_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::DRAW_INDIRECT_BUFFER
-        },
-
-        BufferType::QueryBuffer => {
-            if ctxt.state.query_buffer_binding != id {
-                ctxt.state.query_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::QUERY_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::QUERY_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::QUERY_BUFFER
-        },
-
-        BufferType::TextureBuffer => {
-            if ctxt.state.texture_buffer_binding != id {
-                ctxt.state.texture_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::TEXTURE_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::TEXTURE_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::TEXTURE_BUFFER
-        },
-
-        BufferType::AtomicCounterBuffer => {
-            if ctxt.state.atomic_counter_buffer_binding != id {
-                ctxt.state.atomic_counter_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::ATOMIC_COUNTER_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::ATOMIC_COUNTER_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::ATOMIC_COUNTER_BUFFER
-        },
-
-        BufferType::ShaderStorageBuffer => {
-            if ctxt.state.shader_storage_buffer_binding != id {
-                ctxt.state.shader_storage_buffer_binding = id;
-
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::SHADER_STORAGE_BUFFER, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::SHADER_STORAGE_BUFFER, id);    // bind points are the same in the ext
-                } else {
-                    unreachable!();
-                }
-            }
-
-            gl::SHADER_STORAGE_BUFFER
-        },
+        _ => false,     // FIXME: 
     }
+}
+
+/// Binds a buffer of the given type, and returns the GLenum of the bind point.
+///
+/// ## Unsafety
+///
+/// Assumes that the type of buffer is supported by the backend.
+unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType)
+                      -> gl::types::GLenum
+{
+    macro_rules! check {
+        ($ctxt:expr, $input_id:expr, $input_ty:expr, $check:ident, $state_var:ident) => (
+            if ctxt.state.$state_var != $input_id {
+                ctxt.state.$state_var = $input_id;
+
+                let en = $input_ty.to_glenum();
+
+                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                   ctxt.version >= &Version(Api::GlEs, 2, 0)
+                {
+                    ctxt.gl.BindBuffer(en, id);
+                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                    ctxt.gl.BindBufferARB(en, id);
+                } else {
+                    unreachable!();
+                }
+
+                return en;
+            }
+        );
+    }
+
+    check!(ctxt, id, ty, ArrayBuffer, array_buffer_binding);
+    check!(ctxt, id, ty, PixelPackBuffer, pixel_pack_buffer_binding);
+    check!(ctxt, id, ty, PixelUnpackBuffer, pixel_unpack_buffer_binding);
+    check!(ctxt, id, ty, UniformBuffer, uniform_buffer_binding);
+    check!(ctxt, id, ty, CopyReadBuffer, copy_read_buffer_binding);
+    check!(ctxt, id, ty, CopyWriteBuffer, copy_write_buffer_binding);
+    check!(ctxt, id, ty, DispatchIndirectBuffer, dispatch_indirect_buffer_binding);
+    check!(ctxt, id, ty, DrawIndirectBuffer, draw_indirect_buffer_binding);
+    check!(ctxt, id, ty, QueryBuffer, query_buffer_binding);
+    check!(ctxt, id, ty, TextureBuffer, texture_buffer_binding);
+    check!(ctxt, id, ty, AtomicCounterBuffer, atomic_counter_buffer_binding);
+    check!(ctxt, id, ty, ShaderStorageBuffer, shader_storage_buffer_binding);
+
+    if ty == BufferType::ElementArrayBuffer {
+        // TODO: the state if the current buffer is not cached
+        VertexAttributesSystem::hijack_current_element_array_buffer(ctxt);
+
+        if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+           ctxt.version >= &Version(Api::GlEs, 2, 0)
+        {
+            ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, id);
+        } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+            ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER, id);
+        } else {
+            unreachable!();
+        }
+
+        return gl::ELEMENT_ARRAY_BUFFER;
+    }
+
+    unreachable!();
 }
 
 /// Copies from a buffer to another.

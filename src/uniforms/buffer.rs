@@ -1,15 +1,10 @@
-use buffer::{BufferView, BufferViewAny, BufferType};
+use buffer::{BufferView, BufferViewAny, BufferType, BufferCreationError};
 use buffer::Mapping as BufferMapping;
 use uniforms::{AsUniformValue, UniformValue, UniformBlock};
 
 use std::ops::{Deref, DerefMut};
 
 use backend::Facade;
-
-use version::Version;
-use version::Api;
-
-use ContextExt;
 
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
@@ -41,18 +36,15 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
 
     /// Uploads data in the uniforms buffer.
     pub fn new_if_supported<F>(facade: &F, data: T) -> Option<UniformBuffer<T>> where F: Facade {
-        if facade.get_context().get_version() < &Version(Api::Gl, 3, 1) &&
-           !facade.get_context().get_extensions().gl_arb_uniform_buffer_object
-        {
-            None
+        let buffer = match BufferView::new(facade, &[data], BufferType::UniformBuffer, true) {
+            Ok(b) => b,
+            Err(BufferCreationError::BufferTypeNotSupported) => return None,
+            e @ Err(_) => e.unwrap(),
+        };
 
-        } else {
-            let buffer = BufferView::new(facade, &[data], BufferType::UniformBuffer, true).unwrap();
-
-            Some(UniformBuffer {
-                buffer: buffer,
-            })
-        }
+        Some(UniformBuffer {
+            buffer: buffer,
+        })
     }
 
     /// Modifies the content of the buffer.
