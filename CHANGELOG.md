@@ -5,6 +5,7 @@
  - `PixelBuffer` now takes the type of pixels as template parameter.
  - Reworked `TextureDataSink` traits to take a precise format.
  - Fixed a panic when destroying a buffer with persistent mapping.
+ - Removed deprecated function `VertexBuffer::new_dynamic`.
 
 ## Version 0.4.2 (2015-05-25)
 

@@ -57,11 +57,6 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
         buffer.into()
     }
 
-    /// DEPRECATED. Use `dynamic` instead.
-    pub fn new_dynamic<F>(facade: &F, data: Vec<T>) -> VertexBuffer<T> where F: Facade {
-        VertexBuffer::dynamic(facade, data)
-    }
-
     /// Builds a new vertex buffer.
     ///
     /// This function will create a buffer that is intended to be modified frequently.
