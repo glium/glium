@@ -20,10 +20,10 @@ fn color_mask() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(0.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(0, 0, 0, 255));
         }
     }
 

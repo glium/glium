@@ -101,10 +101,10 @@ fn multiple_buffers_source() {
     texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
                               &Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 
@@ -172,9 +172,9 @@ fn slice_draw_indices() {
     texture.as_surface().draw(vb.slice(1 .. 4).unwrap(), &indices, &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = texture.read();
-    assert_eq!(data.last().unwrap()[0], (0, 0, 0));
-    assert_eq!(data[0].last().unwrap(), &(255, 0, 0));
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data.last().unwrap()[0], (0, 0, 0, 0));
+    assert_eq!(data[0].last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -239,9 +239,9 @@ fn slice_draw_noindices() {
     texture.as_surface().draw(vb.slice(1 .. 4).unwrap(), &indices, &program,
                 &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = texture.read();
-    assert_eq!(data.last().unwrap()[0], (0, 0, 0));
-    assert_eq!(data[0].last().unwrap(), &(255, 0, 0));
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data.last().unwrap()[0], (0, 0, 0, 0));
+    assert_eq!(data[0].last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -335,9 +335,9 @@ fn slice_draw_multiple() {
     texture.as_surface().draw((vb1.slice(1 .. 4).unwrap(), vb2.slice(3 .. 6).unwrap()), &indices,
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8)>> = texture.read();
-    assert_eq!(data.last().unwrap()[0], (0, 0, 0));
-    assert_eq!(data[0].last().unwrap(), &(255, 0, 0));
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data.last().unwrap()[0], (0, 0, 0, 0));
+    assert_eq!(data[0].last().unwrap(), &(255, 0, 0, 255));
 
     display.assert_no_error(None);
 }
@@ -383,10 +383,10 @@ fn attributes_marker() {
                               &program, &uniform!{},
                               &Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 
@@ -436,10 +436,10 @@ fn attributes_marker_indices() {
                               &indices, &program, &uniform!{},
                               &Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 
@@ -533,10 +533,10 @@ fn instancing() {
     texture.as_surface().draw((&buffer1, buffer2), &index_buffer, &program, &uniform!{},
                               &Default::default()).unwrap();
 
-    let data: Vec<Vec<(f32, f32, f32, f32)>> = texture.read();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
         for pixel in row.iter() {
-            assert_eq!(pixel, &(1.0, 0.0, 0.0, 1.0));
+            assert_eq!(pixel, &(255, 0, 0, 255));
         }
     }
 

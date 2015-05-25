@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+ - `PixelBuffer` now takes the type of pixels as template parameter.
+ - Reworked `TextureDataSink` traits to take a precise format.
  - Fixed a panic when destroying a buffer with persistent mapping.
 
 ## Version 0.4.2 (2015-05-25)
