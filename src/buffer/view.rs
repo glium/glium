@@ -16,6 +16,7 @@ use BufferViewSliceExt;
 use GlObject;
 
 use context::Context;
+use context::CommandContext;
 use std::rc::Rc;
 use ContextExt;
 
@@ -626,8 +627,10 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
         0
     }
 
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.alloc.as_ref().unwrap().get_id()
+    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.assert_unmapped(ctxt);
+        alloc.get_id()
     }
 }
 
@@ -646,7 +649,8 @@ impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'sta
         self.offset_bytes
     }
 
-    fn get_buffer_id(&self) -> gl::types::GLuint {
+    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
+        self.alloc.assert_unmapped(ctxt);
         self.alloc.get_id()
     }
 }
@@ -656,7 +660,8 @@ impl BufferViewExt for BufferViewAny {
         0
     }
 
-    fn get_buffer_id(&self) -> gl::types::GLuint {
+    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
+        self.alloc.assert_unmapped(ctxt);
         self.alloc.get_id()
     }
 }
@@ -676,7 +681,8 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
         self.offset_bytes
     }
 
-    fn get_buffer_id(&self) -> gl::types::GLuint {
+    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
+        self.alloc.assert_unmapped(ctxt);
         self.alloc.get_id()
     }
 }

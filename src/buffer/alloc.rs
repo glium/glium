@@ -6,6 +6,7 @@ use ContextExt;
 use gl;
 use libc;
 use std::{fmt, mem, ptr, slice};
+use std::cell::Cell;
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut, Range};
 use GlObject;
@@ -37,6 +38,11 @@ pub struct Buffer {
 
     /// If true, the buffer was created with the "dynamic" flag.
     dynamic_creation_flag: bool,
+
+    /// True if the buffer is currently mapped with something else than persistent mapping.
+    ///
+    /// The purpose of this flag is to detect if the user mem::forgets the `Mapping` object.
+    mapped: Cell<bool>,
 }
 
 /// A mapping of a buffer.
@@ -62,7 +68,7 @@ enum MappingImpl<'b, D> {
     },
 
     RegularMapping {
-        buffer: &'b Buffer,
+        buffer: &'b mut Buffer,
         data: *mut D,
         len: usize,
     },
@@ -91,6 +97,7 @@ impl Buffer {
             persistent_mapping: persistent_mapping,
             immutable: immutable,
             dynamic_creation_flag: dynamic,
+            mapped: Cell::new(false),
         })
     }
 
@@ -112,6 +119,7 @@ impl Buffer {
             persistent_mapping: persistent_mapping,
             immutable: immutable,
             dynamic_creation_flag: dynamic,
+            mapped: Cell::new(false),
         })
     }
 
@@ -135,6 +143,15 @@ impl Buffer {
         // FIXME: return Err for GLES2
         self.ty = ty;
         Ok(self)
+    }
+
+    /// Asserts that the buffer is not mapped and available for operations.
+    /// No-op for persistent mapping.
+    pub fn assert_unmapped(&self, ctxt: &mut CommandContext) {
+        if self.mapped.get() {
+            unsafe { unmap_buffer(ctxt, self.id, self.ty) };
+            self.mapped.set(false);
+        }
     }
 
     /// Uploads data in the buffer.
@@ -163,6 +180,8 @@ impl Buffer {
         } else if self.immutable {
             let mut ctxt = self.context.make_current();
 
+            self.assert_unmapped(&mut ctxt);
+
             let (tmp_buffer, _, _) = create_buffer(&mut ctxt, to_upload, Some(data),
                                                    BufferType::CopyReadBuffer,
                                                    true, true).unwrap();
@@ -175,6 +194,8 @@ impl Buffer {
             let invalidate_all = offset_bytes == 0 && to_upload == self.size;
 
             let mut ctxt = self.context.make_current();
+
+            self.assert_unmapped(&mut ctxt);
 
             if invalidate_all && (ctxt.version >= &Version(Api::Gl, 4, 3) ||
                 ctxt.extensions.gl_arb_invalidate_subdata)
@@ -226,6 +247,7 @@ impl Buffer {
         let is_whole_buffer = offset == 0 && size == self.size;
 
         let mut ctxt = self.context.make_current();
+        self.assert_unmapped(&mut ctxt);
 
         if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_invalidate_subdata {
             if is_whole_buffer {
@@ -323,6 +345,7 @@ impl Buffer {
             let ptr = {
                 let mut ctxt = self.context.make_current();
 
+                self.assert_unmapped(&mut ctxt);
                 copy_buffer(&mut ctxt, self.id, offset_bytes, temporary_buffer, 0, size_bytes);
                 map_buffer(&mut ctxt, temporary_buffer, self.ty, 0 .. size_bytes, true, true)
                                     .expect("Buffer mapping is not supported by the backend")
@@ -356,8 +379,8 @@ impl Buffer {
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
-    pub unsafe fn map_mut<D>(&self, offset_bytes: usize, elements: usize)
-                         -> Mapping<D> where D: Copy + Send + 'static
+    pub unsafe fn map_mut<D>(&mut self, offset_bytes: usize, elements: usize)
+                             -> Mapping<D> where D: Copy + Send + 'static
     {
         if self.persistent_mapping.is_some() || self.immutable {
             self.map(offset_bytes, elements)
@@ -368,10 +391,15 @@ impl Buffer {
             assert!(offset_bytes + elements * mem::size_of::<D>() <= self.size);
 
             let size_bytes = elements * mem::size_of::<D>();
-            let mut ctxt = self.context.make_current();
-            let ptr = map_buffer(&mut ctxt, self.id, self.ty,
-                                 offset_bytes .. offset_bytes + size_bytes, true, true)
-                                   .expect("Buffer mapping is not supported by the backend");
+
+            let ptr = {
+                let mut ctxt = self.context.make_current();
+                self.assert_unmapped(&mut ctxt);
+                self.mapped.set(true);
+                map_buffer(&mut ctxt, self.id, self.ty,
+                           offset_bytes .. offset_bytes + size_bytes, true, true)
+                             .expect("Buffer mapping is not supported by the backend")
+            };
 
             Mapping {
                 mapping: MappingImpl::RegularMapping {
@@ -408,6 +436,7 @@ impl Buffer {
 
         } else {
             let mut ctxt = self.context.make_current();
+            self.assert_unmapped(&mut ctxt);
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.GetNamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
@@ -451,6 +480,7 @@ impl Drop for Buffer {
     fn drop(&mut self) {
         unsafe {
             let mut ctxt = self.context.make_current();
+            self.assert_unmapped(&mut ctxt);
             VertexAttributesSystem::purge_buffer(&mut ctxt, self.id);
             destroy_buffer(&mut ctxt, self.id);
         }
@@ -486,24 +516,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
                 unsafe {
                     flush_range(&mut ctxt, temporary_buffer, original_buffer.ty,
                                 0 .. temporary_buffer_len * mem::size_of::<D>());
-
-                    if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                        ctxt.gl.UnmapNamedBuffer(temporary_buffer);
-
-                    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                        ctxt.version >= &Version(Api::GlEs, 3, 0)
-                    {
-                        let bind = bind_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
-                        ctxt.gl.UnmapBuffer(bind);
-
-                    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                        let bind = bind_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
-                        ctxt.gl.UnmapBufferARB(bind);
-
-                    } else {
-                        unreachable!();
-                    }
-
+                    unmap_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
                     copy_buffer(&mut ctxt, temporary_buffer, 0, original_buffer.id,
                                 original_buffer_offset, temporary_buffer_len * mem::size_of::<D>());
 
@@ -511,29 +524,15 @@ impl<'a, D> Drop for Mapping<'a, D> {
                 }
             },
 
-            MappingImpl::RegularMapping { buffer, data, len } => {
+            MappingImpl::RegularMapping { ref mut buffer, data, len } => {
                 let mut ctxt = buffer.context.make_current();
 
                 unsafe {
                     flush_range(&mut ctxt, buffer.id, buffer.ty, 0 .. len * mem::size_of::<D>());
-
-                    if ctxt.version >= &Version(Api::Gl, 4, 5) {
-                        ctxt.gl.UnmapNamedBuffer(buffer.id);
-
-                    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                        ctxt.version >= &Version(Api::GlEs, 3, 0)
-                    {
-                        let bind = bind_buffer(&mut ctxt, buffer.id, buffer.ty);
-                        ctxt.gl.UnmapBuffer(bind);
-
-                    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                        let bind = bind_buffer(&mut ctxt, buffer.id, buffer.ty);
-                        ctxt.gl.UnmapBufferARB(bind);
-
-                    } else {
-                        unreachable!();
-                    }
+                    unmap_buffer(&mut ctxt, buffer.id, buffer.ty);
                 }
+
+                buffer.mapped.set(false);
             },
         }
     }
@@ -986,5 +985,29 @@ unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: B
 
     } else {
         None       // FIXME: 
+    }
+}
+
+/// Unmaps a previously-mapped buffer.
+///
+/// # Safety
+///
+/// Assumes that the buffer exists, that it is of the right type, and that it is already mapped.
+unsafe fn unmap_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType) {
+    if ctxt.version >= &Version(Api::Gl, 4, 5) {
+        ctxt.gl.UnmapNamedBuffer(id);
+
+    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+              ctxt.version >= &Version(Api::GlEs, 3, 0)
+    {
+        let bind = bind_buffer(&mut ctxt, id, ty);
+        ctxt.gl.UnmapBuffer(bind);
+
+    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+        let bind = bind_buffer(&mut ctxt, id, ty);
+        ctxt.gl.UnmapBufferARB(bind);
+
+    } else {
+        unreachable!();
     }
 }

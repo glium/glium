@@ -116,6 +116,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use context::Context;
+use context::CommandContext;
 
 pub mod backend;
 pub mod buffer;
@@ -185,8 +186,8 @@ trait BufferViewExt {
     /// Returns the number of bytes from the start of the buffer to this subbuffer.
     fn get_offset_bytes(&self) -> usize;
 
-    /// Returns the ID of the buffer.
-    fn get_buffer_id(&self) -> gl::types::GLuint;
+    /// Makes sure that the buffer is available for operations and returns its ID.
+    fn get_buffer_id(&self, &mut CommandContext) -> gl::types::GLuint;
 }
 
 /// Internal trait for subbuffer slices.

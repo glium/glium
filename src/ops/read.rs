@@ -6,7 +6,7 @@ use texture::PixelValue;
 
 use fbo;
 
-use GlObject;
+use BufferViewExt;
 use Rect;
 use context::CommandContext;
 use gl;
@@ -132,7 +132,7 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, 
             Destination::PixelBuffer(pixel_buffer) => {
                 assert!(pixel_buffer.len() >= pixels_to_read as usize);
 
-                let pb = pixel_buffer.get_id();
+                let pb = pixel_buffer.get_buffer_id(&mut ctxt);
                 // FIXME: correct function call
                 if ctxt.state.pixel_pack_buffer_binding != pb {
                     ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, pb);
