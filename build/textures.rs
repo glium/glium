@@ -920,7 +920,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// This operation copies the texture's data into a buffer in video memory
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
-                pub fn read_to_pixel_buffer<T>(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
+                pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
                     self.0.read_to_pixel_buffer(0)
                 }}
             "#)).unwrap();

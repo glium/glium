@@ -5,20 +5,18 @@ mod support;
 
 #[test]
 #[should_panic]
-#[ignore]   // FIXME: 
 fn empty_pixel_buffer() {
-    /*let display = support::build_display();
+    let display = support::build_display();
 
     let pixel_buffer = glium::pixel_buffer::PixelBuffer::new_empty(&display, 128 * 128);
     display.assert_no_error(None);
 
-    let _: Vec<Vec<(u8, u8, u8, u8)>> = pixel_buffer.read_if_supported().unwrap();*/
+    let _: Vec<Vec<(u8, u8, u8, u8)>> = pixel_buffer.read_as_texture_2d_if_supported().unwrap();
 }
 
 #[test]
-#[ignore]   // FIXME: 
 fn texture_2d_read_pixelbuffer() {
-    /*let display = support::build_display();
+    let display = support::build_display();
 
     // we use only powers of two, in order to avoid float rounding errors
     let texture = glium::texture::Texture2d::new(&display, vec![
@@ -27,7 +25,8 @@ fn texture_2d_read_pixelbuffer() {
     ]);
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = match texture.read_to_pixel_buffer()
-                                                             .read_if_supported() {
+                                                             .read_as_texture_2d_if_supported()
+    {
         Some(d) => d,
         None => return
     };
@@ -37,7 +36,7 @@ fn texture_2d_read_pixelbuffer() {
     assert_eq!(read_back[1][0], (32, 64, 128, 255));
     assert_eq!(read_back[1][1], (32, 16, 4, 255));
 
-    display.assert_no_error(None);*/
+    display.assert_no_error(None);
 }
 
 macro_rules! read_texture_test {
