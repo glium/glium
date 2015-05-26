@@ -7,6 +7,9 @@
  - Added `IndexBufferAny`.
  - Removed the `ToIndicesSource` and `IntoIndexBuffer` traits. The former is replaced with `Into<IndicesSource>`.
  - `PixelBuffer` now takes the type of pixels as template parameter.
+ - Renamed `PixelBuffer::read` to `PixelBuffer::read_as_texture_2d`.
+ - `PixelBuffer` now derefs to `BufferView`.
+ - Added `BufferView::read_as_texture_1d` and `BufferView::read_as_texture_1d_if_supported`.
  - Reworked `TextureDataSink` traits to take a precise format.
  - Fixed a panic when destroying a buffer with persistent mapping.
  - Removed deprecated function `VertexBuffer::new_dynamic`.

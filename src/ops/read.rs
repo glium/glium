@@ -129,10 +129,10 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, 
                 *dest = buf;
             },
 
-            Destination::PixelBuffer(pb) => {
-                assert!(pb.len() >= pixels_to_read as usize);
+            Destination::PixelBuffer(pixel_buffer) => {
+                assert!(pixel_buffer.len() >= pixels_to_read as usize);
 
-                let pb = pb.get_id();
+                let pb = pixel_buffer.get_id();
                 // FIXME: correct function call
                 if ctxt.state.pixel_pack_buffer_binding != pb {
                     ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, pb);
@@ -143,6 +143,8 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, 
                                    rect.width as gl::types::GLsizei,
                                    rect.height as gl::types::GLsizei, format, gltype,
                                    ptr::null_mut());
+
+                ::pixel_buffer::store_infos(pixel_buffer, (rect.width, rect.height));
             }
         }
     };

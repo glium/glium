@@ -1,11 +1,13 @@
 use std::fmt;
 use std::mem;
+use std::borrow::Cow;
 use std::ops::Range;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::marker::PhantomData;
 
 use sync::{self, LinearSyncFence};
+use texture::{PixelValue, Texture1dDataSink};
 use gl;
 
 use backend::Facade;
@@ -245,14 +247,14 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
         }
     }
 
-    /// Maps the buffer in memory.
-    pub fn map(&mut self) -> Mapping<T> {
-        self.as_mut_slice().map()
-    }
-
     /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
     pub fn read_if_supported(&self) -> Option<Vec<T>> {
         self.as_slice().read_if_supported()
+    }
+
+    /// Maps the buffer in memory.
+    pub fn map(&mut self) -> Mapping<T> {
+        self.as_mut_slice().map()
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
@@ -299,6 +301,25 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
     }
 }
 
+impl<T> BufferView<T> where T: PixelValue {
+    /// Reads the content of the buffer.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_read_buffer` feature is enabled.
+    #[cfg(feature = "gl_read_buffer")]
+    pub fn read_as_texture_1d<S>(&self) -> S where S: Texture1dDataSink<T> {
+        S::from_raw(Cow::Owned(self.read()), self.len() as u32)
+    }
+
+    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
+    pub fn read_as_texture_1d_if_supported<S>(&self) -> Option<S> where S: Texture1dDataSink<T> {
+        self.read_if_supported().map(|data| {
+            S::from_raw(Cow::Owned(data), self.len() as u32)
+        })
+    }
+}
+
 impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     /// Returns the number of elements in this slice.
     pub fn len(&self) -> usize {
@@ -323,6 +344,12 @@ impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     /// This operation is a no-op if the backend doesn't support it.
     pub fn invalidate(&self) {
         self.alloc.invalidate(self.offset_bytes, self.num_elements * mem::size_of::<T>());
+    }
+
+    /// Reads the content of the buffer.
+    #[cfg(feature = "gl_read_buffer")]
+    pub fn read(&self) -> Vec<T> {
+        self.read_if_supported().unwrap()
     }
 
     /// Reads the content of the slice. Returns `None` if this operation is not supported.
@@ -366,6 +393,25 @@ impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
             elements_count: self.num_elements,
             fence: self.fence,
         }
+    }
+}
+
+impl<'a, T> BufferViewSlice<'a, T> where T: PixelValue {
+    /// Reads the content of the buffer.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_read_buffer` feature is enabled.
+    #[cfg(feature = "gl_read_buffer")]
+    pub fn read_as_texture_1d<S>(&self) -> S where S: Texture1dDataSink<T> {
+        S::from_raw(Cow::Owned(self.read()), self.len() as u32)
+    }
+
+    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
+    pub fn read_as_texture_1d_if_supported<S>(&self) -> Option<S> where S: Texture1dDataSink<T> {
+        self.read_if_supported().map(|data| {
+            S::from_raw(Cow::Owned(data), self.len() as u32)
+        })
     }
 }
 
@@ -451,6 +497,25 @@ impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
             elements_count: self.num_elements,
             fence: self.fence,
         }
+    }
+}
+
+impl<'a, T> BufferViewMutSlice<'a, T> where T: PixelValue {
+    /// Reads the content of the buffer.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_read_buffer` feature is enabled.
+    #[cfg(feature = "gl_read_buffer")]
+    pub fn read_as_texture_1d<S>(&self) -> S where S: Texture1dDataSink<T> {
+        S::from_raw(Cow::Owned(self.read()), self.len() as u32)
+    }
+
+    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
+    pub fn read_as_texture_1d_if_supported<S>(&self) -> Option<S> where S: Texture1dDataSink<T> {
+        self.read_if_supported().map(|data| {
+            S::from_raw(Cow::Owned(data), self.len() as u32)
+        })
     }
 }
 
