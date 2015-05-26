@@ -129,7 +129,7 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
                -> Binder<'a, 'c, 'd>
     {
         let offset = buffer.get_offset_bytes();
-        let (buffer, format, stride) = (buffer.get_buffer_id(), bindings.clone(),
+        let (buffer, format, stride) = (buffer.get_buffer_id(self.context), bindings.clone(),
                                         buffer.get_elements_size());
 
         self.vertex_buffers.push((buffer, format, offset, stride, divisor));

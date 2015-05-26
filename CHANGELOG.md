@@ -13,6 +13,7 @@
  - Reworked `TextureDataSink` traits to take a precise format.
  - Fixed a panic when destroying a buffer with persistent mapping.
  - Removed deprecated function `VertexBuffer::new_dynamic`.
+ - It is now safe to call `mem::forget` on a `Mapping` object.
 
 ## Version 0.4.2 (2015-05-25)
 

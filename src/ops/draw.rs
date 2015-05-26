@@ -87,7 +87,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
     // handling vertices source
     let (vertices_count, instances_count) = {
         let ib_id = match indices {
-            IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_buffer_id(),
+            IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_buffer_id(&mut ctxt),
             IndicesSource::NoIndices { .. } => 0,
         };
 
@@ -337,7 +337,7 @@ fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformVal
 
             assert!(buffer.get_offset_bytes() == 0);     // TODO: not implemented
             let fence = buffer.add_fence();
-            let buffer = buffer.get_buffer_id();
+            let buffer = buffer.get_buffer_id(ctxt);
             let binding = block.binding as gl::types::GLuint;
 
             unsafe {
