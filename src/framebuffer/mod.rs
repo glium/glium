@@ -267,13 +267,11 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         self.stencil_buffer_bits
     }
 
-    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
+    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: ::index::ToIndicesSource, U: ::uniforms::Uniforms,
+        where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
         V: ::vertex::MultiVerticesSource<'v>
     {
-        use index::ToIndicesSource;
-
         if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
                         draw_parameters.depth_write)
         {
@@ -294,7 +292,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         }
 
         ops::draw(&self.context, Some(&self.attachments), vb,
-                  ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
+                  ib.into(), program, uniforms, draw_parameters, self.dimensions)
     }
 
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
@@ -497,13 +495,11 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         self.stencil_buffer_bits
     }
 
-    fn draw<'v, V, I, U>(&mut self, vb: V, ib: &I, program: &::Program,
+    fn draw<'i, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
         uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: ::index::ToIndicesSource,
+        where I: Into<::index::IndicesSource<'i>>,
         U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {
-        use index::ToIndicesSource;
-
         if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
                 draw_parameters.depth_write)
         {
@@ -524,7 +520,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         }
 
         ops::draw(&self.context, Some(&self.build_attachments(program)), vb,
-                  ib.to_indices_source(), program, uniforms, draw_parameters, self.dimensions)
+                  ib.into(), program, uniforms, draw_parameters, self.dimensions)
     }
 
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,

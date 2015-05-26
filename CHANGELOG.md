@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+ - `IndexBuffer` now takes the type of indices as template parameter.
+ - `IndexBuffer` now derefs to `BufferView`. Allows modifying the index buffer after it has been created.
+ - Added `IndexBufferAny`.
+ - Removed the `ToIndicesSource` and `IntoIndexBuffer` traits. The former is replaced with `Into<IndicesSource>`.
  - `PixelBuffer` now takes the type of pixels as template parameter.
  - Reworked `TextureDataSink` traits to take a precise format.
  - Fixed a panic when destroying a buffer with persistent mapping.

@@ -37,21 +37,11 @@ use ToGlEnum;
 
 use std::mem;
 
-use backend::Facade;
+use buffer::BufferViewAnySlice;
 
-pub use self::buffer::IndexBuffer;
-pub use self::local::{PointsList, LinesList, LinesListAdjacency, LineStrip, LineStripAdjacency};
-pub use self::local::{TrianglesList, TrianglesListAdjacency, TriangleStrip, TriangleStripAdjacency};
-pub use self::local::{TriangleFan, Patches};
+pub use self::buffer::{IndexBuffer, IndexBufferSlice, IndexBufferAny};
 
 mod buffer;
-mod local;
-
-/// Can be used as a source of indices when drawing.
-pub trait ToIndicesSource {
-    /// Builds the `IndicesSource`.
-    fn to_indices_source<'a>(&'a self) -> IndicesSource<'a>;
-}
 
 /// Describes a source of indices used for drawing.
 #[derive(Clone)]
@@ -59,11 +49,11 @@ pub enum IndicesSource<'a> {
     /// A buffer uploaded in video memory.
     IndexBuffer {
         /// The buffer.
-        buffer: &'a IndexBuffer,
-        /// Offset of the first element of the buffer to use.
-        offset: usize,
-        /// Number of elements in the buffer to use.
-        length: usize,
+        buffer: BufferViewAnySlice<'a>,
+        /// Type of indices in the buffer.
+        data_type: IndexType,
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
     },
 
     /// Don't use indices. Assemble primitives by using the order in which the vertices are in
@@ -78,7 +68,7 @@ impl<'a> IndicesSource<'a> {
     /// Returns the type of the primitives.
     pub fn get_primitives_type(&self) -> PrimitiveType {
         match self {
-            &IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_primitives_type(),
+            &IndicesSource::IndexBuffer { primitives, .. } => primitives,
             &IndicesSource::NoIndices { primitives } => primitives,
         }
     }
@@ -139,10 +129,18 @@ impl ToGlEnum for PrimitiveType {
 #[derive(Copy, Clone, Debug)]
 pub struct NoIndices(pub PrimitiveType);
 
-impl ToIndicesSource for NoIndices {
-    fn to_indices_source(&self) -> IndicesSource {
+impl<'a> From<NoIndices> for IndicesSource<'a> {
+    fn from(marker: NoIndices) -> IndicesSource<'a> {
         IndicesSource::NoIndices {
-            primitives: self.0,
+            primitives: marker.0
+        }
+    }
+}
+
+impl<'a, 'b> From<&'b NoIndices> for IndicesSource<'a> {
+    fn from(marker: &'b NoIndices) -> IndicesSource<'a> {
+        IndicesSource::NoIndices {
+            primitives: marker.0
         }
     }
 }
@@ -198,10 +196,4 @@ unsafe impl Index for u32 {
     fn get_type() -> IndexType {
         IndexType::U32
     }
-}
-
-/// Object that is convertible to an index buffer.
-pub trait IntoIndexBuffer {
-    /// Creates a new `IndexBuffer` with the list of indices.
-    fn into_index_buffer<F>(self, &F) -> IndexBuffer where F: Facade;
 }

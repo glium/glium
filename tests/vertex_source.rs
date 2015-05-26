@@ -2,6 +2,7 @@
 extern crate glium;
 
 use glium::Surface;
+use glium::index::PrimitiveType;
 
 mod support;
 
@@ -45,8 +46,8 @@ fn multiple_buffers_source() {
         )
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
+    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                               vec![0u16, 1, 2, 3]);
 
     let program = program!(&display,
         110 => {
@@ -164,8 +165,7 @@ fn slice_draw_indices() {
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]);
 
-    let indices = glium::index::TrianglesList(vec![0u16, 1, 2]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, vec![0u16, 1, 2]);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -327,8 +327,7 @@ fn slice_draw_multiple() {
         Vertex2 { position2: [-1.0, -1.0] }, Vertex2 { position2: [1.0, -1.0] },
     ]);
 
-    let indices = glium::index::TrianglesList(vec![2u16, 3, 4]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, vec![2u16, 3, 4]);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -427,8 +426,8 @@ fn attributes_marker_indices() {
         _ => return
     };
 
-    let indices = glium::index::TriangleStrip(vec![0u16, 1, 2, 3]);
-    let indices = glium::index::IndexBuffer::new(&display, indices);
+    let indices = glium::index::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                                 vec![0u16, 1, 2, 3]);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -491,8 +490,8 @@ fn instancing() {
         None => return
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
+    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                               vec![0u16, 1, 2, 3]);
 
     let program = match glium::Program::from_source(&display,
         "
@@ -610,8 +609,8 @@ fn per_instance_length_mismatch() {
         None => return
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::TriangleStrip(vec![0u16, 1, 2, 3]));
+    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                               vec![0u16, 1, 2, 3]);
 
     let program = program!(&display,
         110 => {

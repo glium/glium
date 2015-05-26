@@ -2,6 +2,7 @@
 extern crate glium;
 
 use glium::{index, Surface};
+use glium::index::PrimitiveType;
 
 mod support;
 
@@ -63,8 +64,8 @@ fn triangles_list() {
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]);
 
-    let indices = glium::index::TrianglesList(vec![0u16, 1, 2, 2, 1, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
+                                          vec![0u16, 1, 2, 2, 1, 3]);
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -89,8 +90,8 @@ fn triangle_strip() {
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]);
 
-    let indices = glium::index::TriangleStrip(vec![0u16, 1, 2, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                          vec![0u16, 1, 2, 3]);
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -116,8 +117,8 @@ fn triangle_fan() {
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]);
 
-    let indices = glium::index::TriangleFan(vec![0u16, 1, 2, 4, 3, 1]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleFan,
+                                          vec![0u16, 1, 2, 4, 3, 1]);
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -136,8 +137,8 @@ fn triangle_fan() {
 fn get_primitives_type() {
     let display = support::build_display();
 
-    let indices = glium::index::TriangleStrip(vec![0u16, 1, 2, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                          vec![0u16, 1, 2, 3]);
 
     assert_eq!(indices.get_primitives_type(), glium::index::PrimitiveType::TriangleStrip);
 
@@ -148,8 +149,8 @@ fn get_primitives_type() {
 fn get_indices_type_u8() {
     let display = support::build_display();
 
-    let indices = glium::index::TriangleStrip(vec![0u8, 1, 2, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                          vec![0u8, 1, 2, 3]);
 
     assert_eq!(indices.get_indices_type(), glium::index::IndexType::U8);
 
@@ -160,8 +161,8 @@ fn get_indices_type_u8() {
 fn get_indices_type_u16() {
     let display = support::build_display();
 
-    let indices = glium::index::TriangleStrip(vec![0u16, 1, 2, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                          vec![0u16, 1, 2, 3]);
 
     assert_eq!(indices.get_indices_type(), glium::index::IndexType::U16);
 
@@ -172,8 +173,8 @@ fn get_indices_type_u16() {
 fn get_indices_type_u32() {
     let display = support::build_display();
 
-    let indices = glium::index::TriangleStrip(vec![0u32, 1, 2, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                          vec![0u32, 1, 2, 3]);
 
     assert_eq!(indices.get_indices_type(), glium::index::IndexType::U32);
 
@@ -266,8 +267,7 @@ fn triangle_fan_noindices() {
 fn empty_index_buffer() {
     let display = support::build_display();
 
-    let indices = glium::index::TriangleFan(Vec::<u16>::new());
-    let _indices = glium::IndexBuffer::new(&display, indices);
+    let _indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleFan, Vec::<u16>::new());
 
     display.assert_no_error(None);
 }
@@ -276,8 +276,8 @@ fn empty_index_buffer() {
 fn indexbuffer_slice_out_of_range() {
     let display = support::build_display();
 
-    let indices = glium::index::TrianglesList(vec![0u16, 1, 2, 2, 1, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
+                                          vec![0u16, 1, 2, 2, 1, 3]);
 
     assert!(indices.slice(5 .. 8).is_none());
     assert!(indices.slice(2 .. 11).is_none());
@@ -296,8 +296,8 @@ fn indexbuffer_slice_draw() {
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]);
 
-    let indices = glium::index::TrianglesList(vec![0u16, 3, 2, 0, 1, 3]);
-    let indices = glium::IndexBuffer::new(&display, indices);
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
+                                          vec![0u16, 3, 2, 0, 1, 3]);
 
     let texture1 = support::build_renderable_texture(&display);
     texture1.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);

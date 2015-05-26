@@ -550,9 +550,9 @@ pub trait Surface: Sized {
     /// - Panics if the depth range is outside of `(0, 1)`.
     /// - Panics if a value in the uniforms doesn't match the type requested by the program.
     ///
-    fn draw<'a, 'b, V, I, U>(&mut self, V, &I, program: &Program, uniforms: &U,
+    fn draw<'a, 'b, V, I, U>(&mut self, V, I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
-        V: vertex::MultiVerticesSource<'b>, I: index::ToIndicesSource,
+        V: vertex::MultiVerticesSource<'b>, I: Into<index::IndicesSource<'a>>,
         U: uniforms::Uniforms;
 
     /// Blits from the default framebuffer.
@@ -778,13 +778,11 @@ impl Surface for Frame {
     }
 
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
-                         index_buffer: &I, program: &Program, uniforms: &U,
+                         index_buffer: I, program: &Program, uniforms: &U,
                          draw_parameters: &DrawParameters) -> Result<(), DrawError>
-                         where I: index::ToIndicesSource, U: uniforms::Uniforms,
+                         where I: Into<index::IndicesSource<'a>>, U: uniforms::Uniforms,
                          V: vertex::MultiVerticesSource<'b>
     {
-        use index::ToIndicesSource;
-
         if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
                 draw_parameters.depth_write)
         {
@@ -804,7 +802,7 @@ impl Surface for Frame {
             }
         }
 
-        ops::draw(&self.context, None, vertex_buffer, index_buffer.to_indices_source(), program,
+        ops::draw(&self.context, None, vertex_buffer, index_buffer.into(), program,
                   uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
