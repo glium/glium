@@ -7,6 +7,7 @@ Test supports module.
 
 use glium::{self, glutin, DisplayBuild};
 use glium::backend::Facade;
+use glium::index::PrimitiveType;
 
 use std::env;
 
@@ -66,7 +67,7 @@ pub fn build_unicolor_texture2d<F>(facade: &F, red: f32, green: f32, blue: f32)
 
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
 pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBufferAny,
-    glium::IndexBuffer, glium::Program) where F: Facade
+    glium::index::IndexBufferAny, glium::Program) where F: Facade
 {
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -81,7 +82,7 @@ pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuf
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(facade, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
+        glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, vec![0u8, 1, 2, 3]).into(),
 
         program!(facade,
             110 => {
@@ -128,7 +129,7 @@ pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuf
 ///
 /// The vertex buffer has the "position" attribute of type "vec2".
 pub fn build_rectangle_vb_ib<F>(facade: &F)
-    -> (glium::vertex::VertexBufferAny, glium::IndexBuffer) where F: Facade
+    -> (glium::vertex::VertexBufferAny, glium::index::IndexBufferAny) where F: Facade
 {
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -143,7 +144,7 @@ pub fn build_rectangle_vb_ib<F>(facade: &F)
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(facade, glium::index::TriangleStrip(vec![0u8, 1, 2, 3])),
+        glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, vec![0u8, 1, 2, 3]).into(),
     )
 }
 

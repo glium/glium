@@ -87,7 +87,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
     // handling vertices source
     let (vertices_count, instances_count) = {
         let ib_id = match indices {
-            IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_id(),
+            IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_buffer_id(),
             IndicesSource::NoIndices { .. } => 0,
         };
 
@@ -261,26 +261,25 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
     // drawing
     {
         match &indices {
-            &IndicesSource::IndexBuffer { ref buffer, offset, length, .. } => {
+            &IndicesSource::IndexBuffer { ref buffer, data_type, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
-                let ptr = unsafe { ptr.offset((offset * buffer.get_indices_type().get_size()) as isize) };
+                let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
 
-                // FIXME: fence the index buffers (this is not a problem yet as IB aren't writable)
-                /*if let Some(fence) = buffer.add_fence() {
+                if let Some(fence) = buffer.add_fence() {
                     fences.push(fence);
-                }*/
+                }
 
                 unsafe {
                     if let Some(instances_count) = instances_count {
-                        ctxt.gl.DrawElementsInstanced(buffer.get_primitives_type().to_glenum(),
-                                                      length as gl::types::GLsizei,
-                                                      buffer.get_indices_type().to_glenum(),
+                        ctxt.gl.DrawElementsInstanced(primitives.to_glenum(),
+                                                      buffer.get_elements_count() as gl::types::GLsizei,
+                                                      data_type.to_glenum(),
                                                       ptr as *const libc::c_void,
                                                       instances_count as gl::types::GLsizei);
                     } else {
-                        ctxt.gl.DrawElements(buffer.get_primitives_type().to_glenum(),
-                                             length as gl::types::GLsizei,
-                                             buffer.get_indices_type().to_glenum(),
+                        ctxt.gl.DrawElements(primitives.to_glenum(),
+                                             buffer.get_elements_count() as gl::types::GLsizei,
+                                             data_type.to_glenum(),
                                              ptr as *const libc::c_void);
                     }
                 }

@@ -3,6 +3,7 @@ extern crate glium;
 
 use glium::Surface;
 use glium::glutin;
+use glium::index::PrimitiveType;
 
 mod support;
 
@@ -34,7 +35,8 @@ fn main() {
 
     // building the index buffer
     let index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::Patches(vec![0u16, 1, 2], 3));
+                                               PrimitiveType::Patches { vertices_per_patch: 3 },
+                                               vec![0u16, 1, 2]);
 
     // compiling shaders and linking them together
     let program = glium::Program::new(&display,

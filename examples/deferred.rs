@@ -6,6 +6,7 @@ extern crate cgmath;
 extern crate image;
 
 use glium::glutin;
+use glium::index::PrimitiveType;
 use glium::Surface;
 use glium::DisplayBuild;
 #[cfg(feature = "cgmath")]
@@ -53,8 +54,8 @@ fn main() {
         )
     };
 
-    let floor_index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
+    let floor_index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
+                                                     vec![0u16, 1, 2, 0, 2, 3]);
 
     let quad_vertex_buffer = {
         #[derive(Copy, Clone)]
@@ -75,8 +76,8 @@ fn main() {
         )
     };
 
-    let quad_index_buffer = glium::IndexBuffer::new(&display,
-        glium::index::TrianglesList(vec![0u16, 1, 2, 0, 2, 3]));
+    let quad_index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
+                                                    vec![0u16, 1, 2, 0, 2, 3]);
 
     // compiling shaders and linking them together
     let prepass_program = glium::Program::from_source(&display,

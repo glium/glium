@@ -3,6 +3,7 @@ extern crate glium;
 extern crate rand;
 
 use glium::{DisplayBuild, Surface};
+use glium::index::PrimitiveType;
 use glium::glutin;
 
 mod support;
@@ -76,8 +77,7 @@ fn main() {
             ib_data.push(num * 4 + 2);
         }
 
-        let ib_data = glium::index::TrianglesList(ib_data);
-        (vb, glium::index::IndexBuffer::new(&display, ib_data))
+        (vb, glium::index::IndexBuffer::new(&display, PrimitiveType::TrianglesList, ib_data))
     };
 
     // we determine the texture coordinates depending on the ID the of vertex
