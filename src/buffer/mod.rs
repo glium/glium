@@ -34,7 +34,7 @@ pub enum BufferCreationError {
 
 /// Type of a buffer.
 #[doc(hidden)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum BufferType {
     ArrayBuffer,
     PixelPackBuffer,

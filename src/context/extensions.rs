@@ -46,6 +46,8 @@ pub struct ExtensionsList {
     pub gl_arb_occlusion_query: bool,
     /// GL_ARB_occlusion_query2
     pub gl_arb_occlusion_query2: bool,
+    /// GL_ARB_pixel_buffer_object
+    pub gl_arb_pixel_buffer_object: bool,
     /// GL_ARB_sampler_objects
     pub gl_arb_sampler_objects: bool,
     /// GL_ARB_shader_objects
@@ -118,6 +120,8 @@ pub struct ExtensionsList {
     pub gl_nv_copy_buffer: bool,
     /// GL_NV_conditional_render
     pub gl_nv_conditional_render: bool,
+    /// GL_NV_pixel_buffer_object
+    pub gl_nv_pixel_buffer_object: bool,
     /// GL_NVX_gpu_memory_info
     pub gl_nvx_gpu_memory_info: bool,
     /// GL_OES_depth_texture
@@ -163,6 +167,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_occlusion_query: false,
         gl_arb_occlusion_query2: false,
         gl_arb_map_buffer_range: false,
+        gl_arb_pixel_buffer_object: false,
         gl_arb_sampler_objects: false,
         gl_arb_shader_objects: false,
         gl_arb_sync: false,
@@ -199,6 +204,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_khr_debug: false,
         gl_nv_conditional_render: false,
         gl_nv_copy_buffer: false,
+        gl_nv_pixel_buffer_object: false,
         gl_nvx_gpu_memory_info: false,
         gl_oes_depth_texture: false,
         gl_oes_packed_depth_stencil: false,
@@ -226,6 +232,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_invalidate_subdata" => extensions.gl_arb_invalidate_subdata = true,
             "GL_ARB_occlusion_query" => extensions.gl_arb_occlusion_query = true,
             "GL_ARB_occlusion_query2" => extensions.gl_arb_occlusion_query2 = true,
+            "GL_ARB_pixel_buffer_object" => extensions.gl_arb_pixel_buffer_object = true,
             "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
@@ -263,6 +270,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
             "GL_NV_conditional_render" => extensions.gl_nv_conditional_render = true,
             "GL_NV_copy_buffer" => extensions.gl_nv_copy_buffer = true,
+            "GL_NV_pixel_buffer_object" => extensions.gl_nv_pixel_buffer_object = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_OES_depth_texture" => extensions.gl_oes_depth_texture = true,
             "GL_OES_packed_depth_stencil" => extensions.gl_oes_packed_depth_stencil = true,
