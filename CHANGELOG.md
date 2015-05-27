@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.5.0 (2015-05-27)
 
  - `IndexBuffer` now takes the type of indices as template parameter.
  - `IndexBuffer` now derefs to `BufferView`. Allows modifying the index buffer after it has been created.
