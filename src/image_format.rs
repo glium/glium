@@ -570,6 +570,15 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
                     _ => unreachable!(),
                 }
 
+            } else if version >= &Version(Api::GlEs, 2, 0) {
+                // TODO: better dispatch with versions and extensions
+                match size {
+                    Some(3) => (gl::RGB, Some(gl::RGB8)),
+                    Some(4) => (gl::RGBA, Some(gl::RGBA8)),
+                    None => (gl::RGBA, Some(gl::RGBA8)),
+                    _ => return Err(FormatNotSupportedError)
+                }
+
             } else {
                 (size.unwrap_or(4) as gl::types::GLenum, None)
             }
