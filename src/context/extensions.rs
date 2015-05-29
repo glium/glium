@@ -80,6 +80,8 @@ pub struct ExtensionsList {
     pub gl_arb_vertex_buffer_object: bool,
     /// GL_ARB_vertex_shader
     pub gl_arb_vertex_shader: bool,
+    /// GL_ARM_rgba8
+    pub gl_arm_rgba8: bool,
     /// GL_ATI_meminfo
     pub gl_ati_meminfo: bool,
     /// GL_EXT_debug_marker
@@ -128,6 +130,8 @@ pub struct ExtensionsList {
     pub gl_oes_depth_texture: bool,
     /// GL_OES_packed_depth_stencil
     pub gl_oes_packed_depth_stencil: bool,
+    /// GL_OES_rgb8_rgba8
+    pub gl_oes_rgb8_rgba8: bool,
     /// GL_OES_vertex_array_object
     pub gl_oes_vertex_array_object: bool,
 }
@@ -184,6 +188,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_vertex_array_object: false,
         gl_arb_vertex_buffer_object: false,
         gl_arb_vertex_shader: false,
+        gl_arm_rgba8: false,
         gl_ati_meminfo: false,
         gl_ext_debug_marker: false,
         gl_ext_direct_state_access: false,
@@ -208,6 +213,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_nvx_gpu_memory_info: false,
         gl_oes_depth_texture: false,
         gl_oes_packed_depth_stencil: false,
+        gl_oes_rgb8_rgba8: false,
         gl_oes_vertex_array_object: false,
     };
 
@@ -250,6 +256,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_vertex_array_object" => extensions.gl_arb_vertex_array_object = true,
             "GL_ARB_vertex_buffer_object" => extensions.gl_arb_vertex_buffer_object = true,
             "GL_ARB_vertex_shader" => extensions.gl_arb_vertex_shader = true,
+            "GL_ARM_rgba8" => extensions.gl_arm_rgba8 = true,
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
             "GL_EXT_debug_marker" => extensions.gl_ext_debug_marker = true,
             "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
@@ -274,6 +281,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_OES_depth_texture" => extensions.gl_oes_depth_texture = true,
             "GL_OES_packed_depth_stencil" => extensions.gl_oes_packed_depth_stencil = true,
+            "GL_OES_rgb8_rgba8" => extensions.gl_oes_rgb8_rgba8 = true,
             "GL_OES_vertex_array_object" => extensions.gl_oes_vertex_array_object = true,
             _ => ()
         }
