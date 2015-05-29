@@ -42,6 +42,8 @@ pub struct ExtensionsList {
     pub gl_arb_invalidate_subdata: bool,
     /// GL_ARB_map_buffer_range
     pub gl_arb_map_buffer_range: bool,
+    /// GL_ARB_multi_draw_indirect
+    pub gl_arb_multi_draw_indirect: bool,
     /// GL_ARB_occlusion_query
     pub gl_arb_occlusion_query: bool,
     /// GL_ARB_occlusion_query2
@@ -98,6 +100,8 @@ pub struct ExtensionsList {
     pub gl_ext_geometry_shader4: bool,
     /// GL_EXT_gpu_shader4
     pub gl_ext_gpu_shader4: bool,
+    /// GL_EXT_multi_draw_indirect
+    pub gl_ext_multi_draw_indirect: bool,
     /// GL_EXT_occlusion_query_boolean
     pub gl_ext_occlusion_query_boolean: bool,
     /// GL_EXT_packed_depth_stencil
@@ -167,6 +171,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_occlusion_query: false,
         gl_arb_occlusion_query2: false,
         gl_arb_map_buffer_range: false,
+        gl_arb_multi_draw_indirect: false,
         gl_arb_pixel_buffer_object: false,
         gl_arb_sampler_objects: false,
         gl_arb_shader_objects: false,
@@ -193,6 +198,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_ext_framebuffer_srgb: false,
         gl_ext_geometry_shader4: false,
         gl_ext_gpu_shader4: false,
+        gl_ext_multi_draw_indirect: false,
         gl_ext_occlusion_query_boolean: false,
         gl_ext_packed_depth_stencil: false,
         gl_ext_texture_compression_s3tc: false,
@@ -234,6 +240,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_occlusion_query2" => extensions.gl_arb_occlusion_query2 = true,
             "GL_ARB_pixel_buffer_object" => extensions.gl_arb_pixel_buffer_object = true,
             "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
+            "GL_ARB_multi_draw_indirect" => extensions.gl_arb_multi_draw_indirect = true,
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
             "GL_ARB_sync" => extensions.gl_arb_sync = true,
@@ -259,6 +266,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_EXT_framebuffer_sRGB" => extensions.gl_ext_framebuffer_srgb = true,
             "GL_EXT_geometry_shader4" => extensions.gl_ext_geometry_shader4 = true,
             "GL_EXT_gpu_shader4" => extensions.gl_ext_gpu_shader4 = true,
+            "GL_EXT_multi_draw_indirect" => extensions.gl_ext_multi_draw_indirect = true,
             "GL_EXT_occlusion_query_boolean" => extensions.gl_ext_occlusion_query_boolean = true,
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
             "GL_EXT_texture_compression_s3tc" => extensions.gl_ext_texture_compression_s3tc = true,

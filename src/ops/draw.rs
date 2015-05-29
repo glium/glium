@@ -88,6 +88,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
     let (vertices_count, instances_count) = {
         let ib_id = match indices {
             IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_buffer_id(&mut ctxt),
+            IndicesSource::MultidrawArray { .. } => 0,
             IndicesSource::NoIndices { .. } => 0,
         };
 
@@ -282,6 +283,23 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
                                              data_type.to_glenum(),
                                              ptr as *const libc::c_void);
                     }
+                }
+            },
+
+            &IndicesSource::MultidrawArray { ref buffer, primitives } => {
+                let ptr: *const u8 = ptr::null_mut();
+                let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
+
+                if let Some(fence) = buffer.add_fence() {
+                    fences.push(fence);
+                }
+
+                unsafe {
+                    // TODO: use a better function
+                    ctxt.gl.BindBuffer(gl::DRAW_INDIRECT_BUFFER, buffer.get_buffer_id(&mut ctxt));
+                    ctxt.gl.MultiDrawArraysIndirect(primitives.to_glenum(), ptr as *const _,
+                                                    buffer.get_elements_count() as gl::types::GLsizei,
+                                                    0);
                 }
             },
 

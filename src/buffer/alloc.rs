@@ -758,6 +758,14 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
             ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_nv_copy_buffer
         },
 
+        BufferType::DrawIndirectBuffer => {
+            // TODO: draw indirect buffers are actually supported in OpenGL 4.0 or
+            //       with GL_ARB_draw_indirect, but restricting to multidraw is more convenient
+            //       for index/multidraw.rs
+            ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_multi_draw_indirect ||
+            ctxt.extensions.gl_ext_multi_draw_indirect
+        },
+
         _ => false,     // FIXME: 
     }
 }
