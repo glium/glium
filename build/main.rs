@@ -86,6 +86,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             fallbacks: gl_generator::Fallbacks::None,
             api: gl_generator::registry::Ns::Gles2.to_string(),
             extensions: vec![
+                "GL_ARM_rgba8".to_string(),
                 "GL_EXT_disjoint_timer_query".to_string(),
                 "GL_EXT_multi_draw_indirect".to_string(),
                 "GL_EXT_occlusion_query_boolean".to_string(),
@@ -94,6 +95,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_NV_pixel_buffer_object".to_string(),
                 "GL_OES_depth_texture".to_string(),
                 "GL_OES_packed_depth_stencil".to_string(),
+                "GL_OES_rgb8_rgba8".to_string(),
                 "GL_OES_texture_npot".to_string(),
                 "GL_OES_vertex_array_object".to_string(),
             ],
