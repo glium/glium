@@ -391,7 +391,7 @@ impl Program {
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
     ///
-    /// ## Features
+    /// # Features
     ///
     /// Only available if the `gl_program_binary` feature is enabled.
     #[cfg(feature = "gl_program_binary")]

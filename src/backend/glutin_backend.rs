@@ -3,6 +3,10 @@
 
 Backend implementation for the glutin library
 
+# Features
+
+Only available if the 'glutin' feature is enabled.
+
 */
 extern crate glutin;
 

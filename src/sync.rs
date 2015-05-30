@@ -30,7 +30,7 @@ pub struct SyncFence {
 impl SyncFence {
     /// Builds a new `SyncFence` that is injected in the server.
     ///
-    /// ## Features
+    /// # Features
     ///
     /// Only available if the `gl_sync` feature is enabled.
     #[cfg(feature = "gl_sync")]

@@ -26,7 +26,7 @@ pub struct TypelessUniformBuffer {
 impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     /// Uploads data in the uniforms buffer.
     ///
-    /// ## Features
+    /// # Features
     ///
     /// Only available if the `gl_uniform_blocks` feature is enabled.
     #[cfg(feature = "gl_uniform_blocks")]
@@ -58,6 +58,10 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     }
 
     /// Reads the content of the buffer.
+    ///
+    /// # Features
+    ///
+    /// Only available if the 'gl_read_buffer' feature is enabled.
     #[cfg(feature = "gl_read_buffer")]
     pub fn read(&self) -> T {
         self.read_if_supported().unwrap()
