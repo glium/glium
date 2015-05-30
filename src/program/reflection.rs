@@ -121,9 +121,6 @@ pub enum TransformFeedbackMode {
 pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
                                -> HashMap<String, Uniform>
 {
-    // reflecting program uniforms
-    let mut uniforms = HashMap::new();
-
     // number of active uniforms
     let active_uniforms = {
         let mut active_uniforms: gl::types::GLint = mem::uninitialized();
@@ -141,6 +138,9 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         };
         active_uniforms
     };
+
+    // the result of this function
+    let mut uniforms = HashMap::with_capacity(active_uniforms as usize);
 
     for uniform_id in (0 .. active_uniforms) {
         let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -200,8 +200,6 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
 pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
                                  -> HashMap<String, Attribute>
 {
-    let mut attributes = HashMap::new();
-
     // number of active attributes
     let active_attributes = {
         let mut active_attributes: gl::types::GLint = mem::uninitialized();
@@ -219,6 +217,9 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
         };
         active_attributes
     };
+
+    // the result of this function
+    let mut attributes = HashMap::with_capacity(active_attributes as usize);
 
     for attribute_id in (0 .. active_attributes) {
         let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -291,14 +292,14 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
         _ => unreachable!()
     };
 
-    let mut blocks = HashMap::new();
-
     let mut active_blocks: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCKS, &mut active_blocks);
 
     let mut active_blocks_max_name_len: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH,
                          &mut active_blocks_max_name_len);
+
+    let mut blocks = HashMap::with_capacity(active_blocks as usize);
 
     for block_id in (0 .. active_blocks) {
         // getting the name of the block
