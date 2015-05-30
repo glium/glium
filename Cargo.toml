@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = "High-level and safe OpenGL wrapper."
 keywords = ["opengl", "gamedev"]

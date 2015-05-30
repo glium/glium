@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.5.1 (2015-05-30)
 
  - Added `index::DrawCommandsNoIndicesBuffer` for multidraw indirect drawing.
  - Fixed a potential panic when using a buffer.
