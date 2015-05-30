@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added `index::DrawCommandsNoIndicesBuffer` for multidraw indirect drawing.
+
 ## Version 0.5.0 (2015-05-27)
 
  - `IndexBuffer` now takes the type of indices as template parameter.

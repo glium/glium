@@ -43,6 +43,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_ARB_framebuffer_sRGB".to_string(),
                 "GL_ARB_geometry_shader4".to_string(),
                 "GL_ARB_invalidate_subdata".to_string(),
+                "GL_ARB_multi_draw_indirect".to_string(),
                 "GL_ARB_occlusion_query".to_string(),
                 "GL_ARB_pixel_buffer_object".to_string(),
                 "GL_ARB_shader_objects".to_string(),
@@ -86,6 +87,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             api: gl_generator::registry::Ns::Gles2.to_string(),
             extensions: vec![
                 "GL_EXT_disjoint_timer_query".to_string(),
+                "GL_EXT_multi_draw_indirect".to_string(),
                 "GL_EXT_occlusion_query_boolean".to_string(),
                 "GL_KHR_debug".to_string(),
                 "GL_NV_copy_buffer".to_string(),

@@ -321,3 +321,43 @@ fn indexbuffer_slice_draw() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn multidraw_array() {
+    let display = support::build_display();
+    let program = build_program(&display);
+
+    let vb = glium::VertexBuffer::new(&display, vec![
+        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
+        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
+    ]);
+
+    let multidraw = glium::index::DrawCommandsNoIndicesBuffer::empty_if_supported(&display, 1);
+    let mut multidraw = match multidraw {
+        Some(buf) => buf,
+        None => return
+    };
+
+    multidraw.write(&[
+        glium::index::DrawCommandNoIndices {
+            count: 4,
+            instance_count: 1,
+            first_index: 0,
+            base_instance: 0,
+        }
+    ]);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, multidraw.with_primitive_type(PrimitiveType::TriangleStrip),
+                              &program, &uniform!{}, &Default::default()).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(255, 0, 0, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}

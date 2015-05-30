@@ -40,8 +40,10 @@ use std::mem;
 use buffer::BufferViewAnySlice;
 
 pub use self::buffer::{IndexBuffer, IndexBufferSlice, IndexBufferAny};
+pub use self::multidraw::{DrawCommandsNoIndicesBuffer, DrawCommandNoIndices};
 
 mod buffer;
+mod multidraw;
 
 /// Describes a source of indices used for drawing.
 #[derive(Clone)]
@@ -52,6 +54,14 @@ pub enum IndicesSource<'a> {
         buffer: BufferViewAnySlice<'a>,
         /// Type of indices in the buffer.
         data_type: IndexType,
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
+
+    /// Use a multidraw indirect buffer without indices.
+    MultidrawArray {
+        /// The buffer.
+        buffer: BufferViewAnySlice<'a>,
         /// Type of primitives contained in the vertex source.
         primitives: PrimitiveType,
     },
@@ -69,6 +79,7 @@ impl<'a> IndicesSource<'a> {
     pub fn get_primitives_type(&self) -> PrimitiveType {
         match self {
             &IndicesSource::IndexBuffer { primitives, .. } => primitives,
+            &IndicesSource::MultidrawArray { primitives, .. } => primitives,
             &IndicesSource::NoIndices { primitives } => primitives,
         }
     }
