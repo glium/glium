@@ -780,19 +780,21 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
 {
     macro_rules! check {
         ($ctxt:expr, $input_id:expr, $input_ty:expr, $check:ident, $state_var:ident) => (
-            if ctxt.state.$state_var != $input_id {
-                ctxt.state.$state_var = $input_id;
-
+            if $input_ty == BufferType::$check {
                 let en = $input_ty.to_glenum();
 
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                   ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(en, id);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(en, id);
-                } else {
-                    unreachable!();
+                if ctxt.state.$state_var != $input_id {
+                    ctxt.state.$state_var = $input_id;
+
+                    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                       ctxt.version >= &Version(Api::GlEs, 2, 0)
+                    {
+                        ctxt.gl.BindBuffer(en, id);
+                    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                        ctxt.gl.BindBufferARB(en, id);
+                    } else {
+                        unreachable!();
+                    }
                 }
 
                 return en;
