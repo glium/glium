@@ -49,7 +49,7 @@ use image;
 use backend::Facade;
 
 use pixel_buffer::PixelBuffer;
-use uniforms::{UniformValue, AsUniformValue, Sampler};
+use uniforms::{UniformValue, AsUniformValue, UniformType, Sampler};
 use {Surface, GlObject};
 
 use FboAttachments;

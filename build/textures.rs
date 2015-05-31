@@ -345,11 +345,19 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                                 fn as_uniform_value(&self) -> UniformValue {{
                                     UniformValue::{myname}(*self, None)
                                 }}
+
+                                fn matches(_: &UniformType) -> bool {{
+                                    false
+                                }}
                             }}
 
                             impl<'a> AsUniformValue for Sampler<'a, {myname}> {{
                                 fn as_uniform_value(&self) -> UniformValue {{
                                     UniformValue::{myname}(self.0, Some(self.1))
+                                }}
+
+                                fn matches(_: &UniformType) -> bool {{
+                                    false
                                 }}
                             }}
 

@@ -1,6 +1,6 @@
 use buffer::{BufferView, BufferViewAny, BufferType, BufferCreationError};
 use buffer::Mapping as BufferMapping;
-use uniforms::{AsUniformValue, UniformValue, UniformBlock};
+use uniforms::{AsUniformValue, UniformValue, UniformBlock, UniformType};
 
 use std::ops::{Deref, DerefMut};
 
@@ -104,5 +104,9 @@ impl<T> DerefMut for UniformBuffer<T> where T: Send + Copy + 'static {
 impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Send + Copy + 'static {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Block(self.buffer.as_slice_any(), <T as UniformBlock>::matches)
+    }
+
+    fn matches(_: &UniformType) -> bool {
+        false
     }
 }
