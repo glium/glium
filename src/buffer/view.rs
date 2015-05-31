@@ -632,6 +632,12 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
         alloc.assert_unmapped(ctxt);
         alloc.get_id()
     }
+
+    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.assert_unmapped(ctxt);
+        alloc.bind(ctxt, ty);
+    }
 }
 
 impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
@@ -653,6 +659,11 @@ impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'sta
         self.alloc.assert_unmapped(ctxt);
         self.alloc.get_id()
     }
+
+    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
+        self.alloc.assert_unmapped(ctxt);
+        self.alloc.bind(ctxt, ty);
+    }
 }
 
 impl BufferViewExt for BufferViewAny {
@@ -663,6 +674,11 @@ impl BufferViewExt for BufferViewAny {
     fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
         self.alloc.assert_unmapped(ctxt);
         self.alloc.get_id()
+    }
+
+    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
+        self.alloc.assert_unmapped(ctxt);
+        self.alloc.bind(ctxt, ty);
     }
 }
 
@@ -684,6 +700,11 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
     fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
         self.alloc.assert_unmapped(ctxt);
         self.alloc.get_id()
+    }
+
+    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
+        self.alloc.assert_unmapped(ctxt);
+        self.alloc.bind(ctxt, ty);
     }
 }
 

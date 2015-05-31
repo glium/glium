@@ -154,6 +154,17 @@ impl Buffer {
         }
     }
 
+    /// Makes sure that the buffer is binded to a specific bind point.
+    ///
+    /// The bind point is the value passed to `ty`.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the backend doesn't allow binding this buffer to the specified point.
+    pub fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
+        unsafe { bind_buffer(ctxt, self.id, ty); }
+    }
+
     /// Uploads data in the buffer.
     ///
     /// The data must fit inside the buffer.

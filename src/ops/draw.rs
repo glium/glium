@@ -18,6 +18,7 @@ use utils::bitsfield::Bitsfield;
 use fbo::{self, FramebufferAttachments};
 
 use sync;
+use buffer::BufferType;
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use sampler_object::SamplerObject;
 use {Program, GlObject, ToGlEnum};
@@ -295,8 +296,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
                 }
 
                 unsafe {
-                    // TODO: use a better function
-                    ctxt.gl.BindBuffer(gl::DRAW_INDIRECT_BUFFER, buffer.get_buffer_id(&mut ctxt));
+                    buffer.bind_to(&mut ctxt, BufferType::DrawIndirectBuffer);
                     ctxt.gl.MultiDrawArraysIndirect(primitives.to_glenum(), ptr as *const _,
                                                     buffer.get_elements_count() as gl::types::GLsizei,
                                                     0);
