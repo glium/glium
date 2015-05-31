@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed values in uniform blocks being required to implement the `Default` trait.
+
 ## Version 0.5.1 (2015-05-30)
 
  - Added `index::DrawCommandsNoIndicesBuffer` for multidraw indirect drawing.
