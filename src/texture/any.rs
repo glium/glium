@@ -31,6 +31,7 @@ pub struct TextureAny {
     id: gl::types::GLuint,
     requested_format: TextureFormatRequest,
     bind_point: gl::types::GLenum,
+    ty: TextureType,
     width: u32,
     height: Option<u32>,
     depth: Option<u32>,
@@ -38,6 +39,19 @@ pub struct TextureAny {
 
     /// Number of mipmap levels (`1` means just the main texture, `0` is not valid)
     levels: u32,
+}
+
+/// Type of a texture.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[allow(missing_docs)]      // TODO: document and remove
+pub enum TextureType {
+    Texture1d,
+    Texture1dArray,
+    Texture2d,
+    Texture2dArray,
+    Texture2dMultisample,
+    Texture2dMultisampleArray,
+    Texture3d,
 }
 
 /// Builds a new texture.
@@ -69,21 +83,25 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         }
     }
 
-    let texture_type = if height.is_none() && depth.is_none() {
+    let (stored_ty, texture_type) = if height.is_none() && depth.is_none() {
         assert!(samples.is_none());
-        if array_size.is_none() { gl::TEXTURE_1D } else { gl::TEXTURE_1D_ARRAY }
+        if array_size.is_none() {
+            (TextureType::Texture1d, gl::TEXTURE_1D)
+        } else {
+            (TextureType::Texture1dArray, gl::TEXTURE_1D_ARRAY)
+        }
 
     } else if depth.is_none() {
         match (array_size.is_some(), samples.is_some()) {
-            (false, false) => gl::TEXTURE_2D,
-            (true, false) => gl::TEXTURE_2D_ARRAY,
-            (false, true) => gl::TEXTURE_2D_MULTISAMPLE,
-            (true, true) => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+            (false, false) => (TextureType::Texture2d, gl::TEXTURE_2D),
+            (true, false) => (TextureType::Texture2dArray, gl::TEXTURE_2D_ARRAY),
+            (false, true) => (TextureType::Texture2dMultisample, gl::TEXTURE_2D_MULTISAMPLE),
+            (true, true) => (TextureType::Texture2dMultisampleArray, gl::TEXTURE_2D_MULTISAMPLE_ARRAY),
         }
 
     } else {
         assert!(samples.is_none());
-        gl::TEXTURE_3D
+        (TextureType::Texture3d, gl::TEXTURE_3D)
     };
 
     let generate_mipmaps = generate_mipmaps && match format {
@@ -347,6 +365,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         height: height,
         depth: depth,
         array_size: array_size,
+        ty: stored_ty,
         levels: texture_levels as u32,
     })
 }
@@ -522,6 +541,11 @@ impl TextureAny {
     /// Returns the number of mipmap levels of the texture.
     pub fn get_mipmap_levels(&self) -> u32 {
         self.levels
+    }
+
+    /// Returns the type of the texture (1D, 2D, 3D, etc.).
+    pub fn get_texture_type(&self) -> TextureType {
+        self.ty
     }
 
     /// Determines the internal format of this texture.
