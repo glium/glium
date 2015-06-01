@@ -945,6 +945,38 @@ unsafe fn destroy_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint) {
         ctxt.state.uniform_buffer_binding = 0;
     }
 
+    if ctxt.state.copy_read_buffer_binding == id {
+        ctxt.state.copy_read_buffer_binding = 0;
+    }
+
+    if ctxt.state.copy_write_buffer_binding == id {
+        ctxt.state.copy_write_buffer_binding = 0;
+    }
+
+    if ctxt.state.dispatch_indirect_buffer_binding == id {
+        ctxt.state.dispatch_indirect_buffer_binding = 0;
+    }
+
+    if ctxt.state.draw_indirect_buffer_binding == id {
+        ctxt.state.draw_indirect_buffer_binding = 0;
+    }
+
+    if ctxt.state.query_buffer_binding == id {
+        ctxt.state.query_buffer_binding = 0;
+    }
+
+    if ctxt.state.texture_buffer_binding == id {
+        ctxt.state.texture_buffer_binding = 0;
+    }
+
+    if ctxt.state.atomic_counter_buffer_binding == id {
+        ctxt.state.atomic_counter_buffer_binding = 0;
+    }
+
+    if ctxt.state.shader_storage_buffer_binding == id {
+        ctxt.state.shader_storage_buffer_binding = 0;
+    }
+
     if ctxt.version >= &Version(Api::Gl, 1, 5) ||
         ctxt.version >= &Version(Api::GlEs, 2, 0)
     {
