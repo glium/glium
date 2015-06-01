@@ -110,6 +110,10 @@ impl<T> BufferViewExt for IndexBuffer<T> where T: Index {
     fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
         self.buffer.get_buffer_id(ctxt)
     }
+
+    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
+        self.buffer.bind_to(ctxt, ty)
+    }
 }
 
 // TODO: remove this

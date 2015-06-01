@@ -1,5 +1,6 @@
 use std::ptr;
 
+use buffer::BufferType;
 use pixel_buffer::PixelBuffer;
 use texture::ClientFormat;
 use texture::PixelValue;
@@ -132,13 +133,7 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, 
             Destination::PixelBuffer(pixel_buffer) => {
                 assert!(pixel_buffer.len() >= pixels_to_read as usize);
 
-                let pb = pixel_buffer.get_buffer_id(&mut ctxt);
-                // FIXME: correct function call
-                if ctxt.state.pixel_pack_buffer_binding != pb {
-                    ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, pb);
-                    ctxt.state.pixel_pack_buffer_binding = pb;
-                }
-
+                pixel_buffer.bind_to(&mut ctxt, BufferType::PixelPackBuffer);
                 ctxt.gl.ReadPixels(rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
                                    rect.width as gl::types::GLsizei,
                                    rect.height as gl::types::GLsizei, format, gltype,

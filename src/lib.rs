@@ -188,6 +188,9 @@ trait BufferViewExt {
 
     /// Makes sure that the buffer is available for operations and returns its ID.
     fn get_buffer_id(&self, &mut CommandContext) -> gl::types::GLuint;
+
+    /// Makes sure that the buffer is binded to a specific bind point.
+    fn bind_to(&self, &mut CommandContext, ty: buffer::BufferType);
 }
 
 /// Internal trait for subbuffer slices.
