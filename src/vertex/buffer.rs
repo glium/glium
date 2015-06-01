@@ -158,6 +158,7 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
         &self.bindings
     }
 
+    /// DEPRECATED: use `.into()` instead.
     /// Discard the type information and turn the vertex buffer into a `VertexBufferAny`.
     pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
         VertexBufferAny {
@@ -318,6 +319,12 @@ impl VertexBufferAny {
     #[cfg(feature = "gl_instancing")]
     pub fn per_instance(&self) -> PerInstance {
         self.per_instance_if_supported().unwrap()
+    }
+}
+
+impl<T> From<VertexBuffer<T>> for VertexBufferAny where T: Send + Copy + 'static {
+    fn from(buf: VertexBuffer<T>) -> VertexBufferAny {
+        buf.into_vertex_buffer_any()
     }
 }
 
