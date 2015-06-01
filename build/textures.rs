@@ -389,61 +389,51 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
     // `ToXXXAttachment` trait impl
     if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample {
-        let suffix = match dimensions {
-            TextureDimensions::Texture1d => "Texture1d",
-            TextureDimensions::Texture2d => "Texture2d",
-            TextureDimensions::Texture2dMultisample => "Texture2dMultisample",
-            TextureDimensions::Texture3d => "Texture3d",
-            TextureDimensions::Texture1dArray => "Texture1dArray",
-            TextureDimensions::Texture2dArray => "Texture2dArray",
-            TextureDimensions::Texture2dMultisampleArray => "Texture2dMultisampleArray",
-        };
-
         match ty {
             TextureType::Regular => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::{suffix}(self.main_level())
+                                ::framebuffer::ColorAttachment::Texture(self.0.mipmap(0, 0).unwrap())
                             }}
                         }}
-                    ", name = name, suffix = suffix)).unwrap();
+                    ", name = name)).unwrap();
             },
             TextureType::Srgb => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Srgb{suffix}(self.main_level())
+                                ::framebuffer::ColorAttachment::Texture(self.0.mipmap(0, 0).unwrap())
                             }}
                         }}
-                    ", name = name, suffix = suffix)).unwrap();
+                    ", name = name)).unwrap();
             },
             TextureType::Depth => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthAttachment for {name} {{
                             fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
-                                ::framebuffer::DepthAttachment::{suffix}(self.main_level())
+                                ::framebuffer::DepthAttachment::Texture(self.0.mipmap(0, 0).unwrap())
                             }}
                         }}
-                    ", name = name, suffix = suffix)).unwrap();
+                    ", name = name)).unwrap();
             },
             TextureType::Stencil => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToStencilAttachment for {name} {{
                             fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
-                                ::framebuffer::StencilAttachment::{suffix}(self.main_level())
+                                ::framebuffer::StencilAttachment::Texture(self.0.mipmap(0, 0).unwrap())
                             }}
                         }}
-                    ", name = name, suffix = suffix)).unwrap();
+                    ", name = name)).unwrap();
             },
             TextureType::DepthStencil => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthStencilAttachment for {name} {{
                             fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
-                                ::framebuffer::DepthStencilAttachment::{suffix}(self.main_level())
+                                ::framebuffer::DepthStencilAttachment::Texture(self.0.mipmap(0, 0).unwrap())
                             }}
                         }}
-                    ", name = name, suffix = suffix)).unwrap();
+                    ", name = name)).unwrap();
             },
             _ => ()
         }

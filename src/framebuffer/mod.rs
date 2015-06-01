@@ -39,15 +39,8 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-use texture::Texture;
 use texture::Texture2d;
-use texture::{Texture1dMipmap, SrgbTexture1dMipmap, DepthTexture1dMipmap, StencilTexture1dMipmap, DepthStencilTexture1dMipmap};
-use texture::{Texture2dMipmap, SrgbTexture2dMipmap, DepthTexture2dMipmap, StencilTexture2dMipmap, DepthStencilTexture2dMipmap};
-use texture::{Texture2dMultisampleMipmap, SrgbTexture2dMultisampleMipmap, DepthTexture2dMultisampleMipmap, StencilTexture2dMultisampleMipmap, DepthStencilTexture2dMultisampleMipmap};
-use texture::{Texture3dMipmap, SrgbTexture3dMipmap, DepthTexture3dMipmap, StencilTexture3dMipmap, DepthStencilTexture3dMipmap};
-use texture::{Texture1dArrayMipmap, SrgbTexture1dArrayMipmap, DepthTexture1dArrayMipmap, StencilTexture1dArrayMipmap, DepthStencilTexture1dArrayMipmap};
-use texture::{Texture2dArrayMipmap, SrgbTexture2dArrayMipmap, DepthTexture2dArrayMipmap, StencilTexture2dArrayMipmap, DepthStencilTexture2dArrayMipmap};
-use texture::{Texture2dMultisampleArrayMipmap, SrgbTexture2dMultisampleArrayMipmap, DepthTexture2dMultisampleArrayMipmap, StencilTexture2dMultisampleArrayMipmap, DepthStencilTexture2dMultisampleArrayMipmap};
+use texture::TextureAnyMipmap;
 
 use backend::Facade;
 use context::Context;
@@ -145,27 +138,9 @@ impl<'a> SimpleFrameBuffer<'a> {
         }
 
         let (dimensions, color_attachment) = match color {
-            ColorAttachment::Texture2d(tex) => {
+            ColorAttachment::Texture(tex) => {
                 let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
                 let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 };
-                (dimensions, id)
-            },
-
-            ColorAttachment::SrgbTexture2d(tex) => {
-                let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
-                let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D, level: 0, layer: 0 };
-                (dimensions, id)
-            },
-
-            ColorAttachment::Texture2dMultisample(tex) => {
-                let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
-                let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D_MULTISAMPLE, level: 0, layer: 0 };
-                (dimensions, id)
-            },
-
-            ColorAttachment::SrgbTexture2dMultisample(tex) => {
-                let dimensions = (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap());
-                let id = fbo::Attachment::Texture { id: tex.get_texture().get_id(), bind_point: gl::TEXTURE_2D_MULTISAMPLE, level: 0, layer: 0 };
                 (dimensions, id)
             },
 
@@ -174,13 +149,11 @@ impl<'a> SimpleFrameBuffer<'a> {
                 let id = fbo::Attachment::RenderBuffer(buffer.get_id());
                 (dimensions, id)
             },
-
-            _ => unimplemented!()
         };
 
         let (depth, depth_bits) = if let Some(depth) = depth {
             match depth {
-                DepthAttachment::Texture2d(tex) => {
+                DepthAttachment::Texture(tex) => {
                     if (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap()) != dimensions {
                         panic!("The depth attachment must have the same dimensions \
                                 as the color attachment");
@@ -194,8 +167,6 @@ impl<'a> SimpleFrameBuffer<'a> {
 
                     (Some(fbo::Attachment::RenderBuffer(buffer.get_id())), Some(32))      // FIXME: wrong number
                 },
-
-                _ => unimplemented!()
             }
 
         } else {
@@ -204,7 +175,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
         let (stencil, stencil_bits) = if let Some(stencil) = stencil {
             match stencil {
-                StencilAttachment::Texture2d(tex) => {
+                StencilAttachment::Texture(tex) => {
                     if (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap()) != dimensions {
                         panic!("The stencil attachment must have the same dimensions \
                                 as the color attachment");
@@ -218,8 +189,6 @@ impl<'a> SimpleFrameBuffer<'a> {
 
                     (Some(fbo::Attachment::RenderBuffer(buffer.get_id())), Some(8))
                 },
-
-                _ => unimplemented!()
             }
 
         } else {
@@ -401,7 +370,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         let (depth, depth_bits) = if let Some(depth) = depth {
             match depth.to_depth_attachment() {
-                DepthAttachment::Texture2d(tex) => {
+                DepthAttachment::Texture(tex) => {
                     if (tex.get_texture().get_width(), tex.get_texture().get_height().unwrap()) != dimensions {
                         panic!("The depth attachment must have the same dimensions \
                                 as the color attachment");
@@ -415,8 +384,6 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
                     (Some(fbo::Attachment::RenderBuffer(buffer.get_id())), Some(32))      // FIXME: wrong number
                 },
-
-                _ => unimplemented!()
             }
 
         } else {
@@ -563,33 +530,7 @@ impl<'a> FboAttachments for MultiOutputFrameBuffer<'a> {
 #[derive(Copy, Clone)]
 pub enum ColorAttachment<'a> {
     /// A texture.
-    Texture1d(Texture1dMipmap<'a>),
-    /// A texture.
-    SrgbTexture1d(SrgbTexture1dMipmap<'a>),
-    /// A texture.
-    Texture2d(Texture2dMipmap<'a>),
-    /// A texture.
-    SrgbTexture2d(SrgbTexture2dMipmap<'a>),
-    /// A texture.
-    Texture2dMultisample(Texture2dMultisampleMipmap<'a>),
-    /// A texture.
-    SrgbTexture2dMultisample(SrgbTexture2dMultisampleMipmap<'a>),
-    /// A texture.
-    Texture3d(Texture3dMipmap<'a>, u32),
-    /// A texture.
-    SrgbTexture3d(SrgbTexture3dMipmap<'a>, u32),
-    /// A texture.
-    Texture1dArray(Texture1dArrayMipmap<'a>),
-    /// A texture.
-    SrgbTexture1dArray(SrgbTexture1dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dArray(Texture2dArrayMipmap<'a>),
-    /// A texture.
-    SrgbTexture2dArray(SrgbTexture2dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dMultisampleArray(Texture2dMultisampleArrayMipmap<'a>),
-    /// A texture.
-    SrgbTexture2dMultisampleArray(SrgbTexture2dMultisampleArrayMipmap<'a>),
+    Texture(TextureAnyMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a RenderBuffer),
 }
@@ -604,19 +545,7 @@ pub trait ToColorAttachment {
 #[derive(Copy, Clone)]
 pub enum DepthAttachment<'a> {
     /// A texture.
-    Texture1d(DepthTexture1dMipmap<'a>),
-    /// A texture.
-    Texture2d(DepthTexture2dMipmap<'a>),
-    /// A texture.
-    Texture2dMultisample(DepthTexture2dMultisampleMipmap<'a>),
-    /// A texture.
-    Texture3d(DepthTexture3dMipmap<'a>, u32),
-    /// A texture.
-    Texture1dArray(DepthTexture1dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dArray(DepthTexture2dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dMultisampleArray(DepthTexture2dMultisampleArrayMipmap<'a>),
+    Texture(TextureAnyMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a DepthRenderBuffer),
 }
@@ -631,19 +560,7 @@ pub trait ToDepthAttachment {
 #[derive(Copy, Clone)]
 pub enum StencilAttachment<'a> {
     /// A texture.
-    Texture1d(StencilTexture1dMipmap<'a>),
-    /// A texture.
-    Texture2d(StencilTexture2dMipmap<'a>),
-    /// A texture.
-    Texture2dMultisample(StencilTexture2dMultisampleMipmap<'a>),
-    /// A texture.
-    Texture3d(StencilTexture3dMipmap<'a>, u32),
-    /// A texture.
-    Texture1dArray(StencilTexture1dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dArray(StencilTexture2dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dMultisampleArray(StencilTexture2dMultisampleArrayMipmap<'a>),
+    Texture(TextureAnyMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a StencilRenderBuffer),
 }
@@ -658,19 +575,7 @@ pub trait ToStencilAttachment {
 #[derive(Copy, Clone)]
 pub enum DepthStencilAttachment<'a> {
     /// A texture.
-    Texture1d(DepthStencilTexture1dMipmap<'a>),
-    /// A texture.
-    Texture2d(DepthStencilTexture2dMipmap<'a>),
-    /// A texture.
-    Texture2dMultisample(DepthStencilTexture2dMultisampleMipmap<'a>),
-    /// A texture.
-    Texture3d(DepthStencilTexture3dMipmap<'a>, u32),
-    /// A texture.
-    Texture1dArray(DepthStencilTexture1dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dArray(DepthStencilTexture2dArrayMipmap<'a>),
-    /// A texture.
-    Texture2dMultisampleArray(DepthStencilTexture2dMultisampleArrayMipmap<'a>),
+    Texture(TextureAnyMipmap<'a>),
     /// A render buffer.
     RenderBuffer(&'a DepthStencilRenderBuffer),
 }
