@@ -41,6 +41,19 @@ pub struct TextureAny {
     levels: u32,
 }
 
+/// Represents a specific mipmap of a texture.
+#[derive(Copy, Clone)]
+pub struct TextureAnyMipmap<'a> {
+    /// The texture.
+    texture: &'a TextureAny,
+
+    /// Layer for array textures, or 0 for other textures.
+    layer: u32,
+
+    /// Mipmap level.
+    level: u32,
+}
+
 /// Type of a texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]      // TODO: document and remove
@@ -370,6 +383,13 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
     })
 }
 
+impl<'a> TextureAnyMipmap<'a> {
+    /// Returns the texture.
+    pub fn get_texture(&self) -> &'a TextureAny {
+        self.texture
+    }
+}
+
 /// Changes some parts of the texture.
 pub fn upload_texture<'a, P>(tex: &TextureAny, x_offset: u32, y_offset: u32, z_offset: u32,
                              (format, data): (ClientFormat, Cow<'a, [P]>), width: u32,
@@ -555,6 +575,25 @@ impl TextureAny {
         // TODO: cache this value in the texture
         let mut ctxt = self.context.make_current();
         get_format::get_format_if_supported(&mut ctxt, self)
+    }
+
+    /// Returns a structure that represents a specific mipmap of the texture.
+    ///
+    /// Returns `None` if out of range.
+    pub fn mipmap(&self, layer: u32, level: u32) -> Option<TextureAnyMipmap> {
+        if layer >= self.array_size.unwrap_or(1) {
+            return None;
+        }
+
+        if level >= self.levels {
+            return None;
+        }
+
+        Some(TextureAnyMipmap {
+            texture: self,
+            layer: layer,
+            level: level,
+        })
     }
 }
 
