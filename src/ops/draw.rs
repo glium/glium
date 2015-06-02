@@ -364,12 +364,11 @@ fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformVal
 
             assert!(buffer.get_offset_bytes() == 0);     // TODO: not implemented
             let fence = buffer.add_fence();
-            let buffer = buffer.get_buffer_id(ctxt);
             let binding = block.binding as gl::types::GLuint;
 
             unsafe {
-                ctxt.gl.BindBufferBase(gl::UNIFORM_BUFFER, bind_point as gl::types::GLuint,
-                                       buffer);
+                buffer.indexed_bind_to(ctxt, BufferType::UniformBuffer,
+                                       bind_point as gl::types::GLuint);
                 program.set_block(ctxt, binding, bind_point as gl::types::GLuint);
             }
 

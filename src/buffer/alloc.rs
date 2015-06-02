@@ -169,6 +169,7 @@ impl Buffer {
     ///
     /// Panicks if the backend doesn't allow binding this buffer to the specified point.
     pub fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
+        self.assert_unmapped(ctxt);
         unsafe { bind_buffer(ctxt, self.id, ty); }
     }
 
@@ -185,6 +186,7 @@ impl Buffer {
     pub fn indexed_bind(&self, mut ctxt: &mut CommandContext, ty: BufferType,
                         index: gl::types::GLuint, range: Range<usize>)
     {
+        self.assert_unmapped(ctxt);
         unsafe { indexed_bind_buffer(ctxt, self.id, ty, index, range); }
     }
 
