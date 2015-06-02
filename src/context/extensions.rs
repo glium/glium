@@ -74,6 +74,8 @@ pub struct ExtensionsList {
     pub gl_arb_texture_storage: bool,
     /// GL_ARB_timer_query
     pub gl_arb_timer_query: bool,
+    /// GL_ARB_transform_feedback3
+    pub gl_arb_transform_feedback3: bool,
     /// GL_ARB_uniform_buffer_object
     pub gl_arb_uniform_buffer_object: bool,
     /// GL_ARB_vertex_array_object
@@ -189,6 +191,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_texture_rgb10_a2ui: false,
         gl_arb_texture_storage: false,
         gl_arb_timer_query: false,
+        gl_arb_transform_feedback3: false,
         gl_arb_uniform_buffer_object: false,
         gl_arb_vertex_array_object: false,
         gl_arb_vertex_buffer_object: false,
@@ -259,6 +262,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_texture_rgb10_a2ui" => extensions.gl_arb_texture_rgb10_a2ui = true,
             "GL_ARB_texture_storage" => extensions.gl_arb_texture_storage = true,
             "GL_ARB_timer_query" => extensions.gl_arb_timer_query = true,
+            "GL_ARB_transform_feedback3" => extensions.gl_arb_transform_feedback3 = true,
             "GL_ARB_uniform_buffer_object" => extensions.gl_arb_uniform_buffer_object = true,
             "GL_ARB_vertex_array_object" => extensions.gl_arb_vertex_array_object = true,
             "GL_ARB_vertex_buffer_object" => extensions.gl_arb_vertex_buffer_object = true,

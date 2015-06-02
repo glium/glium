@@ -1,7 +1,7 @@
 use std::sync::Mutex;
 
 pub use self::program::{Program, ProgramCreationError};
-pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember};
+pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember, OutputPrimitives};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
 
 mod program;

@@ -413,3 +413,36 @@ fn get_transform_feedback_varyings() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn get_output_primitives_simple() {
+    let display = support::build_display();
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            void main() {
+                gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 110
+
+            void main() {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+        None);
+
+    // ignoring test in case of compilation error
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
+
+    assert!(program.get_output_primitives().is_none());
+    display.assert_no_error(None);
+}
+
+// TODO: add tests for get_output_primitives with geometry shader, TES, and both

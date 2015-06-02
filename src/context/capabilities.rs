@@ -41,6 +41,18 @@ pub struct Capabilities {
 
     /// Maximum number of vertices per patch. `None` if tessellation is not supported.
     pub max_patch_vertices: Option<gl::types::GLint>,
+
+    /// Number of available buffer bind points for `GL_ATOMIC_COUNTER_BUFFER`.
+    pub max_indexed_atomic_counter_buffer: gl::types::GLint,
+
+    /// Number of available buffer bind points for `GL_SHADER_STORAGE_BUFFER`.
+    pub max_indexed_shader_storage_buffer: gl::types::GLint,
+
+    /// Number of available buffer bind points for `GL_TRANSFORM_FEEDBACK_BUFFER`.
+    pub max_indexed_transform_feedback_buffer: gl::types::GLint,
+
+    /// Number of available buffer bind points for `GL_UNIFORM_BUFFER`.
+    pub max_indexed_uniform_buffer: gl::types::GLint,
 }
 
 /// Loads the capabilities.
@@ -170,6 +182,44 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         } else {
             None
+        },
+
+        max_indexed_atomic_counter_buffer: if version >= &Version(Api::Gl, 4, 2) {      // TODO: ARB_shader_atomic_counters   // TODO: GLES
+            let mut val = mem::uninitialized();
+            gl.GetIntegerv(gl::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS, &mut val);
+            val
+        } else {
+            0
+        },
+
+        max_indexed_shader_storage_buffer: if version >= &Version(Api::Gl, 4, 3) {      // TODO: ARB_shader_storage_buffer_object   // TODO: GLES
+            let mut val = mem::uninitialized();
+            gl.GetIntegerv(gl::MAX_SHADER_STORAGE_BUFFER_BINDINGS, &mut val);
+            val
+        } else {
+            0
+        },
+
+        max_indexed_transform_feedback_buffer: {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_transform_feedback3 {      // TODO: make sure that GL 3.0 supports it   // TODO: GLES
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::MAX_TRANSFORM_FEEDBACK_BUFFERS, &mut val);
+                val
+            } else if extensions.gl_ext_transform_feedback {
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS_EXT, &mut val);
+                val
+            } else {
+                0
+            }
+        },
+
+        max_indexed_uniform_buffer: if version >= &Version(Api::Gl, 3, 0) {      // TODO: ARB_shader_storage_buffer_object   // TODO: GLES
+            let mut val = mem::uninitialized();
+            gl.GetIntegerv(gl::MAX_UNIFORM_BUFFER_BINDINGS, &mut val);
+            val
+        } else {
+            0
         },
     }
 }

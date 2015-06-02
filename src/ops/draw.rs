@@ -12,6 +12,7 @@ use RawUniformValue;
 use context::Context;
 use ContextExt;
 use QueryExt;
+use TransformFeedbackSessionExt;
 
 use utils::bitsfield::Bitsfield;
 
@@ -23,7 +24,7 @@ use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use sampler_object::SamplerObject;
 use {Program, GlObject, ToGlEnum};
 use index::{self, IndicesSource};
-use vertex::{MultiVerticesSource, VerticesSource};
+use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
 
 use draw_parameters::DrawParameters;
@@ -247,6 +248,14 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachm
                           draw_parameters.primitives_generated_query,
                           draw_parameters.transform_feedback_primitives_written_query));
         sync_conditional_render(&mut ctxt, draw_parameters.condition);
+
+        // TODO: make sure that the program is the right one
+        // TODO: changing the current transform feedback requires pausing/unbinding before changing the program
+        if let Some(ref tf) = draw_parameters.transform_feedback {
+            tf.bind(&mut ctxt, indices.get_primitives_type());
+        } else {
+            TransformFeedbackSession::unbind(&mut ctxt);
+        }
 
         if !program.has_srgb_output() {
             if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||

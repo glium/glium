@@ -114,6 +114,10 @@ impl<T> BufferViewExt for IndexBuffer<T> where T: Index {
     fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
         self.buffer.bind_to(ctxt, ty)
     }
+
+    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
+        self.buffer.indexed_bind_to(ctxt, ty, index)
+    }
 }
 
 // TODO: remove this

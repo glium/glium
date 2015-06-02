@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::mem;
 use vertex::Attribute;
 
 #[allow(missing_docs)]
@@ -88,6 +89,62 @@ pub enum AttributeType {
 }
 
 impl AttributeType {
+    /// Returns the size in bytes of a value of this type.
+    pub fn get_size_bytes(&self) -> usize {
+        match *self {
+            AttributeType::I8 => 1 * mem::size_of::<i8>(),
+            AttributeType::I8I8 => 2 * mem::size_of::<i8>(),
+            AttributeType::I8I8I8 => 3 * mem::size_of::<i8>(),
+            AttributeType::I8I8I8I8 => 4 * mem::size_of::<i8>(),
+            AttributeType::U8 => 1 * mem::size_of::<u8>(),
+            AttributeType::U8U8 => 2 * mem::size_of::<u8>(),
+            AttributeType::U8U8U8 => 3 * mem::size_of::<u8>(),
+            AttributeType::U8U8U8U8 => 4 * mem::size_of::<u8>(),
+            AttributeType::I16 => 1 * mem::size_of::<i16>(),
+            AttributeType::I16I16 => 2 * mem::size_of::<i16>(),
+            AttributeType::I16I16I16 => 3 * mem::size_of::<i16>(),
+            AttributeType::I16I16I16I16 => 4 * mem::size_of::<i16>(),
+            AttributeType::U16 => 1 * mem::size_of::<u16>(),
+            AttributeType::U16U16 => 2 * mem::size_of::<u16>(),
+            AttributeType::U16U16U16 => 3 * mem::size_of::<u16>(),
+            AttributeType::U16U16U16U16 => 4 * mem::size_of::<u16>(),
+            AttributeType::I32 => 1 * mem::size_of::<i32>(),
+            AttributeType::I32I32 => 2 * mem::size_of::<i32>(),
+            AttributeType::I32I32I32 => 3 * mem::size_of::<i32>(),
+            AttributeType::I32I32I32I32 => 4 * mem::size_of::<i32>(),
+            AttributeType::U32 => 1 * mem::size_of::<u32>(),
+            AttributeType::U32U32 => 2 * mem::size_of::<u32>(),
+            AttributeType::U32U32U32 => 3 * mem::size_of::<u32>(),
+            AttributeType::U32U32U32U32 => 4 * mem::size_of::<u32>(),
+            AttributeType::F32 => 1 * mem::size_of::<f32>(),
+            AttributeType::F32F32 => 2 * mem::size_of::<f32>(),
+            AttributeType::F32F32F32 => 3 * mem::size_of::<f32>(),
+            AttributeType::F32F32F32F32 => 4 * mem::size_of::<f32>(),
+            AttributeType::F32x2x2 => 4 * mem::size_of::<f32>(),
+            AttributeType::F32x2x3 => 6 * mem::size_of::<f32>(),
+            AttributeType::F32x2x4 => 8 * mem::size_of::<f32>(),
+            AttributeType::F32x3x2 => 6 * mem::size_of::<f32>(),
+            AttributeType::F32x3x3 => 9 * mem::size_of::<f32>(),
+            AttributeType::F32x3x4 => 12 * mem::size_of::<f32>(),
+            AttributeType::F32x4x2 => 8 * mem::size_of::<f32>(),
+            AttributeType::F32x4x3 => 12 * mem::size_of::<f32>(),
+            AttributeType::F32x4x4 => 16 * mem::size_of::<f32>(),
+            AttributeType::F64 => 1 * mem::size_of::<f64>(),
+            AttributeType::F64F64 => 2 * mem::size_of::<f64>(),
+            AttributeType::F64F64F64 => 3 * mem::size_of::<f64>(),
+            AttributeType::F64F64F64F64 => 4 * mem::size_of::<f64>(),
+            AttributeType::F64x2x2 => 4 * mem::size_of::<f64>(),
+            AttributeType::F64x2x3 => 6 * mem::size_of::<f64>(),
+            AttributeType::F64x2x4 => 8 * mem::size_of::<f64>(),
+            AttributeType::F64x3x2 => 6 * mem::size_of::<f64>(),
+            AttributeType::F64x3x3 => 9 * mem::size_of::<f64>(),
+            AttributeType::F64x3x4 => 12 * mem::size_of::<f64>(),
+            AttributeType::F64x4x2 => 8 * mem::size_of::<f64>(),
+            AttributeType::F64x4x3 => 12 * mem::size_of::<f64>(),
+            AttributeType::F64x4x4 => 16 * mem::size_of::<f64>(),
+        }
+    }
+
     /// Returns the number of values for this type.
     pub fn get_num_components(&self) -> usize {
         match *self {

@@ -140,6 +140,10 @@ impl Context {
         {
             let mut state = gl_state.borrow_mut();
             state.texture_units.reserve(capabilities.max_combined_texture_image_units as usize);
+            state.indexed_atomic_counter_buffer_bindings.reserve(capabilities.max_indexed_atomic_counter_buffer as usize);
+            state.indexed_shader_storage_buffer_bindings.reserve(capabilities.max_indexed_shader_storage_buffer as usize);
+            state.indexed_transform_feedback_buffer_bindings.reserve(capabilities.max_indexed_transform_feedback_buffer as usize);
+            state.indexed_uniform_buffer_bindings.reserve(capabilities.max_indexed_uniform_buffer as usize);
         }
 
         let vertex_array_objects = vertex_array_object::VertexAttributesSystem::new();

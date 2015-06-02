@@ -10,8 +10,10 @@ use std::cell::Cell;
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut, Range};
 use GlObject;
+use TransformFeedbackSessionExt;
 
 use buffer::{BufferType, BufferCreationError};
+use vertex::TransformFeedbackSession;
 use vertex_array_object::VertexAttributesSystem;
 
 use version::Api;
@@ -154,6 +156,11 @@ impl Buffer {
         }
     }
 
+    /// Ensures that the buffer isn't used by the transform feedback process.
+    pub fn assert_not_transform_feedback(&self, ctxt: &mut CommandContext) {
+        TransformFeedbackSession::ensure_buffer_out_of_transform_feedback(ctxt, self.id);
+    }
+
     /// Makes sure that the buffer is binded to a specific bind point.
     ///
     /// The bind point is the value passed to `ty`.
@@ -163,6 +170,22 @@ impl Buffer {
     /// Panicks if the backend doesn't allow binding this buffer to the specified point.
     pub fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
         unsafe { bind_buffer(ctxt, self.id, ty); }
+    }
+
+    /// Makes sure that the buffer is binded to a specific indexed bind point.
+    ///
+    /// The bind point is the value passed to `ty`.
+    ///
+    /// # Panic
+    ///
+    /// - Panicks if `range` is out of range.
+    /// - Panicks if the backend doesn't allow binding this buffer to the specified point.
+    /// - Panicks if the bind point is not an indexed bind point.
+    /// - Panicks if the bind point is over the maximum value.
+    pub fn indexed_bind(&self, mut ctxt: &mut CommandContext, ty: BufferType,
+                        index: gl::types::GLuint, range: Range<usize>)
+    {
+        unsafe { indexed_bind_buffer(ctxt, self.id, ty, index, range); }
     }
 
     /// Uploads data in the buffer.
@@ -192,6 +215,7 @@ impl Buffer {
             let mut ctxt = self.context.make_current();
 
             self.assert_unmapped(&mut ctxt);
+            self.assert_not_transform_feedback(&mut ctxt);
 
             let (tmp_buffer, _, _) = create_buffer(&mut ctxt, to_upload, Some(data),
                                                    BufferType::CopyReadBuffer,
@@ -207,6 +231,7 @@ impl Buffer {
             let mut ctxt = self.context.make_current();
 
             self.assert_unmapped(&mut ctxt);
+            self.assert_not_transform_feedback(&mut ctxt);
 
             if invalidate_all && (ctxt.version >= &Version(Api::Gl, 4, 3) ||
                 ctxt.extensions.gl_arb_invalidate_subdata)
@@ -259,6 +284,7 @@ impl Buffer {
 
         let mut ctxt = self.context.make_current();
         self.assert_unmapped(&mut ctxt);
+        self.assert_not_transform_feedback(&mut ctxt);
 
         if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_invalidate_subdata {
             if is_whole_buffer {
@@ -357,6 +383,7 @@ impl Buffer {
                 let mut ctxt = self.context.make_current();
 
                 self.assert_unmapped(&mut ctxt);
+                self.assert_not_transform_feedback(&mut ctxt);
                 copy_buffer(&mut ctxt, self.id, offset_bytes, temporary_buffer, 0, size_bytes);
                 map_buffer(&mut ctxt, temporary_buffer, self.ty, 0 .. size_bytes, true, true)
                                     .expect("Buffer mapping is not supported by the backend")
@@ -406,6 +433,7 @@ impl Buffer {
             let ptr = {
                 let mut ctxt = self.context.make_current();
                 self.assert_unmapped(&mut ctxt);
+                self.assert_not_transform_feedback(&mut ctxt);
                 self.mapped.set(true);
                 map_buffer(&mut ctxt, self.id, self.ty,
                            offset_bytes .. offset_bytes + size_bytes, true, true)
@@ -492,6 +520,7 @@ impl Drop for Buffer {
         unsafe {
             let mut ctxt = self.context.make_current();
             self.assert_unmapped(&mut ctxt);
+            self.assert_not_transform_feedback(&mut ctxt);
             VertexAttributesSystem::purge_buffer(&mut ctxt, self.id);
             destroy_buffer(&mut ctxt, self.id);
         }
@@ -843,7 +872,95 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
         return gl::ELEMENT_ARRAY_BUFFER;
     }
 
+    if ty == BufferType::TransformFeedbackBuffer {
+        debug_assert!(ctxt.capabilities.max_indexed_transform_feedback_buffer >= 1);
+
+        // FIXME: pause transform feedback if it is active
+
+        if ctxt.state.indexed_transform_feedback_buffer_bindings[0].buffer != id {
+            ctxt.state.indexed_transform_feedback_buffer_bindings[0].buffer = id;
+
+            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+               ctxt.version >= &Version(Api::GlEs, 2, 0)
+            {
+                ctxt.gl.BindBuffer(gl::TRANSFORM_FEEDBACK_BUFFER, id);
+            } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                ctxt.gl.BindBufferARB(gl::TRANSFORM_FEEDBACK_BUFFER, id);
+            } else {
+                unreachable!();
+            }
+        }
+
+        return gl::TRANSFORM_FEEDBACK_BUFFER;
+    }
+
     unreachable!();
+}
+
+/// Binds a buffer of the given type to an indexed bind point.
+///
+/// # Panic
+///
+/// Panicks if the buffer type is not indexed.
+///
+/// # Unsafety
+///
+/// Assumes that the type of buffer is supported by the backend.
+unsafe fn indexed_bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+                              index: gl::types::GLuint, range: Range<usize>)
+{
+    let offset = range.start as gl::types::GLintptr;
+    let size = (range.end - range.start) as gl::types::GLsizeiptr;
+
+    macro_rules! check {
+        ($ctxt:expr, $input_id:expr, $input_ty:expr, $input_index:expr, $check:ident,
+         $state_var:ident, $max:ident) =>
+        (
+            if $input_ty == BufferType::$check {
+                let en = $input_ty.to_glenum();
+
+                if $input_index >= ctxt.capabilities.$max as gl::types::GLuint {
+                    panic!("Indexed buffer out of range");
+                }
+
+                if ctxt.state.$state_var.len() <= $input_index as usize {
+                    for _ in (0 .. 1 + ctxt.state.$state_var.len() - $input_index as usize) {
+                        ctxt.state.$state_var.push(Default::default());
+                    }
+                }
+
+                let unit = &mut ctxt.state.$state_var[$input_index as usize];
+                if unit.buffer != $input_id || unit.offset != offset || unit.size != size {
+                    unit.buffer = $input_id;
+                    unit.offset = offset;
+                    unit.size = size;
+
+                    if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                       ctxt.version >= &Version(Api::GlEs, 3, 0)
+                    {
+                        ctxt.gl.BindBufferRange(en, $input_index, id, offset, size);
+                    } else if ctxt.extensions.gl_ext_transform_feedback {
+                        ctxt.gl.BindBufferRangeEXT(en, $input_index, id, offset, size);
+                    } else {
+                        panic!("The backend doesn't support indexed buffer bind points");
+                    }
+                }
+
+                return;
+            }
+        );
+    }
+
+    check!(ctxt, id, ty, index, UniformBuffer, indexed_uniform_buffer_bindings,
+           max_indexed_uniform_buffer);
+    check!(ctxt, id, ty, index, TransformFeedbackBuffer, indexed_transform_feedback_buffer_bindings,
+           max_indexed_transform_feedback_buffer);
+    check!(ctxt, id, ty, index, AtomicCounterBuffer, indexed_atomic_counter_buffer_bindings,
+           max_indexed_atomic_counter_buffer);
+    check!(ctxt, id, ty, index, ShaderStorageBuffer, indexed_shader_storage_buffer_bindings,
+           max_indexed_shader_storage_buffer);
+
+    panic!();
 }
 
 /// Copies from a buffer to another.
@@ -975,6 +1092,31 @@ unsafe fn destroy_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint) {
 
     if ctxt.state.shader_storage_buffer_binding == id {
         ctxt.state.shader_storage_buffer_binding = 0;
+    }
+
+    for point in ctxt.state.indexed_atomic_counter_buffer_bindings.iter_mut() {
+        if point.buffer == id {
+            point.buffer = 0;
+        }
+    }
+
+    for point in ctxt.state.indexed_shader_storage_buffer_bindings.iter_mut() {
+        if point.buffer == id {
+            point.buffer = 0;
+        }
+    }
+
+    for point in ctxt.state.indexed_uniform_buffer_bindings.iter_mut() {
+        if point.buffer == id {
+            point.buffer = 0;
+        }
+    }
+
+    for point in ctxt.state.indexed_transform_feedback_buffer_bindings.iter_mut() {
+        // FIXME: end transform feedback if it is active
+        if point.buffer == id {
+            point.buffer = 0;
+        }
     }
 
     if ctxt.version >= &Version(Api::Gl, 1, 5) ||
