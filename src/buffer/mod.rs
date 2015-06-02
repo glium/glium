@@ -48,7 +48,7 @@ pub enum BufferType {
     QueryBuffer,
     ShaderStorageBuffer,
     TextureBuffer,
-    //TransformFeedbackBuffer,
+    TransformFeedbackBuffer,
     ElementArrayBuffer,
 }
 
@@ -67,7 +67,7 @@ impl BufferType {
             BufferType::QueryBuffer => gl::QUERY_BUFFER,
             BufferType::ShaderStorageBuffer => gl::SHADER_STORAGE_BUFFER,
             BufferType::TextureBuffer => gl::TEXTURE_BUFFER,
-            //BufferType::TransformFeedbackBuffer => gl::TRANSFORM_FEEDBACK_BUFFER,
+            BufferType::TransformFeedbackBuffer => gl::TRANSFORM_FEEDBACK_BUFFER,
             BufferType::ElementArrayBuffer => gl::ELEMENT_ARRAY_BUFFER,
         }
     }

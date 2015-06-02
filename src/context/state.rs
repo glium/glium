@@ -79,6 +79,9 @@ pub struct GlState {
     /// The latest buffer bound to `GL_UNIFORM_BUFFER`.
     pub uniform_buffer_binding: gl::types::GLuint,
 
+    /// List of buffers bound to the indexed `GL_UNIFORM_BUFFER`.
+    pub indexed_uniform_buffer_bindings: Vec<IndexedBufferState>,
+
     /// The latest buffer bound to `GL_COPY_READ_BUFFER`.
     pub copy_read_buffer_binding: gl::types::GLuint,
 
@@ -100,8 +103,17 @@ pub struct GlState {
     /// The latest buffer bound to `GL_ATOMIC_COUNTER_BUFFER`.
     pub atomic_counter_buffer_binding: gl::types::GLuint,
 
+    /// List of buffers bound to the indexed `GL_ATOMIC_COUNTER_BUFFER`.
+    pub indexed_atomic_counter_buffer_bindings: Vec<IndexedBufferState>,
+
     /// The latest buffer bound to `GL_SHADER_STORAGE_BUFFER`.
     pub shader_storage_buffer_binding: gl::types::GLuint,
+
+    /// List of buffers bound to the indexed `GL_SHADER_STORAGE_BUFFER`.
+    pub indexed_shader_storage_buffer_bindings: Vec<IndexedBufferState>,
+
+    /// List of buffers bound to the indexed `GL_TRANSFORM_FEEDBACK_BUFFER`.
+    pub indexed_transform_feedback_buffer_bindings: Vec<IndexedBufferState>,
 
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: gl::types::GLuint,
@@ -207,6 +219,13 @@ pub struct GlState {
     /// Latest value passed to `glBeginConditionalRender​`.
     pub conditional_render: Option<(gl::types::GLuint, gl::types::GLenum)>,
 
+    /// If `glBeginTransformFeedback​` has been called, the current primitive types. Otherwise None.
+    // TODO: move this inside transform feedback objects
+    pub transform_feedback_enabled: Option<gl::types::GLenum>,
+
+    /// True if `glPauseTransformFeedback` has been called.
+    // TODO: move this inside transform feedback objects
+    pub transform_feedback_paused: bool,
 }
 
 /// State of a texture unit (the one designated by `glActiveTexture`).
@@ -217,6 +236,19 @@ pub struct TextureUnitState {
 
     /// Id of the sampler.
     pub sampler: gl::types::GLuint,
+}
+
+/// State of an indexed buffer target (`glBindBufferRange`/`glBindBufferBase`).
+#[derive(Copy, Clone, Debug)]
+pub struct IndexedBufferState {
+    /// Id of the buffer.
+    pub buffer: gl::types::GLuint,
+
+    /// Starting offset in bytes.
+    pub offset: gl::types::GLintptr,
+
+    /// Size in bytes.
+    pub size: gl::types::GLsizeiptr,
 }
 
 /// Builds the `GlState` corresponding to a newly-created OpenGL context.
@@ -248,6 +280,7 @@ impl Default for GlState {
             pixel_pack_buffer_binding: 0,
             pixel_unpack_buffer_binding: 0,
             uniform_buffer_binding: 0,
+            indexed_uniform_buffer_bindings: vec![Default::default()],
             copy_read_buffer_binding: 0,
             copy_write_buffer_binding: 0,
             dispatch_indirect_buffer_binding: 0,
@@ -255,7 +288,10 @@ impl Default for GlState {
             query_buffer_binding: 0,
             texture_buffer_binding: 0,
             atomic_counter_buffer_binding: 0,
+            indexed_atomic_counter_buffer_bindings: vec![Default::default()],
             shader_storage_buffer_binding: 0,
+            indexed_shader_storage_buffer_bindings: vec![Default::default()],
+            indexed_transform_feedback_buffer_bindings: vec![Default::default()],
             read_framebuffer: 0,
             draw_framebuffer: 0,
             default_framebuffer_read: None,
@@ -289,6 +325,8 @@ impl Default for GlState {
             transform_feedback_primitives_written_query: 0,
             time_elapsed_query: 0,
             conditional_render: None,
+            transform_feedback_enabled: None,
+            transform_feedback_paused: false,
         }
     }
 }
@@ -298,6 +336,16 @@ impl Default for TextureUnitState {
         TextureUnitState {
             texture: 0,
             sampler: 0,
+        }
+    }
+}
+
+impl Default for IndexedBufferState {
+    fn default() -> IndexedBufferState {
+        IndexedBufferState {
+            buffer: 0,
+            offset: 0,
+            size: 0,
         }
     }
 }

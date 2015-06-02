@@ -51,6 +51,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_ARB_texture_multisample".to_string(),
                 "GL_ARB_texture_rg".to_string(),
                 "GL_ARB_texture_rgb10_a2ui".to_string(),
+                "GL_ARB_transform_feedback3".to_string(),
                 "GL_ARB_vertex_buffer_object".to_string(),
                 "GL_ARB_vertex_shader".to_string(),
                 "GL_ATI_meminfo".to_string(),

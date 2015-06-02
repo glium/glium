@@ -191,6 +191,10 @@ trait BufferViewExt {
 
     /// Makes sure that the buffer is binded to a specific bind point.
     fn bind_to(&self, &mut CommandContext, ty: buffer::BufferType);
+
+    /// Makes sure that the buffer is binded to a specific indexed bind point.
+    fn indexed_bind_to(&self, &mut CommandContext, ty: buffer::BufferType,
+                       index: gl::types::GLuint);
 }
 
 /// Internal trait for subbuffer slices.
@@ -248,6 +252,21 @@ trait QueryExt {
     /// Returns the type of this query object.
     fn get_type(&self) -> gl::types::GLenum;
 }
+
+/// Internal trait for transform feedback sessions.
+trait TransformFeedbackSessionExt {
+    /// Updates the state of OpenGL to make the transform feedback session current.
+    ///
+    /// The second parameter must be the primitive type of the input vertex data.
+    fn bind(&self, &mut CommandContext, index::PrimitiveType);
+
+    /// Ensures that transform feedback is disabled.
+    fn unbind(&mut CommandContext);
+
+    /// Ensures that a buffer isn't used by transform feedback.
+    fn ensure_buffer_out_of_transform_feedback(&mut CommandContext, gl::types::GLuint);
+}
+
 
 /// A raw value of a uniform. "Raw" means that it's passed directly with `glUniform`. Textures
 /// for example are just passed as integers.

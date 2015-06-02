@@ -23,12 +23,14 @@ use RawUniformValue;
 use program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, Binary};
 use program::uniforms_storage::UniformsStorage;
 
-use program::reflection::{Uniform, UniformBlock};
+use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
 use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
-use program::reflection::{reflect_transform_feedback};
+use program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
+use program::reflection::{reflect_tess_eval_output_type};
 use program::shader::build_shader;
 
+use vertex::VertexFormat;
 use vertex_array_object::VertexAttributesSystem;
 
 /// Error that can be triggered when creating a `Program`.
@@ -102,6 +104,7 @@ pub struct Program {
     attributes: HashMap<String, Attribute>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
+    output_primitives: Option<OutputPrimitives>,
     has_tessellation_shaders: bool,
 }
 
@@ -162,6 +165,7 @@ impl Program {
     {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
+        let mut has_geometry_shader = false;
         let mut has_tessellation_shaders = false;
 
         // getting an array of the source codes and their type
@@ -188,6 +192,7 @@ impl Program {
             ];
 
             if let Some(gs) = geometry_shader {
+                has_geometry_shader = true;
                 shaders.push((gs, gl::GEOMETRY_SHADER));
             }
 
@@ -307,15 +312,17 @@ impl Program {
             id
         };
 
-        let (uniforms, attributes, blocks, tf_buffers) = {
-            unsafe {
-                (
-                    reflect_uniforms(&mut ctxt, id),
-                    reflect_attributes(&mut ctxt, id),
-                    reflect_uniform_blocks(&mut ctxt, id),
-                    reflect_transform_feedback(&mut ctxt, id),
-                )
-            }
+        let uniforms = unsafe { reflect_uniforms(&mut ctxt, id) };
+        let attributes = unsafe { reflect_attributes(&mut ctxt, id) };
+        let blocks = unsafe { reflect_uniform_blocks(&mut ctxt, id) };
+        let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
+
+        let output_primitives = if has_geometry_shader {
+            Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
+        } else if has_tessellation_shaders {
+            Some(unsafe { reflect_tess_eval_output_type(&mut ctxt, id) })
+        } else {
+            None
         };
 
         Ok(Program {
@@ -327,6 +334,7 @@ impl Program {
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
+            output_primitives: output_primitives,
             has_tessellation_shaders: has_tessellation_shaders,
         })
     }
@@ -382,6 +390,7 @@ impl Program {
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
+            output_primitives: None,            // FIXME: 
             has_tessellation_shaders: true,     // FIXME: 
         })
     }
@@ -516,6 +525,43 @@ impl Program {
     /// Returns the list of transform feedback varyings.
     pub fn get_transform_feedback_buffers(&self) -> &[TransformFeedbackBuffer] {
         &self.tf_buffers
+    }
+
+    /// True if the transform feedback output of this program matches the specified `VertexFormat`
+    /// and `stride`.
+    ///
+    /// The `stride` is the number of bytes between two vertices.
+    pub fn transform_feedback_matches(&self, format: &VertexFormat, stride: usize) -> bool {
+        // TODO: doesn't support multiple buffers
+
+        if self.get_transform_feedback_buffers().len() != 1 {
+            return false;
+        }
+
+        let buf = &self.get_transform_feedback_buffers()[0];
+
+        if buf.stride != stride {
+            return false;
+        }
+
+        for elem in buf.elements.iter() {
+            if format.iter().find(|e| &e.0 == &*elem.name && e.1 == elem.offset && e.2 == elem.ty)
+                            .is_none()
+            {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// Returns the type of geometry that transform feedback would generate, or `None` if it
+    /// depends on the vertex/index data passed when drawing.
+    ///
+    /// This corresponds to `GL_GEOMETRY_OUTPUT_TYPE` or `GL_TESS_GEN_MODE`. If the program doesn't
+    /// contain either a geometry shader or a tessellation evaluation shader, returns `None`.
+    pub fn get_output_primitives(&self) -> Option<OutputPrimitives> {
+        self.output_primitives
     }
 
     /// Returns true if the program contains a tessellation stage.

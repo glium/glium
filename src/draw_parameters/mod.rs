@@ -82,6 +82,7 @@ use ContextExt;
 use DrawError;
 use Rect;
 use ToGlEnum;
+use vertex::TransformFeedbackSession;
 
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
@@ -750,6 +751,9 @@ pub struct DrawParameters<'a> {
     /// If set, the commands will only be executed if the specified query contains `true` or
     /// a number different than 0.
     pub condition: Option<ConditionalRendering<'a>>,
+
+    /// If set, then the generated primitives will be written back to a buffer.
+    pub transform_feedback: Option<&'a TransformFeedbackSession<'a>>,
 }
 
 /// Condition whether to render or not.
@@ -822,6 +826,7 @@ impl<'a> Default for DrawParameters<'a> {
             primitives_generated_query: None,
             transform_feedback_primitives_written_query: None,
             condition: None,
+            transform_feedback: None,
         }
     }
 }

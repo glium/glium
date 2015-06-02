@@ -638,6 +638,12 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
         alloc.assert_unmapped(ctxt);
         alloc.bind(ctxt, ty);
     }
+
+    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.assert_unmapped(ctxt);
+        alloc.indexed_bind(ctxt, ty, index, 0 .. alloc.get_size());
+    }
 }
 
 impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
@@ -664,6 +670,12 @@ impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'sta
         self.alloc.assert_unmapped(ctxt);
         self.alloc.bind(ctxt, ty);
     }
+
+    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
+        self.alloc.assert_unmapped(ctxt);
+        self.alloc.indexed_bind(ctxt, ty, index, self.offset_bytes ..
+                                self.offset_bytes + self.num_elements * mem::size_of::<T>());
+    }
 }
 
 impl BufferViewExt for BufferViewAny {
@@ -679,6 +691,11 @@ impl BufferViewExt for BufferViewAny {
     fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
         self.alloc.assert_unmapped(ctxt);
         self.alloc.bind(ctxt, ty);
+    }
+
+    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
+        self.alloc.assert_unmapped(ctxt);
+        self.alloc.indexed_bind(ctxt, ty, index, 0 .. self.alloc.get_size());
     }
 }
 
@@ -705,6 +722,12 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
     fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
         self.alloc.assert_unmapped(ctxt);
         self.alloc.bind(ctxt, ty);
+    }
+
+    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
+        self.alloc.assert_unmapped(ctxt);
+        self.alloc.indexed_bind(ctxt, ty, index, self.offset_bytes ..
+                                self.offset_bytes + self.elements_count * self.elements_size);
     }
 }
 
