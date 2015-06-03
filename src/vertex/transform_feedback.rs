@@ -28,7 +28,11 @@ pub struct TransformFeedbackSession<'a> {
 /// Error that can happen when creating a `TransformFeedbackSession`.
 #[derive(Debug, Clone)]
 pub enum TransformFeedbackSessionCreationError {
-
+    /// Transform feedback is not supported by the OpenGL implementation.
+    NotSupported,
+    
+    /// The format of the output doesn't match what the program is expected to output.
+    WrongVertexFormat,
 }
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
@@ -50,13 +54,13 @@ impl<'a> TransformFeedbackSession<'a> {
                      where F: Facade, V: Vertex + Copy + Send + 'static
     {
         if !is_transform_feedback_supported(facade) {
-            panic!();   // FIXME: 
+            return Err(TransformFeedbackSessionCreationError::NotSupported);
         }
 
         if !program.transform_feedback_matches(&<V as Vertex>::build_bindings(), 
                                                mem::size_of::<V>())
         {
-            panic!();   // FIXME: 
+            return Err(TransformFeedbackSessionCreationError::WrongVertexFormat); 
         }
 
         Ok(TransformFeedbackSession {
