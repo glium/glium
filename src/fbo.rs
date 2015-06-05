@@ -1,9 +1,8 @@
 /*!
 Contains everything related to the internal handling of framebuffer objects.
 
-This module allows creating framebuffer objects. However it **does not** check whether
-the framebuffer object is complete (ie. if everything is valid). This is the module user's job.
-
+*/
+/*
 Here are the rules taken from the official wiki:
 
 Attachment Completeness
