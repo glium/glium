@@ -1,4 +1,4 @@
-use fbo::{self, FramebufferAttachments};
+use fbo::{self, ValidatedAttachments};
 
 use context::Context;
 use ContextExt;
@@ -11,7 +11,7 @@ use version::Version;
 use gl;
 
 
-pub fn clear(context: &Context, framebuffer: Option<&FramebufferAttachments>,
+pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
              rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
              stencil: Option<i32>)
 {

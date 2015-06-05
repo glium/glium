@@ -53,7 +53,7 @@ use uniforms::{UniformValue, AsUniformValue, UniformType, Sampler};
 use {Surface, GlObject};
 
 use FboAttachments;
-use fbo::FramebufferAttachments;
+use fbo::ValidatedAttachments;
 use Rect;
 use BlitTarget;
 use uniforms;
@@ -496,7 +496,7 @@ impl<'a> Surface for TextureSurface<'a> {
 }
 
 impl<'a> FboAttachments for TextureSurface<'a> {
-    fn get_attachments(&self) -> Option<&FramebufferAttachments> {
+    fn get_attachments(&self) -> Option<&ValidatedAttachments> {
         self.0.get_attachments()
     }
 }

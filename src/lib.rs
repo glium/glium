@@ -253,6 +253,12 @@ trait QueryExt {
     fn get_type(&self) -> gl::types::GLenum;
 }
 
+/// Internal trait for textures.
+trait TextureExt {
+    /// Returns the bind point of the texture.
+    fn get_bind_point(&self) -> gl::types::GLenum;
+}
+
 /// Internal trait for transform feedback sessions.
 trait TransformFeedbackSessionExt {
     /// Updates the state of OpenGL to make the transform feedback session current.
@@ -629,7 +635,7 @@ pub trait Surface: Sized {
 /// Private trait for framebuffer-like objects that provide attachments.
 trait FboAttachments {
     /// Returns the list of attachments of this FBO, or `None` if it is the default framebuffer.
-    fn get_attachments(&self) -> Option<&fbo::FramebufferAttachments>;
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments>;
 }
 
 /// Error that can happen while drawing.
@@ -860,7 +866,7 @@ impl Surface for Frame {
 }
 
 impl FboAttachments for Frame {
-    fn get_attachments(&self) -> Option<&fbo::FramebufferAttachments> {
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
         None
     }
 }

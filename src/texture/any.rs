@@ -5,6 +5,7 @@ use backend::Facade;
 use version::Version;
 use context::Context;
 use ContextExt;
+use TextureExt;
 use version::Api;
 use Rect;
 
@@ -388,6 +389,16 @@ impl<'a> TextureAnyMipmap<'a> {
     pub fn get_texture(&self) -> &'a TextureAny {
         self.texture
     }
+
+    /// Returns the level of the texture.
+    pub fn get_level(&self) -> u32 {
+        self.level
+    }
+
+    /// Returns the layer of the texture.
+    pub fn get_layer(&self) -> u32 {
+        self.layer
+    }
 }
 
 /// Changes some parts of the texture.
@@ -483,11 +494,10 @@ impl TextureAny {
     {
         assert_eq!(level, 0);   // TODO:
 
-        let attachment = fbo::Attachment::Texture {
-            id: self.id,
-            bind_point: self.bind_point,
+        let attachment = fbo::Attachment::TextureLayer {
+            texture: self,
             layer: 0,
-            level: 0
+            level: 0,
         };
 
         let rect = Rect {
@@ -512,11 +522,10 @@ impl TextureAny {
 
         let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
 
-        let attachment = fbo::Attachment::Texture {
-            id: self.id,
-            bind_point: self.bind_point,
+        let attachment = fbo::Attachment::TextureLayer {
+            texture: self,
             layer: 0,
-            level: 0
+            level: 0,
         };
 
         let rect = Rect {
@@ -594,6 +603,12 @@ impl TextureAny {
             layer: layer,
             level: level,
         })
+    }
+}
+
+impl TextureExt for TextureAny {
+    fn get_bind_point(&self) -> gl::types::GLenum {
+        self.bind_point
     }
 }
 

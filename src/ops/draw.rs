@@ -16,7 +16,7 @@ use TransformFeedbackSessionExt;
 
 use utils::bitsfield::Bitsfield;
 
-use fbo::{self, FramebufferAttachments};
+use fbo::{self, ValidatedAttachments};
 
 use sync;
 use buffer::BufferType;
@@ -41,7 +41,7 @@ use version::Version;
 use version::Api;
 
 /// Draws everything.
-pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&FramebufferAttachments>,
+pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments>,
                       vertex_buffers: V, indices: IndicesSource,
                       program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
                       dimensions: (u32, u32)) -> Result<(), DrawError>
