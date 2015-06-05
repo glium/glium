@@ -4,14 +4,14 @@ use Rect;
 use context::Context;
 use ContextExt;
 
-use fbo::FramebufferAttachments;
+use fbo::ValidatedAttachments;
 
 use gl;
 use version::Version;
 use version::Api;
 
-pub fn blit(context: &Context, source: Option<&FramebufferAttachments>,
-            target: Option<&FramebufferAttachments>, mask: gl::types::GLbitfield,
+pub fn blit(context: &Context, source: Option<&ValidatedAttachments>,
+            target: Option<&ValidatedAttachments>, mask: gl::types::GLbitfield,
             src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
     unsafe {

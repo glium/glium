@@ -15,7 +15,7 @@ use gl;
 /// A source for reading pixels.
 pub enum Source<'a> {
     // TODO: remove the second parameter
-    Attachment(&'a fbo::Attachment, &'a fbo::FramebuffersContainer),
+    Attachment(&'a fbo::Attachment<'a>, &'a fbo::FramebuffersContainer),
     // TODO: use a Rust enum
     DefaultFramebuffer(gl::types::GLenum),
 }
