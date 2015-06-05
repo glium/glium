@@ -231,6 +231,8 @@ Here is the final code of our `src/main.rs` file:
                         &Default::default()).unwrap();
             target.finish();
 
+            for _ in display.poll_events() {}
+
             if display.is_closed() {
                 break;
             }

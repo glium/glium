@@ -33,6 +33,8 @@ Our first approach will be to create a variable named `t` which represents the s
                     &Default::default()).unwrap();
         target.finish();
 
+        for _ in display.poll_events() {}
+
         if display.is_closed() {
             break;
         }
@@ -72,6 +74,8 @@ Let's reset our program to what it was at the end of the first tutorial, but kee
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                     &Default::default()).unwrap();
         target.finish();
+
+        for _ in display.poll_events() {}
 
         if display.is_closed() {
             break;
@@ -234,6 +238,8 @@ Here is the final code of our `src/main.rs` file:
             target.draw(&vertex_buffer, &indices, &program, &uniforms,
                         &Default::default()).unwrap();
             target.finish();
+
+            for _ in display.poll_events() {}
 
             if display.is_closed() {
                 break;
