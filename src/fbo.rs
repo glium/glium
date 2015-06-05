@@ -51,6 +51,7 @@ If a layered image is attached to one attachment, then all attachments must be l
 
 */
 use std::collections::HashMap;
+use std::cmp;
 use std::mem;
 use std::cell::RefCell;
 use std::marker::PhantomData;
@@ -125,16 +126,27 @@ impl<'a> FramebufferAttachments<'a> {
     pub fn validate(self)
                     -> Result<ValidatedAttachments<'a>, ValidationError>
     {
-        // getting dimensions
-        let dimensions = {
-            (800, 800)      // FIXME: 
-        };
-
         // turning the attachments into raw attachments
-        let raw_attachments = {
-            fn attachment_to_raw(a: &Attachment) -> RawAttachment {
+        let (raw_attachments, dimensions, depth_bits, stencil_bits) = {
+            fn handle_attachment(a: &Attachment, dim: &mut Option<(u32, u32)>,
+                                 num_bits: Option<&mut Option<u16>>)
+                                 -> RawAttachment
+            {
                 match a {
                     &Attachment::Texture { ref texture, level } => {
+                        if let Some(num_bits) = num_bits {
+                            *num_bits = Some(texture.get_internal_format_if_supported()
+                                               .map(|f| f.get_total_bits()).unwrap_or(24) as u16);     // TODO: how to handle this?
+                        }
+
+                        match dim {
+                            d @ &mut None => *d = Some((texture.get_width(), texture.get_height().unwrap_or(1))),
+                            &mut Some((ref mut x, ref mut y)) => {
+                                *x = cmp::min(*x, texture.get_width());
+                                *y = cmp::min(*y, texture.get_height().unwrap_or(1));
+                            }
+                        }
+
                         RawAttachment::Texture {
                             texture: texture.get_id(),
                             bind_point: texture.get_bind_point(),
@@ -143,6 +155,19 @@ impl<'a> FramebufferAttachments<'a> {
                         }
                     },
                     &Attachment::TextureLayer { ref texture, level, layer } => {
+                        if let Some(num_bits) = num_bits {
+                            *num_bits = Some(texture.get_internal_format_if_supported()
+                                               .map(|f| f.get_total_bits()).unwrap_or(24) as u16);     // TODO: how to handle this?
+                        }
+
+                        match dim {
+                            d @ &mut None => *d = Some((texture.get_width(), texture.get_height().unwrap_or(1))),
+                            &mut Some((ref mut x, ref mut y)) => {
+                                *x = cmp::min(*x, texture.get_width());
+                                *y = cmp::min(*y, texture.get_height().unwrap_or(1));
+                            }
+                        }
+
                         RawAttachment::Texture {
                             texture: texture.get_id(),
                             bind_point: texture.get_bind_point(),
@@ -151,10 +176,33 @@ impl<'a> FramebufferAttachments<'a> {
                         }
                     },
                     &Attachment::RenderBuffer(ref buffer) => {
+                        if let Some(num_bits) = num_bits {
+                            *num_bits = Some(24);    // FIXME: totally random
+                        }
+
+                        match dim {
+                            d @ &mut None => *d = Some(buffer.get_dimensions()),
+                            &mut Some((ref mut x, ref mut y)) => {
+                                let curr = buffer.get_dimensions();
+                                *x = cmp::min(*x, curr.0);
+                                *y = cmp::min(*y, curr.1);
+                            }
+                        }
+
                         RawAttachment::RenderBuffer(buffer.get_id())
                     },
                 }
             }
+
+            // TODO: check number of samples
+            // TODO: check layering
+
+            // the dimensions of the framebuffer object
+            let mut dimensions = None;
+            // number of depth bits
+            let mut depth_bits = None;
+            // number of stencil bits
+            let mut stencil_bits = None;
 
             let mut raw_attachments = RawAttachments {
                 color: Vec::with_capacity(self.colors.len()),
@@ -164,35 +212,40 @@ impl<'a> FramebufferAttachments<'a> {
             };
 
             for &(index, ref a) in &self.colors {
-                raw_attachments.color.push((index, attachment_to_raw(a)));
+                raw_attachments.color.push((index, handle_attachment(a, &mut dimensions, None)));
             }
 
             match self.depth_stencil {
                 FramebufferDepthStencilAttachments::None => (),
                 FramebufferDepthStencilAttachments::DepthAttachment(ref a) => {
-                    raw_attachments.depth = Some(attachment_to_raw(a));
+                    raw_attachments.depth = Some(handle_attachment(a, &mut dimensions, Some(&mut depth_bits)));
                 },
                 FramebufferDepthStencilAttachments::StencilAttachment(ref a) => {
-                    raw_attachments.stencil = Some(attachment_to_raw(a));
+                    raw_attachments.stencil = Some(handle_attachment(a, &mut dimensions, Some(&mut stencil_bits)));
                 },
                 FramebufferDepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
-                    raw_attachments.depth = Some(attachment_to_raw(d));
-                    raw_attachments.stencil = Some(attachment_to_raw(s));
+                    raw_attachments.depth = Some(handle_attachment(d, &mut dimensions, Some(&mut depth_bits)));
+                    raw_attachments.stencil = Some(handle_attachment(s, &mut dimensions, Some(&mut stencil_bits)));
                 },
                 FramebufferDepthStencilAttachments::DepthStencilAttachment(ref a) => {
-                    raw_attachments.depth_stencil = Some(attachment_to_raw(a));
+                    raw_attachments.depth_stencil = Some(handle_attachment(a, &mut dimensions, None));      // FIXME: bit counts
                 },
             }
 
-            raw_attachments
+            let dimensions = match dimensions {
+                Some(d) => d,
+                None => return Err(ValidationError::EmptyFramebufferObjectsNotSupported)
+            };
+
+            (raw_attachments, dimensions, depth_bits, stencil_bits)
         };
 
         Ok(ValidatedAttachments {
             raw: raw_attachments,
             marker: PhantomData,
             dimensions: dimensions,
-            depth_buffer_bits: None,    // FIXME: 
-            stencil_buffer_bits: None,  // FIXME: 
+            depth_buffer_bits: depth_bits,
+            stencil_buffer_bits: stencil_bits,
         })
     }
 }
@@ -229,7 +282,7 @@ impl<'a> ValidatedAttachments<'a> {
 /// An error that can happen while validating attachments.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ValidationError {
-
+    EmptyFramebufferObjectsNotSupported,
 }
 
 /// Data structure stored in the hashmap.

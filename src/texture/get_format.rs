@@ -12,6 +12,7 @@ use texture::any::{self, TextureAny};
 ///
 /// The actual format of a texture is not necessarly one of the predefined ones, so we have
 /// to use a very generic description.
+// TODO: change bits to be u16 for consistency with the rest of the library
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum InternalFormat {
     /// The format has one component.
@@ -69,6 +70,19 @@ pub enum InternalFormat {
         /// Number of bits of the fourth component.
         bits4: usize,
     },
+}
+
+impl InternalFormat {
+    /// Returns the total number of bits of this format.
+    pub fn get_total_bits(&self) -> usize {
+        match self {
+            &InternalFormat::OneComponent { bits1, .. } => bits1,
+            &InternalFormat::TwoComponents { bits1, bits2, .. } => bits1 + bits2,
+            &InternalFormat::ThreeComponents { bits1, bits2, bits3, .. } => bits1 + bits2 + bits3,
+            &InternalFormat::FourComponents { bits1, bits2, bits3, bits4, .. } =>
+                                                                    bits1 + bits2 + bits3 + bits4,
+        }
+    }
 }
 
 /// Format of a component of an internal format.
