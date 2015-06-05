@@ -59,7 +59,7 @@ use DrawError;
 
 use {fbo, gl};
 
-pub use self::render_buffer::{RenderBuffer, DepthRenderBuffer};
+pub use self::render_buffer::{RenderBuffer, RenderBufferAny, DepthRenderBuffer};
 pub use self::render_buffer::{StencilRenderBuffer, DepthStencilRenderBuffer};
 
 mod render_buffer;

@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Added `vertex::TransformFeedbackSession` and `transform_feedback` to the draw parameters.
+ - Added `RenderBufferAny`. Render buffers now deref to `RenderBufferAny`.
  - Deprecated `.into_vertex_buffer_any()` in favor of `.into()`.
  - Fixed values in uniform blocks being required to implement the `Default` trait.
  - Fixed buffer sometimes not always correctly unbinded.

@@ -8,6 +8,7 @@ the data of the render buffer.
 
 */
 use std::rc::Rc;
+use std::ops::{Deref, DerefMut};
 use std::mem;
 
 use framebuffer::{ColorAttachment, ToColorAttachment};
@@ -30,7 +31,7 @@ use version::Api;
 ///
 /// Contrary to a texture, you can't sample or modify the content of the `RenderBuffer`.
 pub struct RenderBuffer {
-    buffer: RenderBufferImpl,
+    buffer: RenderBufferAny,
 }
 
 impl RenderBuffer {
@@ -43,19 +44,28 @@ impl RenderBuffer {
         let format = format.expect("Format not supported");
 
         RenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height)
         }
-    }
-
-    /// Returns the dimensions of the render buffer.
-    pub fn get_dimensions(&self) -> (u32, u32) {
-        (self.buffer.width, self.buffer.height)
     }
 }
 
 impl ToColorAttachment for RenderBuffer {
     fn to_color_attachment(&self) -> ColorAttachment {
         ColorAttachment::RenderBuffer(self)
+    }
+}
+
+impl Deref for RenderBuffer {
+    type Target = RenderBufferAny;
+
+    fn deref(&self) -> &RenderBufferAny {
+        &self.buffer
+    }
+}
+
+impl DerefMut for RenderBuffer {
+    fn deref_mut(&mut self) -> &mut RenderBufferAny {
+        &mut self.buffer
     }
 }
 
@@ -70,7 +80,7 @@ impl GlObject for RenderBuffer {
 ///
 /// Contrary to a texture, you can't sample or modify the content of the `DepthRenderBuffer` directly.
 pub struct DepthRenderBuffer {
-    buffer: RenderBufferImpl,
+    buffer: RenderBufferAny,
 }
 
 impl DepthRenderBuffer {
@@ -83,19 +93,28 @@ impl DepthRenderBuffer {
         let format = format.expect("Format not supported");
 
         DepthRenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height)
         }
-    }
-
-    /// Returns the dimensions of the render buffer.
-    pub fn get_dimensions(&self) -> (u32, u32) {
-        (self.buffer.width, self.buffer.height)
     }
 }
 
 impl ToDepthAttachment for DepthRenderBuffer {
     fn to_depth_attachment(&self) -> DepthAttachment {
         DepthAttachment::RenderBuffer(self)
+    }
+}
+
+impl Deref for DepthRenderBuffer {
+    type Target = RenderBufferAny;
+
+    fn deref(&self) -> &RenderBufferAny {
+        &self.buffer
+    }
+}
+
+impl DerefMut for DepthRenderBuffer {
+    fn deref_mut(&mut self) -> &mut RenderBufferAny {
+        &mut self.buffer
     }
 }
 
@@ -110,7 +129,7 @@ impl GlObject for DepthRenderBuffer {
 ///
 /// Contrary to a texture, you can't sample or modify the content of the `StencilRenderBuffer` directly.
 pub struct StencilRenderBuffer {
-    buffer: RenderBufferImpl,
+    buffer: RenderBufferAny,
 }
 
 impl StencilRenderBuffer {
@@ -123,19 +142,28 @@ impl StencilRenderBuffer {
         let format = format.expect("Format not supported");
 
         StencilRenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height)
         }
-    }
-
-    /// Returns the dimensions of the render buffer.
-    pub fn get_dimensions(&self) -> (u32, u32) {
-        (self.buffer.width, self.buffer.height)
     }
 }
 
 impl ToStencilAttachment for StencilRenderBuffer {
     fn to_stencil_attachment(&self) -> StencilAttachment {
         StencilAttachment::RenderBuffer(self)
+    }
+}
+
+impl Deref for StencilRenderBuffer {
+    type Target = RenderBufferAny;
+
+    fn deref(&self) -> &RenderBufferAny {
+        &self.buffer
+    }
+}
+
+impl DerefMut for StencilRenderBuffer {
+    fn deref_mut(&mut self) -> &mut RenderBufferAny {
+        &mut self.buffer
     }
 }
 
@@ -150,7 +178,7 @@ impl GlObject for StencilRenderBuffer {
 ///
 /// Contrary to a texture, you can't sample or modify the content of the `DepthStencilRenderBuffer` directly.
 pub struct DepthStencilRenderBuffer {
-    buffer: RenderBufferImpl,
+    buffer: RenderBufferAny,
 }
 
 impl DepthStencilRenderBuffer {
@@ -163,19 +191,28 @@ impl DepthStencilRenderBuffer {
         let format = format.expect("Format not supported");
 
         DepthStencilRenderBuffer {
-            buffer: RenderBufferImpl::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height)
         }
-    }
-
-    /// Returns the dimensions of the render buffer.
-    pub fn get_dimensions(&self) -> (u32, u32) {
-        (self.buffer.width, self.buffer.height)
     }
 }
 
 impl ToDepthStencilAttachment for DepthStencilRenderBuffer {
     fn to_depth_stencil_attachment(&self) -> DepthStencilAttachment {
         DepthStencilAttachment::RenderBuffer(self)
+    }
+}
+
+impl Deref for DepthStencilRenderBuffer {
+    type Target = RenderBufferAny;
+
+    fn deref(&self) -> &RenderBufferAny {
+        &self.buffer
+    }
+}
+
+impl DerefMut for DepthStencilRenderBuffer {
+    fn deref_mut(&mut self) -> &mut RenderBufferAny {
+        &mut self.buffer
     }
 }
 
@@ -186,18 +223,18 @@ impl GlObject for DepthStencilRenderBuffer {
     }
 }
 
-/// The implementation
-struct RenderBufferImpl {
+/// A RenderBuffer of indeterminate type.
+pub struct RenderBufferAny {
     context: Rc<Context>,
     id: gl::types::GLuint,
     width: u32,
     height: u32,
 }
 
-impl RenderBufferImpl {
+impl RenderBufferAny {
     /// Builds a new render buffer.
     fn new<F>(facade: &F, format: gl::types::GLenum, width: u32, height: u32)
-              -> RenderBufferImpl where F: Facade
+              -> RenderBufferAny where F: Facade
     {
         // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
         let mut ctxt = facade.get_context().make_current();
@@ -238,16 +275,21 @@ impl RenderBufferImpl {
             id
         };
 
-        RenderBufferImpl {
+        RenderBufferAny {
             context: facade.get_context().clone(),
             id: id,
             width: width,
             height: height,
         }
     }
+
+    /// Returns the dimensions of the render buffer.
+    pub fn get_dimensions(&self) -> (u32, u32) {
+        (self.width, self.height)
+    }
 }
 
-impl Drop for RenderBufferImpl {
+impl Drop for RenderBufferAny {
     fn drop(&mut self) {
         unsafe {
             let mut ctxt = self.context.make_current();
@@ -279,7 +321,7 @@ impl Drop for RenderBufferImpl {
     }
 }
 
-impl GlObject for RenderBufferImpl {
+impl GlObject for RenderBufferAny {
     type Id = gl::types::GLuint;
     fn get_id(&self) -> gl::types::GLuint {
         self.id
