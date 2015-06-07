@@ -147,8 +147,6 @@ We also need to pass the matrix when calling the `draw` function:
 
 You should see exactly the same thing as previously, but what we now have is much more flexible. For example, if instead we want to rotate the triangle we can try this matrix instead:
 
-    use std::num::Float;
-
     let uniforms = uniform! {
         matrix: [
             [ t.cos(), t.sin(), 0.0, 0.0],
