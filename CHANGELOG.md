@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.5.2
 
  - Added `vertex::TransformFeedbackSession` and `transform_feedback` to the draw parameters.
  - Added `RenderBufferAny`. Render buffers now deref to `RenderBufferAny`.
