@@ -50,6 +50,8 @@ pub struct ExtensionsList {
     pub gl_arb_occlusion_query2: bool,
     /// GL_ARB_pixel_buffer_object
     pub gl_arb_pixel_buffer_object: bool,
+    /// GL_ARB_program_interface_query
+    pub gl_arb_program_interface_query: bool,
     /// GL_ARB_sampler_objects
     pub gl_arb_sampler_objects: bool,
     /// GL_ARB_shader_image_load_store
@@ -181,6 +183,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_map_buffer_range: false,
         gl_arb_multi_draw_indirect: false,
         gl_arb_pixel_buffer_object: false,
+        gl_arb_program_interface_query: false,
         gl_arb_sampler_objects: false,
         gl_arb_shader_image_load_store: false,
         gl_arb_shader_objects: false,
@@ -251,6 +254,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_occlusion_query" => extensions.gl_arb_occlusion_query = true,
             "GL_ARB_occlusion_query2" => extensions.gl_arb_occlusion_query2 = true,
             "GL_ARB_pixel_buffer_object" => extensions.gl_arb_pixel_buffer_object = true,
+            "GL_ARB_program_interface_query" => extensions.gl_arb_program_interface_query = true,
             "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
             "GL_ARB_multi_draw_indirect" => extensions.gl_arb_multi_draw_indirect = true,
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,

@@ -3,6 +3,7 @@ use libc;
 
 use std::ffi;
 use std::mem;
+use std::ptr;
 use std::collections::HashMap;
 
 use context::CommandContext;
@@ -604,6 +605,116 @@ pub unsafe fn reflect_tess_eval_output_type(ctxt: &mut CommandContext, program: 
         gl::QUADS => panic!(),
         _ => unreachable!()
     }
+}
+
+/// Returns the list of shader storage blocks of a program.
+pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: Handle)
+                                            -> HashMap<String, UniformBlock>
+{
+    if !(ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+         ctxt.extensions.gl_arb_program_interface_query)
+    {
+        // not supported
+        return HashMap::with_capacity(0);
+    }
+    
+    let program = match program {
+        Handle::Id(program) => program,
+        Handle::Handle(program) => return HashMap::with_capacity(0)
+    };
+
+    // number of active SSBOs
+    let active_blocks = {
+        let mut active_blocks: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetProgramInterfaceiv(program, gl::SHADER_STORAGE_BLOCK,
+                                      gl::ACTIVE_RESOURCES, &mut active_blocks);
+        active_blocks as gl::types::GLuint
+    };
+
+    // the result of this function
+    let mut blocks = HashMap::with_capacity(active_blocks as usize);
+
+    for block_id in (0 .. active_blocks) {
+        // getting basic infos
+        let (name_len, num_variables, binding, total_size) = {
+            let mut output: [gl::types::GLint; 4] = mem::uninitialized();
+            ctxt.gl.GetProgramResourceiv(program, gl::SHADER_STORAGE_BLOCK, block_id, 4,
+                                         [gl::NAME_LENGTH, gl::NUM_ACTIVE_VARIABLES,
+                                          gl::BUFFER_BINDING, gl::BUFFER_DATA_SIZE].as_ptr(), 4,
+                                         ptr::null_mut(), output.as_mut_ptr() as *mut _);
+            (output[0] as usize, output[1] as usize, output[2], output[3] as usize)
+        };
+
+        // getting the name of the block
+        let name = {
+            let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + name_len);
+            let mut name_tmp_len = name_len as gl::types::GLsizei;
+
+            ctxt.gl.GetProgramResourceName(program, gl::SHADER_STORAGE_BLOCK, block_id,
+                                           name_tmp_len, &mut name_tmp_len,
+                                           name_tmp.as_mut_ptr() as *mut _);
+            name_tmp.set_len(name_tmp_len as usize);
+            String::from_utf8(name_tmp).unwrap()
+        };
+
+        // indices of the active variables
+        let active_variables: Vec<gl::types::GLint> = {
+            let mut variables = Vec::with_capacity(num_variables);
+            ctxt.gl.GetProgramResourceiv(program, gl::SHADER_STORAGE_BLOCK, block_id, 1,
+                                         [gl::ACTIVE_VARIABLES].as_ptr(),
+                                         num_variables as gl::types::GLsizei,
+                                         ptr::null_mut(), variables.as_mut_ptr() as *mut _);
+            variables.set_len(num_variables);
+            variables
+        };
+
+        let mut members = Vec::with_capacity(num_variables);
+
+        // iterating over variables
+        for variable in active_variables {
+            let (ty, array_size, offset, _array_stride, name_len) = {
+                let mut output: [gl::types::GLint; 5] = mem::uninitialized();
+                ctxt.gl.GetProgramResourceiv(program, gl::BUFFER_VARIABLE,
+                                             variable as gl::types::GLuint, 5,
+                                             [gl::TYPE, gl::ARRAY_SIZE, gl::OFFSET,
+                                              gl::ARRAY_STRIDE, gl::NAME_LENGTH].as_ptr(), 5,
+                                             ptr::null_mut(), output.as_mut_ptr() as *mut _);
+                (glenum_to_uniform_type(output[0] as gl::types::GLenum), output[1] as usize,
+                 output[2] as usize, output[3] as usize, output[4] as usize)
+            };
+
+            let name = {
+                let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + name_len);
+                let mut name_tmp_len = name_len as gl::types::GLsizei;
+
+                ctxt.gl.GetProgramResourceName(program, gl::BUFFER_VARIABLE,
+                                               variable as gl::types::GLuint,
+                                               name_tmp_len, &mut name_tmp_len,
+                                               name_tmp.as_mut_ptr() as *mut _);
+                name_tmp.set_len(name_tmp_len as usize);
+                String::from_utf8(name_tmp).unwrap()
+            };
+
+            members.push(UniformBlockMember {
+                name: name,
+                offset: offset,
+                ty: ty,
+                size: match array_size {
+                    1 => None,
+                    a => Some(a as usize),
+                },
+            });
+        }
+
+        // finally inserting into the blocks list
+        blocks.insert(name, UniformBlock {
+            binding: binding as i32,
+            size: total_size,
+            members: members,
+        });
+    }
+
+    blocks
 }
 
 fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {

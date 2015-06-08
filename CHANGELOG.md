@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added `Program::get_shader_storage_blocks()` to obtain the list of shader storage blocks.
+
 ## Version 0.5.2
 
  - Added `vertex::TransformFeedbackSession` and `transform_feedback` to the draw parameters.
