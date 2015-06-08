@@ -7,7 +7,7 @@ use backend::Facade;
 use BufferViewExt;
 use ContextExt;
 use TransformFeedbackSessionExt;
-use buffer::{BufferType, BufferView, BufferViewAnySlice};
+use buffer::{BufferView, BufferViewAnySlice};
 use index::PrimitiveType;
 use program::OutputPrimitives;
 use program::Program;
@@ -145,7 +145,8 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
             unimplemented!();
         }
 
-        self.buffer.indexed_bind_to(ctxt, BufferType::TransformFeedbackBuffer, 0);
+        // FIXME: use the memory barrier system
+        self.buffer.bind_to_transform_feedback(ctxt, 0);
 
         unsafe {
             let primitives = match (self.program.get_output_primitives(), draw_primitives) {

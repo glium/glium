@@ -24,10 +24,10 @@ pub struct VertexAttributesSystem {
 }
 
 /// Object allowing one to bind vertex attributes to the current context.
-pub struct Binder<'a, 'c, 'd: 'c> {
-    context: &'c mut CommandContext<'d>,
+pub struct Binder<'a, 'b, 'c: 'b> {
+    context: &'b mut CommandContext<'c>,
     program: &'a Program,
-    element_array_buffer: gl::types::GLuint,
+    element_array_buffer: Option<BufferViewAnySlice<'a>>,
     vertex_buffers: Vec<(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)>,
 }
 
@@ -40,9 +40,13 @@ impl VertexAttributesSystem {
     }
 
     /// Starts the process of binding vertex attributes.
-    pub fn start<'a, 'c, 'd>(ctxt: &'c mut CommandContext<'d>, program: &'a Program,
-                             indices: gl::types::GLuint) -> Binder<'a, 'c, 'd>
+    pub fn start<'a, 'b, 'c: 'b>(ctxt: &'b mut CommandContext<'c>, program: &'a Program,
+                                 indices: Option<BufferViewAnySlice<'a>>) -> Binder<'a, 'b, 'c>
     {
+        if let Some(indices) = indices {
+            indices.prepare_for_element_array(ctxt);
+        }
+
         Binder {
             context: ctxt,
             program: program,
@@ -117,7 +121,7 @@ impl VertexAttributesSystem {
     }
 }
 
-impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
+impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     /// Adds a buffer to bind as a source of vertices.
     ///
     /// # Parameters
@@ -126,10 +130,13 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
     pub fn add(mut self, buffer: &BufferViewAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
-               -> Binder<'a, 'c, 'd>
+               -> Binder<'a, 'b, 'c>
     {
         let offset = buffer.get_offset_bytes();
-        let (buffer, format, stride) = (buffer.get_buffer_id(self.context), bindings.clone(),
+
+        buffer.prepare_for_vertex_attrib_array(self.context);
+
+        let (buffer, format, stride) = (buffer.get_buffer_id(), bindings.clone(),
                                         buffer.get_elements_size());
 
         self.vertex_buffers.push((buffer, format, offset, stride, divisor));
@@ -148,7 +155,7 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
             let mut buffers_list: Vec<_> = self.vertex_buffers.iter()
                                                               .map(|&(v, _, o, _, _)| (v, o))
                                                               .collect();
-            buffers_list.push((self.element_array_buffer, 0));
+            buffers_list.push((self.element_array_buffer.map(|b| b.get_buffer_id()).unwrap_or(0), 0));
             buffers_list.sort();
 
             let program_id = self.program.get_id();
@@ -174,21 +181,10 @@ impl<'a, 'c, 'd: 'c> Binder<'a, 'c, 'd> {
             // VAOs are not supported
 
             // just in case
-            if ctxt.state.vertex_array != 0 {
-                bind_vao(ctxt, 0);
-                ctxt.state.vertex_array = 0;
-            }
+            bind_vao(ctxt, 0);
 
-            unsafe {
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.element_array_buffer);
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER_ARB, self.element_array_buffer);
-                } else {
-                    unreachable!();
-                }
+            if let Some(element_array_buffer) = self.element_array_buffer {
+                element_array_buffer.bind_to_element_array(ctxt);
             }
 
             for (vertex_buffer, bindings, offset, stride, divisor) in self.vertex_buffers {
@@ -216,7 +212,7 @@ impl VertexArrayObject {
     /// VAO, and the VB & program attributes must not change.
     unsafe fn new(mut ctxt: &mut CommandContext,
                   vertex_buffers: &[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)],
-                  ib_id: gl::types::GLuint, program: &Program) -> VertexArrayObject
+                  index_buffer: Option<BufferViewAnySlice>, program: &Program) -> VertexArrayObject
     {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {
@@ -274,16 +270,8 @@ impl VertexArrayObject {
         bind_vao(&mut ctxt, id);
 
         // binding index buffer
-        // the ELEMENT_ARRAY_BUFFER is part of the state of the VAO
-        // TODO: use a proper function
-        if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-            ctxt.version >= &Version(Api::GlEs, 2, 0)
-        {
-            ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ib_id);
-        } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-            ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER_ARB, ib_id);
-        } else {
-            unreachable!();
+        if let Some(index_buffer) = index_buffer {
+            index_buffer.bind_to_element_array(&mut ctxt);
         }
 
         for &(vertex_buffer, ref bindings, offset, stride, divisor) in vertex_buffers {
@@ -293,7 +281,7 @@ impl VertexArrayObject {
         VertexArrayObject {
             id: id,
             destroyed: false,
-            element_array_buffer: ib_id,
+            element_array_buffer: index_buffer.map(|b| b.get_buffer_id()).unwrap_or(0),
             element_array_buffer_hijacked: Cell::new(false),
         }
     }
@@ -327,10 +315,7 @@ impl VertexArrayObject {
 
         unsafe {
             // unbinding
-            if ctxt.state.vertex_array == self.id {
-                bind_vao(ctxt, 0);
-                ctxt.state.vertex_array = 0;
-            }
+            bind_vao(ctxt, 0);
 
             // deleting
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||

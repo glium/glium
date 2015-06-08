@@ -627,22 +627,49 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
         0
     }
 
-    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
+    fn get_buffer_id(&self) -> gl::types::GLuint {
         let alloc = self.alloc.as_ref().unwrap();
-        alloc.assert_unmapped(ctxt);
         alloc.get_id()
     }
 
-    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
+    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
         let alloc = self.alloc.as_ref().unwrap();
-        alloc.assert_unmapped(ctxt);
-        alloc.bind(ctxt, ty);
+        alloc.prepare_for_vertex_attrib_array(ctxt);
     }
 
-    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
+    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
         let alloc = self.alloc.as_ref().unwrap();
-        alloc.assert_unmapped(ctxt);
-        alloc.indexed_bind(ctxt, ty, index, 0 .. alloc.get_size());
+        alloc.prepare_for_element_array(ctxt);
+    }
+
+    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.bind_to_element_array(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_pixel_pack(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. alloc.get_size());
+    }
+
+    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.bind_to_transform_feedback(ctxt, index, 0 .. alloc.get_size());
     }
 }
 
@@ -661,20 +688,40 @@ impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'sta
         self.offset_bytes
     }
 
-    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
-        self.alloc.assert_unmapped(ctxt);
+    fn get_buffer_id(&self) -> gl::types::GLuint {
         self.alloc.get_id()
     }
 
-    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
-        self.alloc.assert_unmapped(ctxt);
-        self.alloc.bind(ctxt, ty);
+    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_vertex_attrib_array(ctxt);
     }
 
-    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
-        self.alloc.assert_unmapped(ctxt);
-        self.alloc.indexed_bind(ctxt, ty, index, self.offset_bytes ..
-                                self.offset_bytes + self.num_elements * mem::size_of::<T>());
+    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_element_array(ctxt);
+    }
+
+    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.bind_to_element_array(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
     }
 }
 
@@ -683,19 +730,40 @@ impl BufferViewExt for BufferViewAny {
         0
     }
 
-    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
-        self.alloc.assert_unmapped(ctxt);
+    fn get_buffer_id(&self) -> gl::types::GLuint {
         self.alloc.get_id()
     }
 
-    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
-        self.alloc.assert_unmapped(ctxt);
-        self.alloc.bind(ctxt, ty);
+    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_vertex_attrib_array(ctxt);
     }
 
-    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
-        self.alloc.assert_unmapped(ctxt);
-        self.alloc.indexed_bind(ctxt, ty, index, 0 .. self.alloc.get_size());
+    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_element_array(ctxt);
+    }
+
+    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.bind_to_element_array(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
     }
 }
 
@@ -714,20 +782,40 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
         self.offset_bytes
     }
 
-    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
-        self.alloc.assert_unmapped(ctxt);
+    fn get_buffer_id(&self) -> gl::types::GLuint {
         self.alloc.get_id()
     }
 
-    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
-        self.alloc.assert_unmapped(ctxt);
-        self.alloc.bind(ctxt, ty);
+    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_vertex_attrib_array(ctxt);
     }
 
-    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
-        self.alloc.assert_unmapped(ctxt);
-        self.alloc.indexed_bind(ctxt, ty, index, self.offset_bytes ..
-                                self.offset_bytes + self.elements_count * self.elements_size);
+    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_element_array(ctxt);
+    }
+
+    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.bind_to_element_array(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
     }
 }
 
