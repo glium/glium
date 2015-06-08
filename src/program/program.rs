@@ -27,7 +27,7 @@ use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
 use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
 use program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
-use program::reflection::{reflect_tess_eval_output_type};
+use program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
 use program::shader::build_shader;
 
 use vertex::VertexFormat;
@@ -104,6 +104,7 @@ pub struct Program {
     attributes: HashMap<String, Attribute>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
+    ssbos: HashMap<String, UniformBlock>,
     output_primitives: Option<OutputPrimitives>,
     has_tessellation_shaders: bool,
 }
@@ -316,6 +317,7 @@ impl Program {
         let attributes = unsafe { reflect_attributes(&mut ctxt, id) };
         let blocks = unsafe { reflect_uniform_blocks(&mut ctxt, id) };
         let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
+        let ssbos = unsafe { reflect_shader_storage_blocks(&mut ctxt, id) };
 
         let output_primitives = if has_geometry_shader {
             Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
@@ -334,6 +336,7 @@ impl Program {
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
+            ssbos: ssbos,
             output_primitives: output_primitives,
             has_tessellation_shaders: has_tessellation_shaders,
         })
@@ -372,12 +375,13 @@ impl Program {
             id
         };
 
-        let (uniforms, attributes, blocks, tf_buffers) = unsafe {
+        let (uniforms, attributes, blocks, tf_buffers, ssbos) = unsafe {
             (
                 reflect_uniforms(&mut ctxt, id),
                 reflect_attributes(&mut ctxt, id),
                 reflect_uniform_blocks(&mut ctxt, id),
                 reflect_transform_feedback(&mut ctxt, id),
+                reflect_shader_storage_blocks(&mut ctxt, id),
             )
         };
 
@@ -390,6 +394,7 @@ impl Program {
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
+            ssbos: ssbos,
             output_primitives: None,            // FIXME: 
             has_tessellation_shaders: true,     // FIXME: 
         })
@@ -591,6 +596,20 @@ impl Program {
     /// Returns true if the program has been configured to output sRGB instead of RGB.
     pub fn has_srgb_output(&self) -> bool {
         false
+    }
+    
+    /// Returns the list of shader storage blocks.
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (name, uniform) in program.get_shader_storage_blocks() {
+    ///     println!("Name: {}", name);
+    /// }
+    /// ```
+    pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+        &self.ssbos
     }
 }
 
