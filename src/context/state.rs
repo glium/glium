@@ -226,6 +226,62 @@ pub struct GlState {
     /// True if `glPauseTransformFeedback` has been called.
     // TODO: move this inside transform feedback objects
     pub transform_feedback_paused: bool,
+
+    /// Current draw call ID.
+    /// We maintain a counter that is incremented at each draw call.
+    pub next_draw_call_id: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT`.
+    pub latest_memory_barrier_vertex_attrib_array: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_ELEMENT_ARRAY_BARRIER_BIT`.
+    pub latest_memory_barrier_element_array: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_UNIFORM_BARRIER_BIT`.
+    pub latest_memory_barrier_uniform: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_TEXTURE_FETCH_BARRIER_BIT`.
+    pub latest_memory_barrier_texture_fetch: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_SHADER_IMAGE_ACCESS_BARRIER_BIT`.
+    pub latest_memory_barrier_shader_image_access: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_COMMAND_BARRIER_BIT`.
+    pub latest_memory_barrier_command: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_PIXEL_BUFFER_BARRIER_BIT`.
+    pub latest_memory_barrier_pixel_buffer: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_TEXTURE_UPDATE_BARRIER_BIT`.
+    pub latest_memory_barrier_texture_update: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_BUFFER_UPDATE_BARRIER_BIT`.
+    pub latest_memory_barrier_buffer_update: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_FRAMEBUFFER_BARRIER_BIT`.
+    pub latest_memory_barrier_framebuffer: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_TRANSFORM_FEEDBACK_BARRIER_BIT`.
+    pub latest_memory_barrier_transform_feedback: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_ATOMIC_COUNTER_BARRIER_BIT`.
+    pub latest_memory_barrier_atomic_counter: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_SHADER_STORAGE_BARRIER_BIT`.
+    pub latest_memory_barrier_shader_storage: u64,
 }
 
 /// State of a texture unit (the one designated by `glActiveTexture`).
@@ -327,6 +383,21 @@ impl Default for GlState {
             conditional_render: None,
             transform_feedback_enabled: None,
             transform_feedback_paused: false,
+
+            next_draw_call_id: 1,
+            latest_memory_barrier_vertex_attrib_array: 1,
+            latest_memory_barrier_element_array: 1,
+            latest_memory_barrier_uniform: 1,
+            latest_memory_barrier_texture_fetch: 1,
+            latest_memory_barrier_shader_image_access: 1,
+            latest_memory_barrier_command: 1,
+            latest_memory_barrier_pixel_buffer: 1,
+            latest_memory_barrier_texture_update: 1,
+            latest_memory_barrier_buffer_update: 1,
+            latest_memory_barrier_framebuffer: 1,
+            latest_memory_barrier_transform_feedback: 1,
+            latest_memory_barrier_atomic_counter: 1,
+            latest_memory_barrier_shader_storage: 1,
         }
     }
 }

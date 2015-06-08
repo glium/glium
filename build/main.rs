@@ -46,6 +46,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_ARB_multi_draw_indirect".to_string(),
                 "GL_ARB_occlusion_query".to_string(),
                 "GL_ARB_pixel_buffer_object".to_string(),
+                "GL_ARB_shader_image_load_store".to_string(),
                 "GL_ARB_shader_objects".to_string(),
                 "GL_ARB_texture_float".to_string(),
                 "GL_ARB_texture_multisample".to_string(),

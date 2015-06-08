@@ -9,8 +9,6 @@ use std::cell::Cell;
 use std::ops::{Deref, DerefMut};
 
 use backend::Facade;
-use context::CommandContext;
-use ContextExt;
 
 use GlObject;
 use BufferViewExt;
@@ -72,32 +70,12 @@ impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
     }
 }
 
-impl<T> BufferViewExt for PixelBuffer<T> where T: PixelValue {
-    fn get_offset_bytes(&self) -> usize {
-        self.buffer.get_offset_bytes()
-    }
-
-    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
-        self.buffer.get_buffer_id(ctxt)
-    }
-
-    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
-        self.buffer.bind_to(ctxt, ty)
-    }
-
-    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
-        self.buffer.indexed_bind_to(ctxt, ty, index)
-    }
-}
-
 // TODO: rework this
 impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
     type Id = gl::types::GLuint;
 
     fn get_id(&self) -> gl::types::GLuint {
-        let ctxt = self.buffer.get_context();
-        let mut ctxt = ctxt.make_current();
-        self.buffer.get_buffer_id(&mut ctxt)
+        self.buffer.get_buffer_id()
     }
 }
 

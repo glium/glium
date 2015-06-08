@@ -45,6 +45,9 @@ pub struct Buffer {
     ///
     /// The purpose of this flag is to detect if the user mem::forgets the `Mapping` object.
     mapped: Cell<bool>,
+
+    /// ID of the draw call where the texture was last written as an SSBO.
+    latest_shader_write: u64,
 }
 
 /// A mapping of a buffer.
@@ -100,6 +103,7 @@ impl Buffer {
             immutable: immutable,
             dynamic_creation_flag: dynamic,
             mapped: Cell::new(false),
+            latest_shader_write: 0,
         })
     }
 
@@ -122,6 +126,7 @@ impl Buffer {
             immutable: immutable,
             dynamic_creation_flag: dynamic,
             mapped: Cell::new(false),
+            latest_shader_write: 0,
         })
     }
 
@@ -149,7 +154,7 @@ impl Buffer {
 
     /// Asserts that the buffer is not mapped and available for operations.
     /// No-op for persistent mapping.
-    pub fn assert_unmapped(&self, ctxt: &mut CommandContext) {
+    fn assert_unmapped(&self, ctxt: &mut CommandContext) {
         if self.mapped.get() {
             unsafe { unmap_buffer(ctxt, self.id, self.ty) };
             self.mapped.set(false);
@@ -157,8 +162,118 @@ impl Buffer {
     }
 
     /// Ensures that the buffer isn't used by the transform feedback process.
-    pub fn assert_not_transform_feedback(&self, ctxt: &mut CommandContext) {
+    fn assert_not_transform_feedback(&self, ctxt: &mut CommandContext) {
         TransformFeedbackSession::ensure_buffer_out_of_transform_feedback(ctxt, self.id);
+    }
+
+    /// Calls `glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT)` if necessary.
+    fn barrier_for_buffer_update(&self, ctxt: &mut CommandContext) {
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_buffer_update {
+            unsafe { ctxt.gl.MemoryBarrier(gl::BUFFER_UPDATE_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_buffer_update = ctxt.state.next_draw_call_id;
+        }
+    }
+
+    /// Calls `glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT)` if necessary.
+    pub fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_vertex_attrib_array {
+            unsafe { ctxt.gl.MemoryBarrier(gl::VERTEX_ATTRIB_ARRAY_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_vertex_attrib_array = ctxt.state.next_draw_call_id;
+        }
+    }
+
+    /// Calls `glMemoryBarrier(ELEMENT_ARRAY_BARRIER_BIT)` if necessary.
+    pub fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_element_array {
+            unsafe { ctxt.gl.MemoryBarrier(gl::ELEMENT_ARRAY_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_element_array = ctxt.state.next_draw_call_id;
+        }
+
+    }
+
+    /// Binds the buffer to `GL_ELEMENT_ARRAY_BUFFER` regardless of the current vertex array object.
+    pub fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+           ctxt.version >= &Version(Api::GlEs, 2, 0)
+        {
+            unsafe { ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.id); }
+        } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+            unsafe { ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER, self.id); }
+        } else {
+            unreachable!();
+        }
+    }
+
+    /// Makes sure that the buffer is binded to the `GL_PIXEL_PACK_BUFFER` and calls
+    /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_pixel_pack(&self, mut ctxt: &mut CommandContext) {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_pixel_buffer {
+            unsafe { ctxt.gl.MemoryBarrier(gl::PIXEL_BUFFER_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_pixel_buffer = ctxt.state.next_draw_call_id;
+        }
+
+        unsafe { bind_buffer(ctxt, self.id, BufferType::PixelPackBuffer); }
+    }
+
+    /// Makes sure that the buffer is binded to the `GL_PIXEL_UNPACK_BUFFER` and calls
+    /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_pixel_unpack(&self, mut ctxt: &mut CommandContext) {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_pixel_buffer {
+            unsafe { ctxt.gl.MemoryBarrier(gl::PIXEL_BUFFER_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_pixel_buffer = ctxt.state.next_draw_call_id;
+        }
+
+        unsafe { bind_buffer(ctxt, self.id, BufferType::PixelUnpackBuffer); }
+    }
+
+    /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
+    /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_draw_indirect(&self, mut ctxt: &mut CommandContext) {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_command {
+            unsafe { ctxt.gl.MemoryBarrier(gl::COMMAND_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_command = ctxt.state.next_draw_call_id;
+        }
+
+        unsafe { bind_buffer(ctxt, self.id, BufferType::DrawIndirectBuffer); }
+    }
+
+    /// Makes sure that the buffer is binded to the indexed `GL_UNIFORM_BUFFER` point and calls
+    /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+                                        range: Range<usize>)
+    {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_uniform {
+            unsafe { ctxt.gl.MemoryBarrier(gl::UNIFORM_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_uniform = ctxt.state.next_draw_call_id;
+        }
+
+        self.indexed_bind(ctxt, BufferType::UniformBuffer, index, range);
+    }
+
+    /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
+    /// feedback object.
+    pub fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+                                      range: Range<usize>)
+    {
+        self.indexed_bind(ctxt, BufferType::TransformFeedbackBuffer, index, range);
     }
 
     /// Makes sure that the buffer is binded to a specific bind point.
@@ -168,7 +283,7 @@ impl Buffer {
     /// # Panic
     ///
     /// Panicks if the backend doesn't allow binding this buffer to the specified point.
-    pub fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
+    fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
         self.assert_unmapped(ctxt);
         unsafe { bind_buffer(ctxt, self.id, ty); }
     }
@@ -183,8 +298,8 @@ impl Buffer {
     /// - Panicks if the backend doesn't allow binding this buffer to the specified point.
     /// - Panicks if the bind point is not an indexed bind point.
     /// - Panicks if the bind point is over the maximum value.
-    pub fn indexed_bind(&self, mut ctxt: &mut CommandContext, ty: BufferType,
-                        index: gl::types::GLuint, range: Range<usize>)
+    fn indexed_bind(&self, mut ctxt: &mut CommandContext, ty: BufferType,
+                    index: gl::types::GLuint, range: Range<usize>)
     {
         self.assert_unmapped(ctxt);
         unsafe { indexed_bind_buffer(ctxt, self.id, ty, index, range); }
@@ -209,13 +324,14 @@ impl Buffer {
         let to_upload = mem::size_of::<D>() * data.len();
         assert!(offset_bytes + to_upload <= self.size);
 
+        let mut ctxt = self.context.make_current();
+        self.barrier_for_buffer_update(&mut ctxt);
+
         if self.persistent_mapping.is_some() {
             let mut mapping = self.map(offset_bytes, data.len());
             ptr::copy_nonoverlapping(data.as_ptr(), mapping.deref_mut().as_mut_ptr(), data.len());
 
         } else if self.immutable {
-            let mut ctxt = self.context.make_current();
-
             self.assert_unmapped(&mut ctxt);
             self.assert_not_transform_feedback(&mut ctxt);
 
@@ -229,8 +345,6 @@ impl Buffer {
             assert!(offset_bytes < self.size);
 
             let invalidate_all = offset_bytes == 0 && to_upload == self.size;
-
-            let mut ctxt = self.context.make_current();
 
             self.assert_unmapped(&mut ctxt);
             self.assert_not_transform_feedback(&mut ctxt);
@@ -358,6 +472,10 @@ impl Buffer {
         assert!(offset_bytes + elements * mem::size_of::<D>() <= self.size);
 
         if let Some(existing_mapping) = self.persistent_mapping.clone() {
+            // TODO: optimize so that it's not always necessary to make the context current
+            let mut ctxt = self.context.make_current();
+            self.barrier_for_buffer_update(&mut ctxt);
+
             Mapping {
                 mapping: MappingImpl::PersistentMapping {
                     buffer: self,
@@ -436,6 +554,7 @@ impl Buffer {
                 let mut ctxt = self.context.make_current();
                 self.assert_unmapped(&mut ctxt);
                 self.assert_not_transform_feedback(&mut ctxt);
+                self.barrier_for_buffer_update(&mut ctxt);
                 self.mapped.set(true);
                 map_buffer(&mut ctxt, self.id, self.ty,
                            offset_bytes .. offset_bytes + size_bytes, true, true)
@@ -478,6 +597,7 @@ impl Buffer {
         } else {
             let mut ctxt = self.context.make_current();
             self.assert_unmapped(&mut ctxt);
+            self.barrier_for_buffer_update(&mut ctxt);
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.GetNamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
@@ -554,6 +674,7 @@ impl<'a, D> Drop for Mapping<'a, D> {
                                            temporary_buffer_len } =>
             {
                 let mut ctxt = original_buffer.context.make_current();
+                original_buffer.barrier_for_buffer_update(&mut ctxt);
 
                 unsafe {
                     flush_range(&mut ctxt, temporary_buffer, original_buffer.ty,

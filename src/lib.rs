@@ -65,6 +65,8 @@ result to the user.
  - **Instancing**: Instancing is done either by passing a `vertex::EmptyInstanceAttributes` marker
    or one or several references to vertex buffers wrapped inside a `PerInstance` struct. See the
    `vertex` module for more infos.
+ - **Memory barriers**: Calling `glMemoryBarrier` is automatically handled by glium, however you
+   still need to call `memoryBarrier()` in your GLSL code in some situations.
  - **Programs**: See the `program` module.
  - **Query objects**: The corresponding structs are in the `draw_parameters` module. They are
    passed as draw parameters.
@@ -186,15 +188,37 @@ trait BufferViewExt {
     /// Returns the number of bytes from the start of the buffer to this subbuffer.
     fn get_offset_bytes(&self) -> usize;
 
-    /// Makes sure that the buffer is available for operations and returns its ID.
-    fn get_buffer_id(&self, &mut CommandContext) -> gl::types::GLuint;
+    /// Returns the raw identifier of the buffer.
+    fn get_buffer_id(&self) -> gl::types::GLuint;
 
-    /// Makes sure that the buffer is binded to a specific bind point.
-    fn bind_to(&self, &mut CommandContext, ty: buffer::BufferType);
+    /// Calls `glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT)` if necessary.
+    fn prepare_for_vertex_attrib_array(&self, &mut CommandContext);
 
-    /// Makes sure that the buffer is binded to a specific indexed bind point.
-    fn indexed_bind_to(&self, &mut CommandContext, ty: buffer::BufferType,
-                       index: gl::types::GLuint);
+    /// Calls `glMemoryBarrier(ELEMENT_ARRAY_BARRIER_BIT)` if necessary.
+    fn prepare_for_element_array(&self, &mut CommandContext);
+
+    /// Binds the buffer to `GL_ELEMENT_ARRAY_BUFFER` regardless of the current vertex array object.
+    fn bind_to_element_array(&self, &mut CommandContext);
+
+    /// Makes sure that the buffer is binded to the `GL_PIXEL_PACK_BUFFER` and calls
+    /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_pixel_pack(&self, &mut CommandContext);
+
+    /// Makes sure that the buffer is binded to the `GL_PIXEL_UNPACK_BUFFER` and calls
+    /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_pixel_unpack(&self, &mut CommandContext);
+
+    /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
+    /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_draw_indirect(&self, &mut CommandContext);
+
+    /// Makes sure that the buffer is binded to the indexed `GL_UNIFORM_BUFFER` point and calls
+    /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_uniform(&self, &mut CommandContext, index: gl::types::GLuint);
+
+    /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
+    /// feedback object.
+    fn bind_to_transform_feedback(&self, &mut CommandContext, index: gl::types::GLuint);
 }
 
 /// Internal trait for subbuffer slices.

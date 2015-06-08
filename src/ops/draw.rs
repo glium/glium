@@ -19,7 +19,6 @@ use utils::bitsfield::Bitsfield;
 use fbo::{self, ValidatedAttachments};
 
 use sync;
-use buffer::BufferType;
 use uniforms::{Uniforms, UniformValue, SamplerBehavior};
 use sampler_object::SamplerObject;
 use {Program, GlObject, ToGlEnum};
@@ -88,14 +87,14 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // handling vertices source
     let (vertices_count, instances_count) = {
-        let ib_id = match indices {
-            IndicesSource::IndexBuffer { ref buffer, .. } => buffer.get_buffer_id(&mut ctxt),
-            IndicesSource::MultidrawArray { .. } => 0,
-            IndicesSource::NoIndices { .. } => 0,
+        let index_buffer = match indices {
+            IndicesSource::IndexBuffer { buffer, .. } => Some(buffer),
+            IndicesSource::MultidrawArray { .. } => None,
+            IndicesSource::NoIndices { .. } => None,
         };
 
         // object that is used to build the bindings
-        let mut binder = VertexAttributesSystem::start(&mut ctxt, program, ib_id);
+        let mut binder = VertexAttributesSystem::start(&mut ctxt, program, index_buffer);
         // number of vertices in the vertices sources, or `None` if there is a mismatch
         let mut vertices_count: Option<usize> = None;
         // number of instances to draw
@@ -305,7 +304,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
 
                 unsafe {
-                    buffer.bind_to(&mut ctxt, BufferType::DrawIndirectBuffer);
+                    buffer.prepare_and_bind_for_draw_indirect(&mut ctxt);
                     ctxt.gl.MultiDrawArraysIndirect(primitives.to_glenum(), ptr as *const _,
                                                     buffer.get_elements_count() as gl::types::GLsizei,
                                                     0);
@@ -331,6 +330,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             },
         };
     };
+
+    ctxt.state.next_draw_call_id += 1;
 
     // fulfilling the fences
     for fence in fences.into_iter() {
@@ -366,11 +367,8 @@ fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformVal
             let fence = buffer.add_fence();
             let binding = block.binding as gl::types::GLuint;
 
-            unsafe {
-                buffer.indexed_bind_to(ctxt, BufferType::UniformBuffer,
-                                       bind_point as gl::types::GLuint);
-                program.set_block(ctxt, binding, bind_point as gl::types::GLuint);
-            }
+            buffer.prepare_and_bind_for_uniform(ctxt, bind_point as gl::types::GLuint);
+            program.set_block(ctxt, binding, bind_point as gl::types::GLuint);
 
             Ok(fence)
         },

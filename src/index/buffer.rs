@@ -4,8 +4,6 @@ use BufferViewExt;
 use GlObject;
 
 use backend::Facade;
-use context::CommandContext;
-use ContextExt;
 
 use index::IndicesSource;
 use index::Index;
@@ -102,32 +100,12 @@ impl<T> DerefMut for IndexBuffer<T> where T: Index {
     }
 }
 
-impl<T> BufferViewExt for IndexBuffer<T> where T: Index {
-    fn get_offset_bytes(&self) -> usize {
-        self.buffer.get_offset_bytes()
-    }
-
-    fn get_buffer_id(&self, ctxt: &mut CommandContext) -> gl::types::GLuint {
-        self.buffer.get_buffer_id(ctxt)
-    }
-
-    fn bind_to(&self, ctxt: &mut CommandContext, ty: BufferType) {
-        self.buffer.bind_to(ctxt, ty)
-    }
-
-    fn indexed_bind_to(&self, ctxt: &mut CommandContext, ty: BufferType, index: gl::types::GLuint) {
-        self.buffer.indexed_bind_to(ctxt, ty, index)
-    }
-}
-
 // TODO: remove this
 impl<T> GlObject for IndexBuffer<T> where T: Index {
     type Id = gl::types::GLuint;
 
     fn get_id(&self) -> gl::types::GLuint {
-        let ctxt = self.buffer.get_context();
-        let mut ctxt = ctxt.make_current();
-        self.buffer.get_buffer_id(&mut ctxt)
+        self.buffer.get_buffer_id()
     }
 }
 
