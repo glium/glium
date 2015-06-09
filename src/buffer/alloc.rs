@@ -1279,6 +1279,10 @@ unsafe fn flush_range(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
         ctxt.gl.FlushMappedNamedBufferRange(id, range.start as gl::types::GLintptr,
                                             (range.end - range.start) as gl::types::GLsizei);
 
+    } else if ctxt.extensions.gl_ext_direct_state_access {
+        ctxt.gl.FlushMappedNamedBufferRangeEXT(id, range.start as gl::types::GLintptr,
+                                               (range.end - range.start) as gl::types::GLsizeiptr);
+
     } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
               ctxt.version >= &Version(Api::GlEs, 3, 0) ||
               ctxt.extensions.gl_arb_map_buffer_range
