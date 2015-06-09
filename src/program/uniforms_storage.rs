@@ -9,7 +9,8 @@ use version::Api;
 
 pub struct UniformsStorage {
     values: RefCell<Vec<Option<RawUniformValue>>>,
-    blocks: RefCell<Vec<Option<gl::types::GLuint>>>,
+    uniform_blocks: RefCell<Vec<Option<gl::types::GLuint>>>,
+    shader_storage_blocks: RefCell<Vec<Option<gl::types::GLuint>>>,
 }
 
 impl UniformsStorage {
@@ -17,7 +18,8 @@ impl UniformsStorage {
     pub fn new() -> UniformsStorage {
         UniformsStorage {
             values: RefCell::new(Vec::with_capacity(0)),
-            blocks: RefCell::new(Vec::with_capacity(0)),
+            uniform_blocks: RefCell::new(Vec::with_capacity(0)),
+            shader_storage_blocks: RefCell::new(Vec::with_capacity(0)),
         }
     }
 
@@ -127,10 +129,10 @@ impl UniformsStorage {
 
     /// Compares `value` with the value stored in this object. If the values differ, updates
     /// the storage and calls `glUniformBlockBinding`.
-    pub fn set_block_binding(&self, ctxt: &mut CommandContext, program: Handle,
-                             location: gl::types::GLuint, value: gl::types::GLuint)
+    pub fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, program: Handle,
+                                     location: gl::types::GLuint, value: gl::types::GLuint)
     {
-        let mut blocks = self.blocks.borrow_mut();
+        let mut blocks = self.uniform_blocks.borrow_mut();
 
         if blocks.len() <= location as usize {
             blocks.reserve(location as usize + 1);
@@ -149,7 +151,39 @@ impl UniformsStorage {
                 *target = Some(a);
                 match program {
                     Handle::Id(id) => unsafe {
-                        ctxt.gl.UniformBlockBinding(id, location, value)
+                        ctxt.gl.UniformBlockBinding(id, location, value);
+                    },
+                    _ => unreachable!()
+                }
+            },
+        }
+    }
+
+    /// Compares `value` with the value stored in this object. If the values differ, updates
+    /// the storage and calls `glShaderStorageBlockBinding`.
+    pub fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext, program: Handle,
+                                            location: gl::types::GLuint, value: gl::types::GLuint)
+    {
+        let mut blocks = self.shader_storage_blocks.borrow_mut();
+
+        if blocks.len() <= location as usize {
+            blocks.reserve(location as usize + 1);
+            for _ in (blocks.len() .. location as usize + 1) {
+                blocks.push(None);
+            }
+        }
+
+        // TODO: don't assume that, instead use DSA if the program is not current
+        assert!(ctxt.state.program == program);
+
+        match (value, &mut blocks[location as usize]) {
+            (a, &mut Some(b)) if a == b => (),
+
+            (a, target) => {
+                *target = Some(a);
+                match program {
+                    Handle::Id(id) => unsafe {
+                        ctxt.gl.ShaderStorageBlockBinding(id, location, value);
                     },
                     _ => unreachable!()
                 }

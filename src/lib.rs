@@ -216,6 +216,10 @@ trait BufferViewExt {
     /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_uniform(&self, &mut CommandContext, index: gl::types::GLuint);
 
+    /// Makes sure that the buffer is binded to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
+    /// `glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_shared_storage(&self, &mut CommandContext, index: gl::types::GLuint);
+
     /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
     /// feedback object.
     fn bind_to_transform_feedback(&self, &mut CommandContext, index: gl::types::GLuint);
@@ -260,9 +264,14 @@ trait ProgramExt {
     fn set_uniform(&self, ctxt: &mut context::CommandContext, uniform_location: gl::types::GLint,
                    value: &RawUniformValue);
 
-    /// Changes the block binding of the program.
-    fn set_block(&self, ctxt: &mut context::CommandContext, block_location: gl::types::GLuint,
-                 value: gl::types::GLuint);
+    /// Changes the uniform block binding of the program.
+    fn set_uniform_block_binding(&self, ctxt: &mut context::CommandContext,
+                                 block_location: gl::types::GLuint, value: gl::types::GLuint);
+
+    /// Changes the shader storage block binding of the program.
+    fn set_shader_storage_block_binding(&self, ctxt: &mut context::CommandContext,
+                                        block_location: gl::types::GLuint,
+                                        value: gl::types::GLuint);
 }
 
 /// Internal trait for queries.

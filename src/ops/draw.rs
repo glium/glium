@@ -176,7 +176,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     // TODO: panic if uniforms of the program are not found in the parameter
     {
         let mut texture_bind_points = Bitsfield::new();
-        let mut buffer_bind_points = Bitsfield::new();
+        let mut uniform_buffer_bind_points = Bitsfield::new();
+        let mut shared_storage_buffer_bind_points = Bitsfield::new();
 
         let mut visiting_result = Ok(());
         uniforms.visit_values(|name, value| {
@@ -206,7 +207,23 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
             } else if let Some(block) = program.get_uniform_blocks().get(name) {
                 let fence = match bind_uniform_block(&mut ctxt, &value, block,
-                                                     program, &mut buffer_bind_points, name)
+                                                     program, &mut uniform_buffer_bind_points, name)
+                {
+                    Ok(f) => f,
+                    Err(e) => {
+                        visiting_result = Err(e);
+                        return;
+                    }
+                };
+
+                if let Some(fence) = fence {
+                    fences.push(fence);
+                }
+
+            } else if let Some(block) = program.get_shader_storage_blocks().get(name) {
+                let fence = match bind_shared_storage_block(&mut ctxt, &value, block, program,
+                                                            &mut shared_storage_buffer_bind_points,
+                                                            name)
                 {
                     Ok(f) => f,
                     Err(e) => {
@@ -368,7 +385,36 @@ fn bind_uniform_block<'a>(ctxt: &mut context::CommandContext, value: &UniformVal
             let binding = block.binding as gl::types::GLuint;
 
             buffer.prepare_and_bind_for_uniform(ctxt, bind_point as gl::types::GLuint);
-            program.set_block(ctxt, binding, bind_point as gl::types::GLuint);
+            program.set_uniform_block_binding(ctxt, binding, bind_point as gl::types::GLuint);
+
+            Ok(fence)
+        },
+        _ => {
+            Err(DrawError::UniformValueToBlock { name: name.to_string() })
+        }
+    }
+}
+
+fn bind_shared_storage_block<'a>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
+                                 block: &program::UniformBlock,
+                                 program: &Program, buffer_bind_points: &mut Bitsfield, name: &str)
+                                 -> Result<Option<&'a RefCell<Option<sync::LinearSyncFence>>>, DrawError>
+{
+    match value {
+        &UniformValue::Block(buffer, ref layout) => {
+            if !layout(block) {
+                return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
+            }
+
+            let bind_point = buffer_bind_points.get_unused().expect("Not enough buffer units");
+            buffer_bind_points.set_used(bind_point);
+
+            assert!(buffer.get_offset_bytes() == 0);     // TODO: not implemented
+            let fence = buffer.add_fence();
+            let binding = block.binding as gl::types::GLuint;
+
+            buffer.prepare_and_bind_for_shared_storage(ctxt, bind_point as gl::types::GLuint);
+            program.set_shader_storage_block_binding(ctxt, binding, bind_point as gl::types::GLuint);
 
             Ok(fence)
         },

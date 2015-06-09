@@ -46,8 +46,8 @@ pub struct Buffer {
     /// The purpose of this flag is to detect if the user mem::forgets the `Mapping` object.
     mapped: Cell<bool>,
 
-    /// ID of the draw call where the texture was last written as an SSBO.
-    latest_shader_write: u64,
+    /// ID of the draw call where the buffer was last written as an SSBO.
+    latest_shader_write: Cell<u64>,
 }
 
 /// A mapping of a buffer.
@@ -103,7 +103,7 @@ impl Buffer {
             immutable: immutable,
             dynamic_creation_flag: dynamic,
             mapped: Cell::new(false),
-            latest_shader_write: 0,
+            latest_shader_write: Cell::new(0),
         })
     }
 
@@ -126,7 +126,7 @@ impl Buffer {
             immutable: immutable,
             dynamic_creation_flag: dynamic,
             mapped: Cell::new(false),
-            latest_shader_write: 0,
+            latest_shader_write: Cell::new(0),
         })
     }
 
@@ -168,7 +168,7 @@ impl Buffer {
 
     /// Calls `glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT)` if necessary.
     fn barrier_for_buffer_update(&self, ctxt: &mut CommandContext) {
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_buffer_update {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_buffer_update {
             unsafe { ctxt.gl.MemoryBarrier(gl::BUFFER_UPDATE_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_buffer_update = ctxt.state.next_draw_call_id;
         }
@@ -179,7 +179,7 @@ impl Buffer {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_vertex_attrib_array {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_vertex_attrib_array {
             unsafe { ctxt.gl.MemoryBarrier(gl::VERTEX_ATTRIB_ARRAY_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_vertex_attrib_array = ctxt.state.next_draw_call_id;
         }
@@ -190,7 +190,7 @@ impl Buffer {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_element_array {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_element_array {
             unsafe { ctxt.gl.MemoryBarrier(gl::ELEMENT_ARRAY_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_element_array = ctxt.state.next_draw_call_id;
         }
@@ -216,7 +216,7 @@ impl Buffer {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_pixel_buffer {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_pixel_buffer {
             unsafe { ctxt.gl.MemoryBarrier(gl::PIXEL_BUFFER_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_pixel_buffer = ctxt.state.next_draw_call_id;
         }
@@ -230,7 +230,7 @@ impl Buffer {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_pixel_buffer {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_pixel_buffer {
             unsafe { ctxt.gl.MemoryBarrier(gl::PIXEL_BUFFER_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_pixel_buffer = ctxt.state.next_draw_call_id;
         }
@@ -244,7 +244,7 @@ impl Buffer {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_command {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_command {
             unsafe { ctxt.gl.MemoryBarrier(gl::COMMAND_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_command = ctxt.state.next_draw_call_id;
         }
@@ -260,12 +260,30 @@ impl Buffer {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
-        if self.latest_shader_write >= ctxt.state.latest_memory_barrier_uniform {
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_uniform {
             unsafe { ctxt.gl.MemoryBarrier(gl::UNIFORM_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_uniform = ctxt.state.next_draw_call_id;
         }
 
         self.indexed_bind(ctxt, BufferType::UniformBuffer, index, range);
+    }
+
+    /// Makes sure that the buffer is binded to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
+    /// `glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+                                               range: Range<usize>)
+    {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_shader_storage {
+            unsafe { ctxt.gl.MemoryBarrier(gl::SHADER_STORAGE_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_shader_storage = ctxt.state.next_draw_call_id;
+        }
+
+        self.indexed_bind(ctxt, BufferType::ShaderStorageBuffer, index, range);
+
+        self.latest_shader_write.set(ctxt.state.next_draw_call_id);        // TODO: put this somewhere else
     }
 
     /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform

@@ -667,6 +667,11 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
         alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. alloc.get_size());
     }
 
+    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. alloc.get_size());
+    }
+
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         let alloc = self.alloc.as_ref().unwrap();
         alloc.bind_to_transform_feedback(ctxt, index, 0 .. alloc.get_size());
@@ -720,6 +725,10 @@ impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'sta
         self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
     }
 
+    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
     }
@@ -760,6 +769,10 @@ impl BufferViewExt for BufferViewAny {
 
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
     }
 
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
@@ -812,6 +825,10 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
 
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
     }
 
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {

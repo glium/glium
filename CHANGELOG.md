@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Can now bind a uniform buffer as a shader storage buffer.
  - Added `Program::get_shader_storage_blocks()` to obtain the list of shader storage blocks.
 
 ## Version 0.5.2
