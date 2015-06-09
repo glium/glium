@@ -646,10 +646,17 @@ impl ProgramExt for Program {
         self.uniform_values.set_uniform_value(ctxt, self.id, uniform_location, value);
     }
 
-    fn set_block(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
-                 value: gl::types::GLuint)
+    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
+                                 value: gl::types::GLuint)
     {
-        self.uniform_values.set_block_binding(ctxt, self.id, block_location, value);
+        self.uniform_values.set_uniform_block_binding(ctxt, self.id, block_location, value);
+    }
+
+    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
+                                        block_location: gl::types::GLuint,
+                                        value: gl::types::GLuint)
+    {
+        self.uniform_values.set_shader_storage_block_binding(ctxt, self.id, block_location, value);
     }
 }
 
