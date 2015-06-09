@@ -1,10 +1,13 @@
+use std::fmt;
+use std::error::Error;
 use std::sync::Mutex;
 
-pub use self::program::{Program, ProgramCreationError};
+pub use self::program::Program;
 pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember, OutputPrimitives};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
 
 mod program;
+mod raw;
 mod reflection;
 mod shader;
 mod uniforms_storage;
@@ -15,6 +18,68 @@ mod uniforms_storage;
 lazy_static! {
     static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
 }
+
+/// Error that can be triggered when creating a `Program`.
+#[derive(Clone, Debug)]
+pub enum ProgramCreationError {
+    /// Error while compiling one of the shaders.
+    CompilationError(String),
+
+    /// Error while linking the program.
+    LinkingError(String),
+
+    /// One of the requested shader types is not supported by the backend.
+    ///
+    /// Usually the case for geometry shaders.
+    ShaderTypeNotSupported,
+
+    /// The OpenGL implementation doesn't provide a compiler.
+    CompilationNotSupported,
+
+    /// You have requested transform feedback varyings, but transform feedback is not supported
+    /// by the backend.
+    TransformFeedbackNotSupported,
+}
+
+impl fmt::Display for ProgramCreationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            &ProgramCreationError::CompilationError(ref s) =>
+                formatter.write_fmt(format_args!("Compilation error in one of the shaders: {}", s)),
+            &ProgramCreationError::LinkingError(ref s) =>
+                formatter.write_fmt(format_args!("Error while linking shaders together: {}", s)),
+            &ProgramCreationError::ShaderTypeNotSupported =>
+                formatter.write_str("One of the request shader type is \
+                                    not supported by the backend"),
+            &ProgramCreationError::CompilationNotSupported =>
+                formatter.write_str("The backend doesn't support shaders compilation"),
+            &ProgramCreationError::TransformFeedbackNotSupported => 
+                formatter.write_str("You requested transform feedback, but this feature is not \
+                                     supported by the backend"),
+        }
+    }
+}
+
+impl Error for ProgramCreationError {
+    fn description(&self) -> &str {
+        match self {
+            &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
+                                                           shaders",
+            &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
+            &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
+                                                              not supported by the backend",
+            &ProgramCreationError::CompilationNotSupported => "The backend doesn't support \
+                                                               shaders compilation",
+            &ProgramCreationError::TransformFeedbackNotSupported => "Transform feedback is not \
+                                                                     supported by the backend.",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        None
+    }
+}
+
 
 /// Input when creating a program.
 pub enum ProgramCreationInput<'a> {
