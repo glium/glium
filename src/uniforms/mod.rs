@@ -98,6 +98,7 @@ pub use self::value::{UniformValue, AsUniformValue, UniformType};
 
 use program;
 
+mod bind;
 mod buffer;
 mod sampler;
 mod uniforms;
