@@ -21,6 +21,7 @@ use std::fmt;
 use std::mem;
 use std::ptr;
 use std::borrow::Cow;
+use std::cell::Cell;
 use std::rc::Rc;
 
 use ops;
@@ -31,6 +32,11 @@ pub struct TextureAny {
     context: Rc<Context>,
     id: gl::types::GLuint,
     requested_format: TextureFormatRequest,
+
+    /// Cache for the actual format of the texture. The outer Option is None if the format hasn't
+    /// been checked yet. The inner Option is None if the format has been checkek but is unknown.
+    actual_format: Cell<Option<Option<InternalFormat>>>,
+
     bind_point: gl::types::GLenum,
     ty: TextureType,
     width: u32,
@@ -374,6 +380,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         context: facade.get_context().clone(),
         id: id,
         requested_format: format,
+        actual_format: Cell::new(None),
         bind_point: texture_type,
         width: width,
         height: height,
@@ -581,9 +588,15 @@ impl TextureAny {
     ///
     /// Returns `None` if the backend doesn't allow querying the actual format.
     pub fn get_internal_format_if_supported(&self) -> Option<InternalFormat> {
-        // TODO: cache this value in the texture
-        let mut ctxt = self.context.make_current();
-        get_format::get_format_if_supported(&mut ctxt, self)
+        if let Some(format) = self.actual_format.get() {
+            format
+
+        } else {
+            let mut ctxt = self.context.make_current();
+            let format = get_format::get_format_if_supported(&mut ctxt, self);
+            self.actual_format.set(Some(format.clone()));
+            format
+        }
     }
 
     /// Returns a structure that represents a specific mipmap of the texture.
