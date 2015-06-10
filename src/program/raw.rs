@@ -8,6 +8,7 @@ use version::Api;
 use backend::Facade;
 use context::Context;
 use ContextExt;
+use UniformsExt;
 
 use std::{ffi, fmt, mem};
 use std::error::Error;
@@ -15,10 +16,13 @@ use std::collections::hash_map::{self, HashMap};
 use std::rc::Rc;
 use std::cell::RefCell;
 
+use DrawError;
 use GlObject;
 use ProgramExt;
 use Handle;
 use RawUniformValue;
+
+use sync;
 
 use program::{ProgramCreationError, Binary};
 use program::uniforms_storage::UniformsStorage;
@@ -29,6 +33,8 @@ use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_
 use program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
 use program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
 use program::shader::Shader;
+
+use uniforms::Uniforms;
 
 use vertex::VertexFormat;
 use vertex_array_object::VertexAttributesSystem;
@@ -432,6 +438,56 @@ impl RawProgram {
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
     }
+
+    /// Assumes that the program contains a compute shader and executes it.
+    ///
+    /// # Safety
+    ///
+    /// The program *must* contain a compute shader.
+    /// TODO: check inside the program if it has a compute shader instead of being unsafe
+    pub unsafe fn dispatch_compute<U>(&self, uniforms: U, x: u32, y: u32, z: u32)
+                                      -> Result<(), DrawError>      // TODO: other error?
+                                      where U: Uniforms
+    {
+        let mut ctxt = self.context.make_current();
+
+        // TODO: return an error instead
+        assert!(x < ctxt.capabilities.max_compute_work_group_count.0 as u32);
+        assert!(y < ctxt.capabilities.max_compute_work_group_count.1 as u32);
+        assert!(z < ctxt.capabilities.max_compute_work_group_count.2 as u32);
+
+        assert!(ctxt.version >= &Version(Api::Gl, 4, 3) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+                ctxt.extensions.gl_arb_compute_shader);
+
+        // TODO: move this somewhere else
+        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            ctxt.gl.EndConditionalRender();
+        } else if ctxt.extensions.gl_nv_conditional_render {
+            ctxt.gl.EndConditionalRenderNV();
+        } else {
+            unreachable!();
+        }
+
+        let mut fences = Vec::with_capacity(0);
+
+        self.use_program(&mut ctxt);
+        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences,
+                                    &mut self.context.get_samplers().borrow_mut()));
+        ctxt.gl.DispatchCompute(x, y, z);
+
+        for fence in fences {
+            let mut new_fence = Some(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap());
+
+            mem::swap(&mut new_fence, &mut *fence.borrow_mut());
+
+            if let Some(new_fence) = new_fence {
+                sync::destroy_linear_sync_fence(&mut ctxt, new_fence);
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl fmt::Debug for RawProgram {
@@ -478,6 +534,18 @@ impl ProgramExt for RawProgram {
                                         value: gl::types::GLuint)
     {
         self.uniform_values.set_shader_storage_block_binding(ctxt, self.id, block_location, value);
+    }
+
+    fn get_uniform(&self, name: &str) -> Option<&Uniform> {
+        self.uniforms.get(name)
+    }
+
+    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+        &self.uniform_blocks
+    }
+
+    fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+        &self.ssbos
     }
 }
 

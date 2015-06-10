@@ -272,6 +272,12 @@ trait ProgramExt {
     fn set_shader_storage_block_binding(&self, ctxt: &mut context::CommandContext,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint);
+
+    fn get_uniform(&self, name: &str) -> Option<&program::Uniform>;
+
+    fn get_uniform_blocks(&self) -> &HashMap<String, program::UniformBlock>;
+
+    fn get_shader_storage_blocks(&self) -> &HashMap<String, program::UniformBlock>;
 }
 
 /// Internal trait for queries.
@@ -304,6 +310,18 @@ trait TransformFeedbackSessionExt {
 
     /// Ensures that a buffer isn't used by transform feedback.
     fn ensure_buffer_out_of_transform_feedback(&mut CommandContext, gl::types::GLuint);
+}
+
+/// Internal trait for uniforms handling.
+trait UniformsExt {
+    /// Binds the uniforms to a given program.
+    ///
+    /// Will replace texture and buffer bind points.
+    // TODO: put the samplers inside the CommandContext
+    fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P,
+                        &mut Vec<&'a RefCell<Option<sync::LinearSyncFence>>>,
+                        &mut HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>)
+                        -> Result<(), DrawError> where P: ProgramExt;
 }
 
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Added support for compute shaders with the `program::ComputeShader` struct.
  - Can now bind a uniform buffer as a shader storage buffer.
  - Added `Program::get_shader_storage_blocks()` to obtain the list of shader storage blocks.
  - Now caching the actual format of a texture in case it is retreived multiple times.

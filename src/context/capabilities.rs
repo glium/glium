@@ -53,6 +53,9 @@ pub struct Capabilities {
 
     /// Number of available buffer bind points for `GL_UNIFORM_BUFFER`.
     pub max_indexed_uniform_buffer: gl::types::GLint,
+
+    /// Number of work groups for compute shaders.
+    pub max_compute_work_group_count: (gl::types::GLint, gl::types::GLint, gl::types::GLint),
 }
 
 /// Loads the capabilities.
@@ -220,6 +223,22 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             val
         } else {
             0
+        },
+
+        max_compute_work_group_count: if version >= &Version(Api::Gl, 4, 3) ||
+                                         version >= &Version(Api::GlEs, 3, 1) ||
+                                         extensions.gl_arb_compute_shader
+        {
+            let mut val1 = mem::uninitialized();
+            let mut val2 = mem::uninitialized();
+            let mut val3 = mem::uninitialized();
+            gl.GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 0, &mut val1);
+            gl.GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 1, &mut val2);
+            gl.GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 2, &mut val3);
+            (val1, val2, val3)
+
+        } else {
+            (0, 0, 0)
         },
     }
 }

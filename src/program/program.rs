@@ -301,4 +301,16 @@ impl ProgramExt for Program {
     {
         self.raw.set_shader_storage_block_binding(ctxt, block_location, value)
     }
+
+    fn get_uniform(&self, name: &str) -> Option<&Uniform> {
+        self.raw.get_uniform(name)
+    }
+
+    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+        self.raw.get_uniform_blocks()
+    }
+
+    fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+        self.raw.get_shader_storage_blocks()
+    }
 }
