@@ -96,25 +96,25 @@ impl GlutinFacade {
     /// This iterator polls for events and can be exhausted.
     pub fn poll_events(&self) -> PollEventsIter {
         PollEventsIter {
-            window: self.backend.as_ref(),
+            window: Option::as_ref(&self.backend),
         }
     }
 
     /// Reads all events received by the window.
     pub fn wait_events(&self) -> WaitEventsIter {
         WaitEventsIter {
-            window: self.backend.as_ref(),
+            window: Option::as_ref(&self.backend),
         }
     }
 
     /// Returns true if the window has been closed.
     pub fn is_closed(&self) -> bool {
-        self.backend.as_ref().map(|b| b.borrow().is_closed()).unwrap_or(false)
+        Option::as_ref(&self.backend).map(|b| b.borrow().is_closed()).unwrap_or(false)
     }
 
     /// Returns the underlying window, or `None` if glium uses a headless context.
     pub fn get_window(&self) -> Option<WinRef> {
-        self.backend.as_ref().map(|w| WinRef(w.borrow()))
+        Option::as_ref(&self.backend).map(|w| WinRef(w.borrow()))
     }
 
     /// Returns the OpenGL version of the current context.
@@ -171,7 +171,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     }
 
     fn rebuild_glium(self, display: &GlutinFacade) -> Result<(), GliumCreationError<glutin::CreationError>> {
-        let mut existing_window = display.backend.as_ref()
+        let mut existing_window = Option::as_ref(&display.backend)
                                          .expect("can't rebuild a headless display").borrow_mut();
         let new_backend = Rc::new(try!(existing_window.rebuild(self)));
         try!(unsafe { display.context.rebuild(new_backend.clone()) });
