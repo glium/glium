@@ -1,10 +1,11 @@
 # Change Log
 
-## Unreleased
+## Version 0.5.3
 
  - Added support for compute shaders with the `program::ComputeShader` struct.
  - Can now bind a uniform buffer as a shader storage buffer.
  - Added `Program::get_shader_storage_blocks()` to obtain the list of shader storage blocks.
+ - The `Attribute` trait is now implemented on types from cgmath and nalgebra.
  - Now caching the actual format of a texture in case it is retreived multiple times.
 
 ## Version 0.5.2
