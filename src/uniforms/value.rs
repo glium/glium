@@ -744,3 +744,29 @@ impl AsUniformValue for cgmath::Vector4<f32> {
         ty == &UniformType::FloatVec4
     }
 }
+
+#[cfg(feature = "cgmath")]
+impl AsUniformValue for cgmath::Point2<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        UniformValue::Vec2(my_value)
+    }
+
+    fn matches(ty: &UniformType) -> bool {
+        ty == &UniformType::FloatVec2
+    }
+}
+
+#[cfg(feature = "cgmath")]
+impl AsUniformValue for cgmath::Point3<f32> {
+    fn as_uniform_value(&self) -> UniformValue {
+        use cgmath::FixedArray;
+        let my_value = self.into_fixed();
+        UniformValue::Vec3(my_value)
+    }
+
+    fn matches(ty: &UniformType) -> bool {
+        ty == &UniformType::FloatVec3
+    }
+}
