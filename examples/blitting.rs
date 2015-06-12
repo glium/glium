@@ -38,6 +38,7 @@ fn main() {
     let dest_texture = glium::Texture2d::new_empty(&display, glium::texture::
                                                              UncompressedFloatFormat::U8U8U8U8,
                                                    1024, 1024);
+    dest_texture.as_surface().clear_color(0.0, 0.0, 0.0, 1.0);
 
     // the main loop
     support::start_loop(|| {
