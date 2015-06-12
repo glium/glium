@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed a potential `GL_INVALID_ENUM` error generated at initialization.
+
 ## Version 0.5.3
 
  - Added support for compute shaders with the `program::ComputeShader` struct.
