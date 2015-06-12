@@ -87,10 +87,10 @@ fn main() {
                 #version 140
 
                 in vec2 i_position;
-                in unsigned int i_tex_id;
+                in uint i_tex_id;
 
                 out vec2 v_tex_coords;
-                flat out unsigned int v_tex_id;
+                flat out uint v_tex_id;
 
                 void main() {
                     gl_Position = vec4(i_position, 0.0, 1.0);
@@ -115,7 +115,7 @@ fn main() {
                 uniform sampler2DArray tex;
 
                 in vec2 v_tex_coords;
-                flat in unsigned int v_tex_id;
+                flat in uint v_tex_id;
 
                 out vec4 f_color;
 
@@ -130,10 +130,10 @@ fn main() {
                 #version 110
 
                 in vec2 i_position;
-                in unsigned int i_tex_id;
+                in uint i_tex_id;
 
                 varying vec2 v_tex_coords;
-                flat varying unsigned int v_tex_id;
+                flat varying uint v_tex_id;
 
                 void main() {
                     gl_Position = vec4(i_position, 0.0, 1.0);
@@ -158,7 +158,7 @@ fn main() {
                 uniform sampler2DArray tex;
 
                 varying vec2 v_tex_coords;
-                flat varying unsigned int v_tex_id;
+                flat varying uint v_tex_id;
 
                 void main() {
                     gl_FragColor = texture2DArray(tex, vec3(v_tex_coords, float(v_tex_id)));
@@ -171,10 +171,10 @@ fn main() {
                 #version 100
 
                 attribute lowp vec2 i_position;
-                attribute unsigned int i_tex_id;
+                attribute uint i_tex_id;
 
                 varying lowp vec2 v_tex_coords;
-                flat varying unsigned int v_tex_id;
+                flat varying uint v_tex_id;
 
                 void main() {
                     gl_Position = vec4(i_position, 0.0, 1.0);
@@ -199,7 +199,7 @@ fn main() {
                 uniform sampler2DArray tex;
 
                 varying lowp vec2 v_tex_coords;
-                flat varying unsigned int v_tex_id;
+                flat varying uint v_tex_id;
 
                 void main() {
                     gl_FragColor = texture2DArray(tex, vec3(v_tex_coords, float(v_tex_id)));
