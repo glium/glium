@@ -170,6 +170,8 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
 
+            texture.get_internal_format_if_supported();
+
             display.assert_no_error(None);
             drop(texture);
             display.assert_no_error(None);
@@ -194,6 +196,8 @@ macro_rules! empty_texture_test {
             assert_eq!(texture.get_array_size(), $s);
 
             assert_eq!(texture.get_mipmap_levels(), 1);
+            
+            texture.get_internal_format_if_supported();
 
             display.assert_no_error(None);
             drop(texture);
