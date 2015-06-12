@@ -517,7 +517,7 @@ impl TextureAny {
         let mut ctxt = self.context.make_current();
 
         let mut data = Vec::with_capacity(0);
-        ops::read(&mut ctxt, ops::Source::Attachment(&attachment, &self.context.get_framebuffer_objects()), &rect, &mut data);
+        ops::read(&mut ctxt, &self.context.get_framebuffer_objects(), &attachment, &rect, &mut data);
         T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
     }
 
@@ -545,7 +545,7 @@ impl TextureAny {
         let pb = PixelBuffer::new_empty(&self.context, size);
 
         let mut ctxt = self.context.make_current();
-        ops::read(&mut ctxt, ops::Source::Attachment(&attachment, &self.context.get_framebuffer_objects()), &rect, &pb);
+        ops::read(&mut ctxt, &self.context.get_framebuffer_objects(), &attachment, &rect, &pb);
         pb
     }
 
