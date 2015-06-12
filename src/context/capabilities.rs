@@ -88,7 +88,9 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         srgb: {
-            if version >= &Version(Api::Gl, 3, 0) {
+            // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
+            // drivers, so we prefer using `glGetIntegerv` if possible.
+            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_ext_framebuffer_srgb {
                 let mut value = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::BACK_LEFT,
                                                        gl::FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
@@ -108,7 +110,11 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         depth_bits: {
             let mut value = mem::uninitialized();
 
-            if version >= &Version(Api::Gl, 3, 0) {
+            // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
+            // drivers, so we prefer using `glGetIntegerv` if possible.
+            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility &&
+               !extensions.gl_arb_es2_compatibility
+            {
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
                                                        gl::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
                                                        &mut value);
@@ -125,7 +131,11 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         stencil_bits: {
             let mut value = mem::uninitialized();
 
-            if version >= &Version(Api::Gl, 3, 0) {
+            // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
+            // drivers, so we prefer using `glGetIntegerv` if possible.
+            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility &&
+               !extensions.gl_arb_es2_compatibility
+            {
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
                                                        gl::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
                                                        &mut value);
