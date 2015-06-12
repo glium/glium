@@ -421,13 +421,25 @@ impl FramebuffersContainer {
         }
     }
 
+    /// Binds the default framebuffer to `GL_READ_FRAMEBUFFER` or `GL_FRAMEBUFFER` so that it
+    /// becomes the target of `glReadPixels`, `glCopyTexImage2D`, etc.
+    // TODO: use an enum for the read buffer instead
+    pub fn bind_default_framebuffer_for_reading(&self, ctxt: &mut CommandContext,
+                                                read_buffer: gl::types::GLenum)
+    {
+        bind_framebuffer(ctxt, 0, false, true);
+        unsafe { ctxt.gl.ReadBuffer(read_buffer) };     // TODO: cache
+    }
+
+    /// Binds a framebuffer to `GL_READ_FRAMEBUFFER` or `GL_FRAMEBUFFER` so that it becomes the
+    /// target of `glReadPixels`, `glCopyTexImage2D`, etc.
     ///
     /// # Unsafety
     ///
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
-    pub fn get_framebuffer_for_reading(&self, attachment: &Attachment, ctxt: &mut CommandContext)
-                                       -> (gl::types::GLuint, gl::types::GLenum)
+    pub unsafe fn bind_framebuffer_for_reading(&self, ctxt: &mut CommandContext,
+                                               attachment: &Attachment)
     {
         // TODO: restore this optimisation
         /*for (attachments, fbo) in self.framebuffers.borrow_mut().iter() {
@@ -444,7 +456,8 @@ impl FramebuffersContainer {
         }.validate().unwrap();
 
         let framebuffer = self.get_framebuffer_for_drawing(Some(&attachments), ctxt);
-        (framebuffer, gl::COLOR_ATTACHMENT0)
+        bind_framebuffer(ctxt, framebuffer, false, true);
+        ctxt.gl.ReadBuffer(gl::COLOR_ATTACHMENT0);     // TODO: cache
     }
 
     ///
