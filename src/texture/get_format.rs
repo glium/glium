@@ -171,6 +171,10 @@ pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
         Some(match (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
                alpha_sz, alpha_ty, depth_sz, depth_ty)
         {
+            (_, gl::NONE, _, _, _, _, _, _, sz1, ty1) => InternalFormat::OneComponent {
+                ty1: InternalFormatType::from_glenum(ty1),
+                bits1: sz1 as usize,
+            },
             (sz1, ty1, _, gl::NONE, _, _, _, _, _, _) => InternalFormat::OneComponent {
                 ty1: InternalFormatType::from_glenum(ty1),
                 bits1: sz1 as usize,
@@ -198,10 +202,6 @@ pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
                 bits3: sz3 as usize,
                 ty4: InternalFormatType::from_glenum(ty4),
                 bits4: sz4 as usize,
-            },
-            (_, gl::NONE, _, _, _, _, _, _, sz1, ty1) => InternalFormat::OneComponent {
-                ty1: InternalFormatType::from_glenum(ty1),
-                bits1: sz1 as usize,
             },
             _ => unreachable!()
         })
