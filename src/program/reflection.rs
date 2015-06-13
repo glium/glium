@@ -128,6 +128,8 @@ pub enum OutputPrimitives {
     Lines,
     /// Triangles.
     Triangles,
+    /// Quads.
+    Quads,
 }
 
 pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
@@ -573,11 +575,6 @@ pub unsafe fn reflect_geometry_output_type(ctxt: &mut CommandContext, program: H
 
 /// Obtains the type of data that the tessellation evaluation shader stage outputs.
 ///
-/// # Panic
-///
-/// Panicks if `OutputPrimitives` can't represent the output of the tessellation evaluation.
-/// To avoid this situation, don't call this function if the program has a geometry shader.
-///
 /// # Unsafety
 ///
 /// - `program` must be a valid handle to a program.
@@ -602,7 +599,7 @@ pub unsafe fn reflect_tess_eval_output_type(ctxt: &mut CommandContext, program: 
     match value as gl::types::GLenum {
         gl::TRIANGLES => OutputPrimitives::Triangles,
         gl::ISOLINES => OutputPrimitives::Lines,
-        gl::QUADS => panic!(),
+        gl::QUADS => OutputPrimitives::Quads,
         _ => unreachable!()
     }
 }
