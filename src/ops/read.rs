@@ -5,6 +5,7 @@ use texture::ClientFormat;
 use texture::PixelValue;
 
 use fbo;
+use fbo::FramebuffersContainer;
 
 use BufferViewExt;
 use Rect;
@@ -49,11 +50,10 @@ impl<'a, P> From<&'a PixelBuffer<P>> for Destination<'a, P> where P: PixelValue 
 /// Panicks if the destination is not large enough.
 ///
 /// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
-pub fn read<'a, S, D>(mut ctxt: &mut CommandContext, fbos: &fbo::FramebuffersContainer, source: S,
-                      rect: &Rect, dest: D)
+pub fn read<'a, S, D>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D)
                       where S: Into<Source<'a>>, D: Into<Destination<'a, (u8, u8, u8, u8)>>
 {
-    match read_if_supported(ctxt, fbos, source, rect, dest) {
+    match read_if_supported(ctxt, source, rect, dest) {
         Ok(_) => (),
         Err(_) => unreachable!(),
     }
@@ -62,8 +62,7 @@ pub fn read<'a, S, D>(mut ctxt: &mut CommandContext, fbos: &fbo::FramebuffersCon
 /// Reads pixels from the source into the destination.
 ///
 /// Panicks if the destination is not large enough.
-pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext,
-                                      fbos: &fbo::FramebuffersContainer, source: S, rect: &Rect,
+pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect,
                                       dest: D) -> Result<(), ()>
                                       where S: Into<Source<'a>>, D: Into<Destination<'a, T>>,
                                             T: PixelValue
@@ -79,10 +78,10 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext,
 
     match source {
         Source::Attachment(attachment) => {
-            unsafe { fbos.bind_framebuffer_for_reading(&mut ctxt, attachment) };
+            unsafe { FramebuffersContainer::bind_framebuffer_for_reading(&mut ctxt, attachment) };
         },
         Source::DefaultFramebuffer(read_buffer) => {
-            fbos.bind_default_framebuffer_for_reading(&mut ctxt, read_buffer);
+            FramebuffersContainer::bind_default_framebuffer_for_reading(&mut ctxt, read_buffer);
         },
     };
 

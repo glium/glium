@@ -105,6 +105,12 @@ pub struct CommandContext<'a> {
     /// The list of vertex array objects.
     pub vertex_array_objects: &'a vertex_array_object::VertexAttributesSystem,
 
+    /// The list of framebuffer objects.
+    pub framebuffer_objects: &'a fbo::FramebuffersContainer,
+
+    /// The list of samplers.
+    pub samplers: RefMut<'a, HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
+
     /// This marker is here to prevent `CommandContext` from implementing `Send`
     // TODO: use this when possible
     //impl<'a, 'b> !Send for CommandContext<'a, 'b> {}
@@ -147,6 +153,8 @@ impl Context {
         }
 
         let vertex_array_objects = vertex_array_object::VertexAttributesSystem::new();
+        let framebuffer_objects = fbo::FramebuffersContainer::new();
+        let samplers = RefCell::new(HashMap::with_capacity(16));
 
         // checking whether the backend supports glium
         // TODO: do this more properly
@@ -159,6 +167,8 @@ impl Context {
                 capabilities: &capabilities,
                 report_debug_output_errors: &report_debug_output_errors,
                 vertex_array_objects: &vertex_array_objects,
+                framebuffer_objects: &framebuffer_objects,
+                samplers: samplers.borrow_mut(),
                 marker: PhantomData,
             };
 
@@ -174,9 +184,9 @@ impl Context {
             report_debug_output_errors: report_debug_output_errors,
             backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
-            framebuffer_objects: Some(fbo::FramebuffersContainer::new()),
+            framebuffer_objects: Some(framebuffer_objects),
             vertex_array_objects: vertex_array_objects,
-            samplers: RefCell::new(HashMap::new()),
+            samplers: samplers,
         });
 
         init_debug_callback(&context);
@@ -200,11 +210,7 @@ impl Context {
         // so we have to destroy them
         {
             let mut ctxt = self.make_current();
-
-            if let Some(ref fbos) = self.framebuffer_objects {
-                fbos.purge_all(&mut ctxt);
-            }
-
+            fbo::FramebuffersContainer::purge_all(&mut ctxt);
             vertex_array_object::VertexAttributesSystem::purge_all(&mut ctxt);
         }
 
@@ -325,8 +331,7 @@ impl Context {
         let rect = ::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
 
         let mut data = Vec::with_capacity(0);
-        ops::read(&mut ctxt, &self.get_framebuffer_objects(),
-                  ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect, &mut data);
+        ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect, &mut data);
         T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
     }
 
@@ -427,18 +432,10 @@ impl ContextExt for Context {
             capabilities: &self.capabilities,
             report_debug_output_errors: &self.report_debug_output_errors,
             vertex_array_objects: &self.vertex_array_objects,
+            framebuffer_objects: self.framebuffer_objects.as_ref().unwrap(),
+            samplers: self.samplers.borrow_mut(),
             marker: PhantomData,
         }
-    }
-
-    fn get_framebuffer_objects(&self) -> &fbo::FramebuffersContainer {
-        self.framebuffer_objects.as_ref().unwrap()
-    }
-
-    fn get_samplers(&self) -> &RefCell<HashMap<uniforms::SamplerBehavior,
-                                               sampler_object::SamplerObject>>
-    {
-        &self.samplers
     }
 
     fn capabilities(&self) -> &Capabilities {
@@ -470,16 +467,15 @@ impl Drop for Context {
                 capabilities: &self.capabilities,
                 report_debug_output_errors: &self.report_debug_output_errors,
                 vertex_array_objects: &self.vertex_array_objects,
+                framebuffer_objects: self.framebuffer_objects.as_ref().unwrap(),
+                samplers: self.samplers.borrow_mut(),
                 marker: PhantomData,
             };
 
-            let fbos = self.framebuffer_objects.take();
-            fbos.unwrap().cleanup(&mut ctxt);
-
+            fbo::FramebuffersContainer::cleanup(&mut ctxt);
             vertex_array_object::VertexAttributesSystem::cleanup(&mut ctxt);
 
-            let mut samplers = self.samplers.borrow_mut();
-            for (_, s) in mem::replace(&mut *samplers, HashMap::with_capacity(0)) {
+            for (_, s) in mem::replace(&mut *ctxt.samplers, HashMap::with_capacity(0)) {
                 s.destroy(&mut ctxt);
             }
 

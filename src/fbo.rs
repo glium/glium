@@ -7,7 +7,7 @@ Here are the rules taken from the official wiki:
 
 Attachment Completeness
 
-Each attachment point itself must be complete according to these rules. Empty attachments
+Each attachment point itctxt.framebuffer_objects must be complete according to these rules. Empty attachments
 (attachments with no image attached) are complete by default. If an image is attached, it must
 adhere to the following rules:
 
@@ -327,9 +327,9 @@ impl FramebuffersContainer {
     }
 
     /// Destroys all framebuffer objects. This is used when using a new context for example.
-    pub fn purge_all(&self, ctxt: &mut CommandContext) {
+    pub fn purge_all(ctxt: &mut CommandContext) {
         let mut other = HashMap::new();
-        mem::swap(&mut *self.framebuffers.borrow_mut(), &mut other);
+        mem::swap(&mut *ctxt.framebuffer_objects.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {
             obj.destroy(ctxt);
@@ -337,27 +337,25 @@ impl FramebuffersContainer {
     }
 
     /// Destroys all framebuffer objects that contain a precise texture.
-    pub fn purge_texture(&self, texture: gl::types::GLuint, ctxt: &mut CommandContext) {
-        self.purge_if(|a| {
+    pub fn purge_texture(ctxt: &mut CommandContext, texture: gl::types::GLuint) {
+        FramebuffersContainer::purge_if(ctxt, |a| {
             match a {
                 &RawAttachment::Texture { texture: id, .. } if id == texture => true,
                 _ => false 
             }
-        }, ctxt);
+        });
     }
 
     /// Destroys all framebuffer objects that contain a precise renderbuffer.
-    pub fn purge_renderbuffer(&self, renderbuffer: gl::types::GLuint,
-                              ctxt: &mut CommandContext)
-    {
-        self.purge_if(|a| a == &RawAttachment::RenderBuffer(renderbuffer), ctxt);
+    pub fn purge_renderbuffer(ctxt: &mut CommandContext, renderbuffer: gl::types::GLuint) {
+        FramebuffersContainer::purge_if(ctxt, |a| a == &RawAttachment::RenderBuffer(renderbuffer));
     }
 
     /// Destroys all framebuffer objects that match a certain condition.
-    fn purge_if<F>(&self, condition: F, mut ctxt: &mut CommandContext)
+    fn purge_if<F>(mut ctxt: &mut CommandContext, condition: F)
                    where F: Fn(&RawAttachment) -> bool
     {
-        let mut framebuffers = self.framebuffers.borrow_mut();
+        let mut framebuffers = ctxt.framebuffer_objects.framebuffers.borrow_mut();
 
         let mut attachments = Vec::with_capacity(0);
         for (key, _) in framebuffers.iter() {
@@ -397,9 +395,9 @@ impl FramebuffersContainer {
     ///
     /// This is very similar to `purge_all`, but optimized for when the container will soon
     /// be destroyed.
-    pub fn cleanup(self, ctxt: &mut CommandContext) {
+    pub fn cleanup(ctxt: &mut CommandContext) {
         let mut other = HashMap::with_capacity(0);
-        mem::swap(&mut *self.framebuffers.borrow_mut(), &mut other);
+        mem::swap(&mut *ctxt.framebuffer_objects.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {
             obj.destroy(ctxt);
@@ -411,11 +409,12 @@ impl FramebuffersContainer {
     ///
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
-    pub fn get_framebuffer_for_drawing(&self, attachments: Option<&ValidatedAttachments>,
-                                       ctxt: &mut CommandContext) -> gl::types::GLuint
+    pub fn get_framebuffer_for_drawing(ctxt: &mut CommandContext,
+                                       attachments: Option<&ValidatedAttachments>)
+                                       -> gl::types::GLuint
     {
         if let Some(attachments) = attachments {
-            self.get_framebuffer(attachments, ctxt)
+            FramebuffersContainer::get_framebuffer(ctxt, attachments)
         } else {
             0
         }
@@ -424,7 +423,7 @@ impl FramebuffersContainer {
     /// Binds the default framebuffer to `GL_READ_FRAMEBUFFER` or `GL_FRAMEBUFFER` so that it
     /// becomes the target of `glReadPixels`, `glCopyTexImage2D`, etc.
     // TODO: use an enum for the read buffer instead
-    pub fn bind_default_framebuffer_for_reading(&self, ctxt: &mut CommandContext,
+    pub fn bind_default_framebuffer_for_reading(ctxt: &mut CommandContext,
                                                 read_buffer: gl::types::GLenum)
     {
         bind_framebuffer(ctxt, 0, false, true);
@@ -438,11 +437,9 @@ impl FramebuffersContainer {
     ///
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
-    pub unsafe fn bind_framebuffer_for_reading(&self, ctxt: &mut CommandContext,
-                                               attachment: &Attachment)
-    {
+    pub unsafe fn bind_framebuffer_for_reading(ctxt: &mut CommandContext, attachment: &Attachment) {
         // TODO: restore this optimisation
-        /*for (attachments, fbo) in self.framebuffers.borrow_mut().iter() {
+        /*for (attachments, fbo) in ctxt.framebuffer_objects.framebuffers.borrow_mut().iter() {
             for &(key, ref atc) in attachments.color.iter() {
                 if atc == attachment {
                     return (fbo.get_id(), gl::COLOR_ATTACHMENT0 + key);
@@ -455,7 +452,7 @@ impl FramebuffersContainer {
             depth_stencil: FramebufferDepthStencilAttachments::None,
         }.validate().unwrap();
 
-        let framebuffer = self.get_framebuffer_for_drawing(Some(&attachments), ctxt);
+        let framebuffer = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&attachments));
         bind_framebuffer(ctxt, framebuffer, false, true);
         ctxt.gl.ReadBuffer(gl::COLOR_ATTACHMENT0);     // TODO: cache
     }
@@ -465,11 +462,11 @@ impl FramebuffersContainer {
     ///
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
-    fn get_framebuffer(&self, attachments: &ValidatedAttachments,
-                       ctxt: &mut CommandContext) -> gl::types::GLuint
+    fn get_framebuffer(ctxt: &mut CommandContext, attachments: &ValidatedAttachments)
+                       -> gl::types::GLuint
     {
-
-        let mut framebuffers = self.framebuffers.borrow_mut();
+        // TODO: use entries API
+        let mut framebuffers = ctxt.framebuffer_objects.framebuffers.borrow_mut();
         if let Some(value) = framebuffers.get(&attachments.raw) {
             return value.id;
         }

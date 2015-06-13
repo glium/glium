@@ -241,13 +241,6 @@ trait ContextExt {
     /// Start executing OpenGL commands by checking the current context.
     fn make_current(&self) -> context::CommandContext;
 
-    /// Returns the list of framebuffer objects.
-    fn get_framebuffer_objects(&self) -> &fbo::FramebuffersContainer;
-
-    /// Returns the list of samplers.
-    fn get_samplers(&self) -> &RefCell<HashMap<uniforms::SamplerBehavior,
-                                               sampler_object::SamplerObject>>;
-
     /// Returns the capabilities of the backend.
     fn capabilities(&self) -> &context::Capabilities;
 
@@ -317,11 +310,9 @@ trait UniformsExt {
     /// Binds the uniforms to a given program.
     ///
     /// Will replace texture and buffer bind points.
-    // TODO: put the samplers inside the CommandContext
     fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P,
-                        &mut Vec<&'a RefCell<Option<sync::LinearSyncFence>>>,
-                        &mut HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>)
-                        -> Result<(), DrawError> where P: ProgramExt;
+                            &mut Vec<&'a RefCell<Option<sync::LinearSyncFence>>>)
+                            -> Result<(), DrawError> where P: ProgramExt;
 }
 
 
