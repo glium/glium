@@ -153,6 +153,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
                 (Some(OutputPrimitives::Points), _) => gl::POINTS,
                 (Some(OutputPrimitives::Lines), _) => gl::LINES,
                 (Some(OutputPrimitives::Triangles), _) => gl::TRIANGLES,
+                (Some(OutputPrimitives::Quads), _) => panic!(),         // TODO: return a proper error
                 (None, PrimitiveType::Points) => gl::POINTS,
                 (None, PrimitiveType::LinesList) => gl::LINES,
                 (None, PrimitiveType::LinesListAdjacency) => gl::LINES,
