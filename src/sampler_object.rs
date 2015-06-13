@@ -2,8 +2,6 @@ use DrawError;
 
 use uniforms::SamplerBehavior;
 
-use std::collections::HashMap;
-
 use gl;
 use context::CommandContext;
 use version::Version;
@@ -86,9 +84,7 @@ impl Drop for SamplerObject {
 
 /// Returns the sampler corresponding to the given behavior, or a draw error if
 /// samplers are not supported.
-pub fn get_sampler(ctxt: &mut CommandContext,
-                   samplers: &mut HashMap<SamplerBehavior, SamplerObject>,
-                   behavior: &SamplerBehavior)
+pub fn get_sampler(ctxt: &mut CommandContext, behavior: &SamplerBehavior)
                    -> Result<gl::types::GLuint, DrawError>
 {
     // checking for compatibility
@@ -97,7 +93,7 @@ pub fn get_sampler(ctxt: &mut CommandContext,
     }
 
     // looking for an existing sampler
-    match samplers.get(behavior) {
+    match ctxt.samplers.get(behavior) {
         Some(obj) => return Ok(obj.get_id()),
         None => ()
     };
@@ -105,6 +101,6 @@ pub fn get_sampler(ctxt: &mut CommandContext,
     // builds a new sampler
     let sampler = SamplerObject::new(ctxt, behavior);
     let id = sampler.get_id();
-    samplers.insert(behavior.clone(), sampler);
+    ctxt.samplers.insert(behavior.clone(), sampler);
     Ok(id)
 }

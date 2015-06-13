@@ -4,6 +4,7 @@ use Rect;
 use context::Context;
 use ContextExt;
 
+use fbo::FramebuffersContainer;
 use fbo::ValidatedAttachments;
 
 use gl;
@@ -18,10 +19,8 @@ pub fn blit(context: &Context, source: Option<&ValidatedAttachments>,
         let mut ctxt = context.make_current();
 
         // FIXME: we don't draw on it
-        let source = context.get_framebuffer_objects()
-                            .get_framebuffer_for_drawing(source, &mut ctxt);
-        let target = context.get_framebuffer_objects()
-                            .get_framebuffer_for_drawing(target, &mut ctxt);
+        let source = FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, source);
+        let target = FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, target);
 
         // scissor testing influences blitting
         if ctxt.state.enabled_scissor_test {

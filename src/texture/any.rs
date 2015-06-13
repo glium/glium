@@ -517,7 +517,7 @@ impl TextureAny {
         let mut ctxt = self.context.make_current();
 
         let mut data = Vec::with_capacity(0);
-        ops::read(&mut ctxt, &self.context.get_framebuffer_objects(), &attachment, &rect, &mut data);
+        ops::read(&mut ctxt, &attachment, &rect, &mut data);
         T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
     }
 
@@ -545,7 +545,7 @@ impl TextureAny {
         let pb = PixelBuffer::new_empty(&self.context, size);
 
         let mut ctxt = self.context.make_current();
-        ops::read(&mut ctxt, &self.context.get_framebuffer_objects(), &attachment, &rect, &pb);
+        ops::read(&mut ctxt, &attachment, &rect, &pb);
         pb
     }
 
@@ -645,8 +645,7 @@ impl Drop for TextureAny {
         let mut ctxt = self.context.make_current();
 
         // removing FBOs which contain this texture
-        self.context.get_framebuffer_objects()
-                    .purge_texture(self.id, &mut ctxt);
+        fbo::FramebuffersContainer::purge_texture(&mut ctxt, self.id);
 
         // resetting the bindings
         for tex_unit in &mut ctxt.state.texture_units {

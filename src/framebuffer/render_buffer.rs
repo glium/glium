@@ -21,6 +21,7 @@ use image_format;
 
 use gl;
 use GlObject;
+use fbo::FramebuffersContainer;
 use backend::Facade;
 use context::Context;
 use ContextExt;
@@ -295,8 +296,7 @@ impl Drop for RenderBufferAny {
             let mut ctxt = self.context.make_current();
 
             // removing FBOs which contain this buffer
-            self.context.get_framebuffer_objects()
-                        .purge_renderbuffer(self.id, &mut ctxt);
+            FramebuffersContainer::purge_renderbuffer(&mut ctxt, self.id);
 
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                ctxt.version >= &Version(Api::GlEs, 2, 0)

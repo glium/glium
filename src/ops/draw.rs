@@ -158,15 +158,13 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // binding the FBO to draw upon
     {
-        let fbo_id = context.get_framebuffer_objects()
-                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
+        let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, framebuffer);
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
     };
 
     // binding the program and uniforms
     program.use_program(&mut ctxt);
-    try!(uniforms.bind_uniforms(&mut ctxt, program, &mut fences,
-                                &mut context.get_samplers().borrow_mut()));
+    try!(uniforms.bind_uniforms(&mut ctxt, program, &mut fences));
 
     // sync-ing draw_parameters
     unsafe {

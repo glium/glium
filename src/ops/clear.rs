@@ -18,9 +18,7 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
     unsafe {
         let mut ctxt = context.make_current();
 
-        let fbo_id = context.get_framebuffer_objects()
-                            .get_framebuffer_for_drawing(framebuffer, &mut ctxt);
-
+        let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, framebuffer);
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         if ctxt.state.enabled_rasterizer_discard {

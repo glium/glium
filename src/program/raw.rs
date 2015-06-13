@@ -472,8 +472,7 @@ impl RawProgram {
         let mut fences = Vec::with_capacity(0);
 
         self.use_program(&mut ctxt);
-        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences,
-                                    &mut self.context.get_samplers().borrow_mut()));
+        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
         ctxt.gl.DispatchCompute(x, y, z);
 
         for fence in fences {
