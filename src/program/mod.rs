@@ -4,7 +4,7 @@ use std::sync::Mutex;
 
 pub use self::compute::ComputeShader;
 pub use self::program::Program;
-pub use self::reflection::{Uniform, UniformBlock, UniformBlockMember, OutputPrimitives};
+pub use self::reflection::{Uniform, UniformBlock, BlockLayout, OutputPrimitives};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
 
 mod compute;

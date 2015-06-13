@@ -1,4 +1,5 @@
 use program;
+use program::BlockLayout;
 use texture;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
@@ -265,29 +266,25 @@ impl<'a> UniformValue<'a> {
 
 impl<T> UniformBlock for T where T: AsUniformValue + Copy + Send + 'static {
     fn matches(block: &program::UniformBlock) -> bool {
-        if block.members.len() != 1 {
-            return false;
+        fn inner_match<T>(layout: &BlockLayout) -> bool where T: AsUniformValue + Copy +
+                                                                 Send + 'static
+        {
+            if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
+                offset_in_buffer == 0 && <T as AsUniformValue>::matches(&ty)
+
+            } else if let &BlockLayout::Struct { ref members } = layout {
+                if members.len() == 1 {
+                    inner_match::<T>(&members[0].1)
+                } else {
+                    false
+                }
+
+            } else {
+                false
+            }
         }
 
-        if block.size != mem::size_of::<T>() {
-            return false;
-        }
-
-        let ref member = block.members[0];
-
-        if member.offset != 0 {
-            return false;
-        }
-
-        if !<T as AsUniformValue>::matches(&member.ty) {
-            return false;
-        }
-
-        if member.size.is_some() {
-            return false;
-        }
-
-        true
+        block.size == mem::size_of::<T>() && inner_match::<T>(&block.layout)
     }
 }
 

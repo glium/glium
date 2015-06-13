@@ -33,7 +33,7 @@ pub struct Uniform {
 /// Information about a uniform block (except its name).
 #[derive(Debug, Clone)]
 pub struct UniformBlock {
-    /// The binding point of the uniform.
+    /// The binding point of the block.
     ///
     /// This is internal information, you probably don't need to use it.
     pub binding: i32,
@@ -41,24 +41,59 @@ pub struct UniformBlock {
     /// Size in bytes of the data in the block.
     pub size: usize,
 
-    /// List of elements in the block.
-    pub members: Vec<UniformBlockMember>,
+    /// Layout of the block.
+    pub layout: BlockLayout,
 }
 
-/// Information about a uniform inside a block.
+/// Layout of a shader storage buffer or a uniform buffer.
 #[derive(Debug, Clone)]
-pub struct UniformBlockMember {
-    /// Name of the member.
-    pub name: String,
+pub enum BlockLayout {
+    /// Multiple elements, each having a name.
+    Struct {
+        /// The list of elements, with `name`/`layout` pairs.
+        members: Vec<(String, BlockLayout)>,
+    },
 
-    /// Offset of the member in the block.
-    pub offset: usize,
+    /// A basic element.
+    BasicType {
+        /// Type of data.
+        ty: UniformType,
 
-    /// Type of the uniform.
-    pub ty: UniformType,
+        /// Offset of this element in bytes from the start of the buffer.
+        offset_in_buffer: usize,
+    },
 
-    /// If it is an array, the number of elements.
-    pub size: Option<usize>,
+    /// A fixed-size array.
+    ///
+    /// For example:
+    ///
+    /// ```notrust
+    /// uint data[12];
+    /// ```
+    Array {
+        /// Type of data of each element.
+        content: Box<BlockLayout>,
+
+        /// Number of elements in the array.
+        length: usize,
+    },
+
+    /// An array whose size isn't known at compile-time. Can only be used as the last element of
+    /// a buffer.
+    ///
+    /// Its actual size depends on the size of the buffer.
+    ///
+    /// For example:
+    ///
+    /// ```notrust
+    /// buffer MyBuffer {
+    ///     uint data[];
+    /// }
+    /// ```
+    DynamicSizedArray {
+        /// Type of data of each element.
+        content: Box<BlockLayout>,
+    },
 }
 
 /// Information about an attribute of a program (except its name).
@@ -390,22 +425,20 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
 
         // now computing the list of members
         let members = member_names.into_iter().enumerate().map(|(index, name)| {
-            UniformBlockMember {
-                name: name,
-                offset: member_offsets[index] as usize,
-                ty: glenum_to_uniform_type(member_types[index] as gl::types::GLenum),
-                size: match member_size[index] {
-                    1 => None,
-                    a => Some(a as usize),
-                },
-            }
-        }).collect::<Vec<_>>();
+            (name, member_offsets[index] as usize,
+             glenum_to_uniform_type(member_types[index] as gl::types::GLenum),
+             match member_size[index] {
+                 1 => None,
+                 a => Some(a as usize),
+             }
+            )
+        });
 
         // finally inserting into the blocks list
         blocks.insert(name, UniformBlock {
             binding: binding as i32,
             size: block_size as usize,
-            members: members,
+            layout: introspection_output_to_layout(members),
         });
     }
 
@@ -665,10 +698,8 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
             variables
         };
 
-        let mut members = Vec::with_capacity(num_variables);
-
-        // iterating over variables
-        for variable in active_variables {
+        // iterator over variables
+        let members = active_variables.into_iter().map(|variable| {
             let (ty, array_size, offset, _array_stride, name_len) = {
                 let mut output: [gl::types::GLint; 5] = mem::uninitialized();
                 ctxt.gl.GetProgramResourceiv(program, gl::BUFFER_VARIABLE,
@@ -692,26 +723,121 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
                 String::from_utf8(name_tmp).unwrap()
             };
 
-            members.push(UniformBlockMember {
-                name: name,
-                offset: offset,
-                ty: ty,
-                size: match array_size {
+            (
+                name, offset, ty,
+                match array_size {
                     1 => None,
                     a => Some(a as usize),
                 },
-            });
-        }
+            )
+        });
 
         // finally inserting into the blocks list
         blocks.insert(name, UniformBlock {
             binding: binding as i32,
             size: total_size,
-            members: members,
+            layout: introspection_output_to_layout(members),
         });
     }
 
     blocks
+}
+
+/// Takes a list of elements produced by OpenGL's introspection API and turns them into
+/// a `BlockLayout` object.
+///
+/// The iterator must produce a list of `(name, offset, ty, array_size)`.
+///
+/// # Panic
+///
+/// Panic if the input doesn't conform to the OpenGL specs.
+///
+fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
+                                     where I: Iterator<Item = (String, usize, UniformType,
+                                                               Option<usize>)>
+{
+    // `output` must be a BlockLayout::Struct, otherwise this function will panic
+    fn process(output: &mut BlockLayout, name: &str, offset: usize, ty: UniformType,
+               array_size: Option<usize>)
+    {
+        let mut components = name.splitn(2, '.');
+        let current_component = components.next().unwrap();
+        let name_rest = components.next();
+
+        // finding the appropriate place in `output` to write the element
+        let member = if let &mut BlockLayout::Struct { ref mut members } = output {
+            // splitting the name and array size
+            let (current_component, array) = if current_component.ends_with(']') {
+                let open_bracket_pos = current_component.rfind('[').unwrap();
+                let array = current_component[open_bracket_pos + 1 .. current_component.len() - 1]
+                                        .parse().unwrap();
+                (&current_component[.. open_bracket_pos], Some(array))
+            } else {
+                (&current_component[..], None)
+            };
+
+            // because of a bug in Rust's borrow checker, we have to loop twice instead of just
+            // call `if let Some() { } else { }`
+            let existing = members.iter_mut().find(|m| m.0 == current_component).is_some();
+            if existing {
+                let member = &mut members.iter_mut().find(|m| m.0 == current_component)
+                                         .unwrap().1;
+
+                if let Some(array) = array {
+                    match member {
+                        &mut BlockLayout::Array { ref mut content, ref mut length } => {
+                            if *length <= array { *length = array + 1; }
+                            &mut **content
+                        },
+                        _ => unreachable!()
+                    }
+                } else {
+                    member
+                }
+
+            } else {
+                // member doesn't exist yet in the output, adding it
+                if let Some(array) = array {
+                    members.push((current_component.to_string(), BlockLayout::Array {
+                        content: Box::new(BlockLayout::Struct { members: Vec::new() }),
+                        length: if name_rest.is_some() { array } else { array_size.unwrap() },
+                    }));
+
+                    match &mut members.last_mut().unwrap().1 {
+                        &mut BlockLayout::Array { ref mut content, .. } => &mut **content,
+                        _ => unreachable!()
+                    }
+
+                } else {
+                    members.push((current_component.to_string(), BlockLayout::Struct {
+                        members: Vec::new()
+                    }));
+                    &mut members.last_mut().unwrap().1
+                }
+            }
+
+        } else {
+            unreachable!();
+        };
+
+        // now adding either the other elements or the final element itself
+        if let Some(name_rest) = name_rest {
+            process(member, name_rest, offset, ty, array_size);
+
+        } else {
+            *member = BlockLayout::BasicType {
+                offset_in_buffer: offset,
+                ty: ty,
+            };
+        }
+    }
+
+    // ↓ actual body of `introspection_output_to_layout` starts here ↓
+    let mut layout = BlockLayout::Struct { members: Vec::new() };
+    for (name, offset, ty, array_size) in elements {
+        process(&mut layout, &name, offset, ty, array_size);
+    }
+    layout
 }
 
 fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
