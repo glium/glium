@@ -114,6 +114,8 @@ pub struct ExtensionsList {
     pub gl_ext_occlusion_query_boolean: bool,
     /// GL_EXT_packed_depth_stencil
     pub gl_ext_packed_depth_stencil: bool,
+    /// GL_EXT_sRGB_write_control
+    pub gl_ext_srgb_write_control: bool,
     /// GL_EXT_texture_compression_s3tc
     pub gl_ext_texture_compression_s3tc: bool,
     /// GL_EXT_texture_filter_anisotropic
@@ -215,6 +217,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_ext_multi_draw_indirect: false,
         gl_ext_occlusion_query_boolean: false,
         gl_ext_packed_depth_stencil: false,
+        gl_ext_srgb_write_control: false,
         gl_ext_texture_compression_s3tc: false,
         gl_ext_texture_filter_anisotropic: false,
         gl_ext_texture_integer: false,
@@ -288,6 +291,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_EXT_multi_draw_indirect" => extensions.gl_ext_multi_draw_indirect = true,
             "GL_EXT_occlusion_query_boolean" => extensions.gl_ext_occlusion_query_boolean = true,
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
+            "GL_EXT_sRGB_write_control" => extensions.gl_ext_srgb_write_control = true,
             "GL_EXT_texture_compression_s3tc" => extensions.gl_ext_texture_compression_s3tc = true,
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
             "GL_EXT_texture_integer" => extensions.gl_ext_texture_integer = true,
