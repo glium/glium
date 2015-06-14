@@ -99,6 +99,8 @@ pub enum PrimitiveType {
     ///
     LineStripAdjacency,
     ///
+    LineLoop,
+    ///
     TrianglesList,
     ///
     TrianglesListAdjacency,
@@ -123,6 +125,7 @@ impl ToGlEnum for PrimitiveType {
             &PrimitiveType::LinesListAdjacency => gl::LINES_ADJACENCY,
             &PrimitiveType::LineStrip => gl::LINE_STRIP,
             &PrimitiveType::LineStripAdjacency => gl::LINE_STRIP_ADJACENCY,
+            &PrimitiveType::LineLoop => gl::LINE_LOOP,
             &PrimitiveType::TrianglesList => gl::TRIANGLES,
             &PrimitiveType::TrianglesListAdjacency => gl::TRIANGLES_ADJACENCY,
             &PrimitiveType::TriangleStrip => gl::TRIANGLE_STRIP,

@@ -159,6 +159,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
                 (None, PrimitiveType::LinesListAdjacency) => gl::LINES,
                 (None, PrimitiveType::LineStrip) => gl::LINES,
                 (None, PrimitiveType::LineStripAdjacency) => gl::LINES,
+                (None, PrimitiveType::LineLoop) => gl::LINES,
                 (None, PrimitiveType::TrianglesList) => gl::TRIANGLES,
                 (None, PrimitiveType::TrianglesListAdjacency) => gl::TRIANGLES,
                 (None, PrimitiveType::TriangleStrip) => gl::TRIANGLES,
