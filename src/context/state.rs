@@ -47,20 +47,20 @@ pub struct GlState {
     /// Whether GL_STENCIL_TEST is enabled
     pub enabled_stencil_test: bool,
 
-    // The latest value passed to `glUseProgram`.
+    /// The latest value passed to `glUseProgram`.
     pub program: Handle,
 
-    // The latest value passed to `glBindVertexArray`.
+    /// The latest value passed to `glBindVertexArray`.
     pub vertex_array: gl::types::GLuint,
 
-    // The latest value passed to `glClearColor`.
+    /// The latest value passed to `glClearColor`.
     pub clear_color: (gl::types::GLclampf, gl::types::GLclampf,
                       gl::types::GLclampf, gl::types::GLclampf),
 
-    // The latest value passed to `glClearDepthf`.
+    /// The latest value passed to `glClearDepthf`.
     pub clear_depth: gl::types::GLclampf,
 
-    // The latest value passed to `glClearStencil`.
+    /// The latest value passed to `glClearStencil`.
     pub clear_stencil: gl::types::GLint,
 
     /// The latest values passed to ``glColorMask`.
