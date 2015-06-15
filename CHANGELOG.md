@@ -2,6 +2,7 @@
 
 ## Version 0.5.4
 
+ - Added the `LineLoop` primitive type.
  - Added the `smooth` draw parameters.
  - Fixed a potential `GL_INVALID_ENUM` error generated at initialization.
  - Glium will now panic if an OpenGL error is triggered during initialization.
