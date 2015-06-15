@@ -1,5 +1,6 @@
 use Handle;
 use gl;
+use smallvec::SmallVec;
 
 /// Represents the current OpenGL state.
 ///
@@ -80,7 +81,7 @@ pub struct GlState {
     pub uniform_buffer_binding: gl::types::GLuint,
 
     /// List of buffers bound to the indexed `GL_UNIFORM_BUFFER`.
-    pub indexed_uniform_buffer_bindings: Vec<IndexedBufferState>,
+    pub indexed_uniform_buffer_bindings: SmallVec<[IndexedBufferState ; 8]>,
 
     /// The latest buffer bound to `GL_COPY_READ_BUFFER`.
     pub copy_read_buffer_binding: gl::types::GLuint,
@@ -104,16 +105,16 @@ pub struct GlState {
     pub atomic_counter_buffer_binding: gl::types::GLuint,
 
     /// List of buffers bound to the indexed `GL_ATOMIC_COUNTER_BUFFER`.
-    pub indexed_atomic_counter_buffer_bindings: Vec<IndexedBufferState>,
+    pub indexed_atomic_counter_buffer_bindings: SmallVec<[IndexedBufferState ; 8]>,
 
     /// The latest buffer bound to `GL_SHADER_STORAGE_BUFFER`.
     pub shader_storage_buffer_binding: gl::types::GLuint,
 
     /// List of buffers bound to the indexed `GL_SHADER_STORAGE_BUFFER`.
-    pub indexed_shader_storage_buffer_bindings: Vec<IndexedBufferState>,
+    pub indexed_shader_storage_buffer_bindings: SmallVec<[IndexedBufferState ; 8]>,
 
     /// List of buffers bound to the indexed `GL_TRANSFORM_FEEDBACK_BUFFER`.
-    pub indexed_transform_feedback_buffer_bindings: Vec<IndexedBufferState>,
+    pub indexed_transform_feedback_buffer_bindings: SmallVec<[IndexedBufferState; 4]>,
 
     /// The latest buffer bound to `GL_READ_FRAMEBUFFER`.
     pub read_framebuffer: gl::types::GLuint,
@@ -196,7 +197,7 @@ pub struct GlState {
     pub active_texture: gl::types::GLenum,
 
     /// List of texture units.
-    pub texture_units: Vec<TextureUnitState>,
+    pub texture_units: SmallVec<[TextureUnitState ; 32]>,
 
     /// Current query being used for GL_SAMPLES_PASSED​.
     pub samples_passed_query: gl::types::GLuint,
@@ -310,6 +311,12 @@ pub struct IndexedBufferState {
 /// Builds the `GlState` corresponding to a newly-created OpenGL context.
 impl Default for GlState {
     fn default() -> GlState {
+        fn small_vec_one<T>() -> SmallVec<T> where T: ::smallvec::Array, T::Item: Default {
+            let mut v = SmallVec::new();
+            v.push(Default::default());
+            v
+        }
+
         GlState {
             enabled_blend: false,
             enabled_cull_face: false,
@@ -336,7 +343,7 @@ impl Default for GlState {
             pixel_pack_buffer_binding: 0,
             pixel_unpack_buffer_binding: 0,
             uniform_buffer_binding: 0,
-            indexed_uniform_buffer_bindings: vec![Default::default()],
+            indexed_uniform_buffer_bindings: small_vec_one(),
             copy_read_buffer_binding: 0,
             copy_write_buffer_binding: 0,
             dispatch_indirect_buffer_binding: 0,
@@ -344,10 +351,10 @@ impl Default for GlState {
             query_buffer_binding: 0,
             texture_buffer_binding: 0,
             atomic_counter_buffer_binding: 0,
-            indexed_atomic_counter_buffer_bindings: vec![Default::default()],
+            indexed_atomic_counter_buffer_bindings: small_vec_one(),
             shader_storage_buffer_binding: 0,
-            indexed_shader_storage_buffer_bindings: vec![Default::default()],
-            indexed_transform_feedback_buffer_bindings: vec![Default::default()],
+            indexed_shader_storage_buffer_bindings: small_vec_one(),
+            indexed_transform_feedback_buffer_bindings: small_vec_one(),
             read_framebuffer: 0,
             draw_framebuffer: 0,
             default_framebuffer_read: None,
@@ -373,7 +380,7 @@ impl Default for GlState {
             pixel_store_pack_alignment: 4,
             patch_patch_vertices: 3,
             active_texture: 0,
-            texture_units: vec![Default::default()],
+            texture_units: small_vec_one(),
             samples_passed_query: 0,
             any_samples_passed_query: 0,
             any_samples_passed_conservative_query: 0,

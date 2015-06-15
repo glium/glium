@@ -100,6 +100,7 @@ extern crate image;
 extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;
+extern crate smallvec;
 
 #[cfg(feature = "glutin")]
 pub use backend::glutin_backend::glutin;

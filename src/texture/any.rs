@@ -648,7 +648,7 @@ impl Drop for TextureAny {
         fbo::FramebuffersContainer::purge_texture(&mut ctxt, self.id);
 
         // resetting the bindings
-        for tex_unit in &mut ctxt.state.texture_units {
+        for tex_unit in ctxt.state.texture_units.iter_mut() {
             if tex_unit.texture == self.id {
                 tex_unit.texture = 0;
             }
