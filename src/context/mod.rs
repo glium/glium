@@ -182,6 +182,14 @@ impl Context {
 
         init_debug_callback(&context);
 
+        // making sure that an error wasn't triggered during initialization
+        {
+            let mut ctxt = context.make_current();
+            assert!(::get_gl_error(&mut ctxt).is_none(),
+                    "glium has triggered an OpenGL error during initialization. Please report \
+                     this error: https://github.com/tomaka/glium/issues");
+        }
+
         Ok(context)
     }
 

@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Fixed a potential `GL_INVALID_ENUM` error generated at initialization.
+ - Glium will now panic if an OpenGL error is triggered during initialization.
  - Fixed gamma correction with OpenGL ES.
  - Fixed `get_internal_format_if_supported()` sometimes panicking.
  - Fixed a panic with a tessellation evaluation shader that outputs quads.
