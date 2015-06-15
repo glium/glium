@@ -106,6 +106,7 @@ extern crate smallvec;
 pub use backend::glutin_backend::glutin;
 pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
+pub use draw_parameters::{Smooth};
 pub use index::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
@@ -752,6 +753,9 @@ pub enum DrawError {
 
     /// See the documentation of the `draw_parameters` module for infos.
     WrongQueryOperation,
+
+    /// You requested smoothing, but this is not supported by the backend.
+    SmoothingNotSupported,
 }
 
 impl std::fmt::Display for DrawError {
@@ -803,6 +807,8 @@ impl std::fmt::Display for DrawError {
                                                                       primitves, but this is not \
                                                                       supported by the backend."),
             &DrawError::WrongQueryOperation => write!(fmt, "Wrong query operation."),
+            &DrawError::SmoothingNotSupported => write!(fmt, "Trying to use smoothing, but this is \
+                                                              not supported by the backend."),
         }
     }
 }

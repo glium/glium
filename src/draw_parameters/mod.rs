@@ -504,6 +504,31 @@ impl ToGlEnum for PolygonMode {
     }
 }
 
+/// Specifies a hint for the smoothing.
+///
+/// Note that this is just a hint and the driver may disregard it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Smooth {
+    /// The most efficient option should be chosen.
+    Fastest,
+
+    /// The most correct, or highest quality, option should be chosen.
+    Nicest,
+
+    /// No preference.
+    DontCare,
+}
+
+impl ToGlEnum for Smooth {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+          Smooth::Fastest => gl::FASTEST,
+          Smooth::Nicest => gl::NICEST,
+          Smooth::DontCare => gl::DONT_CARE,
+        }
+    }
+}
+
 /// Represents the parameters to use when drawing.
 ///
 /// Example:
@@ -754,6 +779,11 @@ pub struct DrawParameters<'a> {
 
     /// If set, then the generated primitives will be written back to a buffer.
     pub transform_feedback: Option<&'a TransformFeedbackSession<'a>>,
+
+    /// If set, then the generated primitives will be smoothed.
+    /// 
+    /// Note that blending needs to be enabled for this to work.
+    pub smooth: Option<Smooth>,
 }
 
 /// Condition whether to render or not.
@@ -827,6 +857,7 @@ impl<'a> Default for DrawParameters<'a> {
             transform_feedback_primitives_written_query: None,
             condition: None,
             transform_feedback: None,
+            smooth: None,
         }
     }
 }
