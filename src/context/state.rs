@@ -47,6 +47,12 @@ pub struct GlState {
     /// Whether GL_STENCIL_TEST is enabled
     pub enabled_stencil_test: bool,
 
+    /// Whether GL_LINE_SMOOTH is enabled
+    pub enabled_line_smooth: bool,
+
+    /// Whether GL_POLYGON_SMOOTH is enabled
+    pub enabled_polygon_smooth: bool,
+
     /// The latest value passed to `glUseProgram`.
     pub program: Handle,
 
@@ -180,6 +186,9 @@ pub struct GlState {
 
     /// The latest value passed to `glPolygonMode`.
     pub polygon_mode: gl::types::GLenum,
+
+    /// The latest value passed to `glHint` for smoothing.
+    pub smooth: (gl::types::GLenum, gl::types::GLenum),
 
     /// The latest value passed to `glPixelStore` with `GL_UNPACK_ALIGNMENT`.
     pub pixel_store_unpack_alignment: gl::types::GLint,
@@ -325,6 +334,8 @@ impl Default for GlState {
             enabled_sample_coverage: false,
             enabled_scissor_test: false,
             enabled_stencil_test: false,
+            enabled_line_smooth: false,
+            enabled_polygon_smooth: false,
 
             program: Handle::Id(0),
             vertex_array: 0,
@@ -369,6 +380,7 @@ impl Default for GlState {
             point_size: 1.0,
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,
+            smooth: (gl::DONT_CARE, gl::DONT_CARE),
             pixel_store_unpack_alignment: 4,
             pixel_store_pack_alignment: 4,
             patch_patch_vertices: 3,

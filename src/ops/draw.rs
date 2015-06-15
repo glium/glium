@@ -17,7 +17,7 @@ use fbo::{self, ValidatedAttachments};
 use sync;
 use uniforms::Uniforms;
 use {Program, GlObject, ToGlEnum};
-use index::{self, IndicesSource};
+use index::{self, IndicesSource, PrimitiveType};
 use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
 
@@ -26,6 +26,7 @@ use draw_parameters::{BlendingFunction, BackfaceCullingMode};
 use draw_parameters::{DepthTest, PolygonMode, StencilTest};
 use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
 use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery, ConditionalRendering};
+use draw_parameters::{Smooth};
 use Rect;
 
 use libc;
@@ -187,6 +188,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                           draw_parameters.primitives_generated_query,
                           draw_parameters.transform_feedback_primitives_written_query));
         sync_conditional_render(&mut ctxt, draw_parameters.condition);
+        try!(sync_smooth(&mut ctxt, draw_parameters.smooth, indices.get_primitives_type()));
 
         // TODO: make sure that the program is the right one
         // TODO: changing the current transform feedback requires pausing/unbinding before changing the program
@@ -919,4 +921,78 @@ fn sync_conditional_render(ctxt: &mut context::CommandContext,
             *mode = new_mode;
         },
     }
+}
+
+fn sync_smooth(ctxt: &mut context::CommandContext,
+               smooth: Option<Smooth>,
+               primitive_type: PrimitiveType) -> Result<(), DrawError> {
+
+    if let Some(smooth) = smooth {
+        // check if smoothing is supported, it isn't on OpenGL ES
+        if !(ctxt.version >= &Version(Api::Gl, 1, 0)) {
+            return Err(DrawError::SmoothingNotSupported);
+        }
+
+        let hint = smooth.to_glenum();
+
+        match primitive_type {
+            // point
+            PrimitiveType::Points =>
+                return Err(DrawError::SmoothingNotSupported),
+
+            // line
+            PrimitiveType::LinesList | PrimitiveType::LinesListAdjacency |
+            PrimitiveType::LineStrip | PrimitiveType::LineStripAdjacency |
+            PrimitiveType::LineLoop => unsafe {
+                if !ctxt.state.enabled_line_smooth {
+                    ctxt.state.enabled_line_smooth = true;
+                    ctxt.gl.Enable(gl::LINE_SMOOTH);
+                }
+
+                if ctxt.state.smooth.0 != hint {
+                    ctxt.state.smooth.0 = hint;
+                    ctxt.gl.Hint(gl::LINE_SMOOTH_HINT, hint);
+                }
+            },
+
+            // polygon
+            _ => unsafe {
+                if !ctxt.state.enabled_polygon_smooth {
+                    ctxt.state.enabled_polygon_smooth = true;
+                    ctxt.gl.Enable(gl::POLYGON_SMOOTH);
+                }
+
+                if ctxt.state.smooth.1 != hint {
+                    ctxt.state.smooth.1 = hint;
+                    ctxt.gl.Hint(gl::POLYGON_SMOOTH_HINT, hint);
+                }
+            }
+          }
+        }
+        else {
+          match primitive_type {
+            // point
+            PrimitiveType::Points => (),
+
+            // line
+            PrimitiveType::LinesList | PrimitiveType::LinesListAdjacency |
+            PrimitiveType::LineStrip | PrimitiveType::LineStripAdjacency |
+            PrimitiveType::LineLoop => unsafe {
+                if ctxt.state.enabled_line_smooth {
+                    ctxt.state.enabled_line_smooth = false;
+                    ctxt.gl.Disable(gl::LINE_SMOOTH);
+                }
+            },
+
+            // polygon
+            _ => unsafe {
+                if ctxt.state.enabled_polygon_smooth {
+                    ctxt.state.enabled_polygon_smooth = false;
+                    ctxt.gl.Disable(gl::POLYGON_SMOOTH);
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
