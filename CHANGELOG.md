@@ -1,7 +1,8 @@
 # Change Log
 
-## Unreleased
+## Version 0.5.4
 
+ - Added the `smooth` draw parameters.
  - Fixed a potential `GL_INVALID_ENUM` error generated at initialization.
  - Glium will now panic if an OpenGL error is triggered during initialization.
  - Fixed gamma correction with OpenGL ES.
