@@ -49,6 +49,7 @@ optional = true
 lazy_static = "0.1"
 gl_common = "0.0.4"
 libc = "0.1"
+smallvec = "0.1.4"
 
 [build-dependencies]
 gl_generator = "0.0.25"
