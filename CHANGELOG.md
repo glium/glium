@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 0.5.5
+
+ - Added `with_compressed_data`, `read_compressed_data` and `write_compressed_data` to compressed texture types.
+ - Fixed a panic at initialization on OS/X.
+
 ## Version 0.5.4
 
  - Added the `LineLoop` primitive type.
