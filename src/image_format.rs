@@ -422,13 +422,6 @@ pub enum CompressedFormat {
     S3tcDxt5Alpha,
 }
 
-impl CompressedFormat {
-    /// Turns this format into a more generic `TextureFormat`.
-    pub fn to_texture_format(self) -> TextureFormat {
-        TextureFormat::CompressedFormat(self)
-    }
-}
-
 /// List of compressed pixel formats in the sRGB color space.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -441,10 +434,145 @@ pub enum CompressedSrgbFormat {
     S3tcDxt5Alpha,
 }
 
+impl CompressedFormat {
+    /// Turns this format into a more generic `TextureFormat`.
+    pub fn to_texture_format(self) -> TextureFormat {
+        TextureFormat::CompressedFormat(self)
+    }
+
+    /// Transforms this format into a gl::types::GLenum only if the format is supported by the context.
+    fn to_glenum_if_supported(&self, context: &Context) -> Result<gl::types::GLenum, FormatNotSupportedError> {
+        let version = context.get_version();
+        let extensions = context.get_extensions();
+        match *self {
+            CompressedFormat::RgtcFormatU => {
+                if version >= &Version(Api::Gl, 3, 0) {
+                    Ok(gl::COMPRESSED_RED_RGTC1)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::RgtcFormatI => {
+                if version >= &Version(Api::Gl, 3, 0) {
+                    Ok(gl::COMPRESSED_SIGNED_RED_RGTC1)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::RgtcFormatUU => {
+                if version >= &Version(Api::Gl, 3, 0) {
+                    Ok(gl::COMPRESSED_RG_RGTC2)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::RgtcFormatII => {
+                if version >= &Version(Api::Gl, 3, 0) {
+                    Ok(gl::COMPRESSED_SIGNED_RG_RGTC2)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::BptcUnorm4 => {
+                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                    Ok(gl::COMPRESSED_RGBA_BPTC_UNORM)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::BptcSignedFloat3 => {
+                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                    Ok(gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::BptcUnsignedFloat3 => {
+                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                    Ok(gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::S3tcDxt1NoAlpha => {
+                if extensions.gl_ext_texture_compression_s3tc {
+                    Ok(gl::COMPRESSED_RGB_S3TC_DXT1_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::S3tcDxt1Alpha => {
+                if extensions.gl_ext_texture_compression_s3tc {
+                    Ok(gl::COMPRESSED_RGBA_S3TC_DXT1_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedFormat::S3tcDxt3Alpha => {
+                if extensions.gl_ext_texture_compression_s3tc {
+                    Ok(gl::COMPRESSED_RGBA_S3TC_DXT3_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+           CompressedFormat::S3tcDxt5Alpha => {
+                if extensions.gl_ext_texture_compression_s3tc {
+                    Ok(gl::COMPRESSED_RGBA_S3TC_DXT5_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+        }
+    }
+}
+
 impl CompressedSrgbFormat {
     /// Turns this format into a more generic `TextureFormat`.
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::CompressedSrgbFormat(self)
+    }
+
+    /// Transforms this format into a gl::types::GLenum only if the format is supported by the context.
+    fn to_glenum_if_supported(&self, context: &Context) -> Result<gl::types::GLenum, FormatNotSupportedError> {
+        let version = context.get_version();
+        let extensions = context.get_extensions();
+        match *self {
+            CompressedSrgbFormat::Bptc => {
+                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
+                    Ok(gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedSrgbFormat::S3tcDxt1NoAlpha => {
+                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                    Ok(gl::COMPRESSED_SRGB_S3TC_DXT1_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedSrgbFormat::S3tcDxt1Alpha => {
+                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                    Ok(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedSrgbFormat::S3tcDxt3Alpha => {
+                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                    Ok(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+            CompressedSrgbFormat::S3tcDxt5Alpha => {
+                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
+                    Ok(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT)
+                } else {
+                    Err(FormatNotSupportedError)
+                }
+            },
+        }
     }
 }
 
@@ -522,18 +650,129 @@ pub enum TextureFormat {
     DepthStencilFormat(DepthStencilFormat),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ClientFormatAny {
+    ClientFormat(ClientFormat),
+    CompressedFormat(CompressedFormat),
+    CompressedSrgbFormat(CompressedSrgbFormat),
+}
+
+impl ClientFormatAny {
+    /// Checks if this format is a compressed format.
+    pub fn is_compressed(&self) -> bool {
+        match *self {
+            ClientFormatAny::ClientFormat(_) => false,
+            ClientFormatAny::CompressedFormat(_) => true,
+            ClientFormatAny::CompressedSrgbFormat(_) => true,
+        }
+    }
+
+    /// Gets the size in bytes of the buffer required to store a uncompressed image 
+    /// of the specified dimensions on this format.
+    ///
+    /// ## Panic
+    ///
+    /// Panics if the dimensions are invalid for this format.
+    pub fn get_buffer_size(&self, width: u32, height: Option<u32>,
+                           depth: Option<u32>, array_size: Option<u32>) -> usize {
+        match *self {
+            ClientFormatAny::ClientFormat(ref format) => {
+                format.get_size() * width as usize * height.unwrap_or(1) as usize *
+                                depth.unwrap_or(1) as usize * array_size.unwrap_or(1) as usize
+            },
+
+            // 8 bytes per 4x4 block
+            ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt1Alpha) |
+            ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1Alpha) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt1NoAlpha) |
+            ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1NoAlpha) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatU) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatI) => {
+                let height = height.expect("ST3C, RGTC and BPTC textures must have 2 dimensions");
+                if (width % 4) != 0 || (height % 4) != 0 {
+                    panic!("ST3C, RGTC and BPTC textures must have a width and height multiple of 4.");
+                }
+                if depth.is_some() { // allow `array_size` (2D textures arrays) but not depth (3D textures)
+                    panic!("ST3C, RGTC and BPTC textures are 2 dimension only.")
+                }
+                let uncompressed_bit_size =  4 * width as usize * height as usize *
+                                            depth.unwrap_or(1) as usize * array_size.unwrap_or(1) as usize;
+                uncompressed_bit_size / 8   // Apply 8:1 compression ratio
+            },
+
+            // 16 bytes per 4x4 block
+            ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt3Alpha) |
+            ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt3Alpha) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt5Alpha) |
+            ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt5Alpha) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::BptcUnorm4) |
+            ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::Bptc) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::BptcSignedFloat3) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::BptcUnsignedFloat3) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatUU) |
+            ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatII) => {
+                let height = height.expect("ST3C, RGTC and BPTC textures must have 2 dimensions");
+                if (width % 4) != 0 || (height % 4) != 0 {
+                    panic!("ST3C, RGTC and BPTC textures must have a width and height multiple of 4.");
+                }
+                if depth.is_some() { // allow `array_size` (2D textures arrays) but not depth (3D textures)
+                    panic!("ST3C, RGTC and BPTC textures are 2 dimension only.")
+                }
+                let uncompressed_bit_size =  4 * width as usize * height as usize *
+                                            depth.unwrap_or(1) as usize * array_size.unwrap_or(1) as usize;
+                uncompressed_bit_size / 4   // Apply 4:1 compression ratio
+            },
+        }
+    }
+
+    pub fn get_num_components(&self) -> u8 {
+        match *self {
+            ClientFormatAny::ClientFormat(ref format) => format.get_num_components(),
+            _ => unimplemented!(),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn from_internal_compressed_format(internal: gl::types::GLenum) -> Option<ClientFormatAny> {
+        match internal {
+            gl::COMPRESSED_RGB_S3TC_DXT1_EXT => Some(ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt1NoAlpha)),
+            gl::COMPRESSED_RGBA_S3TC_DXT1_EXT => Some(ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt1Alpha)),
+            gl::COMPRESSED_RGBA_S3TC_DXT3_EXT => Some(ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt3Alpha)),
+            gl::COMPRESSED_RGBA_S3TC_DXT5_EXT => Some(ClientFormatAny::CompressedFormat(CompressedFormat::S3tcDxt5Alpha)),
+            gl::COMPRESSED_SRGB_S3TC_DXT1_EXT => Some(ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1NoAlpha)),
+            gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT => Some(ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1Alpha)),
+            gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT => Some(ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt3Alpha)),
+            gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT => Some(ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt5Alpha)),
+            gl::COMPRESSED_RGBA_BPTC_UNORM => Some(ClientFormatAny::CompressedFormat(CompressedFormat::BptcUnorm4)),
+            gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM => Some(ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::Bptc)),
+            gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT => Some(ClientFormatAny::CompressedFormat(CompressedFormat::BptcSignedFloat3)),
+            gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT => Some(ClientFormatAny::CompressedFormat(CompressedFormat::BptcUnsignedFloat3)),
+            gl::COMPRESSED_RED_RGTC1 => Some(ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatU)),
+            gl::COMPRESSED_SIGNED_RED_RGTC1 => Some(ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatI)),
+            gl::COMPRESSED_RG_RGTC2 => Some(ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatUU)),
+            gl::COMPRESSED_SIGNED_RG_RGTC2 => Some(ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatII)),
+            _ => None,
+        }
+    }
+}
+
 /// Checks that the texture format is supported and compatible with the client format.
 ///
 /// Returns two `GLenum`s. The first one can be unsized and is suitable for the internal format
 /// of `glTexImage#D`. The second one is always sized and is suitable for `glTexStorage*D` or
 /// `glRenderbufferStorage`.
-pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
+pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAny>,
                                 format: TextureFormatRequest)
                                 -> Result<(gl::types::GLenum, Option<gl::types::GLenum>),
                                           FormatNotSupportedError>
 {
     let version = context.get_version();
     let extensions = context.get_extensions();
+
+    let is_client_compressed = match client {
+        Some(ref client) => client.is_compressed(),
+        None => false,
+    };
 
     Ok(match format {
         /*******************************************************************/
@@ -876,6 +1115,17 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
         /*******************************************************************/
         /*                         COMPRESSED                              */
         /*******************************************************************/
+
+        TextureFormatRequest::AnyCompressed if is_client_compressed => {
+            // Note: client is always Some here. When refactoring this function it'd be a good idea
+            // to let the client participate on the matching process.
+            let newformat = TextureFormat::CompressedFormat(match client {
+                Some(ClientFormatAny::CompressedFormat(format)) => format,
+                _ => unreachable!(),
+            });
+            try!(format_request_to_glenum(context, client, TextureFormatRequest::Specific(newformat)))
+        },
+
         TextureFormatRequest::AnyCompressed => {
             let size = client.map(|c| c.get_num_components());
 
@@ -906,92 +1156,8 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatU)) => {
-            if version >= &Version(Api::Gl, 3, 0) {
-                (gl::COMPRESSED_RED_RGTC1, Some(gl::COMPRESSED_RED_RGTC1))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatI)) => {
-            if version >= &Version(Api::Gl, 3, 0) {
-                (gl::COMPRESSED_SIGNED_RED_RGTC1, Some(gl::COMPRESSED_SIGNED_RED_RGTC1))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatUU)) => {
-            if version >= &Version(Api::Gl, 3, 0) {
-                (gl::COMPRESSED_RG_RGTC2, Some(gl::COMPRESSED_RG_RGTC2))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::RgtcFormatII)) => {
-            if version >= &Version(Api::Gl, 3, 0) {
-                (gl::COMPRESSED_SIGNED_RG_RGTC2, Some(gl::COMPRESSED_SIGNED_RG_RGTC2))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::BptcUnorm4)) => {
-            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                (gl::COMPRESSED_RGBA_BPTC_UNORM, Some(gl::COMPRESSED_RGBA_BPTC_UNORM))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::BptcSignedFloat3)) => {
-            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                (gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT, Some(gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::BptcUnsignedFloat3)) => {
-            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                (gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, Some(gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt1NoAlpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc {
-                (gl::COMPRESSED_RGB_S3TC_DXT1_EXT, Some(gl::COMPRESSED_RGB_S3TC_DXT1_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt1Alpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc {
-                (gl::COMPRESSED_RGBA_S3TC_DXT1_EXT, Some(gl::COMPRESSED_RGBA_S3TC_DXT1_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt3Alpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc {
-                (gl::COMPRESSED_RGBA_S3TC_DXT3_EXT, Some(gl::COMPRESSED_RGBA_S3TC_DXT3_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(CompressedFormat::S3tcDxt5Alpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc {
-                (gl::COMPRESSED_RGBA_S3TC_DXT5_EXT, Some(gl::COMPRESSED_RGBA_S3TC_DXT5_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(client_format)) => {
+            try!(client_format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
         },
 
         /*******************************************************************/
@@ -1040,6 +1206,15 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
         /*******************************************************************/
         /*                        COMPRESSED SRGB                          */
         /*******************************************************************/
+
+        TextureFormatRequest::AnyCompressedSrgb if is_client_compressed => {
+            let newformat = TextureFormat::CompressedSrgbFormat(match client {
+                Some(ClientFormatAny::CompressedSrgbFormat(format)) => format,
+                _ => unreachable!(),
+            });
+            try!(format_request_to_glenum(context, client, TextureFormatRequest::Specific(newformat)))
+        },
+
         TextureFormatRequest::AnyCompressedSrgb => {
             let size = client.map(|c| c.get_num_components());
 
@@ -1057,44 +1232,8 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::Bptc)) => {
-            if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                (gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM, Some(gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1NoAlpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                (gl::COMPRESSED_SRGB_S3TC_DXT1_EXT, Some(gl::COMPRESSED_SRGB_S3TC_DXT1_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1Alpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                (gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, Some(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt3Alpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                (gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, Some(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
-        },
-
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt5Alpha)) => {
-            if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                (gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, Some(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT))
-            } else {
-                return Err(FormatNotSupportedError);
-            }
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(client_format)) => {
+            try!(client_format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
         },
 
         /*******************************************************************/
@@ -1506,10 +1645,31 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormat>,
 /// Checks that the client texture format is supported.
 ///
 /// Returns two GLenums suitable for `glTexImage#D` and `glTexSubImage#D`.
-pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format: TextureFormatRequest)
-                               -> (gl::types::GLenum, gl::types::GLenum)
+pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny, format: TextureFormatRequest)
+                               -> Result<(gl::types::GLenum, gl::types::GLenum), FormatNotSupportedError>
 {
     match format {
+        TextureFormatRequest::AnyCompressed if client.is_compressed() =>
+        {
+            let extensions = context.get_extensions();
+            match client {
+                ClientFormatAny::CompressedFormat(client_format) => {
+                    client_format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+                },
+                _ => unreachable!(),
+            }
+        },
+
+        TextureFormatRequest::AnyCompressedSrgb  if client.is_compressed() =>
+        {
+            match client {
+                ClientFormatAny::CompressedSrgbFormat(client_format) => {
+                    client_format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+                },
+                _ => unreachable!(),
+            }
+        },
+
         TextureFormatRequest::AnyFloatingPoint | TextureFormatRequest::AnyCompressed |
         TextureFormatRequest::AnySrgb | TextureFormatRequest::AnyCompressedSrgb |
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
@@ -1518,43 +1678,48 @@ pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format:
         TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(_)) =>
         {
             match client {
-                ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
-                ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
-                ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
-                ClientFormat::U8U8U8U8 => (gl::RGBA, gl::UNSIGNED_BYTE),
-                ClientFormat::I8 => (gl::RED, gl::BYTE),
-                ClientFormat::I8I8 => (gl::RG, gl::BYTE),
-                ClientFormat::I8I8I8 => (gl::RGB, gl::BYTE),
-                ClientFormat::I8I8I8I8 => (gl::RGBA, gl::BYTE),
-                ClientFormat::U16 => (gl::RED, gl::UNSIGNED_SHORT),
-                ClientFormat::U16U16 => (gl::RG, gl::UNSIGNED_SHORT),
-                ClientFormat::U16U16U16 => (gl::RGB, gl::UNSIGNED_SHORT),
-                ClientFormat::U16U16U16U16 => (gl::RGBA, gl::UNSIGNED_SHORT),
-                ClientFormat::I16 => (gl::RED, gl::SHORT),
-                ClientFormat::I16I16 => (gl::RG, gl::SHORT),
-                ClientFormat::I16I16I16 => (gl::RGB, gl::SHORT),
-                ClientFormat::I16I16I16I16 => (gl::RGBA, gl::SHORT),
-                ClientFormat::U32 => (gl::RED, gl::UNSIGNED_INT),
-                ClientFormat::U32U32 => (gl::RG, gl::UNSIGNED_INT),
-                ClientFormat::U32U32U32 => (gl::RGB, gl::UNSIGNED_INT),
-                ClientFormat::U32U32U32U32 => (gl::RGBA, gl::UNSIGNED_INT),
-                ClientFormat::I32 => (gl::RED, gl::INT),
-                ClientFormat::I32I32 => (gl::RG, gl::INT),
-                ClientFormat::I32I32I32 => (gl::RGB, gl::INT),
-                ClientFormat::I32I32I32I32 => (gl::RGBA, gl::INT),
-                ClientFormat::U3U3U2 => (gl::RGB, gl::UNSIGNED_BYTE_3_3_2),
-                ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
-                ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
-                ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
-                ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
-                ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
-                ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
-                ClientFormat::F16F16F16 => (gl::RGB, gl::HALF_FLOAT),
-                ClientFormat::F16F16F16F16 => (gl::RGBA, gl::HALF_FLOAT),
-                ClientFormat::F32 => (gl::RED, gl::FLOAT),
-                ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
-                ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
-                ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
+                ClientFormatAny::ClientFormat(ClientFormat::U8) => Ok((gl::RED, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U8U8) => Ok((gl::RG, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U8U8U8) => Ok((gl::RGB, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U8U8U8U8) => Ok((gl::RGBA, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8) => Ok((gl::RED, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8I8) => Ok((gl::RG, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8I8I8) => Ok((gl::RGB, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8I8I8I8) => Ok((gl::RGBA, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16) => Ok((gl::RED, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16U16) => Ok((gl::RG, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16U16U16) => Ok((gl::RGB, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16U16U16U16) => Ok((gl::RGBA, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16) => Ok((gl::RED, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16I16) => Ok((gl::RG, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16I16I16) => Ok((gl::RGB, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16I16I16I16) => Ok((gl::RGBA, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32) => Ok((gl::RED, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32U32) => Ok((gl::RG, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32U32U32) => Ok((gl::RGB, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32U32U32U32) => Ok((gl::RGBA, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32) => Ok((gl::RED, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32I32) => Ok((gl::RG, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32I32I32) => Ok((gl::RGB, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32I32I32I32) => Ok((gl::RGBA, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U3U3U2) => Ok((gl::RGB, gl::UNSIGNED_BYTE_3_3_2)),
+                ClientFormatAny::ClientFormat(ClientFormat::U5U6U5) => Ok((gl::RGB, gl::UNSIGNED_SHORT_5_6_5)),
+                ClientFormatAny::ClientFormat(ClientFormat::U4U4U4U4) => Ok((gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4)),
+                ClientFormatAny::ClientFormat(ClientFormat::U5U5U5U1) => Ok((gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1)),
+                ClientFormatAny::ClientFormat(ClientFormat::U10U10U10U2) => Ok((gl::RGBA, gl::UNSIGNED_INT_10_10_10_2)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16) => Ok((gl::RED, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16F16) => Ok((gl::RG, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16F16F16) => Ok((gl::RGB, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16F16F16F16) => Ok((gl::RGBA, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32) => Ok((gl::RED, gl::FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32F32) => Ok((gl::RG, gl::FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32F32F32) => Ok((gl::RGB, gl::FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32F32F32F32) => Ok((gl::RGBA, gl::FLOAT)),
+
+                // this kind of situation shouldn't happen, it should always be handled by
+                // TextureFormatRequest::AnyCompressed[Srgb]
+                ClientFormatAny::CompressedFormat(_) => unreachable!(),
+                ClientFormatAny::CompressedSrgbFormat(_) => unreachable!(),
             }
         },
 
@@ -1563,68 +1728,73 @@ pub fn client_format_to_glenum(_context: &Context, client: ClientFormat, format:
         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) =>
         {
             match client {
-                ClientFormat::U8 => (gl::RED_INTEGER, gl::UNSIGNED_BYTE),
-                ClientFormat::U8U8 => (gl::RG_INTEGER, gl::UNSIGNED_BYTE),
-                ClientFormat::U8U8U8 => (gl::RGB_INTEGER, gl::UNSIGNED_BYTE),
-                ClientFormat::U8U8U8U8 => (gl::RGBA_INTEGER, gl::UNSIGNED_BYTE),
-                ClientFormat::I8 => (gl::RED_INTEGER, gl::BYTE),
-                ClientFormat::I8I8 => (gl::RG_INTEGER, gl::BYTE),
-                ClientFormat::I8I8I8 => (gl::RGB_INTEGER, gl::BYTE),
-                ClientFormat::I8I8I8I8 => (gl::RGBA_INTEGER, gl::BYTE),
-                ClientFormat::U16 => (gl::RED_INTEGER, gl::UNSIGNED_SHORT),
-                ClientFormat::U16U16 => (gl::RG_INTEGER, gl::UNSIGNED_SHORT),
-                ClientFormat::U16U16U16 => (gl::RGB_INTEGER, gl::UNSIGNED_SHORT),
-                ClientFormat::U16U16U16U16 => (gl::RGBA_INTEGER, gl::UNSIGNED_SHORT),
-                ClientFormat::I16 => (gl::RED_INTEGER, gl::SHORT),
-                ClientFormat::I16I16 => (gl::RG_INTEGER, gl::SHORT),
-                ClientFormat::I16I16I16 => (gl::RGB_INTEGER, gl::SHORT),
-                ClientFormat::I16I16I16I16 => (gl::RGBA_INTEGER, gl::SHORT),
-                ClientFormat::U32 => (gl::RED_INTEGER, gl::UNSIGNED_INT),
-                ClientFormat::U32U32 => (gl::RG_INTEGER, gl::UNSIGNED_INT),
-                ClientFormat::U32U32U32 => (gl::RGB_INTEGER, gl::UNSIGNED_INT),
-                ClientFormat::U32U32U32U32 => (gl::RGBA_INTEGER, gl::UNSIGNED_INT),
-                ClientFormat::I32 => (gl::RED_INTEGER, gl::INT),
-                ClientFormat::I32I32 => (gl::RG_INTEGER, gl::INT),
-                ClientFormat::I32I32I32 => (gl::RGB_INTEGER, gl::INT),
-                ClientFormat::I32I32I32I32 => (gl::RGBA_INTEGER, gl::INT),
-                ClientFormat::U3U3U2 => (gl::RGB_INTEGER, gl::UNSIGNED_BYTE_3_3_2),
-                ClientFormat::U5U6U5 => (gl::RGB_INTEGER, gl::UNSIGNED_SHORT_5_6_5),
-                ClientFormat::U4U4U4U4 => (gl::RGBA_INTEGER, gl::UNSIGNED_SHORT_4_4_4_4),
-                ClientFormat::U5U5U5U1 => (gl::RGBA_INTEGER, gl::UNSIGNED_SHORT_5_5_5_1),
-                ClientFormat::U10U10U10U2 => (gl::RGBA_INTEGER, gl::UNSIGNED_INT_10_10_10_2),
-                ClientFormat::F16 => (gl::RED_INTEGER, gl::HALF_FLOAT),
-                ClientFormat::F16F16 => (gl::RG_INTEGER, gl::HALF_FLOAT),
-                ClientFormat::F16F16F16 => (gl::RGB_INTEGER, gl::HALF_FLOAT),
-                ClientFormat::F16F16F16F16 => (gl::RGBA_INTEGER, gl::HALF_FLOAT),
-                ClientFormat::F32 => (gl::RED_INTEGER, gl::FLOAT),
-                ClientFormat::F32F32 => (gl::RG_INTEGER, gl::FLOAT),
-                ClientFormat::F32F32F32 => (gl::RGB_INTEGER, gl::FLOAT),
-                ClientFormat::F32F32F32F32 => (gl::RGBA_INTEGER, gl::FLOAT),
+                ClientFormatAny::ClientFormat(ClientFormat::U8) => Ok((gl::RED_INTEGER, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U8U8) => Ok((gl::RG_INTEGER, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U8U8U8) => Ok((gl::RGB_INTEGER, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U8U8U8U8) => Ok((gl::RGBA_INTEGER, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8) => Ok((gl::RED_INTEGER, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8I8) => Ok((gl::RG_INTEGER, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8I8I8) => Ok((gl::RGB_INTEGER, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8I8I8I8) => Ok((gl::RGBA_INTEGER, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16) => Ok((gl::RED_INTEGER, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16U16) => Ok((gl::RG_INTEGER, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16U16U16) => Ok((gl::RGB_INTEGER, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16U16U16U16) => Ok((gl::RGBA_INTEGER, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16) => Ok((gl::RED_INTEGER, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16I16) => Ok((gl::RG_INTEGER, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16I16I16) => Ok((gl::RGB_INTEGER, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16I16I16I16) => Ok((gl::RGBA_INTEGER, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32) => Ok((gl::RED_INTEGER, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32U32) => Ok((gl::RG_INTEGER, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32U32U32) => Ok((gl::RGB_INTEGER, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32U32U32U32) => Ok((gl::RGBA_INTEGER, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32) => Ok((gl::RED_INTEGER, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32I32) => Ok((gl::RG_INTEGER, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32I32I32) => Ok((gl::RGB_INTEGER, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32I32I32I32) => Ok((gl::RGBA_INTEGER, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U3U3U2) => Ok((gl::RGB_INTEGER, gl::UNSIGNED_BYTE_3_3_2)),
+                ClientFormatAny::ClientFormat(ClientFormat::U5U6U5) => Ok((gl::RGB_INTEGER, gl::UNSIGNED_SHORT_5_6_5)),
+                ClientFormatAny::ClientFormat(ClientFormat::U4U4U4U4) => Ok((gl::RGBA_INTEGER, gl::UNSIGNED_SHORT_4_4_4_4)),
+                ClientFormatAny::ClientFormat(ClientFormat::U5U5U5U1) => Ok((gl::RGBA_INTEGER, gl::UNSIGNED_SHORT_5_5_5_1)),
+                ClientFormatAny::ClientFormat(ClientFormat::U10U10U10U2) => Ok((gl::RGBA_INTEGER, gl::UNSIGNED_INT_10_10_10_2)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16) => Ok((gl::RED_INTEGER, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16F16) => Ok((gl::RG_INTEGER, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16F16F16) => Ok((gl::RGB_INTEGER, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16F16F16F16) => Ok((gl::RGBA_INTEGER, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32) => Ok((gl::RED_INTEGER, gl::FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32F32) => Ok((gl::RG_INTEGER, gl::FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32F32F32) => Ok((gl::RGB_INTEGER, gl::FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32F32F32F32) => Ok((gl::RGBA_INTEGER, gl::FLOAT)),
+
+                // this kind of situation shouldn't happen, it should always be handled by
+                // TextureFormatRequest::AnyCompressed[Srgb]
+                ClientFormatAny::CompressedFormat(_) => unreachable!(),
+                ClientFormatAny::CompressedSrgbFormat(_) => unreachable!(),
             }
         },
 
         TextureFormatRequest::AnyDepth |
         TextureFormatRequest::Specific(TextureFormat::DepthFormat(_)) =>
         {
-            if client != ClientFormat::F32 {
-                panic!("Only ClientFormat::F32 can be used to upload on a depth texture");
+            if client != ClientFormatAny::ClientFormat(ClientFormat::F32) {
+                panic!("Only ClientFormatAny::ClientFormat(ClientFormat::F32) can be used to upload on a depth texture");
             }
 
-            (gl::DEPTH_COMPONENT, gl::FLOAT)
+            Ok((gl::DEPTH_COMPONENT, gl::FLOAT))
         }
 
         TextureFormatRequest::AnyStencil |
         TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) =>
         {
             match client {
-                ClientFormat::U8 => (gl::RED_INTEGER, gl::UNSIGNED_BYTE),
-                ClientFormat::I8 => (gl::RED_INTEGER, gl::BYTE),
-                ClientFormat::U16 => (gl::RED_INTEGER, gl::UNSIGNED_SHORT),
-                ClientFormat::I16 => (gl::RED_INTEGER, gl::SHORT),
-                ClientFormat::U32 => (gl::RED_INTEGER, gl::UNSIGNED_INT),
-                ClientFormat::I32 => (gl::RED_INTEGER, gl::INT),
-                ClientFormat::F16 => (gl::RED_INTEGER, gl::HALF_FLOAT),
-                ClientFormat::F32 => (gl::RED_INTEGER, gl::FLOAT),
+                ClientFormatAny::ClientFormat(ClientFormat::U8) => Ok((gl::RED_INTEGER, gl::UNSIGNED_BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::I8) => Ok((gl::RED_INTEGER, gl::BYTE)),
+                ClientFormatAny::ClientFormat(ClientFormat::U16) => Ok((gl::RED_INTEGER, gl::UNSIGNED_SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I16) => Ok((gl::RED_INTEGER, gl::SHORT)),
+                ClientFormatAny::ClientFormat(ClientFormat::U32) => Ok((gl::RED_INTEGER, gl::UNSIGNED_INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::I32) => Ok((gl::RED_INTEGER, gl::INT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F16) => Ok((gl::RED_INTEGER, gl::HALF_FLOAT)),
+                ClientFormatAny::ClientFormat(ClientFormat::F32) => Ok((gl::RED_INTEGER, gl::FLOAT)),
                 _ => panic!("Can't upload to a stencil texture with more than one channel")
             }
         }

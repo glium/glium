@@ -58,7 +58,7 @@ use Rect;
 use BlitTarget;
 use uniforms;
 
-use image_format::{TextureFormatRequest, FormatNotSupportedError};
+use image_format::{TextureFormatRequest, ClientFormatAny, FormatNotSupportedError};
 
 pub use image_format::{ClientFormat, TextureFormat};
 pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
