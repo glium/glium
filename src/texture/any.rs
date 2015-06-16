@@ -558,16 +558,32 @@ pub fn download_compressed_data(texture: &TextureAny, level: u32) -> Option<(Cli
             let mut internal_format = mem::uninitialized();
             ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
             
-            if ctxt.state.pixel_pack_buffer_binding != 0 {
-                ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, 0);
-                ctxt.state.pixel_pack_buffer_binding = 0;
-            }
-            // FIXME should PACK_ALIGNMENT be set?
-
             match ClientFormatAny::from_internal_compressed_format(internal_format as gl::types::GLenum) {
                 Some(known_format) => {
                     let mut buf = Vec::with_capacity(buffer_size as usize);
                     buf.set_len(buffer_size as usize);
+
+                    // FIXME: correct function call
+                    if ctxt.state.pixel_pack_buffer_binding != 0 {
+                        ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, 0);
+                        ctxt.state.pixel_pack_buffer_binding = 0;
+                    }
+                    
+                    // adjusting data alignement
+                    let ptr = buf.as_ptr() as *const u8;
+                    let ptr = ptr as usize;
+                    if (ptr % 8) == 0 {
+                    } else if (ptr % 4) == 0 && ctxt.state.pixel_store_pack_alignment != 4 {
+                        ctxt.state.pixel_store_pack_alignment = 4;
+                        ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 4);
+                    } else if (ptr % 2) == 0 && ctxt.state.pixel_store_pack_alignment > 2 {
+                        ctxt.state.pixel_store_pack_alignment = 2;
+                        ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 2);
+                    } else if ctxt.state.pixel_store_pack_alignment != 1 {
+                        ctxt.state.pixel_store_pack_alignment = 1;
+                        ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
+                    }
+
                     ctxt.gl.GetCompressedTexImage(bind_point, level, buf.as_mut_ptr() as *mut _);
                     Some((known_format, buf))
                 },
