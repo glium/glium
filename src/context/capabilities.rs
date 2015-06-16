@@ -112,12 +112,24 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
             // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
             // drivers, so we prefer using `glGetIntegerv` if possible.
-            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility &&
-               !extensions.gl_arb_es2_compatibility
-            {
+            //
+            // Also note that `gl_arb_es2_compatibility` may provide `GL_DEPTH_BITS` but os/x
+            // doesn't even though it provides this extension. I'm not sure whether this is a bug
+            // with OS/X or just the extension actually not providing it.
+            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility {
+                let mut ty = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
-                                                       gl::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
-                                                       &mut value);
+                                                       gl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
+                                                       &mut ty);
+
+                if ty as gl::types::GLenum == gl::NONE {
+                    value = 0;
+                } else {
+                    gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
+                                                           gl::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
+                                                           &mut value);
+                }
+
             } else {
                 gl.GetIntegerv(gl::DEPTH_BITS, &mut value);
             };
@@ -133,12 +145,24 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
             // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
             // drivers, so we prefer using `glGetIntegerv` if possible.
-            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility &&
-               !extensions.gl_arb_es2_compatibility
-            {
+            //
+            // Also note that `gl_arb_es2_compatibility` may provide `GL_STENCIL_BITS` but os/x
+            // doesn't even though it provides this extension. I'm not sure whether this is a bug
+            // with OS/X or just the extension actually not providing it.
+            if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility {
+                let mut ty = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
-                                                       gl::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
-                                                       &mut value);
+                                                       gl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
+                                                       &mut ty);
+
+                if ty as gl::types::GLenum == gl::NONE {
+                    value = 0;
+                } else {
+                    gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
+                                                           gl::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
+                                                           &mut value);
+                }
+
             } else {
                 gl.GetIntegerv(gl::STENCIL_BITS, &mut value);
             };
