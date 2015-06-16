@@ -168,6 +168,19 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureType::DepthStencil => "TextureFormatRequest::AnyDepthStencil",
     };
 
+    // whether this is a internally compressed texture object
+    let is_compressed = match ty {
+        TextureType::Compressed |
+        TextureType::CompressedSrgb => true,
+        _ => false,
+    };
+
+    let client_format_any_ty = match ty {
+        TextureType::Compressed => "ClientFormatAny::CompressedFormat",
+        TextureType::CompressedSrgb => "ClientFormatAny::CompressedSrgbFormat",
+        _ => "ClientFormatAny::ClientFormat",
+    };
+
     // the `#[cfg]` attribute for the related cargo feature
     let cfg_attribute = {
         let format = match ty {
@@ -245,6 +258,16 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureDimensions::Texture2dMultisampleArray => "width, Some(height), None, Some(array_size), Some(samples)",
     };
 
+    let dimensions_parameters_passing_minimal = match dimensions {
+        TextureDimensions::Texture1d => "width",
+        TextureDimensions::Texture2d => "width, height",
+        TextureDimensions::Texture2dMultisample => "width, height, samples",
+        TextureDimensions::Texture3d => "width, height, depth",
+        TextureDimensions::Texture1dArray => "width, array_size",
+        TextureDimensions::Texture2dArray => "width, height, array_size",
+        TextureDimensions::Texture2dMultisampleArray => "width, height, array_size, samples",
+    };
+
     // writing the struct with doc-comment
     (write!(dest, "/// ")).unwrap();
     (write!(dest, "{}", match dimensions {
@@ -253,7 +276,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
         TextureDimensions::Texture2dMultisampleArray => "An array of ",
     })).unwrap();
-    if ty == TextureType::Compressed {
+    if is_compressed {
         (write!(dest, "compressed ")).unwrap();
     }
     (write!(dest, "{}", match dimensions {
@@ -563,6 +586,54 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             ", data_source_trait = data_source_trait, param = param, name = name)).unwrap();
     }
 
+    // writing the `with_compressed_data` / `with_compressed_data_if_supported` functions
+    if is_compressed && !dimensions.is_multisample() {
+        let param = match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
+            TextureDimensions::Texture3d => "&[u8]",
+
+            TextureDimensions::Texture1dArray |
+            TextureDimensions::Texture2dArray => "Vec<&[u8]>",
+
+            _ => unreachable!()
+        };
+
+        (writeln!(dest, "
+                /// Builds a new texture with a specific format. The input data must also be of the
+                /// specified compressed format.
+                ///
+                /// Mipmaps cannot be generated for compressed data.
+                {cfg_attr}
+                pub fn with_compressed_data<F>(facade: &F, data: {param}, {dim_params},
+                                                      format: {format})
+                                                      -> {name}
+                                                       where F: Facade
+                {{
+                    {name}::with_compressed_data_if_supported(facade, data, {dim_params_passing}, format).unwrap()
+                }}
+            ", dim_params = dimensions_parameters_input, dim_params_passing = dimensions_parameters_passing_minimal,
+               param = param, cfg_attr = cfg_attribute, name = name, format = relevant_format).unwrap());
+
+        (writeln!(dest, "
+                /// Builds a new texture with a specific format. The input data must also be of the
+                /// specified compressed format.
+                ///
+                /// Mipmaps cannot be generated for compressed data.
+                {cfg_attr}
+                pub fn with_compressed_data_if_supported<F>(facade: &F, data: {param}, {dim_params},
+                                                      format: {format})
+                                                      -> Result<{name}, TextureMaybeSupportedCreationError>
+                                                       where F: Facade
+                {{
+                    let data = Cow::Borrowed(data.as_ref());
+                    let client_format = {client_format_any}(format);
+                    Ok({name}(try!(any::new_texture(facade, {default_format}, Some((client_format, data)), false, {dim_params_passing}))))
+                }}
+            ", dim_params = dimensions_parameters_input, dim_params_passing = dimensions_parameters_passing,
+               param = param, client_format_any = client_format_any_ty, cfg_attr = cfg_attribute, 
+               name = name, format = relevant_format, default_format = default_format).unwrap());
+    }
+
     // writing the `with_format` function
     if !dimensions.is_multisample() {
         let param = match dimensions {
@@ -679,6 +750,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
             _ => unreachable!()
         }
+
+        (write!(dest, "let client_format = ClientFormatAny::ClientFormat(client_format);")).unwrap();
 
         // writing the constructor
         (write!(dest, "Ok({}(try!(any::new_texture(facade, format, \
@@ -899,7 +972,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
-       (ty == TextureType::Regular || ty == TextureType::Compressed)
+       (ty == TextureType::Regular || is_compressed)
     {
         (write!(dest, r#"
                 /// Reads the content of the texture to RAM.
@@ -924,11 +997,44 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             "#)).unwrap();
     }
 
+    // writing the `read_compressed_data` function
+    if is_compressed {
+        (write!(dest, r#"
+                /// Reads the content of the texture to RAM without decompressing it before.
+                ///
+                /// You should avoid doing this at all cost during performance-critical
+                /// operations (for example, while you're drawing).
+                ///
+                /// Returns the compressed format of the texture and the compressed data, gives
+                /// `None` when the internal compression format is generic or unknown.
+                pub fn read_compressed_data(&self) -> Option<({format}, Vec<u8>)> {{
+                    match any::download_compressed_data(&self.0, 0) {{
+                        Some(({client_format_any}(format), buf)) => Some((format, buf)),
+                        None => None,
+                        _ => unreachable!(),
+                    }}
+                }}
+            "#, format = relevant_format, client_format_any = client_format_any_ty)).unwrap();
+    }
+
+
     // writing the `write` function
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
-       (ty == TextureType::Regular || ty == TextureType::Compressed)
+            (ty == TextureType::Regular || is_compressed)
     {
+        let compressed_restrictions = if is_compressed {
+            r#" ///
+                /// Calling this for compressed textures will result in a panic of type INVALID_OPERATION
+                /// if `Rect::bottom` or `Rect::width` is not equal to 0 (border). In addition, the contents
+                /// of any texel outside the region modified by such a call are undefined. These
+                /// restrictions may be relaxed for specific compressed internal formats whose images
+                /// are easily edited.
+            "#
+        } else {
+            ""
+        };
+
         (write!(dest, r#"
                 /// Uploads some data in the texture.
                 ///
@@ -939,6 +1045,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// ## Panic
                 ///
                 /// Panics if the the dimensions of `data` don't match the `Rect`.
+                {compressed_restrictions}
                 pub fn write<'a, T>(&self, rect: Rect, data: T) where T: {data_source_trait}<'a> {{
                     let RawImage2d {{ data, width, height, format: client_format }} =
                                             data.into_raw();
@@ -946,10 +1053,62 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                     assert_eq!(width, rect.width);
                     assert_eq!(height, rect.height);
 
+                    let client_format = ClientFormatAny::ClientFormat(client_format);
+
                     any::upload_texture(&self.0, rect.left, rect.bottom, 0, (client_format, data), width,
-                                        Some(height), None, 0, true);
+                                        Some(height), None, 0, true).unwrap()
                 }}
-            "#, data_source_trait = data_source_trait)).unwrap();
+            "#, data_source_trait = data_source_trait,
+                compressed_restrictions = compressed_restrictions)).unwrap();
+    }
+
+    // writing the `write_compressed_data` function
+    // TODO: implement for other types too
+    if dimensions == TextureDimensions::Texture2d && is_compressed
+    {
+        (write!(dest, r#"
+                /// Uploads some data in the texture by using a compressed format as input.
+                ///
+                /// Please see `write_compressed_data_if_supported` for details.
+                pub fn write_compressed_data(&self, rect: Rect, data: &[u8],
+                                             width: u32, height: u32, format: {format})
+                {{
+
+                    self.write_compressed_data_if_supported(rect, data, width, height, format).unwrap()
+                }}
+
+                /// Uploads some data in the texture by using a compressed format as input.
+                ///
+                /// Note that this may cause a synchronization if you use the texture right before
+                /// or right after this call. Prefer creating a whole new texture if you change a
+                /// huge part of it.
+                ///
+                /// ## Panic
+                ///
+                /// Panics if the the dimensions of `data` don't match the `Rect`.
+                ///
+                /// Calling this will result in a panic of type INVALID_OPERATION error if `Rect::width`
+                /// or `Rect::height` is not equal to 0 (border), or if the written dimensions do not match
+                /// the original texture dimensions. The contents of any texel outside the region modified
+                /// by the call are undefined. These restrictions may be relaxed for specific compressed
+                /// internal formats whose images are easily edited.
+                pub fn write_compressed_data_if_supported(&self, rect: Rect, data: &[u8],
+                                                          width: u32, height: u32, format: {format})
+                                                          -> Result<(), ()>
+                {{
+                    // FIXME is having width and height as parameter redundant as rect kinda of
+                    // already provides them? 
+
+                    assert_eq!(width, rect.width);
+                    assert_eq!(height, rect.height);
+
+                    let data = Cow::Borrowed(data.as_ref());
+                    let client_format = {client_format_any}(format);
+
+                    any::upload_texture(&self.0, rect.left, rect.bottom, 0, (client_format, data),
+                                        width, Some(height), None, 0, false)
+                }}
+            "#, format = relevant_format, client_format_any = client_format_any_ty)).unwrap();
     }
 
     // writing the `layer()` function
