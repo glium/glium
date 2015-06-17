@@ -60,7 +60,7 @@ fn main() {
         }
 
         unsafe fn make_current(&self) {
-            self.window.make_current()
+            self.window.make_current();
         }
     }
 

@@ -254,10 +254,6 @@ impl GlutinWindowBackend {
         &self.window
     }
 
-    pub fn is_closed(&self) -> bool {
-        self.window.is_closed()
-    }
-
     pub fn poll_events(&self) -> glutin::PollEventsIterator {
         self.window.poll_events()
     }
