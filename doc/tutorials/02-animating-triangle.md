@@ -33,8 +33,11 @@ Our first approach will be to create a variable named `t` which represents the s
                     &Default::default()).unwrap();
         target.finish();
 
-        if display.is_closed() {
-            break;
+        for ev in display.poll_events() {
+            match ev {
+                glium::glutin::Event::Closed => return,
+                _ => ()
+            }
         }
     }
 
@@ -73,8 +76,11 @@ Let's reset our program to what it was at the end of the first tutorial, but kee
                     &Default::default()).unwrap();
         target.finish();
 
-        if display.is_closed() {
-            break;
+        for ev in display.poll_events() {
+            match ev {
+                glium::glutin::Event::Closed => return,
+                _ => ()
+            }
         }
     }
 
@@ -233,8 +239,11 @@ Here is the final code of our `src/main.rs` file:
                         &Default::default()).unwrap();
             target.finish();
 
-            if display.is_closed() {
-                break;
+            for ev in display.poll_events() {
+                match ev {
+                    glium::glutin::Event::Closed => return,
+                    _ => ()
+                }
             }
         }
     }

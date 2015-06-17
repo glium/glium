@@ -72,8 +72,11 @@ fn main() {
                     &Default::default()).unwrap();
         target.finish();
 
-        if display.is_closed() {
-            break;
+        for ev in display.poll_events() {
+            match ev {
+                glium::glutin::Event::Closed => return,
+                _ => ()
+            }
         }
     }
 }

@@ -41,15 +41,19 @@ Initializing a window with glutin can be done by calling `glium::glutin::WindowB
         let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
     }
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we are just going to add an infinite loop until we detect that the window has been closed:
+But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `Closed` event has been received:
 
     loop {
-        if display.is_closed() {
-            break;
+        // listing the events produced by the window and waiting to be received
+        for ev in display.poll_events() {
+            match ev {
+                glium::glutin::Event::Closed => return,   // the window has been closed by the user
+                _ => ()
+            }
         }
     }
 
-This is a bad practice as it will consume 100% of our CPU, but that will do for now.
+Right now this code will consume 100% of our CPU, but that will do for now. In a real application you should either use vertical synchronization or sleep for a few milliseconds at the end of the loop, but this is a more advanced topic.
 
 You can now execute `cargo run`. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.
 
@@ -91,8 +95,11 @@ Here is our full `main` function after this step:
             target.clear_color(0.0, 0.0, 1.0, 1.0);
             target.finish();
 
-            if display.is_closed() {
-                break;
+            for ev in display.poll_events() {
+                match ev {
+                    glium::glutin::Event::Closed => return,
+                    _ => ()
+                }
             }
         }
     }
@@ -273,8 +280,11 @@ Here is the final code of our `src/main.rs` file:
                         &Default::default()).unwrap();
             target.finish();
 
-            if display.is_closed() {
-                break;
+            for ev in display.poll_events() {
+                match ev {
+                    glium::glutin::Event::Closed => return,
+                    _ => ()
+                }
             }
         }
     }

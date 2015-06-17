@@ -107,11 +107,6 @@ impl GlutinFacade {
         }
     }
 
-    /// Returns true if the window has been closed.
-    pub fn is_closed(&self) -> bool {
-        Option::as_ref(&self.backend).map(|b| b.borrow().is_closed()).unwrap_or(false)
-    }
-
     /// Returns the underlying window, or `None` if glium uses a headless context.
     pub fn get_window(&self) -> Option<WinRef> {
         Option::as_ref(&self.backend).map(|w| WinRef(w.borrow()))
