@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.5.6
+
+ - The panic at initialization in case of OpenGL error has been replaced by a warning.
+
 ## Version 0.5.5
 
  - Added `with_compressed_data`, `read_compressed_data` and `write_compressed_data` to compressed texture types.
