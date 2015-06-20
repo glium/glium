@@ -143,16 +143,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         (TextureType::Texture3d, gl::TEXTURE_3D)
     };
 
-    let generate_mipmaps = mipmaps.should_generate() && match format {
-        TextureFormatRequest::AnyFloatingPoint |
-        TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
-        TextureFormatRequest::AnyIntegral |
-        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) |
-        TextureFormatRequest::AnyUnsigned |
-        TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) => true,
-        _ => false,
-    };
-
+    let generate_mipmaps = mipmaps.should_generate();
     let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
 
     let (teximg_internal_format, storage_internal_format) =
