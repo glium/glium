@@ -80,7 +80,7 @@ The four values that we pass to `clear_color` represent the four components of o
 
 Like I explained above, the user doesn't immediatly see the blue color on the screen. At this point if we were in a real application, we would most likely draw our characters, their weapons, the ground, the sky, etc. But in this tutorial we will just stop here:
 
-    target.finish();
+    target.finish().unwrap();
 
 This call to `finish()` means that we have finished drawing. It destroys the `Frame` object and copies our background image to the window. Our window is now filled with blue.
 
@@ -93,7 +93,7 @@ Here is our full `main` function after this step:
         loop {
             let mut target = display.draw();
             target.clear_color(0.0, 0.0, 1.0, 1.0);
-            target.finish();
+            target.finish().unwrap();
 
             for ev in display.poll_events() {
                 match ev {
@@ -212,7 +212,7 @@ Remember the `target` object? We will need to use it to start a draw operation.
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 1.0, 1.0);
     // draw the triangle here
-    target.finish();
+    target.finish().unwrap();
 
 Starting a draw operation needs several things: a source of vertices (here we use our `vertex_buffer`), a source of indices (we use our `indices` variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing a `EmptyUniforms` marker and by building the default draw parameters.
 
@@ -278,7 +278,7 @@ Here is the final code of our `src/main.rs` file:
             target.clear_color(0.0, 0.0, 1.0, 1.0);
             target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                         &Default::default()).unwrap();
-            target.finish();
+            target.finish().unwrap();
 
             for ev in display.poll_events() {
                 match ev {

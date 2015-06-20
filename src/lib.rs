@@ -118,6 +118,7 @@ pub use version::{Api, Version, get_supported_glsl_version};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::thread;
 
 use context::Context;
 use context::CommandContext;
@@ -812,13 +813,31 @@ impl std::fmt::Display for DrawError {
     }
 }
 
+/// Error that can happen when swapping buffers.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum SwapBuffersError {
+    /// The OpenGL context has been lost and needs to be recreated. The `Display` and all the
+    /// objects associated to it (textures, buffers, programs, etc.) need to be recreated from
+    /// scratch.
+    ///
+    /// Operations will have no effect. Functions that read textures, buffers, etc. from OpenGL
+    /// will return uninitialized data instead.
+    ///
+    /// A context loss usually happens on mobile devices when the user puts the application on
+    /// sleep and wakes it up later. However any OpenGL implementation can theoretically lose the
+    /// context at any time.
+    ContextLost,
+}
+
 /// Implementation of `Surface`, targeting the default framebuffer.
 ///
-/// The back- and front-buffers are swapped when the `Frame` is destroyed. This operation is
-/// instantaneous, even when vsync is enabled.
+/// The back- and front-buffers are swapped when you call `finish`.
+///
+/// You **must** call `finish` or the destructor will panic.
 pub struct Frame {
     context: Rc<Context>,
     dimensions: (u32, u32),
+    destroyed: bool,        // TODO: use a linear type instead.
 }
 
 impl Frame {
@@ -827,11 +846,16 @@ impl Frame {
         Frame {
             context: context,
             dimensions: dimensions,
+            destroyed: false,
         }
     }
 
     /// Stop drawing, and swap the buffers.
-    pub fn finish(self) {
+    ///
+    /// See the documentation of `SwapBuffersError` about what is being returned.
+    pub fn finish(mut self) -> Result<(), SwapBuffersError> {
+        self.destroyed = true;
+        self.context.swap_buffers()
     }
 }
 
@@ -921,7 +945,9 @@ impl FboAttachments for Frame {
 
 impl Drop for Frame {
     fn drop(&mut self) {
-        self.context.swap_buffers();
+        if !thread::panicking() {
+            assert!(self.destroyed);
+        }
     }
 }
 

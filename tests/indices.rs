@@ -70,7 +70,7 @@ fn triangles_list() {
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
@@ -96,7 +96,7 @@ fn triangle_strip() {
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
@@ -123,7 +123,7 @@ fn triangle_fan() {
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
@@ -199,7 +199,7 @@ fn triangles_list_noindices() {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vb, &index::NoIndices(index::PrimitiveType::TrianglesList),
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
@@ -225,7 +225,7 @@ fn triangle_strip_noindices() {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vb, &index::NoIndices(index::PrimitiveType::TriangleStrip),
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 
@@ -253,7 +253,7 @@ fn triangle_fan_noindices() {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vb, &index::NoIndices(index::PrimitiveType::TriangleFan),
                 &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 

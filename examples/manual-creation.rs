@@ -36,8 +36,12 @@ fn main() {
     }
 
     unsafe impl glium::backend::Backend for Backend {
-        fn swap_buffers(&self) {
-            self.window.swap_buffers();
+        fn swap_buffers(&self) -> Result<(), glium::SwapBuffersError> {
+            match self.window.swap_buffers() {
+                Ok(()) => Ok(()),
+                Err(glutin::ContextError::IoError(e)) => panic!(),
+                Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
+            }
         }
 
         // this function is called only after the OpenGL context has been made current
@@ -60,7 +64,7 @@ fn main() {
         }
 
         unsafe fn make_current(&self) {
-            self.window.make_current();
+            self.window.make_current().unwrap();
         }
     }
 
@@ -81,7 +85,7 @@ fn main() {
     // in the future
     let mut target = glium::Frame::new(context.clone(), context.get_framebuffer_dimensions());
     target.clear_color(0.0, 1.0, 0.0, 1.0);
-    target.finish();
+    target.finish().unwrap();
 
     // the window is still available
     for event in window.wait_events() {

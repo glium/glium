@@ -167,7 +167,7 @@ fn uniform_wrong_type() {
         Err(glium::DrawError::UniformTypeMismatch { .. }) => (),
         a => panic!("{:?}", a)
     };
-    target.finish();
+    target.finish().unwrap();
 
     display.assert_no_error(None);
 }

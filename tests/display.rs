@@ -78,10 +78,12 @@ fn viewport_too_large() {
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
-    match display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+    let mut frame = display.draw();
+    match frame.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
         Err(glium::DrawError::ViewportTooLarge) => (),
         a => panic!("{:?}", a)
     };
+    frame.finish().unwrap();
 
     display.assert_no_error(None);
 }
@@ -115,10 +117,12 @@ fn wrong_depth_range() {
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
-    match display.draw().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+    let mut frame = display.draw();
+    match frame.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
         Err(glium::DrawError::InvalidDepthRange) => (),
         a => panic!("{:?}", a)
     };
+    frame.finish().unwrap();
 
     display.assert_no_error(None);
 }

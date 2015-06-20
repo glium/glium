@@ -239,7 +239,7 @@ fn main() {
         target.clear_color(0.0, 0.0, 0.0, 0.0);
         target.draw(&vertex_buffer, &ib_slice,
                     &program, &uniform! { tex: &texture }, &Default::default()).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
 
         for event in display.poll_events() {

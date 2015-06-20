@@ -48,7 +48,7 @@ fn attribute_types_mismatch() {
     let mut target = display.draw();
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
                 &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     display.assert_no_error(None);
 }
@@ -95,7 +95,7 @@ fn missing_attribute() {
     let mut target = display.draw();
     target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
                 &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     display.assert_no_error(None);
 }
@@ -178,7 +178,7 @@ macro_rules! attribute_test(
             let mut target = display.draw();
             target.draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
                         &Default::default()).unwrap();
-            target.finish();
+            target.finish().unwrap();
 
             display.assert_no_error(None);
         }

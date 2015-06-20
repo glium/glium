@@ -47,7 +47,7 @@ fn main() {
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                     &Default::default()).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         for ev in display.poll_events() {
             match ev {

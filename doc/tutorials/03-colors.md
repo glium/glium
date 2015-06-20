@@ -229,7 +229,7 @@ Here is the final code of our `src/main.rs` file:
 
             target.draw(&vertex_buffer, &indices, &program, &uniforms,
                         &Default::default()).unwrap();
-            target.finish();
+            target.finish().unwrap();
 
             for ev in display.poll_events() {
                 match ev {

@@ -31,7 +31,7 @@ Our first approach will be to create a variable named `t` which represents the s
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                     &Default::default()).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         for ev in display.poll_events() {
             match ev {
@@ -74,7 +74,7 @@ Let's reset our program to what it was at the end of the first tutorial, but kee
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                     &Default::default()).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         for ev in display.poll_events() {
             match ev {
@@ -237,7 +237,7 @@ Here is the final code of our `src/main.rs` file:
 
             target.draw(&vertex_buffer, &indices, &program, &uniforms,
                         &Default::default()).unwrap();
-            target.finish();
+            target.finish().unwrap();
 
             for ev in display.poll_events() {
                 match ev {

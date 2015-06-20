@@ -14,6 +14,7 @@ use std::ffi::CStr;
 use std::rc::Rc;
 
 use GliumCreationError;
+use SwapBuffersError;
 use ContextExt;
 use backend::Backend;
 use version;
@@ -227,7 +228,7 @@ impl Context {
     }
 
     /// Swaps the buffers in the backend.
-    pub fn swap_buffers(&self) {
+    pub fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         let backend = self.backend.borrow();
 
         if self.check_current_context {
@@ -237,7 +238,7 @@ impl Context {
         }
 
         // swapping
-        backend.swap_buffers();
+        backend.swap_buffers()
     }
 
     /// Returns the OpenGL version detected by this context.

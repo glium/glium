@@ -37,7 +37,7 @@ fn blit_texture_to_window() {
     texture.as_surface().blit_color(&src_rect, &target, &dest_rect,
                                     glium::uniforms::MagnifySamplerFilter::Nearest);
 
-    target.finish();
+    target.finish().unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
 

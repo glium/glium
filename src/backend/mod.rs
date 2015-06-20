@@ -16,6 +16,7 @@ use std::rc::Rc;
 use std::ops::Deref;
 
 use libc;
+use SwapBuffersError;
 
 pub use context::Context;
 
@@ -28,7 +29,7 @@ pub mod glutin_backend;
 /// the methods correctly.
 pub unsafe trait Backend {
     /// Swaps buffers at the end of a frame.
-    fn swap_buffers(&self);
+    fn swap_buffers(&self) -> Result<(), SwapBuffersError>;
 
     /// Returns the address of an OpenGL function.
     ///
@@ -52,8 +53,8 @@ pub trait Facade {
 }
 
 unsafe impl<T> Backend for Rc<T> where T: Backend {
-    fn swap_buffers(&self) {
-        self.deref().swap_buffers();
+    fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
+        self.deref().swap_buffers()
     }
 
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
