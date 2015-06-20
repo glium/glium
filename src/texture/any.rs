@@ -12,7 +12,7 @@ use Rect;
 use pixel_buffer::PixelBuffer;
 use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
-use texture::{TextureFormat};
+use texture::{MipmapsOption, TextureFormat};
 use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
 use texture::{get_format, InternalFormat};
 
@@ -46,6 +46,8 @@ pub struct TextureAny {
 
     /// Number of mipmap levels (`1` means just the main texture, `0` is not valid)
     levels: u32,
+    /// Is automatic mipmap generation allowed for this texture?
+    generate_mipmaps: bool,
 }
 
 /// Represents a specific mipmap of a texture.
@@ -59,6 +61,13 @@ pub struct TextureAnyMipmap<'a> {
 
     /// Mipmap level.
     level: u32,
+
+    /// Width of this mipmap level.
+    width: u32,
+    /// Height of this mipmap level.
+    height: Option<u32>,
+    /// Depth of this mipmap level.
+    depth: Option<u32>,
 }
 
 /// Type of a texture.
@@ -76,7 +85,8 @@ pub enum TextureType {
 
 /// Builds a new texture.
 pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
-                             data: Option<(ClientFormatAny, Cow<'a, [P]>)>, generate_mipmaps: bool,
+                             data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
+                             mipmaps: MipmapsOption,
                              width: u32, height: Option<u32>, depth: Option<u32>,
                              array_size: Option<u32>, samples: Option<u32>)
                              -> Result<TextureAny, TextureMaybeSupportedCreationError>
@@ -130,7 +140,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         (TextureType::Texture3d, gl::TEXTURE_3D)
     };
 
-    let generate_mipmaps = generate_mipmaps && match format {
+    let generate_mipmaps = mipmaps.should_generate() && match format {
         TextureFormatRequest::AnyFloatingPoint |
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
         TextureFormatRequest::AnyIntegral |
@@ -140,18 +150,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         _ => false,
     };
 
-    let texture_levels = if generate_mipmaps {
-        let max = ::std::cmp::max(width, ::std::cmp::max(height.unwrap_or(1),
-                             depth.unwrap_or(1))) as f32;
-
-        match max {
-            0.0 => 1,
-            a => 1 + a.log2() as gl::types::GLsizei
-        }
-
-    } else {
-        1
-    };
+    let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
 
     let (teximg_internal_format, storage_internal_format) =
         try!(image_format::format_request_to_glenum(facade.get_context(), data.as_ref().map(|&(c, _)| c), format));
@@ -168,6 +167,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
     let mut ctxt = facade.get_context().make_current();
 
     let id = unsafe {
+        let has_mipmaps = texture_levels > 1;
         let data = data;
         let data_raw = if let Some((_, ref data)) = data {
             data.as_ptr() as *const libc::c_void
@@ -202,7 +202,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
         }
         ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-        if generate_mipmaps {
+        if has_mipmaps {
             ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
                                   gl::LINEAR_MIPMAP_LINEAR as i32);
         } else {
@@ -210,8 +210,8 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                                   gl::LINEAR as i32);
         }
 
-        if !generate_mipmaps && (ctxt.version >= &Version(Api::Gl, 1, 2) ||
-                                 ctxt.version >= &Version(Api::GlEs, 3, 0))
+        if !has_mipmaps && (ctxt.version >= &Version(Api::Gl, 1, 2) ||
+                            ctxt.version >= &Version(Api::GlEs, 3, 0))
         {
             ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_BASE_LEVEL, 0);
             ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAX_LEVEL, 0);
@@ -427,6 +427,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         array_size: array_size,
         ty: stored_ty,
         levels: texture_levels as u32,
+        generate_mipmaps: generate_mipmaps,
     })
 }
 
@@ -447,38 +448,56 @@ impl<'a> TextureAnyMipmap<'a> {
     }
 }
 
+/// Creates a view to mipmap level.
+pub fn new_mipmap_view<'a>(texture: &'a TextureAny, level: u32, layer: u32) -> TextureAnyMipmap<'a> {
+    use std::cmp;
+    let pow = 2u32.pow(level);
+    TextureAnyMipmap {
+        texture: texture,
+        level: level,
+        layer: layer,
+        width: cmp::max(1, texture.width / pow),
+        height: texture.height.map(|height| cmp::max(1, height / pow)),
+        depth: texture.depth.map(|depth| cmp::max(1, depth / pow)),
+    }
+}
+
 /// Changes some parts of the texture.
-pub fn upload_texture<'a, P>(tex: &TextureAny, x_offset: u32, y_offset: u32, z_offset: u32,
+pub fn upload_texture<'a, P>(mip: &TextureAnyMipmap, x_offset: u32, y_offset: u32, z_offset: u32,
                              (format, data): (ClientFormatAny, Cow<'a, [P]>), width: u32,
-                             height: Option<u32>, depth: Option<u32>, level: u32,
+                             height: Option<u32>, depth: Option<u32>,
                              regen_mipmaps: bool)
                             -> Result<(), ()>   // TODO return a better Result!?
                              where P: Send + Copy + Clone + 'a
 {
-    let id = tex.id;
-    let bind_point = tex.bind_point;
+    let id = mip.texture.id;
+    let bind_point = mip.texture.bind_point;
+    let level = mip.level;
+
     let (is_client_compressed, data_bufsize) = (format.is_compressed(),
                                                 format.get_buffer_size(width, height, depth, None));
-    let regen_mipmaps = regen_mipmaps && tex.levels >= 2 && !is_client_compressed;
+    let regen_mipmaps = regen_mipmaps && mip.texture.levels >= 2 &&
+                        mip.texture.generate_mipmaps && !is_client_compressed;
 
-    assert!(x_offset <= tex.width);
-    assert!(y_offset <= tex.height.unwrap_or(1));
-    assert!(z_offset <= tex.depth.unwrap_or(1));
-    assert!(x_offset + width <= tex.width);
-    assert!(y_offset + height.unwrap_or(1) <= tex.height.unwrap_or(1));
-    assert!(z_offset + depth.unwrap_or(1) <= tex.depth.unwrap_or(1));
+    assert!(!regen_mipmaps || level == 0);  // when regen_mipmaps is true, level must be 0!
+    assert!(x_offset <= mip.width);
+    assert!(y_offset <= mip.height.unwrap_or(1));
+    assert!(z_offset <= mip.depth.unwrap_or(1));
+    assert!(x_offset + width <= mip.width);
+    assert!(y_offset + height.unwrap_or(1) <= mip.height.unwrap_or(1));
+    assert!(z_offset + depth.unwrap_or(1) <= mip.depth.unwrap_or(1));
 
     if data.len() * mem::size_of::<P>() != data_bufsize
     {
         panic!("Texture data size mismatch");
     }
 
-    let (client_format, client_type) = try!(image_format::client_format_to_glenum(&tex.context,
+    let (client_format, client_type) = try!(image_format::client_format_to_glenum(&mip.texture.context,
                                                                                   format,
-                                                                                  tex.requested_format)
+                                                                                  mip.texture.requested_format)
                                                                                   .map_err(|_| ()));
 
-    let mut ctxt = tex.context.make_current();
+    let mut ctxt = mip.texture.context.make_current();
 
     unsafe {
         if ctxt.state.pixel_store_unpack_alignment != 1 {
@@ -502,6 +521,7 @@ pub fn upload_texture<'a, P>(tex: &TextureAny, x_offset: u32, y_offset: u32, z_o
 
         } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
             assert!(z_offset == 0);
+            // FIXME should glTexImage be used here somewhere or glTexSubImage does it just fine?
             if is_client_compressed {
                 ctxt.gl.CompressedTexSubImage2D(bind_point, level as gl::types::GLint,
                                                 x_offset as gl::types::GLint,
@@ -541,8 +561,10 @@ pub fn upload_texture<'a, P>(tex: &TextureAny, x_offset: u32, y_offset: u32, z_o
     }
 }
 
-pub fn download_compressed_data(texture: &TextureAny, level: u32) -> Option<(ClientFormatAny, Vec<u8>)> {
-    let level = level as i32;
+pub fn download_compressed_data(mip: &TextureAnyMipmap) -> Option<(ClientFormatAny, Vec<u8>)> {
+    let texture = mip.texture;
+    let level = mip.level as i32;
+
     let mut ctxt = texture.context.make_current();
 
     unsafe {
@@ -728,11 +750,7 @@ impl TextureAny {
             return None;
         }
 
-        Some(TextureAnyMipmap {
-            texture: self,
-            layer: layer,
-            level: level,
-        })
+        Some(new_mipmap_view(self, level, layer))
     }
 }
 
