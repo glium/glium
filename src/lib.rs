@@ -205,9 +205,15 @@ trait BufferViewExt {
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_pixel_pack(&self, &mut CommandContext);
 
+    /// Makes sure that nothing is binded to `GL_PIXEL_PACK_BUFFER`.
+    fn unbind_pixel_pack(&mut CommandContext);
+
     /// Makes sure that the buffer is binded to the `GL_PIXEL_UNPACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_pixel_unpack(&self, &mut CommandContext);
+
+    /// Makes sure that nothing is binded to `GL_PIXEL_UNPACK_BUFFER`.
+    fn unbind_pixel_unpack(&mut CommandContext);
 
     /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.

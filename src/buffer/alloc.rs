@@ -224,6 +224,11 @@ impl Buffer {
         unsafe { bind_buffer(ctxt, self.id, BufferType::PixelPackBuffer); }
     }
 
+    /// Makes sure that nothing is binded to `GL_PIXEL_PACK_BUFFER`.
+    pub fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        unsafe { bind_buffer(ctxt, 0, BufferType::PixelPackBuffer); }
+    }
+
     /// Makes sure that the buffer is binded to the `GL_PIXEL_UNPACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_pixel_unpack(&self, mut ctxt: &mut CommandContext) {
@@ -236,6 +241,11 @@ impl Buffer {
         }
 
         unsafe { bind_buffer(ctxt, self.id, BufferType::PixelUnpackBuffer); }
+    }
+
+    /// Makes sure that nothing is binded to `GL_PIXEL_UNPACK_BUFFER`.
+    pub fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        unsafe { bind_buffer(ctxt, 0, BufferType::PixelUnpackBuffer); }
     }
 
     /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
@@ -952,6 +962,7 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
 }
 
 /// Binds a buffer of the given type, and returns the GLenum of the bind point.
+/// `id` can be 0.
 ///
 /// ## Unsafety
 ///

@@ -652,9 +652,17 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
         alloc.prepare_and_bind_for_pixel_pack(ctxt);
     }
 
+    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_pack(ctxt)
+    }
+
     fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
         let alloc = self.alloc.as_ref().unwrap();
         alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_unpack(ctxt)
     }
 
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
@@ -713,8 +721,16 @@ impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'sta
         self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
     }
 
+    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_pack(ctxt)
+    }
+
     fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
         self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_unpack(ctxt)
     }
 
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
@@ -759,8 +775,16 @@ impl BufferViewExt for BufferViewAny {
         self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
     }
 
+    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_pack(ctxt)
+    }
+
     fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
         self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_unpack(ctxt)
     }
 
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
@@ -815,8 +839,16 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
         self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
     }
 
+    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_pack(ctxt)
+    }
+
     fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
         self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_unpack(ctxt)
     }
 
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
