@@ -121,7 +121,7 @@ fn main() {
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
-    target.finish();
+    target.finish().unwrap();
 
     // reading the front buffer into an image
     let image: image::DynamicImage = display.read_front_buffer();

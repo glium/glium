@@ -15,6 +15,7 @@ use libc;
 use DisplayBuild;
 use Frame;
 use GliumCreationError;
+use SwapBuffersError;
 
 use context;
 use backend;
@@ -214,8 +215,12 @@ pub struct GlutinWindowBackend {
 }
 
 unsafe impl Backend for GlutinWindowBackend {
-    fn swap_buffers(&self) {
-        self.window.swap_buffers();
+    fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
+        match self.window.swap_buffers() {
+            Ok(()) => Ok(()),
+            Err(glutin::ContextError::IoError(e)) => panic!("Error while swapping buffers: {:?}", e),
+            Err(glutin::ContextError::ContextLost) => Err(SwapBuffersError::ContextLost),
+        }
     }
 
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
@@ -233,7 +238,7 @@ unsafe impl Backend for GlutinWindowBackend {
     }
 
     unsafe fn make_current(&self) {
-        self.window.make_current();
+        self.window.make_current().unwrap();
     }
 }
 
@@ -279,7 +284,8 @@ pub struct GlutinHeadlessBackend {
 }
 
 unsafe impl Backend for GlutinHeadlessBackend {
-    fn swap_buffers(&self) {
+    fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
+        Ok(())
     }
 
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
@@ -295,7 +301,7 @@ unsafe impl Backend for GlutinHeadlessBackend {
     }
 
     unsafe fn make_current(&self) {
-        self.context.make_current();
+        self.context.make_current().unwrap();
     }
 }
 

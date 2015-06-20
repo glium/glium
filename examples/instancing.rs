@@ -119,7 +119,7 @@ fn main() {
                         matrix: camera.get_perspective()
                     },
                     &params).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         // polling and handling the events received by the window
         for event in display.poll_events() {

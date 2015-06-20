@@ -59,7 +59,7 @@ fn main() {
         // drawing a frame
         let target = display.draw();
         dest_texture.as_surface().fill(&target, glium::uniforms::MagnifySamplerFilter::Linear);
-        target.finish();
+        target.finish().unwrap();
 
         // polling and handling the events received by the window
         for event in display.poll_events() {

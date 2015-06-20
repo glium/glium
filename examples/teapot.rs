@@ -150,7 +150,7 @@ fn main() {
         target.draw(&vertex_buffer,
                     &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
                     &program, &uniforms, &params).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         // polling and handling the events received by the window
         for event in display.poll_events() {

@@ -139,7 +139,7 @@ fn main() {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
         target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         // polling and handling the events received by the window
         for event in display.poll_events() {

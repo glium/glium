@@ -362,7 +362,7 @@ fn main() {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
         target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &Default::default()).unwrap();
-        target.finish();
+        target.finish().unwrap();
 
         // polling and handling the events received by the window
         for event in display.poll_events() {
