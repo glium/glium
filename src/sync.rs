@@ -8,6 +8,8 @@ use context::Context;
 use ContextExt;
 use std::rc::Rc;
 
+use std::thread;
+
 /// Provides a way to wait for a server-side operation to be finished.
 ///
 /// Creating a `SyncFence` injects an element in the commands queue of the backend.
@@ -106,7 +108,9 @@ impl LinearSyncFence {
 
 impl Drop for LinearSyncFence {
     fn drop(&mut self) {
-        assert!(self.id.is_none());
+        if !thread::panicking() {
+            assert!(self.id.is_none());
+        }
     }
 }
 
