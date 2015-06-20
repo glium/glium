@@ -6,6 +6,7 @@
  - All the texture constructors that used to take a boolean as parameter for mipmaps now takes an enum.
  - `empty_with_format` and `empty_with_format_if_supported` are now allowed for compressed textures.
  - `write`, `write_compressed_data`, `write_compressed_data_if_supported` and `read_compressed_data` are now available for mipmap objects.
+ - Removed the `is_closed()` function.
 
 ## Version 0.5.6
 
