@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.6.0
 
  - `Frame::finish` now returns a `Result`. `Frame`'s destrutor will panic if `finish` has not been called.
  - `with_compressed_data` and `with_compressed_data_if_supported` now have an additional parameter for mipmaps.
