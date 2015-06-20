@@ -16,6 +16,9 @@ use texture::{MipmapsOption, TextureFormat};
 use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
 use texture::{get_format, InternalFormat};
 
+use buffer::BufferViewAny;
+use BufferViewExt;
+
 use libc;
 use std::fmt;
 use std::mem;
@@ -180,10 +183,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
         }
 
-        if ctxt.state.pixel_unpack_buffer_binding != 0 {
-            ctxt.state.pixel_unpack_buffer_binding = 0;
-            ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
-        }
+        BufferViewAny::unbind_pixel_unpack(&mut ctxt);
 
         let id: gl::types::GLuint = mem::uninitialized();
         ctxt.gl.GenTextures(1, mem::transmute(&id));
@@ -505,10 +505,7 @@ pub fn upload_texture<'a, P>(mip: &TextureAnyMipmap, x_offset: u32, y_offset: u3
             ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
         }
 
-        if ctxt.state.pixel_unpack_buffer_binding != 0 {
-            ctxt.state.pixel_unpack_buffer_binding = 0;
-            ctxt.gl.BindBuffer(gl::PIXEL_UNPACK_BUFFER, 0);
-        }
+        BufferViewAny::unbind_pixel_unpack(&mut ctxt);
 
         {
             ctxt.gl.BindTexture(bind_point, id);
@@ -585,11 +582,7 @@ pub fn download_compressed_data(mip: &TextureAnyMipmap) -> Option<(ClientFormatA
                     let mut buf = Vec::with_capacity(buffer_size as usize);
                     buf.set_len(buffer_size as usize);
 
-                    // FIXME: correct function call
-                    if ctxt.state.pixel_pack_buffer_binding != 0 {
-                        ctxt.gl.BindBuffer(gl::PIXEL_PACK_BUFFER, 0);
-                        ctxt.state.pixel_pack_buffer_binding = 0;
-                    }
+                    BufferViewAny::unbind_pixel_pack(&mut ctxt);
                     
                     // adjusting data alignement
                     let ptr = buf.as_ptr() as *const u8;
