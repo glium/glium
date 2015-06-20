@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use RawUniformValue;
 
+use smallvec::SmallVec;
+
 use gl;
 use Handle;
 use context::CommandContext;
@@ -8,18 +10,18 @@ use version::Version;
 use version::Api;
 
 pub struct UniformsStorage {
-    values: RefCell<Vec<Option<RawUniformValue>>>,
-    uniform_blocks: RefCell<Vec<Option<gl::types::GLuint>>>,
-    shader_storage_blocks: RefCell<Vec<Option<gl::types::GLuint>>>,
+    values: RefCell<SmallVec<[Option<RawUniformValue>; 16]>>,
+    uniform_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
+    shader_storage_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
 }
 
 impl UniformsStorage {
     /// Builds a new empty storage.
     pub fn new() -> UniformsStorage {
         UniformsStorage {
-            values: RefCell::new(Vec::with_capacity(0)),
-            uniform_blocks: RefCell::new(Vec::with_capacity(0)),
-            shader_storage_blocks: RefCell::new(Vec::with_capacity(0)),
+            values: RefCell::new(SmallVec::new()),
+            uniform_blocks: RefCell::new(SmallVec::new()),
+            shader_storage_blocks: RefCell::new(SmallVec::new()),
         }
     }
 
@@ -31,7 +33,6 @@ impl UniformsStorage {
         let mut values = self.values.borrow_mut();
 
         if values.len() <= location as usize {
-            values.reserve(location as usize + 1);
             for _ in (values.len() .. location as usize + 1) {
                 values.push(None);
             }
@@ -135,7 +136,6 @@ impl UniformsStorage {
         let mut blocks = self.uniform_blocks.borrow_mut();
 
         if blocks.len() <= location as usize {
-            blocks.reserve(location as usize + 1);
             for _ in (blocks.len() .. location as usize + 1) {
                 blocks.push(None);
             }
@@ -167,7 +167,6 @@ impl UniformsStorage {
         let mut blocks = self.shader_storage_blocks.borrow_mut();
 
         if blocks.len() <= location as usize {
-            blocks.reserve(location as usize + 1);
             for _ in (blocks.len() .. location as usize + 1) {
                 blocks.push(None);
             }
