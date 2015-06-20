@@ -688,13 +688,17 @@ impl ClientFormatAny {
             ClientFormatAny::CompressedSrgbFormat(CompressedSrgbFormat::S3tcDxt1NoAlpha) |
             ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatU) |
             ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatI) => {
-                let height = height.expect("ST3C, RGTC and BPTC textures must have 2 dimensions");
+
+                let width = if width < 4 { 4 } else { width as usize };
+                let height = height.map(|height| if height < 4 { 4 } else { height as usize })
+                                   .expect("ST3C, RGTC and BPTC textures must have 2 dimensions");
                 if (width % 4) != 0 || (height % 4) != 0 {
                     panic!("ST3C, RGTC and BPTC textures must have a width and height multiple of 4.");
                 }
                 if depth.is_some() { // allow `array_size` (2D textures arrays) but not depth (3D textures)
                     panic!("ST3C, RGTC and BPTC textures are 2 dimension only.")
                 }
+
                 let uncompressed_bit_size =  4 * width as usize * height as usize *
                                             depth.unwrap_or(1) as usize * array_size.unwrap_or(1) as usize;
                 uncompressed_bit_size / 8   // Apply 8:1 compression ratio
@@ -711,13 +715,17 @@ impl ClientFormatAny {
             ClientFormatAny::CompressedFormat(CompressedFormat::BptcUnsignedFloat3) |
             ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatUU) |
             ClientFormatAny::CompressedFormat(CompressedFormat::RgtcFormatII) => {
-                let height = height.expect("ST3C, RGTC and BPTC textures must have 2 dimensions");
+
+                let width = if width < 4 { 4 } else { width as usize };
+                let height = height.map(|height| if height < 4 { 4 } else { height as usize })
+                                   .expect("ST3C, RGTC and BPTC textures must have 2 dimensions");
                 if (width % 4) != 0 || (height % 4) != 0 {
                     panic!("ST3C, RGTC and BPTC textures must have a width and height multiple of 4.");
                 }
                 if depth.is_some() { // allow `array_size` (2D textures arrays) but not depth (3D textures)
                     panic!("ST3C, RGTC and BPTC textures are 2 dimension only.")
                 }
+
                 let uncompressed_bit_size =  4 * width as usize * height as usize *
                                             depth.unwrap_or(1) as usize * array_size.unwrap_or(1) as usize;
                 uncompressed_bit_size / 4   // Apply 4:1 compression ratio
@@ -1156,8 +1164,8 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(client_format)) => {
-            try!(client_format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(format)) => {
+            try!(format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
         },
 
         /*******************************************************************/
@@ -1232,8 +1240,8 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
             }
         },
 
-        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(client_format)) => {
-            try!(client_format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(format)) => {
+            try!(format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
         },
 
         /*******************************************************************/
@@ -1670,6 +1678,16 @@ pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny, forma
             }
         },
 
+        TextureFormatRequest::Specific(TextureFormat::CompressedFormat(format))
+                                                        if client.is_compressed() => {
+            format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+        },
+
+        TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(format))
+                                                        if client.is_compressed() => {
+            format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+        },
+
         TextureFormatRequest::AnyFloatingPoint | TextureFormatRequest::AnyCompressed |
         TextureFormatRequest::AnySrgb | TextureFormatRequest::AnyCompressedSrgb |
         TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) |
@@ -1716,8 +1734,8 @@ pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny, forma
                 ClientFormatAny::ClientFormat(ClientFormat::F32F32F32) => Ok((gl::RGB, gl::FLOAT)),
                 ClientFormatAny::ClientFormat(ClientFormat::F32F32F32F32) => Ok((gl::RGBA, gl::FLOAT)),
 
-                // this kind of situation shouldn't happen, it should always be handled by
-                // TextureFormatRequest::AnyCompressed[Srgb]
+                // this kind of situation shouldn't happen, it should have a special handling when
+                // client is compressed.
                 ClientFormatAny::CompressedFormat(_) => unreachable!(),
                 ClientFormatAny::CompressedSrgbFormat(_) => unreachable!(),
             }
@@ -1766,8 +1784,8 @@ pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny, forma
                 ClientFormatAny::ClientFormat(ClientFormat::F32F32F32) => Ok((gl::RGB_INTEGER, gl::FLOAT)),
                 ClientFormatAny::ClientFormat(ClientFormat::F32F32F32F32) => Ok((gl::RGBA_INTEGER, gl::FLOAT)),
 
-                // this kind of situation shouldn't happen, it should always be handled by
-                // TextureFormatRequest::AnyCompressed[Srgb]
+                // this kind of situation shouldn't happen, it should have a special handling when
+                // client is compressed.
                 ClientFormatAny::CompressedFormat(_) => unreachable!(),
                 ClientFormatAny::CompressedSrgbFormat(_) => unreachable!(),
             }
