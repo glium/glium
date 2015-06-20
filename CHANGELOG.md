@@ -7,6 +7,7 @@
  - `empty_with_format` and `empty_with_format_if_supported` are now allowed for compressed textures.
  - `write`, `write_compressed_data`, `write_compressed_data_if_supported` and `read_compressed_data` are now available for mipmap objects.
  - Removed the `is_closed()` function.
+ - Removed the deprecated `render_buffer` module.
 
 ## Version 0.5.6
 
