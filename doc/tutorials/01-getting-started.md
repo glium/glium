@@ -44,6 +44,9 @@ Initializing a window with glutin can be done by calling `glium::glutin::WindowB
 But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we are just going to add an infinite loop until we detect that the window has been closed:
 
     loop {
+        // process all events, otherwise the window may become unresponsive
+        for _ in display.poll_events() {}
+
         if display.is_closed() {
             break;
         }
@@ -90,6 +93,8 @@ Here is our full `main` function after this step:
             let mut target = display.draw();
             target.clear_color(0.0, 0.0, 1.0, 1.0);
             target.finish();
+
+            for _ in display.poll_events() {}
 
             if display.is_closed() {
                 break;
@@ -272,6 +277,8 @@ Here is the final code of our `src/main.rs` file:
             target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                         &Default::default()).unwrap();
             target.finish();
+
+            for _ in display.poll_events() {}
 
             if display.is_closed() {
                 break;
