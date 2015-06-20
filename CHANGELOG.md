@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+ - `with_compressed_data` and `with_compressed_data_if_supported` now have an additional parameter for mipmaps.
+ - All the texture constructors that used to take a boolean as parameter for mipmaps now takes an enum.
+ - `empty_with_format` and `empty_with_format_if_supported` are now allowed for compressed textures.
+ - `write`, `write_compressed_data`, `write_compressed_data_if_supported` and `read_compressed_data` are now available for mipmap objects.
+
 ## Version 0.5.6
 
  - The panic at initialization in case of OpenGL error has been replaced by a warning.
