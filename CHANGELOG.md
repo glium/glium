@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.6.1
 
  - Fixed mipmaps generation with sRGB textures.
 
