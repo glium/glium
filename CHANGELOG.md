@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- - Added `is_robust` and `is_context_loss_possible` methods to `Context` (callable through the `Display` as well).
+ - Added `is_context_lost`, `is_robust` and `is_context_loss_possible` methods to `Context` (callable through the `Display` as well).
 
 ## Version 0.6.1
 

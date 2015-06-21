@@ -373,8 +373,17 @@ fn multiple_displays() {
 
 #[test]
 fn debug_string() {
-    use glium::backend::Facade;
-
+    // tests that `insert_debug_marker` doesn't trigger an OpenGL error
     let display = support::build_display();
-    display.get_context().insert_debug_marker("Hello world").ok();
+    display.insert_debug_marker("Hello world").ok();
+    display.assert_no_error(None);
+}
+
+
+#[test]
+fn is_context_lost() {
+    // tests that `is_context_lost` doesn't trigger an OpenGL error
+    let display = support::build_display();
+    display.is_context_lost();
+    display.assert_no_error(None);
 }

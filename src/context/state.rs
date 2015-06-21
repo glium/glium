@@ -6,6 +6,12 @@ use smallvec::SmallVec;
 ///
 /// The current state is passed to each function and can be freely updated.
 pub struct GlState {
+    /// Whether we have detected that the context has been lost.
+    ///
+    /// Even when this is `false`, the context may have been lost since the last query. So we have
+    /// to check for lost context as long as this is false.
+    pub lost_context: bool,
+
     /// Whether GL_BLEND is enabled
     pub enabled_blend: bool,
 
@@ -327,6 +333,8 @@ impl Default for GlState {
         }
 
         GlState {
+            lost_context: false,
+
             enabled_blend: false,
             enabled_cull_face: false,
             enabled_debug_output: None,
