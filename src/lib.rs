@@ -831,7 +831,7 @@ pub enum SwapBuffersError {
     ///
     /// A context loss usually happens on mobile devices when the user puts the application on
     /// sleep and wakes it up later. However any OpenGL implementation can theoretically lose the
-    /// context at any time.
+    /// context at any time. Can only happen if calling `is_context_loss_possible()` returns true.
     ContextLost,
 }
 

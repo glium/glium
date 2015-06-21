@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added `is_robust` and `is_context_loss_possible` methods to `Context` (callable through the `Display` as well).
+
 ## Version 0.6.1
 
  - Fixed mipmaps generation with sRGB textures.

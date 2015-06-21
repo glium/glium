@@ -256,6 +256,19 @@ impl Context {
         self.capabilities().supported_glsl_versions.iter().find(|&v| v == version).is_some()
     }
 
+    /// Returns true if out-of-bound buffer access from the GPU side (inside a program) cannot
+    /// result in a crash.
+    ///
+    /// You should take extra care if `is_robust` returns false.
+    pub fn is_robust(&self) -> bool {
+        self.capabilities().robustness
+    }
+
+    /// Returns true if a context loss is possible.
+    pub fn is_context_loss_possible(&self) -> bool {
+        self.capabilities().can_lose_context
+    }
+
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`
     /// if the hardware doesn't support it.
     pub fn get_max_anisotropy_support(&self) -> Option<u16> {

@@ -48,6 +48,10 @@ pub struct ExtensionsList {
     pub gl_arb_occlusion_query: bool,
     /// GL_ARB_occlusion_query2
     pub gl_arb_occlusion_query2: bool,
+    /// GL_ARB_robustness
+    pub gl_arb_robustness: bool,
+    /// GL_ARB_robust_buffer_access_behavior
+    pub gl_arb_robust_buffer_access_behavior: bool,
     /// GL_ARB_pixel_buffer_object
     pub gl_arb_pixel_buffer_object: bool,
     /// GL_ARB_program_interface_query
@@ -114,6 +118,8 @@ pub struct ExtensionsList {
     pub gl_ext_occlusion_query_boolean: bool,
     /// GL_EXT_packed_depth_stencil
     pub gl_ext_packed_depth_stencil: bool,
+    /// GL_EXT_robustness
+    pub gl_ext_robustness: bool,
     /// GL_EXT_sRGB_write_control
     pub gl_ext_srgb_write_control: bool,
     /// GL_EXT_texture_compression_s3tc
@@ -130,6 +136,10 @@ pub struct ExtensionsList {
     pub gl_gremedy_string_marker: bool,
     /// GL_KHR_debug
     pub gl_khr_debug: bool,
+    /// GL_KHR_robustness
+    pub gl_khr_robustness: bool,
+    /// GL_KHR_robust_buffer_access_behavior
+    pub gl_khr_robust_buffer_access_behavior: bool,
     /// GL_NV_copy_buffer
     pub gl_nv_copy_buffer: bool,
     /// GL_NV_conditional_render
@@ -186,6 +196,8 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_multi_draw_indirect: false,
         gl_arb_pixel_buffer_object: false,
         gl_arb_program_interface_query: false,
+        gl_arb_robustness: false,
+        gl_arb_robust_buffer_access_behavior: false,
         gl_arb_sampler_objects: false,
         gl_arb_shader_image_load_store: false,
         gl_arb_shader_objects: false,
@@ -217,6 +229,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_ext_multi_draw_indirect: false,
         gl_ext_occlusion_query_boolean: false,
         gl_ext_packed_depth_stencil: false,
+        gl_ext_robustness: false,
         gl_ext_srgb_write_control: false,
         gl_ext_texture_compression_s3tc: false,
         gl_ext_texture_filter_anisotropic: false,
@@ -225,6 +238,8 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_ext_transform_feedback: false,
         gl_gremedy_string_marker: false,
         gl_khr_debug: false,
+        gl_khr_robustness: false,
+        gl_khr_robust_buffer_access_behavior: false,
         gl_nv_conditional_render: false,
         gl_nv_copy_buffer: false,
         gl_nv_pixel_buffer_object: false,
@@ -260,6 +275,8 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_program_interface_query" => extensions.gl_arb_program_interface_query = true,
             "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
             "GL_ARB_multi_draw_indirect" => extensions.gl_arb_multi_draw_indirect = true,
+            "GL_ARB_robustness" => extensions.gl_arb_robustness = true,
+            "GL_ARB_robust_buffer_access_behavior" => extensions.gl_arb_robust_buffer_access_behavior = true,
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             "GL_ARB_shader_image_load_store" => extensions.gl_arb_shader_image_load_store = true,
             "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
@@ -291,6 +308,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_EXT_multi_draw_indirect" => extensions.gl_ext_multi_draw_indirect = true,
             "GL_EXT_occlusion_query_boolean" => extensions.gl_ext_occlusion_query_boolean = true,
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
+            "GL_EXT_robustness" => extensions.gl_ext_robustness = true,
             "GL_EXT_sRGB_write_control" => extensions.gl_ext_srgb_write_control = true,
             "GL_EXT_texture_compression_s3tc" => extensions.gl_ext_texture_compression_s3tc = true,
             "GL_EXT_texture_filter_anisotropic" => extensions.gl_ext_texture_filter_anisotropic = true,
@@ -299,6 +317,8 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_EXT_transform_feedback" => extensions.gl_ext_transform_feedback = true,
             "GL_GREMEDY_string_marker" => extensions.gl_gremedy_string_marker = true,
             "GL_KHR_debug" => extensions.gl_khr_debug = true,
+            "GL_KHR_robustness" => extensions.gl_khr_robustness = true,
+            "GL_KHR_robust_buffer_access_behavior" => extensions.gl_khr_robust_buffer_access_behavior = true,
             "GL_NV_conditional_render" => extensions.gl_nv_conditional_render = true,
             "GL_NV_copy_buffer" => extensions.gl_nv_copy_buffer = true,
             "GL_NV_pixel_buffer_object" => extensions.gl_nv_pixel_buffer_object = true,
