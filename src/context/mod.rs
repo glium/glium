@@ -229,6 +229,11 @@ impl Context {
 
     /// Swaps the buffers in the backend.
     pub fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
+        let mut state = self.state.borrow_mut();
+        if state.lost_context {
+            return Err(SwapBuffersError::ContextLost);
+        }
+
         let backend = self.backend.borrow();
 
         if self.check_current_context {
@@ -238,7 +243,11 @@ impl Context {
         }
 
         // swapping
-        backend.swap_buffers()
+        let err = backend.swap_buffers();
+        if let Err(SwapBuffersError::ContextLost) = err {
+            state.lost_context = true;
+        }
+        err
     }
 
     /// Returns the OpenGL version detected by this context.
@@ -254,6 +263,47 @@ impl Context {
     /// Returns true if the given GLSL version is supported.
     pub fn is_glsl_version_supported(&self, version: &Version) -> bool {
         self.capabilities().supported_glsl_versions.iter().find(|&v| v == version).is_some()
+    }
+
+    /// Returns true if out-of-bound buffer access from the GPU side (inside a program) cannot
+    /// result in a crash.
+    ///
+    /// You should take extra care if `is_robust` returns false.
+    pub fn is_robust(&self) -> bool {
+        self.capabilities().robustness
+    }
+
+    /// Returns true if a context loss is possible.
+    pub fn is_context_loss_possible(&self) -> bool {
+        self.capabilities().can_lose_context
+    }
+
+    /// Returns true if the context has been lost and needs to be recreated.
+    ///
+    /// # Implementation
+    ///
+    /// If it has been determined that the context has been lost before, then the function
+    /// immediatly returns true. Otherwise, calls `glGetGraphicsResetStatus`. If this function
+    /// is not available, returns false.
+    pub fn is_context_lost(&self) -> bool {
+        if self.state.borrow().lost_context {
+            return true;
+        }
+
+        let mut ctxt = self.make_current();
+
+        let lost = if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_khr_robustness {
+            unsafe { ctxt.gl.GetGraphicsResetStatus() != gl::NO_ERROR }
+        } else if ctxt.extensions.gl_ext_robustness {
+            unsafe { ctxt.gl.GetGraphicsResetStatusEXT() != gl::NO_ERROR }
+        } else if ctxt.extensions.gl_arb_robustness {
+            unsafe { ctxt.gl.GetGraphicsResetStatusARB() != gl::NO_ERROR }
+        } else {
+            false
+        };
+
+        if lost { ctxt.state.lost_context = true; }
+        lost
     }
 
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`

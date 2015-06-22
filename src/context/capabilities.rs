@@ -5,11 +5,19 @@ use std::mem;
 use gl;
 
 /// Represents the capabilities of the context.
+///
+/// Contrary to the state, these values never change.
 pub struct Capabilities {
     /// List of versions of GLSL that are supported by the compiler.
     ///
     /// An empty list means that the backend doesn't have a compiler.
     pub supported_glsl_versions: Vec<Version>,
+
+    /// True if out-of-bound access on the GPU side can't result in crashes.
+    pub robustness: bool,
+
+    /// True if it is possible for the OpenGL context to be lost.
+    pub can_lose_context: bool,
 
     /// Whether the context supports left and right buffers.
     pub stereo: bool,
@@ -70,11 +78,40 @@ pub struct Capabilities {
 pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
                                -> Capabilities
 {
-    use std::mem;
-
     Capabilities {
         supported_glsl_versions: {
             get_supported_glsl(gl, version, extensions)
+        },
+
+        robustness: if version >= &Version(Api::Gl, 4, 5) || extensions.gl_arb_robustness {
+            let mut val = mem::uninitialized();
+            gl.GetIntegerv(gl::CONTEXT_FLAGS, &mut val);
+            let val = val as gl::types::GLenum;
+            (val & gl::CONTEXT_FLAG_ROBUST_ACCESS_BIT) != 0
+
+        } else if extensions.gl_khr_robustness || extensions.gl_ext_robustness {
+            let mut val = mem::uninitialized();
+            gl.GetBooleanv(gl::CONTEXT_ROBUST_ACCESS, &mut val);
+            val != 0
+
+        } else {
+            false
+        },
+
+        can_lose_context: if version >= &Version(Api::Gl, 4, 5) || extensions.gl_khr_robustness ||
+                             extensions.gl_arb_robustness || extensions.gl_ext_robustness
+        {
+            let mut val = mem::uninitialized();
+            gl.GetIntegerv(gl::RESET_NOTIFICATION_STRATEGY, &mut val);
+
+            match val as gl::types::GLenum {
+                gl::LOSE_CONTEXT_ON_RESET => true,
+                gl::NO_RESET_NOTIFICATION => false,
+                _ => unreachable!()
+            }
+
+        } else {
+            false
         },
 
         stereo: {
