@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Added `is_context_lost`, `is_robust` and `is_context_loss_possible` methods to `Context` (callable through the `Display` as well).
+ - Fixed using a framebuffer with a depth or stencil attachment causing the wrong texture to be displayed.
 
 ## Version 0.6.1
 
