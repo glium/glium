@@ -609,7 +609,7 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
                                             -> HashMap<String, UniformBlock>
 {
     if !(ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
-         ctxt.extensions.gl_arb_program_interface_query)
+         (ctxt.extensions.gl_arb_program_interface_query && ctxt.extensions.gl_arb_shader_storage_buffer_object))
     {
         // not supported
         return HashMap::with_capacity(0);

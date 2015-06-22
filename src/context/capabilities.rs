@@ -266,12 +266,14 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             0
         },
 
-        max_indexed_shader_storage_buffer: if version >= &Version(Api::Gl, 4, 3) {      // TODO: ARB_shader_storage_buffer_object   // TODO: GLES
-            let mut val = mem::uninitialized();
-            gl.GetIntegerv(gl::MAX_SHADER_STORAGE_BUFFER_BINDINGS, &mut val);
-            val
-        } else {
-            0
+        max_indexed_shader_storage_buffer: {
+            if version >= &Version(Api::Gl, 4, 3) || extensions.gl_arb_shader_storage_buffer_object {      // TODO: GLES
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::MAX_SHADER_STORAGE_BUFFER_BINDINGS, &mut val);
+                val
+            } else {
+                0
+            }
         },
 
         max_indexed_transform_feedback_buffer: {
