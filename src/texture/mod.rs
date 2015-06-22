@@ -50,15 +50,11 @@ use backend::Facade;
 
 use pixel_buffer::PixelBuffer;
 use uniforms::{UniformValue, AsUniformValue, Sampler};
-use {Surface, GlObject};
+use GlObject;
 
-use FboAttachments;
-use fbo::ValidatedAttachments;
 use Rect;
-use BlitTarget;
 use TextureExt;
 use TextureMipmapExt;
-use uniforms;
 
 use image_format::{TextureFormatRequest, ClientFormatAny, FormatNotSupportedError};
 
@@ -522,71 +518,6 @@ impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for RawImage3d<'a, P> {
 impl<P> Texture3dDataSink<P> for Vec<Vec<Vec<P>>> where P: Copy + Clone {
     fn from_raw(_data: Cow<[P]>, _width: u32, _height: u32, _depth: u32) -> Self {
         unimplemented!()
-    }
-}
-
-/// Struct that allows you to draw on a texture.
-///
-/// To obtain such an object, call `texture.as_surface()`.
-pub struct TextureSurface<'a>(framebuffer::SimpleFrameBuffer<'a>);
-
-impl<'a> Surface for TextureSurface<'a> {
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
-             depth: Option<f32>, stencil: Option<i32>)
-    {
-        self.0.clear(rect, color, depth, stencil)
-    }
-
-    fn get_dimensions(&self) -> (u32, u32) {
-        self.0.get_dimensions()
-    }
-
-    fn get_depth_buffer_bits(&self) -> Option<u16> {
-        self.0.get_depth_buffer_bits()
-    }
-
-    fn get_stencil_buffer_bits(&self) -> Option<u16> {
-        self.0.get_stencil_buffer_bits()
-    }
-
-    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), ::DrawError>
-        where I: Into<::index::IndicesSource<'b>>,
-        U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
-    {
-        self.0.draw(vb, ib, program, uniforms, draw_parameters)
-    }
-
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-                     filter: uniforms::MagnifySamplerFilter) where S: Surface
-    {
-        target.blit_from_simple_framebuffer(&self.0, source_rect, target_rect, filter)
-    }
-
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
-        self.0.blit_from_frame(source_rect, target_rect, filter)
-    }
-
-    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
-        self.0.blit_from_simple_framebuffer(source, source_rect, target_rect, filter)
-    }
-
-    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
-        self.0.blit_from_multioutput_framebuffer(source, source_rect, target_rect, filter)
-    }
-}
-
-impl<'a> FboAttachments for TextureSurface<'a> {
-    fn get_attachments(&self) -> Option<&ValidatedAttachments> {
-        self.0.get_attachments()
     }
 }
 

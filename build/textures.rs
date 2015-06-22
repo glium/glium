@@ -959,7 +959,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (write!(dest, "
                 /// Starts drawing on the texture.
                 ///
-                /// All the function calls to the `TextureSurface` will draw on the texture instead
+                /// All the function calls to the framebuffer will draw on the texture instead
                 /// of the screen.
                 ///
                 /// ## Low-level information
@@ -968,8 +968,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// created and cached. The following calls to `as_surface` will load the existing
                 /// FBO and re-use it. When the texture is destroyed, the FBO is destroyed too.
                 ///
-                pub fn as_surface<'a>(&'a self) -> TextureSurface<'a> {{
-                    TextureSurface(framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self))
+                pub fn as_surface<'a>(&'a self) -> framebuffer::SimpleFrameBuffer<'a> {{
+                    framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self)
                 }}
             ")).unwrap();
     }
