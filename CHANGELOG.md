@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed an OpenGL error if GL_ARB_robustness was present with OpenGL < 3.0.
+
 ## Version 0.6.3
 
  - Fixed the OpenGL compatibility check for SSBO reflection.
