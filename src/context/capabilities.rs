@@ -266,20 +266,22 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             0
         },
 
-        max_indexed_shader_storage_buffer: if version >= &Version(Api::Gl, 4, 3) {      // TODO: ARB_shader_storage_buffer_object   // TODO: GLES
-            let mut val = mem::uninitialized();
-            gl.GetIntegerv(gl::MAX_SHADER_STORAGE_BUFFER_BINDINGS, &mut val);
-            val
-        } else {
-            0
+        max_indexed_shader_storage_buffer: {
+            if version >= &Version(Api::Gl, 4, 3) || extensions.gl_arb_shader_storage_buffer_object {      // TODO: GLES
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::MAX_SHADER_STORAGE_BUFFER_BINDINGS, &mut val);
+                val
+            } else {
+                0
+            }
         },
 
         max_indexed_transform_feedback_buffer: {
-            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_transform_feedback3 {      // TODO: make sure that GL 3.0 supports it   // TODO: GLES
+            if version >= &Version(Api::Gl, 4, 0) || extensions.gl_arb_transform_feedback3 {      // TODO: GLES
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_TRANSFORM_FEEDBACK_BUFFERS, &mut val);
                 val
-            } else if extensions.gl_ext_transform_feedback {
+            } else if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_transform_feedback {
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS_EXT, &mut val);
                 val
@@ -288,12 +290,14 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             }
         },
 
-        max_indexed_uniform_buffer: if version >= &Version(Api::Gl, 3, 0) {      // TODO: ARB_shader_storage_buffer_object   // TODO: GLES
-            let mut val = mem::uninitialized();
-            gl.GetIntegerv(gl::MAX_UNIFORM_BUFFER_BINDINGS, &mut val);
-            val
-        } else {
-            0
+        max_indexed_uniform_buffer: {
+            if version >= &Version(Api::Gl, 3, 1) || extensions.gl_arb_uniform_buffer_object {      // TODO: GLES
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::MAX_UNIFORM_BUFFER_BINDINGS, &mut val);
+                val
+            } else {
+                0
+            }
         },
 
         max_compute_work_group_count: if version >= &Version(Api::Gl, 4, 3) ||

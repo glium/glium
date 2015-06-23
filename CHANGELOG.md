@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed the OpenGL compatability check for SSBO reflection.
+ - Fixed a potential OpenGL error if uniform buffer objects are not supported.
+ - Fixed a potential OpenGL error if transform feedback buffers are not supported.
+
 ## Version 0.6.2
 
  - Added `is_context_lost`, `is_robust` and `is_context_loss_possible` methods to `Context` (callable through the `Display` as well).

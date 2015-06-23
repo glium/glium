@@ -62,6 +62,8 @@ pub struct ExtensionsList {
     pub gl_arb_shader_image_load_store: bool,
     /// GL_ARB_shader_objects
     pub gl_arb_shader_objects: bool,
+    /// GL_ARB_shader_storage_buffer_object
+    pub gl_arb_shader_storage_buffer_object: bool,
     /// GL_ARB_sync
     pub gl_arb_sync: bool,
     /// GL_ARB_tessellation_shader
@@ -201,6 +203,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_sampler_objects: false,
         gl_arb_shader_image_load_store: false,
         gl_arb_shader_objects: false,
+        gl_arb_shader_storage_buffer_object: false,
         gl_arb_sync: false,
         gl_arb_tessellation_shader: false,
         gl_arb_texture_compression_bptc: false,
@@ -280,6 +283,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
             "GL_ARB_shader_image_load_store" => extensions.gl_arb_shader_image_load_store = true,
             "GL_ARB_shader_objects" => extensions.gl_arb_shader_objects = true,
+            "GL_ARB_shader_storage_buffer_object" => extensions.gl_arb_shader_storage_buffer_object = true,
             "GL_ARB_sync" => extensions.gl_arb_sync = true,
             "GL_ARB_tessellation_shader" => extensions.gl_arb_tessellation_shader = true,
             "GL_ARB_texture_compression_bptc" => extensions.gl_arb_texture_compression_bptc = true,
