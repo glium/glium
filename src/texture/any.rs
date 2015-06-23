@@ -20,6 +20,7 @@ use buffer::BufferViewAny;
 use BufferViewExt;
 
 use libc;
+use std::cmp;
 use std::fmt;
 use std::mem;
 use std::ptr;
@@ -439,20 +440,6 @@ impl<'a> TextureAnyMipmap<'a> {
     }
 }
 
-/// Creates a view to mipmap level.
-pub fn new_mipmap_view<'a>(texture: &'a TextureAny, level: u32, layer: u32) -> TextureAnyMipmap<'a> {
-    use std::cmp;
-    let pow = 2u32.pow(level);
-    TextureAnyMipmap {
-        texture: texture,
-        level: level,
-        layer: layer,
-        width: cmp::max(1, texture.width / pow),
-        height: texture.height.map(|height| cmp::max(1, height / pow)),
-        depth: texture.depth.map(|depth| cmp::max(1, depth / pow)),
-    }
-}
-
 /// Changes some parts of the texture.
 pub fn upload_texture<'a, P>(mip: &TextureAnyMipmap, x_offset: u32, y_offset: u32, z_offset: u32,
                              (format, data): (ClientFormatAny, Cow<'a, [P]>), width: u32,
@@ -734,7 +721,15 @@ impl TextureAny {
             return None;
         }
 
-        Some(new_mipmap_view(self, level, layer))
+        let pow = 2u32.pow(level);
+        Some(TextureAnyMipmap {
+            texture: self,
+            level: level,
+            layer: layer,
+            width: cmp::max(1, self.width / pow),
+            height: self.height.map(|height| cmp::max(1, height / pow)),
+            depth: self.depth.map(|depth| cmp::max(1, depth / pow)),
+        })
     }
 }
 
