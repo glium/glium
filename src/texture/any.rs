@@ -7,6 +7,7 @@ use context::Context;
 use context::CommandContext;
 use ContextExt;
 use TextureExt;
+use TextureMipmapExt;
 use version::Api;
 use Rect;
 
@@ -439,144 +440,145 @@ impl<'a> TextureAnyMipmap<'a> {
     }
 }
 
-/// Changes some parts of the texture.
-pub fn upload_texture<'a, P>(mip: &TextureAnyMipmap, x_offset: u32, y_offset: u32, z_offset: u32,
-                             (format, data): (ClientFormatAny, Cow<'a, [P]>), width: u32,
+impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
+    fn upload_texture<'d, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
+                             (format, data): (ClientFormatAny, Cow<'d, [P]>), width: u32,
                              height: Option<u32>, depth: Option<u32>,
                              regen_mipmaps: bool)
-                            -> Result<(), ()>   // TODO return a better Result!?
-                             where P: Send + Copy + Clone + 'a
-{
-    let id = mip.texture.id;
-    let level = mip.level;
-
-    let (is_client_compressed, data_bufsize) = (format.is_compressed(),
-                                                format.get_buffer_size(width, height, depth, None));
-    let regen_mipmaps = regen_mipmaps && mip.texture.levels >= 2 &&
-                        mip.texture.generate_mipmaps && !is_client_compressed;
-
-    assert!(!regen_mipmaps || level == 0);  // when regen_mipmaps is true, level must be 0!
-    assert!(x_offset <= mip.width);
-    assert!(y_offset <= mip.height.unwrap_or(1));
-    assert!(z_offset <= mip.depth.unwrap_or(1));
-    assert!(x_offset + width <= mip.width);
-    assert!(y_offset + height.unwrap_or(1) <= mip.height.unwrap_or(1));
-    assert!(z_offset + depth.unwrap_or(1) <= mip.depth.unwrap_or(1));
-
-    if data.len() * mem::size_of::<P>() != data_bufsize
+                             -> Result<(), ()>   // TODO return a better Result!?
+                             where P: Send + Copy + Clone + 'd
     {
-        panic!("Texture data size mismatch");
+        let id = self.texture.id;
+        let level = self.level;
+
+        let (is_client_compressed, data_bufsize) = (format.is_compressed(),
+                                                    format.get_buffer_size(width, height, depth, None));
+        let regen_mipmaps = regen_mipmaps && self.texture.levels >= 2 &&
+                            self.texture.generate_mipmaps && !is_client_compressed;
+
+        assert!(!regen_mipmaps || level == 0);  // when regen_mipmaps is true, level must be 0!
+        assert!(x_offset <= self.width);
+        assert!(y_offset <= self.height.unwrap_or(1));
+        assert!(z_offset <= self.depth.unwrap_or(1));
+        assert!(x_offset + width <= self.width);
+        assert!(y_offset + height.unwrap_or(1) <= self.height.unwrap_or(1));
+        assert!(z_offset + depth.unwrap_or(1) <= self.depth.unwrap_or(1));
+
+        if data.len() * mem::size_of::<P>() != data_bufsize
+        {
+            panic!("Texture data size mismatch");
+        }
+
+        let (client_format, client_type) = try!(image_format::client_format_to_glenum(&self.texture.context,
+                                                                                      format,
+                                                                                      self.texture.requested_format)
+                                                                                      .map_err(|_| ()));
+
+        let mut ctxt = self.texture.context.make_current();
+
+        unsafe {
+            if ctxt.state.pixel_store_unpack_alignment != 1 {
+                ctxt.state.pixel_store_unpack_alignment = 1;
+                ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+            }
+
+            BufferViewAny::unbind_pixel_unpack(&mut ctxt);
+            let bind_point = self.texture.bind_to_current(&mut ctxt);
+
+            if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
+                unimplemented!();
+
+            } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
+                assert!(z_offset == 0);
+                // FIXME should glTexImage be used here somewhere or glTexSubImage does it just fine?
+                if is_client_compressed {
+                    ctxt.gl.CompressedTexSubImage2D(bind_point, level as gl::types::GLint,
+                                                    x_offset as gl::types::GLint,
+                                                    y_offset as gl::types::GLint,
+                                                    width as gl::types::GLsizei,
+                                                    height.unwrap_or(1) as gl::types::GLsizei,
+                                                    client_format,
+                                                    data_bufsize  as gl::types::GLsizei,
+                                                    data.as_ptr() as *const libc::c_void);
+                } else {
+                    ctxt.gl.TexSubImage2D(bind_point, level as gl::types::GLint,
+                                          x_offset as gl::types::GLint,
+                                          y_offset as gl::types::GLint,
+                                          width as gl::types::GLsizei,
+                                          height.unwrap_or(1) as gl::types::GLsizei,
+                                          client_format, client_type,
+                                          data.as_ptr() as *const libc::c_void);
+                }
+
+            } else {
+                assert!(z_offset == 0);
+                assert!(y_offset == 0);
+
+                unimplemented!();
+            }
+
+            // regenerate mipmaps if there are some
+            if regen_mipmaps {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                    ctxt.gl.GenerateMipmap(bind_point);
+                } else {
+                    ctxt.gl.GenerateMipmapEXT(bind_point);
+                }
+            }
+
+            Ok(())
+        }
     }
 
-    let (client_format, client_type) = try!(image_format::client_format_to_glenum(&mip.texture.context,
-                                                                                  format,
-                                                                                  mip.texture.requested_format)
-                                                                                  .map_err(|_| ()));
+    fn download_compressed_data(&self) -> Option<(ClientFormatAny, Vec<u8>)> {
+        let texture = self.texture;
+        let level = self.level as i32;
 
-    let mut ctxt = mip.texture.context.make_current();
+        let mut ctxt = texture.context.make_current();
 
-    unsafe {
-        if ctxt.state.pixel_store_unpack_alignment != 1 {
-            ctxt.state.pixel_store_unpack_alignment = 1;
-            ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
-        }
+        unsafe {
+            let bind_point = texture.bind_to_current(&mut ctxt);
 
-        BufferViewAny::unbind_pixel_unpack(&mut ctxt);
-        let bind_point = mip.texture.bind_to_current(&mut ctxt);
+            let mut is_compressed = mem::uninitialized();
+            ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED, &mut is_compressed);
+            if is_compressed != 0 {
 
-        if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
-            unimplemented!();
+                let mut buffer_size = mem::uninitialized();
+                ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED_IMAGE_SIZE, &mut buffer_size);
+                let mut internal_format = mem::uninitialized();
+                ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
+                
+                match ClientFormatAny::from_internal_compressed_format(internal_format as gl::types::GLenum) {
+                    Some(known_format) => {
+                        let mut buf = Vec::with_capacity(buffer_size as usize);
+                        buf.set_len(buffer_size as usize);
 
-        } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
-            assert!(z_offset == 0);
-            // FIXME should glTexImage be used here somewhere or glTexSubImage does it just fine?
-            if is_client_compressed {
-                ctxt.gl.CompressedTexSubImage2D(bind_point, level as gl::types::GLint,
-                                                x_offset as gl::types::GLint,
-                                                y_offset as gl::types::GLint,
-                                                width as gl::types::GLsizei,
-                                                height.unwrap_or(1) as gl::types::GLsizei,
-                                                client_format,
-                                                data_bufsize  as gl::types::GLsizei,
-                                                data.as_ptr() as *const libc::c_void);
+                        BufferViewAny::unbind_pixel_pack(&mut ctxt);
+                        
+                        // adjusting data alignement
+                        let ptr = buf.as_ptr() as *const u8;
+                        let ptr = ptr as usize;
+                        if (ptr % 8) == 0 {
+                        } else if (ptr % 4) == 0 && ctxt.state.pixel_store_pack_alignment != 4 {
+                            ctxt.state.pixel_store_pack_alignment = 4;
+                            ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 4);
+                        } else if (ptr % 2) == 0 && ctxt.state.pixel_store_pack_alignment > 2 {
+                            ctxt.state.pixel_store_pack_alignment = 2;
+                            ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 2);
+                        } else if ctxt.state.pixel_store_pack_alignment != 1 {
+                            ctxt.state.pixel_store_pack_alignment = 1;
+                            ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
+                        }
+
+                        ctxt.gl.GetCompressedTexImage(bind_point, level, buf.as_mut_ptr() as *mut _);
+                        Some((known_format, buf))
+                    },
+                    None => None,
+                }
+
             } else {
-                ctxt.gl.TexSubImage2D(bind_point, level as gl::types::GLint,
-                                      x_offset as gl::types::GLint,
-                                      y_offset as gl::types::GLint,
-                                      width as gl::types::GLsizei,
-                                      height.unwrap_or(1) as gl::types::GLsizei,
-                                      client_format, client_type,
-                                      data.as_ptr() as *const libc::c_void);
+                None
             }
-
-        } else {
-            assert!(z_offset == 0);
-            assert!(y_offset == 0);
-
-            unimplemented!();
-        }
-
-        // regenerate mipmaps if there are some
-        if regen_mipmaps {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                ctxt.gl.GenerateMipmap(bind_point);
-            } else {
-                ctxt.gl.GenerateMipmapEXT(bind_point);
-            }
-        }
-
-        Ok(())
-    }
-}
-
-pub fn download_compressed_data(mip: &TextureAnyMipmap) -> Option<(ClientFormatAny, Vec<u8>)> {
-    let texture = mip.texture;
-    let level = mip.level as i32;
-
-    let mut ctxt = texture.context.make_current();
-
-    unsafe {
-        let bind_point = texture.bind_to_current(&mut ctxt);
-
-        let mut is_compressed = mem::uninitialized();
-        ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED, &mut is_compressed);
-        if is_compressed != 0 {
-
-            let mut buffer_size = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED_IMAGE_SIZE, &mut buffer_size);
-            let mut internal_format = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
-            
-            match ClientFormatAny::from_internal_compressed_format(internal_format as gl::types::GLenum) {
-                Some(known_format) => {
-                    let mut buf = Vec::with_capacity(buffer_size as usize);
-                    buf.set_len(buffer_size as usize);
-
-                    BufferViewAny::unbind_pixel_pack(&mut ctxt);
-                    
-                    // adjusting data alignement
-                    let ptr = buf.as_ptr() as *const u8;
-                    let ptr = ptr as usize;
-                    if (ptr % 8) == 0 {
-                    } else if (ptr % 4) == 0 && ctxt.state.pixel_store_pack_alignment != 4 {
-                        ctxt.state.pixel_store_pack_alignment = 4;
-                        ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 4);
-                    } else if (ptr % 2) == 0 && ctxt.state.pixel_store_pack_alignment > 2 {
-                        ctxt.state.pixel_store_pack_alignment = 2;
-                        ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 2);
-                    } else if ctxt.state.pixel_store_pack_alignment != 1 {
-                        ctxt.state.pixel_store_pack_alignment = 1;
-                        ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
-                    }
-
-                    ctxt.gl.GetCompressedTexImage(bind_point, level, buf.as_mut_ptr() as *mut _);
-                    Some((known_format, buf))
-                },
-                None => None,
-            }
-
-        } else {
-            None
         }
     }
 }

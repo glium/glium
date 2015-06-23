@@ -303,6 +303,19 @@ trait TextureExt {
     fn bind_to_current(&self, &mut CommandContext) -> gl::types::GLenum;
 }
 
+/// Internal trait for textures.
+trait TextureMipmapExt {
+    /// Changes some parts of the texture.
+    fn upload_texture<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
+                             (image_format::ClientFormatAny, std::borrow::Cow<'a, [P]>), width: u32,
+                             height: Option<u32>, depth: Option<u32>,
+                             regen_mipmaps: bool)
+                             -> Result<(), ()>   // TODO return a better Result!?
+                             where P: Send + Copy + Clone + 'a;
+
+    fn download_compressed_data(&self) -> Option<(image_format::ClientFormatAny, Vec<u8>)>;
+}
+
 /// Internal trait for transform feedback sessions.
 trait TransformFeedbackSessionExt {
     /// Updates the state of OpenGL to make the transform feedback session current.

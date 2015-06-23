@@ -1258,8 +1258,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
                         let client_format = ClientFormatAny::ClientFormat(client_format);
 
-                        any::upload_texture(&self.0, rect.left, rect.bottom, 0, (client_format, data), width,
-                                            Some(height), None, true).unwrap()
+                        self.0.upload_texture(rect.left, rect.bottom, 0, (client_format, data),
+                                              width, Some(height), None, true).unwrap()
                     }}
                 "#, data_source_trait = data_source_trait,
                     compressed_restrictions = compressed_restrictions)).unwrap();
@@ -1307,8 +1307,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         let data = Cow::Borrowed(data.as_ref());
                         let client_format = {client_format_any}(format);
 
-                        any::upload_texture(&self.0, rect.left, rect.bottom, 0, (client_format, data),
-                                            width, Some(height), None, false)
+                        self.0.upload_texture(rect.left, rect.bottom, 0, (client_format, data),
+                                              width, Some(height), None, false)
                     }}
                 "#, format = relevant_format, client_format_any = client_format_any_ty)).unwrap();
         }
@@ -1325,7 +1325,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                     /// Returns the compressed format of the texture and the compressed data, gives
                     /// `None` when the internal compression format is generic or unknown.
                     pub fn read_compressed_data(&self) -> Option<({format}, Vec<u8>)> {{
-                        match any::download_compressed_data(&self.0) {{
+                        match self.0.download_compressed_data() {{
                             Some(({client_format_any}(format), buf)) => Some((format, buf)),
                             None => None,
                             _ => unreachable!(),
