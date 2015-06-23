@@ -641,11 +641,6 @@ impl TextureAny {
         pb
     }
 
-    /// UNSTABLE. Returns the `Context` associated with this texture.
-    pub fn get_context(&self) -> &Rc<Context> {
-        &self.context
-    }
-
     /// Returns the width of the texture.
     pub fn get_width(&self) -> u32 {
         self.width
@@ -716,6 +711,10 @@ impl TextureAny {
 }
 
 impl TextureExt for TextureAny {
+    fn get_context(&self) -> &Rc<Context> {
+        &self.context
+    }
+
     fn get_bind_point(&self) -> gl::types::GLenum {
         match self.ty {
             TextureType::Texture1d => gl::TEXTURE_1D,

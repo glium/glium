@@ -56,6 +56,7 @@ use FboAttachments;
 use fbo::ValidatedAttachments;
 use Rect;
 use BlitTarget;
+use TextureExt;
 use TextureMipmapExt;
 use uniforms;
 

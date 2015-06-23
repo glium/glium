@@ -295,6 +295,9 @@ trait QueryExt {
 
 /// Internal trait for textures.
 trait TextureExt {
+    /// Returns the context associated to this texture.
+    fn get_context(&self) -> &Rc<Context>;
+
     /// Returns the bind point of the texture.
     fn get_bind_point(&self) -> gl::types::GLenum;
 
