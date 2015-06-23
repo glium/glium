@@ -4,6 +4,7 @@ use GlObject;
 use backend::Facade;
 use version::Version;
 use context::Context;
+use context::CommandContext;
 use ContextExt;
 use TextureExt;
 use version::Api;
@@ -41,7 +42,6 @@ pub struct TextureAny {
     /// been checked yet. The inner Option is None if the format has been checkek but is unknown.
     actual_format: Cell<Option<Option<InternalFormat>>>,
 
-    bind_point: gl::types::GLenum,
     ty: TextureType,
     width: u32,
     height: Option<u32>,
@@ -412,7 +412,6 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         id: id,
         requested_format: format,
         actual_format: Cell::new(None),
-        bind_point: texture_type,
         width: width,
         height: height,
         depth: depth,
@@ -449,7 +448,6 @@ pub fn upload_texture<'a, P>(mip: &TextureAnyMipmap, x_offset: u32, y_offset: u3
                              where P: Send + Copy + Clone + 'a
 {
     let id = mip.texture.id;
-    let bind_point = mip.texture.bind_point;
     let level = mip.level;
 
     let (is_client_compressed, data_bufsize) = (format.is_compressed(),
@@ -484,12 +482,7 @@ pub fn upload_texture<'a, P>(mip: &TextureAnyMipmap, x_offset: u32, y_offset: u3
         }
 
         BufferViewAny::unbind_pixel_unpack(&mut ctxt);
-
-        {
-            ctxt.gl.BindTexture(bind_point, id);
-            let act = ctxt.state.active_texture as usize;
-            ctxt.state.texture_units[act].texture = id;
-        }
+        let bind_point = mip.texture.bind_to_current(&mut ctxt);
 
         if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
             unimplemented!();
@@ -543,8 +536,7 @@ pub fn download_compressed_data(mip: &TextureAnyMipmap) -> Option<(ClientFormatA
     let mut ctxt = texture.context.make_current();
 
     unsafe {
-        let bind_point = get_bind_point(texture);
-        ctxt.gl.BindTexture(bind_point, texture.get_id());
+        let bind_point = texture.bind_to_current(&mut ctxt);
 
         let mut is_compressed = mem::uninitialized();
         ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED, &mut is_compressed);
@@ -592,13 +584,6 @@ pub fn download_compressed_data(mip: &TextureAnyMipmap) -> Option<(ClientFormatA
 /// Returns the `Context` associated with this texture.
 pub fn get_context(tex: &TextureAny) -> &Rc<Context> {
     &tex.context
-}
-
-/// Returns the bind point of this texture.
-///
-/// The returned GLenum is guaranteed to be supported by the context.
-pub fn get_bind_point(tex: &TextureAny) -> gl::types::GLenum {
-    tex.bind_point
 }
 
 impl TextureAny {
@@ -735,7 +720,27 @@ impl TextureAny {
 
 impl TextureExt for TextureAny {
     fn get_bind_point(&self) -> gl::types::GLenum {
-        self.bind_point
+        match self.ty {
+            TextureType::Texture1d => gl::TEXTURE_1D,
+            TextureType::Texture1dArray => gl::TEXTURE_1D_ARRAY,
+            TextureType::Texture2d => gl::TEXTURE_2D,
+            TextureType::Texture2dArray => gl::TEXTURE_2D_ARRAY,
+            TextureType::Texture2dMultisample => gl::TEXTURE_2D_MULTISAMPLE,
+            TextureType::Texture2dMultisampleArray => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+            TextureType::Texture3d => gl::TEXTURE_3D,
+        }
+    }
+
+    fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
+        let bind_point = self.get_bind_point();
+
+        let texture_unit = ctxt.state.active_texture;
+        if ctxt.state.texture_units[texture_unit as usize].texture != self.id {
+            unsafe { ctxt.gl.BindTexture(bind_point, self.id) };
+            ctxt.state.texture_units[texture_unit as usize].texture = self.id;
+        }
+
+        bind_point
     }
 }
 

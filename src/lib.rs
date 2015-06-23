@@ -297,6 +297,10 @@ trait QueryExt {
 trait TextureExt {
     /// Returns the bind point of the texture.
     fn get_bind_point(&self) -> gl::types::GLenum;
+
+    /// Makes sure that the texture is binded to the current texture unit and returns the
+    /// bind point to use to access the texture (eg. `GL_TEXTURE_2D`, `GL_TEXTURE_3D`, etc.).
+    fn bind_to_current(&self, &mut CommandContext) -> gl::types::GLenum;
 }
 
 /// Internal trait for transform feedback sessions.

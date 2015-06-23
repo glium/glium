@@ -1,12 +1,12 @@
 use context::CommandContext;
 use version::Version;
 use version::Api;
-use GlObject;
 use gl;
 
 use std::mem;
 
-use texture::any::{self, TextureAny};
+use texture::any::TextureAny;
+use TextureExt;
 
 /// Internal format of a texture.
 ///
@@ -128,10 +128,7 @@ pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
         {
             // TODO: use DSA if available
 
-            let bind_point = any::get_bind_point(texture);
-            ctxt.gl.BindTexture(bind_point, texture.get_id());
-            let active_texture = ctxt.state.active_texture as usize;
-            ctxt.state.texture_units[active_texture].texture = texture.get_id();
+            let bind_point = texture.bind_to_current(ctxt);
 
             let mut red_sz = mem::uninitialized();
             ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_SIZE, &mut red_sz);
