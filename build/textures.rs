@@ -1121,11 +1121,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (write!(dest, r#"
                 /// Access a single mipmap level of this texture.
                 pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
-                    if level < self.0.get_mipmap_levels() {{
-                        Some({name}Mipmap(any::new_mipmap_view(&self.0, level, 0), self))
-                    }} else {{
-                        None
-                    }}
+                    self.0.mipmap(0, level).map(|m| {name}Mipmap(m, self))
                 }}
             "#, name = name)).unwrap();
 
@@ -1184,11 +1180,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (write!(dest, r#"
                 /// Access a single mipmap level of this layer.
                 pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
-                    if level < self.texture.get_mipmap_levels() {{
-                        Some({name}Mipmap(any::new_mipmap_view(&self.texture.0, level, self.layer), &self.texture))
-                    }} else {{
-                        None
-                    }}
+                    self.texture.0.mipmap(self.layer, level).map(|m| {name}Mipmap(m, &self.texture))
                 }}
             "#, name = name)).unwrap();
 
