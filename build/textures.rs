@@ -990,7 +990,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
                 pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
-                    self.0.read(0)
+                    self.0.mipmap(0, 0).unwrap().read()
                 }}
             "#)).unwrap();
 
@@ -1001,7 +1001,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
                 pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
-                    self.0.read_to_pixel_buffer(0)
+                    self.0.mipmap(0, 0).unwrap().read_to_pixel_buffer()
                 }}
             "#)).unwrap();
     }

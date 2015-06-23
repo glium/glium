@@ -441,6 +441,50 @@ impl<'a> TextureAnyMipmap<'a> {
 }
 
 impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
+    fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
+        let attachment = fbo::Attachment::TextureLayer {
+            texture: &self.texture,
+            layer: self.layer,
+            level: self.level,
+        };
+
+        let rect = Rect {
+            bottom: 0,
+            left: 0,
+            width: self.width,
+            height: self.height.unwrap_or(1),
+        };
+
+        let mut ctxt = self.texture.context.make_current();
+
+        let mut data = Vec::with_capacity(0);
+        ops::read(&mut ctxt, &attachment, &rect, &mut data);
+        T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
+    }
+
+    fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {
+        let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
+
+        let attachment = fbo::Attachment::TextureLayer {
+            texture: &self.texture,
+            layer: self.layer,
+            level: self.level,
+        };
+
+        let rect = Rect {
+            bottom: 0,
+            left: 0,
+            width: self.width,
+            height: self.height.unwrap_or(1),
+        };
+
+        let pb = PixelBuffer::new_empty(&self.texture.context, size);
+
+        let mut ctxt = self.texture.context.make_current();
+        ops::read(&mut ctxt, &attachment, &rect, &pb);
+        pb
+    }
+
     fn upload_texture<'d, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
                              (format, data): (ClientFormatAny, Cow<'d, [P]>), width: u32,
                              height: Option<u32>, depth: Option<u32>,
@@ -584,63 +628,6 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
 }
 
 impl TextureAny {
-    /// UNSTABLE. Reads the content of a mipmap level of the texture.
-    // TODO: this function only works for level 0 right now
-    //       width/height need adjustements
-    pub fn read<T>(&self, level: u32) -> T
-                   where T: Texture2dDataSink<(u8, u8, u8, u8)>
-            // TODO: remove Clone for P
-    {
-        assert_eq!(level, 0);   // TODO:
-
-        let attachment = fbo::Attachment::TextureLayer {
-            texture: self,
-            layer: 0,
-            level: 0,
-        };
-
-        let rect = Rect {
-            bottom: 0,
-            left: 0,
-            width: self.width,
-            height: self.height.unwrap_or(1),
-        };
-
-        let mut ctxt = self.context.make_current();
-
-        let mut data = Vec::with_capacity(0);
-        ops::read(&mut ctxt, &attachment, &rect, &mut data);
-        T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
-    }
-
-    /// UNSTABLE. Reads the content of a mipmap level of the texture to a pixel buffer.
-    // TODO: this function only works for level 0 right now
-    //       width/height need adjustements
-    pub fn read_to_pixel_buffer(&self, level: u32) -> PixelBuffer<(u8, u8, u8, u8)> {
-        assert_eq!(level, 0);   // TODO:
-
-        let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
-
-        let attachment = fbo::Attachment::TextureLayer {
-            texture: self,
-            layer: 0,
-            level: 0,
-        };
-
-        let rect = Rect {
-            bottom: 0,
-            left: 0,
-            width: self.width,
-            height: self.height.unwrap_or(1),
-        };
-
-        let pb = PixelBuffer::new_empty(&self.context, size);
-
-        let mut ctxt = self.context.make_current();
-        ops::read(&mut ctxt, &attachment, &rect, &pb);
-        pb
-    }
-
     /// Returns the width of the texture.
     pub fn get_width(&self) -> u32 {
         self.width

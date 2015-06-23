@@ -308,6 +308,14 @@ trait TextureExt {
 
 /// Internal trait for textures.
 trait TextureMipmapExt {
+    /// Reads the content of the mipmap to RAM.
+    // TODO: take 2D/3D/etc. into account
+    fn read<T>(&self) -> T where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>;
+
+    /// Reads the content of the mipmap to a pixel buffer.
+    // TODO: take 2D/3D/etc. into account
+    fn read_to_pixel_buffer(&self) -> pixel_buffer::PixelBuffer<(u8, u8, u8, u8)>;
+
     /// Changes some parts of the texture.
     fn upload_texture<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
                              (image_format::ClientFormatAny, std::borrow::Cow<'a, [P]>), width: u32,
