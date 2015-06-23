@@ -583,11 +583,6 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     }
 }
 
-/// Returns the `Context` associated with this texture.
-pub fn get_context(tex: &TextureAny) -> &Rc<Context> {
-    &tex.context
-}
-
 impl TextureAny {
     /// UNSTABLE. Reads the content of a mipmap level of the texture.
     // TODO: this function only works for level 0 right now
