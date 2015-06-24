@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Fixed an OpenGL error if GL_ARB_robustness was present with OpenGL < 3.0.
+ - Slightly improved performances when using a dynamic buffer.
 
 ## Version 0.6.3
 
