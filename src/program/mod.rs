@@ -41,6 +41,10 @@ pub enum ProgramCreationError {
     /// You have requested transform feedback varyings, but transform feedback is not supported
     /// by the backend.
     TransformFeedbackNotSupported,
+
+    /// You have requested point size setting from the shader, but it's not
+    /// supported by the backend.
+    PointSizeNotSupported,
 }
 
 impl fmt::Display for ProgramCreationError {
@@ -58,6 +62,9 @@ impl fmt::Display for ProgramCreationError {
             &ProgramCreationError::TransformFeedbackNotSupported => 
                 formatter.write_str("You requested transform feedback, but this feature is not \
                                      supported by the backend"),
+            &ProgramCreationError::PointSizeNotSupported =>
+                formatter.write_str("You requested point size setting, but it's not \
+                                     supported by the backend"),
         }
     }
 }
@@ -74,6 +81,8 @@ impl Error for ProgramCreationError {
                                                                shaders compilation",
             &ProgramCreationError::TransformFeedbackNotSupported => "Transform feedback is not \
                                                                      supported by the backend.",
+            &ProgramCreationError::PointSizeNotSupported => "Point size is not supported by \
+                                                             the backend.",
         }
     }
 
@@ -107,12 +116,18 @@ pub enum ProgramCreationInput<'a> {
         /// The information specified here will be passed to the OpenGL linker. If you pass
         /// `None`, then you won't be able to use transform feedback.
         transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
+
+        /// Whether the shader uses point size.
+        uses_point_size: bool,
     },
 
     /// Use a precompiled binary.
     Binary {
         /// The data.
         data: Binary,
+
+        /// Whether the shader uses point size.
+        uses_point_size: bool,
     }
 }
 
@@ -146,6 +161,7 @@ impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
             geometry_shader: geometry_shader,
             fragment_shader: fragment_shader,
             transform_feedback_varyings: None,
+            uses_point_size: false,
         }
     }
 }
@@ -163,6 +179,7 @@ impl<'a> From<Binary> for ProgramCreationInput<'a> {
     fn from(binary: Binary) -> ProgramCreationInput<'a> {
         ProgramCreationInput::Binary {
             data: binary,
+            uses_point_size: false,
         }
     }
 }

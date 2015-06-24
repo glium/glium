@@ -29,6 +29,7 @@ use vertex::VertexFormat;
 /// A combination of shaders linked together.
 pub struct Program {
     raw: RawProgram,
+    uses_point_size: bool,
 }
 
 impl Program {
@@ -38,10 +39,11 @@ impl Program {
     {
         let input = input.into();
 
-        let raw = match input {
+        let (raw, uses_point_size) = match input {
             ProgramCreationInput::SourceCode { vertex_shader, tessellation_control_shader,
                                                tessellation_evaluation_shader, geometry_shader,
-                                               fragment_shader, transform_feedback_varyings } =>
+                                               fragment_shader, transform_feedback_varyings,
+                                               uses_point_size } =>
             {
                 let mut has_geometry_shader = false;
                 let mut has_tessellation_shaders = false;
@@ -74,6 +76,10 @@ impl Program {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
+                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                    return Err(ProgramCreationError::PointSizeNotSupported);
+                }
+
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
 
                 let shaders_store = {
@@ -84,16 +90,22 @@ impl Program {
                     shaders_store
                 };
 
-                try!(RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
-                                              has_tessellation_shaders, transform_feedback_varyings))
+                (try!(RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
+                                               has_tessellation_shaders, transform_feedback_varyings)),
+                 uses_point_size)
             },
 
-            ProgramCreationInput::Binary { data } => {
-                try!(RawProgram::from_binary(facade, data))
+            ProgramCreationInput::Binary { data, uses_point_size } => {
+                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                    return Err(ProgramCreationError::PointSizeNotSupported);
+                }
+
+                (try!(RawProgram::from_binary(facade, data)),
+                 uses_point_size)
             },
         };
 
-        Ok(Program { raw: raw })
+        Ok(Program { raw: raw, uses_point_size: uses_point_size })
     }
 
     /// Builds a new program from GLSL source code.
@@ -126,6 +138,7 @@ impl Program {
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
             transform_feedback_varyings: None,
+            uses_point_size: false,
         })
     }
 
@@ -262,6 +275,10 @@ impl Program {
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
     }
+
+    pub fn uses_point_size(&self) -> bool {
+      self.uses_point_size
+    }
 }
 
 impl fmt::Debug for Program {
@@ -280,6 +297,13 @@ impl GlObject for Program {
 
 impl ProgramExt for Program {
     fn use_program(&self, ctxt: &mut CommandContext) {
+        if self.uses_point_size && !ctxt.state.enabled_program_point_size {
+            unsafe { ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE); }
+        }
+        else if !self.uses_point_size && ctxt.state.enabled_program_point_size {
+            unsafe { ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE); }
+        }
+
         self.raw.use_program(ctxt)
     }
 
