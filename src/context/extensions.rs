@@ -100,6 +100,8 @@ pub struct ExtensionsList {
     pub gl_arm_rgba8: bool,
     /// GL_ATI_meminfo
     pub gl_ati_meminfo: bool,
+    /// GL_EXT_buffer_storage
+    pub gl_ext_buffer_storage: bool,
     /// GL_EXT_debug_marker
     pub gl_ext_debug_marker: bool,
     /// GL_EXT_direct_state_access
@@ -224,6 +226,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_vertex_shader: false,
         gl_arm_rgba8: false,
         gl_ati_meminfo: false,
+        gl_ext_buffer_storage: false,
         gl_ext_debug_marker: false,
         gl_ext_direct_state_access: false,
         gl_ext_disjoint_timer_query: false,
@@ -305,6 +308,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_vertex_shader" => extensions.gl_arb_vertex_shader = true,
             "GL_ARM_rgba8" => extensions.gl_arm_rgba8 = true,
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
+            "GL_EXT_buffer_storage" => extensions.gl_ext_buffer_storage = true,
             "GL_EXT_debug_marker" => extensions.gl_ext_debug_marker = true,
             "GL_EXT_direct_state_access" => extensions.gl_ext_direct_state_access = true,
             "GL_EXT_disjoint_timer_query" => extensions.gl_ext_disjoint_timer_query = true,

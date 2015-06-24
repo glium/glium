@@ -91,6 +91,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             extensions: vec![
                 "GL_APPLE_sync".to_string(),
                 "GL_ARM_rgba8".to_string(),
+                "GL_EXT_buffer_storage".to_string(),
                 "GL_EXT_disjoint_timer_query".to_string(),
                 "GL_EXT_multi_draw_indirect".to_string(),
                 "GL_EXT_occlusion_query_boolean".to_string(),
