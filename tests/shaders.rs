@@ -349,6 +349,7 @@ fn get_transform_feedback_varyings() {
         tessellation_control_shader: None,
         tessellation_evaluation_shader: None,
         geometry_shader: None,
+        uses_point_size: false,
 
         vertex_shader: "
             #version 110

@@ -231,10 +231,12 @@ macro_rules! program {
             let _tessellation_evaluation_shader: Option<&str> = None;
             let _geometry_shader: Option<&str> = None;
             let _fragment_shader: &str = "";
+            let _uses_point_size: bool = false;
 
             $(
                 program!(_program_ty $ty, $src, _vertex_shader, _tessellation_control_shader,
-                         _tessellation_evaluation_shader, _geometry_shader, _fragment_shader);
+                         _tessellation_evaluation_shader, _geometry_shader, _fragment_shader,
+                         _uses_point_size);
             )+
 
             let input = $crate::program::ProgramCreationInput::SourceCode {
@@ -244,6 +246,7 @@ macro_rules! program {
                 geometry_shader: _geometry_shader,
                 fragment_shader: _fragment_shader,
                 transform_feedback_varyings: None,
+                uses_point_size: _uses_point_size,
             };
 
             $crate::program::Program::new($context, input)
@@ -257,24 +260,28 @@ macro_rules! program {
         program!(_inner, $context, $vers, {$($ty:$src),+} $($rest)*);
     );
 
-    (_program_ty vertex, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident) => (
+    (_program_ty vertex, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $ps:ident) => (
         let $vs = $src;
     );
 
-    (_program_ty tessellation_control, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident) => (
+    (_program_ty tessellation_control, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $ps:ident) => (
         let $tcs = Some($src);
     );
 
-    (_program_ty tessellation_evaluation, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident) => (
+    (_program_ty tessellation_evaluation, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $ps:ident) => (
         let $tes = Some($src);
     );
 
-    (_program_ty geometry, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident) => (
+    (_program_ty geometry, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $ps:ident) => (
         let $gs = Some($src);
     );
 
-    (_program_ty fragment, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident) => (
+    (_program_ty fragment, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $ps:ident) => (
         let $fs = $src;
+    );
+
+    (_program_ty point_size, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $ps:ident) => (
+      let $ps = $src;
     );
 
     (_parse_num_gl $num:expr) => (

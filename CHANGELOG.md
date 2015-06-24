@@ -4,6 +4,7 @@
 
  - Fixed an OpenGL error if GL_ARB_robustness was present with OpenGL < 3.0.
  - Slightly improved performances when using a dynamic buffer.
+ - Added `GL_PROGRAM_POINT_SIZE` support to `Program`.
 
 ## Version 0.6.3
 

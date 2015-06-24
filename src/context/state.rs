@@ -60,6 +60,9 @@ pub struct GlState {
     /// Whether GL_POLYGON_SMOOTH is enabled
     pub enabled_polygon_smooth: bool,
 
+    /// Whether GL_PROGRAM_POINT_SIZE is enabled
+    pub enabled_program_point_size: bool,
+
     /// The latest value passed to `glUseProgram`.
     pub program: Handle,
 
@@ -351,6 +354,7 @@ impl Default for GlState {
             enabled_stencil_test: false,
             enabled_line_smooth: false,
             enabled_polygon_smooth: false,
+            enabled_program_point_size: false,
 
             program: Handle::Id(0),
             vertex_array: 0,
