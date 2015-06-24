@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Fixed an OpenGL error if GL_ARB_robustness was present with OpenGL < 3.0.
+ - Now using the `GL_APPLE_SYNC` extension if OpenGL ES 3.0 is not available.
  - Slightly improved performances when using a dynamic buffer.
 
 ## Version 0.6.3

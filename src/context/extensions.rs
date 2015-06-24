@@ -6,6 +6,8 @@ use gl;
 /// Contains data about the list of extensions.
 #[derive(Debug, Clone, Copy)]
 pub struct ExtensionsList {
+    /// GL_APPLE_sync
+    pub gl_apple_sync: bool,
     /// GL_APPLE_vertex_array_object
     pub gl_apple_vertex_array_object: bool,
     /// GL_ARB_buffer_storage
@@ -175,6 +177,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
     let strings = get_extensions_strings(gl, version);
 
     let mut extensions = ExtensionsList {
+        gl_apple_sync: false,
         gl_apple_vertex_array_object: false,
         gl_arb_buffer_storage: false,
         gl_arb_copy_buffer: false,
@@ -255,6 +258,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
 
     for extension in strings.into_iter() {
         match &extension[..] {
+            "GL_APPLE_sync" => extensions.gl_apple_sync = true,
             "GL_APPLE_vertex_array_object" => extensions.gl_apple_vertex_array_object = true,
             "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = true,
             "GL_ARB_compute_shader" => extensions.gl_arb_compute_shader = true,
