@@ -56,6 +56,18 @@ impl SyncFence {
 
         let ctxt = self.context.make_current();
 
+        // we try waiting without flushing first
+        match unsafe { ctxt.gl.ClientWaitSync(sync, 0, 0) } {
+            gl::ALREADY_SIGNALED | gl::CONDITION_SATISFIED => {
+                unsafe { ctxt.gl.DeleteSync(sync) };
+                return;
+            },
+            gl::TIMEOUT_EXPIRED => (),
+            gl::WAIT_FAILED => (),
+            _ => unreachable!()
+        };
+
+        // waiting *with* flushing this time
         let result = unsafe {
             // waiting with a deadline of one year
             // the reason why the deadline is so long is because if you attach a GL debugger,
