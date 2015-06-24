@@ -295,8 +295,36 @@ trait QueryExt {
 
 /// Internal trait for textures.
 trait TextureExt {
+    /// Returns the context associated to this texture.
+    fn get_context(&self) -> &Rc<Context>;
+
     /// Returns the bind point of the texture.
     fn get_bind_point(&self) -> gl::types::GLenum;
+
+    /// Makes sure that the texture is binded to the current texture unit and returns the
+    /// bind point to use to access the texture (eg. `GL_TEXTURE_2D`, `GL_TEXTURE_3D`, etc.).
+    fn bind_to_current(&self, &mut CommandContext) -> gl::types::GLenum;
+}
+
+/// Internal trait for textures.
+trait TextureMipmapExt {
+    /// Reads the content of the mipmap to RAM.
+    // TODO: take 2D/3D/etc. into account
+    fn read<T>(&self) -> T where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>;
+
+    /// Reads the content of the mipmap to a pixel buffer.
+    // TODO: take 2D/3D/etc. into account
+    fn read_to_pixel_buffer(&self) -> pixel_buffer::PixelBuffer<(u8, u8, u8, u8)>;
+
+    /// Changes some parts of the texture.
+    fn upload_texture<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
+                             (image_format::ClientFormatAny, std::borrow::Cow<'a, [P]>), width: u32,
+                             height: Option<u32>, depth: Option<u32>,
+                             regen_mipmaps: bool)
+                             -> Result<(), ()>   // TODO return a better Result!?
+                             where P: Send + Copy + Clone + 'a;
+
+    fn download_compressed_data(&self) -> Option<(image_format::ClientFormatAny, Vec<u8>)>;
 }
 
 /// Internal trait for transform feedback sessions.

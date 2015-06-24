@@ -56,6 +56,8 @@ use FboAttachments;
 use fbo::ValidatedAttachments;
 use Rect;
 use BlitTarget;
+use TextureExt;
+use TextureMipmapExt;
 use uniforms;
 
 use image_format::{TextureFormatRequest, ClientFormatAny, FormatNotSupportedError};

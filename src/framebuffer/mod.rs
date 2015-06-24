@@ -40,6 +40,7 @@ use std::rc::Rc;
 
 use texture::Texture2d;
 use texture::TextureAnyMipmap;
+use TextureExt;
 
 use backend::Facade;
 use context::Context;
