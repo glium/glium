@@ -587,7 +587,8 @@ fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreat
     }
 
     if cfg!(feature = "gl_sync") && !(ctxt.version >= &Version(Api::Gl, 3, 2)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 3, 0)) && !ctxt.extensions.gl_arb_sync
+        !(ctxt.version >= &Version(Api::GlEs, 3, 0)) && !ctxt.extensions.gl_arb_sync &&
+        !ctxt.extensions.gl_apple_sync
     {
         result.push("OpenGL implementation doesn't support synchronization objects");
     }

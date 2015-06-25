@@ -89,6 +89,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             fallbacks: gl_generator::Fallbacks::None,
             api: gl_generator::registry::Ns::Gles2.to_string(),
             extensions: vec![
+                "GL_APPLE_sync".to_string(),
                 "GL_ARM_rgba8".to_string(),
                 "GL_EXT_disjoint_timer_query".to_string(),
                 "GL_EXT_multi_draw_indirect".to_string(),
