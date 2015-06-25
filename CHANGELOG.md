@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.6.4
 
  - Fixed an OpenGL error if GL_ARB_robustness was present with OpenGL < 3.0.
  - Now using the `GL_APPLE_SYNC` extension if OpenGL ES 3.0 is not available.
