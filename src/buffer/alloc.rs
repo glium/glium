@@ -388,7 +388,7 @@ impl Buffer {
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.NamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
-                                           to_upload as gl::types::GLsizei,
+                                           to_upload as gl::types::GLsizeiptr,
                                            data.as_ptr() as *const libc::c_void)
 
             } else if ctxt.extensions.gl_ext_direct_state_access {
@@ -633,7 +633,7 @@ impl Buffer {
             if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.GetNamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
                                               (output.len() * mem::size_of::<D>())
-                                              as gl::types::GLsizei, output.as_mut_ptr()
+                                              as gl::types::GLsizeiptr, output.as_mut_ptr()
                                               as *mut libc::c_void);
 
             } else if ctxt.version >= &Version(Api::Gl, 1, 5) {
@@ -836,7 +836,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
     };
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-        ctxt.gl.NamedBufferStorage(id, size as gl::types::GLsizei,
+        ctxt.gl.NamedBufferStorage(id, size as gl::types::GLsizeiptr,
                                    data_ptr as *const libc::c_void,
                                    immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameteriv(id, gl::BUFFER_SIZE, &mut obtained_size);
@@ -858,6 +858,14 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
         ctxt.gl.BufferStorage(bind, size as gl::types::GLsizeiptr,
                               data_ptr as *const libc::c_void,
                               immutable_storage_flags);
+        ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
+        immutable = !avoid_persistent;
+
+    } else if ctxt.extensions.gl_ext_buffer_storage {
+        let bind = bind_buffer(&mut ctxt, id, ty);
+        ctxt.gl.BufferStorageEXT(bind, size as gl::types::GLsizeiptr,
+                                 data_ptr as *const libc::c_void,
+                                 immutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = !avoid_persistent;
 
@@ -897,7 +905,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
 
     let persistent_mapping = if immutable && dynamic && !avoid_persistent {
         let ptr = if ctxt.version >= &Version(Api::Gl, 4, 5) {
-            ctxt.gl.MapNamedBufferRange(id, 0, size as gl::types::GLsizei,
+            ctxt.gl.MapNamedBufferRange(id, 0, size as gl::types::GLsizeiptr,
                                         gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
                                         gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
 
@@ -1126,7 +1134,7 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         ctxt.gl.CopyNamedBufferSubData(source, dest, source_offset as gl::types::GLintptr,
                                        dest_offset as gl::types::GLintptr,
-                                       size as gl::types::GLsizei);
+                                       size as gl::types::GLsizeiptr);
 
     } else if ctxt.extensions.gl_ext_direct_state_access {
         ctxt.gl.NamedCopyBufferSubDataEXT(source, dest, source_offset as gl::types::GLintptr,
@@ -1291,7 +1299,7 @@ unsafe fn flush_range(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
 {
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         ctxt.gl.FlushMappedNamedBufferRange(id, range.start as gl::types::GLintptr,
-                                            (range.end - range.start) as gl::types::GLsizei);
+                                            (range.end - range.start) as gl::types::GLsizeiptr);
 
     } else if ctxt.extensions.gl_ext_direct_state_access {
         ctxt.gl.FlushMappedNamedBufferRangeEXT(id, range.start as gl::types::GLintptr,
@@ -1325,7 +1333,7 @@ unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: B
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) {
         Some(ctxt.gl.MapNamedBufferRange(id, range.start as gl::types::GLintptr,
-                                         (range.end - range.start) as gl::types::GLsizei,
+                                         (range.end - range.start) as gl::types::GLsizeiptr,
                                          flags))
 
     } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
