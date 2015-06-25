@@ -352,14 +352,14 @@ impl Buffer {
         let to_upload = mem::size_of::<D>() * data.len();
         assert!(offset_bytes + to_upload <= self.size);
 
-        let mut ctxt = self.context.make_current();
-        self.barrier_for_buffer_update(&mut ctxt);
-
         if self.persistent_mapping.is_some() {
             let mut mapping = self.map(offset_bytes, data.len());
             ptr::copy_nonoverlapping(data.as_ptr(), mapping.deref_mut().as_mut_ptr(), data.len());
 
         } else if self.immutable {
+            let mut ctxt = self.context.make_current();
+            self.barrier_for_buffer_update(&mut ctxt);
+
             self.assert_unmapped(&mut ctxt);
             self.assert_not_transform_feedback(&mut ctxt);
 
@@ -371,6 +371,9 @@ impl Buffer {
 
         } else {
             assert!(offset_bytes < self.size);
+            
+            let mut ctxt = self.context.make_current();
+            self.barrier_for_buffer_update(&mut ctxt);
 
             let invalidate_all = offset_bytes == 0 && to_upload == self.size;
 
