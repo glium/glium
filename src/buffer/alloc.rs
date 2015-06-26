@@ -786,7 +786,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
 
     if let Some(ref data) = data {
         assert!(data.len() * mem::size_of::<D>() >= size);
-        assert!(size % mem::size_of::<D>() == 0);
+        assert!(mem::size_of::<D>() == 0 || size % mem::size_of::<D>() == 0);
     }
 
     let mut id: gl::types::GLuint = mem::uninitialized();

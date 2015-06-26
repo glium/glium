@@ -202,6 +202,8 @@ fn block_wrong_type() {
             if name == &"MyBlock" => (),
         a => panic!("{:?}", a)
     }
+    
+    target.finish().unwrap();
 
     display.assert_no_error(None);
 }
