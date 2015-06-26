@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Renamed and changed `UniformBlockMember` to `BlockLayout`.
+
 ## Version 0.6.4
 
  - Fixed an OpenGL error if GL_ARB_robustness was present with OpenGL < 3.0.
