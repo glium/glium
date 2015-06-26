@@ -133,6 +133,80 @@ macro_rules! implement_vertex {
     );
 }
 
+/// Implements the `glium::uniforms::UniformBlock` trait for the given type.
+///
+/// The parameters must be the name of the struct and the names of its fields.
+///
+/// ## Example
+///
+/// ```
+/// # #[macro_use]
+/// # extern crate glium;
+/// # fn main() {
+/// #[derive(Copy, Clone)]
+/// struct Vertex {
+///     value1: [f32; 3],
+///     value2: [f32; 2],
+/// }
+///
+/// implement_uniform_block!(Vertex, value1, value2);
+/// # }
+/// ```
+///
+#[macro_export]
+macro_rules! implement_uniform_block {
+    ($struct_name:ident, $($field_name:ident),+) => (
+        impl $crate::uniforms::UniformBlock for $struct_name {
+            fn matches(layout: &$crate::program::UniformBlock) -> bool {
+                use std::mem;
+                use $crate::program::BlockLayout;
+
+                if mem::size_of::<Self>() != layout.size {
+                    return false;
+                }
+
+                if let BlockLayout::Struct { ref members } = layout.layout {
+                    // checking that each member exists in the input struct
+                    for &(ref name, _) in members {
+                        if $(name != stringify!($field_name) &&)+ true {
+                            return false;
+                        }
+                    }
+
+                    // checking that each field of the input struct is correct in the reflection
+                    $(
+                        let reflected_ty = members.iter().find(|&&(ref name, _)| {
+                                                                    name == stringify!($field_name)
+                                                               });
+                        let _reflected_ty = match reflected_ty {
+                            Some(t) => &t.1,
+                            None => return false
+                        };
+
+                        let _input_offset = {
+                            let dummy: &$struct_name = unsafe { mem::transmute(0usize) };
+                            let dummy_field = &dummy.$field_name;
+                            let dummy_field: usize = unsafe { mem::transmute(dummy_field) };
+                            dummy_field
+                        };
+
+                        // FIXME: lot of things missing here
+                    )+
+
+                    true
+
+                } else {
+                    false
+                }
+            }
+        }
+    );
+
+    ($struct_name:ident, $($field_name:ident),+,) => (
+        implement_uniform_block!($struct_name, $($field_name),+);
+    );
+}
+
 /// Builds a program depending on the GLSL version supported by the backend.
 ///
 /// This is implemented with successive calls to `is_glsl_version_supported()`.
