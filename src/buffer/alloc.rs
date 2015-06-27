@@ -50,35 +50,6 @@ pub struct Buffer {
     latest_shader_write: Cell<u64>,
 }
 
-/// A mapping of a buffer.
-pub struct Mapping<'b, D> {
-    mapping: MappingImpl<'b, D>,
-}
-
-/// A mapping of a buffer. Private object.
-enum MappingImpl<'b, D> {
-    PersistentMapping {
-        buffer: &'b Buffer,
-        offset_bytes: usize,
-        data: *mut D,
-        len: usize,
-    },
-
-    TemporaryBuffer {
-        original_buffer: &'b Buffer,
-        original_buffer_offset: usize,
-        temporary_buffer: gl::types::GLuint,
-        temporary_buffer_data: *mut D,
-        temporary_buffer_len: usize,
-    },
-
-    RegularMapping {
-        buffer: &'b mut Buffer,
-        data: *mut D,
-        len: usize,
-    },
-}
-
 impl Buffer {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the
     /// size of the data.
@@ -353,7 +324,7 @@ impl Buffer {
         assert!(offset_bytes + to_upload <= self.size);
 
         if self.persistent_mapping.is_some() {
-            let mut mapping = self.map(offset_bytes, data.len());
+            let mut mapping = Mapping { mapping: self.map_shared(offset_bytes, data.len(), false, true) };
             ptr::copy_nonoverlapping(data.as_ptr(), mapping.deref_mut().as_mut_ptr(), data.len());
 
         } else if self.immutable {
@@ -487,16 +458,18 @@ impl Buffer {
     /// `map` public functions should take a `&mut self` instead of a `&self` to prevent users
     /// from manipulating the buffer while it is "mapped".
     ///
-    /// Contrary to `map_mut`, this function only requires a `&self` and can thus be used even
-    /// with a `Rc<Buffer>` for example.
+    /// Contrary to `map_mut`, this function only requires a `&self`.
     ///
     /// # Unsafety
     ///
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
-    pub unsafe fn map<D>(&self, offset_bytes: usize, elements: usize)
-                         -> Mapping<D> where D: Copy + Send + 'static
+    /// If you pass `false` for `read`, you **must not** read the returned buffer. If you pass
+    /// `false` for `write`, you **must not** write the returned buffer.
+    ///
+    unsafe fn map_shared<D>(&self, offset_bytes: usize, elements: usize, read: bool, write: bool)
+                            -> MappingImpl<D> where D: Copy + Send + 'static
     {
         assert!(offset_bytes % mem::size_of::<D>() == 0);
         assert!(offset_bytes <= self.size);
@@ -507,13 +480,12 @@ impl Buffer {
             let mut ctxt = self.context.make_current();
             self.barrier_for_buffer_update(&mut ctxt);
 
-            Mapping {
-                mapping: MappingImpl::PersistentMapping {
-                    buffer: self,
-                    offset_bytes: offset_bytes,
-                    data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
-                    len: elements,
-                },
+            MappingImpl::PersistentMapping {
+                buffer: self,
+                offset_bytes: offset_bytes,
+                data: (existing_mapping as *mut u8).offset(offset_bytes as isize) as *mut D,
+                len: elements,
+                needs_flushing: write,
             }
 
         } else {
@@ -535,19 +507,22 @@ impl Buffer {
 
                 self.assert_unmapped(&mut ctxt);
                 self.assert_not_transform_feedback(&mut ctxt);
-                copy_buffer(&mut ctxt, self.id, offset_bytes, temporary_buffer, 0, size_bytes);
+
+                if read {
+                    copy_buffer(&mut ctxt, self.id, offset_bytes, temporary_buffer, 0, size_bytes);
+                }
+
                 map_buffer(&mut ctxt, temporary_buffer, self.ty, 0 .. size_bytes, true, true)
                                     .expect("Buffer mapping is not supported by the backend")
             };
-
-            Mapping {
-                mapping: MappingImpl::TemporaryBuffer {
-                    original_buffer: self,
-                    original_buffer_offset: offset_bytes,
-                    temporary_buffer: temporary_buffer,
-                    temporary_buffer_data: ptr as *mut D,
-                    temporary_buffer_len: elements,
-                }
+        
+            MappingImpl::TemporaryBuffer {
+                original_buffer: self,
+                original_buffer_offset: offset_bytes,
+                temporary_buffer: temporary_buffer,
+                temporary_buffer_data: ptr as *mut D,
+                temporary_buffer_len: elements,
+                needs_flushing: write,
             }
         }
     }
@@ -560,19 +535,22 @@ impl Buffer {
     ///    pointer to the existing mapping.
     ///  - If the buffer doesn't use persistent mapping, it will map the buffer.
     ///
-    /// Contrary to `map`, this function requires a `&mut self`. It can only be used if you
-    /// have exclusive access to the buffer.
+    /// Contrary to `map_shared`, this function requires a `&mut self`. It can only be used if
+    /// you have exclusive access to the buffer.
     ///
     /// # Unsafety
     ///
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
-    pub unsafe fn map_mut<D>(&mut self, offset_bytes: usize, elements: usize)
-                             -> Mapping<D> where D: Copy + Send + 'static
+    /// If you pass `false` for `read`, you **must not** read the returned buffer. If you pass
+    /// `false` for `write`, you **must not** write the returned buffer.
+    ///
+    unsafe fn map_impl<D>(&mut self, offset_bytes: usize, elements: usize, read: bool, write: bool)
+                          -> MappingImpl<D> where D: Copy + Send + 'static
     {
         if self.persistent_mapping.is_some() || self.immutable {
-            self.map(offset_bytes, elements)
+            self.map_shared(offset_bytes, elements, read, write)
 
         } else {
             assert!(offset_bytes % mem::size_of::<D>() == 0);
@@ -588,17 +566,61 @@ impl Buffer {
                 self.barrier_for_buffer_update(&mut ctxt);
                 self.mapped.set(true);
                 map_buffer(&mut ctxt, self.id, self.ty,
-                           offset_bytes .. offset_bytes + size_bytes, true, true)
+                           offset_bytes .. offset_bytes + size_bytes, read, write)
                              .expect("Buffer mapping is not supported by the backend")
             };
 
-            Mapping {
-                mapping: MappingImpl::RegularMapping {
-                    buffer: self,
-                    data: ptr as *mut D,
-                    len: elements,
-                }
+            MappingImpl::RegularMapping {
+                buffer: self,
+                data: ptr as *mut D,
+                len: elements,
+                needs_flushing: write,
             }
+        }
+    }
+
+    /// Returns a read and write mapping in memory of the content of the buffer.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn map<D>(&mut self, offset_bytes: usize, elements: usize)
+                         -> Mapping<D> where D: Copy + Send + 'static
+    {
+        Mapping {
+            mapping: self.map_impl(offset_bytes, elements, true, true)
+        }
+    }
+
+    /// Returns a read-only mapping in memory of the content of the buffer.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn map_read<D>(&mut self, offset_bytes: usize, elements: usize)
+                              -> ReadMapping<D> where D: Copy + Send + 'static
+    {
+        ReadMapping {
+            mapping: self.map_impl(offset_bytes, elements, true, false)
+        }
+    }
+
+    /// Returns a write-only mapping in memory of the content of the buffer.
+    ///
+    /// # Unsafety
+    ///
+    /// If the buffer uses persistent mapping, the caller of this function must handle
+    /// synchronization.
+    ///
+    pub unsafe fn map_write<D>(&mut self, offset_bytes: usize, elements: usize)
+                               -> WriteMapping<D> where D: Copy + Send + 'static
+    {
+        WriteMapping {
+            mapping: self.map_impl(offset_bytes, elements, false, true)
         }
     }
 
@@ -620,7 +642,8 @@ impl Buffer {
         assert!(offset_bytes + output.len() * mem::size_of::<D>() <= self.size);
 
         if self.persistent_mapping.is_some() {
-            let mapping = self.map(offset_bytes, output.len());
+            let mapping = ReadMapping { mapping: self.map_shared(offset_bytes, output.len(),
+                                                                 true, false) };
             ptr::copy_nonoverlapping(mapping.as_ptr(), output.as_mut_ptr(),
                                      output.len() * mem::size_of::<D>());
             Ok(())
@@ -687,42 +710,81 @@ impl GlObject for Buffer {
     }
 }
 
-unsafe impl<'a, D> Sync for Mapping<'a, D> where D: Sync {}
+/// A mapping of a buffer. Private object.
+enum MappingImpl<'b, D> {
+    PersistentMapping {
+        buffer: &'b Buffer,
+        offset_bytes: usize,
+        data: *mut D,
+        len: usize,
+        needs_flushing: bool,
+    },
 
-impl<'a, D> Drop for Mapping<'a, D> {
+    TemporaryBuffer {
+        original_buffer: &'b Buffer,
+        original_buffer_offset: usize,
+        temporary_buffer: gl::types::GLuint,
+        temporary_buffer_data: *mut D,
+        temporary_buffer_len: usize,
+        needs_flushing: bool,
+    },
+
+    RegularMapping {
+        buffer: &'b mut Buffer,
+        data: *mut D,
+        len: usize,
+        needs_flushing: bool,
+    },
+}
+
+unsafe impl<'a, D> Sync for MappingImpl<'a, D> where D: Sync {}
+
+impl<'a, D> Drop for MappingImpl<'a, D> {
     fn drop(&mut self) {
-        match self.mapping {
-            MappingImpl::PersistentMapping { buffer, offset_bytes, data, len } => {
+        match self {
+            &mut MappingImpl::PersistentMapping { buffer, offset_bytes, data, len,
+                                                  needs_flushing } =>
+            {
                 let mut ctxt = buffer.context.make_current();
                 unsafe {
-                    flush_range(&mut ctxt, buffer.id, buffer.ty,
-                                offset_bytes .. offset_bytes + len * mem::size_of::<D>());
+                    if needs_flushing {
+                        flush_range(&mut ctxt, buffer.id, buffer.ty,
+                                    offset_bytes .. offset_bytes + len * mem::size_of::<D>());
+                    }
                 }
             },
 
-            MappingImpl::TemporaryBuffer { original_buffer, original_buffer_offset,
+            &mut MappingImpl::TemporaryBuffer { original_buffer, original_buffer_offset,
                                            temporary_buffer, temporary_buffer_data,
-                                           temporary_buffer_len } =>
+                                           temporary_buffer_len, needs_flushing } =>
             {
                 let mut ctxt = original_buffer.context.make_current();
                 original_buffer.barrier_for_buffer_update(&mut ctxt);
 
                 unsafe {
-                    flush_range(&mut ctxt, temporary_buffer, original_buffer.ty,
-                                0 .. temporary_buffer_len * mem::size_of::<D>());
+                    if needs_flushing {
+                        flush_range(&mut ctxt, temporary_buffer, original_buffer.ty,
+                                    0 .. temporary_buffer_len * mem::size_of::<D>());
+                    }
                     unmap_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
-                    copy_buffer(&mut ctxt, temporary_buffer, 0, original_buffer.id,
-                                original_buffer_offset, temporary_buffer_len * mem::size_of::<D>());
+                    if needs_flushing {
+                        copy_buffer(&mut ctxt, temporary_buffer, 0, original_buffer.id,
+                                    original_buffer_offset, temporary_buffer_len *
+                                    mem::size_of::<D>());
+                    }
 
                     destroy_buffer(&mut ctxt, temporary_buffer);
                 }
             },
 
-            MappingImpl::RegularMapping { ref mut buffer, data, len } => {
+            &mut MappingImpl::RegularMapping { ref mut buffer, data, len, needs_flushing } => {
                 let mut ctxt = buffer.context.make_current();
 
                 unsafe {
-                    flush_range(&mut ctxt, buffer.id, buffer.ty, 0 .. len * mem::size_of::<D>());
+                    if needs_flushing {
+                        flush_range(&mut ctxt, buffer.id, buffer.ty,
+                                    0 .. len * mem::size_of::<D>());
+                    }
                     unmap_buffer(&mut ctxt, buffer.id, buffer.ty);
                 }
 
@@ -732,8 +794,14 @@ impl<'a, D> Drop for Mapping<'a, D> {
     }
 }
 
+/// A mapping of a buffer for reading and writing.
+pub struct Mapping<'b, D> {
+    mapping: MappingImpl<'b, D>,
+}
+
 impl<'a, D> Deref for Mapping<'a, D> {
     type Target = [D];
+
     fn deref(&self) -> &[D] {
         match self.mapping {
             MappingImpl::PersistentMapping { data, len, .. } => {
@@ -753,6 +821,74 @@ impl<'a, D> Deref for Mapping<'a, D> {
 
 impl<'a, D> DerefMut for Mapping<'a, D> {
     fn deref_mut(&mut self) -> &mut [D] {
+        match self.mapping {
+            MappingImpl::PersistentMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
+
+            MappingImpl::TemporaryBuffer { temporary_buffer_data, temporary_buffer_len, .. } => {
+                unsafe { slice::from_raw_parts_mut(temporary_buffer_data, temporary_buffer_len) }
+            },
+
+            MappingImpl::RegularMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
+        }
+    }
+}
+
+/// A mapping of a buffer for reading.
+pub struct ReadMapping<'b, D> {
+    mapping: MappingImpl<'b, D>,
+}
+
+impl<'a, D> Deref for ReadMapping<'a, D> {
+    type Target = [D];
+
+    fn deref(&self) -> &[D] {
+        match self.mapping {
+            MappingImpl::PersistentMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
+
+            MappingImpl::TemporaryBuffer { temporary_buffer_data, temporary_buffer_len, .. } => {
+                unsafe { slice::from_raw_parts_mut(temporary_buffer_data, temporary_buffer_len) }
+            },
+
+            MappingImpl::RegularMapping { data, len, .. } => {
+                unsafe { slice::from_raw_parts_mut(data, len) }
+            },
+        }
+    }
+}
+
+/// A mapping of a buffer for write only.
+pub struct WriteMapping<'b, D> {
+    mapping: MappingImpl<'b, D>,
+}
+
+impl<'b, D> WriteMapping<'b, D> {
+    /// Returns the length of the mapping.
+    pub fn len(&self) -> usize {
+        match self.mapping {
+            MappingImpl::PersistentMapping { len, .. } => len,
+            MappingImpl::TemporaryBuffer { temporary_buffer_len, .. } => temporary_buffer_len,
+            MappingImpl::RegularMapping { len, .. } => len,
+        }
+    }
+
+    /// Changes an element of the mapping.
+    ///
+    /// # Panic
+    ///
+    /// Panics if out of range.
+    ///
+    pub fn set(&mut self, index: usize, value: D) {
+        let slice = self.get_slice();
+        slice[index] = value;
+    }
+
+    fn get_slice(&mut self) -> &mut [D] {
         match self.mapping {
             MappingImpl::PersistentMapping { data, len, .. } => {
                 unsafe { slice::from_raw_parts_mut(data, len) }

@@ -3,7 +3,6 @@ use std::mem;
 use std::borrow::Cow;
 use std::ops::Range;
 use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
 use std::marker::PhantomData;
 
 use sync::{self, LinearSyncFence};
@@ -23,7 +22,9 @@ use ContextExt;
 use buffer::BufferType;
 use buffer::BufferCreationError;
 use buffer::alloc::Buffer;
-use buffer::alloc::Mapping as BufferMapping;
+use buffer::alloc::Mapping;
+use buffer::alloc::ReadMapping;
+use buffer::alloc::WriteMapping;
 
 /// Represents a view of a buffer.
 pub struct BufferView<T> where T: Copy + Send + 'static {
@@ -48,24 +49,6 @@ impl<T> Drop for BufferView<T> where T: Copy + Send + 'static {
             let mut ctxt = self.alloc.as_ref().unwrap().get_context().make_current();
             unsafe { sync::destroy_linear_sync_fence(&mut ctxt, fence) };
         }
-    }
-}
-
-/// Mapping of a buffer in memory.
-pub struct Mapping<'a, T> {
-    mapping: BufferMapping<'a, T>,
-}
-
-impl<'a, T> Deref for Mapping<'a, T> {
-    type Target = [T];
-    fn deref<'b>(&'b self) -> &'b [T] {
-        self.mapping.deref()
-    }
-}
-
-impl<'a, T> DerefMut for Mapping<'a, T> {
-    fn deref_mut<'b>(&'b mut self) -> &'b mut [T] {
-        self.mapping.deref_mut()
     }
 }
 
@@ -253,9 +236,19 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
         self.as_slice().read_if_supported()
     }
 
-    /// Maps the buffer in memory.
+    /// Maps the buffer in memory for both reading and writing.
     pub fn map(&mut self) -> Mapping<T> {
         self.as_mut_slice().map()
+    }
+
+    /// Maps the buffer in memory for reading.
+    pub fn map_read(&mut self) -> ReadMapping<T> {
+        self.as_mut_slice().map_read()
+    }
+
+    /// Maps the buffer in memory for writing only.
+    pub fn map_write(&mut self) -> WriteMapping<T> {
+        self.as_mut_slice().map_write()
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
@@ -422,15 +415,22 @@ impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
         self.num_elements
     }
 
-    /// Maps the buffer in memory.
+    /// Maps the buffer in memory for both reading and writing.
     pub fn map(self) -> Mapping<'a, T> {
         consume_fence(self.alloc.get_context(), self.fence);
+        unsafe { self.alloc.map(self.offset_bytes, self.num_elements) }
+    }
 
-        unsafe {
-            Mapping {
-                mapping: self.alloc.map_mut(self.offset_bytes, self.num_elements),
-            }
-        }
+    /// Maps the buffer in memory for reading.
+    pub fn map_read(self) -> ReadMapping<'a, T> {
+        consume_fence(self.alloc.get_context(), self.fence);
+        unsafe { self.alloc.map_read(self.offset_bytes, self.num_elements) }
+    }
+
+    /// Maps the buffer in memory for writing only.
+    pub fn map_write(self) -> WriteMapping<'a, T> {
+        consume_fence(self.alloc.get_context(), self.fence);
+        unsafe { self.alloc.map_write(self.offset_bytes, self.num_elements) }
     }
 
     /// Uploads some data in this buffer.

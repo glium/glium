@@ -15,7 +15,8 @@
 //!    for the subbuffer. These types are in the `vertex`, `index`, ... modules.
 //!
 pub use self::view::{BufferView, BufferViewAny, BufferViewMutSlice};
-pub use self::view::{BufferViewSlice, BufferViewAnySlice, Mapping};
+pub use self::view::{BufferViewSlice, BufferViewAnySlice};
+pub use self::alloc::{Mapping, WriteMapping, ReadMapping};
 
 use gl;
 
