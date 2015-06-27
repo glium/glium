@@ -4,6 +4,8 @@
 
  - Renamed and changed `UniformBlockMember` to `BlockLayout`.
  - Various bugfixes related to queries.
+ - Added a `implement_uniform_block!` macro for uniform buffers and SSBOs similar to `implement_vertex!`.
+ - Added `UniformBuffer::empty` and `UniformBuffer::empty_if_supported`.
 
 ## Version 0.6.4
 

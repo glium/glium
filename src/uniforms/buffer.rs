@@ -47,6 +47,29 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
         })
     }
 
+    /// Creates an empty buffer.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_uniform_blocks` feature is enabled.
+    #[cfg(feature = "gl_uniform_blocks")]
+    pub fn empty<F>(facade: &F) -> UniformBuffer<T> where F: Facade {
+        UniformBuffer::empty_if_supported(facade).unwrap()
+    }
+
+    /// Creates an empty buffer.
+    pub fn empty_if_supported<F>(facade: &F) -> Option<UniformBuffer<T>> where F: Facade {
+        let buffer = match BufferView::empty(facade, BufferType::UniformBuffer, 1, true) {
+            Ok(b) => b,
+            Err(BufferCreationError::BufferTypeNotSupported) => return None,
+            e @ Err(_) => e.unwrap(),
+        };
+
+        Some(UniformBuffer {
+            buffer: buffer,
+        })
+    }
+
     /// Modifies the content of the buffer.
     pub fn upload(&mut self, data: T) {
         self.write(&[data]);
