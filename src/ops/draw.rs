@@ -16,7 +16,7 @@ use fbo::{self, ValidatedAttachments};
 
 use sync;
 use uniforms::Uniforms;
-use {Program, GlObject, ToGlEnum};
+use {Program, ToGlEnum};
 use index::{self, IndicesSource, PrimitiveType};
 use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
@@ -700,139 +700,31 @@ fn sync_queries(ctxt: &mut context::CommandContext,
                                             Option<&TransformFeedbackPrimitivesWrittenQuery>)
                 -> Result<(), DrawError>
 {
-    // FIXME: doesn't use ARB/EXT variants
-
-    if let Some(spq) = samples_passed_query {
-        let (ty, id, unused) = match spq {
-            SamplesQueryParam::SamplesPassedQuery(q) => (q.get_type(), q.get_id(), q.is_unused()),
-            SamplesQueryParam::AnySamplesPassedQuery(q) => (q.get_type(), q.get_id(), q.is_unused()),
-        };
-
-        if ty == gl::SAMPLES_PASSED {
-            if ctxt.state.any_samples_passed_query != 0 {
-                ctxt.state.any_samples_passed_query = 0;
-                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
-            }
-
-            if ctxt.state.any_samples_passed_conservative_query != 0 {
-                ctxt.state.any_samples_passed_conservative_query = 0;
-                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
-            }
-
-            if ctxt.state.samples_passed_query != id {
-                if !unused {
-                    return Err(DrawError::WrongQueryOperation);
-                }
-                if ctxt.state.samples_passed_query != 0 {
-                    unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
-                }
-                unsafe { ctxt.gl.BeginQuery(gl::SAMPLES_PASSED, id); }
-                ctxt.state.samples_passed_query = id;
-                match spq {
-                    SamplesQueryParam::SamplesPassedQuery(q) => q.set_used(),
-                    SamplesQueryParam::AnySamplesPassedQuery(q) => q.set_used(),
-                };
-            }
-
-        } else if ty == gl::ANY_SAMPLES_PASSED {
-            if ctxt.state.samples_passed_query != 0 {
-                ctxt.state.samples_passed_query = 0;
-                unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
-            }
-
-            if ctxt.state.any_samples_passed_conservative_query != 0 {
-                ctxt.state.any_samples_passed_conservative_query = 0;
-                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
-            }
-
-            if ctxt.state.any_samples_passed_query != id {
-                if !unused {
-                    return Err(DrawError::WrongQueryOperation);
-                }
-                if ctxt.state.any_samples_passed_query != 0 {
-                    unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
-                }
-                unsafe { ctxt.gl.BeginQuery(gl::ANY_SAMPLES_PASSED, id); }
-                ctxt.state.any_samples_passed_query = id;
-                match spq {
-                    SamplesQueryParam::SamplesPassedQuery(q) => q.set_used(),
-                    SamplesQueryParam::AnySamplesPassedQuery(q) => q.set_used(),
-                };
-            }
-
-        } else if ty == gl::ANY_SAMPLES_PASSED_CONSERVATIVE {
-            if ctxt.state.samples_passed_query != 0 {
-                ctxt.state.samples_passed_query = 0;
-                unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
-            }
-
-            if ctxt.state.any_samples_passed_query != 0 {
-                ctxt.state.any_samples_passed_query = 0;
-                unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
-            }
-
-            if ctxt.state.any_samples_passed_conservative_query != id {
-                if !unused {
-                    return Err(DrawError::WrongQueryOperation);
-                }
-                if ctxt.state.any_samples_passed_conservative_query != 0 {
-                    unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
-                }
-                unsafe { ctxt.gl.BeginQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE, id); }
-                ctxt.state.any_samples_passed_conservative_query = id;
-                match spq {
-                    SamplesQueryParam::SamplesPassedQuery(q) => q.set_used(),
-                    SamplesQueryParam::AnySamplesPassedQuery(q) => q.set_used(),
-                };
-            }
-
-        } else {
-            unreachable!();
-        }
-
+    if let Some(SamplesQueryParam::SamplesPassedQuery(q)) = samples_passed_query {
+        try!(q.begin_query(ctxt));
+    } else if let Some(SamplesQueryParam::AnySamplesPassedQuery(q)) = samples_passed_query {
+        try!(q.begin_query(ctxt));
     } else {
-        if ctxt.state.samples_passed_query != 0 {
-            ctxt.state.samples_passed_query = 0;
-            unsafe { ctxt.gl.EndQuery(gl::SAMPLES_PASSED); }
-        }
-
-        if ctxt.state.any_samples_passed_query != 0 {
-            ctxt.state.any_samples_passed_query = 0;
-            unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED); }
-        }
-
-        if ctxt.state.any_samples_passed_conservative_query != 0 {
-            ctxt.state.any_samples_passed_conservative_query = 0;
-            unsafe { ctxt.gl.EndQuery(gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
-        }
+        TimeElapsedQuery::end_samples_passed_query(ctxt);
     }
 
-    macro_rules! test {
-        ($state:ident, $new:expr, $glenum:expr) => {
-            match (&mut ctxt.state.$state, $state) {
-                (&mut 0, None) => (),
-                (&mut existing, Some(new)) if existing == new.get_id() => (),
-                (existing, Some(new)) => {
-                    if !new.is_unused() {
-                        return Err(DrawError::WrongQueryOperation);
-                    }
-
-                    new.set_used();
-                    *existing = new.get_id();
-                    unsafe { ctxt.gl.BeginQuery($glenum, *existing); }
-                },
-                (existing, None) => {
-                    *existing = 0;
-                    unsafe { ctxt.gl.EndQuery($glenum); }
-                }
-            }
-        }
+    if let Some(time_elapsed_query) = time_elapsed_query {
+        try!(time_elapsed_query.begin_query(ctxt));
+    } else {
+        TimeElapsedQuery::end_time_elapsed_query(ctxt);
     }
 
-    test!(time_elapsed_query, time_elapsed_query, gl::TIME_ELAPSED);
-    test!(primitives_generated_query, primitives_generated_query, gl::PRIMITIVES_GENERATED);
-    test!(transform_feedback_primitives_written_query, transform_feedback_primitives_written_query,
-          gl::TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+    if let Some(primitives_generated_query) = primitives_generated_query {
+        try!(primitives_generated_query.begin_query(ctxt));
+    } else {
+        TimeElapsedQuery::end_primitives_generated_query(ctxt);
+    }
+
+    if let Some(tfq) = transform_feedback_primitives_written_query {
+        try!(tfq.begin_query(ctxt));
+    } else {
+        TimeElapsedQuery::end_transform_feedback_primitives_written_query(ctxt);
+    }
 
     Ok(())
 }
@@ -840,86 +732,18 @@ fn sync_queries(ctxt: &mut context::CommandContext,
 fn sync_conditional_render(ctxt: &mut context::CommandContext,
                            condition: Option<ConditionalRendering>)
 {
-    fn get_mode(wait: bool, per_region: bool) -> gl::types::GLenum {
-        match (wait, per_region) {
-            (true, true) => gl::QUERY_BY_REGION_WAIT,
-            (true, false) => gl::QUERY_WAIT,
-            (false, true) => gl::QUERY_BY_REGION_NO_WAIT,
-            (false, false) => gl::QUERY_NO_WAIT,
+    if let Some(ConditionalRendering { query, wait, per_region }) = condition {
+        match query {
+            SamplesQueryParam::SamplesPassedQuery(ref q) => {
+                q.begin_conditional_render(ctxt, wait, per_region);
+            },
+            SamplesQueryParam::AnySamplesPassedQuery(ref q) => {
+                q.begin_conditional_render(ctxt, wait, per_region);
+            },
         }
-    }
 
-    fn get_id(q: &SamplesQueryParam) -> gl::types::GLuint {
-        match q {
-            &SamplesQueryParam::SamplesPassedQuery(ref q) => q.get_id(),
-            &SamplesQueryParam::AnySamplesPassedQuery(ref q) => q.get_id(),
-        }
-    }
-
-    // FIXME: check whether the query is binded to a query slot
-
-    match (&mut ctxt.state.conditional_render, condition) {
-        (&mut None, None) => (),
-
-        (cur @ &mut Some(_), None) => {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                unsafe { ctxt.gl.EndConditionalRender() };
-            } else if ctxt.extensions.gl_nv_conditional_render {
-                unsafe { ctxt.gl.EndConditionalRenderNV() };
-            } else {
-                unreachable!();
-            }
-
-            *cur = None;
-        },
-
-        (cur @ &mut None, Some(ConditionalRendering { query, wait, per_region })) => {
-            let mode = get_mode(wait, per_region);
-            let id = get_id(&query);
-
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                unsafe { ctxt.gl.BeginConditionalRender(id, mode) };
-            } else if ctxt.extensions.gl_nv_conditional_render {
-                unsafe { ctxt.gl.BeginConditionalRenderNV(id, mode) };
-            } else {
-                unreachable!();
-            }
-
-            *cur = Some((id, mode));
-        },
-
-        (&mut Some((ref mut id, ref mut mode)), Some(ConditionalRendering { query, wait, per_region })) => {
-            let new_mode = get_mode(wait, per_region);
-            let new_id = get_id(&query);
-
-            // determining whether we have to change the mode
-            // if the new mode is "no_wait" but he old mode is "wait", we don't need to change it
-            let no_mode_change = match (new_mode, *mode) {
-                (a, b) if a == b => true,
-                (gl::QUERY_NO_WAIT, gl::QUERY_WAIT) => true,
-                (gl::QUERY_BY_REGION_NO_WAIT, gl::QUERY_BY_REGION_WAIT) => true,
-                _ => false,
-            };
-
-            if !no_mode_change || new_id != *id {
-                if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                    unsafe {
-                        ctxt.gl.EndConditionalRender();
-                        ctxt.gl.BeginConditionalRender(new_id, new_mode);
-                    }
-                } else if ctxt.extensions.gl_nv_conditional_render {
-                    unsafe {
-                        ctxt.gl.EndConditionalRenderNV();
-                        ctxt.gl.BeginConditionalRenderNV(new_id, new_mode);
-                    }
-                } else {
-                    unreachable!();
-                }
-            }
-
-            *id = new_id;
-            *mode = new_mode;
-        },
+    } else {
+        TimeElapsedQuery::end_conditional_render(ctxt);
     }
 }
 

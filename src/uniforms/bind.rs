@@ -24,7 +24,6 @@ use texture::TextureAny;
 
 use context::CommandContext;
 use ContextExt;
-use QueryExt;
 
 use utils::bitsfield::Bitsfield;
 
