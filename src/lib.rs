@@ -283,14 +283,22 @@ trait ProgramExt {
 
 /// Internal trait for queries.
 trait QueryExt {
+    fn begin_query(&self, ctxt: &mut CommandContext) -> Result<(), DrawError>;
+
+    fn end_samples_passed_query(ctxt: &mut CommandContext);
+
+    fn end_time_elapsed_query(ctxt: &mut CommandContext);
+
+    fn end_primitives_generated_query(ctxt: &mut CommandContext);
+
+    fn end_transform_feedback_primitives_written_query(ctxt: &mut CommandContext);
+
+    fn begin_conditional_render(&self, ctxt: &mut CommandContext, wait: bool, per_region: bool);
+
+    fn end_conditional_render(ctxt: &mut CommandContext);
+
     /// Returns true if the query has never been used.
     fn is_unused(&self) -> bool;
-
-    /// Sets the query as having been used.
-    fn set_used(&self);
-
-    /// Returns the type of this query object.
-    fn get_type(&self) -> gl::types::GLenum;
 }
 
 /// Internal trait for textures.

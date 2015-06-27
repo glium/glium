@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Renamed and changed `UniformBlockMember` to `BlockLayout`.
+ - Various bugfixes related to queries.
 
 ## Version 0.6.4
 
