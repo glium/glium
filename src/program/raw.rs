@@ -24,6 +24,9 @@ use RawUniformValue;
 
 use sync;
 
+use QueryExt;
+use draw_parameters::TimeElapsedQuery;
+
 use program::{ProgramCreationError, Binary};
 use program::uniforms_storage::UniformsStorage;
 
@@ -460,14 +463,7 @@ impl RawProgram {
                 ctxt.version >= &Version(Api::GlEs, 3, 1) ||
                 ctxt.extensions.gl_arb_compute_shader);
 
-        // TODO: move this somewhere else
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {
-            ctxt.gl.EndConditionalRender();
-        } else if ctxt.extensions.gl_nv_conditional_render {
-            ctxt.gl.EndConditionalRenderNV();
-        } else {
-            unreachable!();
-        }
+        TimeElapsedQuery::end_conditional_render(&mut ctxt);
 
         let mut fences = Vec::with_capacity(0);
 

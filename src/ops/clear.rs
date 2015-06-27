@@ -6,6 +6,9 @@ use Rect;
 
 use Surface;
 
+use QueryExt;
+use draw_parameters::TimeElapsedQuery;
+
 use Api;
 use version::Version;
 use gl;
@@ -31,17 +34,7 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
             ctxt.gl.ColorMask(1, 1, 1, 1);
         }
 
-        if let Some(_) = ctxt.state.conditional_render {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                ctxt.gl.EndConditionalRender();
-            } else if ctxt.extensions.gl_nv_conditional_render {
-                ctxt.gl.EndConditionalRenderNV();
-            } else {
-                unreachable!();
-            }
-
-            ctxt.state.conditional_render = None;
-        }
+        TimeElapsedQuery::end_conditional_render(&mut ctxt);
 
         if let Some(rect) = rect {
             let rect = (rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
