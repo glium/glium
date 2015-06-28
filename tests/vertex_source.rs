@@ -646,12 +646,14 @@ fn per_instance_length_mismatch() {
             ",
         }).unwrap();
 
-    match display.draw().draw((&buffer1, buffer2, buffer3), &index_buffer, &program, &uniform!{},
-                              &Default::default())
+    let mut frame = display.draw();
+    match frame.draw((&buffer1, buffer2, buffer3), &index_buffer, &program, &uniform!{},
+                     &Default::default())
     {
         Err(glium::DrawError::InstancesCountMismatch) => (),
         a => panic!("{:?}", a)
     }
 
+    frame.finish().unwrap();
     display.assert_no_error(None);
 }
