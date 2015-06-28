@@ -1023,7 +1023,8 @@ impl FboAttachments for Frame {
 impl Drop for Frame {
     fn drop(&mut self) {
         if !thread::panicking() {
-            assert!(self.destroyed);
+            assert!(self.destroyed, "The `Frame` object must be explicitly destroyed \
+                                     by calling `.finish()`");
         }
     }
 }
