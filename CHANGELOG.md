@@ -7,6 +7,7 @@
  - Various bugfixes related to queries.
  - Added a `implement_uniform_block!` macro for uniform buffers and SSBOs similar to `implement_vertex!`.
  - Added `UniformBuffer::empty` and `UniformBuffer::empty_if_supported`.
+ - Fixed sRGB being disabled when clearing before drawing for the first time.
 
 ## Version 0.6.4
 
