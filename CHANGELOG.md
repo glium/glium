@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.6.5 (2015-06-29)
 
  - Renamed and changed `UniformBlockMember` to `BlockLayout`.
  - Added `map_read()` and `map_write()` to buffers.
