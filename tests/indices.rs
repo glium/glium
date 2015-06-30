@@ -333,7 +333,7 @@ fn multidraw_array() {
     ]);
 
     let multidraw = glium::index::DrawCommandsNoIndicesBuffer::empty_if_supported(&display, 1);
-    let mut multidraw = match multidraw {
+    let multidraw = match multidraw {
         Some(buf) => buf,
         None => return
     };
@@ -350,6 +350,50 @@ fn multidraw_array() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vb, multidraw.with_primitive_type(PrimitiveType::TriangleStrip),
+                              &program, &uniform!{}, &Default::default()).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(255, 0, 0, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn multidraw_elements() {
+    let display = support::build_display();
+    let program = build_program(&display);
+
+    let vb = glium::VertexBuffer::new(&display, vec![
+        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
+        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
+    ]);
+
+    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
+                                          vec![0u16, 1, 2, 1, 3, 2]);
+
+    let multidraw = glium::index::DrawCommandsIndicesBuffer::empty_if_supported(&display, 1);
+    let multidraw = match multidraw {
+        Some(buf) => buf,
+        None => return
+    };
+
+    multidraw.write(&[
+        glium::index::DrawCommandIndices {
+            count: 6,
+            instance_count: 1,
+            first_index: 0,
+            base_vertex: 0,
+            base_instance: 0,
+        }
+    ]);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, multidraw.with_index_buffer(&indices),
                               &program, &uniform!{}, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
