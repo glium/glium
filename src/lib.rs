@@ -686,17 +686,10 @@ pub trait Surface: Sized {
 
     /// Draws.
     ///
-    /// See above for what happens exactly when you draw.
+    /// This is probably the most complex function of glium. Check out the rest of the
+    /// documentation for example how to use it.
     ///
-    /// # Panic
-    ///
-    /// - Panics if the requested depth function requires a depth buffer and none is attached.
-    /// - Panics if the type of some of the vertex source's attributes do not match the program's.
-    /// - Panics if a program's attribute is not in the vertex source (does *not* panic if a
-    ///   vertex's attribute is not used by the program).
-    /// - Panics if the viewport is larger than the dimensions supported by the hardware.
-    /// - Panics if the depth range is outside of `(0, 1)`.
-    /// - Panics if a value in the uniforms doesn't match the type requested by the program.
+    /// See above for what happens exactly on the GPU when you draw.
     ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
