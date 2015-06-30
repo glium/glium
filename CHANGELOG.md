@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Buffers with persistent mapping now synchronize individual segments of the buffer instead of the buffer as a whole.
+
 ## Version 0.6.5 (2015-06-29)
 
  - Renamed and changed `UniformBlockMember` to `BlockLayout`.

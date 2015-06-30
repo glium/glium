@@ -22,8 +22,6 @@ use ProgramExt;
 use Handle;
 use RawUniformValue;
 
-use sync;
-
 use QueryExt;
 use draw_parameters::TimeElapsedQuery;
 
@@ -472,13 +470,7 @@ impl RawProgram {
         ctxt.gl.DispatchCompute(x, y, z);
 
         for fence in fences {
-            let mut new_fence = Some(sync::new_linear_sync_fence_if_supported(&mut ctxt).unwrap());
-
-            mem::swap(&mut new_fence, &mut *fence.borrow_mut());
-
-            if let Some(new_fence) = new_fence {
-                sync::destroy_linear_sync_fence(&mut ctxt, new_fence);
-            }
+            fence.insert(&mut ctxt);
         }
 
         Ok(())

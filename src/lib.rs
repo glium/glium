@@ -115,7 +115,6 @@ pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::{Texture, Texture2d};
 pub use version::{Api, Version, get_supported_glsl_version};
 
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::thread;
@@ -235,10 +234,10 @@ trait BufferViewExt {
 
 /// Internal trait for subbuffer slices.
 trait BufferViewSliceExt<'a> {
-    /// Tries to get a reference to a `RefCell` where to write a fence.
+    /// Tries to get an object where to write a fence.
     ///
     /// If this function returns `None`, no fence will be created nor written.
-    fn add_fence(&self) -> Option<&'a RefCell<Option<sync::LinearSyncFence>>>;
+    fn add_fence(&self) -> Option<buffer::Inserter<'a>>;
 }
 
 /// Internal trait for contexts.
@@ -354,8 +353,7 @@ trait UniformsExt {
     /// Binds the uniforms to a given program.
     ///
     /// Will replace texture and buffer bind points.
-    fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P,
-                            &mut Vec<&'a RefCell<Option<sync::LinearSyncFence>>>)
+    fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P, &mut Vec<buffer::Inserter<'a>>)
                             -> Result<(), DrawError> where P: ProgramExt;
 }
 
