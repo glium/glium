@@ -2,10 +2,8 @@ use std::fmt;
 use std::mem;
 use std::borrow::Cow;
 use std::ops::Range;
-use std::cell::RefCell;
 use std::marker::PhantomData;
 
-use sync::{self, LinearSyncFence};
 use texture::{PixelValue, Texture1dDataSink};
 use gl;
 
@@ -21,6 +19,8 @@ use ContextExt;
 
 use buffer::BufferType;
 use buffer::BufferCreationError;
+use buffer::fences::Fences;
+use buffer::fences::Inserter;
 use buffer::alloc::Buffer;
 use buffer::alloc::Mapping;
 use buffer::alloc::ReadMapping;
@@ -31,7 +31,8 @@ pub struct BufferView<T> where T: Copy + Send + 'static {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     alloc: Option<Buffer>,
     num_elements: usize,
-    fence: RefCell<Option<LinearSyncFence>>,
+    // TODO: this `Option` is here because we have a destructor and need to be able to move out
+    fence: Option<Fences>,
     marker: PhantomData<T>,
 }
 
@@ -43,11 +44,8 @@ impl<T> fmt::Debug for BufferView<T> where T: Copy + Send + 'static {
 
 impl<T> Drop for BufferView<T> where T: Copy + Send + 'static {
     fn drop(&mut self) {
-        let fence = self.fence.borrow_mut().take();
-
-        if let Some(fence) = fence {
-            let mut ctxt = self.alloc.as_ref().unwrap().get_context().make_current();
-            unsafe { sync::destroy_linear_sync_fence(&mut ctxt, fence) };
+        if let (Some(alloc), Some(mut fence)) = (self.alloc.take(), self.fence.take()) {
+            fence.clean(&mut alloc.get_context().make_current());
         }
     }
 }
@@ -58,7 +56,7 @@ pub struct BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     alloc: &'a Buffer,
     offset_bytes: usize,
     num_elements: usize,
-    fence: &'a RefCell<Option<LinearSyncFence>>,
+    fence: &'a Fences,
     marker: PhantomData<T>,
 }
 
@@ -73,7 +71,7 @@ pub struct BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
     alloc: &'a mut Buffer,
     offset_bytes: usize,
     num_elements: usize,
-    fence: &'a RefCell<Option<LinearSyncFence>>,
+    fence: &'a Fences,
     marker: PhantomData<T>,
 }
 
@@ -90,17 +88,12 @@ pub struct BufferViewAny {
     alloc: Buffer,
     elements_size: usize,
     elements_count: usize,
-    fence: RefCell<Option<LinearSyncFence>>,
+    fence: Fences,
 }
 
 impl Drop for BufferViewAny {
     fn drop(&mut self) {
-        let fence = self.fence.borrow_mut().take();
-
-        if let Some(fence) = fence {
-            let mut ctxt = self.alloc.get_context().make_current();
-            unsafe { sync::destroy_linear_sync_fence(&mut ctxt, fence) };
-        }
+        self.fence.clean(&mut self.alloc.get_context().make_current());
     }
 }
 
@@ -117,7 +110,7 @@ pub struct BufferViewAnySlice<'a> {
     offset_bytes: usize,
     elements_size: usize,
     elements_count: usize,
-    fence: &'a RefCell<Option<LinearSyncFence>>,
+    fence: &'a Fences,
 }
 
 impl<'a> fmt::Debug for BufferViewAnySlice<'a> {
@@ -132,7 +125,7 @@ impl<T> From<BufferView<T>> for BufferViewAny where T: Copy + Send + 'static {
             alloc: buffer.alloc.take().unwrap(),
             elements_size: mem::size_of::<T>(),
             elements_count: buffer.num_elements,
-            fence: RefCell::new(buffer.fence.borrow_mut().take()),
+            fence: buffer.fence.take().unwrap(),
         }
     }
 }
@@ -157,7 +150,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
                 BufferView {
                     alloc: Some(buffer),
                     num_elements: len,
-                    fence: RefCell::new(None),
+                    fence: Some(Fences::new()),
                     marker: PhantomData,
                 }
             })
@@ -178,7 +171,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
                 BufferView {
                     alloc: Some(buffer),
                     num_elements: len,
-                    fence: RefCell::new(None),
+                    fence: Some(Fences::new()),
                     marker: PhantomData,
                 }
             })
@@ -267,7 +260,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
             alloc: self.alloc.as_ref().unwrap(),
             offset_bytes: 0,
             num_elements: self.num_elements,
-            fence: &self.fence,
+            fence: self.fence.as_ref().unwrap(),
             marker: PhantomData,
         }
     }
@@ -278,7 +271,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
             alloc: self.alloc.as_mut().unwrap(),
             offset_bytes: 0,
             num_elements: self.num_elements,
-            fence: &self.fence,
+            fence: self.fence.as_ref().unwrap(),
             marker: PhantomData,
         }
     }
@@ -290,7 +283,7 @@ impl<T> BufferView<T> where T: Copy + Send + 'static {
             offset_bytes: 0,
             elements_size: mem::size_of::<T>(),
             elements_count: self.num_elements,
-            fence: &self.fence,
+            fence: self.fence.as_ref().unwrap(),
         }
     }
 }
@@ -329,7 +322,8 @@ impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
         let data = data.as_ref();
         assert!(data.len() == self.num_elements);
 
-        consume_fence(self.alloc.get_context(), self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.offset_bytes .. self.offset_bytes + self.len() * mem::size_of::<T>());
         unsafe { self.alloc.upload(self.offset_bytes, data); }
     }
 
@@ -348,7 +342,8 @@ impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
 
     /// Reads the content of the slice. Returns `None` if this operation is not supported.
     pub fn read_if_supported(&self) -> Option<Vec<T>> {
-        consume_fence(self.alloc.get_context(), self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.offset_bytes .. self.offset_bytes + self.len() * mem::size_of::<T>());
 
         unsafe {
             let mut data = Vec::with_capacity(self.num_elements);
@@ -417,19 +412,22 @@ impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
 
     /// Maps the buffer in memory for both reading and writing.
     pub fn map(self) -> Mapping<'a, T> {
-        consume_fence(self.alloc.get_context(), self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.offset_bytes .. self.offset_bytes + self.len() * mem::size_of::<T>());
         unsafe { self.alloc.map(self.offset_bytes, self.num_elements) }
     }
 
     /// Maps the buffer in memory for reading.
     pub fn map_read(self) -> ReadMapping<'a, T> {
-        consume_fence(self.alloc.get_context(), self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.offset_bytes .. self.offset_bytes + self.len() * mem::size_of::<T>());
         unsafe { self.alloc.map_read(self.offset_bytes, self.num_elements) }
     }
 
     /// Maps the buffer in memory for writing only.
     pub fn map_write(self) -> WriteMapping<'a, T> {
-        consume_fence(self.alloc.get_context(), self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.offset_bytes .. self.offset_bytes + self.len() * mem::size_of::<T>());
         unsafe { self.alloc.map_write(self.offset_bytes, self.num_elements) }
     }
 
@@ -442,7 +440,8 @@ impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
         let data = data.as_ref();
         assert!(data.len() == self.num_elements);
 
-        consume_fence(self.alloc.get_context(), self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.offset_bytes .. self.offset_bytes + self.len() * mem::size_of::<T>());
         unsafe { self.alloc.upload(self.offset_bytes, data); }
     }
 
@@ -577,7 +576,7 @@ impl BufferViewAny {
     pub unsafe fn read_if_supported<T>(&self) -> Option<Vec<T>> where T: Copy + Send + 'static {
         assert!(self.get_size() % mem::size_of::<T>() == 0);
 
-        consume_fence(self.alloc.get_context(), &self.fence);
+        self.fence.wait(&mut self.alloc.get_context().make_current(), 0 .. self.get_size());
 
         let len = self.get_size() / mem::size_of::<T>();
         let mut data = Vec::with_capacity(len);
@@ -687,12 +686,13 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
 }
 
 impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
-    fn add_fence(&self) -> Option<&'a RefCell<Option<LinearSyncFence>>> {
+    fn add_fence(&self) -> Option<Inserter<'a>> {
         if !self.alloc.uses_persistent_mapping() {
             return None;
         }
 
-        Some(self.fence)
+        Some(self.fence.inserter(self.offset_bytes .. self.offset_bytes +
+                                                                  self.len() * mem::size_of::<T>()))
     }
 }
 
@@ -805,12 +805,12 @@ impl BufferViewExt for BufferViewAny {
 }
 
 impl<'a> BufferViewSliceExt<'a> for BufferViewAnySlice<'a> {
-    fn add_fence(&self) -> Option<&'a RefCell<Option<LinearSyncFence>>> {
+    fn add_fence(&self) -> Option<Inserter<'a>> {
         if !self.alloc.uses_persistent_mapping() {
             return None;
         }
 
-        Some(self.fence)
+        Some(self.fence.inserter(self.offset_bytes .. self.offset_bytes + self.get_size()))
     }
 }
 
@@ -865,13 +865,5 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
 
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
-    }
-}
-
-/// Waits for the fence to be sync'ed.
-fn consume_fence(context: &Rc<Context>, fence: &RefCell<Option<LinearSyncFence>>) {
-    let fence = fence.borrow_mut().take();
-    if let Some(fence) = fence {
-        fence.into_sync_fence(context).wait();
     }
 }

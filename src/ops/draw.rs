@@ -1,5 +1,4 @@
 use std::ptr;
-use std::mem;
 
 use BufferViewExt;
 use BufferViewSliceExt;
@@ -14,7 +13,6 @@ use TransformFeedbackSessionExt;
 
 use fbo::{self, ValidatedAttachments};
 
-use sync;
 use uniforms::Uniforms;
 use {Program, ToGlEnum};
 use index::{self, IndicesSource, PrimitiveType};
@@ -277,15 +275,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // fulfilling the fences
     for fence in fences.into_iter() {
-        let mut new_fence = Some(unsafe {
-            sync::new_linear_sync_fence_if_supported(&mut ctxt)
-        }.unwrap());
-
-        mem::swap(&mut new_fence, &mut *fence.borrow_mut());
-
-        if let Some(new_fence) = new_fence {
-            unsafe { sync::destroy_linear_sync_fence(&mut ctxt, new_fence) };
-        }
+        fence.insert(&mut ctxt);
     }
 
     Ok(())

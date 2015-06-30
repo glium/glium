@@ -4,9 +4,6 @@ Handles binding uniforms to the OpenGL state machine.
 
 */
 use gl;
-use sync;
-
-use std::cell::RefCell;
 
 use BufferViewExt;
 use BufferViewSliceExt;
@@ -23,6 +20,7 @@ use uniforms::SamplerBehavior;
 use texture::TextureAny;
 
 use context::CommandContext;
+use buffer::Inserter;
 use ContextExt;
 
 use utils::bitsfield::Bitsfield;
@@ -37,7 +35,7 @@ use version::Api;
 
 impl<U> UniformsExt for U where U: Uniforms {
     fn bind_uniforms<'a, P>(&'a self, mut ctxt: &mut CommandContext, program: &P,
-                            fences: &mut Vec<&'a RefCell<Option<sync::LinearSyncFence>>>)
+                            fences: &mut Vec<Inserter<'a>>)
                             -> Result<(), DrawError>
                             where P: ProgramExt
     {
@@ -110,7 +108,7 @@ impl<U> UniformsExt for U where U: Uniforms {
 fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
                              block: &program::UniformBlock,
                              program: &P, buffer_bind_points: &mut Bitsfield, name: &str)
-                             -> Result<Option<&'a RefCell<Option<sync::LinearSyncFence>>>, DrawError>
+                             -> Result<Option<Inserter<'a>>, DrawError>
                              where P: ProgramExt
 {
     match value {
@@ -140,7 +138,7 @@ fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &Uniform
 fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
                                     block: &program::UniformBlock,
                                     program: &P, buffer_bind_points: &mut Bitsfield, name: &str)
-                                    -> Result<Option<&'a RefCell<Option<sync::LinearSyncFence>>>, DrawError>
+                                    -> Result<Option<Inserter<'a>>, DrawError>
                                     where P: ProgramExt
 {
     match value {

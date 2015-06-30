@@ -17,10 +17,12 @@
 pub use self::view::{BufferView, BufferViewAny, BufferViewMutSlice};
 pub use self::view::{BufferViewSlice, BufferViewAnySlice};
 pub use self::alloc::{Mapping, WriteMapping, ReadMapping};
+pub use self::fences::Inserter;
 
 use gl;
 
 mod alloc;
+mod fences;
 mod view;
 
 /// Error that can happen when creating a buffer.
