@@ -456,10 +456,10 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
             None => continue
         };
 
-        let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
-
         if attribute.location != -1 {
+            let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
             match attribute_ty {
+                //The first three cases also account for Vecs of ints/doubles/floats
                 gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
                 gl::INT | gl::UNSIGNED_INT =>
                     ctxt.gl.VertexAttribIPointer(attribute.location as u32,
@@ -467,14 +467,35 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
                                                  stride as i32,
                                                  (buffer_offset + offset) as *const libc::c_void),
 
-                gl::DOUBLE | gl::DOUBLE_VEC2 | gl::DOUBLE_VEC3 | gl::DOUBLE_VEC4 |
-                gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
-                gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
-                gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 =>
+                gl::DOUBLE =>
                     ctxt.gl.VertexAttribLPointer(attribute.location as u32,
                                                  elements_count as gl::types::GLint, data_type,
                                                  stride as i32,
                                                  (buffer_offset + offset) as *const libc::c_void),
+
+                gl::FLOAT => {
+                    ctxt.gl.VertexAttribPointer(attribute.location as u32,
+                                                elements_count as gl::types::GLint, data_type, 0,
+                                                stride as i32,
+                                                (buffer_offset + offset) as *const libc::c_void)
+                },
+
+                gl::FLOAT_MAT4 => {
+                    for i in 0..4 {
+                        ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
+                                                    4 as gl::types::GLint, gl::FLOAT, 0,
+                                                    stride as i32,
+                                                    (buffer_offset + offset + (i * 16) as usize) as *const libc::c_void)
+                    }
+                },
+
+                gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
+                gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
+                gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 => {
+                    //TODO
+                }
+
+                //Float matrices also still TODO
 
                 _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
                                                  elements_count as gl::types::GLint, data_type, 0,
