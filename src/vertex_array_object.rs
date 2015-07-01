@@ -3,6 +3,8 @@ use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::mem;
 
+use smallvec::SmallVec;
+
 use Handle;
 use buffer::BufferViewAnySlice;
 use program::Program;
@@ -28,7 +30,7 @@ pub struct Binder<'a, 'b, 'c: 'b> {
     context: &'b mut CommandContext<'c>,
     program: &'a Program,
     element_array_buffer: Option<BufferViewAnySlice<'a>>,
-    vertex_buffers: Vec<(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)>,
+    vertex_buffers: SmallVec<[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>); 2]>,
 }
 
 impl VertexAttributesSystem {
@@ -51,7 +53,7 @@ impl VertexAttributesSystem {
             context: ctxt,
             program: program,
             element_array_buffer: indices,
-            vertex_buffers: Vec::with_capacity(1),
+            vertex_buffers: SmallVec::new(),
         }
     }
 
@@ -144,7 +146,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     }
 
     /// Finish binding the vertex attributes.
-    pub fn bind(self) {
+    pub fn bind(mut self) {
         let ctxt = self.context;
 
         if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
@@ -187,7 +189,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                 element_array_buffer.bind_to_element_array(ctxt);
             }
 
-            for (vertex_buffer, bindings, offset, stride, divisor) in self.vertex_buffers {
+            for (vertex_buffer, bindings, offset, stride, divisor) in self.vertex_buffers.into_iter() {
                 unsafe {
                     bind_attribute(ctxt, self.program, vertex_buffer, &bindings, offset, stride,
                                    divisor);
