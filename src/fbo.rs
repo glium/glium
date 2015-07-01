@@ -55,6 +55,8 @@ use std::mem;
 use std::cell::RefCell;
 use std::marker::PhantomData;
 
+use smallvec::SmallVec;
+
 use GlObject;
 use TextureExt;
 
@@ -71,7 +73,7 @@ use version::Api;
 pub struct FramebufferAttachments<'a> {
     /// List of color attachments. The first parameter of the tuple is the index, and the
     /// second element is the attachment.
-    pub colors: Vec<(u32, Attachment<'a>)>,
+    pub colors: SmallVec<[(u32, Attachment<'a>); 5]>,
 
     /// The depth and/or stencil attachment to use.
     pub depth_stencil: FramebufferDepthStencilAttachments<'a>,
@@ -210,7 +212,7 @@ impl<'a> FramebufferAttachments<'a> {
                 depth_stencil: None,
             };
 
-            for &(index, ref a) in &self.colors {
+            for &(index, ref a) in self.colors.iter() {
                 raw_attachments.color.push((index, handle_attachment(a, &mut dimensions, None)));
             }
 
@@ -448,7 +450,7 @@ impl FramebuffersContainer {
         }*/
 
         let attachments = FramebufferAttachments {
-            colors: vec![(0, attachment.clone())],
+            colors: { let mut v = SmallVec::new(); v.push((0, attachment.clone())); v },
             depth_stencil: FramebufferDepthStencilAttachments::None,
         }.validate().unwrap();
 

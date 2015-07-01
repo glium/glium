@@ -37,6 +37,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 
 */
 use std::rc::Rc;
+use smallvec::SmallVec;
 
 use texture::Texture2d;
 use texture::TextureAnyMipmap;
@@ -157,7 +158,7 @@ impl<'a> SimpleFrameBuffer<'a> {
         });
 
         let attachments = fbo::FramebufferAttachments {
-            colors: vec![(0, color)],
+            colors: { let mut v = SmallVec::new(); v.push((0, color)); v },
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
                 fbo::FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
             } else if let Some(depth) = depth {
@@ -309,9 +310,13 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             })
         }).collect::<Vec<_>>();
 
-        let example_color = color.iter().enumerate().map(|(index, &(_, tex))| {
-            (index as u32, tex)
-        }).collect::<Vec<_>>();
+        let example_color = {
+            let mut v = SmallVec::new();
+            for e in color.iter().enumerate().map(|(index, &(_, tex))| { (index as u32, tex) }) {
+                v.push(e);
+            }
+            v
+        };
 
         let depth = depth.map(|depth| match depth.to_depth_attachment() {
             DepthAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
@@ -359,7 +364,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     }
 
     fn build_attachments(&self, program: &Program) -> fbo::ValidatedAttachments {
-        let mut colors = Vec::new();
+        let mut colors = SmallVec::new();
 
         for &(ref name, attachment) in self.color_attachments.iter() {
             let location = match program.get_frag_data_location(&name) {
