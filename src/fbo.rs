@@ -106,6 +106,7 @@ pub enum Attachment<'a> {
         /// Mipmap level to use. The main texture is level 0.
         level: u32,
     },
+
     /// A layer of a texture. Layers are in texture arrays or in 3D textures.
     TextureLayer {
         /// The texture.
@@ -115,6 +116,7 @@ pub enum Attachment<'a> {
         /// Mipmap level to use. The main texture is level 0.
         level: u32,
     },
+
     /// A renderbuffer.
     RenderBuffer(&'a RenderBufferAny),
 }
@@ -122,9 +124,7 @@ pub enum Attachment<'a> {
 impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
-    pub fn validate(self)
-                    -> Result<ValidatedAttachments<'a>, ValidationError>
-    {
+    pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
         // turning the attachments into raw attachments
         let (raw_attachments, dimensions, depth_bits, stencil_bits) = {
             fn handle_attachment(a: &Attachment, dim: &mut Option<(u32, u32)>,
