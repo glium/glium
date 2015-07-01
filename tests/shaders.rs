@@ -688,3 +688,99 @@ fn complex_layout() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn unsized_array() {
+    let display = support::build_display();
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 430
+
+            struct Foo {
+                ivec3 a[3];
+                int b;
+            };
+
+            buffer MyBlock {
+                vec3 position;
+                Foo foo[1];
+                Foo bar[];
+            };
+
+            void main() {
+                gl_Position = vec4(position, 1.0);
+            }
+        ",
+        "
+            #version 140
+
+            out vec4 color;
+
+            void main() {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+        None);
+
+    // ignoring test in case of compilation error (version may not be supported)
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
+
+    let blocks = program.get_shader_storage_blocks();
+
+    assert_eq!(blocks.len(), 1);
+    let my_block = blocks.get("MyBlock").unwrap();
+
+    assert_eq!(my_block.layout, glium::program::BlockLayout::Struct {
+        members: vec![
+            ("position".to_string(), glium::program::BlockLayout::BasicType {
+                ty: glium::uniforms::UniformType::FloatVec3,
+                offset_in_buffer: 0,
+            }),
+
+            ("foo".to_string(), glium::program::BlockLayout::Array {
+                content: Box::new(glium::program::BlockLayout::Struct {
+                    members: vec![
+                        ("a".to_string(), glium::program::BlockLayout::Array {
+                            content: Box::new(glium::program::BlockLayout::BasicType {
+                                ty: glium::uniforms::UniformType::IntVec3,
+                                offset_in_buffer: 16,
+                            }),
+                            length: 3,
+                        }),
+
+                        ("b".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::Int,
+                            offset_in_buffer: 64,
+                        }),
+                    ],
+                }),
+                length: 1,
+            }),
+
+            ("bar".to_string(), glium::program::BlockLayout::DynamicSizedArray {
+                content: Box::new(glium::program::BlockLayout::Struct {
+                    members: vec![
+                        ("a".to_string(), glium::program::BlockLayout::Array {
+                            content: Box::new(glium::program::BlockLayout::BasicType {
+                                ty: glium::uniforms::UniformType::IntVec3,
+                                offset_in_buffer: 80,
+                            }),
+                            length: 3,
+                        }),
+
+                        ("b".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::Int,
+                            offset_in_buffer: 128,
+                        }),
+                    ],
+                })
+            }),
+        ]
+    });
+
+    display.assert_no_error(None);
+}

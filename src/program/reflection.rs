@@ -46,7 +46,7 @@ pub struct UniformBlock {
 }
 
 /// Layout of a shader storage buffer or a uniform buffer.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BlockLayout {
     /// Multiple elements, each having a name.
     Struct {
@@ -427,11 +427,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
         let members = member_names.into_iter().enumerate().map(|(index, name)| {
             (name, member_offsets[index] as usize,
              glenum_to_uniform_type(member_types[index] as gl::types::GLenum),
-             match member_size[index] {
-                 1 => None,
-                 a => Some(a as usize),
-             }
-            )
+             member_size[index] as usize, None)
         });
 
         // finally inserting into the blocks list
@@ -700,15 +696,16 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
 
         // iterator over variables
         let members = active_variables.into_iter().map(|variable| {
-            let (ty, array_size, offset, _array_stride, name_len) = {
-                let mut output: [gl::types::GLint; 5] = mem::uninitialized();
+            let (ty, array_size, offset, _array_stride, name_len, top_level_array_size) = {
+                let mut output: [gl::types::GLint; 6] = mem::uninitialized();
                 ctxt.gl.GetProgramResourceiv(program, gl::BUFFER_VARIABLE,
-                                             variable as gl::types::GLuint, 5,
+                                             variable as gl::types::GLuint, 6,
                                              [gl::TYPE, gl::ARRAY_SIZE, gl::OFFSET,
-                                              gl::ARRAY_STRIDE, gl::NAME_LENGTH].as_ptr(), 5,
+                                              gl::ARRAY_STRIDE, gl::NAME_LENGTH,
+                                              gl::TOP_LEVEL_ARRAY_SIZE].as_ptr(), 6,
                                              ptr::null_mut(), output.as_mut_ptr() as *mut _);
                 (glenum_to_uniform_type(output[0] as gl::types::GLenum), output[1] as usize,
-                 output[2] as usize, output[3] as usize, output[4] as usize)
+                 output[2] as usize, output[3] as usize, output[4] as usize, output[5] as usize)
             };
 
             let name = {
@@ -723,13 +720,7 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
                 String::from_utf8(name_tmp).unwrap()
             };
 
-            (
-                name, offset, ty,
-                match array_size {
-                    1 => None,
-                    a => Some(a as usize),
-                },
-            )
+            (name, offset, ty, array_size, Some(top_level_array_size))
         });
 
         // finally inserting into the blocks list
@@ -746,7 +737,8 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
 /// Takes a list of elements produced by OpenGL's introspection API and turns them into
 /// a `BlockLayout` object.
 ///
-/// The iterator must produce a list of `(name, offset, ty, array_size)`.
+/// The iterator must produce a list of `(name, offset, ty, array_size, top_level_array_size)`.
+/// The `top_level_array_size` can be `None` if unknown.
 ///
 /// # Panic
 ///
@@ -754,11 +746,11 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
 ///
 fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                                      where I: Iterator<Item = (String, usize, UniformType,
-                                                               Option<usize>)>
+                                                               usize, Option<usize>)>
 {
     // `output` must be a BlockLayout::Struct, otherwise this function will panic
     fn process(output: &mut BlockLayout, name: &str, offset: usize, ty: UniformType,
-               array_size: Option<usize>)
+               array_size: usize, top_level_array_size: Option<usize>)
     {
         let mut components = name.splitn(2, '.');
         let current_component = components.next().unwrap();
@@ -789,6 +781,9 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                             if *length <= array { *length = array + 1; }
                             &mut **content
                         },
+                        &mut BlockLayout::DynamicSizedArray { ref mut content } => {
+                            &mut **content
+                        },
                         _ => unreachable!()
                     }
                 } else {
@@ -798,13 +793,20 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
             } else {
                 // member doesn't exist yet in the output, adding it
                 if let Some(array) = array {
-                    members.push((current_component.to_string(), BlockLayout::Array {
-                        content: Box::new(BlockLayout::Struct { members: Vec::new() }),
-                        length: if name_rest.is_some() { array } else { array_size.unwrap() },
-                    }));
+                    if top_level_array_size == Some(0) {
+                        members.push((current_component.to_string(), BlockLayout::DynamicSizedArray {
+                            content: Box::new(BlockLayout::Struct { members: Vec::new() }),
+                        }));
+                    } else {
+                        members.push((current_component.to_string(), BlockLayout::Array {
+                            content: Box::new(BlockLayout::Struct { members: Vec::new() }),
+                            length: if name_rest.is_some() { array } else { array_size },
+                        }));
+                    }
 
                     match &mut members.last_mut().unwrap().1 {
                         &mut BlockLayout::Array { ref mut content, .. } => &mut **content,
+                        &mut BlockLayout::DynamicSizedArray { ref mut content } => &mut **content,
                         _ => unreachable!()
                     }
 
@@ -822,7 +824,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
         // now adding either the other elements or the final element itself
         if let Some(name_rest) = name_rest {
-            process(member, name_rest, offset, ty, array_size);
+            process(member, name_rest, offset, ty, array_size, None);
 
         } else {
             *member = BlockLayout::BasicType {
@@ -834,8 +836,8 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
     // ↓ actual body of `introspection_output_to_layout` starts here ↓
     let mut layout = BlockLayout::Struct { members: Vec::new() };
-    for (name, offset, ty, array_size) in elements {
-        process(&mut layout, &name, offset, ty, array_size);
+    for (name, offset, ty, array_size, top_level_array_size) in elements {
+        process(&mut layout, &name, offset, ty, array_size, top_level_array_size);
     }
     layout
 }
