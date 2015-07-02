@@ -16,6 +16,10 @@ use gl;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
+use uniforms::AsUniformValue;
+use uniforms::UniformValue;
+use uniforms::UniformType;
+
 /// A texture that is resident in video memory. This allows you to use bindless textures in your
 /// shaders.
 pub struct ResidentTexture {
@@ -119,15 +123,61 @@ impl<'a> TextureHandle<'a> {
     }
 }
 
-impl<'a> ::uniforms::AsUniformValue for TextureHandle<'a> {
-    fn as_uniform_value(&self) -> ::uniforms::UniformValue {
+impl<'a> AsUniformValue for TextureHandle<'a> {
+    fn as_uniform_value(&self) -> UniformValue {
         // TODO: u64
         unimplemented!();
     }
 
-    fn matches(_: &::uniforms::UniformType) -> bool {
-        // FIXME: hack to make bindless textures work
-        true
+    fn matches(ty: &UniformType) -> bool {
+        // TODO: unfortunately we have no idea what the exact type of this handle is
+        //       strong typing should be considered
+        //
+        //       however there is no safety problem here ; the worse that can happen in case of
+        //       wrong type is zeroes or undefined data being returned when sampling
+        match *ty {
+            UniformType::Sampler1d => true,
+            UniformType::ISampler1d => true,
+            UniformType::USampler1d => true,
+            UniformType::Sampler2d => true,
+            UniformType::ISampler2d => true,
+            UniformType::USampler2d => true,
+            UniformType::Sampler3d => true,
+            UniformType::ISampler3d => true,
+            UniformType::USampler3d => true,
+            UniformType::Sampler1dArray => true,
+            UniformType::ISampler1dArray => true,
+            UniformType::USampler1dArray => true,
+            UniformType::Sampler2dArray => true,
+            UniformType::ISampler2dArray => true,
+            UniformType::USampler2dArray => true,
+            UniformType::SamplerCube => true,
+            UniformType::ISamplerCube => true,
+            UniformType::USamplerCube => true,
+            UniformType::Sampler2dRect => true,
+            UniformType::ISampler2dRect => true,
+            UniformType::USampler2dRect => true,
+            UniformType::Sampler2dRectShadow => true,
+            UniformType::SamplerCubeArray => true,
+            UniformType::ISamplerCubeArray => true,
+            UniformType::USamplerCubeArray => true,
+            UniformType::SamplerBuffer => true,
+            UniformType::ISamplerBuffer => true,
+            UniformType::USamplerBuffer => true,
+            UniformType::Sampler2dMultisample => true,
+            UniformType::ISampler2dMultisample => true,
+            UniformType::USampler2dMultisample => true,
+            UniformType::Sampler2dMultisampleArray => true,
+            UniformType::ISampler2dMultisampleArray => true,
+            UniformType::USampler2dMultisampleArray => true,
+            UniformType::Sampler1dShadow => true,
+            UniformType::Sampler2dShadow => true,
+            UniformType::SamplerCubeShadow => true,
+            UniformType::Sampler1dArrayShadow => true,
+            UniformType::Sampler2dArrayShadow => true,
+            UniformType::SamplerCubeArrayShadow => true,
+            _ => false
+        }
     }
 }
 
