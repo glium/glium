@@ -37,6 +37,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 
 */
 use std::rc::Rc;
+use smallvec::SmallVec;
 
 use texture::Texture2d;
 use texture::TextureAnyMipmap;
@@ -129,35 +130,35 @@ impl<'a> SimpleFrameBuffer<'a> {
                    -> SimpleFrameBuffer<'a> where F: Facade
     {
         let color = match color {
-            ColorAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
+            ColorAttachment::Texture(tex) => fbo::Attachment::Texture {
+                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
             },
             ColorAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         };
 
         let depth = depth.map(|depth| match depth {
-            DepthAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
+            DepthAttachment::Texture(tex) => fbo::Attachment::Texture {
+                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
             },
             DepthAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
 
         let stencil = stencil.map(|stencil|  match stencil {
-            StencilAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
+            StencilAttachment::Texture(tex) => fbo::Attachment::Texture {
+                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
             },
             StencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
 
         let depthstencil = depthstencil.map(|depthstencil| match depthstencil {
-            DepthStencilAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
+            DepthStencilAttachment::Texture(tex) => fbo::Attachment::Texture {
+                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
             },
             DepthStencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
 
         let attachments = fbo::FramebufferAttachments {
-            colors: vec![(0, color)],
+            colors: { let mut v = SmallVec::new(); v.push((0, color)); v },
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
                 fbo::FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
             } else if let Some(depth) = depth {
@@ -304,18 +305,22 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                          -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment, F: Facade
     {
         let color = color.iter().map(|&(name, tex)| {
-            (name.to_string(), fbo::Attachment::TextureLayer {
-                texture: tex, layer: 0, level: 0
+            (name.to_string(), fbo::Attachment::Texture {
+                texture: tex, layer: None, level: 0
             })
         }).collect::<Vec<_>>();
 
-        let example_color = color.iter().enumerate().map(|(index, &(_, tex))| {
-            (index as u32, tex)
-        }).collect::<Vec<_>>();
+        let example_color = {
+            let mut v = SmallVec::new();
+            for e in color.iter().enumerate().map(|(index, &(_, tex))| { (index as u32, tex) }) {
+                v.push(e);
+            }
+            v
+        };
 
         let depth = depth.map(|depth| match depth.to_depth_attachment() {
-            DepthAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
+            DepthAttachment::Texture(tex) => fbo::Attachment::Texture {
+                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
             },
             DepthAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
@@ -359,7 +364,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     }
 
     fn build_attachments(&self, program: &Program) -> fbo::ValidatedAttachments {
-        let mut colors = Vec::new();
+        let mut colors = SmallVec::new();
 
         for &(ref name, attachment) in self.color_attachments.iter() {
             let location = match program.get_frag_data_location(&name) {

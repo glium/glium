@@ -442,9 +442,9 @@ impl<'a> TextureAnyMipmap<'a> {
 
 impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
-        let attachment = fbo::Attachment::TextureLayer {
+        let attachment = fbo::Attachment::Texture {
             texture: &self.texture,
-            layer: self.layer,
+            layer: Some(self.layer),
             level: self.level,
         };
 
@@ -465,9 +465,9 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {
         let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
 
-        let attachment = fbo::Attachment::TextureLayer {
+        let attachment = fbo::Attachment::Texture {
             texture: &self.texture,
-            layer: self.layer,
+            layer: Some(self.layer),
             level: self.level,
         };
 

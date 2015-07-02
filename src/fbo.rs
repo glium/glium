@@ -55,10 +55,13 @@ use std::mem;
 use std::cell::RefCell;
 use std::marker::PhantomData;
 
+use smallvec::SmallVec;
+
 use GlObject;
 use TextureExt;
 
 use texture::TextureAny;
+use texture::TextureType;
 use framebuffer::RenderBufferAny;
 
 use gl;
@@ -66,15 +69,24 @@ use context::CommandContext;
 use version::Version;
 use version::Api;
 
-/// Represents the attachments to use for an OpenGL framebuffer.
-#[derive(Clone)]
-pub struct FramebufferAttachments<'a> {
-    /// List of color attachments. The first parameter of the tuple is the index, and the
-    /// second element is the attachment.
-    pub colors: Vec<(u32, Attachment<'a>)>,
+/// Describes a single framebuffer attachment.
+#[derive(Copy, Clone)]
+pub enum Attachment<'a> {
+    /// A texture.
+    Texture {
+        /// The texture.
+        texture: &'a TextureAny,
 
-    /// The depth and/or stencil attachment to use.
-    pub depth_stencil: FramebufferDepthStencilAttachments<'a>,
+        /// The layer to use. `None` for the whole texture. Non-array textures are considered as
+        /// having one layer. For non-array textures, `None` is the same as `Some(0)`.
+        layer: Option<u32>,
+
+        /// Mipmap level to use. The main texture is level 0.
+        level: u32,
+    },
+
+    /// A renderbuffer.
+    RenderBuffer(&'a RenderBufferAny),
 }
 
 /// Depth and/or stencil attachment to use.
@@ -96,35 +108,21 @@ pub enum FramebufferDepthStencilAttachments<'a> {
     DepthStencilAttachment(Attachment<'a>),
 }
 
-/// Describes a single framebuffer attachment.
-#[derive(Copy, Clone)]
-pub enum Attachment<'a> {
-    /// An entire texture.
-    Texture {
-        /// The texture.
-        texture: &'a TextureAny,
-        /// Mipmap level to use. The main texture is level 0.
-        level: u32,
-    },
-    /// A layer of a texture. Layers are in texture arrays or in 3D textures.
-    TextureLayer {
-        /// The texture.
-        texture: &'a TextureAny,
-        /// The layer.
-        layer: u32,
-        /// Mipmap level to use. The main texture is level 0.
-        level: u32,
-    },
-    /// A renderbuffer.
-    RenderBuffer(&'a RenderBufferAny),
+/// Represents the attachments to use for an OpenGL framebuffer.
+#[derive(Clone)]
+pub struct FramebufferAttachments<'a> {
+    /// List of color attachments. The first parameter of the tuple is the index, and the
+    /// second element is the attachment.
+    pub colors: SmallVec<[(u32, Attachment<'a>); 5]>,
+
+    /// The depth and/or stencil attachment to use.
+    pub depth_stencil: FramebufferDepthStencilAttachments<'a>,
 }
 
 impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
-    pub fn validate(self)
-                    -> Result<ValidatedAttachments<'a>, ValidationError>
-    {
+    pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
         // turning the attachments into raw attachments
         let (raw_attachments, dimensions, depth_bits, stencil_bits) = {
             fn handle_attachment(a: &Attachment, dim: &mut Option<(u32, u32)>,
@@ -132,7 +130,7 @@ impl<'a> FramebufferAttachments<'a> {
                                  -> RawAttachment
             {
                 match a {
-                    &Attachment::Texture { ref texture, level } => {
+                    &Attachment::Texture { ref texture, level, layer } => {
                         if let Some(num_bits) = num_bits {
                             *num_bits = Some(texture.get_internal_format_if_supported()
                                                .map(|f| f.get_total_bits()).unwrap_or(24) as u16);     // TODO: how to handle this?
@@ -146,26 +144,15 @@ impl<'a> FramebufferAttachments<'a> {
                             }
                         }
 
-                        RawAttachment::Texture {
-                            texture: texture.get_id(),
-                            bind_point: texture.get_bind_point(),
-                            layer: 0,
-                            level: level,       // TODO: check validity
-                        }
-                    },
-                    &Attachment::TextureLayer { ref texture, level, layer } => {
-                        if let Some(num_bits) = num_bits {
-                            *num_bits = Some(texture.get_internal_format_if_supported()
-                                               .map(|f| f.get_total_bits()).unwrap_or(24) as u16);     // TODO: how to handle this?
-                        }
-
-                        match dim {
-                            d @ &mut None => *d = Some((texture.get_width(), texture.get_height().unwrap_or(1))),
-                            &mut Some((ref mut x, ref mut y)) => {
-                                *x = cmp::min(*x, texture.get_width());
-                                *y = cmp::min(*y, texture.get_height().unwrap_or(1));
-                            }
-                        }
+                        let layer = match (layer, texture.get_texture_type()) {
+                            (l, TextureType::Texture1dArray) => l,
+                            (l, TextureType::Texture2dArray) => l,
+                            (l, TextureType::Texture2dMultisampleArray) => l,
+                            (l, TextureType::Texture3d) => l,
+                            (Some(l), _) if l == 0 => None,
+                            (Some(l), _) => panic!(),
+                            (None, _) => None,
+                        };
 
                         RawAttachment::Texture {
                             texture: texture.get_id(),
@@ -210,7 +197,7 @@ impl<'a> FramebufferAttachments<'a> {
                 depth_stencil: None,
             };
 
-            for &(index, ref a) in &self.colors {
+            for &(index, ref a) in self.colors.iter() {
                 raw_attachments.color.push((index, handle_attachment(a, &mut dimensions, None)));
             }
 
@@ -252,11 +239,11 @@ impl<'a> FramebufferAttachments<'a> {
 /// Represents attachments that have been validated and are usable.
 #[derive(Clone)]
 pub struct ValidatedAttachments<'a> {
-    marker: PhantomData<&'a ()>,
     raw: RawAttachments,
     dimensions: (u32, u32),
     depth_buffer_bits: Option<u16>,
     stencil_buffer_bits: Option<u16>,
+    marker: PhantomData<&'a ()>,
 }
 
 impl<'a> ValidatedAttachments<'a> {
@@ -296,12 +283,19 @@ struct RawAttachments {
 /// Single attachment.
 #[derive(Hash, Copy, Clone, Eq, PartialEq)]
 enum RawAttachment {
+    /// A texture.
     Texture {
-        bind_point: gl::types::GLenum,
+        // a GLenum like `TEXTURE_2D`, `TEXTURE_3D`, etc.
+        bind_point: gl::types::GLenum,      // TODO: TextureType instead
+        // id of the texture
         texture: gl::types::GLuint,
-        layer: u32,
+        // if `Some`, the texture **must** be an array, cubemap, or texture 3d
+        layer: Option<u32>,
+        // mipmap level
         level: u32,
     },
+
+    /// A renderbuffer with its ID.
     RenderBuffer(gl::types::GLuint),
 }
 
@@ -310,12 +304,6 @@ enum RawAttachment {
 /// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
 pub struct FramebuffersContainer {
     framebuffers: RefCell<HashMap<RawAttachments, FrameBufferObject>>,
-}
-
-/// Frame buffer.
-struct FrameBufferObject {
-    id: gl::types::GLuint,
-    current_read_buffer: gl::types::GLenum,
 }
 
 impl FramebuffersContainer {
@@ -426,7 +414,7 @@ impl FramebuffersContainer {
     pub fn bind_default_framebuffer_for_reading(ctxt: &mut CommandContext,
                                                 read_buffer: gl::types::GLenum)
     {
-        bind_framebuffer(ctxt, 0, false, true);
+        unsafe { bind_framebuffer(ctxt, 0, false, true) };
         unsafe { ctxt.gl.ReadBuffer(read_buffer) };     // TODO: cache
     }
 
@@ -448,7 +436,7 @@ impl FramebuffersContainer {
         }*/
 
         let attachments = FramebufferAttachments {
-            colors: vec![(0, attachment.clone())],
+            colors: { let mut v = SmallVec::new(); v.push((0, attachment.clone())); v },
             depth_stencil: FramebufferDepthStencilAttachments::None,
         }.validate().unwrap();
 
@@ -486,6 +474,12 @@ impl Drop for FramebuffersContainer {
     }
 }
 
+/// A framebuffer object.
+struct FrameBufferObject {
+    id: gl::types::GLuint,
+    current_read_buffer: gl::types::GLenum,
+}
+
 impl FrameBufferObject {
     /// Builds a new FBO.
     fn new(mut ctxt: &mut CommandContext, attachments: &RawAttachments) -> FrameBufferObject {
@@ -511,46 +505,50 @@ impl FrameBufferObject {
                 bind_framebuffer(&mut ctxt, id, true, false);
             }
 
-            let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
+            id
+        };
 
-            for &(slot, atchmnt) in attachments.color.iter() {
-                attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);
-                raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
-            }
+        let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
 
-            if let Some(depth) = attachments.depth {
-                attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
-            }
-            if let Some(stencil) = attachments.stencil {
-                attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
-            }
-            if let Some(depth_stencil) = attachments.depth_stencil {
-                attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil);
-            }
+        for &(slot, atchmnt) in attachments.color.iter() {
+            unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
+            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
+        }
 
-            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-               ctxt.extensions.gl_arb_direct_state_access
-            {
+        if let Some(depth) = attachments.depth {
+            unsafe { attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth) };
+        }
+        if let Some(stencil) = attachments.stencil {
+            unsafe { attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil) };
+        }
+        if let Some(depth_stencil) = attachments.depth_stencil {
+            unsafe { attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil) };
+        }
+
+        if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+           ctxt.extensions.gl_arb_direct_state_access
+        {
+            unsafe {
                 ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
                                                     as gl::types::GLsizei,
                                                     raw_attachments.as_ptr());
+            }
 
-            } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                      ctxt.version >= &Version(Api::GlEs, 3, 0)
-            {
+        } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                  ctxt.version >= &Version(Api::GlEs, 3, 0)
+        {
+            unsafe {
                 bind_framebuffer(&mut ctxt, id, true, false);
                 ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
                                     raw_attachments.as_ptr());
-
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                assert_eq!(raw_attachments, &[gl::COLOR_ATTACHMENT0]);
-
-            } else {
-                unimplemented!();       // FIXME: use an extension
             }
 
-            id
-        };
+        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+            assert_eq!(raw_attachments, &[gl::COLOR_ATTACHMENT0]);
+
+        } else {
+            unimplemented!();       // FIXME: use an extension
+        }
 
         FrameBufferObject {
             id: id,
@@ -558,52 +556,26 @@ impl FrameBufferObject {
         }
     }
 
+    /// Destroys the FBO. Must be called, or things will leak.
     fn destroy(self, mut ctxt: &mut CommandContext) {
-        unsafe {
-            // unbinding framebuffer
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                if ctxt.state.draw_framebuffer == self.id && ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                    ctxt.state.draw_framebuffer = 0;
-                    ctxt.state.read_framebuffer = 0;
+        // unbinding framebuffer
+        if ctxt.state.draw_framebuffer == self.id {
+            ctxt.state.draw_framebuffer = 0;
+        }
 
-                } else if ctxt.state.draw_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-                    ctxt.state.draw_framebuffer = 0;
+        if ctxt.state.read_framebuffer == self.id {
+            ctxt.state.read_framebuffer = 0;
+        }
 
-                } else if ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                    ctxt.state.read_framebuffer = 0;
-                }
-
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                if ctxt.state.draw_framebuffer == self.id || ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                    ctxt.state.draw_framebuffer = 0;
-                    ctxt.state.read_framebuffer = 0;
-                }
-
-            } else if ctxt.extensions.gl_ext_framebuffer_object {
-                if ctxt.state.draw_framebuffer == self.id || ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                    ctxt.state.draw_framebuffer = 0;
-                    ctxt.state.read_framebuffer = 0;
-                }
-
-            } else {
-                unreachable!();
-            }
-
-            // deleting
-            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 2, 0)
-            {
-                ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr());
-            } else if ctxt.extensions.gl_ext_framebuffer_object {
-                ctxt.gl.DeleteFramebuffersEXT(1, [ self.id ].as_ptr());
-            } else {
-                unreachable!();
-            }
+        // deleting
+        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+            ctxt.version >= &Version(Api::GlEs, 2, 0)
+        {
+            unsafe { ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr()) };
+        } else if ctxt.extensions.gl_ext_framebuffer_object {
+            unsafe { ctxt.gl.DeleteFramebuffersEXT(1, [ self.id ].as_ptr()) };
+        } else {
+            unreachable!();
         }
     }
 }
@@ -615,57 +587,63 @@ impl GlObject for FrameBufferObject {
     }
 }
 
-pub fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
-                        draw: bool, read: bool)
+/// Binds a framebuffer object, either for drawing, reading, or both.
+///
+/// # Safety
+///
+/// The id of the FBO must be valid.
+pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
+                               draw: bool, read: bool)
 {
     if draw && ctxt.state.draw_framebuffer != fbo_id {
-        unsafe {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            } else {
-                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            }
+        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
+        } else {
+            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
         }
     }
 
     if read && ctxt.state.read_framebuffer != fbo_id {
-        unsafe {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
-                ctxt.state.read_framebuffer = fbo_id;
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            } else {
-                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            }
+        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
+            ctxt.state.read_framebuffer = fbo_id;
+        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
+        } else {
+            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
         }
     }
 }
 
+/// Attaches something to a framebuffer object.
+///
+/// # Safety
+///
+/// All parameters must be valid.
 unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: RawAttachment)
 {
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         match attachment {
             RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if layer == 0 {
-                    ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
-                                                    level as gl::types::GLint);
-                } else {
+                if let Some(layer) = layer {
                     ctxt.gl.NamedFramebufferTextureLayer(id, slot, tex_id,
                                                          level as gl::types::GLint,
                                                          layer as gl::types::GLint);
+                } else {
+                    ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
+                                                    level as gl::types::GLint);
                 }
             },
             RawAttachment::RenderBuffer(buf_id) => {
@@ -679,13 +657,13 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
     {
         match attachment {
             RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if layer == 0 {
-                    ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
-                                                       level as gl::types::GLint);
-                } else {
+                if let Some(layer) = layer {
                     ctxt.gl.NamedFramebufferTextureLayerEXT(id, slot, tex_id,
                                                             level as gl::types::GLint,
                                                             layer as gl::types::GLint);
+                } else {
+                    ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                       level as gl::types::GLint);
                 }
             },
             RawAttachment::RenderBuffer(buf_id) => {
@@ -699,14 +677,14 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
 
         match attachment {
             RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if layer == 0 {
-                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
-                                               slot, tex_id, level as gl::types::GLint);
-                } else {
+                if let Some(layer) = layer {
                     ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
                                                     slot, tex_id,
                                                     level as gl::types::GLint,
                                                     layer as gl::types::GLint);
+                } else {
+                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                               slot, tex_id, level as gl::types::GLint);
                 }
             },
             RawAttachment::RenderBuffer(buf_id) => {
@@ -722,13 +700,13 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
             RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
                 match bind_point {
                     gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
-                        assert!(layer == 0);
+                        assert!(layer.is_none());
                         ctxt.gl.FramebufferTexture1D(gl::DRAW_FRAMEBUFFER,
                                                      slot, bind_point, tex_id,
                                                      level as gl::types::GLint);
                     },
                     gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
-                        assert!(layer == 0);
+                        assert!(layer.is_none());
                         ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
                                                      slot, bind_point, tex_id,
                                                      level as gl::types::GLint);
@@ -737,7 +715,7 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                         ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
                                                         slot, tex_id,
                                                         level as gl::types::GLint,
-                                                        layer as gl::types::GLint);
+                                                        layer.unwrap() as gl::types::GLint);
                     },
                     _ => unreachable!()
                 }
@@ -755,7 +733,7 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
             RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
                 match bind_point {
                     gl::TEXTURE_2D => {
-                        assert!(layer == 0);
+                        assert!(layer.is_none());
                         ctxt.gl.FramebufferTexture2D(gl::FRAMEBUFFER,
                                                      slot, bind_point, tex_id,
                                                      level as gl::types::GLint);
@@ -776,13 +754,13 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
             RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
                 match bind_point {
                     gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
-                        assert!(layer == 0);
+                        assert!(layer.is_none());
                         ctxt.gl.FramebufferTexture1DEXT(gl::FRAMEBUFFER_EXT,
                                                         slot, bind_point, tex_id,
                                                         level as gl::types::GLint);
                     },
                     gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
-                        assert!(layer == 0);
+                        assert!(layer.is_none());
                         ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
                                                         slot, bind_point, tex_id,
                                                         level as gl::types::GLint);
@@ -791,7 +769,7 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                         ctxt.gl.FramebufferTexture3DEXT(gl::FRAMEBUFFER_EXT,
                                                         slot, bind_point, tex_id,
                                                         level as gl::types::GLint,
-                                                        layer as gl::types::GLint);
+                                                        layer.unwrap() as gl::types::GLint);
                     },
                     _ => unreachable!()
                 }
