@@ -284,24 +284,27 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 fn sync_depth(ctxt: &mut context::CommandContext, depth_test: DepthTest, depth_write: bool,
               depth_range: (f32, f32))
 {
+    if depth_test == DepthTest::Overwrite && !depth_write {
+        // simply disabling GL_DEPTH_TEST
+        if ctxt.state.enabled_depth_test {
+            unsafe { ctxt.gl.Disable(gl::DEPTH_TEST) };
+            ctxt.state.enabled_depth_test = false;
+        }
+        return;
+
+    } else {
+        if !ctxt.state.enabled_depth_test {
+            unsafe { ctxt.gl.Enable(gl::DEPTH_TEST) };
+            ctxt.state.enabled_depth_test = true;
+        }
+    }
+
     // depth test
-    match depth_test {
-        DepthTest::Overwrite => unsafe {
-            if ctxt.state.enabled_depth_test {
-                ctxt.gl.Disable(gl::DEPTH_TEST);
-                ctxt.state.enabled_depth_test = false;
-            }
-        },
-        depth_function => unsafe {
-            let depth_function = depth_function.to_glenum();
-            if ctxt.state.depth_func != depth_function {
-                ctxt.gl.DepthFunc(depth_function);
-                ctxt.state.depth_func = depth_function;
-            }
-            if !ctxt.state.enabled_depth_test {
-                ctxt.gl.Enable(gl::DEPTH_TEST);
-                ctxt.state.enabled_depth_test = true;
-            }
+    unsafe {
+        let depth_test = depth_test.to_glenum();
+        if ctxt.state.depth_func != depth_test {
+            ctxt.gl.DepthFunc(depth_test);
+            ctxt.state.depth_func = depth_test;
         }
     }
 
