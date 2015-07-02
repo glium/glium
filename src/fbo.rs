@@ -558,51 +558,24 @@ impl FrameBufferObject {
 
     /// Destroys the FBO. Must be called, or things will leak.
     fn destroy(self, mut ctxt: &mut CommandContext) {
-        unsafe {
-            // unbinding framebuffer
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                if ctxt.state.draw_framebuffer == self.id && ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                    ctxt.state.draw_framebuffer = 0;
-                    ctxt.state.read_framebuffer = 0;
+        // unbinding framebuffer
+        if ctxt.state.draw_framebuffer == self.id {
+            ctxt.state.draw_framebuffer = 0;
+        }
 
-                } else if ctxt.state.draw_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-                    ctxt.state.draw_framebuffer = 0;
+        if ctxt.state.read_framebuffer == self.id {
+            ctxt.state.read_framebuffer = 0;
+        }
 
-                } else if ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-                    ctxt.state.read_framebuffer = 0;
-                }
-
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                if ctxt.state.draw_framebuffer == self.id || ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
-                    ctxt.state.draw_framebuffer = 0;
-                    ctxt.state.read_framebuffer = 0;
-                }
-
-            } else if ctxt.extensions.gl_ext_framebuffer_object {
-                if ctxt.state.draw_framebuffer == self.id || ctxt.state.read_framebuffer == self.id {
-                    ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
-                    ctxt.state.draw_framebuffer = 0;
-                    ctxt.state.read_framebuffer = 0;
-                }
-
-            } else {
-                unreachable!();
-            }
-
-            // deleting
-            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 2, 0)
-            {
-                ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr());
-            } else if ctxt.extensions.gl_ext_framebuffer_object {
-                ctxt.gl.DeleteFramebuffersEXT(1, [ self.id ].as_ptr());
-            } else {
-                unreachable!();
-            }
+        // deleting
+        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+            ctxt.version >= &Version(Api::GlEs, 2, 0)
+        {
+            unsafe { ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr()) };
+        } else if ctxt.extensions.gl_ext_framebuffer_object {
+            unsafe { ctxt.gl.DeleteFramebuffersEXT(1, [ self.id ].as_ptr()) };
+        } else {
+            unreachable!();
         }
     }
 }
