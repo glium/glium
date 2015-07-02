@@ -26,6 +26,7 @@ gl_texture_1d = []
 gl_texture_3d = []
 gl_texture_multisample = []
 gl_texture_multisample_array = []
+gl_bindless_textures = []
 headless = []
 
 [dependencies.glutin]

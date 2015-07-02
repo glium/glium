@@ -1107,6 +1107,22 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             /// a "reference to it" in a buffer (actually not a reference but a raw pointer).
             ///
             /// See the documentation of `ResidentTexture` for more infos.
+            ///
+            /// # Features
+            ///
+            /// Only available if the 'gl_bindless_textures' feature is enabled.
+            ///
+            #[cfg(gl_bindless_textures)]
+            pub fn resident_if_supported(self) -> ResidentTexture {{
+                ResidentTexture::new(self.0)
+            }}
+
+            /// Turns the texture into a `ResidentTexture`.
+            ///
+            /// This allows you to use the texture in a much more efficient way by storing
+            /// a "reference to it" in a buffer (actually not a reference but a raw pointer).
+            ///
+            /// See the documentation of `ResidentTexture` for more infos.
             pub fn resident_if_supported(self) -> Option<ResidentTexture> {{
                 ResidentTexture::new_if_supported(self.0)
             }}

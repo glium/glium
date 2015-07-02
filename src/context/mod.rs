@@ -658,6 +658,12 @@ fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreat
         result.push("OpenGL implementation doesn't support arrays of multisample textures");
     }
 
+    if cfg!(feature = "gl_bindless_textures") &&
+        !(ctxt.extensions.gl_arb_bindless_texture)
+    {
+        result.push("OpenGL implementation doesn't support bindless textures");
+    }
+
     if result.len() == 0 {
         Ok(())
     } else {

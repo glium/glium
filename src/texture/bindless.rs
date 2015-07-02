@@ -24,6 +24,17 @@ pub struct ResidentTexture {
 
 impl ResidentTexture {
     /// Takes ownership of the given texture and makes it resident.
+    ///
+    /// # Features
+    ///
+    /// Only available if the 'gl_bindless_textures' feature is enabled.
+    ///
+    #[cfg(gl_bindless_textures)]
+    pub fn new(texture: TextureAny) -> ResidentTexture {
+        ResidentTexture::new_if_supported(texture).unwrap()
+    }
+
+    /// Takes ownership of the given texture and makes it resident.
     // TODO: sampler
     pub fn new_if_supported(texture: TextureAny) -> Option<ResidentTexture> {
         let handle = {
