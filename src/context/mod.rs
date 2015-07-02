@@ -83,6 +83,10 @@ pub struct Context {
     /// List of texture handles that are resident. We need to call `MakeTextureHandleResidentARB`
     /// when rebuilding the context.
     resident_texture_handles: RefCell<Vec<gl::types::GLuint64>>,
+
+    /// List of images handles that are resident. We need to call `MakeImageHandleResidentARB`
+    /// when rebuilding the context.
+    resident_image_handles: RefCell<Vec<(gl::types::GLuint64, gl::types::GLenum)>>,
 }
 
 /// This struct is a guard that is returned when you want to access the OpenGL backend.
@@ -118,6 +122,9 @@ pub struct CommandContext<'a> {
 
     /// List of texture handles that need to be made resident.
     pub resident_texture_handles: RefMut<'a, Vec<gl::types::GLuint64>>,
+
+    /// List of image handles and their access that need to be made resident.
+    pub resident_image_handles: RefMut<'a, Vec<(gl::types::GLuint64, gl::types::GLenum)>>,
 
     /// This marker is here to prevent `CommandContext` from implementing `Send`
     // TODO: use this when possible
@@ -155,6 +162,7 @@ impl Context {
         let framebuffer_objects = fbo::FramebuffersContainer::new();
         let samplers = RefCell::new(HashMap::with_capacity(16));
         let resident_texture_handles = RefCell::new(Vec::new());
+        let resident_image_handles = RefCell::new(Vec::new());
 
         // checking whether the backend supports glium
         // TODO: do this more properly
@@ -170,6 +178,7 @@ impl Context {
                 framebuffer_objects: &framebuffer_objects,
                 samplers: samplers.borrow_mut(),
                 resident_texture_handles: resident_texture_handles.borrow_mut(),
+                resident_image_handles: resident_image_handles.borrow_mut(),
                 marker: PhantomData,
             };
 
@@ -189,6 +198,7 @@ impl Context {
             vertex_array_objects: vertex_array_objects,
             samplers: samplers,
             resident_texture_handles: resident_texture_handles,
+            resident_image_handles: resident_image_handles,
         });
 
         init_debug_callback(&context);
@@ -238,6 +248,12 @@ impl Context {
         let textures = self.resident_texture_handles.borrow();
         for &texture in textures.iter() {
             self.gl.MakeTextureHandleResidentARB(texture);
+        }
+
+        // making images resident
+        let images = self.resident_image_handles.borrow();
+        for &(image, access) in images.iter() {
+            self.gl.MakeImageHandleResidentARB(image, access);
         }
 
         Ok(())
@@ -505,6 +521,7 @@ impl ContextExt for Context {
             framebuffer_objects: self.framebuffer_objects.as_ref().unwrap(),
             samplers: self.samplers.borrow_mut(),
             resident_texture_handles: self.resident_texture_handles.borrow_mut(),
+            resident_image_handles: self.resident_image_handles.borrow_mut(),
             marker: PhantomData,
         }
     }
@@ -541,6 +558,7 @@ impl Drop for Context {
                 framebuffer_objects: self.framebuffer_objects.as_ref().unwrap(),
                 samplers: self.samplers.borrow_mut(),
                 resident_texture_handles: self.resident_texture_handles.borrow_mut(),
+                resident_image_handles: self.resident_image_handles.borrow_mut(),
                 marker: PhantomData,
             };
 
