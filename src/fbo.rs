@@ -69,15 +69,24 @@ use context::CommandContext;
 use version::Version;
 use version::Api;
 
-/// Represents the attachments to use for an OpenGL framebuffer.
-#[derive(Clone)]
-pub struct FramebufferAttachments<'a> {
-    /// List of color attachments. The first parameter of the tuple is the index, and the
-    /// second element is the attachment.
-    pub colors: SmallVec<[(u32, Attachment<'a>); 5]>,
+/// Describes a single framebuffer attachment.
+#[derive(Copy, Clone)]
+pub enum Attachment<'a> {
+    /// A texture.
+    Texture {
+        /// The texture.
+        texture: &'a TextureAny,
 
-    /// The depth and/or stencil attachment to use.
-    pub depth_stencil: FramebufferDepthStencilAttachments<'a>,
+        /// The layer to use. `None` for the whole texture. Non-array textures are considered as
+        /// having one layer. For non-array textures, `None` is the same as `Some(0)`.
+        layer: Option<u32>,
+
+        /// Mipmap level to use. The main texture is level 0.
+        level: u32,
+    },
+
+    /// A renderbuffer.
+    RenderBuffer(&'a RenderBufferAny),
 }
 
 /// Depth and/or stencil attachment to use.
@@ -99,24 +108,15 @@ pub enum FramebufferDepthStencilAttachments<'a> {
     DepthStencilAttachment(Attachment<'a>),
 }
 
-/// Describes a single framebuffer attachment.
-#[derive(Copy, Clone)]
-pub enum Attachment<'a> {
-    /// An entire texture.
-    Texture {
-        /// The texture.
-        texture: &'a TextureAny,
+/// Represents the attachments to use for an OpenGL framebuffer.
+#[derive(Clone)]
+pub struct FramebufferAttachments<'a> {
+    /// List of color attachments. The first parameter of the tuple is the index, and the
+    /// second element is the attachment.
+    pub colors: SmallVec<[(u32, Attachment<'a>); 5]>,
 
-        /// The layer to use. `None` for the whole texture. Non-array textures are considered as
-        /// having one layer. For non-array textures, `None` is the same as `Some(0)`.
-        layer: Option<u32>,
-
-        /// Mipmap level to use. The main texture is level 0.
-        level: u32,
-    },
-
-    /// A renderbuffer.
-    RenderBuffer(&'a RenderBufferAny),
+    /// The depth and/or stencil attachment to use.
+    pub depth_stencil: FramebufferDepthStencilAttachments<'a>,
 }
 
 impl<'a> FramebufferAttachments<'a> {
@@ -239,11 +239,11 @@ impl<'a> FramebufferAttachments<'a> {
 /// Represents attachments that have been validated and are usable.
 #[derive(Clone)]
 pub struct ValidatedAttachments<'a> {
-    marker: PhantomData<&'a ()>,
     raw: RawAttachments,
     dimensions: (u32, u32),
     depth_buffer_bits: Option<u16>,
     stencil_buffer_bits: Option<u16>,
+    marker: PhantomData<&'a ()>,
 }
 
 impl<'a> ValidatedAttachments<'a> {
@@ -285,13 +285,17 @@ struct RawAttachments {
 enum RawAttachment {
     /// A texture.
     Texture {
+        // a GLenum like `TEXTURE_2D`, `TEXTURE_3D`, etc.
         bind_point: gl::types::GLenum,      // TODO: TextureType instead
+        // id of the texture
         texture: gl::types::GLuint,
         // if `Some`, the texture **must** be an array, cubemap, or texture 3d
         layer: Option<u32>,
+        // mipmap level
         level: u32,
     },
 
+    /// A renderbuffer with its ID.
     RenderBuffer(gl::types::GLuint),
 }
 
@@ -300,12 +304,6 @@ enum RawAttachment {
 /// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
 pub struct FramebuffersContainer {
     framebuffers: RefCell<HashMap<RawAttachments, FrameBufferObject>>,
-}
-
-/// Frame buffer.
-struct FrameBufferObject {
-    id: gl::types::GLuint,
-    current_read_buffer: gl::types::GLenum,
 }
 
 impl FramebuffersContainer {
@@ -416,7 +414,7 @@ impl FramebuffersContainer {
     pub fn bind_default_framebuffer_for_reading(ctxt: &mut CommandContext,
                                                 read_buffer: gl::types::GLenum)
     {
-        bind_framebuffer(ctxt, 0, false, true);
+        unsafe { bind_framebuffer(ctxt, 0, false, true) };
         unsafe { ctxt.gl.ReadBuffer(read_buffer) };     // TODO: cache
     }
 
@@ -476,6 +474,12 @@ impl Drop for FramebuffersContainer {
     }
 }
 
+/// A framebuffer object.
+struct FrameBufferObject {
+    id: gl::types::GLuint,
+    current_read_buffer: gl::types::GLenum,
+}
+
 impl FrameBufferObject {
     /// Builds a new FBO.
     fn new(mut ctxt: &mut CommandContext, attachments: &RawAttachments) -> FrameBufferObject {
@@ -501,46 +505,50 @@ impl FrameBufferObject {
                 bind_framebuffer(&mut ctxt, id, true, false);
             }
 
-            let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
+            id
+        };
 
-            for &(slot, atchmnt) in attachments.color.iter() {
-                attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt);
-                raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
-            }
+        let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
 
-            if let Some(depth) = attachments.depth {
-                attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth);
-            }
-            if let Some(stencil) = attachments.stencil {
-                attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil);
-            }
-            if let Some(depth_stencil) = attachments.depth_stencil {
-                attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil);
-            }
+        for &(slot, atchmnt) in attachments.color.iter() {
+            unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
+            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
+        }
 
-            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-               ctxt.extensions.gl_arb_direct_state_access
-            {
+        if let Some(depth) = attachments.depth {
+            unsafe { attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth) };
+        }
+        if let Some(stencil) = attachments.stencil {
+            unsafe { attach(&mut ctxt, gl::STENCIL_ATTACHMENT, id, stencil) };
+        }
+        if let Some(depth_stencil) = attachments.depth_stencil {
+            unsafe { attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil) };
+        }
+
+        if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+           ctxt.extensions.gl_arb_direct_state_access
+        {
+            unsafe {
                 ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
                                                     as gl::types::GLsizei,
                                                     raw_attachments.as_ptr());
+            }
 
-            } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                      ctxt.version >= &Version(Api::GlEs, 3, 0)
-            {
+        } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                  ctxt.version >= &Version(Api::GlEs, 3, 0)
+        {
+            unsafe {
                 bind_framebuffer(&mut ctxt, id, true, false);
                 ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
                                     raw_attachments.as_ptr());
-
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                assert_eq!(raw_attachments, &[gl::COLOR_ATTACHMENT0]);
-
-            } else {
-                unimplemented!();       // FIXME: use an extension
             }
 
-            id
-        };
+        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+            assert_eq!(raw_attachments, &[gl::COLOR_ATTACHMENT0]);
+
+        } else {
+            unimplemented!();       // FIXME: use an extension
+        }
 
         FrameBufferObject {
             id: id,
@@ -548,6 +556,7 @@ impl FrameBufferObject {
         }
     }
 
+    /// Destroys the FBO. Must be called, or things will leak.
     fn destroy(self, mut ctxt: &mut CommandContext) {
         unsafe {
             // unbinding framebuffer
@@ -605,44 +614,50 @@ impl GlObject for FrameBufferObject {
     }
 }
 
-pub fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
-                        draw: bool, read: bool)
+/// Binds a framebuffer object, either for drawing, reading, or both.
+///
+/// # Safety
+///
+/// The id of the FBO must be valid.
+pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
+                               draw: bool, read: bool)
 {
     if draw && ctxt.state.draw_framebuffer != fbo_id {
-        unsafe {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            } else {
-                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            }
+        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
+        } else {
+            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
         }
     }
 
     if read && ctxt.state.read_framebuffer != fbo_id {
-        unsafe {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
-                ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
-                ctxt.state.read_framebuffer = fbo_id;
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            } else {
-                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-                ctxt.state.draw_framebuffer = fbo_id;
-                ctxt.state.read_framebuffer = fbo_id;
-            }
+        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
+            ctxt.state.read_framebuffer = fbo_id;
+        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
+        } else {
+            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+            ctxt.state.draw_framebuffer = fbo_id;
+            ctxt.state.read_framebuffer = fbo_id;
         }
     }
 }
 
+/// Attaches something to a framebuffer object.
+///
+/// # Safety
+///
+/// All parameters must be valid.
 unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: RawAttachment)
 {

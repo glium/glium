@@ -158,7 +158,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     // binding the FBO to draw upon
     {
         let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, framebuffer);
-        fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
+        unsafe { fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false) };
     };
 
     // binding the program and uniforms
