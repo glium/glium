@@ -4,6 +4,7 @@
 
  - Buffers with persistent mapping now synchronize individual segments of the buffer instead of the buffer as a whole.
  - Dynamic sized arrays are now properly handled by the retrospection system.
+ - Added support for matrix shader attributes
 
 ## Version 0.6.5 (2015-06-29)
 
