@@ -29,7 +29,7 @@ impl ResidentTexture {
         let handle = {
             let mut ctxt = texture.get_context().make_current();
 
-            if ctxt.extensions.gl_arb_bindless_texture {
+            if !ctxt.extensions.gl_arb_bindless_texture {
                 return None;
             }
 
@@ -72,6 +72,7 @@ impl Drop for ResidentTexture {
 }
 
 /// Handle to a texture.
+#[derive(Copy, Clone)]
 pub struct TextureHandle<'a> {
     value: gl::types::GLuint64,
     marker: PhantomData<&'a ResidentTexture>,
@@ -92,7 +93,18 @@ impl<'a> TextureHandle<'a> {
     }
 }
 
-// TODO: implement `uniform::AsUniformValue` on `TextureHandle`
+impl<'a> ::uniforms::AsUniformValue for TextureHandle<'a> {
+    fn as_uniform_value(&self) -> ::uniforms::UniformValue {
+        // TODO: u64
+        unimplemented!();
+    }
+
+    fn matches(_: &::uniforms::UniformType) -> bool {
+        // FIXME: hack to make bindless textures work
+        true
+    }
+}
+
 // TODO: implement `vertex::Attribute` on `TextureHandle`
 
 #[cfg(test)]
