@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+ - Added `ResidentTexture`, `TextureHandle` and `Texture::resident_if_supported()` for bindless textures.
+ - Buffers no longer require their content to be `Send` or `'static` (except for types with the `Any` suffix).
+
 ## Version 0.6.6 (2015-07-03)
 
  - Buffers with persistent mapping now synchronize individual segments of the buffer instead of the buffer as a whole.
