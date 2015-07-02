@@ -10,6 +10,8 @@ pub struct ExtensionsList {
     pub gl_apple_sync: bool,
     /// GL_APPLE_vertex_array_object
     pub gl_apple_vertex_array_object: bool,
+    /// GL_ARB_bindless_texture
+    pub gl_arb_bindless_texture: bool,
     /// GL_ARB_buffer_storage
     pub gl_arb_buffer_storage: bool,
     /// GL_ARB_compute_shader
@@ -181,6 +183,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
     let mut extensions = ExtensionsList {
         gl_apple_sync: false,
         gl_apple_vertex_array_object: false,
+        gl_arb_bindless_texture: false,
         gl_arb_buffer_storage: false,
         gl_arb_copy_buffer: false,
         gl_arb_compute_shader: false,
@@ -263,6 +266,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         match &extension[..] {
             "GL_APPLE_sync" => extensions.gl_apple_sync = true,
             "GL_APPLE_vertex_array_object" => extensions.gl_apple_vertex_array_object = true,
+            "GL_ARB_bindless_texture" => extensions.gl_arb_bindless_texture = true,
             "GL_ARB_buffer_storage" => extensions.gl_arb_buffer_storage = true,
             "GL_ARB_compute_shader" => extensions.gl_arb_compute_shader = true,
             "GL_ARB_copy_buffer" => extensions.gl_arb_copy_buffer = true,
