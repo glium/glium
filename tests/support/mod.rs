@@ -13,7 +13,39 @@ use std::env;
 
 /// Builds a headless display for tests.
 pub fn build_display() -> glium::Display {
-    let version = match env::var("GLIUM_GL_VERSION") {
+    let version = parse_version();
+
+    let display = if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
+        glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
+                                                       .with_gl(version)
+                                                       .build_glium().unwrap()
+    } else {
+        glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
+                                    .with_gl(version).build_glium().unwrap()
+    };
+
+    display
+}
+
+/// Rebuilds an existing display.
+///
+/// In real applications this is used for things such as switching to fullscreen. Some things are
+/// invalidated during a rebuild, and this has to be handled by glium.
+pub fn rebuild_display(display: &glium::Display) {
+    let version = parse_version();
+
+    if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
+        glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
+                                                       .with_gl(version)
+                                                       .rebuild_glium(display);
+    } else {
+        glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
+                                    .with_gl(version).rebuild_glium(display);
+    }
+}
+
+fn parse_version() -> glutin::GlRequest {
+    match env::var("GLIUM_GL_VERSION") {
         Ok(version) => {
             // expects "OpenGL 3.3" for example
 
@@ -39,18 +71,7 @@ pub fn build_display() -> glium::Display {
             glutin::GlRequest::Specific(ty, (major, minor))
         },
         Err(_) => glutin::GlRequest::Latest,
-    };
-
-    let display = if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
-        glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
-                                                       .with_gl(version)
-                                                       .build_glium().unwrap()
-    } else {
-        glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
-                                    .with_gl(version).build_glium().unwrap()
-    };
-
-    display
+    }
 }
 
 /// Builds a 2x2 unicolor texture.

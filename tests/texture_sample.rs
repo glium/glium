@@ -84,7 +84,7 @@ fn bindless_texture() {
         None => return
     };
 
-    // if resident textures are supported, we can call .unwrap() and expect that everything
+    // if bindless textures are supported, we can call .unwrap() and expect that everything
     // else is supported here as well
 
     let program = glium::Program::from_source(&display,
