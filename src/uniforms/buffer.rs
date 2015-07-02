@@ -8,7 +8,7 @@ use backend::Facade;
 
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
-pub struct UniformBuffer<T> where T: Copy + Send + 'static {
+pub struct UniformBuffer<T> where T: Copy {
     buffer: BufferView<T>,
 }
 
@@ -23,7 +23,7 @@ pub struct TypelessUniformBuffer {
     buffer: BufferViewAny,
 }
 
-impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
+impl<T> UniformBuffer<T> where T: Copy {
     /// Uploads data in the uniforms buffer.
     ///
     /// # Features
@@ -96,7 +96,7 @@ impl<T> UniformBuffer<T> where T: Copy + Send + 'static {
     }
 }
 
-impl<T> Deref for UniformBuffer<T> where T: Send + Copy + 'static {
+impl<T> Deref for UniformBuffer<T> where T: Copy {
     type Target = BufferView<T>;
 
     fn deref(&self) -> &BufferView<T> {
@@ -118,13 +118,13 @@ impl<'a, D> DerefMut for Mapping<'a, D> {
     }
 }
 
-impl<T> DerefMut for UniformBuffer<T> where T: Send + Copy + 'static {
+impl<T> DerefMut for UniformBuffer<T> where T: Copy {
     fn deref_mut(&mut self) -> &mut BufferView<T> {
         &mut self.buffer
     }
 }
 
-impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Send + Copy + 'static {
+impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Copy {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Block(self.buffer.as_slice_any(), <T as UniformBlock>::matches)
     }

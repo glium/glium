@@ -11,18 +11,18 @@ use ContextExt;
 
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
-pub struct VertexBuffer<T> where T: Copy + Send + 'static {
+pub struct VertexBuffer<T> where T: Copy {
     buffer: BufferView<T>,
     bindings: VertexFormat,
 }
 
 /// Represents a slice of a `VertexBuffer`.
-pub struct VertexBufferSlice<'b, T: 'b> where T: Copy + Send + 'static {
+pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
     buffer: BufferViewSlice<'b, T>,
     bindings: &'b VertexFormat,
 }
 
-impl<T: Vertex + 'static + Send> VertexBuffer<T> {
+impl<T> VertexBuffer<T> where T: Vertex {
     /// Builds a new vertex buffer.
     ///
     /// Note that operations such as `write` will be very slow. If you want to modify the buffer
@@ -83,7 +83,7 @@ impl<T: Vertex + 'static + Send> VertexBuffer<T> {
     }
 }
 
-impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
+impl<T> VertexBuffer<T> where T: Copy {
     /// Builds a new vertex buffer from an indeterminate data type and bindings.
     ///
     /// # Example
@@ -158,15 +158,6 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
         &self.bindings
     }
 
-    /// DEPRECATED: use `.into()` instead.
-    /// Discard the type information and turn the vertex buffer into a `VertexBufferAny`.
-    pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
-        VertexBufferAny {
-            buffer: self.buffer.into(),
-            bindings: self.bindings,
-        }
-    }
-
     /// Creates a marker that instructs glium to use multiple instances.
     ///
     /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
@@ -202,7 +193,18 @@ impl<T> VertexBuffer<T> where T: Send + Copy + 'static {
     }
 }
 
-impl<T> From<BufferView<T>> for VertexBuffer<T> where T: Vertex + Send + Copy + 'static {
+impl<T> VertexBuffer<T> where T: Copy + Send + 'static {
+    /// DEPRECATED: use `.into()` instead.
+    /// Discard the type information and turn the vertex buffer into a `VertexBufferAny`.
+    pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
+        VertexBufferAny {
+            buffer: self.buffer.into(),
+            bindings: self.bindings,
+        }
+    }
+}
+
+impl<T> From<BufferView<T>> for VertexBuffer<T> where T: Vertex + Copy {
     fn from(buffer: BufferView<T>) -> VertexBuffer<T> {
         let bindings = <T as Vertex>::build_bindings();
 
@@ -213,7 +215,7 @@ impl<T> From<BufferView<T>> for VertexBuffer<T> where T: Vertex + Send + Copy + 
     }
 }
 
-impl<T> Deref for VertexBuffer<T> where T: Send + Copy + 'static {
+impl<T> Deref for VertexBuffer<T> where T: Copy {
     type Target = BufferView<T>;
 
     fn deref(&self) -> &BufferView<T> {
@@ -221,19 +223,19 @@ impl<T> Deref for VertexBuffer<T> where T: Send + Copy + 'static {
     }
 }
 
-impl<T> DerefMut for VertexBuffer<T> where T: Send + Copy + 'static {
+impl<T> DerefMut for VertexBuffer<T> where T: Copy {
     fn deref_mut(&mut self) -> &mut BufferView<T> {
         &mut self.buffer
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Send + Copy + 'static {
+impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Copy {
     fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
 
-impl<'a, T> Deref for VertexBufferSlice<'a, T> where T: Send + Copy + 'static {
+impl<'a, T> Deref for VertexBufferSlice<'a, T> where T: Copy {
     type Target = BufferViewSlice<'a, T>;
 
     fn deref(&self) -> &BufferViewSlice<'a, T> {
@@ -241,13 +243,13 @@ impl<'a, T> Deref for VertexBufferSlice<'a, T> where T: Send + Copy + 'static {
     }
 }
 
-impl<'a, T> DerefMut for VertexBufferSlice<'a, T> where T: Send + Copy + 'static {
+impl<'a, T> DerefMut for VertexBufferSlice<'a, T> where T: Copy {
     fn deref_mut(&mut self) -> &mut BufferViewSlice<'a, T> {
         &mut self.buffer
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy {
     fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
@@ -322,13 +324,13 @@ impl VertexBufferAny {
     }
 }
 
-impl<T> From<VertexBuffer<T>> for VertexBufferAny where T: Send + Copy + 'static {
+impl<T> From<VertexBuffer<T>> for VertexBufferAny where T: Copy + Send + 'static {
     fn from(buf: VertexBuffer<T>) -> VertexBufferAny {
         buf.into_vertex_buffer_any()
     }
 }
 
-impl<T> From<BufferView<T>> for VertexBufferAny where T: Vertex + Send + Copy + 'static {
+impl<T> From<BufferView<T>> for VertexBufferAny where T: Vertex + Copy + Send + 'static {
     fn from(buf: BufferView<T>) -> VertexBufferAny {
         let buf: VertexBuffer<T> = buf.into();
         buf.into_vertex_buffer_any()
