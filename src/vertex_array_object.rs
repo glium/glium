@@ -350,58 +350,58 @@ impl GlObject for VertexArrayObject {
     }
 }
 
-fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types::GLint) {
+fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types::GLint, gl::types::GLint) {
     match ty {
-        AttributeType::I8 => (gl::BYTE, 1),
-        AttributeType::I8I8 => (gl::BYTE, 2),
-        AttributeType::I8I8I8 => (gl::BYTE, 3),
-        AttributeType::I8I8I8I8 => (gl::BYTE, 4),
-        AttributeType::U8 => (gl::UNSIGNED_BYTE, 1),
-        AttributeType::U8U8 => (gl::UNSIGNED_BYTE, 2),
-        AttributeType::U8U8U8 => (gl::UNSIGNED_BYTE, 3),
-        AttributeType::U8U8U8U8 => (gl::UNSIGNED_BYTE, 4),
-        AttributeType::I16 => (gl::SHORT, 1),
-        AttributeType::I16I16 => (gl::SHORT, 2),
-        AttributeType::I16I16I16 => (gl::SHORT, 3),
-        AttributeType::I16I16I16I16 => (gl::SHORT, 4),
-        AttributeType::U16 => (gl::UNSIGNED_SHORT, 1),
-        AttributeType::U16U16 => (gl::UNSIGNED_SHORT, 2),
-        AttributeType::U16U16U16 => (gl::UNSIGNED_SHORT, 3),
-        AttributeType::U16U16U16U16 => (gl::UNSIGNED_SHORT, 4),
-        AttributeType::I32 => (gl::INT, 1),
-        AttributeType::I32I32 => (gl::INT, 2),
-        AttributeType::I32I32I32 => (gl::INT, 3),
-        AttributeType::I32I32I32I32 => (gl::INT, 4),
-        AttributeType::U32 => (gl::UNSIGNED_INT, 1),
-        AttributeType::U32U32 => (gl::UNSIGNED_INT, 2),
-        AttributeType::U32U32U32 => (gl::UNSIGNED_INT, 3),
-        AttributeType::U32U32U32U32 => (gl::UNSIGNED_INT, 4),
-        AttributeType::F32 => (gl::FLOAT, 1),
-        AttributeType::F32F32 => (gl::FLOAT, 2),
-        AttributeType::F32F32F32 => (gl::FLOAT, 3),
-        AttributeType::F32F32F32F32 => (gl::FLOAT, 4),
-        AttributeType::F32x2x2 => (gl::FLOAT_MAT2, 1),
-        AttributeType::F32x2x3 => (gl::FLOAT_MAT2x3, 1),
-        AttributeType::F32x2x4 => (gl::FLOAT_MAT2x4, 1),
-        AttributeType::F32x3x2 => (gl::FLOAT_MAT3x2, 1),
-        AttributeType::F32x3x3 => (gl::FLOAT_MAT3, 1),
-        AttributeType::F32x3x4 => (gl::FLOAT_MAT3x4, 1),
-        AttributeType::F32x4x2 => (gl::FLOAT_MAT4x2, 1),
-        AttributeType::F32x4x3 => (gl::FLOAT_MAT4x3, 1),
-        AttributeType::F32x4x4 => (gl::FLOAT_MAT4, 1),
-        AttributeType::F64 => (gl::DOUBLE, 1),
-        AttributeType::F64F64 => (gl::DOUBLE, 2),
-        AttributeType::F64F64F64 => (gl::DOUBLE, 3),
-        AttributeType::F64F64F64F64 => (gl::DOUBLE, 4),
-        AttributeType::F64x2x2 => (gl::DOUBLE_MAT2, 1),
-        AttributeType::F64x2x3 => (gl::DOUBLE_MAT2x3, 1),
-        AttributeType::F64x2x4 => (gl::DOUBLE_MAT2x4, 1),
-        AttributeType::F64x3x2 => (gl::DOUBLE_MAT3x2, 1),
-        AttributeType::F64x3x3 => (gl::DOUBLE_MAT3, 1),
-        AttributeType::F64x3x4 => (gl::DOUBLE_MAT3x4, 1),
-        AttributeType::F64x4x2 => (gl::DOUBLE_MAT4x2, 1),
-        AttributeType::F64x4x3 => (gl::DOUBLE_MAT4x3, 1),
-        AttributeType::F64x4x4 => (gl::DOUBLE_MAT4, 1),
+        AttributeType::I8 => (gl::BYTE, 1, 1),
+        AttributeType::I8I8 => (gl::BYTE, 2, 1),
+        AttributeType::I8I8I8 => (gl::BYTE, 3, 1),
+        AttributeType::I8I8I8I8 => (gl::BYTE, 4, 1),
+        AttributeType::U8 => (gl::UNSIGNED_BYTE, 1, 1),
+        AttributeType::U8U8 => (gl::UNSIGNED_BYTE, 2, 1),
+        AttributeType::U8U8U8 => (gl::UNSIGNED_BYTE, 3, 1),
+        AttributeType::U8U8U8U8 => (gl::UNSIGNED_BYTE, 4, 1),
+        AttributeType::I16 => (gl::SHORT, 1, 1),
+        AttributeType::I16I16 => (gl::SHORT, 2, 1),
+        AttributeType::I16I16I16 => (gl::SHORT, 3, 1),
+        AttributeType::I16I16I16I16 => (gl::SHORT, 4, 1),
+        AttributeType::U16 => (gl::UNSIGNED_SHORT, 1, 1),
+        AttributeType::U16U16 => (gl::UNSIGNED_SHORT, 2, 1),
+        AttributeType::U16U16U16 => (gl::UNSIGNED_SHORT, 3, 1),
+        AttributeType::U16U16U16U16 => (gl::UNSIGNED_SHORT, 4, 1),
+        AttributeType::I32 => (gl::INT, 1, 1),
+        AttributeType::I32I32 => (gl::INT, 2, 1),
+        AttributeType::I32I32I32 => (gl::INT, 3, 1),
+        AttributeType::I32I32I32I32 => (gl::INT, 4, 1),
+        AttributeType::U32 => (gl::UNSIGNED_INT, 1, 1),
+        AttributeType::U32U32 => (gl::UNSIGNED_INT, 2, 1),
+        AttributeType::U32U32U32 => (gl::UNSIGNED_INT, 3, 1),
+        AttributeType::U32U32U32U32 => (gl::UNSIGNED_INT, 4, 1),
+        AttributeType::F32 => (gl::FLOAT, 1, 1),
+        AttributeType::F32F32 => (gl::FLOAT, 2, 1),
+        AttributeType::F32F32F32 => (gl::FLOAT, 3, 1),
+        AttributeType::F32F32F32F32 => (gl::FLOAT, 4, 1),
+        AttributeType::F32x2x2 => (gl::FLOAT, 2, 2),
+        AttributeType::F32x2x3 => (gl::FLOAT, 2, 3),
+        AttributeType::F32x2x4 => (gl::FLOAT, 2, 4),
+        AttributeType::F32x3x2 => (gl::FLOAT, 3, 2),
+        AttributeType::F32x3x3 => (gl::FLOAT, 3, 3),
+        AttributeType::F32x3x4 => (gl::FLOAT, 3, 4),
+        AttributeType::F32x4x2 => (gl::FLOAT, 4, 2),
+        AttributeType::F32x4x3 => (gl::FLOAT, 4, 3),
+        AttributeType::F32x4x4 => (gl::FLOAT, 4, 4),
+        AttributeType::F64 => (gl::DOUBLE, 1, 1),
+        AttributeType::F64F64 => (gl::DOUBLE, 2, 1),
+        AttributeType::F64F64F64 => (gl::DOUBLE, 3, 1),
+        AttributeType::F64F64F64F64 => (gl::DOUBLE, 4, 1),
+        AttributeType::F64x2x2 => (gl::DOUBLE, 2, 2),
+        AttributeType::F64x2x3 => (gl::DOUBLE, 2, 3),
+        AttributeType::F64x2x4 => (gl::DOUBLE, 2, 4),
+        AttributeType::F64x3x2 => (gl::DOUBLE, 3, 2),
+        AttributeType::F64x3x3 => (gl::DOUBLE, 3, 3),
+        AttributeType::F64x3x4 => (gl::DOUBLE, 3, 4),
+        AttributeType::F64x4x2 => (gl::DOUBLE, 4, 2),
+        AttributeType::F64x4x3 => (gl::DOUBLE, 4, 3),
+        AttributeType::F64x4x4 => (gl::DOUBLE, 4, 4),
     }
 }
 
@@ -451,17 +451,17 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
 
     // binding attributes
     for &(ref name, offset, ty) in bindings.iter() {
-        let (data_type, elements_count) = vertex_binding_type_to_gl(ty);
+        let (data_type, elements_count, instances_count) = vertex_binding_type_to_gl(ty);
 
         let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
             Some(a) => a,
             None => continue
         };
 
-        let (attribute_ty, _) = vertex_binding_type_to_gl(attribute.ty);
-
         if attribute.location != -1 {
+            let (attribute_ty, _, _) = vertex_binding_type_to_gl(attribute.ty);
             match attribute_ty {
+                //The first three cases also account for Vecs of ints/doubles/floats
                 gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
                 gl::INT | gl::UNSIGNED_INT =>
                     ctxt.gl.VertexAttribIPointer(attribute.location as u32,
@@ -469,26 +469,38 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
                                                  stride as i32,
                                                  (buffer_offset + offset) as *const libc::c_void),
 
-                gl::DOUBLE | gl::DOUBLE_VEC2 | gl::DOUBLE_VEC3 | gl::DOUBLE_VEC4 |
-                gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
+                gl::FLOAT | gl::FLOAT_MAT2 | gl::FLOAT_MAT3 | gl::FLOAT_MAT4 |
+                gl::FLOAT_MAT2x3 | gl::FLOAT_MAT2x4 | gl::FLOAT_MAT3x2 |
+                gl::FLOAT_MAT3x4 | gl::FLOAT_MAT4x2 | gl::FLOAT_MAT4x3 => {
+                    for i in 0..instances_count {
+                        ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
+                                                    elements_count as gl::types::GLint, data_type, 0,
+                                                    stride as i32,
+                                                    (buffer_offset + offset + (i * elements_count * 4) as usize) as *const libc::c_void)
+                    }
+                },
+
+                gl::DOUBLE | gl::DOUBLE_MAT2 | gl::DOUBLE_MAT3 | gl::DOUBLE_MAT4 |
                 gl::DOUBLE_MAT2x3 | gl::DOUBLE_MAT2x4 | gl::DOUBLE_MAT3x2 |
-                gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 =>
-                    ctxt.gl.VertexAttribLPointer(attribute.location as u32,
-                                                 elements_count as gl::types::GLint, data_type,
-                                                 stride as i32,
-                                                 (buffer_offset + offset) as *const libc::c_void),
+                gl::DOUBLE_MAT3x4 | gl::DOUBLE_MAT4x2 | gl::DOUBLE_MAT4x3 => {
+                    for i in 0..instances_count {
+                        ctxt.gl.VertexAttribLPointer((attribute.location + i) as u32,
+                                                     elements_count as gl::types::GLint, data_type,
+                                                     stride as i32,
+                                                     (buffer_offset + offset + (i * elements_count * 8) as usize) as *const libc::c_void)
+                    }
+                },
 
-                _ => ctxt.gl.VertexAttribPointer(attribute.location as u32,
-                                                 elements_count as gl::types::GLint, data_type, 0,
-                                                 stride as i32,
-                                                 (buffer_offset + offset) as *const libc::c_void)
+                _ => unreachable!()
             }
 
-            if let Some(divisor) = divisor {
-                ctxt.gl.VertexAttribDivisor(attribute.location as u32, divisor);
-            }
+            for i in 0..instances_count {
+                if let Some(divisor) = divisor {
+                    ctxt.gl.VertexAttribDivisor((attribute.location + i) as u32, divisor);
+                }
 
-            ctxt.gl.EnableVertexAttribArray(attribute.location as u32);
+                ctxt.gl.EnableVertexAttribArray((attribute.location + i) as u32);
+            }
         }
     }
 }
