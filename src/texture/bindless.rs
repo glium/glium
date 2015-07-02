@@ -14,6 +14,7 @@ use ContextExt;
 use gl;
 
 use std::marker::PhantomData;
+use std::ops::{Deref, DerefMut};
 
 /// A texture that is resident in video memory. This allows you to use bindless textures in your
 /// shaders.
@@ -73,6 +74,20 @@ impl ResidentTexture {
         }
 
         texture
+    }
+}
+
+impl Deref for ResidentTexture {
+    type Target = TextureAny;
+
+    fn deref(&self) -> &TextureAny {
+        self.texture.as_ref().unwrap()
+    }
+}
+
+impl DerefMut for ResidentTexture {
+    fn deref_mut(&mut self) -> &mut TextureAny {
+        self.texture.as_mut().unwrap()
     }
 }
 
