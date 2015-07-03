@@ -36,6 +36,14 @@ pub enum AttributeType {
     U32U32,
     U32U32U32,
     U32U32U32U32,
+    I64,
+    I64I64,
+    I64I64I64,
+    I64I64I64I64,
+    U64,
+    U64U64,
+    U64U64U64,
+    U64U64U64U64,
     F32,
     F32F32,
     F32F32F32,
@@ -159,6 +167,14 @@ impl AttributeType {
             AttributeType::U32U32 => 2 * mem::size_of::<u32>(),
             AttributeType::U32U32U32 => 3 * mem::size_of::<u32>(),
             AttributeType::U32U32U32U32 => 4 * mem::size_of::<u32>(),
+            AttributeType::I64 => 1 * mem::size_of::<i64>(),
+            AttributeType::I64I64 => 2 * mem::size_of::<i64>(),
+            AttributeType::I64I64I64 => 3 * mem::size_of::<i64>(),
+            AttributeType::I64I64I64I64 => 4 * mem::size_of::<i64>(),
+            AttributeType::U64 => 1 * mem::size_of::<u64>(),
+            AttributeType::U64U64 => 2 * mem::size_of::<u64>(),
+            AttributeType::U64U64U64 => 3 * mem::size_of::<u64>(),
+            AttributeType::U64U64U64U64 => 4 * mem::size_of::<u64>(),
             AttributeType::F32 => 1 * mem::size_of::<f32>(),
             AttributeType::F32F32 => 2 * mem::size_of::<f32>(),
             AttributeType::F32F32F32 => 3 * mem::size_of::<f32>(),
@@ -215,6 +231,14 @@ impl AttributeType {
             AttributeType::U32U32 => 2,
             AttributeType::U32U32U32 => 3,
             AttributeType::U32U32U32U32 => 4,
+            AttributeType::I64 => 1,
+            AttributeType::I64I64 => 2,
+            AttributeType::I64I64I64 => 3,
+            AttributeType::I64I64I64I64 => 4,
+            AttributeType::U64 => 1,
+            AttributeType::U64U64 => 2,
+            AttributeType::U64U64U64 => 3,
+            AttributeType::U64U64U64U64 => 4,
             AttributeType::F32 => 1,
             AttributeType::F32F32 => 2,
             AttributeType::F32F32F32 => 3,
@@ -500,6 +524,90 @@ unsafe impl Attribute for (u32, u32, u32, u32) {
 unsafe impl Attribute for [u32; 4] {
     fn get_type() -> AttributeType {
         AttributeType::U32U32U32U32
+    }
+}
+
+unsafe impl Attribute for i64 {
+    fn get_type() -> AttributeType {
+        AttributeType::I64
+    }
+}
+
+unsafe impl Attribute for (i64, i64) {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64
+    }
+}
+
+unsafe impl Attribute for [i64; 2] {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64
+    }
+}
+
+unsafe impl Attribute for (i64, i64, i64) {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64
+    }
+}
+
+unsafe impl Attribute for [i64; 3] {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64
+    }
+}
+
+unsafe impl Attribute for (i64, i64, i64, i64) {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64I64
+    }
+}
+
+unsafe impl Attribute for [i64; 4] {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64I64
+    }
+}
+
+unsafe impl Attribute for u64 {
+    fn get_type() -> AttributeType {
+        AttributeType::U64
+    }
+}
+
+unsafe impl Attribute for (u64, u64) {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64
+    }
+}
+
+unsafe impl Attribute for [u64; 2] {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64
+    }
+}
+
+unsafe impl Attribute for (u64, u64, u64) {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64
+    }
+}
+
+unsafe impl Attribute for [u64; 3] {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64
+    }
+}
+
+unsafe impl Attribute for (u64, u64, u64, u64) {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64U64
+    }
+}
+
+unsafe impl Attribute for [u64; 4] {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64U64
     }
 }
 
@@ -831,6 +939,76 @@ unsafe impl Attribute for cgmath::Vector3<u32> {
 unsafe impl Attribute for cgmath::Vector4<u32> {
     fn get_type() -> AttributeType {
         AttributeType::U32U32U32U32
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Point2<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Point3<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Vector2<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Vector3<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Vector4<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64I64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Point2<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Point3<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Vector2<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Vector3<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64
+    }
+}
+
+#[cfg(feature="cgmath")]
+unsafe impl Attribute for cgmath::Vector4<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64U64
     }
 }
 
