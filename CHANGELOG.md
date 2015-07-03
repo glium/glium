@@ -1,9 +1,9 @@
 # Change Log
 
-## Unreleased
+## Version 0.6.6 (2015-07-03)
 
  - Buffers with persistent mapping now synchronize individual segments of the buffer instead of the buffer as a whole.
- - Dynamic sized arrays are now properly handled by the retrospection system.
+ - Dynamic sized arrays are now properly handled by the introspection system.
  - Added support for matrix shader attributes.
  - Fixed the value of `depth_write` being ignored if `depth_test` was `Overwrite`.
 
