@@ -113,8 +113,14 @@ fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &Uniform
 {
     match value {
         &UniformValue::Block(buffer, ref layout) => {
-            if !layout(block) {
-                return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
+            match layout(block) {
+                Ok(_) => (),
+                Err(e) => {
+                    return Err(DrawError::UniformBlockLayoutMismatch {
+                        name: name.to_string(),
+                        err: e,
+                    });
+                }
             }
 
             let bind_point = buffer_bind_points.get_unused().expect("Not enough buffer units");
@@ -143,8 +149,14 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &
 {
     match value {
         &UniformValue::Block(buffer, ref layout) => {
-            if !layout(block) {
-                return Err(DrawError::UniformBlockLayoutMismatch { name: name.to_string() });
+            match layout(block) {
+                Ok(_) => (),
+                Err(e) => {
+                    return Err(DrawError::UniformBlockLayoutMismatch {
+                        name: name.to_string(),
+                        err: e,
+                    });
+                }
             }
 
             let bind_point = buffer_bind_points.get_unused().expect("Not enough buffer units");

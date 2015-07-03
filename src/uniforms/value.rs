@@ -1,12 +1,13 @@
 use program;
 use program::BlockLayout;
 use texture;
+
+use uniforms::AsUniformValue;
+use uniforms::LayoutMismatchError;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
 
 use buffer::BufferViewAnySlice;
-
-use std::mem;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
@@ -128,15 +129,6 @@ pub enum UniformType {
     AtomicCounterUint,
 }
 
-/// Value that can be used as the value of a uniform.
-pub trait AsUniformValue {
-    /// Builds a `UniformValue`.
-    fn as_uniform_value(&self) -> UniformValue;
-
-    /// If this value is used in a buffer, returns true if it matches the specified type.
-    fn matches(&UniformType) -> bool;
-}
-
 /// Represents a value to bind to a uniform.
 #[allow(missing_docs)]
 #[derive(Copy)]
@@ -145,7 +137,7 @@ pub enum UniformValue<'a> {
     /// can be binded on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
-    Block(BufferViewAnySlice<'a>, fn(&program::UniformBlock) -> bool),
+    Block(BufferViewAnySlice<'a>, fn(&program::UniformBlock) -> Result<(), LayoutMismatchError>),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),
@@ -264,35 +256,53 @@ impl<'a> UniformValue<'a> {
     }
 }
 
-impl<T> UniformBlock for T where T: AsUniformValue + Copy {
-    fn matches(block: &program::UniformBlock) -> bool {
-        fn inner_match<T>(layout: &BlockLayout) -> bool where T: AsUniformValue + Copy {
-            if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
-                offset_in_buffer == 0 && <T as AsUniformValue>::matches(&ty)
+macro_rules! impl_uniform_block_basic {
+    ($ty:ty, $uniform_ty:expr) => (
+        impl UniformBlock for $ty {
+            fn matches(layout: &program::BlockLayout, base_offset: usize)
+                       -> Result<(), LayoutMismatchError>
+            {
+                if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
+                    if ty != $uniform_ty {
+                        return Err(LayoutMismatchError::TypeMismatch {
+                            expected: ty,
+                            obtained: $uniform_ty,
+                        });
+                    }
 
-            } else if let &BlockLayout::Struct { ref members } = layout {
-                if members.len() == 1 {
-                    inner_match::<T>(&members[0].1)
+                    if offset_in_buffer != base_offset {
+                        return Err(LayoutMismatchError::OffsetMismatch {
+                            expected: offset_in_buffer,
+                            obtained: base_offset,
+                        });
+                    }
+
+                    Ok(())
+
                 } else {
-                    false
+                    Err(LayoutMismatchError::LayoutMismatch {
+                        expected: layout.clone(),
+                        obtained: BlockLayout::BasicType {
+                            ty: $uniform_ty,
+                            offset_in_buffer: base_offset,
+                        }
+                    })
                 }
+            }
 
-            } else {
-                false
+            fn build_layout(base_offset: usize) -> program::BlockLayout {
+                BlockLayout::BasicType {
+                    ty: $uniform_ty,
+                    offset_in_buffer: base_offset,
+                }
             }
         }
-
-        block.size >= mem::size_of::<T>() && inner_match::<T>(&block.layout)
-    }
+    )
 }
 
 impl AsUniformValue for i8 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::SignedInt(*self as i32)
-    }
-
-    fn matches(_: &UniformType) -> bool {
-        false
     }
 }
 
@@ -300,19 +310,11 @@ impl AsUniformValue for u8 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::UnsignedInt(*self as u32)
     }
-
-    fn matches(_: &UniformType) -> bool {
-        false
-    }
 }
 
 impl AsUniformValue for i16 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::SignedInt(*self as i32)
-    }
-
-    fn matches(_: &UniformType) -> bool {
-        false
     }
 }
 
@@ -320,131 +322,115 @@ impl AsUniformValue for u16 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::UnsignedInt(*self as u32)
     }
-
-    fn matches(_: &UniformType) -> bool {
-        false
-    }
 }
 
 impl AsUniformValue for i32 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::SignedInt(*self as i32)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::Int
-    }
 }
+
+impl_uniform_block_basic!(i32, UniformType::Int);
+impl_uniform_block_basic!([i32; 2], UniformType::IntVec2);
+impl_uniform_block_basic!((i32, i32), UniformType::IntVec2);
+impl_uniform_block_basic!([i32; 3], UniformType::IntVec3);
+impl_uniform_block_basic!((i32, i32, i32), UniformType::IntVec3);
+impl_uniform_block_basic!([i32; 4], UniformType::IntVec4);
+impl_uniform_block_basic!((i32, i32, i32, i32), UniformType::IntVec4);
 
 impl AsUniformValue for u32 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::UnsignedInt(*self as u32)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::UnsignedInt
-    }
 }
+
+impl_uniform_block_basic!(u32, UniformType::UnsignedInt);
+impl_uniform_block_basic!([u32; 2], UniformType::UnsignedIntVec2);
+impl_uniform_block_basic!((u32, u32), UniformType::UnsignedIntVec2);
+impl_uniform_block_basic!([u32; 3], UniformType::UnsignedIntVec3);
+impl_uniform_block_basic!((u32, u32, u32), UniformType::UnsignedIntVec3);
+impl_uniform_block_basic!([u32; 4], UniformType::UnsignedIntVec4);
+impl_uniform_block_basic!((u32, u32, u32, u32), UniformType::UnsignedIntVec4);
 
 impl AsUniformValue for f32 {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Float(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::Float
-    }
 }
+
+impl_uniform_block_basic!(f32, UniformType::Float);
 
 impl AsUniformValue for [[f32; 2]; 2] {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Mat2(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat2
-    }
 }
+
+impl_uniform_block_basic!([[f32; 2]; 2], UniformType::FloatMat2);
 
 impl AsUniformValue for [[f32; 3]; 3] {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Mat3(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat3
-    }
 }
+
+impl_uniform_block_basic!([[f32; 3]; 3], UniformType::FloatMat3);
 
 impl AsUniformValue for [[f32; 4]; 4] {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Mat4(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
 
 impl AsUniformValue for (f32, f32) {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec2([self.0, self.1])
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec2
-    }
 }
+
+impl_uniform_block_basic!((f32, f32), UniformType::FloatVec2);
 
 impl AsUniformValue for (f32, f32, f32) {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec3([self.0, self.1, self.2])
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec3
-    }
 }
+
+impl_uniform_block_basic!((f32, f32, f32), UniformType::FloatVec3);
 
 impl AsUniformValue for (f32, f32, f32, f32) {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec4([self.0, self.1, self.2, self.3])
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+impl_uniform_block_basic!((f32, f32, f32, f32), UniformType::FloatVec4);
 
 impl AsUniformValue for [f32; 2] {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec2(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec2
-    }
 }
+
+impl_uniform_block_basic!([f32; 2], UniformType::FloatVec2);
 
 impl AsUniformValue for [f32; 3] {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec3(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec3
-    }
 }
+
+impl_uniform_block_basic!([f32; 3], UniformType::FloatVec3);
 
 impl AsUniformValue for [f32; 4] {
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec4(*self)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+impl_uniform_block_basic!([f32; 4], UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Mat2<f32> {
@@ -452,11 +438,10 @@ impl AsUniformValue for nalgebra::Mat2<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat2
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Mat2<f32>, UniformType::FloatMat2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Mat3<f32> {
@@ -464,11 +449,10 @@ impl AsUniformValue for nalgebra::Mat3<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat3
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Mat3<f32>, UniformType::FloatMat3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Mat4<f32> {
@@ -476,11 +460,10 @@ impl AsUniformValue for nalgebra::Mat4<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Mat4<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Ortho3<f32> {
@@ -488,11 +471,10 @@ impl AsUniformValue for nalgebra::Ortho3<f32> {
         let my_value = self.to_mat(); // Bind to a Mat4
         UniformValue::Mat4(*my_value.as_array())
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Ortho3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::OrthoMat3<f32> {
@@ -500,11 +482,10 @@ impl AsUniformValue for nalgebra::OrthoMat3<f32> {
         let my_value = self.as_mat(); // Bind to a Mat4
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::OrthoMat3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Persp3<f32> {
@@ -512,11 +493,10 @@ impl AsUniformValue for nalgebra::Persp3<f32> {
         let my_value = self.to_mat(); // Bind to a Mat4
         UniformValue::Mat4(*my_value.as_array())
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Persp3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::PerspMat3<f32> {
@@ -524,11 +504,10 @@ impl AsUniformValue for nalgebra::PerspMat3<f32> {
         let my_value = self.as_mat(); // Bind to a Mat4
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::PerspMat3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Pnt2<f32> {
@@ -536,11 +515,10 @@ impl AsUniformValue for nalgebra::Pnt2<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec2
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Pnt2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Pnt3<f32> {
@@ -548,11 +526,10 @@ impl AsUniformValue for nalgebra::Pnt3<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec3
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Pnt3<f32>, UniformType::FloatVec3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Pnt4<f32> {
@@ -560,11 +537,10 @@ impl AsUniformValue for nalgebra::Pnt4<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Pnt4<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Quat<f32> {
@@ -572,11 +548,10 @@ impl AsUniformValue for nalgebra::Quat<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Quat<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Rot2<f32> {
@@ -584,11 +559,10 @@ impl AsUniformValue for nalgebra::Rot2<f32> {
         let my_value = self.submat(); // Bind to a Mat2
         UniformValue::Mat2(*my_value.as_array())
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat2
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Rot2<f32>, UniformType::FloatMat2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Rot3<f32> {
@@ -596,11 +570,10 @@ impl AsUniformValue for nalgebra::Rot3<f32> {
         let my_value = self.submat(); // Bind to a Mat3
         UniformValue::Mat3(*my_value.as_array())
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat3
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Rot3<f32>, UniformType::FloatMat3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Rot4<f32> {
@@ -608,11 +581,10 @@ impl AsUniformValue for nalgebra::Rot4<f32> {
         let my_value = self.submat(); // Bind to a Mat4
         UniformValue::Mat4(*my_value.as_array())
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Rot4<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::UnitQuat<f32> {
@@ -620,11 +592,10 @@ impl AsUniformValue for nalgebra::UnitQuat<f32> {
         let my_value = self.quat(); // Bind to a Quat
         UniformValue::Vec4(*my_value.as_array())
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::UnitQuat<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Vec2<f32> {
@@ -632,11 +603,10 @@ impl AsUniformValue for nalgebra::Vec2<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec2
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Vec2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Vec3<f32> {
@@ -644,11 +614,10 @@ impl AsUniformValue for nalgebra::Vec3<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec3
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Vec3<f32>, UniformType::FloatVec3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Vec4<f32> {
@@ -656,11 +625,10 @@ impl AsUniformValue for nalgebra::Vec4<f32> {
         let my_value = self.as_array();
         my_value.as_uniform_value()
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+#[cfg(feature = "nalgebra")]
+impl_uniform_block_basic!(nalgebra::Vec4<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Matrix2<f32> {
@@ -669,11 +637,10 @@ impl AsUniformValue for cgmath::Matrix2<f32> {
         let my_value = self.into_fixed();
         UniformValue::Mat2(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat2
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Matrix2<f32>, UniformType::FloatMat2);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Matrix3<f32> {
@@ -682,11 +649,10 @@ impl AsUniformValue for cgmath::Matrix3<f32> {
         let my_value = self.into_fixed();
         UniformValue::Mat3(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat3
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Matrix3<f32>, UniformType::FloatMat3);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Matrix4<f32> {
@@ -695,11 +661,10 @@ impl AsUniformValue for cgmath::Matrix4<f32> {
         let my_value = self.into_fixed();
         UniformValue::Mat4(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatMat4
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Matrix4<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Vector2<f32> {
@@ -708,11 +673,10 @@ impl AsUniformValue for cgmath::Vector2<f32> {
         let my_value = self.into_fixed();
         UniformValue::Vec2(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec2
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Vector2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Vector3<f32> {
@@ -721,11 +685,10 @@ impl AsUniformValue for cgmath::Vector3<f32> {
         let my_value = self.into_fixed();
         UniformValue::Vec3(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec3
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Vector3<f32>, UniformType::FloatVec3);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Vector4<f32> {
@@ -734,11 +697,10 @@ impl AsUniformValue for cgmath::Vector4<f32> {
         let my_value = self.into_fixed();
         UniformValue::Vec4(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec4
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Vector4<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Point2<f32> {
@@ -747,11 +709,10 @@ impl AsUniformValue for cgmath::Point2<f32> {
         let my_value = self.into_fixed();
         UniformValue::Vec2(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec2
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Point2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Point3<f32> {
@@ -760,8 +721,7 @@ impl AsUniformValue for cgmath::Point3<f32> {
         let my_value = self.into_fixed();
         UniformValue::Vec3(my_value)
     }
-
-    fn matches(ty: &UniformType) -> bool {
-        ty == &UniformType::FloatVec3
-    }
 }
+
+#[cfg(feature = "cgmath")]
+impl_uniform_block_basic!(cgmath::Point3<f32>, UniformType::FloatVec3);

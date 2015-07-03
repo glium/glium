@@ -44,6 +44,9 @@ pub unsafe trait Content {
 
     /// Builds a pointer to this type from a raw pointer.
     fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut Self>;
+
+    /// Returns true if the size is suitable to store a type like this.
+    fn is_size_suitable(usize) -> bool;
 }
 
 unsafe impl<T> Content for T where T: Copy {
@@ -70,6 +73,10 @@ unsafe impl<T> Content for T where T: Copy {
         }
 
         Some(ptr as *mut T)
+    }
+
+    fn is_size_suitable(size: usize) -> bool {
+        size == mem::size_of::<T>()
     }
 }
 
@@ -103,6 +110,10 @@ unsafe impl<T> Content for [T] where T: Copy {
         let ptr = ptr as *mut T;
         let size = size / mem::size_of::<T>();
         Some(unsafe { slice::from_raw_parts_mut(&mut *ptr, size) as *mut [T] })
+    }
+
+    fn is_size_suitable(size: usize) -> bool {
+        size % mem::size_of::<T>() == 0
     }
 }
 

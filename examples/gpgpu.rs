@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate glium;
+extern crate rand;
 use glium::glutin;
 
 fn main() {
@@ -12,53 +13,51 @@ fn main() {
     let program = glium::program::ComputeShader::from_source(&display, r#"\
 
             #version 430
-            buffer layout(shared);
+            buffer layout(std140);
             layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
             buffer MyBlock {
-                ivec4 value[256];
+                float power;
+                float values[256];
             };
 
             void main() {
-                ivec4 val = value[gl_GlobalInvocationID.x];
-                value[gl_GlobalInvocationID.x] = val * val;
+                float val = values[gl_GlobalInvocationID.x];
+                values[gl_GlobalInvocationID.x] = pow(val, power);
             }
 
         "#).unwrap();
 
-    #[derive(Copy)]
     struct Data {
-        value: [i32; 1024],
+        power: f32,
+        _padding: [f32; 3],
+        values: [f32],
     }
 
-    impl Clone for Data {
-        fn clone(&self) -> Data {
-            *self
-        }
-    }
+    implement_buffer_content!(Data);
+    implement_uniform_block!(Data, power, values);
 
-    implement_uniform_block!(Data, value);
+    const NUM_VALUES: usize = 4096;
 
     let mut buffer: glium::uniforms::UniformBuffer<Data> =
-                            glium::uniforms::UniformBuffer::empty_if_supported(&display).unwrap();
+glium::uniforms::UniformBuffer::empty_unsized_if_supported(&display, 4 + 4 * NUM_VALUES).unwrap();
 
     {
         let mut mapping = buffer.map();
-        for (id, v) in mapping.value.iter_mut().enumerate() {
-            *v = id as i32;
+        mapping.power = rand::random();
+        for val in mapping.values.iter_mut() {
+            *val = rand::random();
         }
     }
 
-    program.execute(uniform! { MyBlock: &buffer }, 1024, 1, 1);
+    program.execute(uniform! { MyBlock: &*buffer }, 4096, 1, 1);
 
     {
         let mapping = buffer.map();
-        assert_eq!(mapping.value[0], 0);
-        assert_eq!(mapping.value[1], 1);
-        assert_eq!(mapping.value[2], 4);
-        assert_eq!(mapping.value[3], 9);
-        assert_eq!(mapping.value[4], 16);
-        assert_eq!(mapping.value[5], 25);
-        assert_eq!(mapping.value[6], 36);
+        println!("Power is: {:?}", mapping.power);
+        for val in mapping.values.iter().take(10) {
+            println!("{:?}", *val);
+        }
+        println!("...");
     }
 }
