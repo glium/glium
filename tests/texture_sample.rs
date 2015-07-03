@@ -114,7 +114,7 @@ fn bindless_texture() {
         None).unwrap();
 
     let buffer = glium::uniforms::UniformBuffer::new_if_supported(&display,
-                                            glium::texture::TextureHandle::new(&texture)).unwrap();
+                                            glium::texture::TextureHandle::new(&texture, &Default::default())).unwrap();
 
     let output = support::build_renderable_texture(&display);
     output.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);

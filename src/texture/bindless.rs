@@ -19,6 +19,7 @@ use std::ops::{Deref, DerefMut};
 use uniforms::AsUniformValue;
 use uniforms::UniformValue;
 use uniforms::UniformType;
+use uniforms::SamplerBehavior;
 
 /// A texture that is resident in video memory. This allows you to use bindless textures in your
 /// shaders.
@@ -110,7 +111,8 @@ pub struct TextureHandle<'a> {
 
 impl<'a> TextureHandle<'a> {
     /// Builds a new handle.
-    pub fn new(texture: &'a ResidentTexture) -> TextureHandle<'a> {
+    pub fn new(texture: &'a ResidentTexture, _: &SamplerBehavior) -> TextureHandle<'a> {
+        // FIXME: take sampler into account
         TextureHandle {
             value: texture.handle,
             marker: PhantomData,
@@ -118,7 +120,8 @@ impl<'a> TextureHandle<'a> {
     }
 
     /// Sets the value to the given texture.
-    pub fn set(&mut self, texture: &'a ResidentTexture) {
+    pub fn set(&mut self, texture: &'a ResidentTexture, _: &SamplerBehavior) {
+        // FIXME: take sampler into account
         self.value = texture.handle;
     }
 }
