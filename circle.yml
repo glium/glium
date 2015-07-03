@@ -12,7 +12,7 @@ test:
     - cargo build --verbose -j 2
     - cargo test --features "headless glutin" --verbose -j 2
     - cargo test --no-default-features --features "headless glutin" --verbose -j 2
-    - cargo build --features "headless glutin gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures" --verbose -j 2
+    - cargo build --features "headless glutin gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_bindless_textures" --verbose -j 2
     #- cargo test --manifest-path macros/Cargo.toml -j 2
 
 general:

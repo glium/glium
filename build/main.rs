@@ -31,6 +31,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             api: gl_generator::registry::Ns::Gl.to_string(),
             extensions: vec![
                 "GL_APPLE_vertex_array_object".to_string(),
+                "GL_ARB_bindless_texture".to_string(),
                 "GL_ARB_buffer_storage".to_string(),
                 "GL_ARB_compute_shader".to_string(),
                 "GL_ARB_copy_buffer".to_string(),

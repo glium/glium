@@ -130,6 +130,7 @@ In addition to this, it has the following OpenGL-related features:
  - `gl_texture_3d` (three dimensional textures and two-dimensional texture arrays)
  - `gl_texture_multisample` (multisample textures)
  - `gl_texture_multisample_array` (arrays of multisample textures)
+ - `gl_bindless_textures` (faster textures access)
 
 Enabling each of these features adds more restrictions towards the backend and increases the
 likehood that `build_glium` will return an `Err`. However, it also gives you access to more

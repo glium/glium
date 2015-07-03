@@ -55,7 +55,7 @@ impl Buffer {
     /// size of the data.
     pub fn new<D, F>(facade: &F, data: &[D], ty: BufferType, dynamic: bool)
                      -> Result<Buffer, BufferCreationError>
-                     where D: Send + Copy + 'static, F: Facade
+                     where D: Copy, F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
 
@@ -318,7 +318,7 @@ impl Buffer {
     /// synchronization.
     ///
     pub unsafe fn upload<D>(&self, offset_bytes: usize, data: &[D])
-                            where D: Copy + Send + 'static
+                            where D: Copy
     {
         let to_upload = mem::size_of::<D>() * data.len();
         assert!(offset_bytes + to_upload <= self.size);
@@ -469,7 +469,7 @@ impl Buffer {
     /// `false` for `write`, you **must not** write the returned buffer.
     ///
     unsafe fn map_shared<D>(&self, offset_bytes: usize, elements: usize, read: bool, write: bool)
-                            -> MappingImpl<D> where D: Copy + Send + 'static
+                            -> MappingImpl<D> where D: Copy
     {
         assert!(offset_bytes % mem::size_of::<D>() == 0);
         assert!(offset_bytes <= self.size);
@@ -547,7 +547,7 @@ impl Buffer {
     /// `false` for `write`, you **must not** write the returned buffer.
     ///
     unsafe fn map_impl<D>(&mut self, offset_bytes: usize, elements: usize, read: bool, write: bool)
-                          -> MappingImpl<D> where D: Copy + Send + 'static
+                          -> MappingImpl<D> where D: Copy
     {
         if self.persistent_mapping.is_some() || self.immutable {
             self.map_shared(offset_bytes, elements, read, write)
@@ -587,7 +587,7 @@ impl Buffer {
     /// synchronization.
     ///
     pub unsafe fn map<D>(&mut self, offset_bytes: usize, elements: usize)
-                         -> Mapping<D> where D: Copy + Send + 'static
+                         -> Mapping<D> where D: Copy
     {
         Mapping {
             mapping: self.map_impl(offset_bytes, elements, true, true)
@@ -602,7 +602,7 @@ impl Buffer {
     /// synchronization.
     ///
     pub unsafe fn map_read<D>(&mut self, offset_bytes: usize, elements: usize)
-                              -> ReadMapping<D> where D: Copy + Send + 'static
+                              -> ReadMapping<D> where D: Copy
     {
         ReadMapping {
             mapping: self.map_impl(offset_bytes, elements, true, false)
@@ -617,7 +617,7 @@ impl Buffer {
     /// synchronization.
     ///
     pub unsafe fn map_write<D>(&mut self, offset_bytes: usize, elements: usize)
-                               -> WriteMapping<D> where D: Copy + Send + 'static
+                               -> WriteMapping<D> where D: Copy
     {
         WriteMapping {
             mapping: self.map_impl(offset_bytes, elements, false, true)
@@ -636,7 +636,7 @@ impl Buffer {
     /// synchronization.
     ///
     pub unsafe fn read_if_supported<D>(&self, offset_bytes: usize, output: &mut [D])
-                                       -> Result<(), ()> where D: Copy + Send + 'static
+                                       -> Result<(), ()> where D: Copy
     {
         assert!(offset_bytes <= self.size);
         assert!(offset_bytes + output.len() * mem::size_of::<D>() <= self.size);
@@ -737,7 +737,7 @@ enum MappingImpl<'b, D> {
     },
 }
 
-unsafe impl<'a, D> Sync for MappingImpl<'a, D> where D: Sync {}
+unsafe impl<'a, D> Sync for MappingImpl<'a, D> where D: Send + Sync {}
 
 impl<'a, D> Drop for MappingImpl<'a, D> {
     fn drop(&mut self) {
@@ -914,7 +914,7 @@ unsafe fn create_buffer<D>(mut ctxt: &mut CommandContext, size: usize, data: Opt
                            ty: BufferType, dynamic: bool, avoid_persistent: bool)
                            -> Result<(gl::types::GLuint, bool, Option<*mut libc::c_void>),
                                      BufferCreationError>
-                           where D: Send + Copy + 'static
+                           where D: Copy
 {
     if !is_buffer_type_supported(ctxt, ty) {
         return Err(BufferCreationError::BufferTypeNotSupported);

@@ -264,11 +264,9 @@ impl<'a> UniformValue<'a> {
     }
 }
 
-impl<T> UniformBlock for T where T: AsUniformValue + Copy + Send + 'static {
+impl<T> UniformBlock for T where T: AsUniformValue + Copy {
     fn matches(block: &program::UniformBlock) -> bool {
-        fn inner_match<T>(layout: &BlockLayout) -> bool where T: AsUniformValue + Copy +
-                                                                 Send + 'static
-        {
+        fn inner_match<T>(layout: &BlockLayout) -> bool where T: AsUniformValue + Copy {
             if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
                 offset_in_buffer == 0 && <T as AsUniformValue>::matches(&ty)
 
@@ -284,7 +282,7 @@ impl<T> UniformBlock for T where T: AsUniformValue + Copy + Send + 'static {
             }
         }
 
-        block.size == mem::size_of::<T>() && inner_match::<T>(&block.layout)
+        block.size >= mem::size_of::<T>() && inner_match::<T>(&block.layout)
     }
 }
 

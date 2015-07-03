@@ -27,7 +27,7 @@ use buffer::alloc::ReadMapping;
 use buffer::alloc::WriteMapping;
 
 /// Represents a view of a buffer.
-pub struct BufferView<T> where T: Copy + Send + 'static {
+pub struct BufferView<T> where T: Copy {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     alloc: Option<Buffer>,
     num_elements: usize,
@@ -36,13 +36,13 @@ pub struct BufferView<T> where T: Copy + Send + 'static {
     marker: PhantomData<T>,
 }
 
-impl<T> fmt::Debug for BufferView<T> where T: Copy + Send + 'static {
+impl<T> fmt::Debug for BufferView<T> where T: Copy {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc.as_ref().unwrap())
     }
 }
 
-impl<T> Drop for BufferView<T> where T: Copy + Send + 'static {
+impl<T> Drop for BufferView<T> where T: Copy {
     fn drop(&mut self) {
         if let (Some(alloc), Some(mut fence)) = (self.alloc.take(), self.fence.take()) {
             fence.clean(&mut alloc.get_context().make_current());
@@ -52,7 +52,7 @@ impl<T> Drop for BufferView<T> where T: Copy + Send + 'static {
 
 /// Represents a sub-part of a buffer.
 #[derive(Copy, Clone)]
-pub struct BufferViewSlice<'a, T> where T: Copy + Send + 'static {
+pub struct BufferViewSlice<'a, T> where T: Copy {
     alloc: &'a Buffer,
     offset_bytes: usize,
     num_elements: usize,
@@ -60,14 +60,14 @@ pub struct BufferViewSlice<'a, T> where T: Copy + Send + 'static {
     marker: PhantomData<T>,
 }
 
-impl<'a, T> fmt::Debug for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> fmt::Debug for BufferViewSlice<'a, T> where T: Copy {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
     }
 }
 
 /// Represents a sub-part of a buffer.
-pub struct BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
+pub struct BufferViewMutSlice<'a, T> where T: Copy {
     alloc: &'a mut Buffer,
     offset_bytes: usize,
     num_elements: usize,
@@ -75,7 +75,7 @@ pub struct BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
     marker: PhantomData<T>,
 }
 
-impl<'a, T> fmt::Debug for BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> fmt::Debug for BufferViewMutSlice<'a, T> where T: Copy {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
     }
@@ -130,7 +130,7 @@ impl<T> From<BufferView<T>> for BufferViewAny where T: Copy + Send + 'static {
     }
 }
 
-impl<T> BufferView<T> where T: Copy + Send + 'static {
+impl<T> BufferView<T> where T: Copy {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
     ///
@@ -307,7 +307,7 @@ impl<T> BufferView<T> where T: PixelValue {
     }
 }
 
-impl<'a, T> BufferViewSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewSlice<'a, T> where T: Copy {
     /// Returns the number of elements in this slice.
     pub fn len(&self) -> usize {
         self.num_elements
@@ -404,7 +404,7 @@ impl<'a, T> BufferViewSlice<'a, T> where T: PixelValue {
     }
 }
 
-impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy {
     /// Returns the number of elements in this slice.
     pub fn len(&self) -> usize {
         self.num_elements
@@ -573,7 +573,7 @@ impl BufferViewAny {
     /// Panicks if the size of the buffer is not a multiple of the size of the data.
     /// For example, trying to read some `(u8, u8, u8, u8)`s from a buffer of 7 bytes will panic.
     ///
-    pub unsafe fn read_if_supported<T>(&self) -> Option<Vec<T>> where T: Copy + Send + 'static {
+    pub unsafe fn read_if_supported<T>(&self) -> Option<Vec<T>> where T: Copy {
         assert!(self.get_size() % mem::size_of::<T>() == 0);
 
         self.fence.wait(&mut self.alloc.get_context().make_current(), 0 .. self.get_size());
@@ -621,7 +621,7 @@ impl<'a> BufferViewAnySlice<'a> {
     }
 }
 
-impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
+impl<T> BufferViewExt for BufferView<T> where T: Copy {
     fn get_offset_bytes(&self) -> usize {
         0
     }
@@ -685,7 +685,7 @@ impl<T> BufferViewExt for BufferView<T> where T: Copy + Send + 'static {
     }
 }
 
-impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy {
     fn add_fence(&self) -> Option<Inserter<'a>> {
         if !self.alloc.uses_persistent_mapping() {
             return None;
@@ -696,7 +696,7 @@ impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy + Se
     }
 }
 
-impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy + Send + 'static {
+impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy {
     fn get_offset_bytes(&self) -> usize {
         self.offset_bytes
     }
