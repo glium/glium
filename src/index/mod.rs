@@ -41,6 +41,7 @@ use buffer::BufferViewAnySlice;
 
 pub use self::buffer::{IndexBuffer, IndexBufferSlice, IndexBufferAny};
 pub use self::multidraw::{DrawCommandsNoIndicesBuffer, DrawCommandNoIndices};
+pub use self::multidraw::{DrawCommandsIndicesBuffer, DrawCommandIndices};
 
 mod buffer;
 mod multidraw;
@@ -66,6 +67,18 @@ pub enum IndicesSource<'a> {
         primitives: PrimitiveType,
     },
 
+    /// Use a multidraw indirect buffer with indices.
+    MultidrawElement {
+        /// The buffer of the commands.
+        commands: BufferViewAnySlice<'a>,
+        /// The buffer of the indices.
+        indices: BufferViewAnySlice<'a>,
+        /// Type of indices in the buffer.
+        data_type: IndexType,
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
+
     /// Don't use indices. Assemble primitives by using the order in which the vertices are in
     /// the vertices source.
     NoIndices {
@@ -80,6 +93,7 @@ impl<'a> IndicesSource<'a> {
         match self {
             &IndicesSource::IndexBuffer { primitives, .. } => primitives,
             &IndicesSource::MultidrawArray { primitives, .. } => primitives,
+            &IndicesSource::MultidrawElement { primitives, .. } => primitives,
             &IndicesSource::NoIndices { primitives } => primitives,
         }
     }

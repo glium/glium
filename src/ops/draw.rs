@@ -83,6 +83,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         let index_buffer = match indices {
             IndicesSource::IndexBuffer { buffer, .. } => Some(buffer),
             IndicesSource::MultidrawArray { .. } => None,
+            IndicesSource::MultidrawElement { indices, .. } => Some(indices),
             IndicesSource::NoIndices { .. } => None,
         };
 
@@ -248,6 +249,27 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                     ctxt.gl.MultiDrawArraysIndirect(primitives.to_glenum(), ptr as *const _,
                                                     buffer.get_elements_count() as gl::types::GLsizei,
                                                     0);
+                }
+            },
+
+            &IndicesSource::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
+                let cmd_ptr: *const u8 = ptr::null_mut();
+                let cmd_ptr = unsafe { cmd_ptr.offset(commands.get_offset_bytes() as isize) };
+
+                if let Some(fence) = commands.add_fence() {
+                    fences.push(fence);
+                }
+
+                if let Some(fence) = indices.add_fence() {
+                    fences.push(fence);
+                }
+
+                unsafe {
+                    commands.prepare_and_bind_for_draw_indirect(&mut ctxt);
+                    ctxt.gl.MultiDrawElementsIndirect(primitives.to_glenum(), data_type.to_glenum(),
+                                                      cmd_ptr as *const _,
+                                                      commands.get_elements_count() as gl::types::GLsizei,
+                                                      0);
                 }
             },
 
