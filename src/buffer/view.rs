@@ -36,100 +36,6 @@ pub struct BufferView<T> where T: Copy {
     marker: PhantomData<T>,
 }
 
-impl<T> fmt::Debug for BufferView<T> where T: Copy {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.alloc.as_ref().unwrap())
-    }
-}
-
-impl<T> Drop for BufferView<T> where T: Copy {
-    fn drop(&mut self) {
-        if let (Some(alloc), Some(mut fence)) = (self.alloc.take(), self.fence.take()) {
-            fence.clean(&mut alloc.get_context().make_current());
-        }
-    }
-}
-
-/// Represents a sub-part of a buffer.
-#[derive(Copy, Clone)]
-pub struct BufferViewSlice<'a, T> where T: Copy {
-    alloc: &'a Buffer,
-    offset_bytes: usize,
-    num_elements: usize,
-    fence: &'a Fences,
-    marker: PhantomData<T>,
-}
-
-impl<'a, T> fmt::Debug for BufferViewSlice<'a, T> where T: Copy {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.alloc)
-    }
-}
-
-/// Represents a sub-part of a buffer.
-pub struct BufferViewMutSlice<'a, T> where T: Copy {
-    alloc: &'a mut Buffer,
-    offset_bytes: usize,
-    num_elements: usize,
-    fence: &'a Fences,
-    marker: PhantomData<T>,
-}
-
-impl<'a, T> fmt::Debug for BufferViewMutSlice<'a, T> where T: Copy {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.alloc)
-    }
-}
-
-/// Represents a sub-part of a buffer.
-///
-/// Doesn't contain any information about the content, contrary to `BufferView`.
-pub struct BufferViewAny {
-    alloc: Buffer,
-    elements_size: usize,
-    elements_count: usize,
-    fence: Fences,
-}
-
-impl Drop for BufferViewAny {
-    fn drop(&mut self) {
-        self.fence.clean(&mut self.alloc.get_context().make_current());
-    }
-}
-
-impl fmt::Debug for BufferViewAny {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.alloc)
-    }
-}
-
-/// Slice of a `BufferView` without any type info.
-#[derive(Copy, Clone)]
-pub struct BufferViewAnySlice<'a> {
-    alloc: &'a Buffer,
-    offset_bytes: usize,
-    elements_size: usize,
-    elements_count: usize,
-    fence: &'a Fences,
-}
-
-impl<'a> fmt::Debug for BufferViewAnySlice<'a> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{:?}", self.alloc)
-    }
-}
-
-impl<T> From<BufferView<T>> for BufferViewAny where T: Copy + Send + 'static {
-    fn from(mut buffer: BufferView<T>) -> BufferViewAny {
-        BufferViewAny {
-            alloc: buffer.alloc.take().unwrap(),
-            elements_size: mem::size_of::<T>(),
-            elements_count: buffer.num_elements,
-            fence: buffer.fence.take().unwrap(),
-        }
-    }
-}
-
 impl<T> BufferView<T> where T: Copy {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
@@ -307,6 +213,94 @@ impl<T> BufferView<T> where T: PixelValue {
     }
 }
 
+impl<T> fmt::Debug for BufferView<T> where T: Copy {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{:?}", self.alloc.as_ref().unwrap())
+    }
+}
+
+impl<T> Drop for BufferView<T> where T: Copy {
+    fn drop(&mut self) {
+        if let (Some(alloc), Some(mut fence)) = (self.alloc.take(), self.fence.take()) {
+            fence.clean(&mut alloc.get_context().make_current());
+        }
+    }
+}
+
+impl<T> BufferViewExt for BufferView<T> where T: Copy {
+    fn get_offset_bytes(&self) -> usize {
+        0
+    }
+
+    fn get_buffer_id(&self) -> gl::types::GLuint {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.get_id()
+    }
+
+    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_for_vertex_attrib_array(ctxt);
+    }
+
+    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_for_element_array(ctxt);
+    }
+
+    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.bind_to_element_array(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_pixel_pack(ctxt);
+    }
+
+    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_pack(ctxt)
+    }
+
+    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_unpack(ctxt)
+    }
+
+    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. alloc.get_size());
+    }
+
+    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. alloc.get_size());
+    }
+
+    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.bind_to_transform_feedback(ctxt, index, 0 .. alloc.get_size());
+    }
+}
+
+/// Represents a sub-part of a buffer.
+#[derive(Copy, Clone)]
+pub struct BufferViewSlice<'a, T> where T: Copy {
+    alloc: &'a Buffer,
+    offset_bytes: usize,
+    num_elements: usize,
+    fence: &'a Fences,
+    marker: PhantomData<T>,
+}
+
 impl<'a, T> BufferViewSlice<'a, T> where T: Copy {
     /// Returns the number of elements in this slice.
     pub fn len(&self) -> usize {
@@ -402,6 +396,86 @@ impl<'a, T> BufferViewSlice<'a, T> where T: PixelValue {
             S::from_raw(Cow::Owned(data), self.len() as u32)
         })
     }
+}
+
+impl<'a, T> fmt::Debug for BufferViewSlice<'a, T> where T: Copy {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{:?}", self.alloc)
+    }
+}
+
+impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy {
+    fn add_fence(&self) -> Option<Inserter<'a>> {
+        if !self.alloc.uses_persistent_mapping() {
+            return None;
+        }
+
+        Some(self.fence.inserter(self.offset_bytes .. self.offset_bytes +
+                                                                  self.len() * mem::size_of::<T>()))
+    }
+}
+
+impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy {
+    fn get_offset_bytes(&self) -> usize {
+        self.offset_bytes
+    }
+
+    fn get_buffer_id(&self) -> gl::types::GLuint {
+        self.alloc.get_id()
+    }
+
+    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_vertex_attrib_array(ctxt);
+    }
+
+    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_for_element_array(ctxt);
+    }
+
+    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+        self.alloc.bind_to_element_array(ctxt);
+    }
+
+    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
+    }
+
+    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_pack(ctxt)
+    }
+
+    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
+    }
+
+    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+        Buffer::unbind_pixel_unpack(ctxt)
+    }
+
+    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
+    }
+
+    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
+    }
+}
+
+/// Represents a sub-part of a buffer.
+pub struct BufferViewMutSlice<'a, T> where T: Copy {
+    alloc: &'a mut Buffer,
+    offset_bytes: usize,
+    num_elements: usize,
+    fence: &'a Fences,
+    marker: PhantomData<T>,
 }
 
 impl<'a, T> BufferViewMutSlice<'a, T> where T: Copy {
@@ -519,6 +593,22 @@ impl<'a, T> BufferViewMutSlice<'a, T> where T: PixelValue {
     }
 }
 
+impl<'a, T> fmt::Debug for BufferViewMutSlice<'a, T> where T: Copy {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{:?}", self.alloc)
+    }
+}
+
+/// Represents a sub-part of a buffer.
+///
+/// Doesn't contain any information about the content, contrary to `BufferView`.
+pub struct BufferViewAny {
+    alloc: Buffer,
+    elements_size: usize,
+    elements_count: usize,
+    fence: Fences,
+}
+
 impl BufferViewAny {
     /// Builds a slice-any containing the whole subbuffer.
     pub fn as_slice_any(&self) -> BufferViewAnySlice {
@@ -591,162 +681,26 @@ impl BufferViewAny {
     }
 }
 
-impl<'a> BufferViewAnySlice<'a> {
-    /// Returns the size of each element in this buffer.
-    ///
-    /// This information is taken from the original `BufferView` that was used to construct
-    /// this object.
-    pub fn get_elements_size(&self) -> usize {
-        self.elements_size
-    }
-
-    /// Returns the number of elements in this buffer.
-    ///
-    /// This information is taken from the original `BufferView` that was used to construct
-    /// this object.
-    pub fn get_elements_count(&self) -> usize {
-        self.elements_count
-    }
-
-    /// Returns the number of bytes in this slice.
-    pub fn get_size(&self) -> usize {
-        self.elements_size * self.elements_count
-    }
-
-    /// Invalidates the content of the slice. The data becomes undefined.
-    ///
-    /// This operation is a no-op if the backend doesn't support it.
-    pub fn invalidate(&self) {
-        self.alloc.invalidate(self.offset_bytes, self.get_size());
-    }
-}
-
-impl<T> BufferViewExt for BufferView<T> where T: Copy {
-    fn get_offset_bytes(&self) -> usize {
-        0
-    }
-
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.get_id()
-    }
-
-    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_for_vertex_attrib_array(ctxt);
-    }
-
-    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_for_element_array(ctxt);
-    }
-
-    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.bind_to_element_array(ctxt);
-    }
-
-    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_pixel_pack(ctxt);
-    }
-
-    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_pack(ctxt)
-    }
-
-    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_pixel_unpack(ctxt);
-    }
-
-    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_unpack(ctxt)
-    }
-
-    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_draw_indirect(ctxt);
-    }
-
-    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. alloc.get_size());
-    }
-
-    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. alloc.get_size());
-    }
-
-    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.bind_to_transform_feedback(ctxt, index, 0 .. alloc.get_size());
-    }
-}
-
-impl<'a, T> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Copy {
-    fn add_fence(&self) -> Option<Inserter<'a>> {
-        if !self.alloc.uses_persistent_mapping() {
-            return None;
+impl<T> From<BufferView<T>> for BufferViewAny where T: Copy + Send + 'static {
+    fn from(mut buffer: BufferView<T>) -> BufferViewAny {
+        BufferViewAny {
+            alloc: buffer.alloc.take().unwrap(),
+            elements_size: mem::size_of::<T>(),
+            elements_count: buffer.num_elements,
+            fence: buffer.fence.take().unwrap(),
         }
-
-        Some(self.fence.inserter(self.offset_bytes .. self.offset_bytes +
-                                                                  self.len() * mem::size_of::<T>()))
     }
 }
 
-impl<'a, T> BufferViewExt for BufferViewSlice<'a, T> where T: Copy {
-    fn get_offset_bytes(&self) -> usize {
-        self.offset_bytes
+impl Drop for BufferViewAny {
+    fn drop(&mut self) {
+        self.fence.clean(&mut self.alloc.get_context().make_current());
     }
+}
 
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.alloc.get_id()
-    }
-
-    fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
-        self.alloc.prepare_for_vertex_attrib_array(ctxt);
-    }
-
-    fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
-        self.alloc.prepare_for_element_array(ctxt);
-    }
-
-    fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
-        self.alloc.bind_to_element_array(ctxt);
-    }
-
-    fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
-        self.alloc.prepare_and_bind_for_pixel_pack(ctxt);
-    }
-
-    fn unbind_pixel_pack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_pack(ctxt)
-    }
-
-    fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
-        self.alloc.prepare_and_bind_for_pixel_unpack(ctxt);
-    }
-
-    fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_unpack(ctxt)
-    }
-
-    fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
-        self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
-    }
-
-    fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
-    }
-
-    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
-    }
-
-    fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
+impl fmt::Debug for BufferViewAny {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
@@ -801,6 +755,52 @@ impl BufferViewExt for BufferViewAny {
 
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
+    }
+}
+
+/// Slice of a `BufferView` without any type info.
+#[derive(Copy, Clone)]
+pub struct BufferViewAnySlice<'a> {
+    alloc: &'a Buffer,
+    offset_bytes: usize,
+    elements_size: usize,
+    elements_count: usize,
+    fence: &'a Fences,
+}
+
+impl<'a> BufferViewAnySlice<'a> {
+    /// Returns the size of each element in this buffer.
+    ///
+    /// This information is taken from the original `BufferView` that was used to construct
+    /// this object.
+    pub fn get_elements_size(&self) -> usize {
+        self.elements_size
+    }
+
+    /// Returns the number of elements in this buffer.
+    ///
+    /// This information is taken from the original `BufferView` that was used to construct
+    /// this object.
+    pub fn get_elements_count(&self) -> usize {
+        self.elements_count
+    }
+
+    /// Returns the number of bytes in this slice.
+    pub fn get_size(&self) -> usize {
+        self.elements_size * self.elements_count
+    }
+
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it.
+    pub fn invalidate(&self) {
+        self.alloc.invalidate(self.offset_bytes, self.get_size());
+    }
+}
+
+impl<'a> fmt::Debug for BufferViewAnySlice<'a> {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{:?}", self.alloc)
     }
 }
 
