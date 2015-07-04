@@ -2,7 +2,19 @@
 name = "glium"
 version = "0.6.6"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
-description = "High-level and safe OpenGL wrapper."
+description = """
+Elegant and safe OpenGL wrapper.
+
+Glium is an intermediate layer between OpenGL and your application. You still need to manually handle
+the graphics pipeline, but without having to use OpenGL's old and error-prone API.
+
+Its objectives:
+ - Be safe to use. Many aspects of OpenGL that can trigger a crash if misused are automatically handled by glium.
+ - Provide an API that enforces good pratices such as RAII or stateless function calls.
+ - Be compatible with all OpenGL versions that support shaders, providing unified API when things diverge.
+ - Avoid all OpenGL errors beforehand.
+ - Produce optimized OpenGL function calls, and allow the user to easily use modern OpenGL techniques.
+"""
 keywords = ["opengl", "gamedev"]
 documentation = "http://tomaka.github.io/glium/glium/index.html"
 homepage = "http://tomaka.github.io/glium"
