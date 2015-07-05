@@ -43,11 +43,8 @@ pub struct TextureAny {
     /// been checked yet. The inner Option is None if the format has been checkek but is unknown.
     actual_format: Cell<Option<Option<InternalFormat>>>,
 
-    ty: TextureType,
-    width: u32,
-    height: Option<u32>,
-    depth: Option<u32>,
-    array_size: Option<u32>,
+    /// Type and dimensions of the texture.
+    ty: Dimensions,
 
     /// Number of mipmap levels (`1` means just the main texture, `0` is not valid)
     levels: u32,
@@ -78,25 +75,38 @@ pub struct TextureAnyMipmap<'a> {
 /// Type of a texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]      // TODO: document and remove
-pub enum TextureType {
-    Texture1d,
-    Texture1dArray,
-    Texture2d,
-    Texture2dArray,
-    Texture2dMultisample,
-    Texture2dMultisampleArray,
-    Texture3d,
+pub enum Dimensions {
+    Texture1d { width: u32 },
+    Texture1dArray { width: u32, array_size: u32 },
+    Texture2d { width: u32, height: u32 },
+    Texture2dArray { width: u32, height: u32, array_size: u32 },
+    Texture2dMultisample { width: u32, height: u32, samples: u32 },
+    Texture2dMultisampleArray { width: u32, height: u32, array_size: u32, samples: u32 },
+    Texture3d { width: u32, height: u32, depth: u32 },
 }
 
 /// Builds a new texture.
+///
+/// # Panic
+///
+/// Panicks if the size of the data doesn't match the texture dimensions.
 pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                              data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
-                             mipmaps: MipmapsOption,
-                             width: u32, height: Option<u32>, depth: Option<u32>,
-                             array_size: Option<u32>, samples: Option<u32>)
+                             mipmaps: MipmapsOption, ty: Dimensions)
                              -> Result<TextureAny, TextureMaybeSupportedCreationError>
                              where P: Send + Clone + 'a, F: Facade
 {
+    // getting the width, height, depth, array_size, samples from the type
+    let (width, height, depth, array_size, samples) = match ty {
+        Dimensions::Texture1d { width } => (width, None, None, None, None),
+        Dimensions::Texture1dArray { width, array_size } => (width, None, None, Some(array_size), None),
+        Dimensions::Texture2d { width, height } => (width, Some(height), None, None, None),
+        Dimensions::Texture2dArray { width, height, array_size } => (width, Some(height), None, Some(array_size), None),
+        Dimensions::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
+        Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
+        Dimensions::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
+    };
+
     let (is_client_compressed, data_bufsize) = match data {
         Some((client_format, _)) => {
             (client_format.is_compressed(),
@@ -112,6 +122,17 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         }
     }
 
+    // getting the `GLenum` corresponding to this texture type
+    let bind_point = match ty {
+        Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
+        Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
+        Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
+        Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
+        Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
+        Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+        Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
+    };
+
     // checking non-power-of-two
     if facade.get_context().get_version() < &Version(Api::Gl, 2, 0) &&
         !facade.get_context().get_extensions().gl_arb_texture_non_power_of_two
@@ -123,27 +144,6 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             return Err(TextureMaybeSupportedCreationError::CreationError(ce));
         }
     }
-
-    let (stored_ty, texture_type) = if height.is_none() && depth.is_none() {
-        assert!(samples.is_none());
-        if array_size.is_none() {
-            (TextureType::Texture1d, gl::TEXTURE_1D)
-        } else {
-            (TextureType::Texture1dArray, gl::TEXTURE_1D_ARRAY)
-        }
-
-    } else if depth.is_none() {
-        match (array_size.is_some(), samples.is_some()) {
-            (false, false) => (TextureType::Texture2d, gl::TEXTURE_2D),
-            (true, false) => (TextureType::Texture2dArray, gl::TEXTURE_2D_ARRAY),
-            (false, true) => (TextureType::Texture2dMultisample, gl::TEXTURE_2D_MULTISAMPLE),
-            (true, true) => (TextureType::Texture2dMultisampleArray, gl::TEXTURE_2D_MULTISAMPLE_ARRAY),
-        }
-
-    } else {
-        assert!(samples.is_none());
-        (TextureType::Texture3d, gl::TEXTURE_3D)
-    };
 
     let generate_mipmaps = mipmaps.should_generate();
     let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
@@ -182,35 +182,46 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         ctxt.gl.GenTextures(1, mem::transmute(&id));
 
         {
-            ctxt.gl.BindTexture(texture_type, id);
+            ctxt.gl.BindTexture(bind_point, id);
             let act = ctxt.state.active_texture as usize;
             ctxt.state.texture_units[act].texture = id;
         }
 
-        ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-        if height.is_some() || depth.is_some() || array_size.is_some() {
-            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
-        }
-        if depth.is_some() || array_size.is_some() {
-            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
-        }
-        ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+        ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+        ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+
+        match ty {
+            Dimensions::Texture1d { .. } => (),
+            _ => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            },
+        };
+
+        match ty {
+            Dimensions::Texture1d { .. } => (),
+            Dimensions::Texture2d { .. } => (),
+            Dimensions::Texture2dMultisample { .. } => (),
+            _ => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
+            },
+        };
+
         if has_mipmaps {
-            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
                                   gl::LINEAR_MIPMAP_LINEAR as i32);
         } else {
-            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MIN_FILTER,
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
                                   gl::LINEAR as i32);
         }
 
         if !has_mipmaps && (ctxt.version >= &Version(Api::Gl, 1, 2) ||
                             ctxt.version >= &Version(Api::GlEs, 3, 0))
         {
-            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_BASE_LEVEL, 0);
-            ctxt.gl.TexParameteri(texture_type, gl::TEXTURE_MAX_LEVEL, 0);
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_BASE_LEVEL, 0);
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAX_LEVEL, 0);
         }
 
-        if texture_type == gl::TEXTURE_3D || texture_type == gl::TEXTURE_2D_ARRAY {
+        if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
             let mut data_raw = data_raw;
 
             let width = match width as gl::types::GLsizei {
@@ -229,33 +240,33 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             };
 
             if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                ctxt.gl.TexStorage3D(texture_type, texture_levels,
+                ctxt.gl.TexStorage3D(bind_point, texture_levels,
                                      storage_internal_format.unwrap() as gl::types::GLenum,
                                      width, height, depth);
 
                 if !data_raw.is_null() {
                     if is_client_compressed {
-                        ctxt.gl.CompressedTexSubImage3D(texture_type, 0, 0, 0, 0, width, height, depth,
+                        ctxt.gl.CompressedTexSubImage3D(bind_point, 0, 0, 0, 0, width, height, depth,
                                                          teximg_internal_format as u32,
                                                          data_bufsize as i32, data_raw);
                     } else {
-                        ctxt.gl.TexSubImage3D(texture_type, 0, 0, 0, 0, width, height, depth,
+                        ctxt.gl.TexSubImage3D(bind_point, 0, 0, 0, 0, width, height, depth,
                                               client_format, client_type, data_raw);
                     }
                 }
 
             } else {
                 if is_client_compressed && !data_raw.is_null() {
-                    ctxt.gl.CompressedTexImage3D(texture_type, 0, teximg_internal_format as u32, 
+                    ctxt.gl.CompressedTexImage3D(bind_point, 0, teximg_internal_format as u32, 
                                        width, height, depth, 0, data_bufsize as i32, data_raw);
                 } else {
-                    ctxt.gl.TexImage3D(texture_type, 0, teximg_internal_format as i32, width,
+                    ctxt.gl.TexImage3D(bind_point, 0, teximg_internal_format as i32, width,
                                        height, depth, 0, client_format as u32, client_type,
                                        data_raw);
                 }
             }
 
-        } else if texture_type == gl::TEXTURE_2D || texture_type == gl::TEXTURE_1D_ARRAY {
+        } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
             let mut data_raw = data_raw;
 
             let width = match width as gl::types::GLsizei {
@@ -269,32 +280,32 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             };
 
             if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                ctxt.gl.TexStorage2D(texture_type, texture_levels,
+                ctxt.gl.TexStorage2D(bind_point, texture_levels,
                                      storage_internal_format.unwrap() as gl::types::GLenum,
                                      width, height);
 
                 if !data_raw.is_null() {
                     if is_client_compressed {
-                        ctxt.gl.CompressedTexSubImage2D(texture_type, 0, 0, 0, width, height,
+                        ctxt.gl.CompressedTexSubImage2D(bind_point, 0, 0, 0, width, height,
                                                          teximg_internal_format as u32,
                                                          data_bufsize as i32, data_raw);
                     } else {
-                        ctxt.gl.TexSubImage2D(texture_type, 0, 0, 0, width, height, client_format,
+                        ctxt.gl.TexSubImage2D(bind_point, 0, 0, 0, width, height, client_format,
                                               client_type, data_raw);
                     }
                 }
 
             } else {
                 if is_client_compressed && !data_raw.is_null() {
-                    ctxt.gl.CompressedTexImage2D(texture_type, 0, teximg_internal_format as u32, 
+                    ctxt.gl.CompressedTexImage2D(bind_point, 0, teximg_internal_format as u32, 
                                        width, height, 0, data_bufsize as i32, data_raw);
                 } else {
-                    ctxt.gl.TexImage2D(texture_type, 0, teximg_internal_format as i32, width,
+                    ctxt.gl.TexImage2D(bind_point, 0, teximg_internal_format as i32, width,
                                        height, 0, client_format as u32, client_type, data_raw);
                 }
             }
 
-        } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE {
+        } else if bind_point == gl::TEXTURE_2D_MULTISAMPLE {
             assert!(data_raw.is_null());
 
             let width = match width as gl::types::GLsizei {
@@ -323,7 +334,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                 unreachable!();
             }
 
-        } else if texture_type == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
+        } else if bind_point == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
             assert!(data_raw.is_null());
 
             let width = match width as gl::types::GLsizei {
@@ -354,7 +365,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                 unreachable!();
             }
 
-        } else if texture_type == gl::TEXTURE_1D {
+        } else if bind_point == gl::TEXTURE_1D {
             let mut data_raw = data_raw;
 
             let width = match width as gl::types::GLsizei {
@@ -363,27 +374,27 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             };
 
             if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                ctxt.gl.TexStorage1D(texture_type, texture_levels,
+                ctxt.gl.TexStorage1D(bind_point, texture_levels,
                                      storage_internal_format.unwrap() as gl::types::GLenum,
                                      width);
 
                 if !data_raw.is_null() {
                     if is_client_compressed {
-                        ctxt.gl.CompressedTexSubImage1D(texture_type, 0, 0, width,
+                        ctxt.gl.CompressedTexSubImage1D(bind_point, 0, 0, width,
                                                          teximg_internal_format as u32,
                                                          data_bufsize as i32, data_raw);
                     } else {
-                        ctxt.gl.TexSubImage1D(texture_type, 0, 0, width, client_format,
+                        ctxt.gl.TexSubImage1D(bind_point, 0, 0, width, client_format,
                                               client_type, data_raw);
                     }
                 }
 
             } else {
                 if is_client_compressed && !data_raw.is_null() {
-                    ctxt.gl.CompressedTexImage1D(texture_type, 0, teximg_internal_format as u32, 
+                    ctxt.gl.CompressedTexImage1D(bind_point, 0, teximg_internal_format as u32, 
                                        width, 0, data_bufsize as i32, data_raw);
                 } else {
-                    ctxt.gl.TexImage1D(texture_type, 0, teximg_internal_format as i32, width,
+                    ctxt.gl.TexImage1D(bind_point, 0, teximg_internal_format as i32, width,
                                        0, client_format as u32, client_type, data_raw);
                 }
             }
@@ -397,9 +408,9 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
-                ctxt.gl.GenerateMipmap(texture_type);
+                ctxt.gl.GenerateMipmap(bind_point);
             } else if ctxt.extensions.gl_ext_framebuffer_object {
-                ctxt.gl.GenerateMipmapEXT(texture_type);
+                ctxt.gl.GenerateMipmapEXT(bind_point);
             } else {
                 unreachable!();
             }
@@ -413,11 +424,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         id: id,
         requested_format: format,
         actual_format: Cell::new(None),
-        width: width,
-        height: height,
-        depth: depth,
-        array_size: array_size,
-        ty: stored_ty,
+        ty: ty,
         levels: texture_levels as u32,
         generate_mipmaps: generate_mipmaps,
     })
@@ -630,22 +637,49 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
 impl TextureAny {
     /// Returns the width of the texture.
     pub fn get_width(&self) -> u32 {
-        self.width
+        match self.ty {
+            Dimensions::Texture1d { width, .. } => width,
+            Dimensions::Texture1dArray { width, .. } => width,
+            Dimensions::Texture2d { width, .. } => width,
+            Dimensions::Texture2dArray { width, .. } => width,
+            Dimensions::Texture2dMultisample { width, .. } => width,
+            Dimensions::Texture2dMultisampleArray { width, .. } => width,
+            Dimensions::Texture3d { width, .. } => width,
+        }
     }
 
     /// Returns the height of the texture.
     pub fn get_height(&self) -> Option<u32> {
-        self.height.clone()
+        match self.ty {
+            Dimensions::Texture1d { .. } => None,
+            Dimensions::Texture1dArray { .. } => None,
+            Dimensions::Texture2d { height, .. } => Some(height),
+            Dimensions::Texture2dArray { height, .. } => Some(height),
+            Dimensions::Texture2dMultisample { height, .. } => Some(height),
+            Dimensions::Texture2dMultisampleArray { height, .. } => Some(height),
+            Dimensions::Texture3d { height, .. } => Some(height),
+        }
     }
 
     /// Returns the depth of the texture.
     pub fn get_depth(&self) -> Option<u32> {
-        self.depth.clone()
+        match self.ty {
+            Dimensions::Texture3d { depth, .. } => Some(depth),
+            _ => None
+        }
     }
 
     /// Returns the array size of the texture.
     pub fn get_array_size(&self) -> Option<u32> {
-        self.array_size.clone()
+        match self.ty {
+            Dimensions::Texture1d { .. } => None,
+            Dimensions::Texture1dArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture2d { .. } => None,
+            Dimensions::Texture2dArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture2dMultisample { .. } => None,
+            Dimensions::Texture2dMultisampleArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture3d { .. } => None,
+        }
     }
 
     /// Returns the number of mipmap levels of the texture.
@@ -654,7 +688,7 @@ impl TextureAny {
     }
 
     /// Returns the type of the texture (1D, 2D, 3D, etc.).
-    pub fn get_texture_type(&self) -> TextureType {
+    pub fn get_texture_type(&self) -> Dimensions {
         self.ty
     }
 
@@ -677,7 +711,7 @@ impl TextureAny {
     ///
     /// Returns `None` if out of range.
     pub fn mipmap(&self, layer: u32, level: u32) -> Option<TextureAnyMipmap> {
-        if layer >= self.array_size.unwrap_or(1) {
+        if layer >= self.get_array_size().unwrap_or(1) {
             return None;
         }
 
@@ -690,9 +724,9 @@ impl TextureAny {
             texture: self,
             level: level,
             layer: layer,
-            width: cmp::max(1, self.width / pow),
-            height: self.height.map(|height| cmp::max(1, height / pow)),
-            depth: self.depth.map(|depth| cmp::max(1, depth / pow)),
+            width: cmp::max(1, self.get_width() / pow),
+            height: self.get_height().map(|height| cmp::max(1, height / pow)),
+            depth: self.get_depth().map(|depth| cmp::max(1, depth / pow)),
         })
     }
 }
@@ -704,13 +738,13 @@ impl TextureExt for TextureAny {
 
     fn get_bind_point(&self) -> gl::types::GLenum {
         match self.ty {
-            TextureType::Texture1d => gl::TEXTURE_1D,
-            TextureType::Texture1dArray => gl::TEXTURE_1D_ARRAY,
-            TextureType::Texture2d => gl::TEXTURE_2D,
-            TextureType::Texture2dArray => gl::TEXTURE_2D_ARRAY,
-            TextureType::Texture2dMultisample => gl::TEXTURE_2D_MULTISAMPLE,
-            TextureType::Texture2dMultisampleArray => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-            TextureType::Texture3d => gl::TEXTURE_3D,
+            Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
+            Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
+            Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
+            Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
+            Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
+            Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+            Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
         }
     }
 
@@ -737,8 +771,8 @@ impl GlObject for TextureAny {
 impl fmt::Debug for TextureAny {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "Texture #{} (dimensions: {}x{}x{}x{})", self.id,
-               self.width, self.height.unwrap_or(1), self.depth.unwrap_or(1),
-               self.array_size.unwrap_or(1))
+               self.get_width(), self.get_height().unwrap_or(1), self.get_depth().unwrap_or(1),
+               self.get_array_size().unwrap_or(1))
     }
 }
 

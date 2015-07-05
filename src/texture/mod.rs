@@ -66,7 +66,7 @@ pub use image_format::{ClientFormat, TextureFormat};
 pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
 pub use image_format::{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat};
 pub use image_format::{CompressedSrgbFormat, SrgbFormat};
-pub use self::any::{TextureAny, TextureAnyMipmap, TextureType};
+pub use self::any::{TextureAny, TextureAnyMipmap, Dimensions};
 pub use self::bindless::{ResidentTexture, TextureHandle};
 pub use self::get_format::{InternalFormat, InternalFormatType};
 pub use self::pixel::PixelValue;
