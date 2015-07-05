@@ -145,10 +145,10 @@ impl<'a> FramebufferAttachments<'a> {
                         }
 
                         let layer = match (layer, texture.get_texture_type()) {
-                            (l, TextureType::Texture1dArray) => l,
-                            (l, TextureType::Texture2dArray) => l,
-                            (l, TextureType::Texture2dMultisampleArray) => l,
-                            (l, TextureType::Texture3d) => l,
+                            (l, TextureType::Texture1dArray { .. }) => l,
+                            (l, TextureType::Texture2dArray { .. }) => l,
+                            (l, TextureType::Texture2dMultisampleArray { .. }) => l,
+                            (l, TextureType::Texture3d { .. }) => l,
                             (Some(l), _) if l == 0 => None,
                             (Some(l), _) => panic!(),
                             (None, _) => None,

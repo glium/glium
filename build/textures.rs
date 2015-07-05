@@ -259,13 +259,27 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     };
 
     let dimensions_parameters_passing = match dimensions {
-        TextureDimensions::Texture1d => "width, None, None, None, None",
-        TextureDimensions::Texture2d => "width, Some(height), None, None, None",
-        TextureDimensions::Texture2dMultisample => "width, Some(height), None, None, Some(samples)",
-        TextureDimensions::Texture3d => "width, Some(height), Some(depth), None, None",
-        TextureDimensions::Texture1dArray => "width, None, None, Some(array_size), None",
-        TextureDimensions::Texture2dArray => "width, Some(height), None, Some(array_size), None",
-        TextureDimensions::Texture2dMultisampleArray => "width, Some(height), None, Some(array_size), Some(samples)",
+        TextureDimensions::Texture1d => {
+            "TextureType::Texture1d { width: width }"
+        },
+        TextureDimensions::Texture2d => {
+            "TextureType::Texture2d { width: width, height: height }"
+        },
+        TextureDimensions::Texture2dMultisample => {
+            "TextureType::Texture2dMultisample { width: width, height: height, samples: samples }"
+        },
+        TextureDimensions::Texture3d => {
+            "TextureType::Texture3d { width: width, height: height, depth: depth }"
+        },
+        TextureDimensions::Texture1dArray => {
+            "TextureType::Texture1dArray { width: width, array_size: array_size }"
+        },
+        TextureDimensions::Texture2dArray => {
+            "TextureType::Texture2dArray { width: width, height: height, array_size: array_size }"
+        },
+        TextureDimensions::Texture2dMultisampleArray => {
+            "TextureType::Texture2dMultisampleArray { width: width, height: height, array_size: array_size, samples: samples }"
+        },
     };
 
     let dimensions_parameters_passing_minimal = match dimensions {

@@ -5,6 +5,7 @@
  - Added `DrawCommandsIndicesBuffer` for multidraw elements indirect.
  - Added `ResidentTexture`, `TextureHandle` and `Texture::resident_if_supported()` for bindless textures.
  - Buffers no longer require their content to be `Send` or `'static` (except for types with the `Any` suffix).
+ - Changed `texture::TextureType` to hold the dimensions of the texture as well.
 
 ## Version 0.6.6 (2015-07-03)
 
