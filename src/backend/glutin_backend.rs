@@ -113,12 +113,6 @@ impl GlutinFacade {
         Option::as_ref(&self.backend).map(|w| WinRef(w.borrow()))
     }
 
-    /// Returns the OpenGL version of the current context.
-    // TODO: change Context so that this function derefs from it as well
-    pub fn get_opengl_version(&self) -> Version {
-        *self.context.get_version()
-    }
-
     /// Start drawing on the backbuffer.
     ///
     /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
