@@ -282,8 +282,13 @@ impl Context {
         err
     }
 
-    /// Returns the OpenGL version detected by this context.
+    /// DEPRECATED. Use `get_opengl_version` instead.
     pub fn get_version(&self) -> &Version {
+        &self.version
+    }
+
+    /// Returns the OpenGL version detected by this context.
+    pub fn get_opengl_version(&self) -> &Version {
         &self.version
     }
 
