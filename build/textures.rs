@@ -260,25 +260,25 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
     let dimensions_parameters_passing = match dimensions {
         TextureDimensions::Texture1d => {
-            "TextureType::Texture1d { width: width }"
+            "Dimensions::Texture1d { width: width }"
         },
         TextureDimensions::Texture2d => {
-            "TextureType::Texture2d { width: width, height: height }"
+            "Dimensions::Texture2d { width: width, height: height }"
         },
         TextureDimensions::Texture2dMultisample => {
-            "TextureType::Texture2dMultisample { width: width, height: height, samples: samples }"
+            "Dimensions::Texture2dMultisample { width: width, height: height, samples: samples }"
         },
         TextureDimensions::Texture3d => {
-            "TextureType::Texture3d { width: width, height: height, depth: depth }"
+            "Dimensions::Texture3d { width: width, height: height, depth: depth }"
         },
         TextureDimensions::Texture1dArray => {
-            "TextureType::Texture1dArray { width: width, array_size: array_size }"
+            "Dimensions::Texture1dArray { width: width, array_size: array_size }"
         },
         TextureDimensions::Texture2dArray => {
-            "TextureType::Texture2dArray { width: width, height: height, array_size: array_size }"
+            "Dimensions::Texture2dArray { width: width, height: height, array_size: array_size }"
         },
         TextureDimensions::Texture2dMultisampleArray => {
-            "TextureType::Texture2dMultisampleArray { width: width, height: height, array_size: array_size, samples: samples }"
+            "Dimensions::Texture2dMultisampleArray { width: width, height: height, array_size: array_size, samples: samples }"
         },
     };
 

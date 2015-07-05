@@ -61,7 +61,7 @@ use GlObject;
 use TextureExt;
 
 use texture::TextureAny;
-use texture::TextureType;
+use texture::Dimensions;
 use framebuffer::RenderBufferAny;
 
 use gl;
@@ -145,10 +145,10 @@ impl<'a> FramebufferAttachments<'a> {
                         }
 
                         let layer = match (layer, texture.get_texture_type()) {
-                            (l, TextureType::Texture1dArray { .. }) => l,
-                            (l, TextureType::Texture2dArray { .. }) => l,
-                            (l, TextureType::Texture2dMultisampleArray { .. }) => l,
-                            (l, TextureType::Texture3d { .. }) => l,
+                            (l, Dimensions::Texture1dArray { .. }) => l,
+                            (l, Dimensions::Texture2dArray { .. }) => l,
+                            (l, Dimensions::Texture2dMultisampleArray { .. }) => l,
+                            (l, Dimensions::Texture3d { .. }) => l,
                             (Some(l), _) if l == 0 => None,
                             (Some(l), _) => panic!(),
                             (None, _) => None,
@@ -286,7 +286,7 @@ enum RawAttachment {
     /// A texture.
     Texture {
         // a GLenum like `TEXTURE_2D`, `TEXTURE_3D`, etc.
-        bind_point: gl::types::GLenum,      // TODO: TextureType instead
+        bind_point: gl::types::GLenum,      // TODO: Dimensions instead
         // id of the texture
         texture: gl::types::GLuint,
         // if `Some`, the texture **must** be an array, cubemap, or texture 3d

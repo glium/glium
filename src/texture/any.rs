@@ -44,7 +44,7 @@ pub struct TextureAny {
     actual_format: Cell<Option<Option<InternalFormat>>>,
 
     /// Type and dimensions of the texture.
-    ty: TextureType,
+    ty: Dimensions,
 
     /// Number of mipmap levels (`1` means just the main texture, `0` is not valid)
     levels: u32,
@@ -75,7 +75,7 @@ pub struct TextureAnyMipmap<'a> {
 /// Type of a texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]      // TODO: document and remove
-pub enum TextureType {
+pub enum Dimensions {
     Texture1d { width: u32 },
     Texture1dArray { width: u32, array_size: u32 },
     Texture2d { width: u32, height: u32 },
@@ -92,19 +92,19 @@ pub enum TextureType {
 /// Panicks if the size of the data doesn't match the texture dimensions.
 pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                              data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
-                             mipmaps: MipmapsOption, ty: TextureType)
+                             mipmaps: MipmapsOption, ty: Dimensions)
                              -> Result<TextureAny, TextureMaybeSupportedCreationError>
                              where P: Send + Clone + 'a, F: Facade
 {
     // getting the width, height, depth, array_size, samples from the type
     let (width, height, depth, array_size, samples) = match ty {
-        TextureType::Texture1d { width } => (width, None, None, None, None),
-        TextureType::Texture1dArray { width, array_size } => (width, None, None, Some(array_size), None),
-        TextureType::Texture2d { width, height } => (width, Some(height), None, None, None),
-        TextureType::Texture2dArray { width, height, array_size } => (width, Some(height), None, Some(array_size), None),
-        TextureType::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
-        TextureType::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
-        TextureType::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
+        Dimensions::Texture1d { width } => (width, None, None, None, None),
+        Dimensions::Texture1dArray { width, array_size } => (width, None, None, Some(array_size), None),
+        Dimensions::Texture2d { width, height } => (width, Some(height), None, None, None),
+        Dimensions::Texture2dArray { width, height, array_size } => (width, Some(height), None, Some(array_size), None),
+        Dimensions::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
+        Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
+        Dimensions::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
     };
 
     let (is_client_compressed, data_bufsize) = match data {
@@ -124,13 +124,13 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
 
     // getting the `GLenum` corresponding to this texture type
     let bind_point = match ty {
-        TextureType::Texture1d { .. } => gl::TEXTURE_1D,
-        TextureType::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
-        TextureType::Texture2d { .. } => gl::TEXTURE_2D,
-        TextureType::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
-        TextureType::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
-        TextureType::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-        TextureType::Texture3d { .. } => gl::TEXTURE_3D,
+        Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
+        Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
+        Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
+        Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
+        Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
+        Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+        Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
     };
 
     // checking non-power-of-two
@@ -191,16 +191,16 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
 
         match ty {
-            TextureType::Texture1d { .. } => (),
+            Dimensions::Texture1d { .. } => (),
             _ => {
                 ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
             },
         };
 
         match ty {
-            TextureType::Texture1d { .. } => (),
-            TextureType::Texture2d { .. } => (),
-            TextureType::Texture2dMultisample { .. } => (),
+            Dimensions::Texture1d { .. } => (),
+            Dimensions::Texture2d { .. } => (),
+            Dimensions::Texture2dMultisample { .. } => (),
             _ => {
                 ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
             },
@@ -638,33 +638,33 @@ impl TextureAny {
     /// Returns the width of the texture.
     pub fn get_width(&self) -> u32 {
         match self.ty {
-            TextureType::Texture1d { width, .. } => width,
-            TextureType::Texture1dArray { width, .. } => width,
-            TextureType::Texture2d { width, .. } => width,
-            TextureType::Texture2dArray { width, .. } => width,
-            TextureType::Texture2dMultisample { width, .. } => width,
-            TextureType::Texture2dMultisampleArray { width, .. } => width,
-            TextureType::Texture3d { width, .. } => width,
+            Dimensions::Texture1d { width, .. } => width,
+            Dimensions::Texture1dArray { width, .. } => width,
+            Dimensions::Texture2d { width, .. } => width,
+            Dimensions::Texture2dArray { width, .. } => width,
+            Dimensions::Texture2dMultisample { width, .. } => width,
+            Dimensions::Texture2dMultisampleArray { width, .. } => width,
+            Dimensions::Texture3d { width, .. } => width,
         }
     }
 
     /// Returns the height of the texture.
     pub fn get_height(&self) -> Option<u32> {
         match self.ty {
-            TextureType::Texture1d { .. } => None,
-            TextureType::Texture1dArray { .. } => None,
-            TextureType::Texture2d { height, .. } => Some(height),
-            TextureType::Texture2dArray { height, .. } => Some(height),
-            TextureType::Texture2dMultisample { height, .. } => Some(height),
-            TextureType::Texture2dMultisampleArray { height, .. } => Some(height),
-            TextureType::Texture3d { height, .. } => Some(height),
+            Dimensions::Texture1d { .. } => None,
+            Dimensions::Texture1dArray { .. } => None,
+            Dimensions::Texture2d { height, .. } => Some(height),
+            Dimensions::Texture2dArray { height, .. } => Some(height),
+            Dimensions::Texture2dMultisample { height, .. } => Some(height),
+            Dimensions::Texture2dMultisampleArray { height, .. } => Some(height),
+            Dimensions::Texture3d { height, .. } => Some(height),
         }
     }
 
     /// Returns the depth of the texture.
     pub fn get_depth(&self) -> Option<u32> {
         match self.ty {
-            TextureType::Texture3d { depth, .. } => Some(depth),
+            Dimensions::Texture3d { depth, .. } => Some(depth),
             _ => None
         }
     }
@@ -672,13 +672,13 @@ impl TextureAny {
     /// Returns the array size of the texture.
     pub fn get_array_size(&self) -> Option<u32> {
         match self.ty {
-            TextureType::Texture1d { .. } => None,
-            TextureType::Texture1dArray { array_size, .. } => Some(array_size),
-            TextureType::Texture2d { .. } => None,
-            TextureType::Texture2dArray { array_size, .. } => Some(array_size),
-            TextureType::Texture2dMultisample { .. } => None,
-            TextureType::Texture2dMultisampleArray { array_size, .. } => Some(array_size),
-            TextureType::Texture3d { .. } => None,
+            Dimensions::Texture1d { .. } => None,
+            Dimensions::Texture1dArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture2d { .. } => None,
+            Dimensions::Texture2dArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture2dMultisample { .. } => None,
+            Dimensions::Texture2dMultisampleArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture3d { .. } => None,
         }
     }
 
@@ -688,7 +688,7 @@ impl TextureAny {
     }
 
     /// Returns the type of the texture (1D, 2D, 3D, etc.).
-    pub fn get_texture_type(&self) -> TextureType {
+    pub fn get_texture_type(&self) -> Dimensions {
         self.ty
     }
 
@@ -738,13 +738,13 @@ impl TextureExt for TextureAny {
 
     fn get_bind_point(&self) -> gl::types::GLenum {
         match self.ty {
-            TextureType::Texture1d { .. } => gl::TEXTURE_1D,
-            TextureType::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
-            TextureType::Texture2d { .. } => gl::TEXTURE_2D,
-            TextureType::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
-            TextureType::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
-            TextureType::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-            TextureType::Texture3d { .. } => gl::TEXTURE_3D,
+            Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
+            Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
+            Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
+            Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
+            Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
+            Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+            Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
         }
     }
 
