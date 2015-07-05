@@ -52,7 +52,7 @@ fn main() {
     program.execute(uniform! { MyBlock: &buffer }, 1024, 1, 1);
 
     {
-        let mut mapping = buffer.map();
+        let mapping = buffer.map();
         assert_eq!(mapping.value[0], 0);
         assert_eq!(mapping.value[1], 1);
         assert_eq!(mapping.value[2], 4);

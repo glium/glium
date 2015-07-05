@@ -276,6 +276,10 @@ impl Program {
         self.raw.get_shader_storage_blocks()
     }
 
+    /// Returns true if the program has been configured to use the `gl_PointSize` variable.
+    ///
+    /// If the program uses `gl_PointSize` without having been configured appropriately, then
+    /// setting the value of `gl_PointSize` will have no effect.
     pub fn uses_point_size(&self) -> bool {
       self.uses_point_size
     }

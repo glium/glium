@@ -37,10 +37,10 @@ pub fn rebuild_display(display: &glium::Display) {
     if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
         glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
                                                        .with_gl(version)
-                                                       .rebuild_glium(display);
+                                                       .rebuild_glium(display).unwrap();
     } else {
         glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
-                                    .with_gl(version).rebuild_glium(display);
+                                    .with_gl(version).rebuild_glium(display).unwrap();
     }
 }
 

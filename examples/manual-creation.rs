@@ -39,7 +39,7 @@ fn main() {
         fn swap_buffers(&self) -> Result<(), glium::SwapBuffersError> {
             match self.window.swap_buffers() {
                 Ok(()) => Ok(()),
-                Err(glutin::ContextError::IoError(e)) => panic!(),
+                Err(glutin::ContextError::IoError(_)) => panic!(),
                 Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
             }
         }
