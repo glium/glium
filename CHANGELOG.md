@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.6.7 (2015-07-06)
 
  - Added `DrawCommandsIndicesBuffer` for multidraw elements indirect.
  - Added `ResidentTexture`, `TextureHandle` and `Texture::resident_if_supported()` for bindless textures.
