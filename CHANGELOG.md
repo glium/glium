@@ -6,6 +6,7 @@
  - Creating an empty `BufferView<[T]>` now requires calling `empty_array` instead of `empty`.
  - `BufferView::write` now takes a `&T` instead of a `P where P: AsRef<[T]>`. This means that you can no longer pass `Vec`s by value for example.
  - Removed the mock methods from `UniformBuffer` as they are available through the `Deref` to `BufferView`.
+ - The `UniformBlock` trait is now implemented on `DrawCommandNoIndices` and `DrawCommandIndices`.
  - Added the `implement_buffer_content!` macro to put on unsized struct so that you can put them inside buffers.
  - Added a `uniforms::LayoutMismatchError` as an additional field to `DrawError::UniformBlockLayoutMismatch`.
  - Changed `UniformBlock::matches` to return a `Result<(), UniformBlockLayoutMismatch>`.
