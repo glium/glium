@@ -41,7 +41,7 @@ pub struct DrawCommandIndices {
 
 /// A buffer containing a list of draw commands.
 pub struct DrawCommandsNoIndicesBuffer {
-    buffer: BufferView<DrawCommandNoIndices>,
+    buffer: BufferView<[DrawCommandNoIndices]>,
 }
 
 impl DrawCommandsNoIndicesBuffer {
@@ -52,8 +52,8 @@ impl DrawCommandsNoIndicesBuffer {
                                  -> Option<DrawCommandsNoIndicesBuffer>
                                  where F: Facade
     {
-        match BufferView::empty(facade, BufferType::DrawIndirectBuffer,
-                                elements, false)
+        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                      elements, false)
         {
             Ok(buf) => Some(DrawCommandsNoIndicesBuffer { buffer: buf }),
             Err(BufferCreationError::BufferTypeNotSupported) => None,
@@ -68,8 +68,8 @@ impl DrawCommandsNoIndicesBuffer {
                                          -> Option<DrawCommandsNoIndicesBuffer>
                                          where F: Facade
     {
-        match BufferView::empty(facade, BufferType::DrawIndirectBuffer,
-                                elements, true)
+        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                      elements, true)
         {
             Ok(buf) => Some(DrawCommandsNoIndicesBuffer { buffer: buf }),
             Err(BufferCreationError::BufferTypeNotSupported) => None,
@@ -88,22 +88,22 @@ impl DrawCommandsNoIndicesBuffer {
 }
 
 impl Deref for DrawCommandsNoIndicesBuffer {
-    type Target = BufferView<DrawCommandNoIndices>;
+    type Target = BufferView<[DrawCommandNoIndices]>;
 
-    fn deref(&self) -> &BufferView<DrawCommandNoIndices> {
+    fn deref(&self) -> &BufferView<[DrawCommandNoIndices]> {
         &self.buffer
     }
 }
 
 impl DerefMut for DrawCommandsNoIndicesBuffer {
-    fn deref_mut(&mut self) -> &mut BufferView<DrawCommandNoIndices> {
+    fn deref_mut(&mut self) -> &mut BufferView<[DrawCommandNoIndices]> {
         &mut self.buffer
     }
 }
 
 /// A buffer containing a list of draw commands.
 pub struct DrawCommandsIndicesBuffer {
-    buffer: BufferView<DrawCommandIndices>,
+    buffer: BufferView<[DrawCommandIndices]>,
 }
 
 impl DrawCommandsIndicesBuffer {
@@ -114,8 +114,8 @@ impl DrawCommandsIndicesBuffer {
                                  -> Option<DrawCommandsIndicesBuffer>
                                  where F: Facade
     {
-        match BufferView::empty(facade, BufferType::DrawIndirectBuffer,
-                                elements, false)
+        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                      elements, false)
         {
             Ok(buf) => Some(DrawCommandsIndicesBuffer { buffer: buf }),
             Err(BufferCreationError::BufferTypeNotSupported) => None,
@@ -130,8 +130,8 @@ impl DrawCommandsIndicesBuffer {
                                          -> Option<DrawCommandsIndicesBuffer>
                                          where F: Facade
     {
-        match BufferView::empty(facade, BufferType::DrawIndirectBuffer,
-                                elements, true)
+        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                      elements, true)
         {
             Ok(buf) => Some(DrawCommandsIndicesBuffer { buffer: buf }),
             Err(BufferCreationError::BufferTypeNotSupported) => None,
@@ -154,15 +154,15 @@ impl DrawCommandsIndicesBuffer {
 }
 
 impl Deref for DrawCommandsIndicesBuffer {
-    type Target = BufferView<DrawCommandIndices>;
+    type Target = BufferView<[DrawCommandIndices]>;
 
-    fn deref(&self) -> &BufferView<DrawCommandIndices> {
+    fn deref(&self) -> &BufferView<[DrawCommandIndices]> {
         &self.buffer
     }
 }
 
 impl DerefMut for DrawCommandsIndicesBuffer {
-    fn deref_mut(&mut self) -> &mut BufferView<DrawCommandIndices> {
+    fn deref_mut(&mut self) -> &mut BufferView<[DrawCommandIndices]> {
         &mut self.buffer
     }
 }

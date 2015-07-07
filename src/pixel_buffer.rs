@@ -22,7 +22,7 @@ use texture::Texture2dDataSink;
 ///
 /// The generic type represents the type of pixels that the buffer contains.
 pub struct PixelBuffer<T> where T: PixelValue {
-    buffer: BufferView<T>,
+    buffer: BufferView<[T]>,
     dimensions: Cell<Option<(u32, u32)>>,
 }
 
@@ -30,8 +30,8 @@ impl<T> PixelBuffer<T> where T: PixelValue {
     /// Builds a new buffer with an uninitialized content.
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
-            buffer: BufferView::empty(facade, BufferType::PixelPackBuffer, capacity,
-                                      false).unwrap(),
+            buffer: BufferView::empty_array(facade, BufferType::PixelPackBuffer, capacity,
+                                            false).unwrap(),
             dimensions: Cell::new(None),
         }
     }
@@ -57,15 +57,15 @@ impl<T> PixelBuffer<T> where T: PixelValue {
 }
 
 impl<T> Deref for PixelBuffer<T> where T: PixelValue {
-    type Target = BufferView<T>;
+    type Target = BufferView<[T]>;
 
-    fn deref(&self) -> &BufferView<T> {
+    fn deref(&self) -> &BufferView<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
-    fn deref_mut(&mut self) -> &mut BufferView<T> {
+    fn deref_mut(&mut self) -> &mut BufferView<[T]> {
         &mut self.buffer
     }
 }

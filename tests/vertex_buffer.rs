@@ -415,7 +415,7 @@ fn vertex_buffer_immutable_write() {
         ]
     );
 
-    vb.write(vec![
+    vb.write(&[
         Vertex { field1: [ 2,  3], field2: [ 5,  7] },
         Vertex { field1: [12, 13], field2: [15, 17] }
     ]);
@@ -452,7 +452,7 @@ fn vertex_buffer_dynamic_write() {
         ]
     );
 
-    vb.write(vec![
+    vb.write(&[
         Vertex { field1: [ 2,  3], field2: [ 5,  7] },
         Vertex { field1: [12, 13], field2: [15, 17] }
     ]);
@@ -489,7 +489,7 @@ fn vertex_buffer_immutable_write_slice() {
         ]
     );
 
-    vb.slice(1 .. 2).unwrap().write(vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
+    vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
 
     let data = match vb.read_if_supported() {
         Some(d) => d,
@@ -523,7 +523,7 @@ fn vertex_buffer_dynamic_write_slice() {
         ]
     );
 
-    vb.slice(1 .. 2).unwrap().write(vec![Vertex { field1: [12, 13], field2: [15, 17] }]);
+    vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
 
     let data = match vb.read_if_supported() {
         Some(d) => d,

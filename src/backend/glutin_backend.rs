@@ -21,7 +21,6 @@ use context;
 use backend;
 use backend::Context;
 use backend::Backend;
-use version::Version;
 
 use std::cell::{RefCell, Ref};
 use std::rc::Rc;

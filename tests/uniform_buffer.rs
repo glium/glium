@@ -73,12 +73,12 @@ fn uniform_buffer_read() {
 fn uniform_buffer_write() {
     let display = support::build_display();
 
-    let mut vb = match glium::uniforms::UniformBuffer::new_if_supported(&display, 5) {
+    let vb = match glium::uniforms::UniformBuffer::new_if_supported(&display, 5) {
         None => return,
         Some(b) => b
     };
 
-    vb.upload(24);
+    vb.write(&24);
 
     let data = match vb.read_if_supported() {
         Some(d) => d,

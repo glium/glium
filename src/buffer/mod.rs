@@ -20,10 +20,91 @@ pub use self::alloc::{Mapping, WriteMapping, ReadMapping};
 pub use self::fences::Inserter;
 
 use gl;
+use std::mem;
+use std::slice;
 
 mod alloc;
 mod fences;
 mod view;
+
+/// Trait for types of data that can be put inside buffers.
+pub unsafe trait Content {
+    /// A type that holds a sized version of the content.
+    type Owned;
+
+    /// Prepares an output buffer, then turns this buffer into an `Owned`.
+    fn read<F, E>(size: usize, F) -> Result<Self::Owned, E>
+                  where F: FnOnce(&mut Self) -> Result<(), E>;
+
+    /// Returns the size of each element.
+    fn get_elements_size() -> usize;
+
+    /// Produces a pointer to the data.
+    fn to_void_ptr(&self) -> *const ();
+
+    /// Builds a pointer to this type from a raw pointer.
+    fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut Self>;
+}
+
+unsafe impl<T> Content for T where T: Copy {
+    type Owned = T;
+
+    fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
+        assert!(size == mem::size_of::<T>());
+        let mut value = unsafe { mem::uninitialized() };
+        try!(f(&mut value));
+        Ok(value)
+    }
+
+    fn get_elements_size() -> usize {
+        mem::size_of::<T>()
+    }
+
+    fn to_void_ptr(&self) -> *const () {
+        self as *const T as *const ()
+    }
+
+    fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut T> {
+        if size != mem::size_of::<T>() {
+            return None;
+        }
+
+        Some(ptr as *mut T)
+    }
+}
+
+unsafe impl<T> Content for [T] where T: Copy {
+    type Owned = Vec<T>;
+
+    fn read<F, E>(size: usize, f: F) -> Result<Vec<T>, E>
+                  where F: FnOnce(&mut [T]) -> Result<(), E>
+    {
+        assert!(size % mem::size_of::<T>() == 0);
+        let len = size / mem::size_of::<T>();
+        let mut value = Vec::with_capacity(len);
+        unsafe { value.set_len(len) };
+        try!(f(&mut value));
+        Ok(value)
+    }
+
+    fn get_elements_size() -> usize {
+        mem::size_of::<T>()
+    }
+
+    fn to_void_ptr(&self) -> *const () {
+        &self[0] as *const T as *const ()
+    }
+
+    fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut [T]> {
+        if size % mem::size_of::<T>() != 0 {
+            return None;
+        }
+
+        let ptr = ptr as *mut T;
+        let size = size / mem::size_of::<T>();
+        Some(unsafe { slice::from_raw_parts_mut(&mut *ptr, size) as *mut [T] })
+    }
+}
 
 /// Error that can happen when creating a buffer.
 #[derive(Debug)]

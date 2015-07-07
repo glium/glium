@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+ - Buffers now contain a single, possibly unsized, element. `BufferView<T>` is now `BufferView<[T]>`.
+ - Creating an empty `BufferView<[T]>` now requires calling `empty_array` instead of `empty`.
+ - `BufferView::write` now takes a `&T` instead of a `P where P: AsRef<[T]>`. This means that you can no longer pass `Vec`s by value for example.
+ - Removed the mock methods from `UniformBuffer` as they are available through the `Deref` to `BufferView`.
+
 ## Version 0.6.7 (2015-07-06)
 
  - Added `DrawCommandsIndicesBuffer` for multidraw elements indirect.

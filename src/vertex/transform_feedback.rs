@@ -117,7 +117,7 @@ impl<'a> TransformFeedbackSession<'a> {
     ///
     /// TODO: this constructor should ultimately support passing multiple buffers of different
     ///       types
-    pub fn new<F, V>(facade: &F, program: &'a Program, buffer: &'a mut BufferView<V>)
+    pub fn new<F, V>(facade: &F, program: &'a Program, buffer: &'a mut BufferView<[V]>)
                      -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
                      where F: Facade, V: Vertex + Copy + Send + 'static
     {
