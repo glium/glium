@@ -10,6 +10,7 @@
  - Added a `uniforms::LayoutMismatchError` as an additional field to `DrawError::UniformBlockLayoutMismatch`.
  - Changed `UniformBlock::matches` to return a `Result<(), UniformBlockLayoutMismatch>`.
  - Removed the `matches` function from the `AsUniformValue` trait.
+ - Removed `TextureSurface` in favor of `SimpleFrameBuffer`.
 
 ## Version 0.6.7 (2015-07-06)
 
