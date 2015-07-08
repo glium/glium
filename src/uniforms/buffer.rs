@@ -1,5 +1,6 @@
-use buffer::{BufferView, BufferViewAny, BufferType, BufferCreationError};
-use uniforms::{AsUniformValue, UniformValue, UniformBlock, UniformType};
+use buffer::{Content, BufferView, BufferViewAny, BufferType, BufferCreationError};
+use uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
+use program;
 
 use std::ops::{Deref, DerefMut};
 
@@ -7,7 +8,7 @@ use backend::Facade;
 
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
-pub struct UniformBuffer<T> where T: Copy {
+pub struct UniformBuffer<T: ?Sized> where T: Content {
     buffer: BufferView<T>,
 }
 
@@ -65,7 +66,42 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 }
 
-impl<T> Deref for UniformBuffer<T> where T: Copy {
+impl<T: ?Sized> UniformBuffer<T> where T: Content {
+    /// Creates an empty buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    ///
+    /// # Features
+    ///
+    /// Only available if the `gl_uniform_blocks` feature is enabled.
+    #[cfg(feature = "gl_uniform_blocks")]
+    pub fn empty_unsized<F>(facade: &F, size: usize) -> UniformBuffer<T> where F: Facade {
+        UniformBuffer::empty_unsized_if_supported(facade, size).unwrap()
+    }
+
+    /// Creates an empty buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    pub fn empty_unsized_if_supported<F>(facade: &F, size: usize)
+                                         -> Option<UniformBuffer<T>> where F: Facade
+    {
+        let buffer = match BufferView::empty_unsized(facade, BufferType::UniformBuffer, size, true) {
+            Ok(b) => b,
+            Err(BufferCreationError::BufferTypeNotSupported) => return None,
+            e @ Err(_) => e.unwrap(),
+        };
+
+        Some(UniformBuffer {
+            buffer: buffer,
+        })
+    }
+}
+
+impl<T: ?Sized> Deref for UniformBuffer<T> where T: Content {
     type Target = BufferView<T>;
 
     fn deref(&self) -> &BufferView<T> {
@@ -73,18 +109,21 @@ impl<T> Deref for UniformBuffer<T> where T: Copy {
     }
 }
 
-impl<T> DerefMut for UniformBuffer<T> where T: Copy {
+impl<T: ?Sized> DerefMut for UniformBuffer<T> where T: Content {
     fn deref_mut(&mut self) -> &mut BufferView<T> {
         &mut self.buffer
     }
 }
 
-impl<'a, T> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Copy {
+impl<'a, T: ?Sized> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Content {
     fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Block(self.buffer.as_slice_any(), <T as UniformBlock>::matches)
-    }
+        fn f<T: ?Sized>(block: &program::UniformBlock)
+                        -> Result<(), LayoutMismatchError> where T: UniformBlock + Content
+        {
+            // TODO: more checks?
+            T::matches(&block.layout, 0)
+        }
 
-    fn matches(_: &UniformType) -> bool {
-        false
+        UniformValue::Block(self.buffer.as_slice_any(), f::<T>)
     }
 }

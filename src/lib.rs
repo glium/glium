@@ -796,6 +796,8 @@ pub enum DrawError {
     UniformBlockLayoutMismatch {
         /// Name of the block you are trying to bind.
         name: String,
+        /// The error giving more details about the mismatch.
+        err: uniforms::LayoutMismatchError,
     },
 
     /// The number of vertices per patch that has been requested is not supported.
@@ -850,7 +852,7 @@ impl std::fmt::Display for DrawError {
             &DrawError::UniformValueToBlock { ref name } => {
                 write!(fmt, "Tried to bind a single uniform value to a uniform block.")
             },
-            &DrawError::UniformBlockLayoutMismatch { ref name } => {
+            &DrawError::UniformBlockLayoutMismatch { ref name, .. } => {
                 write!(fmt, "The layout of the content of the uniform buffer does not match \
                              the layout of the block.")
             },

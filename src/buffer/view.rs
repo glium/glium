@@ -59,6 +59,28 @@ impl<T: ?Sized> BufferView<T> where T: Content {
             })
     }
 
+    /// Builds a new buffer of the given size.
+    ///
+    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
+    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
+    ///
+    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
+    /// synchronizations manually.
+    pub fn empty_unsized<F>(facade: &F, ty: BufferType, size: usize, dynamic: bool)
+                            -> Result<BufferView<T>, BufferCreationError> where F: Facade
+    {
+        assert!(<T as Content>::is_size_suitable(size));
+
+        Buffer::empty(facade, ty, size, dynamic)
+            .map(|buffer| {
+                BufferView {
+                    alloc: Some(buffer),
+                    fence: Some(Fences::new()),
+                    marker: PhantomData,
+                }
+            })
+    }
+
     /// Returns the context corresponding to this buffer.
     pub fn get_context(&self) -> &Rc<Context> {
         self.alloc.as_ref().unwrap().get_context()

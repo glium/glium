@@ -16,7 +16,10 @@ use gl;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
+use program::BlockLayout;
 use uniforms::AsUniformValue;
+use uniforms::LayoutMismatchError;
+use uniforms::UniformBlock;
 use uniforms::UniformValue;
 use uniforms::UniformType;
 use uniforms::SamplerBehavior;
@@ -131,55 +134,104 @@ impl<'a> AsUniformValue for TextureHandle<'a> {
         // TODO: u64
         unimplemented!();
     }
+}
 
-    fn matches(ty: &UniformType) -> bool {
-        // TODO: unfortunately we have no idea what the exact type of this handle is
-        //       strong typing should be considered
-        //
-        //       however there is no safety problem here ; the worse that can happen in case of
-        //       wrong type is zeroes or undefined data being returned when sampling
-        match *ty {
-            UniformType::Sampler1d => true,
-            UniformType::ISampler1d => true,
-            UniformType::USampler1d => true,
-            UniformType::Sampler2d => true,
-            UniformType::ISampler2d => true,
-            UniformType::USampler2d => true,
-            UniformType::Sampler3d => true,
-            UniformType::ISampler3d => true,
-            UniformType::USampler3d => true,
-            UniformType::Sampler1dArray => true,
-            UniformType::ISampler1dArray => true,
-            UniformType::USampler1dArray => true,
-            UniformType::Sampler2dArray => true,
-            UniformType::ISampler2dArray => true,
-            UniformType::USampler2dArray => true,
-            UniformType::SamplerCube => true,
-            UniformType::ISamplerCube => true,
-            UniformType::USamplerCube => true,
-            UniformType::Sampler2dRect => true,
-            UniformType::ISampler2dRect => true,
-            UniformType::USampler2dRect => true,
-            UniformType::Sampler2dRectShadow => true,
-            UniformType::SamplerCubeArray => true,
-            UniformType::ISamplerCubeArray => true,
-            UniformType::USamplerCubeArray => true,
-            UniformType::SamplerBuffer => true,
-            UniformType::ISamplerBuffer => true,
-            UniformType::USamplerBuffer => true,
-            UniformType::Sampler2dMultisample => true,
-            UniformType::ISampler2dMultisample => true,
-            UniformType::USampler2dMultisample => true,
-            UniformType::Sampler2dMultisampleArray => true,
-            UniformType::ISampler2dMultisampleArray => true,
-            UniformType::USampler2dMultisampleArray => true,
-            UniformType::Sampler1dShadow => true,
-            UniformType::Sampler2dShadow => true,
-            UniformType::SamplerCubeShadow => true,
-            UniformType::Sampler1dArrayShadow => true,
-            UniformType::Sampler2dArrayShadow => true,
-            UniformType::SamplerCubeArrayShadow => true,
-            _ => false
+impl<'a> UniformBlock for TextureHandle<'a> {
+    fn matches(layout: &BlockLayout, base_offset: usize)
+               -> Result<(), LayoutMismatchError>
+    {
+        if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
+            // TODO: unfortunately we have no idea what the exact type of this handle is
+            //       strong typing should be considered
+            //
+            //       however there is no safety problem here ; the worse that can happen in case of
+            //       wrong type is zeroes or undefined data being returned when sampling
+            match ty {
+                UniformType::Sampler1d => (),
+                UniformType::ISampler1d => (),
+                UniformType::USampler1d => (),
+                UniformType::Sampler2d => (),
+                UniformType::ISampler2d => (),
+                UniformType::USampler2d => (),
+                UniformType::Sampler3d => (),
+                UniformType::ISampler3d => (),
+                UniformType::USampler3d => (),
+                UniformType::Sampler1dArray => (),
+                UniformType::ISampler1dArray => (),
+                UniformType::USampler1dArray => (),
+                UniformType::Sampler2dArray => (),
+                UniformType::ISampler2dArray => (),
+                UniformType::USampler2dArray => (),
+                UniformType::SamplerCube => (),
+                UniformType::ISamplerCube => (),
+                UniformType::USamplerCube => (),
+                UniformType::Sampler2dRect => (),
+                UniformType::ISampler2dRect => (),
+                UniformType::USampler2dRect => (),
+                UniformType::Sampler2dRectShadow => (),
+                UniformType::SamplerCubeArray => (),
+                UniformType::ISamplerCubeArray => (),
+                UniformType::USamplerCubeArray => (),
+                UniformType::SamplerBuffer => (),
+                UniformType::ISamplerBuffer => (),
+                UniformType::USamplerBuffer => (),
+                UniformType::Sampler2dMultisample => (),
+                UniformType::ISampler2dMultisample => (),
+                UniformType::USampler2dMultisample => (),
+                UniformType::Sampler2dMultisampleArray => (),
+                UniformType::ISampler2dMultisampleArray => (),
+                UniformType::USampler2dMultisampleArray => (),
+                UniformType::Sampler1dShadow => (),
+                UniformType::Sampler2dShadow => (),
+                UniformType::SamplerCubeShadow => (),
+                UniformType::Sampler1dArrayShadow => (),
+                UniformType::Sampler2dArrayShadow => (),
+                UniformType::SamplerCubeArrayShadow => (),
+
+                _ => return Err(LayoutMismatchError::TypeMismatch {
+                    expected: ty,
+                    obtained: UniformType::Sampler2d,       // TODO: wrong
+                })
+            }
+
+            if offset_in_buffer != base_offset {
+                return Err(LayoutMismatchError::OffsetMismatch {
+                    expected: offset_in_buffer,
+                    obtained: base_offset,
+                });
+            }
+
+            Ok(())
+
+        } else if let &BlockLayout::Struct { ref members } = layout {
+            if members.len() == 1 {
+                <TextureHandle as UniformBlock>::matches(&members[0].1, base_offset)
+
+            } else {
+                Err(LayoutMismatchError::LayoutMismatch {
+                    expected: layout.clone(),
+                    obtained: BlockLayout::BasicType {
+                        ty: UniformType::Sampler2d,       // TODO: wrong
+                        offset_in_buffer: base_offset,
+                    }
+                })
+            }
+
+        } else {
+            Err(LayoutMismatchError::LayoutMismatch {
+                expected: layout.clone(),
+                obtained: BlockLayout::BasicType {
+                    ty: UniformType::Sampler2d,       // TODO: wrong
+                    offset_in_buffer: base_offset,
+                }
+            })
+        }
+    }
+
+    fn build_layout(base_offset: usize) -> BlockLayout {
+        BlockLayout::BasicType {
+            ty: UniformType::Sampler2d,       // TODO: wrong
+            offset_in_buffer: base_offset,
         }
     }
 }

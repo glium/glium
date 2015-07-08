@@ -126,7 +126,14 @@ fn block() {
         Err(_) => return
     };
 
-    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, (1.0f32, 1.0f32, 0.0f32)) {
+    #[derive(Copy, Clone)]
+    struct Data {
+        color: (f32, f32, f32),
+    }
+
+    implement_uniform_block!(Data, color);
+
+    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, Data { color: (1.0f32, 1.0f32, 0.0f32) }) {
         None => return,
         Some(b) => b
     };
@@ -198,7 +205,7 @@ fn block_wrong_type() {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
 
     match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
-        Err(glium::DrawError::UniformBlockLayoutMismatch { ref name })
+        Err(glium::DrawError::UniformBlockLayoutMismatch { ref name, .. })
             if name == &"MyBlock" => (),
         a => panic!("{:?}", a)
     }
@@ -264,7 +271,14 @@ fn persistent_block_race_condition() {
         Err(_) => return
     };
 
-    let mut buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, (0.5f32, 0.5f32, 0.5f32)) {
+    #[derive(Copy, Clone)]
+    struct Data {
+        color: (f32, f32, f32),
+    }
+
+    implement_uniform_block!(Data, color);
+
+    let mut buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, Data { color: (0.5f32, 0.5f32, 0.5f32) }) {
         None => return,
         Some(b) => b
     };
@@ -276,9 +290,9 @@ fn persistent_block_race_condition() {
     for _ in (0 .. 1000) {
         {
             let mut mapping = buffer.map();
-            (*mapping).0 = rand::random();
-            (*mapping).1 = rand::random();
-            (*mapping).2 = rand::random();
+            mapping.color.0 = rand::random();
+            mapping.color.1 = rand::random();
+            mapping.color.2 = rand::random();
         }
 
         target.draw(&vb, &ib, &program, &uniform!{
@@ -287,18 +301,18 @@ fn persistent_block_race_condition() {
     }
     {
         let mut mapping = buffer.map();
-        (*mapping).0 = 1.0;
-        (*mapping).1 = 1.0;
-        (*mapping).2 = 1.0;
+        mapping.color.0 = 1.0;
+        mapping.color.1 = 1.0;
+        mapping.color.2 = 1.0;
     }
     target.draw(&vb, &ib, &program, &uniform!{
         MyBlock: &buffer
     }, &Default::default()).unwrap();
     {
         let mut mapping = buffer.map();
-        (*mapping).0 = 0.0;
-        (*mapping).1 = 0.0;
-        (*mapping).2 = 0.0;
+        mapping.color.0 = 0.0;
+        mapping.color.1 = 0.0;
+        mapping.color.2 = 0.0;
     }
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();

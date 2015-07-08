@@ -44,7 +44,14 @@ fn basic() {
         Err(_) => return
     };
 
-    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, (0.0f32, 0.0f32, 0.0f32)) {
+    #[derive(Copy, Clone)]
+    struct Data {
+        color: (f32, f32, f32),
+    }
+
+    implement_uniform_block!(Data, color);
+
+    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, Data { color: (0.0f32, 0.0f32, 0.0f32) }) {
         None => return,
         Some(b) => b
     };
@@ -58,7 +65,7 @@ fn basic() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data = buffer.read_if_supported().unwrap();
-    assert_eq!(data, (1.0, 1.0, 0.5));
+    assert_eq!(data.color, (1.0, 1.0, 0.5));
 
     display.assert_no_error(None);
 }
