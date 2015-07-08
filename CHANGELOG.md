@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.7.0 (2015-07-08)
 
  - Buffers now contain a single, possibly unsized, element. `BufferView<T>` is now `BufferView<[T]>`.
  - Creating an empty `BufferView<[T]>` now requires calling `empty_array` instead of `empty`.
