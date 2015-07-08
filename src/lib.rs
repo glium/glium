@@ -122,6 +122,9 @@ use std::thread;
 use context::Context;
 use context::CommandContext;
 
+#[macro_use]
+mod macros;
+
 pub mod backend;
 pub mod buffer;
 pub mod debug;
@@ -137,7 +140,6 @@ pub mod texture;
 mod context;
 mod fbo;
 mod image_format;
-mod macros;
 mod ops;
 mod sampler_object;
 mod sync;

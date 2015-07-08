@@ -23,6 +23,9 @@ pub struct DrawCommandNoIndices {
     pub base_instance: libc::c_uint,
 }
 
+implement_uniform_block!(DrawCommandNoIndices, count, instance_count,
+                         first_index, base_instance);
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 #[allow(missing_docs)]      // TODO: remove this
@@ -38,6 +41,9 @@ pub struct DrawCommandIndices {
     /// Numero of the first instance to draw.
     pub base_instance: libc::c_uint,
 }
+
+implement_uniform_block!(DrawCommandIndices, count, instance_count, first_index,
+                         base_vertex, base_instance);
 
 /// A buffer containing a list of draw commands.
 pub struct DrawCommandsNoIndicesBuffer {
