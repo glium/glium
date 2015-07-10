@@ -6,10 +6,6 @@ rust:
     - nightly
     - stable
 
-cache:
-  directories:
-    - target
-
 matrix:
   allow_failures:
     - rust: nightly
@@ -30,6 +26,10 @@ addons:
     packages:
     - libxxf86vm-dev
     - libosmesa6-dev
+    - libcurl4-openssl-dev      # for kcov
+    - libelf-dev                # for kcov
+    - libdw-dev                 # for kcov
+    - cmake                     # for kcov
 
 script:
     # We run everything with `-j 1` or travis runs out of memory
@@ -56,3 +56,11 @@ after_success:
         [ $TRAVIS_PULL_REQUEST = false ] &&
         cd macros &&
         cargo publish --token ${CRATESIO_TOKEN}
+    - |
+        [ $TRAVIS_BRANCH = master ] &&
+        [ $TRAVIS_PULL_REQUEST = false ] &&
+        wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&
+        unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build &&
+        cmake .. && make && make install DESTDIR=../built && cd ../.. &&
+        for file in ./target/debug/*; do ./kcov/built/usr/local/bin/kcov --exclude-pattern=/.cargo ./target/kcov ${file}; done &&
+        ./kcov/built/usr/local/bin/kcov --coveralls-id=${TRAVIS_JOB_ID} ./target/kcov
