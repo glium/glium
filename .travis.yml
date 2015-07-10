@@ -1,8 +1,14 @@
+sudo: false
+
 language: rust
 
 rust:
     - nightly
     - stable
+
+cache:
+  directories:
+    - target
 
 matrix:
   allow_failures:
@@ -36,9 +42,10 @@ after_success:
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
         [ $TRAVIS_RUST_VERSION = nightly ] &&
-        cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_texture_1d gl_texture_3d gl_texture_multisample gl_texture_multisample_array gl_bindless_textures" &&        cp -R doc/* target/doc &&
-        sudo pip install ghp-import &&
-        ghp-import target/doc &&
+        cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_texture_1d gl_texture_3d gl_texture_multisample gl_texture_multisample_array gl_bindless_textures" &&
+        cp -R doc/* target/doc &&
+        git clone https://github.com/davisp/ghp-import &&
+        ./ghp-import/ghp-import target/doc &&
         git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
     - |
         [ $TRAVIS_BRANCH = master ] &&
