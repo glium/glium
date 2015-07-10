@@ -134,6 +134,29 @@ pub enum PrimitiveType {
     },
 }
 
+impl PrimitiveType {
+    /// Returns true if the backend supports this type of primitives.
+    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &PrimitiveType::Points | &PrimitiveType::LinesList | &PrimitiveType::LineStrip |
+            &PrimitiveType::LineLoop | &PrimitiveType::TrianglesList |
+            &PrimitiveType::TriangleStrip | &PrimitiveType::TriangleFan => true,
+
+            &PrimitiveType::LinesListAdjacency | &PrimitiveType::LineStripAdjacency |
+            &PrimitiveType::TrianglesListAdjacency | &PrimitiveType::TriangleStripAdjacency => {
+                caps.get_version() >= &Version(Api::Gl, 3, 0) ||
+                caps.get_extensions().gl_arb_geometry_shader4 ||
+                caps.get_extensions().gl_ext_geometry_shader4
+            },
+
+            &PrimitiveType::Patches { .. } => {
+                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
+                caps.get_extensions().gl_arb_tessellation_shader
+            },
+        }
+    }
+}
+
 impl ToGlEnum for PrimitiveType {
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
