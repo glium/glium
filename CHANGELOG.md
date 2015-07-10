@@ -4,6 +4,7 @@
 
  - Added the `CapabilitiesSource` trait implemented automatically on all types that implement `Facade`.
  - Added `is_supported` to `IndexType`, `Index`, `PrimitiveType`, `Attribute` and `AttributeType`.
+ - The `implement_buffer_content!` and `implement_block_layout!` macros can now take a struct with a lifetime parameter by passing `Foo<'a>` instead of `Foo`.
 
 ## Version 0.7.0 (2015-07-08)
 
