@@ -1,6 +1,10 @@
 use std::borrow::Cow;
 use std::mem;
+
 use vertex::Attribute;
+use version::Api;
+use version::Version;
+use CapabilitiesSource;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
@@ -92,6 +96,42 @@ pub enum AttributeType {
 }
 
 impl AttributeType {
+    /// Returns true if the backend supports this type of attribute.
+    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+        match self {    
+            &AttributeType::I8 | &AttributeType::I8I8 | &AttributeType::I8I8I8 |
+            &AttributeType::I8I8I8I8 | &AttributeType::U8 | &AttributeType::U8U8 |
+            &AttributeType::U8U8U8 | &AttributeType::U8U8U8U8 | &AttributeType::I16 |
+            &AttributeType::I16I16 | &AttributeType::I16I16I16 | &AttributeType::I16I16I16I16 |
+            &AttributeType::U16 | &AttributeType::U16U16 | &AttributeType::U16U16U16 |
+            &AttributeType::U16U16U16U16 | &AttributeType::F32 |
+            &AttributeType::F32F32 | &AttributeType::F32F32F32 | &AttributeType::F32F32F32F32 |
+            &AttributeType::F32x2x2 | &AttributeType::F32x2x3 | &AttributeType::F32x2x4 |
+            &AttributeType::F32x3x2 | &AttributeType::F32x3x3 | &AttributeType::F32x3x4 |
+            &AttributeType::F32x4x2 | &AttributeType::F32x4x3 | &AttributeType::F32x4x4 => 
+            {
+                true
+            },
+
+            &AttributeType::I32 | &AttributeType::I32I32 | &AttributeType::I32I32I32 |
+            &AttributeType::I32I32I32I32 | &AttributeType::U32 | &AttributeType::U32U32 |
+            &AttributeType::U32U32U32 | &AttributeType::U32U32U32U32 =>
+            {
+                caps.get_version() >= &Version(Api::Gl, 1, 0) ||
+                caps.get_version() >= &Version(Api::GlEs, 3, 0)
+            },
+
+            &AttributeType::F64 | &AttributeType::F64F64 | &AttributeType::F64F64F64 |
+            &AttributeType::F64F64F64F64 | &AttributeType::F64x2x2 | &AttributeType::F64x2x3 |
+            &AttributeType::F64x2x4 | &AttributeType::F64x3x2 | &AttributeType::F64x3x3 |
+            &AttributeType::F64x3x4 | &AttributeType::F64x4x2 | &AttributeType::F64x4x3 |
+            &AttributeType::F64x4x4 =>
+            {
+                caps.get_version() >= &Version(Api::Gl, 1, 0)
+            },
+        }
+    }
+
     /// Returns the size in bytes of a value of this type.
     pub fn get_size_bytes(&self) -> usize {
         match *self {

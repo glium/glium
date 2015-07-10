@@ -141,6 +141,7 @@ pub use self::format::{AttributeType, VertexFormat};
 pub use self::transform_feedback::{is_transform_feedback_supported, TransformFeedbackSession};
 
 use buffer::BufferViewAnySlice;
+use CapabilitiesSource;
 
 mod buffer;
 mod format;
@@ -293,10 +294,28 @@ impl_for_tuple!(A, B, C, D, E, F, G);
 pub trait Vertex: Copy + Sized {
     /// Builds the `VertexFormat` representing the layout of this element.
     fn build_bindings() -> VertexFormat;
+
+    /// Returns true if the backend supports this vertex format.
+    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+        let format = Self::build_bindings();
+
+        for &(_, _, ref ty) in format.iter() {
+            if !ty.is_supported(caps) {
+                return false;
+            }
+        }
+
+        true
+    }
 }
 
 /// Trait for types that can be used as vertex attributes.
 pub unsafe trait Attribute: Sized {
     /// Get the type of data.
     fn get_type() -> AttributeType;
+
+    /// Returns true if the backend supports this type of attribute.
+    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+        Self::get_type().is_supported(caps)
+    }
 }

@@ -3,7 +3,7 @@
 ## Unreleased
 
  - Added the `CapabilitiesSource` trait implemented automatically on all types that implement `Facade`.
- - Added `is_supported` to `IndexType` and `Index`.
+ - Added `is_supported` to `IndexType`, `Index`, `PrimitiveType`, `Attribute` and `AttributeType`.
 
 ## Version 0.7.0 (2015-07-08)
 
