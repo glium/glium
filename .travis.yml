@@ -50,14 +50,15 @@ after_success:
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
-        cargo publish --token ${CRATESIO_TOKEN}
+        cargo publish --no-verify --token ${CRATESIO_TOKEN}
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
-        cargo publish --token ${CRATESIO_TOKEN} --manifest-path macros/Cargo.toml
+        cargo publish --no-verify --token ${CRATESIO_TOKEN} --manifest-path macros/Cargo.toml
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
+        [ "$TEST" -eq 1 ] &&
         wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&
         unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build &&
         cmake .. && make && make install DESTDIR=../built && cd ../.. &&
