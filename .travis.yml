@@ -54,8 +54,7 @@ after_success:
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
-        cd macros &&
-        cargo publish --token ${CRATESIO_TOKEN}
+        cargo publish --token ${CRATESIO_TOKEN} --manifest-path macros/Cargo.toml
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
