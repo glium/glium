@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+ - Added the `CapabilitiesSource` trait implemented automatically on all types that implement `Facade`.
+ - Added `is_supported` to `IndexType` and `Index`.
+
 ## Version 0.7.0 (2015-07-08)
 
  - Buffers now contain a single, possibly unsized, element. `BufferView<T>` is now `BufferView<[T]>`.

@@ -15,6 +15,7 @@ use std::rc::Rc;
 
 use GliumCreationError;
 use SwapBuffersError;
+use CapabilitiesSource;
 use ContextExt;
 use backend::Backend;
 use version;
@@ -540,6 +541,20 @@ impl ContextExt for Context {
     }
 }
 
+impl CapabilitiesSource for Context {
+    fn get_version(&self) -> &Version {
+        &self.version
+    }
+
+    fn get_extensions(&self) -> &ExtensionsList {
+        &self.extensions
+    }
+
+    fn get_capabilities(&self) -> &Capabilities {
+        &self.capabilities
+    }
+}
+
 impl Drop for Context {
     fn drop(&mut self) {
         unsafe {
@@ -587,6 +602,20 @@ impl Drop for Context {
                 ctxt.gl.Finish();
             }
         }
+    }
+}
+
+impl<'a> CapabilitiesSource for CommandContext<'a> {
+    fn get_version(&self) -> &Version {
+        self.version
+    }
+
+    fn get_extensions(&self) -> &ExtensionsList {
+        self.extensions
+    }
+
+    fn get_capabilities(&self) -> &Capabilities {
+        self.capabilities
     }
 }
 

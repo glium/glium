@@ -16,7 +16,12 @@ use std::rc::Rc;
 use std::ops::Deref;
 
 use libc;
+use CapabilitiesSource;
 use SwapBuffersError;
+
+use context::Capabilities;
+use context::ExtensionsList;
+use version::Version;
 
 pub use context::Context;
 
@@ -46,12 +51,6 @@ pub unsafe trait Backend {
     unsafe fn make_current(&self);
 }
 
-/// Trait for types that provide a safe access for glium functions.
-pub trait Facade {
-    /// Returns an opaque type that contains the OpenGL state, extensions, version, etc.
-    fn get_context(&self) -> &Rc<Context>;
-}
-
 unsafe impl<T> Backend for Rc<T> where T: Backend {
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         self.deref().swap_buffers()
@@ -71,6 +70,26 @@ unsafe impl<T> Backend for Rc<T> where T: Backend {
 
     unsafe fn make_current(&self) {
         self.deref().make_current();
+    }
+}
+
+/// Trait for types that provide a safe access for glium functions.
+pub trait Facade {
+    /// Returns an opaque type that contains the OpenGL state, extensions, version, etc.
+    fn get_context(&self) -> &Rc<Context>;
+}
+
+impl<T> CapabilitiesSource for T where T: Facade {
+    fn get_version(&self) -> &Version {
+        self.get_context().deref().get_version()
+    }
+
+    fn get_extensions(&self) -> &ExtensionsList {
+        self.get_context().deref().get_extensions()
+    }
+
+    fn get_capabilities(&self) -> &Capabilities {
+        self.get_context().deref().get_capabilities()
     }
 }
 
