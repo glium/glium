@@ -159,6 +159,18 @@ mod gl {
 #[cfg(feature = "glutin")]
 pub type Display = backend::glutin_backend::GlutinFacade;
 
+/// Trait for objects that describe the capabilities of an OpenGL backend.
+pub trait CapabilitiesSource {
+    /// Returns the version of the backend.
+    fn get_version(&self) -> &version::Version;
+
+    /// Returns the list of extensions that are supported.
+    fn get_extensions(&self) -> &context::ExtensionsList;
+
+    /// Returns the capabilities of the backend.
+    fn get_capabilities(&self) -> &context::Capabilities;
+}
+
 /// Trait for objects that are OpenGL objects.
 pub trait GlObject {
     /// The type of identifier for this object.

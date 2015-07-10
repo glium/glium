@@ -34,6 +34,9 @@ drawing in order to make sure that the indices are not free'd.
 */
 use gl;
 use ToGlEnum;
+use CapabilitiesSource;
+use version::Api;
+use version::Version;
 
 use std::mem;
 
@@ -194,6 +197,18 @@ impl IndexType {
             IndexType::U32 => mem::size_of::<u32>(),
         }
     }
+
+    /// Returns true if the backend supports this type of index.
+    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &IndexType::U8 => true,
+            &IndexType::U16 => true,
+            &IndexType::U32 => {
+                caps.get_version() >= &Version(Api::Gl, 1, 0) ||
+                caps.get_version() >= &Version(Api::GlEs, 3, 0)
+            },
+        }
+    }
 }
 
 impl ToGlEnum for IndexType {
@@ -206,6 +221,11 @@ impl ToGlEnum for IndexType {
 pub unsafe trait Index: Copy + Send + 'static {
     /// Returns the `IndexType` corresponding to this type.
     fn get_type() -> IndexType;
+
+    /// Returns true if this type of index is supported by the backend.
+    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+        Self::get_type().is_supported(caps)
+    }
 }
 
 unsafe impl Index for u8 {
