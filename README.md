@@ -1,6 +1,6 @@
 # glium
 
-[![Build Status](https://travis-ci.org/tomaka/glium.svg?branch=master)](https://travis-ci.org/tomaka/glium) [![Circle CI](https://circleci.com/gh/tomaka/glium/tree/master.svg?style=svg)](https://circleci.com/gh/tomaka/glium/tree/master)
+[![Build Status](https://travis-ci.org/tomaka/glium.svg?branch=master)](https://travis-ci.org/tomaka/glium) [![Circle CI](https://circleci.com/gh/tomaka/glium/tree/master.svg?style=svg)](https://circleci.com/gh/tomaka/glium/tree/master) [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
 
 [![](http://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
 
