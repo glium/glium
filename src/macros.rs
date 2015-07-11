@@ -156,76 +156,88 @@ macro_rules! implement_vertex {
 #[macro_export]
 // TODO: this whole macro is ultra dangerous
 macro_rules! implement_buffer_content {
-    ($struct_name:ident) => (
-        unsafe impl $crate::buffer::Content for $struct_name {
-            type Owned = Box<$struct_name>;
+    (__as_item $i:item) => {$i};
 
-            fn read<F, E>(size: usize, f: F) -> Result<Box<$struct_name>, E>
-                          where F: FnOnce(&mut $struct_name) -> Result<(), E>
-            {
-                use std::mem;
+    (__impl $struct_name:ident [$($gs:tt)*]) => {
+        implement_buffer_content! { __as_item
+            unsafe impl<$($gs)*> $crate::buffer::Content for $struct_name<$($gs)*> {
+                type Owned = Box<$struct_name<$($gs)*>>;
 
-                assert!(<$struct_name as $crate::buffer::Content>::is_size_suitable(size));
+                fn read<F, E>(size: usize, f: F) -> Result<Box<$struct_name<$($gs)*>>, E>
+                              where F: FnOnce(&mut $struct_name<$($gs)*>) -> Result<(), E>
+                {
+                    use std::mem;
 
-                let mut storage: Vec<u8> = Vec::with_capacity(size);
-                unsafe { storage.set_len(size) };
-                let storage = storage.into_boxed_slice();
-                let mut storage: Box<$struct_name> = unsafe { mem::transmute(storage) };
+                    assert!(<$struct_name as $crate::buffer::Content>::is_size_suitable(size));
 
-                try!(f(&mut storage));
-                Ok(storage)
-            }
+                    let mut storage: Vec<u8> = Vec::with_capacity(size);
+                    unsafe { storage.set_len(size) };
+                    let storage = storage.into_boxed_slice();
+                    let mut storage: Box<$struct_name<$($gs)*>> = unsafe { mem::transmute(storage) };
 
-            fn get_elements_size() -> usize {
-                use std::mem;
-
-                let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
-                mem::size_of_val(fake_ptr)
-            }
-
-            fn to_void_ptr(&self) -> *const () {
-                use std::mem;
-                let (ptr, _): (*const (), usize) = unsafe { mem::transmute(self) };
-                ptr
-            }
-
-            fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut $struct_name> {
-                use std::mem;
-
-                let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
-                let min_size = mem::size_of_val(fake_ptr);
-
-                let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
-                let step = mem::size_of_val(fake_ptr) - min_size;
-
-                if size < min_size {
-                    return None;
+                    try!(f(&mut storage));
+                    Ok(storage)
                 }
 
-                let variadic = size - min_size;
-                if variadic % step != 0 {
-                    return None;
+                fn get_elements_size() -> usize {
+                    use std::mem;
+
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
+                    mem::size_of_val(fake_ptr)
                 }
 
-                Some(unsafe { mem::transmute((ptr, (variadic / step) as usize)) })
-            }
+                fn to_void_ptr(&self) -> *const () {
+                    use std::mem;
+                    let (ptr, _): (*const (), usize) = unsafe { mem::transmute(self) };
+                    ptr
+                }
 
-            fn is_size_suitable(size: usize) -> bool {
-                use std::mem;
+                fn ref_from_ptr(ptr: *mut (), size: usize) -> Option<*mut $struct_name<$($gs)*>> {
+                    use std::mem;
 
-                let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
-                let min_size = mem::size_of_val(fake_ptr);
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
+                    let min_size = mem::size_of_val(fake_ptr);
 
-                let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
-                let step = mem::size_of_val(fake_ptr) - min_size;
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
+                    let step = mem::size_of_val(fake_ptr) - min_size;
 
-                size > min_size && (size - min_size) % step == 0
+                    if size < min_size {
+                        return None;
+                    }
+
+                    let variadic = size - min_size;
+                    if variadic % step != 0 {
+                        return None;
+                    }
+
+                    Some(unsafe { mem::transmute((ptr, (variadic / step) as usize)) })
+                }
+
+                fn is_size_suitable(size: usize) -> bool {
+                    use std::mem;
+
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
+                    let min_size = mem::size_of_val(fake_ptr);
+
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
+                    let step = mem::size_of_val(fake_ptr) - min_size;
+
+                    size > min_size && (size - min_size) % step == 0
+                }
             }
         }
-    );
+    };
 
     ($struct_name:ident,) => (
         implement_buffer_content!($struct_name);
+    );
+
+    ($struct_name:ident) => (
+        implement_buffer_content!(__impl $struct_name []);
+    );
+
+    ($struct_name:ident <$t1:tt>) => (
+        implement_buffer_content!(__impl $struct_name [$t1]);
     );
 }
 
@@ -251,98 +263,102 @@ macro_rules! implement_buffer_content {
 ///
 #[macro_export]
 macro_rules! implement_uniform_block {
-    ($struct_name:ident, $($field_name:ident),+) => (
-        impl $crate::uniforms::UniformBlock for $struct_name {
-            fn matches(layout: &$crate::program::BlockLayout, base_offset: usize)
-                       -> Result<(), $crate::uniforms::LayoutMismatchError>
-            {
-                use std::mem;
-                use $crate::program::BlockLayout;
-                use $crate::uniforms::LayoutMismatchError;
+    (__as_item $i:item) => {$i};
 
-                if let &BlockLayout::Struct { ref members } = layout {
-                    // checking that each member exists in the input struct
-                    for &(ref name, _) in members {
-                        if $(name != stringify!($field_name) &&)+ true {
-                            return Err(LayoutMismatchError::MissingField {
-                                name: name.clone(),
-                            });
-                        }
-                    }
-
-                    fn matches_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T,
-                        layout: &$crate::program::BlockLayout, base_offset: usize)
-                        -> Result<(), $crate::uniforms::LayoutMismatchError>
-                    {
-                        <T as $crate::uniforms::UniformBlock>::matches(layout, base_offset)
-                    }
-
-                    // checking that each field of the input struct is correct in the reflection
-                    $(
-                        let reflected_ty = members.iter().find(|&&(ref name, _)| {
-                                                                    name == stringify!($field_name)
-                                                               });
-                        let reflected_ty = match reflected_ty {
-                            Some(t) => &t.1,
-                            None => return Err(LayoutMismatchError::MissingField {
-                                name: stringify!($field_name).to_string(),
-                            })
-                        };
-
-                        let input_offset = {
-                            let dummy: &$struct_name = unsafe { mem::zeroed() };
-                            let dummy_field: *const _ = &dummy.$field_name;
-                            dummy_field as *const () as usize
-                        };
-
-                        let dummy: &$struct_name = unsafe { mem::uninitialized() };
-                        
-                        match matches_from_ty(&dummy.$field_name, reflected_ty, input_offset) {
-                            Ok(_) => (),
-                            Err(e) => return Err(LayoutMismatchError::MemberMismatch {
-                                member: stringify!($field_name).to_string(),
-                                err: Box::new(e),
-                            })
-                        };
-                    )+
-
-                    Ok(())
-
-                } else {
-                    Err(LayoutMismatchError::LayoutMismatch {
-                        expected: layout.clone(),
-                        obtained: <Self as $crate::uniforms::UniformBlock>::build_layout(base_offset),
-                    })
-                }
-            }
-
-            fn build_layout(base_offset: usize) -> $crate::program::BlockLayout {
-                use std::mem;
-                use $crate::program::BlockLayout;
-
-                fn layout_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T, base_offset: usize)
-                                                                     -> BlockLayout
+    (__impl $struct_name:ident [$($gs:tt)*], $($field_name:ident),+) => (
+        implement_uniform_block! { __as_item
+            impl<$($gs)*> $crate::uniforms::UniformBlock for $struct_name<$($gs)*> {
+                fn matches(layout: &$crate::program::BlockLayout, base_offset: usize)
+                           -> Result<(), $crate::uniforms::LayoutMismatchError>
                 {
-                    <T as $crate::uniforms::UniformBlock>::build_layout(base_offset)
+                    use std::mem;
+                    use $crate::program::BlockLayout;
+                    use $crate::uniforms::LayoutMismatchError;
+
+                    if let &BlockLayout::Struct { ref members } = layout {
+                        // checking that each member exists in the input struct
+                        for &(ref name, _) in members {
+                            if $(name != stringify!($field_name) &&)+ true {
+                                return Err(LayoutMismatchError::MissingField {
+                                    name: name.clone(),
+                                });
+                            }
+                        }
+
+                        fn matches_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T,
+                            layout: &$crate::program::BlockLayout, base_offset: usize)
+                            -> Result<(), $crate::uniforms::LayoutMismatchError>
+                        {
+                            <T as $crate::uniforms::UniformBlock>::matches(layout, base_offset)
+                        }
+
+                        // checking that each field of the input struct is correct in the reflection
+                        $(
+                            let reflected_ty = members.iter().find(|&&(ref name, _)| {
+                                                                        name == stringify!($field_name)
+                                                                   });
+                            let reflected_ty = match reflected_ty {
+                                Some(t) => &t.1,
+                                None => return Err(LayoutMismatchError::MissingField {
+                                    name: stringify!($field_name).to_string(),
+                                })
+                            };
+
+                            let input_offset = {
+                                let dummy: &$struct_name = unsafe { mem::zeroed() };
+                                let dummy_field: *const _ = &dummy.$field_name;
+                                dummy_field as *const () as usize
+                            };
+
+                            let dummy: &$struct_name = unsafe { mem::uninitialized() };
+                            
+                            match matches_from_ty(&dummy.$field_name, reflected_ty, input_offset) {
+                                Ok(_) => (),
+                                Err(e) => return Err(LayoutMismatchError::MemberMismatch {
+                                    member: stringify!($field_name).to_string(),
+                                    err: Box::new(e),
+                                })
+                            };
+                        )+
+
+                        Ok(())
+
+                    } else {
+                        Err(LayoutMismatchError::LayoutMismatch {
+                            expected: layout.clone(),
+                            obtained: <Self as $crate::uniforms::UniformBlock>::build_layout(base_offset),
+                        })
+                    }
                 }
 
-                let dummy: &$struct_name = unsafe { mem::zeroed() };
+                fn build_layout(base_offset: usize) -> $crate::program::BlockLayout {
+                    use std::mem;
+                    use $crate::program::BlockLayout;
 
-                BlockLayout::Struct {
-                    members: vec![
-                        $(
-                            (
-                                stringify!($field_name).to_string(),
-                                {
-                                    let offset = {
-                                        let dummy_field: *const _ = &dummy.$field_name;
-                                        dummy_field as *const () as usize
-                                    };
-                                    layout_from_ty(&dummy.$field_name, offset + base_offset)
-                                }
-                            ),
-                        )+
-                    ],
+                    fn layout_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T, base_offset: usize)
+                                                                         -> BlockLayout
+                    {
+                        <T as $crate::uniforms::UniformBlock>::build_layout(base_offset)
+                    }
+
+                    let dummy: &$struct_name = unsafe { mem::zeroed() };
+
+                    BlockLayout::Struct {
+                        members: vec![
+                            $(
+                                (
+                                    stringify!($field_name).to_string(),
+                                    {
+                                        let offset = {
+                                            let dummy_field: *const _ = &dummy.$field_name;
+                                            dummy_field as *const () as usize
+                                        };
+                                        layout_from_ty(&dummy.$field_name, offset + base_offset)
+                                    }
+                                ),
+                            )+
+                        ],
+                    }
                 }
             }
         }
@@ -350,6 +366,14 @@ macro_rules! implement_uniform_block {
 
     ($struct_name:ident, $($field_name:ident),+,) => (
         implement_uniform_block!($struct_name, $($field_name),+);
+    );
+
+    ($struct_name:ident, $($field_name:ident),+) => (
+        implement_uniform_block!(__impl $struct_name [], $($field_name),+);
+    );
+
+    ($struct_name:ident<$l:tt>, $($field_name:ident),+) => (
+        implement_uniform_block!(__impl $struct_name [$l], $($field_name),+);
     );
 }
 
