@@ -1,6 +1,9 @@
 use std::fmt;
 use std::error::Error;
 use std::sync::Mutex;
+use CapabilitiesSource;
+
+use gl;
 
 pub use self::compute::ComputeShader;
 pub use self::program::Program;
@@ -13,6 +16,16 @@ mod raw;
 mod reflection;
 mod shader;
 mod uniforms_storage;
+
+/// Returns true if the backend supports geometry shaders.
+pub fn is_geometry_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    shader::check_shader_type_compatibility(ctxt, gl::GEOMETRY_SHADER)
+}
+
+/// Returns true if the backend supports tessellation shaders.
+pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
+}
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
 /// in the GL thread every time we compile a shader or link a program.

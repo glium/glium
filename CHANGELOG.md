@@ -5,6 +5,7 @@
  - Glium now automatically calls `glDraw*BaseVertex` if it is supported.
  - Added the `CapabilitiesSource` trait implemented automatically on all types that implement `Facade`.
  - Added `is_supported` to `IndexType`, `Index`, `PrimitiveType`, `Attribute` and `AttributeType`.
+ - Added `ComputeShader::is_supported`, `program::is_geometry_shader_supported` and `program::is_tessellation_shader_supported`.
  - The `implement_buffer_content!` and `implement_block_layout!` macros can now take a struct with a lifetime parameter by passing `Foo<'a>` instead of `Foo`.
 
 ## Version 0.7.0 (2015-07-08)

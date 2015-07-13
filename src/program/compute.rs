@@ -7,6 +7,7 @@ use std::fmt;
 use std::error::Error;
 use std::collections::hash_map::{self, HashMap};
 
+use CapabilitiesSource;
 use GlObject;
 use ProgramExt;
 use Handle;
@@ -15,7 +16,7 @@ use RawUniformValue;
 use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary};
 
 use program::reflection::{Uniform, UniformBlock};
-use program::shader::build_shader;
+use program::shader::{build_shader, check_shader_type_compatibility};
 
 use program::raw::RawProgram;
 
@@ -27,6 +28,11 @@ pub struct ComputeShader {
 }
 
 impl ComputeShader {
+    /// Returns true if the backend supports compute shaders.
+    pub fn is_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+        check_shader_type_compatibility(ctxt, gl::COMPUTE_SHADER)
+    }
+
     /// Builds a new compute shader from some source code.
     pub fn from_source<F>(facade: &F, src: &str) -> Result<ComputeShader, ProgramCreationError>
                           where F: Facade
