@@ -79,7 +79,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     let mut ctxt = context.make_current();
 
     // handling vertices source
-    let (vertices_count, instances_count) = {
+    let (vertices_count, instances_count, base_vertex) = {
         let index_buffer = match indices {
             IndicesSource::IndexBuffer { buffer, .. } => Some(buffer),
             IndicesSource::MultidrawArray { .. } => None,
@@ -87,8 +87,17 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             IndicesSource::NoIndices { .. } => None,
         };
 
+        // determining whether we can use the `base_vertex` variants for drawing
+        let use_base_vertex = match indices {
+            IndicesSource::MultidrawArray { .. } => false,
+            IndicesSource::MultidrawElement { .. } => false,
+            IndicesSource::NoIndices { .. } => true,
+            _ => ctxt.version >= &Version(Api::Gl, 3, 2)
+        };
+
         // object that is used to build the bindings
-        let mut binder = VertexAttributesSystem::start(&mut ctxt, program, index_buffer);
+        let mut binder = VertexAttributesSystem::start(&mut ctxt, program, index_buffer,
+                                                       use_base_vertex);
         // number of vertices in the vertices sources, or `None` if there is a mismatch
         let mut vertices_count: Option<usize> = None;
         // number of instances to draw
@@ -151,9 +160,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             }
         }
 
-        binder.bind();
-
-        (vertices_count, instances_count)
+        (vertices_count, instances_count, binder.bind().unwrap_or(0))
     };
 
     // binding the FBO to draw upon
@@ -222,16 +229,38 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
                 unsafe {
                     if let Some(instances_count) = instances_count {
-                        ctxt.gl.DrawElementsInstanced(primitives.to_glenum(),
-                                                      buffer.get_elements_count() as gl::types::GLsizei,
-                                                      data_type.to_glenum(),
-                                                      ptr as *const libc::c_void,
-                                                      instances_count as gl::types::GLsizei);
+                        if base_vertex != 0 {
+                            ctxt.gl.DrawElementsInstancedBaseVertex(primitives.to_glenum(),
+                                                                    buffer.get_elements_count() as
+                                                                    gl::types::GLsizei,
+                                                                    data_type.to_glenum(),
+                                                                    ptr as *const libc::c_void,
+                                                                    instances_count as
+                                                                    gl::types::GLsizei,
+                                                                    base_vertex);
+                        } else {
+                            ctxt.gl.DrawElementsInstanced(primitives.to_glenum(),
+                                                          buffer.get_elements_count() as
+                                                          gl::types::GLsizei,
+                                                          data_type.to_glenum(),
+                                                          ptr as *const libc::c_void,
+                                                          instances_count as gl::types::GLsizei);
+                        }
+
                     } else {
-                        ctxt.gl.DrawElements(primitives.to_glenum(),
-                                             buffer.get_elements_count() as gl::types::GLsizei,
-                                             data_type.to_glenum(),
-                                             ptr as *const libc::c_void);
+                        if base_vertex != 0 {
+                            ctxt.gl.DrawElementsBaseVertex(primitives.to_glenum(),
+                                                           buffer.get_elements_count() as
+                                                           gl::types::GLsizei,
+                                                           data_type.to_glenum(),
+                                                           ptr as *const libc::c_void,
+                                                           base_vertex);
+                        } else {
+                            ctxt.gl.DrawElements(primitives.to_glenum(),
+                                                 buffer.get_elements_count() as gl::types::GLsizei,
+                                                 data_type.to_glenum(),
+                                                 ptr as *const libc::c_void);
+                        }
                     }
                 }
             },
@@ -239,6 +268,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             &IndicesSource::MultidrawArray { ref buffer, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
+
+                debug_assert_eq!(base_vertex, 0);       // enforced earlier in this function
 
                 if let Some(fence) = buffer.add_fence() {
                     fences.push(fence);
@@ -266,6 +297,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
                 unsafe {
                     commands.prepare_and_bind_for_draw_indirect(&mut ctxt);
+                    debug_assert_eq!(base_vertex, 0);       // enforced earlier in this function
                     ctxt.gl.MultiDrawElementsIndirect(primitives.to_glenum(), data_type.to_glenum(),
                                                       cmd_ptr as *const _,
                                                       commands.get_elements_count() as gl::types::GLsizei,
@@ -281,11 +313,11 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
                 unsafe {
                     if let Some(instances_count) = instances_count {
-                        ctxt.gl.DrawArraysInstanced(primitives.to_glenum(), 0,
+                        ctxt.gl.DrawArraysInstanced(primitives.to_glenum(), base_vertex,
                                                     vertices_count as gl::types::GLsizei,
                                                     instances_count as gl::types::GLsizei);
                     } else {
-                        ctxt.gl.DrawArrays(primitives.to_glenum(), 0,
+                        ctxt.gl.DrawArrays(primitives.to_glenum(), base_vertex,
                                            vertices_count as gl::types::GLsizei);
                     }
                 }

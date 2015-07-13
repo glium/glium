@@ -31,6 +31,7 @@ pub struct Binder<'a, 'b, 'c: 'b> {
     program: &'a Program,
     element_array_buffer: Option<BufferViewAnySlice<'a>>,
     vertex_buffers: SmallVec<[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>); 2]>,
+    base_vertex: bool,
 }
 
 impl VertexAttributesSystem {
@@ -42,8 +43,12 @@ impl VertexAttributesSystem {
     }
 
     /// Starts the process of binding vertex attributes.
+    ///
+    /// `base_vertex` should be set to true if the backend supports the `glDraw*BaseVertex`
+    /// functions. If `base_vertex` is true, then `bind` will return the base vertex to use.
     pub fn start<'a, 'b, 'c: 'b>(ctxt: &'b mut CommandContext<'c>, program: &'a Program,
-                                 indices: Option<BufferViewAnySlice<'a>>) -> Binder<'a, 'b, 'c>
+                                 indices: Option<BufferViewAnySlice<'a>>, base_vertex: bool)
+                                 -> Binder<'a, 'b, 'c>
     {
         if let Some(indices) = indices {
             indices.prepare_for_element_array(ctxt);
@@ -54,6 +59,7 @@ impl VertexAttributesSystem {
             program: program,
             element_array_buffer: indices,
             vertex_buffers: SmallVec::new(),
+            base_vertex: base_vertex,
         }
     }
 
@@ -146,7 +152,9 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     }
 
     /// Finish binding the vertex attributes.
-    pub fn bind(mut self) {
+    ///
+    /// If `base_vertex` was set to true, returns the base vertex to use when drawing.
+    pub fn bind(mut self) -> Option<gl::types::GLint> {
         let ctxt = self.context;
 
         if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
@@ -154,8 +162,26 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
            || ctxt.extensions.gl_apple_vertex_array_object
         {
             // VAOs are supported
+
+            // finding the base vertex
+            let base_vertex = if self.base_vertex {
+                Some(self.vertex_buffers.iter()
+                                        .filter(|&&(_, _, _, _, div)| div.is_none())
+                                        .map(|&(_, _, off, stride, _)| off / stride)
+                                        .min().unwrap_or(0))
+            } else {
+                None
+            };
+
+            // removing the offset corresponding to the base vertex
+            if let Some(base_vertex) = base_vertex {
+                for &mut (_, _, ref mut off, stride, _) in self.vertex_buffers.iter_mut() {
+                    *off -= base_vertex * stride;
+                }
+            }
+
             let mut buffers_list: Vec<_> = self.vertex_buffers.iter()
-                                                              .map(|&(v, _, o, _, _)| (v, o))
+                                                              .map(|&(v, _, o, s, _)| (v, o))
                                                               .collect();
             buffers_list.push((self.element_array_buffer.map(|b| b.get_buffer_id()).unwrap_or(0), 0));
             buffers_list.sort();
@@ -167,7 +193,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                                      .get(&(buffers_list.clone(), program_id))
             {
                 value.bind(ctxt);
-                return;
+                return base_vertex.map(|v| v as gl::types::GLint);
             }
 
             // if not found, building a new one
@@ -178,6 +204,8 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
 
             new_vao.bind(ctxt);
             ctxt.vertex_array_objects.vaos.borrow_mut().insert((buffers_list, program_id), new_vao);
+
+            base_vertex.map(|v| v as gl::types::GLint)
 
         } else {
             // VAOs are not supported
@@ -194,6 +222,14 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                     bind_attribute(ctxt, self.program, vertex_buffer, &bindings, offset, stride,
                                    divisor);
                 }
+            }
+
+            // TODO: it is unlikely that a backend supports base vertex but not VAOs, so we just
+            //       ignore this case ; however it would ideally be better to handle it
+            if self.base_vertex {
+                Some(0)
+            } else {
+                None
             }
         }
     }
