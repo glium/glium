@@ -33,24 +33,13 @@ pub struct ResidentTexture {
 
 impl ResidentTexture {
     /// Takes ownership of the given texture and makes it resident.
-    ///
-    /// # Features
-    ///
-    /// Only available if the 'gl_bindless_textures' feature is enabled.
-    ///
-    #[cfg(gl_bindless_textures)]
-    pub fn new(texture: TextureAny) -> ResidentTexture {
-        ResidentTexture::new_if_supported(texture).unwrap()
-    }
-
-    /// Takes ownership of the given texture and makes it resident.
     // TODO: sampler
-    pub fn new_if_supported(texture: TextureAny) -> Option<ResidentTexture> {
+    pub fn new(texture: TextureAny) -> Result<ResidentTexture, BindlessTexturesNotSupportedError> {
         let handle = {
             let mut ctxt = texture.get_context().make_current();
 
             if !ctxt.extensions.gl_arb_bindless_texture {
-                return None;
+                return Err(BindlessTexturesNotSupportedError);
             }
 
             let handle = unsafe { ctxt.gl.GetTextureHandleARB(texture.get_id()) };
@@ -60,7 +49,7 @@ impl ResidentTexture {
         };
 
         // store the handle in the context
-        Some(ResidentTexture {
+        Ok(ResidentTexture {
             texture: Some(texture),
             handle: handle,
         })
@@ -237,6 +226,10 @@ impl<'a> UniformBlock for TextureHandle<'a> {
 }
 
 // TODO: implement `vertex::Attribute` on `TextureHandle`
+
+/// Bindless textures are not supported.
+#[derive(Debug, Copy, Clone)]
+pub struct BindlessTexturesNotSupportedError;
 
 #[cfg(test)]
 mod test {

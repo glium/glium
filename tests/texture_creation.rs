@@ -309,9 +309,9 @@ fn bindless_texture_residency_context_rebuild() {
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
     ]);
 
-    let texture = match texture.resident_if_supported() {
-        Some(t) => t,
-        None => return
+    let texture = match texture.resident() {
+        Ok(t) => t,
+        Err(_) => return
     };
 
     // here is the trick: we rebuild the display, meaning that texture residency has to be updated

@@ -79,9 +79,9 @@ fn bindless_texture() {
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
     ]);
 
-    let texture = match texture.resident_if_supported() {
-        Some(t) => t,
-        None => return
+    let texture = match texture.resident() {
+        Ok(t) => t,
+        Err(_) => return
     };
 
     // if bindless textures are supported, we can call .unwrap() and expect that everything
