@@ -171,7 +171,7 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
 
-            texture.get_internal_format();
+            let _ = texture.get_internal_format();
 
             display.assert_no_error(None);
             drop(texture);
@@ -198,7 +198,7 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
             
-            texture.get_internal_format();
+            let _ = texture.get_internal_format();
 
             display.assert_no_error(None);
             drop(texture);
