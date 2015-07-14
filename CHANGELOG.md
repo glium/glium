@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.7.1 (2015-07-14)
 
  - Glium now automatically calls `glDraw*BaseVertex` if it is supported.
  - Added the `CapabilitiesSource` trait implemented automatically on all types that implement `Facade`.
