@@ -251,9 +251,10 @@ fn buffer_immutable_read() {
         ]
     );
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -281,9 +282,10 @@ fn buffer_dynamic_read() {
         ]
     );
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -311,9 +313,10 @@ fn buffer_immutable_read_slice() {
         ]
     );
 
-    let data = match vb.slice(1 .. 2).unwrap().read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.slice(1 .. 2).unwrap().read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field2, [15, 17]);
@@ -340,9 +343,10 @@ fn buffer_dynamic_read_slice() {
         ]
     );
 
-    let data = match vb.slice(1 .. 2).unwrap().read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.slice(1 .. 2).unwrap().read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field2, [15, 17]);
@@ -398,9 +402,10 @@ fn buffer_immutable_write() {
         Vertex { field1: [12, 13], field2: [15, 17] }
     ]);
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -435,9 +440,10 @@ fn buffer_dynamic_write() {
         Vertex { field1: [12, 13], field2: [15, 17] }
     ]);
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -469,9 +475,10 @@ fn buffer_immutable_write_slice() {
 
     vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -503,9 +510,10 @@ fn buffer_dynamic_write_slice() {
 
     vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -619,9 +627,10 @@ fn immutable_mapping_forget_then_read() {
         mem::forget(mapping);
     }
 
-    let data = match buf.read_if_supported() {
-        Some(d) => d,
-        None => return,
+    let data = match buf.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[1], 2);
@@ -780,9 +789,10 @@ fn dynamic_mapping_forget_then_read() {
         mem::forget(mapping);
     }
 
-    let data = match buf.read_if_supported() {
-        Some(d) => d,
-        None => return,
+    let data = match buf.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data[1], 2);

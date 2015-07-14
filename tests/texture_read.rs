@@ -11,7 +11,7 @@ fn empty_pixel_buffer() {
     let pixel_buffer = glium::pixel_buffer::PixelBuffer::new_empty(&display, 128 * 128);
     display.assert_no_error(None);
 
-    let _: Vec<Vec<(u8, u8, u8, u8)>> = pixel_buffer.read_as_texture_2d_if_supported().unwrap();
+    let _: Vec<Vec<(u8, u8, u8, u8)>> = pixel_buffer.read_as_texture_2d().unwrap();
 }
 
 #[test]
@@ -25,10 +25,11 @@ fn texture_2d_read_pixelbuffer() {
     ]);
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = match texture.read_to_pixel_buffer()
-                                                             .read_as_texture_2d_if_supported()
+                                                             .read_as_texture_2d()
     {
-        Some(d) => d,
-        None => return
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(read_back[0][0], (0, 1, 2, 255));

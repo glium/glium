@@ -64,7 +64,7 @@ fn basic() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
-    let data = buffer.read_if_supported().unwrap();
+    let data = buffer.read().unwrap();
     assert_eq!(data.color, (1.0, 1.0, 0.5));
 
     display.assert_no_error(None);

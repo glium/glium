@@ -59,9 +59,10 @@ fn uniform_buffer_read() {
         Some(b) => b
     };
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data, 12);
@@ -80,9 +81,10 @@ fn uniform_buffer_write() {
 
     vb.write(&24);
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data, 24);

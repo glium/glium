@@ -79,7 +79,7 @@ impl<'a> Inserter<'a> {
             } else if existing.0.start < self.range.start && existing.0.end >= self.range.end {
                 // we are stuck here, because we can't duplicate a fence
                 // so instead we just extend the new fence to the existing one
-                let new_fence = unsafe { sync::new_linear_sync_fence_if_supported(ctxt).unwrap() };
+                let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                 new_fences.push((existing.0.start .. self.range.start, existing.1));
                 new_fences.push((self.range.start .. existing.0.end, new_fence));
                 written = true;
@@ -87,7 +87,7 @@ impl<'a> Inserter<'a> {
             } else if existing.0.start < self.range.start && existing.0.end >= self.range.start {
                 new_fences.push((existing.0.start .. self.range.start, existing.1));
                 if !written {
-                    let new_fence = unsafe { sync::new_linear_sync_fence_if_supported(ctxt).unwrap() };
+                    let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                     new_fences.push((self.range.clone(), new_fence));
                     written = true;
                 }
@@ -95,14 +95,14 @@ impl<'a> Inserter<'a> {
             } else if existing.0.start >= self.range.start && existing.0.end <= self.range.end {
                 unsafe { sync::destroy_linear_sync_fence(ctxt, existing.1) };
                 if !written {
-                    let new_fence = unsafe { sync::new_linear_sync_fence_if_supported(ctxt).unwrap() };
+                    let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                     new_fences.push((self.range.clone(), new_fence));
                     written = true;
                 }
 
             } else if existing.0.start >= self.range.end {
                 if !written {
-                    let new_fence = unsafe { sync::new_linear_sync_fence_if_supported(ctxt).unwrap() };
+                    let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                     new_fences.push((self.range.clone(), new_fence));
                     written = true;
                 }
@@ -111,7 +111,7 @@ impl<'a> Inserter<'a> {
 
             } else {
                 if !written {
-                    let new_fence = unsafe { sync::new_linear_sync_fence_if_supported(ctxt).unwrap() };
+                    let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                     new_fences.push((self.range.clone(), new_fence));
                     written = true;
                 }
@@ -121,7 +121,7 @@ impl<'a> Inserter<'a> {
         }
 
         if !written {
-            let new_fence = unsafe { sync::new_linear_sync_fence_if_supported(ctxt).unwrap() };
+            let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
             new_fences.push((self.range, new_fence));
         }
 

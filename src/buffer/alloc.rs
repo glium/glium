@@ -2,6 +2,7 @@ use backend::Facade;
 use context::CommandContext;
 use context::Context;
 use version::Version;
+use CapabilitiesSource;
 use ContextExt;
 use gl;
 use libc;
@@ -17,6 +18,16 @@ use vertex::TransformFeedbackSession;
 use vertex_array_object::VertexAttributesSystem;
 
 use version::Api;
+
+/// Error that can happen when reading from a buffer.
+#[derive(Debug, Copy, Clone)]
+pub enum ReadError {
+    /// The backend doesn't support reading from a buffer.
+    NotSupported,
+
+    /// The context has been lost. Reading from the buffer would return garbage data.
+    ContextLost,
+}
 
 /// A buffer in the graphics card's memory.
 pub struct Buffer {
@@ -652,7 +663,7 @@ impl Buffer {
         }
     }
 
-    /// Reads the content of the buffer. Returns `None` if this operation is not supported.
+    /// Reads the content of the buffer.
     ///
     /// # Panic
     ///
@@ -663,8 +674,9 @@ impl Buffer {
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
-    pub unsafe fn read_if_supported<D: ?Sized>(&self, range: Range<usize>)
-                                               -> Result<D::Owned, ()> where D: Content
+    pub unsafe fn read<D: ?Sized>(&self, range: Range<usize>)
+                                  -> Result<D::Owned, ReadError>
+                                  where D: Content
     {
         let size_to_read = range.end - range.start;
 
@@ -677,6 +689,11 @@ impl Buffer {
 
         } else {
             let mut ctxt = self.context.make_current();
+
+            if ctxt.state.lost_context {
+                return Err(ReadError::ContextLost);
+            }
+
             self.assert_unmapped(&mut ctxt);
             self.barrier_for_buffer_update(&mut ctxt);
 
@@ -699,7 +716,7 @@ impl Buffer {
                                                 output as *mut _ as *mut libc::c_void);
 
                 } else if ctxt.version >= &Version(Api::GlEs, 1, 0) {
-                    return Err(());
+                    return Err(ReadError::NotSupported);
 
                 } else {
                     unreachable!()
@@ -932,6 +949,25 @@ impl<'b, D> WriteMapping<'b, [D]> where [D]: Content, D: Copy {
     pub fn set(&mut self, index: usize, value: D) {
         let slice = self.get_slice();
         slice[index] = value;
+    }
+}
+
+/// Returns true if reading from a buffer is supported by the backend.
+pub fn is_buffer_read_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    if ctxt.get_version() >= &Version(Api::Gl, 4, 5) {
+        true
+
+    } else if ctxt.get_version() >= &Version(Api::Gl, 1, 5) {
+        true
+
+    } else if ctxt.get_extensions().gl_arb_vertex_buffer_object {
+        true
+
+    } else if ctxt.get_version() >= &Version(Api::GlEs, 1, 0) {
+        false
+
+    } else {
+        unreachable!();
     }
 }
 

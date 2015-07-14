@@ -72,9 +72,10 @@ fn transform_feedback() {
         display.draw().draw(&vb, &ib, &program, &uniform!{}, &params).unwrap();
     }
 
-    let result = match out_buffer.read_if_supported() {
-        Some(r) => r,
-        None => return
+    let result = match out_buffer.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(result[0].output_val, (-1.0, 1.0));
