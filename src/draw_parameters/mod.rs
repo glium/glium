@@ -32,7 +32,7 @@
 //!
 //! ```no_run
 //! # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-//! let query = glium::draw_parameters::SamplesPassedQuery::new_if_supported(&display).unwrap();
+//! let query = glium::draw_parameters::SamplesPassedQuery::new(&display).unwrap();
 //! let params = glium::DrawParameters {
 //!     samples_passed_query: Some((&query).into()),
 //!     .. Default::default()
@@ -87,6 +87,7 @@ use vertex::TransformFeedbackSession;
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
+pub use self::query::{QueryCreationError};
 pub use self::query::{SamplesPassedQuery, TimeElapsedQuery, PrimitivesGeneratedQuery};
 pub use self::query::{AnySamplesPassedQuery, TransformFeedbackPrimitivesWrittenQuery};
 
