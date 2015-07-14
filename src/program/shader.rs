@@ -1,8 +1,8 @@
 use gl;
-use context::CommandContext;
 use version::Version;
 use version::Api;
 
+use CapabilitiesSource;
 use backend::Facade;
 use context::Context;
 use ContextExt;
@@ -60,7 +60,9 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
             return Err(ProgramCreationError::CompilationNotSupported);
         }
 
-        try!(check_shader_type_compatibility(&mut ctxt, shader_type));
+        if !check_shader_type_compatibility(&mut ctxt, shader_type) {
+            return Err(ProgramCreationError::ShaderTypeNotSupported);
+        }
 
         let source_code = ffi::CString::new(source_code.as_bytes()).unwrap();
 
@@ -179,35 +181,36 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
     }
 }
 
-fn check_shader_type_compatibility(ctxt: &mut CommandContext, shader_type: gl::types::GLenum)
-                                   -> Result<(), ProgramCreationError>
+pub fn check_shader_type_compatibility<C>(ctxt: &C, shader_type: gl::types::GLenum)
+                                          -> bool where C: CapabilitiesSource
 {
     match shader_type {
         gl::VERTEX_SHADER | gl::FRAGMENT_SHADER => (),
         gl::GEOMETRY_SHADER => {
-            if !(ctxt.version >= &Version(Api::Gl, 3, 0)) && !ctxt.extensions.gl_arb_geometry_shader4
-               && !ctxt.extensions.gl_ext_geometry_shader4
+            if !(ctxt.get_version() >= &Version(Api::Gl, 3, 0))
+                && !ctxt.get_extensions().gl_arb_geometry_shader4
+                && !ctxt.get_extensions().gl_ext_geometry_shader4
             {
-                return Err(ProgramCreationError::ShaderTypeNotSupported);
+                return false;
             }
         },
         gl::TESS_CONTROL_SHADER | gl::TESS_EVALUATION_SHADER => {
-            if !(ctxt.version >= &Version(Api::Gl, 4, 0)) &&
-               !ctxt.extensions.gl_arb_tessellation_shader 
+            if !(ctxt.get_version() >= &Version(Api::Gl, 4, 0))
+                && !ctxt.get_extensions().gl_arb_tessellation_shader 
             {
-                return Err(ProgramCreationError::ShaderTypeNotSupported);
+                return false;
             }
         },
         gl::COMPUTE_SHADER => {
-            if !(ctxt.version >= &Version(Api::Gl, 4, 3)) &&
-                !(ctxt.version >= &Version(Api::GlEs, 3, 1)) &&
-                !ctxt.extensions.gl_arb_compute_shader
+            if !(ctxt.get_version() >= &Version(Api::Gl, 4, 3))
+                && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 1))
+                && !ctxt.get_extensions().gl_arb_compute_shader
             {
-                return Err(ProgramCreationError::ShaderTypeNotSupported);
+                return false;
             }
         },
         _ => unreachable!()
     };
 
-    Ok(())
+    true
 }
