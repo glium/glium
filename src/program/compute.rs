@@ -13,7 +13,7 @@ use ProgramExt;
 use Handle;
 use RawUniformValue;
 
-use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary};
+use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, BinaryNotSupportedError};
 
 use program::reflection::{Uniform, UniformBlock};
 use program::shader::{build_shader, check_shader_type_compatibility};
@@ -70,21 +70,8 @@ impl ComputeShader {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_program_binary` feature is enabled.
-    #[cfg(feature = "gl_program_binary")]
-    pub fn get_binary(&self) -> Binary {
+    pub fn get_binary(&self) -> Result<Binary, BinaryNotSupportedError> {
         self.raw.get_binary()
-    }
-
-    /// Returns the program's compiled binary.
-    ///
-    /// Same as `get_binary` but always available. Returns `None` if the backend doesn't support
-    /// getting or reloading the program's binary.
-    pub fn get_binary_if_supported(&self) -> Option<Binary> {
-        self.raw.get_binary_if_supported()
     }
 
     /// Returns informations about a uniform variable, if it exists.

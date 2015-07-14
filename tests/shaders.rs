@@ -261,9 +261,9 @@ fn get_program_binary() {
         ",
         None).unwrap();
 
-    let binary = match program.get_binary_if_supported() {
-        None => return,
-        Some(bin) => bin
+    let binary = match program.get_binary() {
+        Err(_) => return,
+        Ok(bin) => bin
     };
 
     assert!(binary.content.len() >= 1);
@@ -302,9 +302,9 @@ fn program_binary_reload() {
         ",
         None).unwrap();
 
-    let binary = match program.get_binary_if_supported() {
-        None => return,
-        Some(bin) => bin
+    let binary = match program.get_binary() {
+        Err(_) => return,
+        Ok(bin) => bin
     };
 
     let _program2 = glium::Program::new(&display, binary).unwrap();
@@ -337,9 +337,9 @@ fn program_binary_working() {
         ",
         None).unwrap();
 
-    let binary = match program_src.get_binary_if_supported() {
-        None => return,
-        Some(bin) => bin
+    let binary = match program_src.get_binary() {
+        Err(_) => return,
+        Ok(bin) => bin
     };
 
     let program = glium::Program::new(&display, binary).unwrap();
