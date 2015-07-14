@@ -5,6 +5,7 @@
  - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
  - Added `buffer::is_buffer_read_supported`.
  - Replaced `SyncFence::new_if_supported` and `new` with `new` that returns a `Result<SyncFence, SyncNotSupportedError>`.
+ - Replaced `UniformBuffer::new_if_supported` and `UniformBuffer::new` with `new` that returns a `Result<UniformBuffer, BufferCreationError>`.
 
 ## Version 0.7.1 (2015-07-14)
 

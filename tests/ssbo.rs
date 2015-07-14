@@ -51,9 +51,9 @@ fn basic() {
 
     implement_uniform_block!(Data, color);
 
-    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, Data { color: (0.0f32, 0.0f32, 0.0f32) }) {
-        None => return,
-        Some(b) => b
+    let buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (0.0f32, 0.0f32, 0.0f32) }) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     let uniforms = uniform!{

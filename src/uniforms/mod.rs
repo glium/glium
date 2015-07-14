@@ -80,8 +80,7 @@ let program = glium::Program::from_source(&display,
     ",
     None);
 
-let buffer = glium::uniforms::UniformBuffer::new_if_supported(&display,
-                                                              (0.5f32, 0.5f32, 0.5f32)).unwrap();
+let buffer = glium::uniforms::UniformBuffer::new(&display, (0.5f32, 0.5f32, 0.5f32)).unwrap();
 
 let uniforms = uniform! {
     MyBlock: &buffer

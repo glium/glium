@@ -347,7 +347,7 @@ fn bindless_texture_residency_context_rebuild() {
         ",
         None).unwrap();
 
-    let buffer = glium::uniforms::UniformBuffer::new_if_supported(&display,
+    let buffer = glium::uniforms::UniformBuffer::new(&display,
                                             glium::texture::TextureHandle::new(&texture, &Default::default())).unwrap();
 
     let output = support::build_renderable_texture(&display);
