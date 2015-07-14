@@ -106,7 +106,7 @@ frame.draw((vertex_buffer.slice(6 .. 24).unwrap(), vertex_buffer2.slice(128 .. 1
            &indices, &program, &uniforms, &Default::default()).unwrap();
 
 // treating `vertex_buffer2` as a source of attributes per-instance instead of per-vertex
-frame.draw((&vertex_buffer, vertex_buffer2.per_instance_if_supported().unwrap()), &indices,
+frame.draw((&vertex_buffer, vertex_buffer2.per_instance().unwrap()), &indices,
            &program, &uniforms, &Default::default()).unwrap();
 
 // instancing without any per-instance attribute
