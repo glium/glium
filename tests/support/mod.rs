@@ -83,7 +83,7 @@ pub fn build_unicolor_texture2d<F>(facade: &F, red: f32, green: f32, blue: f32)
     glium::texture::Texture2d::new(facade, vec![
         vec![color, color],
         vec![color, color],
-    ])
+    ]).unwrap()
 }
 
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
@@ -171,5 +171,5 @@ pub fn build_rectangle_vb_ib<F>(facade: &F)
 
 /// Builds a texture suitable for rendering.
 pub fn build_renderable_texture<F>(facade: &F) -> glium::Texture2d where F: Facade {
-    glium::Texture2d::empty(facade, 1024, 1024)
+    glium::Texture2d::empty(facade, 1024, 1024).unwrap()
 }

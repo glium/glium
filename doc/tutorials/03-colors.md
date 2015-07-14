@@ -69,7 +69,7 @@ In order to load the image, we just need to use `image::load`:
 
 And in order to upload the image as a texture, it's as simple as:
 
-    let texture = glium::texture::Texture2d::new(&display, image);
+    let texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
 # Using the texture
 
@@ -157,7 +157,7 @@ Here is the final code of our `src/main.rs` file:
 
         let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                                 image::PNG).unwrap();
-        let texture = glium::texture::Texture2d::new(&display, image);
+        let texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
         #[derive(Copy, Clone)]
         struct Vertex {

@@ -15,7 +15,7 @@ macro_rules! texture_sample_test {
             let texture = glium::texture::$tex_ty::new(&display, vec![
                 vec![(255, 0, 0, 255), (255, 0, 0, 255)],
                 vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
-            ]);
+            ]).unwrap();
 
             let program = glium::Program::from_source(&display,
                 "
@@ -77,7 +77,7 @@ fn bindless_texture() {
     let texture = glium::texture::Texture2d::new(&display, vec![
         vec![(255, 0, 0, 255), (255, 0, 0, 255)],
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
-    ]);
+    ]).unwrap();
 
     let texture = match texture.resident() {
         Ok(t) => t,

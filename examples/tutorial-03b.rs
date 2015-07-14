@@ -15,7 +15,7 @@ fn main() {
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap();
-    let texture = glium::texture::Texture2d::new(&display, image);
+    let texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {

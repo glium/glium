@@ -32,7 +32,7 @@ fn main() {
         .unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap();
-    let opengl_texture = glium::texture::Texture2d::new(&display, image);
+    let opengl_texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
     let floor_vertex_buffer = {
         #[derive(Copy, Clone)]
@@ -267,15 +267,15 @@ fn main() {
         radius: f32
     }
 
-    let texture1 = glium::texture::Texture2d::new_empty(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, 800, 500);
-    let texture2 = glium::texture::Texture2d::new_empty(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, 800, 500);
-    let texture3 = glium::texture::Texture2d::new_empty(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, 800, 500);
-    let texture4 = glium::texture::Texture2d::new_empty(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, 800, 500);
-    let depthtexture = glium::texture::DepthTexture2d::new_empty(&display, glium::texture::DepthFormat::F32, 800, 500);
+    let texture1 = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
+    let texture2 = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
+    let texture3 = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
+    let texture4 = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
+    let depthtexture = glium::texture::DepthTexture2d::empty_with_format(&display, glium::texture::DepthFormat::F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
     let output = &[("output1", &texture1), ("output2", &texture2), ("output3", &texture3), ("output4", &texture4)];
     let mut framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output, &depthtexture);
 
-    let light_texture = glium::texture::Texture2d::new_empty(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, 800, 500);
+    let light_texture = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
     let mut light_buffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, &light_texture, &depthtexture);
 
     let ortho_matrix: cgmath::Matrix4<f32> = cgmath::ortho(0.0, 800.0, 0.0, 500.0, -1.0, 1.0);

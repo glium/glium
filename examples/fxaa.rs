@@ -185,7 +185,7 @@ mod fxaa {
         if target_color.is_none() {
             let texture = glium::texture::Texture2d::empty(&system.context,
                                                            target_dimensions.0 as u32,
-                                                           target_dimensions.1 as u32);
+                                                           target_dimensions.1 as u32).unwrap();
             *target_color = Some(texture);
         }
         let target_color = target_color.as_ref().unwrap();

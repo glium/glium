@@ -30,7 +30,7 @@ fn main() {
             vec![vec![color1], vec![color2]]
         }).collect::<Vec<_>>();
 
-        glium::texture::Texture2dArray::new_if_supported(&display, images).unwrap()
+        glium::texture::Texture2dArray::new(&display, images).unwrap()
     };
 
     // building the vertex buffer and index buffers that will be filled with the data of

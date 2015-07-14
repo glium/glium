@@ -30,7 +30,7 @@ fn main() {
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
         image::PNG).unwrap();
-    let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(&display, image);
+    let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
