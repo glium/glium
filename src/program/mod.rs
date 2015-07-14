@@ -112,9 +112,12 @@ impl Error for ProgramCreationError {
     }
 }
 
-/// Binary is not supported by the backend.
+/// Error while retreiving the binary representation of a program.
 #[derive(Copy, Clone, Debug)]
-pub struct BinaryNotSupportedError;
+pub enum GetBinaryError {
+    /// The backend doesn't support binary.
+    NotSupported,
+}
 
 /// Input when creating a program.
 pub enum ProgramCreationInput<'a> {

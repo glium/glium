@@ -25,7 +25,7 @@ use RawUniformValue;
 use QueryExt;
 use draw_parameters::TimeElapsedQuery;
 
-use program::{ProgramCreationError, Binary, BinaryNotSupportedError};
+use program::{ProgramCreationError, Binary, GetBinaryError};
 use program::uniforms_storage::UniformsStorage;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
@@ -232,7 +232,7 @@ impl RawProgram {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
-    pub fn get_binary(&self) -> Result<Binary, BinaryNotSupportedError> {
+    pub fn get_binary(&self) -> Result<Binary, GetBinaryError> {
         unsafe {
             let ctxt = self.context.make_current();
 
@@ -259,7 +259,7 @@ impl RawProgram {
                 })
 
             } else {
-                Err(BinaryNotSupportedError)
+                Err(GetBinaryError::NotSupported)
             }
         }
     }

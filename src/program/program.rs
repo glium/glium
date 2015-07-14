@@ -17,7 +17,7 @@ use Handle;
 use RawUniformValue;
 
 use program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, Binary};
-use program::BinaryNotSupportedError;
+use program::GetBinaryError;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackBuffer};
@@ -147,7 +147,7 @@ impl Program {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
-    pub fn get_binary(&self) -> Result<Binary, BinaryNotSupportedError> {
+    pub fn get_binary(&self) -> Result<Binary, GetBinaryError> {
         self.raw.get_binary()
     }
 

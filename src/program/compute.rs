@@ -13,7 +13,7 @@ use ProgramExt;
 use Handle;
 use RawUniformValue;
 
-use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, BinaryNotSupportedError};
+use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, GetBinaryError};
 
 use program::reflection::{Uniform, UniformBlock};
 use program::shader::{build_shader, check_shader_type_compatibility};
@@ -70,7 +70,7 @@ impl ComputeShader {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
-    pub fn get_binary(&self) -> Result<Binary, BinaryNotSupportedError> {
+    pub fn get_binary(&self) -> Result<Binary, GetBinaryError> {
         self.raw.get_binary()
     }
 
