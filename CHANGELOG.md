@@ -4,9 +4,8 @@
 
  - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
  - Added `buffer::is_buffer_read_supported`.
- - Replaced `SyncFence::new_if_supported` and `new` with `new` that returns a `Result<SyncFence, SyncNotSupportedError>`.
- - Replaced `UniformBuffer::new_if_supported` and `UniformBuffer::new` with `new` that returns a `Result<UniformBuffer, BufferCreationError>`.
- - Replaced `ResidentTexture::new_if_supported` and `ResidentTexture::new` with `new` that returns a `Result<ResidentTexture, BindlessTexturesNotSupportedError>`.
+ - Replaced all `new_if_supported` or `empty_if_supported` functions with `new` or `empty` and a proper error type.
+ - All `new` and `empty` constructors now return an error if the operation is not supported.
 
 ## Version 0.7.1 (2015-07-14)
 

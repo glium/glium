@@ -54,33 +54,25 @@ impl DrawCommandsNoIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
-    pub fn empty_if_supported<F>(facade: &F, elements: usize)
-                                 -> Option<DrawCommandsNoIndicesBuffer>
-                                 where F: Facade
+    pub fn empty<F>(facade: &F, elements: usize)
+                    -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
+                    where F: Facade
     {
-        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                      elements, false)
-        {
-            Ok(buf) => Some(DrawCommandsNoIndicesBuffer { buffer: buf }),
-            Err(BufferCreationError::BufferTypeNotSupported) => None,
-            Err(_) => panic!()
-        }
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, false));
+        Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
-    pub fn empty_dynamic_if_supported<F>(facade: &F, elements: usize)
-                                         -> Option<DrawCommandsNoIndicesBuffer>
-                                         where F: Facade
+    pub fn empty_dynamic<F>(facade: &F, elements: usize)
+                            -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
+                            where F: Facade
     {
-        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                      elements, true)
-        {
-            Ok(buf) => Some(DrawCommandsNoIndicesBuffer { buffer: buf }),
-            Err(BufferCreationError::BufferTypeNotSupported) => None,
-            Err(_) => panic!()
-        }
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, true));
+        Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
     /// Builds an indices source from this buffer and a primitives type. This indices source can
@@ -116,33 +108,25 @@ impl DrawCommandsIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
-    pub fn empty_if_supported<F>(facade: &F, elements: usize)
-                                 -> Option<DrawCommandsIndicesBuffer>
-                                 where F: Facade
+    pub fn empty<F>(facade: &F, elements: usize)
+                    -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
+                    where F: Facade
     {
-        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                      elements, false)
-        {
-            Ok(buf) => Some(DrawCommandsIndicesBuffer { buffer: buf }),
-            Err(BufferCreationError::BufferTypeNotSupported) => None,
-            Err(_) => panic!()
-        }
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, false));
+        Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
-    pub fn empty_dynamic_if_supported<F>(facade: &F, elements: usize)
-                                         -> Option<DrawCommandsIndicesBuffer>
-                                         where F: Facade
+    pub fn empty_dynamic<F>(facade: &F, elements: usize)
+                            -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
+                            where F: Facade
     {
-        match BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                      elements, true)
-        {
-            Ok(buf) => Some(DrawCommandsIndicesBuffer { buffer: buf }),
-            Err(BufferCreationError::BufferTypeNotSupported) => None,
-            Err(_) => panic!()
-        }
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, true));
+        Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
     /// Builds an indices source from this buffer and a primitives type. This indices source can

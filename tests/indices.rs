@@ -332,10 +332,10 @@ fn multidraw_array() {
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]);
 
-    let multidraw = glium::index::DrawCommandsNoIndicesBuffer::empty_if_supported(&display, 1);
+    let multidraw = glium::index::DrawCommandsNoIndicesBuffer::empty(&display, 1);
     let multidraw = match multidraw {
-        Some(buf) => buf,
-        None => return
+        Ok(buf) => buf,
+        Err(_) => return
     };
 
     multidraw.write(&[
@@ -375,10 +375,10 @@ fn multidraw_elements() {
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           vec![0u16, 1, 2, 1, 3, 2]);
 
-    let multidraw = glium::index::DrawCommandsIndicesBuffer::empty_if_supported(&display, 1);
+    let multidraw = glium::index::DrawCommandsIndicesBuffer::empty(&display, 1);
     let multidraw = match multidraw {
-        Some(buf) => buf,
-        None => return
+        Ok(buf) => buf,
+        Err(_) => return
     };
 
     multidraw.write(&[
