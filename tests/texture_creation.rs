@@ -29,9 +29,9 @@ fn get_format_u8u8u8u8() {
 
     display.assert_no_error(None);
 
-    let format = match texture.get_internal_format_if_supported() {
-        None => return,
-        Some(f) => f
+    let format = match texture.get_internal_format() {
+        Err(_) => return,
+        Ok(f) => f
     };
 
     match format {
@@ -171,7 +171,7 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
 
-            texture.get_internal_format_if_supported();
+            texture.get_internal_format();
 
             display.assert_no_error(None);
             drop(texture);
@@ -198,7 +198,7 @@ macro_rules! empty_texture_test {
 
             assert_eq!(texture.get_mipmap_levels(), 1);
             
-            texture.get_internal_format_if_supported();
+            texture.get_internal_format();
 
             display.assert_no_error(None);
             drop(texture);

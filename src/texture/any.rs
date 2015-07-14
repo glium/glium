@@ -16,7 +16,7 @@ use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
 use texture::{MipmapsOption, TextureFormat};
 use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
-use texture::{get_format, InternalFormat};
+use texture::{get_format, InternalFormat, GetFormatError};
 
 use buffer::BufferViewAny;
 use BufferViewExt;
@@ -40,8 +40,8 @@ pub struct TextureAny {
     requested_format: TextureFormatRequest,
 
     /// Cache for the actual format of the texture. The outer Option is None if the format hasn't
-    /// been checked yet. The inner Option is None if the format has been checkek but is unknown.
-    actual_format: Cell<Option<Option<InternalFormat>>>,
+    /// been checked yet. The inner Result is Err if the format has been checkek but is unknown.
+    actual_format: Cell<Option<Result<InternalFormat, GetFormatError>>>,
 
     /// Type and dimensions of the texture.
     ty: Dimensions,
@@ -693,15 +693,13 @@ impl TextureAny {
     }
 
     /// Determines the internal format of this texture.
-    ///
-    /// Returns `None` if the backend doesn't allow querying the actual format.
-    pub fn get_internal_format_if_supported(&self) -> Option<InternalFormat> {
+    pub fn get_internal_format(&self) -> Result<InternalFormat, GetFormatError> {
         if let Some(format) = self.actual_format.get() {
             format
 
         } else {
             let mut ctxt = self.context.make_current();
-            let format = get_format::get_format_if_supported(&mut ctxt, self);
+            let format = get_format::get_format(&mut ctxt, self);
             self.actual_format.set(Some(format.clone()));
             format
         }

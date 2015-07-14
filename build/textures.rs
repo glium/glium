@@ -481,13 +481,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // opening `impl Texture` block
     (writeln!(dest, "impl {} {{", name)).unwrap();
 
-    // writing `get_internal_format_if_supported`
+    // writing `get_internal_format`
     writeln!(dest, "
             /// Determines the internal format of this texture.
             ///
-            /// Returns `None` if the backend doesn't allow querying the actual format.
-            pub fn get_internal_format_if_supported(&self) -> Option<InternalFormat> {{
-                self.0.get_internal_format_if_supported()
+            /// The backend may not support querying the actual format, in which case an error
+            /// is returned.
+            pub fn get_internal_format(&self) -> Result<InternalFormat, GetFormatError> {{
+                self.0.get_internal_format()
             }}
         ").unwrap();
 
