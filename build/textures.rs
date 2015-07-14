@@ -449,7 +449,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 {gen_doc}
                 pub fn new<'a, F, T>(facade: &F, data: {param})
-                              -> Result<{name}, TextureMaybeSupportedCreationError>
+                              -> Result<{name}, TextureCreationError>
                               where T: {data_source_trait}<'a>, F: Facade
                 {{
                     {name}::new_impl(facade, data, None, {mipmap_default})
@@ -473,7 +473,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "
                 /// Builds a new texture by uploading data.
                 pub fn with_mipmaps<'a, F, T>(facade: &F, data: {param}, mipmaps: {mipmaps})
-                                              -> Result<{name}, TextureMaybeSupportedCreationError>
+                                              -> Result<{name}, TextureCreationError>
                                               where T: {data_source_trait}<'a>, F: Facade
                 {{
                     {name}::new_impl(facade, data, None, mipmaps)
@@ -499,7 +499,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// specified compressed format.
                 pub fn with_compressed_data<F>(facade: &F, data: {param}, {dim_params},
                                                       format: {format}, mipmaps: {mipmaps})
-                                                      -> Result<{name}, TextureMaybeSupportedCreationError>
+                                                      -> Result<{name}, TextureCreationError>
                                                        where F: Facade
                 {{
                     let data = Cow::Borrowed(data.as_ref());
@@ -529,7 +529,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Builds a new texture with a specific format.
                 pub fn with_format<'a, F, T>(facade: &F, data: {param},
                                           format: {format}, mipmaps: {mipmaps})
-                                          -> Result<{name}, TextureMaybeSupportedCreationError>
+                                          -> Result<{name}, TextureCreationError>
                                           where T: {data_source_trait}<'a>, F: Facade
                 {{
                     {name}::new_impl(facade, data, Some(format), mipmaps)
@@ -554,7 +554,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "
                 fn new_impl<'a, F, T>(facade: &F, data: {param},
                                    format: Option<{relevant_format}>, mipmaps: {mipmaps})
-                                   -> Result<{name}, TextureMaybeSupportedCreationError>
+                                   -> Result<{name}, TextureCreationError>
                                    where T: {data_source_trait}<'a>, F: Facade
                 {{
             ", data_source_trait = data_source_trait,
@@ -616,7 +616,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture will contain undefined data.
                 pub fn empty<F>(facade: &F, {dim_params})
-                                -> Result<{name}, TextureMaybeSupportedCreationError>
+                                -> Result<{name}, TextureCreationError>
                                 where F: Facade
                 {{
                     let format = {format};
@@ -638,7 +638,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Creates an empty texture with a specific format.
                 ///
                 /// The texture (and its mipmaps) will contain undefined data.
-                pub fn empty_with_format<F>(facade: &F, format: {format}, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureMaybeSupportedCreationError> where F: Facade {{
+                pub fn empty_with_format<F>(facade: &F, format: {format}, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name,
@@ -660,7 +660,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Creates an empty texture. Specifies whether is has mipmaps.
                 ///
                 /// The texture (and its mipmaps) will contain undefined data.
-                pub fn empty_with_mipmaps<F>(facade: &F, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureMaybeSupportedCreationError> where F: Facade {{
+                pub fn empty_with_mipmaps<F>(facade: &F, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name,
                mipmaps = mipmaps_option_ty)).unwrap();

@@ -14,8 +14,7 @@ use Rect;
 use pixel_buffer::PixelBuffer;
 use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
-use texture::{MipmapsOption, TextureFormat};
-use texture::{TextureCreationError, TextureMaybeSupportedCreationError};
+use texture::{MipmapsOption, TextureFormat, TextureCreationError};
 use texture::{get_format, InternalFormat, GetFormatError};
 
 use buffer::BufferViewAny;
@@ -93,7 +92,7 @@ pub enum Dimensions {
 pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                              data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
                              mipmaps: MipmapsOption, ty: Dimensions)
-                             -> Result<TextureAny, TextureMaybeSupportedCreationError>
+                             -> Result<TextureAny, TextureCreationError>
                              where P: Send + Clone + 'a, F: Facade
 {
     // getting the width, height, depth, array_size, samples from the type
@@ -140,8 +139,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         if !width.is_power_of_two() || !height.unwrap_or(2).is_power_of_two() ||
             !depth.unwrap_or(2).is_power_of_two() || !array_size.unwrap_or(2).is_power_of_two()
         {
-            let ce = TextureCreationError::DimensionsNotSupported;
-            return Err(TextureMaybeSupportedCreationError::CreationError(ce));
+            return Err(TextureCreationError::DimensionsNotSupported);
         }
     }
 
