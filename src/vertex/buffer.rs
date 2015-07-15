@@ -1,6 +1,6 @@
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType};
+use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -8,6 +8,24 @@ use backend::Facade;
 use version::{Api, Version};
 
 use ContextExt;
+
+/// Error that can happen when creating a vertex buffer.
+#[derive(Copy, Clone, Debug)]
+pub enum CreationError {
+    /// The vertex format is not supported by the backend.
+    ///
+    /// Anything 64bits-related may not be supported.
+    FormatNotSupported,
+
+    /// Error while creating the vertex buffer.
+    BufferCreationError(BufferCreationError),
+}
+
+impl From<BufferCreationError> for CreationError {
+    fn from(err: BufferCreationError) -> CreationError {
+        CreationError::BufferCreationError(err)
+    }
+}
 
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
@@ -51,35 +69,59 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// # }
     /// ```
     ///
-    pub fn new<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
-        let buffer = BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                    false).unwrap();
-        buffer.into()
+    pub fn new<F, D>(facade: &F, data: D) -> Result<VertexBuffer<T>, CreationError>
+                     where F: Facade, D: AsRef<[T]>
+    {
+        if !T::is_supported(facade) {
+            return Err(CreationError::FormatNotSupported);
+        }
+
+        let buffer = try!(BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
+                                    false));
+        Ok(buffer.into())
     }
 
     /// Builds a new vertex buffer.
     ///
     /// This function will create a buffer that is intended to be modified frequently.
-    pub fn dynamic<F, D>(facade: &F, data: D) -> VertexBuffer<T> where F: Facade, D: AsRef<[T]> {
-        let buffer = BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                    true).unwrap();
-        buffer.into()
+    pub fn dynamic<F, D>(facade: &F, data: D) -> Result<VertexBuffer<T>, CreationError>
+                         where F: Facade, D: AsRef<[T]>
+    {
+        if !T::is_supported(facade) {
+            return Err(CreationError::FormatNotSupported);
+        }
+
+        let buffer = try!(BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
+                                    true));
+        Ok(buffer.into())
     }
 
     /// Builds an empty vertex buffer.
     ///
     /// The parameter indicates the number of elements.
-    pub fn empty<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
-        let buffer = BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, false).unwrap();
-        buffer.into()
+    pub fn empty<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
+                    where F: Facade
+    {
+        if !T::is_supported(facade) {
+            return Err(CreationError::FormatNotSupported);
+        }
+
+        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, false));
+        Ok(buffer.into())
     }
 
     /// Builds an empty vertex buffer.
     ///
     /// The parameter indicates the number of elements.
-    pub fn empty_dynamic<F>(facade: &F, elements: usize) -> VertexBuffer<T> where F: Facade {
-        let buffer = BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, true).unwrap();
-        buffer.into()
+    pub fn empty_dynamic<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
+                            where F: Facade
+    {
+        if !T::is_supported(facade) {
+            return Err(CreationError::FormatNotSupported);
+        }
+
+        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, true));
+        Ok(buffer.into())
     }
 }
 
@@ -116,26 +158,32 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// ```
     ///
     pub unsafe fn new_raw<F>(facade: &F, data: Vec<T>,
-                             bindings: VertexFormat, elements_size: usize) -> VertexBuffer<T>
+                             bindings: VertexFormat, elements_size: usize)
+                             -> Result<VertexBuffer<T>, CreationError>
                              where F: Facade
     {
-        VertexBuffer {
-            buffer: BufferView::new(facade, &data[..], BufferType::ArrayBuffer,
-                                   false).unwrap(),
+        // FIXME: check that the format is supported
+
+        Ok(VertexBuffer {
+            buffer: try!(BufferView::new(facade, &data[..], BufferType::ArrayBuffer,
+                                         false)),
             bindings: bindings,
-        }
+        })
     }
 
     /// Dynamic version of `new_raw`.
     pub unsafe fn new_raw_dynamic<F>(facade: &F, data: Vec<T>,
-                             bindings: VertexFormat, elements_size: usize) -> VertexBuffer<T>
-                             where F: Facade
+                                     bindings: VertexFormat, elements_size: usize)
+                                     -> Result<VertexBuffer<T>, CreationError>
+                                     where F: Facade
     {
-        VertexBuffer {
-            buffer: BufferView::new(facade, &data[..], BufferType::ArrayBuffer,
-                                   true).unwrap(),
+        // FIXME: check that the format is supported
+
+        Ok(VertexBuffer {
+            buffer: try!(BufferView::new(facade, &data[..], BufferType::ArrayBuffer,
+                                         true)),
             bindings: bindings,
-        }
+        })
     }
 
     /// Accesses a slice of the buffer.
@@ -189,6 +237,8 @@ impl<T> VertexBuffer<T> where T: Copy + Send + 'static {
 
 impl<T> From<BufferView<[T]>> for VertexBuffer<T> where T: Vertex + Copy {
     fn from(buffer: BufferView<[T]>) -> VertexBuffer<T> {
+        assert!(T::is_supported(buffer.get_context()));
+
         let bindings = <T as Vertex>::build_bindings();
 
         VertexBuffer {

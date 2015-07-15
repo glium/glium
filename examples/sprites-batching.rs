@@ -45,7 +45,7 @@ fn main() {
         implement_vertex!(Vertex, i_position, i_tex_id);
 
         let mut vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty_dynamic(&display,
-                                                                             SPRITES_COUNT * 4);
+                                                                        SPRITES_COUNT * 4).unwrap();
         let mut ib_data = Vec::with_capacity(SPRITES_COUNT * 6);
 
         // initializing with random data

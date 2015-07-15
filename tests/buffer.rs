@@ -24,7 +24,7 @@ fn buffer_immutable_creation() {
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
             Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
         ]
-    );
+    ).unwrap();
 
     display.assert_no_error(None);
 }
@@ -47,7 +47,7 @@ fn buffer_dynamic_creation() {
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
             Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
         ]
-    );
+    ).unwrap();
 
     display.assert_no_error(None);
 }
@@ -64,7 +64,7 @@ fn buffer_immutable_empty_creation() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 12);
+    let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 12).unwrap();
     assert_eq!(vb.len(), 12);
 
     display.assert_no_error(None);
@@ -82,7 +82,7 @@ fn buffer_dynamic_empty_creation() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty_dynamic(&display, 12);
+    let vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty_dynamic(&display, 12).unwrap();
     assert_eq!(vb.len(), 12);
 
     display.assert_no_error(None);
@@ -105,7 +105,7 @@ fn buffer_immutable_mapping_read() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     let mapping = vb.map();
     assert_eq!(mapping[0].field1, [2, 3]);
@@ -131,7 +131,7 @@ fn buffer_dynamic_mapping_read() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     let mapping = vb.map();
     assert_eq!(mapping[0].field1, [2, 3]);
@@ -157,7 +157,7 @@ fn buffer_immutable_mapping_write() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     {
         let mut mapping = vb.map();
@@ -188,7 +188,7 @@ fn buffer_dynamic_mapping_write() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     {
         let mut mapping = vb.map();
@@ -215,7 +215,7 @@ fn buffer_mapping_multithread() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::empty(&display, 2);
+    let mut vb = glium::VertexBuffer::empty(&display, 2).unwrap();
 
     {
         let mut mapping = vb.map();
@@ -249,7 +249,7 @@ fn buffer_immutable_read() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     let data = match vb.read() {
         Ok(r) => r,
@@ -280,7 +280,7 @@ fn buffer_dynamic_read() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     let data = match vb.read() {
         Ok(r) => r,
@@ -311,7 +311,7 @@ fn buffer_immutable_read_slice() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     let data = match vb.slice(1 .. 2).unwrap().read() {
         Ok(r) => r,
@@ -341,7 +341,7 @@ fn buffer_dynamic_read_slice() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     let data = match vb.slice(1 .. 2).unwrap().read() {
         Ok(r) => r,
@@ -371,7 +371,7 @@ fn buffer_slice_out_of_bounds() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
-    );
+    ).unwrap();
 
     assert!(vb.slice(0 .. 3).is_none());
 
@@ -395,7 +395,7 @@ fn buffer_immutable_write() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
-    );
+    ).unwrap();
 
     vb.write(&[
         Vertex { field1: [ 2,  3], field2: [ 5,  7] },
@@ -433,7 +433,7 @@ fn buffer_dynamic_write() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
-    );
+    ).unwrap();
 
     vb.write(&[
         Vertex { field1: [ 2,  3], field2: [ 5,  7] },
@@ -471,7 +471,7 @@ fn buffer_immutable_write_slice() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
-    );
+    ).unwrap();
 
     vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
 
@@ -506,7 +506,7 @@ fn buffer_dynamic_write_slice() {
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
-    );
+    ).unwrap();
 
     vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
 
@@ -536,7 +536,7 @@ fn zero_sized_immutable_buffer() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
+    glium::VertexBuffer::new(&display, Vec::<Vertex>::new()).unwrap();
 
     display.assert_no_error(None);
 }
@@ -553,7 +553,7 @@ fn zero_sized_dynamic_buffer() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display, Vec::<Vertex>::new());
+    glium::VertexBuffer::new(&display, Vec::<Vertex>::new()).unwrap();
 
     display.assert_no_error(None);
 }
@@ -568,7 +568,7 @@ fn invalidate() {
 
     let buffer = glium::VertexBuffer::new(&display,
         &[ Vertex { field: 2.0 } ]
-    );
+    ).unwrap();
 
     buffer.invalidate();
 
@@ -585,7 +585,7 @@ fn invalidate_range() {
 
     let buffer = glium::VertexBuffer::new(&display,
         &[ Vertex { field: 1.0 }, Vertex { field: 2.0 }, Vertex { field: 3.0 } ]
-    );
+    ).unwrap();
 
     buffer.slice(1 .. 2).unwrap().invalidate();
 
@@ -675,7 +675,7 @@ fn immutable_mapping_forget_then_draw() {
             Vertex { position: [-1.0, -1.0] },
             Vertex { position: [ 1.0, -1.0] },
         ]
-    );
+    ).unwrap();
 
     let program = program!(&display,
         140 => {
@@ -837,7 +837,7 @@ fn dynamic_mapping_forget_then_draw() {
             Vertex { position: [-1.0, -1.0] },
             Vertex { position: [ 1.0, -1.0] },
         ]
-    );
+    ).unwrap();
 
     let program = program!(&display,
         140 => {

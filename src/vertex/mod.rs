@@ -137,6 +137,7 @@ use std::option::IntoIter;
 
 pub use self::buffer::{VertexBuffer, VertexBufferAny};
 pub use self::buffer::VertexBufferSlice;
+pub use self::buffer::CreationError as BufferCreationError;
 pub use self::format::{AttributeType, VertexFormat};
 pub use self::transform_feedback::{is_transform_feedback_supported, TransformFeedbackSession};
 

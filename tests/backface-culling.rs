@@ -23,7 +23,7 @@ fn cull_clockwise() {
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
             Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ])
+        ]).unwrap()
     };
 
     // first triangle covers the top-left side of the screen and is clockwise
@@ -121,7 +121,7 @@ fn cull_counterclockwise() {
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
             Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ])
+        ]).unwrap()
     };
 
     // first triangle covers the top-left side of the screen and is clockwise
@@ -219,7 +219,7 @@ fn cull_clockwise_trianglestrip() {
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
             Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ])
+        ]).unwrap()
     };
 
     // both triangles are clockwise
@@ -316,7 +316,7 @@ fn cull_counterclockwise_trianglestrip() {
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
             Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ])
+        ]).unwrap()
     };
 
     // both triangles are clockwise

@@ -58,7 +58,7 @@ fn transform_feedback() {
         Err(e) => panic!("{:?}", e)
     };
 
-    let mut out_buffer: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 6);
+    let mut out_buffer: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 6).unwrap();
 
     {
         let session = glium::vertex::TransformFeedbackSession::new(&display, &program,
