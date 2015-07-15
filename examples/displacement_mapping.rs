@@ -49,7 +49,7 @@ fn main() {
                 Vertex { position: [ 0.5, -0.5, 3.0], tex_coords: [0.0, 0.0] },
                 Vertex { position: [-0.5, -0.5, 3.0], tex_coords: [1.0, 0.0] },
             ]
-        )
+        ).unwrap()
     };
 
     // compiling shaders and linking them together

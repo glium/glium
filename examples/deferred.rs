@@ -51,7 +51,7 @@ fn main() {
                 Vertex { position: [1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 1.0] },
                 Vertex { position: [-1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 1.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let floor_index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
@@ -73,7 +73,7 @@ fn main() {
                 Vertex { position: [800.0, 500.0, 0.0, 1.0], texcoord: [1.0, 1.0] },
                 Vertex { position: [0.0, 500.0, 0.0, 1.0], texcoord: [0.0, 1.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let quad_index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,

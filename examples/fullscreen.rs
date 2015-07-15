@@ -46,7 +46,7 @@ fn main() {
                 Vertex { position: [ 1.0,  1.0], tex_coords: [1.0, 1.0] },
                 Vertex { position: [ 1.0, -1.0], tex_coords: [1.0, 0.0] }
             ]
-        )
+        ).unwrap()
     };
 
     // building the index buffer

@@ -30,7 +30,7 @@ fn main() {
                 Vertex { position: [ 0.0,  0.5] },
                 Vertex { position: [ 0.5, -0.5] },
             ]
-        )
+        ).unwrap()
     };
 
     // building the index buffer

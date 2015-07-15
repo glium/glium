@@ -172,7 +172,7 @@ Here is the final code of our `src/main.rs` file:
         let vertex3 = Vertex { position: [ 0.5, -0.25], tex_coords: [1.0, 0.0] };
         let shape = vec![vertex1, vertex2, vertex3];
 
-        let vertex_buffer = glium::VertexBuffer::new(&display, shape);
+        let vertex_buffer = glium::VertexBuffer::new(&display, shape).unwrap();
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         let vertex_shader_src = r#"

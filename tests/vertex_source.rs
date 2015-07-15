@@ -25,7 +25,7 @@ fn multiple_buffers_source() {
                 Vertex { position: [-1.0, -1.0] },
                 Vertex { position: [ 1.0, -1.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let buffer2 = {
@@ -43,7 +43,7 @@ fn multiple_buffers_source() {
                 Vertex { color: [1.0, 0.0, 0.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
@@ -163,7 +163,7 @@ fn slice_draw_indices() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           vec![0u16, 1, 2]).unwrap();
@@ -231,7 +231,7 @@ fn slice_draw_noindices() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
@@ -318,7 +318,7 @@ fn slice_draw_multiple() {
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [-1.0, 1.0] },
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     // the 3 last elements will be drawn
     let vb2 = glium::VertexBuffer::new(&display, vec![
@@ -326,7 +326,7 @@ fn slice_draw_multiple() {
         Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [-1.0, 1.0] },
         Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [1.0,  1.0] },
         Vertex2 { position2: [-1.0, -1.0] }, Vertex2 { position2: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           vec![2u16, 3, 4]).unwrap();
@@ -466,7 +466,7 @@ fn instancing() {
                 Vertex { position: [-1.0, -1.0] },
                 Vertex { position: [ 1.0, -1.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let buffer2 = {
@@ -484,7 +484,7 @@ fn instancing() {
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let buffer2 = match buffer2.per_instance() {
@@ -563,7 +563,7 @@ fn per_instance_length_mismatch() {
                 Vertex { position: [-1.0, -1.0] },
                 Vertex { position: [ 1.0, -1.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let buffer2 = {
@@ -581,7 +581,7 @@ fn per_instance_length_mismatch() {
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let buffer2 = match buffer2.per_instance() {
@@ -603,7 +603,7 @@ fn per_instance_length_mismatch() {
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
             ]
-        )
+        ).unwrap()
     };
 
     let buffer3 = match buffer3.per_instance() {

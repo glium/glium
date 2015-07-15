@@ -62,7 +62,7 @@ fn triangles_list() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           vec![0u16, 1, 2, 2, 1, 3]).unwrap();
@@ -88,7 +88,7 @@ fn triangle_strip() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
                                           vec![0u16, 1, 2, 3]).unwrap();
@@ -115,7 +115,7 @@ fn triangle_fan() {
         Vertex { position: [0.0,  0.0] },
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleFan,
                                           vec![0u16, 1, 2, 4, 3, 1]).unwrap();
@@ -199,7 +199,7 @@ fn triangles_list_noindices() {
         Vertex { position: [-1.0, -1.0] },
         Vertex { position: [ 1.0,  1.0] },
         Vertex { position: [ 1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -225,7 +225,7 @@ fn triangle_strip_noindices() {
         Vertex { position: [ 1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] },
         Vertex { position: [ 1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -253,7 +253,7 @@ fn triangle_fan_noindices() {
         Vertex { position: [ 1.0, -1.0] },
         Vertex { position: [-1.0, -1.0] },
         Vertex { position: [-1.0,  1.0] },
-    ]);
+    ]).unwrap();
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -301,7 +301,7 @@ fn indexbuffer_slice_draw() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           vec![0u16, 3, 2, 0, 1, 3]).unwrap();
@@ -337,7 +337,7 @@ fn multidraw_array() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let multidraw = glium::index::DrawCommandsNoIndicesBuffer::empty(&display, 1);
     let multidraw = match multidraw {
@@ -377,7 +377,7 @@ fn multidraw_elements() {
     let vb = glium::VertexBuffer::new(&display, vec![
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]);
+    ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           vec![0u16, 1, 2, 1, 3, 2]).unwrap();
