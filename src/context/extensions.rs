@@ -96,8 +96,16 @@ pub struct ExtensionsList {
     pub gl_arb_vertex_array_object: bool,
     /// GL_ARB_vertex_buffer_object
     pub gl_arb_vertex_buffer_object: bool,
+    /// GL_ARB_vertex_half_float
+    pub gl_arb_vertex_half_float: bool,
     /// GL_ARB_vertex_shader
     pub gl_arb_vertex_shader: bool,
+    /// GL_NV_vertex_attrib_integer_64bit
+    pub gl_nv_vertex_attrib_integer_64bit: bool,
+    /// GL_ARB_vertex_type_10f_11f_11f_rev
+    pub gl_arb_vertex_type_10f_11f_11f_rev: bool,
+    /// GL_ARB_vertex_type_2_10_10_10_rev
+    pub gl_arb_vertex_type_2_10_10_10_rev: bool,
     /// GL_ARM_rgba8
     pub gl_arm_rgba8: bool,
     /// GL_ATI_meminfo
@@ -152,18 +160,26 @@ pub struct ExtensionsList {
     pub gl_nv_copy_buffer: bool,
     /// GL_NV_conditional_render
     pub gl_nv_conditional_render: bool,
+    /// GL_NV_half_float
+    pub gl_nv_half_float: bool,
     /// GL_NV_pixel_buffer_object
     pub gl_nv_pixel_buffer_object: bool,
     /// GL_NVX_gpu_memory_info
     pub gl_nvx_gpu_memory_info: bool,
     /// GL_OES_depth_texture
     pub gl_oes_depth_texture: bool,
+    /// GL_OES_fixed_point
+    pub gl_oes_fixed_point: bool,
     /// GL_OES_packed_depth_stencil
     pub gl_oes_packed_depth_stencil: bool,
     /// GL_OES_rgb8_rgba8
     pub gl_oes_rgb8_rgba8: bool,
     /// GL_OES_vertex_array_object
     pub gl_oes_vertex_array_object: bool,
+    /// GL_OES_vertex_half_float
+    pub gl_oes_vertex_half_float: bool,
+    /// GL_OES_vertex_type_10_10_10_2
+    pub gl_oes_vertex_type_10_10_10_2: bool,
 }
 
 /// Returns the list of extensions supported by the backend.
@@ -226,7 +242,10 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_uniform_buffer_object: false,
         gl_arb_vertex_array_object: false,
         gl_arb_vertex_buffer_object: false,
+        gl_arb_vertex_half_float: false,
         gl_arb_vertex_shader: false,
+        gl_arb_vertex_type_10f_11f_11f_rev: false,
+        gl_arb_vertex_type_2_10_10_10_rev: false,
         gl_arm_rgba8: false,
         gl_ati_meminfo: false,
         gl_ext_buffer_storage: false,
@@ -254,12 +273,17 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_khr_robust_buffer_access_behavior: false,
         gl_nv_conditional_render: false,
         gl_nv_copy_buffer: false,
+        gl_nv_half_float: false,
         gl_nv_pixel_buffer_object: false,
+        gl_nv_vertex_attrib_integer_64bit: false,
         gl_nvx_gpu_memory_info: false,
         gl_oes_depth_texture: false,
+        gl_oes_fixed_point: false,
         gl_oes_packed_depth_stencil: false,
         gl_oes_rgb8_rgba8: false,
         gl_oes_vertex_array_object: false,
+        gl_oes_vertex_half_float: false,
+        gl_oes_vertex_type_10_10_10_2: false,
     };
 
     for extension in strings.into_iter() {
@@ -309,7 +333,10 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_uniform_buffer_object" => extensions.gl_arb_uniform_buffer_object = true,
             "GL_ARB_vertex_array_object" => extensions.gl_arb_vertex_array_object = true,
             "GL_ARB_vertex_buffer_object" => extensions.gl_arb_vertex_buffer_object = true,
+            "GL_ARB_vertex_half_float" => extensions.gl_arb_vertex_half_float = true,
             "GL_ARB_vertex_shader" => extensions.gl_arb_vertex_shader = true,
+            "GL_ARB_vertex_type_10f_11f_11f_rev" => extensions.gl_arb_vertex_type_10f_11f_11f_rev = true,
+            "GL_ARB_vertex_type_2_10_10_10_rev" => extensions.gl_arb_vertex_type_2_10_10_10_rev = true,
             "GL_ARM_rgba8" => extensions.gl_arm_rgba8 = true,
             "GL_ATI_meminfo" => extensions.gl_ati_meminfo = true,
             "GL_EXT_buffer_storage" => extensions.gl_ext_buffer_storage = true,
@@ -337,12 +364,17 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_KHR_robust_buffer_access_behavior" => extensions.gl_khr_robust_buffer_access_behavior = true,
             "GL_NV_conditional_render" => extensions.gl_nv_conditional_render = true,
             "GL_NV_copy_buffer" => extensions.gl_nv_copy_buffer = true,
+            "GL_NV_half_float" => extensions.gl_nv_half_float = true,
             "GL_NV_pixel_buffer_object" => extensions.gl_nv_pixel_buffer_object = true,
+            "GL_nV_vertex_attrib_integer_64bit" => extensions.gl_nv_vertex_attrib_integer_64bit = true,
             "GL_NVX_gpu_memory_info" => extensions.gl_nvx_gpu_memory_info = true,
             "GL_OES_depth_texture" => extensions.gl_oes_depth_texture = true,
+            "GL_OES_fixed_point" => extensions.gl_oes_fixed_point = true,
             "GL_OES_packed_depth_stencil" => extensions.gl_oes_packed_depth_stencil = true,
             "GL_OES_rgb8_rgba8" => extensions.gl_oes_rgb8_rgba8 = true,
             "GL_OES_vertex_array_object" => extensions.gl_oes_vertex_array_object = true,
+            "GL_OES_vertex_half_float" => extensions.gl_oes_vertex_half_float = true,
+            "GL_OES_vertex_type_10_10_10_2" => extensions.gl_oes_vertex_type_10_10_10_2 = true,
             _ => ()
         }
     }
