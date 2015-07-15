@@ -48,7 +48,7 @@ mod fxaa {
                 ),
 
                 index_buffer: glium::index::IndexBuffer::new(facade,
-                    glium::index::PrimitiveType::TriangleStrip, vec![1 as u16, 2, 0, 3]),
+                    glium::index::PrimitiveType::TriangleStrip, vec![1 as u16, 2, 0, 3]).unwrap(),
 
                 program: program!(facade,
                     100 => {

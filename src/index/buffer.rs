@@ -1,4 +1,4 @@
-use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType};
+use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType, BufferCreationError};
 use gl;
 use BufferViewExt;
 use GlObject;
@@ -13,6 +13,25 @@ use index::PrimitiveType;
 use std::convert::AsRef;
 use std::ops::{Deref, DerefMut, Range};
 
+/// Error that can happen while creating an index buffer.
+#[derive(Debug, Copy, Clone)]
+pub enum CreationError {
+    /// The type of index is not supported by the backend.
+    IndexTypeNotSupported,
+
+    /// The type of primitives is not supported by the backend.
+    PrimitiveTypeNotSupported,
+
+    /// An error happened while creating the buffer.
+    BufferCreationError(BufferCreationError),
+}
+
+impl From<BufferCreationError> for CreationError {
+    fn from(err: BufferCreationError) -> CreationError {
+        CreationError::BufferCreationError(err)
+    }
+}
+
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct IndexBuffer<T> where T: Index {
@@ -22,47 +41,83 @@ pub struct IndexBuffer<T> where T: Index {
 
 impl<T> IndexBuffer<T> where T: Index {
     /// Builds a new index buffer from a list of indices and a primitive type.
-    pub fn new<F, D>(facade: &F, prim: PrimitiveType, data: D) -> IndexBuffer<T>
+    pub fn new<F, D>(facade: &F, prim: PrimitiveType, data: D)
+                     -> Result<IndexBuffer<T>, CreationError>
                      where F: Facade, D: AsRef<[T]>
     {
-        IndexBuffer {
-            buffer: BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
-                                    false).unwrap().into(),
-            primitives: prim,
+        if !prim.is_supported(facade) {
+            return Err(CreationError::PrimitiveTypeNotSupported);
         }
+
+        if !T::is_supported(facade) {
+            return Err(CreationError::IndexTypeNotSupported);
+        }
+
+        Ok(IndexBuffer {
+            buffer: try!(BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
+                                         false)).into(),
+            primitives: prim,
+        })
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
-    pub fn dynamic<F, D>(facade: &F, prim: PrimitiveType, data: D) -> IndexBuffer<T>
+    pub fn dynamic<F, D>(facade: &F, prim: PrimitiveType, data: D)
+                         -> Result<IndexBuffer<T>, CreationError>
                          where F: Facade, D: AsRef<[T]>
     {
-        IndexBuffer {
-            buffer: BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
-                                    true).unwrap().into(),
-            primitives: prim,
+        if !prim.is_supported(facade) {
+            return Err(CreationError::PrimitiveTypeNotSupported);
         }
+
+        if !T::is_supported(facade) {
+            return Err(CreationError::IndexTypeNotSupported);
+        }
+
+        Ok(IndexBuffer {
+            buffer: try!(BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
+                                         true)).into(),
+            primitives: prim,
+        })
     }
 
     /// Builds a new empty index buffer.
-    pub fn empty<F>(facade: &F, prim: PrimitiveType, len: usize) -> IndexBuffer<T>
+    pub fn empty<F>(facade: &F, prim: PrimitiveType, len: usize)
+                    -> Result<IndexBuffer<T>, CreationError>
                     where F: Facade
     {
-        IndexBuffer {
-            buffer: BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                            false).unwrap().into(),
-            primitives: prim,
+        if !prim.is_supported(facade) {
+            return Err(CreationError::PrimitiveTypeNotSupported);
         }
+
+        if !T::is_supported(facade) {
+            return Err(CreationError::IndexTypeNotSupported);
+        }
+
+        Ok(IndexBuffer {
+            buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
+                                                 false)).into(),
+            primitives: prim,
+        })
     }
 
     /// Builds a new empty index buffer.
-    pub fn empty_dynamic<F>(facade: &F, prim: PrimitiveType, len: usize) -> IndexBuffer<T>
+    pub fn empty_dynamic<F>(facade: &F, prim: PrimitiveType, len: usize)
+                            -> Result<IndexBuffer<T>, CreationError>
                             where F: Facade
     {
-        IndexBuffer {
-            buffer: BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                            true).unwrap().into(),
-            primitives: prim,
+        if !prim.is_supported(facade) {
+            return Err(CreationError::PrimitiveTypeNotSupported);
         }
+
+        if !T::is_supported(facade) {
+            return Err(CreationError::IndexTypeNotSupported);
+        }
+
+        Ok(IndexBuffer {
+            buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
+                                                 true)).into(),
+            primitives: prim,
+        })
     }
 
     /// Returns the type of primitives associated with this index buffer.

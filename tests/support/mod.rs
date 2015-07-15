@@ -103,7 +103,7 @@ pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuf
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, vec![0u8, 1, 2, 3]).into(),
+        glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, vec![0u8, 1, 2, 3]).unwrap().into(),
 
         program!(facade,
             110 => {
@@ -165,7 +165,7 @@ pub fn build_rectangle_vb_ib<F>(facade: &F)
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
         ]).into_vertex_buffer_any(),
 
-        glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, vec![0u8, 1, 2, 3]).into(),
+        glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, vec![0u8, 1, 2, 3]).unwrap().into(),
     )
 }
 
