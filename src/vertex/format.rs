@@ -44,6 +44,28 @@ pub enum AttributeType {
     U64U64,
     U64U64U64,
     U64U64U64U64,
+    F16,
+    F16F16,
+    F16F16F16,
+    F16F16F16F16,
+    /// 2x2 matrix of `f16`s
+    F16x2x2,
+    /// 2x3 matrix of `f16`s
+    F16x2x3,
+    /// 2x3 matrix of `f16`s
+    F16x2x4,
+    /// 3x2 matrix of `f16`s
+    F16x3x2,
+    /// 3x3 matrix of `f16`s
+    F16x3x3,
+    /// 3x4 matrix of `f16`s
+    F16x3x4,
+    /// 4x2 matrix of `f16`s
+    F16x4x2,
+    /// 4x3 matrix of `f16`s
+    F16x4x3,
+    /// 4x4 matrix of `f16`s
+    F16x4x4,
     F32,
     F32F32,
     F32F32F32,
@@ -101,6 +123,28 @@ pub enum AttributeType {
     /// 4x4 matrix of `f64`s
     /// Warning: using `f64`s can be very slow.
     F64x4x4,
+    /// From MSB to LSB: two bits for the alpha, ten bits for the blue, ten bits for the green,
+    /// ten bits for the red.
+    ///
+    /// Corresponds to `GL_INT_2_10_10_10_REV`.
+    I2I10I10I10Reversed,
+    /// From MSB to LSB: two bits for the alpha, ten bits for the blue, ten bits for the green,
+    /// ten bits for the red.
+    ///
+    /// Corresponds to `GL_UNSIGNED_INT_2_10_10_10_REV`.
+    U2U10U10U10Reversed,
+    /// Corresponds to `GL_INT_10_10_10_2`.
+    I10I10I10I2,
+    /// Corresponds to `GL_UNSIGNED_INT_10_10_10_2`.
+    U10U10U10U2,
+    /// Three floating points values turned into unsigned integers./
+    ///
+    /// Corresponds to `GL_UNSIGNED_INT_10F_11F_11F_REV`.
+    F10F11F11UnsignedIntReversed,
+    /// Fixed floating points. A 16bits signed value followed by the 16bits unsigned exponent.
+    ///
+    /// Corresponds to `GL_FIXED`.
+    FixedFloatI16U16,
 }
 
 impl AttributeType {
@@ -129,6 +173,19 @@ impl AttributeType {
                 caps.get_version() >= &Version(Api::GlEs, 3, 0)
             },
 
+            &AttributeType::I64 | &AttributeType::I64I64 | &AttributeType::I64I64I64 |
+            &AttributeType::I64I64I64I64 =>
+            {
+                caps.get_extensions().gl_nv_vertex_attrib_integer_64bit
+            },
+
+            &AttributeType::U64 | &AttributeType::U64U64 |
+            &AttributeType::U64U64U64 | &AttributeType::U64U64U64U64 =>
+            {
+                caps.get_extensions().gl_arb_bindless_texture ||
+                caps.get_extensions().gl_nv_vertex_attrib_integer_64bit
+            },
+
             &AttributeType::F64 | &AttributeType::F64F64 | &AttributeType::F64F64F64 |
             &AttributeType::F64F64F64F64 | &AttributeType::F64x2x2 | &AttributeType::F64x2x3 |
             &AttributeType::F64x2x4 | &AttributeType::F64x3x2 | &AttributeType::F64x3x3 |
@@ -136,6 +193,43 @@ impl AttributeType {
             &AttributeType::F64x4x4 =>
             {
                 caps.get_version() >= &Version(Api::Gl, 1, 0)
+            },
+
+            &AttributeType::F16 | &AttributeType::F16F16 | &AttributeType::F16F16F16 |
+            &AttributeType::F16F16F16F16 |
+            &AttributeType::F16x2x2 | &AttributeType::F16x2x3 | &AttributeType::F16x2x4 |
+            &AttributeType::F16x3x2 | &AttributeType::F16x3x3 | &AttributeType::F16x3x4 |
+            &AttributeType::F16x4x2 | &AttributeType::F16x4x3 | &AttributeType::F16x4x4 => 
+            {
+                caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
+                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
+                caps.get_extensions().gl_arb_es3_compatibility ||
+                caps.get_extensions().gl_oes_vertex_half_float ||
+                caps.get_extensions().gl_arb_vertex_half_float ||
+                caps.get_extensions().gl_nv_half_float
+            },
+
+            &AttributeType::FixedFloatI16U16 => {
+                caps.get_version() >= &Version(Api::GlEs, 2, 0) ||
+                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
+                caps.get_extensions().gl_arb_es2_compatibility ||
+                caps.get_extensions().gl_oes_fixed_point
+            },
+
+            &AttributeType::I2I10I10I10Reversed | &AttributeType::U2U10U10U10Reversed => {
+                caps.get_version() >= &Version(Api::Gl, 3, 0) ||
+                caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
+                caps.get_extensions().gl_arb_vertex_type_2_10_10_10_rev ||
+                caps.get_extensions().gl_arb_es3_compatibility
+            },
+
+            &AttributeType::I10I10I10I2 | &AttributeType::U10U10U10U2 => {
+                caps.get_extensions().gl_oes_vertex_type_10_10_10_2
+            },
+
+            &AttributeType::F10F11F11UnsignedIntReversed => {
+                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
+                caps.get_extensions().gl_arb_vertex_type_10f_11f_11f_rev
             },
         }
     }
@@ -175,6 +269,19 @@ impl AttributeType {
             AttributeType::U64U64 => 2 * mem::size_of::<u64>(),
             AttributeType::U64U64U64 => 3 * mem::size_of::<u64>(),
             AttributeType::U64U64U64U64 => 4 * mem::size_of::<u64>(),
+            AttributeType::F16 => 1 * 2,
+            AttributeType::F16F16 => 2 * 2,
+            AttributeType::F16F16F16 => 3 * 2,
+            AttributeType::F16F16F16F16 => 4 * 2,
+            AttributeType::F16x2x2 => 4 * 2,
+            AttributeType::F16x2x3 => 6 * 2,
+            AttributeType::F16x2x4 => 8 * 2,
+            AttributeType::F16x3x2 => 6 * 2,
+            AttributeType::F16x3x3 => 9 * 2,
+            AttributeType::F16x3x4 => 12 * 2,
+            AttributeType::F16x4x2 => 8 * 2,
+            AttributeType::F16x4x3 => 12 * 2,
+            AttributeType::F16x4x4 => 16 * 2,
             AttributeType::F32 => 1 * mem::size_of::<f32>(),
             AttributeType::F32F32 => 2 * mem::size_of::<f32>(),
             AttributeType::F32F32F32 => 3 * mem::size_of::<f32>(),
@@ -201,6 +308,12 @@ impl AttributeType {
             AttributeType::F64x4x2 => 8 * mem::size_of::<f64>(),
             AttributeType::F64x4x3 => 12 * mem::size_of::<f64>(),
             AttributeType::F64x4x4 => 16 * mem::size_of::<f64>(),
+            AttributeType::I2I10I10I10Reversed => 4,
+            AttributeType::U2U10U10U10Reversed => 4,
+            AttributeType::I10I10I10I2 => 4,
+            AttributeType::U10U10U10U2 => 4,
+            AttributeType::F10F11F11UnsignedIntReversed => 4,
+            AttributeType::FixedFloatI16U16 => 4,
         }
     }
 
@@ -239,6 +352,19 @@ impl AttributeType {
             AttributeType::U64U64 => 2,
             AttributeType::U64U64U64 => 3,
             AttributeType::U64U64U64U64 => 4,
+            AttributeType::F16 => 1,
+            AttributeType::F16F16 => 2,
+            AttributeType::F16F16F16 => 3,
+            AttributeType::F16F16F16F16 => 4,
+            AttributeType::F16x2x2 => 4,
+            AttributeType::F16x2x3 => 6,
+            AttributeType::F16x2x4 => 8,
+            AttributeType::F16x3x2 => 6,
+            AttributeType::F16x3x3 => 9,
+            AttributeType::F16x3x4 => 12,
+            AttributeType::F16x4x2 => 8,
+            AttributeType::F16x4x3 => 12,
+            AttributeType::F16x4x4 => 16,
             AttributeType::F32 => 1,
             AttributeType::F32F32 => 2,
             AttributeType::F32F32F32 => 3,
@@ -265,6 +391,12 @@ impl AttributeType {
             AttributeType::F64x4x2 => 8,
             AttributeType::F64x4x3 => 12,
             AttributeType::F64x4x4 => 16,
+            AttributeType::I2I10I10I10Reversed => 4,
+            AttributeType::U2U10U10U10Reversed => 4,
+            AttributeType::I10I10I10I2 => 4,
+            AttributeType::U10U10U10U2 => 4,
+            AttributeType::F10F11F11UnsignedIntReversed => 3,
+            AttributeType::FixedFloatI16U16 => 1,
         }
     }
 }

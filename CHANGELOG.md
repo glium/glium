@@ -8,6 +8,7 @@
  - All `new` and `empty` constructors now return an error if the operation is not supported.
  - Removed the deprecated `new_empty` function.
  - Reworked `TextureCreationError` and removed `TextureMaybeSupportedCreationError`.
+ - Add support for all missing vertex attributes.
 
 ## Version 0.7.1 (2015-07-14)
 
