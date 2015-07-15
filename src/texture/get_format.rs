@@ -8,6 +8,13 @@ use std::mem;
 use texture::any::TextureAny;
 use TextureExt;
 
+/// Error that can happen when retrieving the internal format of a texture.
+#[derive(Copy, Clone, Debug)]
+pub enum GetFormatError {
+    /// The backend doesn't support retrieving the internal format.
+    NotSupported,
+}
+
 /// Internal format of a texture.
 ///
 /// The actual format of a texture is not necessarly one of the predefined ones, so we have
@@ -116,11 +123,10 @@ impl InternalFormatType {
 }
 
 /// Determines the format of a texture.
-/// Returns `None` if the backend doesn't support this operation.
 ///
 /// A `TextureAny` is guaranteed to have the same format for each mipmap.
-pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
-                               -> Option<InternalFormat>
+pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
+                  -> Result<InternalFormat, GetFormatError>
 {
     if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
         let (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
@@ -167,7 +173,7 @@ pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
              depth_sz as gl::types::GLenum, depth_ty as gl::types::GLenum)
         };
 
-        Some(match (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
+        Ok(match (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
                alpha_sz, alpha_ty, depth_sz, depth_ty)
         {
             (_, gl::NONE, _, _, _, _, _, _, sz1, ty1) => InternalFormat::OneComponent {
@@ -207,6 +213,6 @@ pub fn get_format_if_supported(ctxt: &mut CommandContext, texture: &TextureAny)
 
     } else {
         // FIXME: GL2 
-        None
+        Err(GetFormatError::NotSupported)
     }
 }

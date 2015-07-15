@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased
+
+ - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
+ - Added `buffer::is_buffer_read_supported`.
+ - Replaced all `new_if_supported` or `empty_if_supported` functions with `new` or `empty` and a proper error type.
+ - All `new` and `empty` constructors now return an error if the operation is not supported.
+ - Removed the deprecated `new_empty` function.
+ - Reworked `TextureCreationError` and removed `TextureMaybeSupportedCreationError`.
+
 ## Version 0.7.1 (2015-07-14)
 
  - Glium now automatically calls `glDraw*BaseVertex` if it is supported.

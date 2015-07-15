@@ -17,9 +17,8 @@ env:
     - GLIUM_HEADLESS_TESTS=1
   matrix:
     - FEATURES='' TEST=0 COVERAGE=0
-    - FEATURES='headless glutin' TEST=1 COVERAGE=0
-    - FEATURES='headless glutin image cgmath nalgebra gl_read_buffer gl_depth_textures' TEST=1 COVERAGE=1
-    - FEATURES='headless glutin image cgmath nalgebra gl_read_buffer gl_depth_textures gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_bindless_textures' TEST=0 COVERAGE=0
+    - FEATURES='glutin' TEST=1 COVERAGE=0
+    - FEATURES='glutin image cgmath nalgebra' TEST=1 COVERAGE=1
 
 addons:
   apt:
@@ -42,7 +41,7 @@ after_success:
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
         [ $TRAVIS_RUST_VERSION = nightly ] &&
-        cargo doc -j 1 --features "headless gl_read_buffer gl_uniform_blocks gl_sync gl_program_binary gl_tessellation gl_instancing gl_integral_textures gl_depth_textures gl_stencil_textures gl_texture_1d gl_texture_3d gl_texture_multisample gl_texture_multisample_array gl_bindless_textures" &&
+        cargo doc -j 1 --features "glutin image cgmath nalgebra" &&
         cp -R doc/* target/doc &&
         git clone https://github.com/davisp/ghp-import &&
         ./ghp-import/ghp-import target/doc &&

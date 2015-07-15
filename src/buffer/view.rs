@@ -26,6 +26,7 @@ use buffer::alloc::Buffer;
 use buffer::alloc::Mapping;
 use buffer::alloc::ReadMapping;
 use buffer::alloc::WriteMapping;
+use buffer::alloc::ReadError;
 
 /// Represents a view of a buffer.
 pub struct BufferView<T: ?Sized> where T: Content {
@@ -120,28 +121,12 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     }
 
     /// Reads the content of the buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read(&self) -> T::Owned {
-        match self.read_if_supported() {
-            Some(buf) => buf,
-            None => unreachable!()
-        }
-    }
-
-    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
-    pub fn read_if_supported(&self) -> Option<T::Owned> {
+    pub fn read(&self) -> Result<T::Owned, ReadError> {
         self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
                                           0 .. self.get_size());
 
         unsafe {
-            match self.alloc.as_ref().unwrap().read_if_supported::<T>(0 .. self.get_size()) {
-                Err(_) => return None,
-                Ok(data) => Some(data)
-            }
+            self.alloc.as_ref().unwrap().read::<T>(0 .. self.get_size())
         }
     }
 
@@ -268,20 +253,9 @@ impl<T> BufferView<[T]> where [T]: Content, T: Copy {
 
 impl<T> BufferView<[T]> where T: PixelValue {
     /// Reads the content of the buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read_as_texture_1d<S>(&self) -> S where S: Texture1dDataSink<T> {
-        S::from_raw(Cow::Owned(self.read()), self.len() as u32)
-    }
-
-    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
-    pub fn read_as_texture_1d_if_supported<S>(&self) -> Option<S> where S: Texture1dDataSink<T> {
-        self.read_if_supported().map(|data| {
-            S::from_raw(Cow::Owned(data), self.len() as u32)
-        })
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
 
@@ -400,21 +374,12 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
     }
 
     /// Reads the content of the buffer.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read(&self) -> T::Owned {
-        self.read_if_supported().unwrap()
-    }
-
-    /// Reads the content of the slice. Returns `None` if this operation is not supported.
-    pub fn read_if_supported(&self) -> Option<T::Owned> {
+    pub fn read(&self) -> Result<T::Owned, ReadError> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
                         self.bytes_start .. self.bytes_end);
 
         unsafe {
-            match self.alloc.read_if_supported::<T>(self.bytes_start .. self.bytes_end) {
-                Err(_) => return None,
-                Ok(data) => Some(data)
-            }
+            self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
         }
     }
 
@@ -454,20 +419,9 @@ impl<'a, T> BufferViewSlice<'a, [T]> where [T]: Content + 'a {
 
 impl<'a, T> BufferViewSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read_as_texture_1d<S>(&self) -> S where S: Texture1dDataSink<T> {
-        S::from_raw(Cow::Owned(self.read()), self.len() as u32)
-    }
-
-    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
-    pub fn read_as_texture_1d_if_supported<S>(&self) -> Option<S> where S: Texture1dDataSink<T> {
-        self.read_if_supported().map(|data| {
-            S::from_raw(Cow::Owned(data), self.len() as u32)
-        })
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
 
@@ -596,18 +550,9 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     }
 
     /// Reads the content of the buffer.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read(&self) -> T::Owned {
-        self.read_if_supported().unwrap()
-    }
-
-    /// Reads the content of the slice. Returns `None` if this operation is not supported.
-    pub fn read_if_supported(&self) -> Option<T::Owned> {
+    pub fn read(&self) -> Result<T::Owned, ReadError> {
         unsafe {
-            match self.alloc.read_if_supported::<T>(self.bytes_start .. self.bytes_end) {
-                Err(_) => None,
-                Ok(data) => Some(data)
-            }
+            self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
         }
     }
 
@@ -647,20 +592,9 @@ impl<'a, T> BufferViewMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
 
 impl<'a, T> BufferViewMutSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read_as_texture_1d<S>(&self) -> S where S: Texture1dDataSink<T> {
-        S::from_raw(Cow::Owned(self.read()), self.len() as u32)
-    }
-
-    /// Reads the content of the subbuffer. Returns `None` if this operation is not supported.
-    pub fn read_as_texture_1d_if_supported<S>(&self) -> Option<S> where S: Texture1dDataSink<T> {
-        self.read_if_supported().map(|data| {
-            S::from_raw(Cow::Owned(data), self.len() as u32)
-        })
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
 
@@ -730,15 +664,10 @@ impl BufferViewAny {
     /// Panicks if the size of the buffer is not a multiple of the size of the data.
     /// For example, trying to read some `(u8, u8, u8, u8)`s from a buffer of 7 bytes will panic.
     ///
-    pub unsafe fn read_if_supported<T>(&self) -> Option<T::Owned> where T: Content {
+    pub unsafe fn read<T>(&self) -> Result<T::Owned, ReadError> where T: Content {
         // TODO: add check
-
         self.fence.wait(&mut self.alloc.get_context().make_current(), 0 .. self.get_size());
-
-        match self.alloc.read_if_supported::<T>(0 .. self.get_size()) {
-            Err(_) => return None,
-            Ok(data) => Some(data)
-        }
+        self.alloc.read::<T>(0 .. self.get_size())
     }
 }
 

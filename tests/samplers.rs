@@ -59,7 +59,7 @@ fn magnify_nearest_filtering() {
         }).unwrap();
 
     let texture_data = vec![vec![(0u8, 0, 0), (255, 255, 255)]];
-    let texture = glium::texture::Texture2d::new(&display, texture_data);
+    let texture = glium::texture::Texture2d::new(&display, texture_data).unwrap();
 
     let uniforms = uniform! {
         texture: texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)

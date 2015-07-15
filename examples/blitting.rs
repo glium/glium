@@ -32,12 +32,13 @@ fn main() {
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
         image::PNG).unwrap();
-    let opengl_texture = glium::Texture2d::new(&display, image);
+    let opengl_texture = glium::Texture2d::new(&display, image).unwrap();
 
     // building a 1024x1024 empty texture
-    let dest_texture = glium::Texture2d::new_empty(&display, glium::texture::
-                                                             UncompressedFloatFormat::U8U8U8U8,
-                                                   1024, 1024);
+    let dest_texture = glium::Texture2d::empty_with_format(&display,
+                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
+                                               glium::texture::MipmapsOption::NoMipmap,
+                                               1024, 1024).unwrap();
     dest_texture.as_surface().clear_color(0.0, 0.0, 0.0, 1.0);
 
     // the main loop

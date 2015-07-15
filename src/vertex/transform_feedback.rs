@@ -83,7 +83,7 @@ use gl;
 ///     display.draw().draw(&vb, &ib, &program, &uniform!{}, &params).unwrap();
 /// }
 ///
-/// let result: Vec<Vertex> = out_buffer.read_if_supported().unwrap();
+/// let result: Vec<Vertex> = out_buffer.read().unwrap();
 /// println!("List of generated vertices: {:?}", result);
 /// # }
 /// ```

@@ -52,9 +52,18 @@ impl ToGlEnum for QueryType {
     }
 }
 
+/// Error that can happen when creating a query object.
+#[derive(Copy, Clone, Debug)]
+pub enum QueryCreationError {
+    /// The given query type is not supported.
+    NotSupported,
+}
+
 impl RawQuery {
     /// Builds a new query. Returns `None` if the backend doesn't support this type.
-    pub fn new_if_supported<F>(facade: &F, ty: QueryType) -> Option<RawQuery> where F: Facade {
+    pub fn new<F>(facade: &F, ty: QueryType) -> Result<RawQuery, QueryCreationError>
+                  where F: Facade
+    {
         let context = facade.get_context().clone();
         let ctxt = facade.get_context().make_current();
 
@@ -71,7 +80,7 @@ impl RawQuery {
                     QueryType::AnySamplesPassedConservative if
                             ctxt.extensions.gl_arb_es3_compatibility ||
                             ctxt.version >= &Version(Api:: Gl, 4, 3) => (),
-                    _ => return None
+                    _ => return Err(QueryCreationError::NotSupported)
                 };
 
                 if ctxt.version >= &Version(Api:: Gl, 4, 5) ||
@@ -90,7 +99,7 @@ impl RawQuery {
                     QueryType::AnySamplesPassedConservative if ctxt.extensions.gl_arb_es3_compatibility => (),
                     QueryType::TimeElapsed if ctxt.extensions.gl_arb_timer_query => (),
 
-                    _ => return None
+                    _ => return Err(QueryCreationError::NotSupported)
                 };
 
                 ctxt.gl.GenQueries(1, &mut id);
@@ -103,7 +112,7 @@ impl RawQuery {
                     QueryType::PrimitivesGenerated if ctxt.extensions.gl_ext_transform_feedback => (),
                     QueryType::TransformFeedbackPrimitivesWritten if ctxt.extensions.gl_ext_transform_feedback => (),
                     QueryType::TimeElapsed if ctxt.extensions.gl_arb_timer_query => (),
-                    _ => return None
+                    _ => return Err(QueryCreationError::NotSupported)
                 };
 
                 if ctxt.version >= &Version(Api::Gl, 1, 5) {
@@ -118,7 +127,7 @@ impl RawQuery {
                 match ty {
                     QueryType::AnySamplesPassed | QueryType::AnySamplesPassedConservative |
                     QueryType::TransformFeedbackPrimitivesWritten => (),
-                    _ => return None
+                    _ => return Err(QueryCreationError::NotSupported)
                 };
 
                 ctxt.gl.GenQueries(1, &mut id);
@@ -126,19 +135,19 @@ impl RawQuery {
             } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
                 match ty {
                     QueryType::AnySamplesPassed | QueryType::AnySamplesPassedConservative => (),
-                    _ => return None
+                    _ => return Err(QueryCreationError::NotSupported)
                 };
 
                 ctxt.gl.GenQueriesEXT(1, &mut id);
 
             } else {
-                return None;
+                return Err(QueryCreationError::NotSupported);
             }
 
             id
         };
 
-        Some(RawQuery {
+        Ok(RawQuery {
             context: context,
             id: id,
             ty: ty,
@@ -712,10 +721,9 @@ pub struct SamplesPassedQuery {
 }
 
 impl SamplesPassedQuery {
-    /// Builds a new query. Returns `None` if the backend doesn't support this type.
-    pub fn new_if_supported<F>(facade: &F) -> Option<SamplesPassedQuery> where F: Facade {
-        RawQuery::new_if_supported(facade, QueryType::SamplesPassed)
-                .map(|q| SamplesPassedQuery { query: q })
+    /// Builds a new query.
+    pub fn new<F>(facade: &F) -> Result<SamplesPassedQuery, QueryCreationError> where F: Facade {
+        RawQuery::new(facade, QueryType::SamplesPassed).map(|q| SamplesPassedQuery { query: q })
     }
 }
 
@@ -731,10 +739,9 @@ pub struct TimeElapsedQuery {
 }
 
 impl TimeElapsedQuery {
-    /// Builds a new query. Returns `None` if the backend doesn't support this type.
-    pub fn new_if_supported<F>(facade: &F) -> Option<TimeElapsedQuery> where F: Facade {
-        RawQuery::new_if_supported(facade, QueryType::TimeElapsed)
-                .map(|q| TimeElapsedQuery { query: q })
+    /// Builds a new query.
+    pub fn new<F>(facade: &F) -> Result<TimeElapsedQuery, QueryCreationError> where F: Facade {
+        RawQuery::new(facade, QueryType::TimeElapsed).map(|q| TimeElapsedQuery { query: q })
     }
 }
 
@@ -757,27 +764,26 @@ pub struct AnySamplesPassedQuery {
 }
 
 impl AnySamplesPassedQuery {
-    /// Builds a new query. Returns `None` if the backend doesn't support this type.
+    /// Builds a new query.
     ///
     /// If you pass `true` for `conservative`, then OpenGL may use a less accurate algorithm,
     /// leading to a faster result but with more false positives.
-    pub fn new_if_supported<F>(facade: &F, conservative: bool) -> Option<AnySamplesPassedQuery>
-                               where F: Facade
+    pub fn new<F>(facade: &F, conservative: bool)
+                  -> Result<AnySamplesPassedQuery, QueryCreationError>
+                  where F: Facade
     {
         if conservative {
-            if let Some(q) = RawQuery::new_if_supported(facade,
-                                                        QueryType::AnySamplesPassedConservative)
-            {
-                return Some(AnySamplesPassedQuery { query: q });
+            if let Ok(q) = RawQuery::new(facade, QueryType::AnySamplesPassedConservative) {
+                return Ok(AnySamplesPassedQuery { query: q });
             }
         }
 
-        if let Some(q) = RawQuery::new_if_supported(facade, QueryType::AnySamplesPassed) {
-            return Some(AnySamplesPassedQuery { query: q });
-        } else if let Some(q) = RawQuery::new_if_supported(facade, QueryType::SamplesPassed) {
-            return Some(AnySamplesPassedQuery { query: q });
+        if let Ok(q) = RawQuery::new(facade, QueryType::AnySamplesPassed) {
+            return Ok(AnySamplesPassedQuery { query: q });
+        } else if let Ok(q) = RawQuery::new(facade, QueryType::SamplesPassed) {
+            return Ok(AnySamplesPassedQuery { query: q });
         } else {
-            return None;
+            return Err(QueryCreationError::NotSupported);
         }
     }
 }
@@ -792,10 +798,12 @@ pub struct PrimitivesGeneratedQuery {
 }
 
 impl PrimitivesGeneratedQuery {
-    /// Builds a new query. Returns `None` if the backend doesn't support this type.
-    pub fn new_if_supported<F>(facade: &F) -> Option<PrimitivesGeneratedQuery> where F: Facade {
-        RawQuery::new_if_supported(facade, QueryType::PrimitivesGenerated)
-                .map(|q| PrimitivesGeneratedQuery { query: q })
+    /// Builds a new query.
+    pub fn new<F>(facade: &F) -> Result<PrimitivesGeneratedQuery, QueryCreationError>
+                  where F: Facade
+    {
+        RawQuery::new(facade, QueryType::PrimitivesGenerated)
+                                                    .map(|q| PrimitivesGeneratedQuery { query: q })
     }
 }
 
@@ -808,12 +816,12 @@ pub struct TransformFeedbackPrimitivesWrittenQuery {
 }
 
 impl TransformFeedbackPrimitivesWrittenQuery {
-    /// Builds a new query. Returns `None` if the backend doesn't support this type.
-    pub fn new_if_supported<F>(facade: &F) -> Option<TransformFeedbackPrimitivesWrittenQuery>
-                               where F: Facade
+    /// Builds a new query.
+    pub fn new<F>(facade: &F) -> Result<TransformFeedbackPrimitivesWrittenQuery, QueryCreationError>
+                  where F: Facade
     {
-        RawQuery::new_if_supported(facade, QueryType::TransformFeedbackPrimitivesWritten)
-                .map(|q| TransformFeedbackPrimitivesWrittenQuery { query: q })
+        RawQuery::new(facade, QueryType::TransformFeedbackPrimitivesWritten)
+                                     .map(|q| TransformFeedbackPrimitivesWrittenQuery { query: q })
     }
 }
 

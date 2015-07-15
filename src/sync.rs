@@ -10,6 +10,10 @@ use std::rc::Rc;
 
 use std::thread;
 
+/// Error that happens when sync functionnalities are not supported.
+#[derive(Copy, Clone, Debug)]
+pub struct SyncNotSupportedError;
+
 /// Provides a way to wait for a server-side operation to be finished.
 ///
 /// Creating a `SyncFence` injects an element in the commands queue of the backend.
@@ -20,7 +24,7 @@ use std::thread;
 /// ```no_run
 /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
 /// # fn do_something<T>(_: &T) {}
-/// let fence = glium::SyncFence::new_if_supported(&display).unwrap();
+/// let fence = glium::SyncFence::new(&display).unwrap();
 /// do_something(&display);
 /// fence.wait();   // blocks until the previous operations have finished
 /// ```
@@ -31,23 +35,9 @@ pub struct SyncFence {
 
 impl SyncFence {
     /// Builds a new `SyncFence` that is injected in the server.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_sync` feature is enabled.
-    #[cfg(feature = "gl_sync")]
-    pub fn new<F>(facade: &F) -> SyncFence where F: Facade {
-        SyncFence::new_if_supported(facade).unwrap()
-    }
-
-    /// Builds a new `SyncFence` that is injected in the server.
-    ///
-    /// Returns `None` is this is not supported by the backend.
-    pub fn new_if_supported<F>(facade: &F) -> Option<SyncFence> where F: Facade {
+    pub fn new<F>(facade: &F) -> Result<SyncFence, SyncNotSupportedError> where F: Facade {
         let mut ctxt = facade.get_context().make_current();
-
-        unsafe { new_linear_sync_fence_if_supported(&mut ctxt) }
-            .map(|f| f.into_sync_fence(facade))
+        unsafe { new_linear_sync_fence(&mut ctxt) }.map(|f| f.into_sync_fence(facade))
     }
 
     /// Blocks until the operation has finished on the server.
@@ -106,30 +96,23 @@ impl Drop for LinearSyncFence {
     }
 }
 
-#[cfg(feature = "gl_sync")]
-pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext) -> LinearSyncFence {
-    LinearSyncFence {
-        id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
-    }
-}
-
-pub unsafe fn new_linear_sync_fence_if_supported(ctxt: &mut CommandContext)
-                                                 -> Option<LinearSyncFence>
+pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext)
+                                    -> Result<LinearSyncFence, SyncNotSupportedError>
 {
     if ctxt.version >= &Version(Api::Gl, 3, 2) ||
        ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
     {
-        Some(LinearSyncFence {
+        Ok(LinearSyncFence {
             id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
         })
 
     } else if ctxt.extensions.gl_apple_sync {
-        Some(LinearSyncFence {
+        Ok(LinearSyncFence {
             id: Some(ctxt.gl.FenceSyncAPPLE(gl::SYNC_GPU_COMMANDS_COMPLETE_APPLE, 0)),
         })
 
     } else {
-        None
+        Err(SyncNotSupportedError)
     }
 }
 

@@ -12,7 +12,7 @@ use backend::Facade;
 
 use GlObject;
 use BufferViewExt;
-use buffer::{BufferView, BufferType};
+use buffer::{ReadError, BufferView, BufferType};
 use gl;
 
 use texture::PixelValue;
@@ -37,22 +37,10 @@ impl<T> PixelBuffer<T> where T: PixelValue {
     }
 
     /// Reads the content of the pixel buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_read_buffer` feature is enabled.
-    #[cfg(feature = "gl_read_buffer")]
-    pub fn read_as_texture_2d<S>(&self) -> S where S: Texture2dDataSink<T> {
+    pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError> where S: Texture2dDataSink<T> {
         let dimensions = self.dimensions.get().expect("The pixel buffer is empty");
-        S::from_raw(Cow::Owned(self.read()), dimensions.0, dimensions.1)
-    }
-
-    /// Reads the content of the pixel buffer. Returns `None` if this operation is not supported.
-    pub fn read_as_texture_2d_if_supported<S>(&self) -> Option<S> where S: Texture2dDataSink<T> {
-        let dimensions = self.dimensions.get().expect("The pixel buffer is empty");
-        self.read_if_supported().map(|data| {
-            S::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
-        })
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
     }
 }
 

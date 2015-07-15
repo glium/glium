@@ -114,10 +114,8 @@ fn main() {
 
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
-        target.draw((&vertex_buffer, per_instance.per_instance_if_supported().unwrap()),
-                    &indices, &program, &uniform!{
-                        matrix: camera.get_perspective()
-                    },
+        target.draw((&vertex_buffer, per_instance.per_instance().unwrap()),
+                    &indices, &program, &uniform! { matrix: camera.get_perspective() },
                     &params).unwrap();
         target.finish().unwrap();
 

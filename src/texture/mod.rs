@@ -63,8 +63,8 @@ pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, Uncompres
 pub use image_format::{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat};
 pub use image_format::{CompressedSrgbFormat, SrgbFormat};
 pub use self::any::{TextureAny, TextureAnyMipmap, Dimensions};
-pub use self::bindless::{ResidentTexture, TextureHandle};
-pub use self::get_format::{InternalFormat, InternalFormatType};
+pub use self::bindless::{ResidentTexture, TextureHandle, BindlessTexturesNotSupportedError};
+pub use self::get_format::{InternalFormat, InternalFormatType, GetFormatError};
 pub use self::pixel::PixelValue;
 
 mod any;
@@ -525,24 +525,17 @@ impl<P> Texture3dDataSink<P> for Vec<Vec<Vec<P>>> where P: Copy + Clone {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextureCreationError {
     /// The requested format is not supported by the backend.
-    UnsupportedFormat,
+    FormatNotSupported,
 
     /// The requested texture dimensions are not supported.
     DimensionsNotSupported,
+
+    /// The texture format is not supported by the backend.
+    TypeNotSupported,
 }
 
-/// Error that can happen when creating a texture which we don't know whether it is supported.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TextureMaybeSupportedCreationError {
-    /// The texture type is supported, but a `TextureCreationError` happened.
-    CreationError(TextureCreationError),
-
-    /// The texture type is not supported by the backend.
-    NotSupported,
-}
-
-impl From<FormatNotSupportedError> for TextureMaybeSupportedCreationError {
-    fn from(_: FormatNotSupportedError) -> TextureMaybeSupportedCreationError {
-        TextureMaybeSupportedCreationError::NotSupported
+impl From<FormatNotSupportedError> for TextureCreationError {
+    fn from(_: FormatNotSupportedError) -> TextureCreationError {
+        TextureCreationError::FormatNotSupported
     }
 }

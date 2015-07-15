@@ -485,9 +485,9 @@ fn instancing() {
         )
     };
 
-    let buffer2 = match buffer2.per_instance_if_supported() {
-        Some(b) => b,
-        None => return
+    let buffer2 = match buffer2.per_instance() {
+        Ok(b) => b,
+        Err(_) => return
     };
 
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
@@ -582,9 +582,9 @@ fn per_instance_length_mismatch() {
         )
     };
 
-    let buffer2 = match buffer2.per_instance_if_supported() {
-        Some(b) => b,
-        None => return
+    let buffer2 = match buffer2.per_instance() {
+        Ok(b) => b,
+        Err(_) => return
     };
 
     let buffer3 = {
@@ -604,9 +604,9 @@ fn per_instance_length_mismatch() {
         )
     };
 
-    let buffer3 = match buffer3.per_instance_if_supported() {
-        Some(b) => b,
-        None => return
+    let buffer3 = match buffer3.per_instance() {
+        Ok(b) => b,
+        Err(_) => return
     };
 
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,

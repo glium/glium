@@ -16,7 +16,7 @@
 //!
 pub use self::view::{BufferView, BufferViewAny, BufferViewMutSlice};
 pub use self::view::{BufferViewSlice, BufferViewAnySlice};
-pub use self::alloc::{Mapping, WriteMapping, ReadMapping};
+pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, is_buffer_read_supported};
 pub use self::fences::Inserter;
 
 use gl;

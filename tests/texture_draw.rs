@@ -39,7 +39,7 @@ macro_rules! texture_draw_test {
                 Err(_) => return
             };
 
-            let texture = glium::texture::$tex_ty::empty(&display, $($dims),+);
+            let texture = glium::texture::$tex_ty::empty(&display, $($dims),+).unwrap();
 
             texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
             texture.as_surface().draw(&vb, &ib, &program, &uniform!{ texture: &texture },

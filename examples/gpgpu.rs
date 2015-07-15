@@ -40,7 +40,7 @@ fn main() {
     const NUM_VALUES: usize = 4096;
 
     let mut buffer: glium::uniforms::UniformBuffer<Data> =
-glium::uniforms::UniformBuffer::empty_unsized_if_supported(&display, 4 + 4 * NUM_VALUES).unwrap();
+              glium::uniforms::UniformBuffer::empty_unsized(&display, 4 + 4 * NUM_VALUES).unwrap();
 
     {
         let mut mapping = buffer.map();

@@ -25,7 +25,7 @@ use RawUniformValue;
 use QueryExt;
 use draw_parameters::TimeElapsedQuery;
 
-use program::{ProgramCreationError, Binary};
+use program::{ProgramCreationError, Binary, GetBinaryError};
 use program::uniforms_storage::UniformsStorage;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
@@ -232,20 +232,7 @@ impl RawProgram {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_program_binary` feature is enabled.
-    #[cfg(feature = "gl_program_binary")]
-    pub fn get_binary(&self) -> Binary {
-        self.get_binary_if_supported().unwrap()
-    }
-
-    /// Returns the program's compiled binary.
-    ///
-    /// Same as `get_binary` but always available. Returns `None` if the backend doesn't support
-    /// getting or reloading the program's binary.
-    pub fn get_binary_if_supported(&self) -> Option<Binary> {
+    pub fn get_binary(&self) -> Result<Binary, GetBinaryError> {
         unsafe {
             let ctxt = self.context.make_current();
 
@@ -266,13 +253,13 @@ impl RawProgram {
                                          storage.as_mut_ptr() as *mut libc::c_void);
                 storage.set_len(buf_len as usize);
 
-                Some(Binary {
+                Ok(Binary {
                     format: format,
                     content: storage,
                 })
 
             } else {
-                None
+                Err(GetBinaryError::NotSupported)
             }
         }
     }

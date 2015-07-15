@@ -9,9 +9,9 @@ mod support;
 fn query_sequence() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::SamplesPassedQuery::new_if_supported(&display) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::SamplesPassedQuery::new(&display) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -37,9 +37,9 @@ fn query_sequence() {
 fn samples_passed() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::SamplesPassedQuery::new_if_supported(&display) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::SamplesPassedQuery::new(&display) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -65,9 +65,9 @@ fn samples_passed() {
 fn any_samples_passed() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, false) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, false) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -85,11 +85,7 @@ fn any_samples_passed() {
 
     assert!(query.get());
 
-    let query2 = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, false) {
-        Some(q) => q,
-        None => return
-    };
-
+    let query2 = glium::draw_parameters::AnySamplesPassedQuery::new(&display, false).unwrap();
     assert!(!query2.get());
 
     display.assert_no_error(None);
@@ -99,9 +95,9 @@ fn any_samples_passed() {
 fn any_samples_passed_conservative() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, true) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, true) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -119,11 +115,7 @@ fn any_samples_passed_conservative() {
 
     assert!(query.get());
 
-    let query2 = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, true) {
-        Some(q) => q,
-        None => return
-    };
-
+    let query2 = glium::draw_parameters::AnySamplesPassedQuery::new(&display, true).unwrap();
     assert!(!query2.get());
 
     display.assert_no_error(None);
@@ -133,9 +125,9 @@ fn any_samples_passed_conservative() {
 fn time_elapsed() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::TimeElapsedQuery::new_if_supported(&display) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::TimeElapsedQuery::new(&display) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -162,9 +154,9 @@ fn time_elapsed() {
 fn primitives_generated() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::PrimitivesGeneratedQuery::new_if_supported(&display) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::PrimitivesGeneratedQuery::new(&display) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -195,9 +187,9 @@ fn primitives_generated() {
 fn conditional_render_nodraw() {
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, false) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, false) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -232,9 +224,9 @@ fn conditional_render_simultaneous_query() {
 
     let display = support::build_display();
 
-    let query = match glium::draw_parameters::AnySamplesPassedQuery::new_if_supported(&display, false) {
-        Some(q) => q,
-        None => return
+    let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, false) {
+        Err(_) => return,
+        Ok(q) => q
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);

@@ -164,32 +164,15 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
     /// geometry for each element in this buffer. The attributes are still passed to the
     /// vertex shader, but each entry is passed for each different instance.
-    ///
-    /// Returns `None` if the backend doesn't support instancing.
-    pub fn per_instance_if_supported(&self) -> Option<PerInstance> {
+    pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
             !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
         {
-            return None;
+            return Err(InstancingNotSupported);
         }
 
-        Some(PerInstance(self.buffer.as_slice_any(), &self.bindings))
-    }
-
-    /// Creates a marker that instructs glium to use multiple instances.
-    ///
-    /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
-    /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
-    /// geometry for each element in this buffer. The attributes are still passed to the
-    /// vertex shader, but each entry is passed for each different instance.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_instancing` feature is enabled.
-    #[cfg(feature = "gl_instancing")]
-    pub fn per_instance(&self) -> PerInstance {
-        self.per_instance_if_supported().unwrap()
+        Ok(PerInstance(self.buffer.as_slice_any(), &self.bindings))
     }
 }
 
@@ -295,32 +278,15 @@ impl VertexBufferAny {
     /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
     /// geometry for each element in this buffer. The attributes are still passed to the
     /// vertex shader, but each entry is passed for each different instance.
-    ///
-    /// Returns `None` if the backend doesn't support instancing.
-    pub fn per_instance_if_supported(&self) -> Option<PerInstance> {
+    pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
             !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
         {
-            return None;
+            return Err(InstancingNotSupported);
         }
 
-        Some(PerInstance(self.buffer.as_slice_any(), &self.bindings))
-    }
-
-    /// Creates a marker that instructs glium to use multiple instances.
-    ///
-    /// Instead of calling `surface.draw(&vertex_buffer, ...)` you can call
-    /// `surface.draw(vertex_buffer.per_instance(), ...)`. This will draw one instance of the
-    /// geometry for each element in this buffer. The attributes are still passed to the
-    /// vertex shader, but each entry is passed for each different instance.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_instancing` feature is enabled.
-    #[cfg(feature = "gl_instancing")]
-    pub fn per_instance(&self) -> PerInstance {
-        self.per_instance_if_supported().unwrap()
+        Ok(PerInstance(self.buffer.as_slice_any(), &self.bindings))
     }
 }
 
@@ -342,3 +308,7 @@ impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
+
+/// Instancing is not supported by the backend.
+#[derive(Debug, Copy, Clone)]
+pub struct InstancingNotSupported;

@@ -10,7 +10,7 @@ mod support;
 fn uniform_buffer_creation() {
     let display = support::build_display();
 
-    glium::uniforms::UniformBuffer::new_if_supported(&display, 12);
+    let _ = glium::uniforms::UniformBuffer::new(&display, 12);
 
     display.assert_no_error(None);
 }
@@ -19,9 +19,9 @@ fn uniform_buffer_creation() {
 fn uniform_buffer_mapping_read() {
     let display = support::build_display();
 
-    let mut vb = match glium::uniforms::UniformBuffer::new_if_supported(&display, 12) {
-        None => return,
-        Some(b) => b
+    let mut vb = match glium::uniforms::UniformBuffer::new(&display, 12) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     let mapping = vb.map();
@@ -34,9 +34,9 @@ fn uniform_buffer_mapping_read() {
 fn uniform_buffer_mapping_write() {
     let display = support::build_display();
 
-    let mut vb = match glium::uniforms::UniformBuffer::new_if_supported(&display, 6) {
-        None => return,
-        Some(b) => b
+    let mut vb = match glium::uniforms::UniformBuffer::new(&display, 6) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     {
@@ -54,14 +54,15 @@ fn uniform_buffer_mapping_write() {
 fn uniform_buffer_read() {
     let display = support::build_display();
 
-    let vb = match glium::uniforms::UniformBuffer::new_if_supported(&display, 12) {
-        None => return,
-        Some(b) => b
+    let vb = match glium::uniforms::UniformBuffer::new(&display, 12) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data, 12);
@@ -73,16 +74,17 @@ fn uniform_buffer_read() {
 fn uniform_buffer_write() {
     let display = support::build_display();
 
-    let vb = match glium::uniforms::UniformBuffer::new_if_supported(&display, 5) {
-        None => return,
-        Some(b) => b
+    let vb = match glium::uniforms::UniformBuffer::new(&display, 5) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     vb.write(&24);
 
-    let data = match vb.read_if_supported() {
-        Some(d) => d,
-        None => return
+    let data = match vb.read() {
+        Ok(r) => r,
+        Err(glium::buffer::ReadError::NotSupported) => return,
+        e => e.unwrap()
     };
 
     assert_eq!(data, 24);
@@ -133,9 +135,9 @@ fn block() {
 
     implement_uniform_block!(Data, color);
 
-    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, Data { color: (1.0f32, 1.0f32, 0.0f32) }) {
-        None => return,
-        Some(b) => b
+    let buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (1.0f32, 1.0f32, 0.0f32) }) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     let uniforms = uniform!{
@@ -192,9 +194,9 @@ fn block_wrong_type() {
         Err(_) => return
     };
 
-    let buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, 2) {
-        None => return,
-        Some(b) => b
+    let buffer = match glium::uniforms::UniformBuffer::new(&display, 2) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     let uniforms = uniform!{
@@ -219,9 +221,9 @@ fn block_wrong_type() {
 fn buffer_write() {
     let display = support::build_display();
 
-    let mut buf = match glium::uniforms::UniformBuffer::new_if_supported(&display, (5, 3)) {
-        None => return,
-        Some(b) => b
+    let mut buf = match glium::uniforms::UniformBuffer::new(&display, (5, 3)) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     {
@@ -278,9 +280,9 @@ fn persistent_block_race_condition() {
 
     implement_uniform_block!(Data, color);
 
-    let mut buffer = match glium::uniforms::UniformBuffer::new_if_supported(&display, Data { color: (0.5f32, 0.5f32, 0.5f32) }) {
-        None => return,
-        Some(b) => b
+    let mut buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (0.5f32, 0.5f32, 0.5f32) }) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     // checking for synchronization issues by quickly drawing and modifying the buffer
@@ -329,9 +331,9 @@ fn persistent_block_race_condition() {
 fn empty_uniform_buffer() {
     let display = support::build_display();
 
-    let _ = match glium::uniforms::UniformBuffer::new_if_supported(&display, ()) {
-        None => return,
-        Some(b) => b
+    let _ = match glium::uniforms::UniformBuffer::new(&display, ()) {
+        Err(_) => return,
+        Ok(b) => b
     };
 
     display.assert_no_error(None);

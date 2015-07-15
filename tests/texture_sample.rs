@@ -15,7 +15,7 @@ macro_rules! texture_sample_test {
             let texture = glium::texture::$tex_ty::new(&display, vec![
                 vec![(255, 0, 0, 255), (255, 0, 0, 255)],
                 vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
-            ]);
+            ]).unwrap();
 
             let program = glium::Program::from_source(&display,
                 "
@@ -77,11 +77,11 @@ fn bindless_texture() {
     let texture = glium::texture::Texture2d::new(&display, vec![
         vec![(255, 0, 0, 255), (255, 0, 0, 255)],
         vec![(255, 0, 0, 255), (255, 0, 0, 255u8)],
-    ]);
+    ]).unwrap();
 
-    let texture = match texture.resident_if_supported() {
-        Some(t) => t,
-        None => return
+    let texture = match texture.resident() {
+        Ok(t) => t,
+        Err(_) => return
     };
 
     // if bindless textures are supported, we can call .unwrap() and expect that everything
@@ -113,7 +113,7 @@ fn bindless_texture() {
         ",
         None).unwrap();
 
-    let buffer = glium::uniforms::UniformBuffer::new_if_supported(&display,
+    let buffer = glium::uniforms::UniformBuffer::new(&display,
                                             glium::texture::TextureHandle::new(&texture, &Default::default())).unwrap();
 
     let output = support::build_renderable_texture(&display);

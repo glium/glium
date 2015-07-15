@@ -4,6 +4,8 @@ use std::sync::Mutex;
 use CapabilitiesSource;
 
 use gl;
+use version::Api;
+use version::Version;
 
 pub use self::compute::ComputeShader;
 pub use self::program::Program;
@@ -25,6 +27,12 @@ pub fn is_geometry_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSo
 /// Returns true if the backend supports tessellation shaders.
 pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
     shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
+}
+
+/// Returns true if the backend supports creating and retreiving binary format.
+pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
+        || ctxt.get_extensions().gl_arb_get_programy_binary
 }
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
@@ -104,6 +112,12 @@ impl Error for ProgramCreationError {
     }
 }
 
+/// Error while retreiving the binary representation of a program.
+#[derive(Copy, Clone, Debug)]
+pub enum GetBinaryError {
+    /// The backend doesn't support binary.
+    NotSupported,
+}
 
 /// Input when creating a program.
 pub enum ProgramCreationInput<'a> {

@@ -132,8 +132,8 @@ impl<'a> FramebufferAttachments<'a> {
                 match a {
                     &Attachment::Texture { ref texture, level, layer } => {
                         if let Some(num_bits) = num_bits {
-                            *num_bits = Some(texture.get_internal_format_if_supported()
-                                               .map(|f| f.get_total_bits()).unwrap_or(24) as u16);     // TODO: how to handle this?
+                            *num_bits = Some(texture.get_internal_format()
+                                               .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
                         }
 
                         match dim {

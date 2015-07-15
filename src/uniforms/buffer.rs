@@ -20,47 +20,21 @@ pub struct TypelessUniformBuffer {
 
 impl<T> UniformBuffer<T> where T: Copy {
     /// Uploads data in the uniforms buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_uniform_blocks` feature is enabled.
-    #[cfg(feature = "gl_uniform_blocks")]
-    pub fn new<F>(facade: &F, data: T) -> UniformBuffer<T> where F: Facade {
-        UniformBuffer::new_if_supported(facade, data).unwrap()
-    }
+    pub fn new<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
+                  where F: Facade
+    {
+        let buffer = try!(BufferView::new(facade, &data, BufferType::UniformBuffer, true));
 
-    /// Uploads data in the uniforms buffer.
-    pub fn new_if_supported<F>(facade: &F, data: T) -> Option<UniformBuffer<T>> where F: Facade {
-        let buffer = match BufferView::new(facade, &data, BufferType::UniformBuffer, true) {
-            Ok(b) => b,
-            Err(BufferCreationError::BufferTypeNotSupported) => return None,
-            e @ Err(_) => e.unwrap(),
-        };
-
-        Some(UniformBuffer {
+        Ok(UniformBuffer {
             buffer: buffer,
         })
     }
 
     /// Creates an empty buffer.
-    ///
-    /// # Features
-    ///
-    /// Only available if the `gl_uniform_blocks` feature is enabled.
-    #[cfg(feature = "gl_uniform_blocks")]
-    pub fn empty<F>(facade: &F) -> UniformBuffer<T> where F: Facade {
-        UniformBuffer::empty_if_supported(facade).unwrap()
-    }
+    pub fn empty<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError> where F: Facade {
+        let buffer = try!(BufferView::empty(facade, BufferType::UniformBuffer, true));
 
-    /// Creates an empty buffer.
-    pub fn empty_if_supported<F>(facade: &F) -> Option<UniformBuffer<T>> where F: Facade {
-        let buffer = match BufferView::empty(facade, BufferType::UniformBuffer, true) {
-            Ok(b) => b,
-            Err(BufferCreationError::BufferTypeNotSupported) => return None,
-            e @ Err(_) => e.unwrap(),
-        };
-
-        Some(UniformBuffer {
+        Ok(UniformBuffer {
             buffer: buffer,
         })
     }
@@ -73,29 +47,13 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// Panicks if the size passed as parameter is not suitable for the type of data.
     ///
-    /// # Features
-    ///
-    /// Only available if the `gl_uniform_blocks` feature is enabled.
-    #[cfg(feature = "gl_uniform_blocks")]
-    pub fn empty_unsized<F>(facade: &F, size: usize) -> UniformBuffer<T> where F: Facade {
-        UniformBuffer::empty_unsized_if_supported(facade, size).unwrap()
-    }
-
-    /// Creates an empty buffer.
-    ///
-    /// # Panic
-    ///
-    /// Panicks if the size passed as parameter is not suitable for the type of data.
-    pub fn empty_unsized_if_supported<F>(facade: &F, size: usize)
-                                         -> Option<UniformBuffer<T>> where F: Facade
+    pub fn empty_unsized<F>(facade: &F, size: usize)
+                            -> Result<UniformBuffer<T>, BufferCreationError>
+                            where F: Facade
     {
-        let buffer = match BufferView::empty_unsized(facade, BufferType::UniformBuffer, size, true) {
-            Ok(b) => b,
-            Err(BufferCreationError::BufferTypeNotSupported) => return None,
-            e @ Err(_) => e.unwrap(),
-        };
+        let buffer = try!(BufferView::empty_unsized(facade, BufferType::UniformBuffer, size, true));
 
-        Some(UniformBuffer {
+        Ok(UniformBuffer {
             buffer: buffer,
         })
     }
