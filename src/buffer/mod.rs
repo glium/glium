@@ -118,7 +118,7 @@ unsafe impl<T> Content for [T] where T: Copy {
 }
 
 /// Error that can happen when creating a buffer.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum BufferCreationError {
     /// Not enough memory to create the buffer.
     OutOfMemory,

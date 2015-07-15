@@ -77,7 +77,7 @@ fn main() {
             ib_data.push(num * 4 + 2);
         }
 
-        (vb, glium::index::IndexBuffer::new(&display, PrimitiveType::TrianglesList, ib_data))
+        (vb, glium::index::IndexBuffer::new(&display, PrimitiveType::TrianglesList, ib_data).unwrap())
     };
 
     // we determine the texture coordinates depending on the ID the of vertex
