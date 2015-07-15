@@ -27,7 +27,7 @@ exclude = ["doc", ".travis.yml", "circle.yml"]
 default = ["glutin", "image", "nalgebra", "cgmath"]
 
 [dependencies.glutin]
-version = "0.2.0"
+version = "0.3"
 features = ["window"]
 optional = true
 
