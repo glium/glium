@@ -911,6 +911,10 @@ pub enum SwapBuffersError {
     /// sleep and wakes it up later. However any OpenGL implementation can theoretically lose the
     /// context at any time. Can only happen if calling `is_context_loss_possible()` returns true.
     ContextLost,
+    /// The buffers have already been swapped.
+    ///
+    /// This error can be returned when `set_finish()` is called multiple times, or `finish()` is
+    /// called after `set_finish()`.
     AlreadySwapped,
 }
 
