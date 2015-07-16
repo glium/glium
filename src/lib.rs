@@ -457,7 +457,7 @@ pub struct BlitTarget {
 ///
 /// ## Step 4: Transform feedback (optional)
 ///
-/// TODO: 
+/// TODO:
 /// TODO: talk about `transform_feedback_primitives_written_query` as well
 ///
 /// ## Step 5: Vertex post-processing
@@ -911,13 +911,18 @@ pub enum SwapBuffersError {
     /// sleep and wakes it up later. However any OpenGL implementation can theoretically lose the
     /// context at any time. Can only happen if calling `is_context_loss_possible()` returns true.
     ContextLost,
+    /// The buffers have already been swapped.
+    ///
+    /// This error can be returned when `set_finish()` is called multiple times, or `finish()` is
+    /// called after `set_finish()`.
+    AlreadySwapped,
 }
 
 /// Implementation of `Surface`, targeting the default framebuffer.
 ///
 /// The back- and front-buffers are swapped when you call `finish`.
 ///
-/// You **must** call `finish` or the destructor will panic.
+/// You **must** call either `finish` or `set_finish` or else the destructor will panic.
 pub struct Frame {
     context: Rc<Context>,
     dimensions: (u32, u32),
@@ -934,10 +939,22 @@ impl Frame {
         }
     }
 
-    /// Stop drawing, and swap the buffers.
+    /// Stop drawing, swap the buffers, and consume the Frame.
     ///
     /// See the documentation of `SwapBuffersError` about what is being returned.
     pub fn finish(mut self) -> Result<(), SwapBuffersError> {
+        self.set_finish()
+    }
+
+    /// Stop drawing, swap the buffers.
+    ///
+    /// The Frame can now be dropped regularly.  Calling `finish()` or `set_finish()` again will
+    /// cause `Err(SwapBuffersError::AlreadySwapped)` to be returned.
+    pub fn set_finish(&mut self) -> Result<(), SwapBuffersError> {
+        if self.destroyed {
+            return Err(SwapBuffersError::AlreadySwapped);
+        }
+
         self.destroyed = true;
         self.context.swap_buffers()
     }
