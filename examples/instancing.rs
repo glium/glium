@@ -50,7 +50,7 @@ fn main() {
             }
         }).collect::<Vec<_>>();
 
-        glium::vertex::VertexBuffer::dynamic(&display, data).unwrap()
+        glium::vertex::VertexBuffer::dynamic(&display, &data).unwrap()
     };
 
     let program = glium::Program::from_source(&display,

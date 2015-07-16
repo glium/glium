@@ -19,7 +19,7 @@ fn buffer_immutable_creation() {
     implement_vertex!(Vertex, field1, field2);
 
     glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
             Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
@@ -42,7 +42,7 @@ fn buffer_dynamic_creation() {
     implement_vertex!(Vertex, field1, field2);
 
     glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
             Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
             Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
@@ -101,7 +101,7 @@ fn buffer_immutable_mapping_read() {
     implement_vertex!(Vertex, field1, field2);
 
     let mut vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -127,7 +127,7 @@ fn buffer_dynamic_mapping_read() {
     implement_vertex!(Vertex, field1, field2);
 
     let mut vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -153,7 +153,7 @@ fn buffer_immutable_mapping_write() {
     implement_vertex!(Vertex, field1, field2);
 
     let mut vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -184,7 +184,7 @@ fn buffer_dynamic_mapping_write() {
     implement_vertex!(Vertex, field1, field2);
 
     let mut vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -245,7 +245,7 @@ fn buffer_immutable_read() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -276,7 +276,7 @@ fn buffer_dynamic_read() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -307,7 +307,7 @@ fn buffer_immutable_read_slice() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -337,7 +337,7 @@ fn buffer_dynamic_read_slice() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -367,7 +367,7 @@ fn buffer_slice_out_of_bounds() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
         ]
@@ -391,7 +391,7 @@ fn buffer_immutable_write() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
@@ -429,7 +429,7 @@ fn buffer_dynamic_write() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
@@ -467,7 +467,7 @@ fn buffer_immutable_write_slice() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
@@ -502,7 +502,7 @@ fn buffer_dynamic_write_slice() {
     implement_vertex!(Vertex, field1, field2);
 
     let vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [ 0,  0], field2: [ 0,  0] },
         ]
@@ -536,7 +536,7 @@ fn zero_sized_immutable_buffer() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display, Vec::<Vertex>::new()).unwrap();
+    glium::VertexBuffer::new(&display, &Vec::<Vertex>::new()).unwrap();
 
     display.assert_no_error(None);
 }
@@ -553,7 +553,7 @@ fn zero_sized_dynamic_buffer() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display, Vec::<Vertex>::new()).unwrap();
+    glium::VertexBuffer::new(&display, &Vec::<Vertex>::new()).unwrap();
 
     display.assert_no_error(None);
 }
@@ -669,7 +669,7 @@ fn immutable_mapping_forget_then_draw() {
     implement_vertex!(Vertex, position);
 
     let mut vb = glium::VertexBuffer::new(&display,
-        vec![
+        &[
             Vertex { position: [-1.0,  1.0] },
             Vertex { position: [ 1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] },
@@ -831,7 +831,7 @@ fn dynamic_mapping_forget_then_draw() {
     implement_vertex!(Vertex, position);
 
     let mut vb = glium::VertexBuffer::dynamic(&display,
-        vec![
+        &[
             Vertex { position: [-1.0,  1.0] },
             Vertex { position: [ 1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] },

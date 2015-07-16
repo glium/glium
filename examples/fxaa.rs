@@ -39,7 +39,7 @@ mod fxaa {
                 context: facade.get_context().clone(),
 
                 vertex_buffer: glium::VertexBuffer::new(facade,
-                    vec![
+                    &[
                         SpriteVertex { position: [-1.0, -1.0], i_tex_coords: [0.0, 0.0] },
                         SpriteVertex { position: [-1.0,  1.0], i_tex_coords: [0.0, 1.0] },
                         SpriteVertex { position: [ 1.0,  1.0], i_tex_coords: [1.0, 1.0] },
@@ -48,7 +48,7 @@ mod fxaa {
                 ).unwrap(),
 
                 index_buffer: glium::index::IndexBuffer::new(facade,
-                    glium::index::PrimitiveType::TriangleStrip, vec![1 as u16, 2, 0, 3]).unwrap(),
+                    glium::index::PrimitiveType::TriangleStrip, &[1 as u16, 2, 0, 3]).unwrap(),
 
                 program: program!(facade,
                     100 => {

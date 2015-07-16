@@ -19,7 +19,7 @@ fn multiple_buffers_source() {
         implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { position: [-1.0,  1.0] },
                 Vertex { position: [ 1.0,  1.0] },
                 Vertex { position: [-1.0, -1.0] },
@@ -37,7 +37,7 @@ fn multiple_buffers_source() {
         implement_vertex!(Vertex, color);
 
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { color: [1.0, 0.0, 0.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
                 Vertex { color: [1.0, 0.0, 0.0] },
@@ -47,7 +47,7 @@ fn multiple_buffers_source() {
     };
 
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               vec![0u16, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         110 => {
@@ -160,13 +160,13 @@ fn slice_draw_indices() {
             ",
         }).unwrap();
 
-    let vb = glium::VertexBuffer::new(&display, vec![
+    let vb = glium::VertexBuffer::new(&display, &[
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          vec![0u16, 1, 2]).unwrap();
+                                          &[0u16, 1, 2]).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -228,7 +228,7 @@ fn slice_draw_noindices() {
             ",
         }).unwrap();
 
-    let vb = glium::VertexBuffer::new(&display, vec![
+    let vb = glium::VertexBuffer::new(&display, &[
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]).unwrap();
@@ -314,14 +314,14 @@ fn slice_draw_multiple() {
         }).unwrap();
 
     // the 3 last elements will be drawn
-    let vb1 = glium::VertexBuffer::new(&display, vec![
+    let vb1 = glium::VertexBuffer::new(&display, &[
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [-1.0, 1.0] },
         Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
         Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
     ]).unwrap();
 
     // the 3 last elements will be drawn
-    let vb2 = glium::VertexBuffer::new(&display, vec![
+    let vb2 = glium::VertexBuffer::new(&display, &[
         Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [-1.0, 1.0] },
         Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [-1.0, 1.0] },
         Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [1.0,  1.0] },
@@ -329,7 +329,7 @@ fn slice_draw_multiple() {
     ]).unwrap();
 
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          vec![2u16, 3, 4]).unwrap();
+                                          &[2u16, 3, 4]).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -429,7 +429,7 @@ fn attributes_marker_indices() {
     };
 
     let indices = glium::index::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                                 vec![0u16, 1, 2, 3]).unwrap();
+                                                 &[0u16, 1, 2, 3]).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
@@ -460,7 +460,7 @@ fn instancing() {
         implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { position: [-1.0,  1.0] },
                 Vertex { position: [ 1.0,  1.0] },
                 Vertex { position: [-1.0, -1.0] },
@@ -478,7 +478,7 @@ fn instancing() {
         implement_vertex!(Vertex, color);
 
         glium::vertex::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
@@ -493,7 +493,7 @@ fn instancing() {
     };
 
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               vec![0u16, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 3]).unwrap();
 
     let program = match glium::Program::from_source(&display,
         "
@@ -557,7 +557,7 @@ fn per_instance_length_mismatch() {
         implement_vertex!(Vertex, position);
 
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { position: [-1.0,  1.0] },
                 Vertex { position: [ 1.0,  1.0] },
                 Vertex { position: [-1.0, -1.0] },
@@ -575,7 +575,7 @@ fn per_instance_length_mismatch() {
         implement_vertex!(Vertex, color);
 
         glium::vertex::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
@@ -598,7 +598,7 @@ fn per_instance_length_mismatch() {
         implement_vertex!(Vertex, color);
 
         glium::vertex::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
                 Vertex { color: [0.0, 0.0, 1.0] },
@@ -612,7 +612,7 @@ fn per_instance_length_mismatch() {
     };
 
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               vec![0u16, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         110 => {
