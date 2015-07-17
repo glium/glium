@@ -283,7 +283,7 @@ fn cull_clockwise() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, vec![
+        glium::VertexBuffer::new(&display, &[
             Vertex { position: [-1.0,  1.0] },      // top-left
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
@@ -294,7 +294,7 @@ fn cull_clockwise() {
     // first triangle covers the top-left side of the screen and is clockwise
     // second triangle covers the bottom-right side of the screen and is ccw
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               vec![0u16, 1, 2, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         140 => {
@@ -381,7 +381,7 @@ fn cull_counterclockwise() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, vec![
+        glium::VertexBuffer::new(&display, &[
             Vertex { position: [-1.0,  1.0] },      // top-left
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
@@ -392,7 +392,7 @@ fn cull_counterclockwise() {
     // first triangle covers the top-left side of the screen and is clockwise
     // second triangle covers the bottom-right side of the screen and is ccw
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               vec![0u16, 1, 2, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         140 => {
@@ -479,7 +479,7 @@ fn cull_clockwise_trianglestrip() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, vec![
+        glium::VertexBuffer::new(&display, &[
             Vertex { position: [-1.0,  1.0] },      // top-left
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
@@ -489,7 +489,7 @@ fn cull_clockwise_trianglestrip() {
 
     // both triangles are clockwise
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               vec![0u16, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         140 => {
@@ -576,7 +576,7 @@ fn cull_counterclockwise_trianglestrip() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, vec![
+        glium::VertexBuffer::new(&display, &[
             Vertex { position: [-1.0,  1.0] },      // top-left
             Vertex { position: [ 1.0,  1.0] },      // top-right
             Vertex { position: [-1.0, -1.0] },      // bottom-left
@@ -586,7 +586,7 @@ fn cull_counterclockwise_trianglestrip() {
 
     // both triangles are clockwise
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               vec![0u16, 1, 2, 3]).unwrap();
+                                               &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         140 => {

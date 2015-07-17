@@ -18,9 +18,9 @@ fn attribute_types_mismatch() {
 
     implement_vertex!(Vertex, field1);
 
-    let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new()).unwrap();
+    let vertex_buffer = glium::VertexBuffer::new(&display, &Vec::<Vertex>::new()).unwrap();
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::Points,
-                                               Vec::<u16>::new()).unwrap();
+                                               &Vec::<u16>::new()).unwrap();
 
     let program = glium::Program::from_source(&display,
         // vertex shader
@@ -65,9 +65,9 @@ fn missing_attribute() {
 
     implement_vertex!(Vertex, field1);
 
-    let vertex_buffer = glium::VertexBuffer::new(&display, Vec::<Vertex>::new()).unwrap();
+    let vertex_buffer = glium::VertexBuffer::new(&display, &Vec::<Vertex>::new()).unwrap();
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::Points,
-                                               Vec::<u16>::new()).unwrap();
+                                               &Vec::<u16>::new()).unwrap();
 
     let program = glium::Program::from_source(&display,
         // vertex shader
@@ -113,11 +113,11 @@ macro_rules! attribute_test(
 
             implement_vertex!(Vertex, field1);
 
-            let vertex_buffer = glium::VertexBuffer::new(&display, vec![
+            let vertex_buffer = glium::VertexBuffer::new(&display, &[
                                                              Vertex { field1: $value }
                                                          ]).unwrap();
             let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::Points,
-                                                       vec![0u16]).unwrap();
+                                                       &[0u16]).unwrap();
 
             let program = program!(&display,
                 140 => {

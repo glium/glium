@@ -43,7 +43,7 @@ fn main() {
         implement_vertex!(Vertex, position, tex_coords);
 
         glium::VertexBuffer::new(&display, 
-            vec![
+            &[
                 Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 0.0] },
                 Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 1.0] },
                 Vertex { position: [ 1.0,  1.0], tex_coords: [1.0, 1.0] },
@@ -54,7 +54,7 @@ fn main() {
 
     // building the index buffer
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               vec![1 as u16, 2, 0, 3]).unwrap();
+                                               &[1 as u16, 2, 0, 3]).unwrap();
 
     // compiling shaders and linking them together
     let program = program!(&display,

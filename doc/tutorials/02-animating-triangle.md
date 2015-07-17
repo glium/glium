@@ -24,7 +24,7 @@ Our first approach will be to create a variable named `t` which represents the s
         let vertex2 = Vertex { position: [ 0.0 + t,  0.5] };
         let vertex3 = Vertex { position: [ 0.5 + t, -0.25] };
         let shape = vec![vertex1, vertex2, vertex3];
-        let vertex_buffer = glium::VertexBuffer::new(&display, shape).unwrap();
+        let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
         // drawing
         let mut target = display.draw();
@@ -59,7 +59,7 @@ Let's reset our program to what it was at the end of the first tutorial, but kee
     let vertex3 = Vertex { position: [ 0.5, -0.25] };
     let shape = vec![vertex1, vertex2, vertex3];
 
-    let vertex_buffer = glium::VertexBuffer::new(&display, shape).unwrap();
+    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
     let mut t = -0.5;
 
@@ -187,7 +187,7 @@ Here is the final code of our `src/main.rs` file:
         let vertex3 = Vertex { position: [ 0.5, -0.25] };
         let shape = vec![vertex1, vertex2, vertex3];
 
-        let vertex_buffer = glium::VertexBuffer::new(&display, shape).unwrap();
+        let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         let vertex_shader_src = r#"

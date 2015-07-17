@@ -41,7 +41,7 @@ fn main() {
         implement_vertex!(Vertex, position, tex_coords);
 
         glium::VertexBuffer::new(&display, 
-            vec![
+            &[
                 Vertex { position: [-0.5,  0.5, 3.0], tex_coords: [1.0, 1.0] },
                 Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
                 Vertex { position: [-0.5, -0.5, 3.0], tex_coords: [1.0, 0.0] },

@@ -26,7 +26,7 @@ fn main() {
         implement_vertex!(Vertex, position, color);
 
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
                 Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
                 Vertex { position: [ 0.5, -0.5], color: [1.0, 0.0, 0.0] },
@@ -36,7 +36,7 @@ fn main() {
 
     // building the index buffer
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               vec![0u16, 1, 2]).unwrap();
+                                               &[0u16, 1, 2]).unwrap();
 
     // compiling shaders and linking them together
     let program = program!(&display,

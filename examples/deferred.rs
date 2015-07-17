@@ -45,7 +45,7 @@ fn main() {
         implement_vertex!(Vertex, position, normal, texcoord);
         
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { position: [-1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 0.0] },
                 Vertex { position: [1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
                 Vertex { position: [1.0, 0.0, 1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [0.0, 1.0] },
@@ -55,7 +55,7 @@ fn main() {
     };
 
     let floor_index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                                     vec![0u16, 1, 2, 0, 2, 3]).unwrap();
+                                                     &[0u16, 1, 2, 0, 2, 3]).unwrap();
 
     let quad_vertex_buffer = {
         #[derive(Copy, Clone)]
@@ -67,7 +67,7 @@ fn main() {
         implement_vertex!(Vertex, position, texcoord);
         
         glium::VertexBuffer::new(&display,
-            vec![
+            &[
                 Vertex { position: [0.0, 0.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
                 Vertex { position: [800.0, 0.0, 0.0, 1.0], texcoord: [1.0, 0.0] },
                 Vertex { position: [800.0, 500.0, 0.0, 1.0], texcoord: [1.0, 1.0] },
@@ -77,7 +77,7 @@ fn main() {
     };
 
     let quad_index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                                    vec![0u16, 1, 2, 0, 2, 3]).unwrap();
+                                                    &[0u16, 1, 2, 0, 2, 3]).unwrap();
 
     // compiling shaders and linking them together
     let prepass_program = glium::Program::from_source(&display,

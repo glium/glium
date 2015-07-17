@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - `VertexBuffer` and `IndexBuffer` constructors now take a `&[T]`.
  - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
  - Added `buffer::is_buffer_read_supported`.
  - Replaced all `new_if_supported` or `empty_if_supported` functions with `new` or `empty` and a proper error type.

@@ -62,37 +62,35 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// implement_vertex!(Vertex, position, texcoords);
     ///
     /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-    /// let vertex_buffer = glium::VertexBuffer::new(&display, vec![
+    /// let vertex_buffer = glium::VertexBuffer::new(&display, &[
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },
     /// ]);
     /// # }
     /// ```
     ///
-    pub fn new<F, D>(facade: &F, data: D) -> Result<VertexBuffer<T>, CreationError>
-                     where F: Facade, D: AsRef<[T]>
+    pub fn new<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
+                  where F: Facade
     {
         if !T::is_supported(facade) {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                    false));
+        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer, false));
         Ok(buffer.into())
     }
 
     /// Builds a new vertex buffer.
     ///
     /// This function will create a buffer that is intended to be modified frequently.
-    pub fn dynamic<F, D>(facade: &F, data: D) -> Result<VertexBuffer<T>, CreationError>
-                         where F: Facade, D: AsRef<[T]>
+    pub fn dynamic<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
+                      where F: Facade
     {
         if !T::is_supported(facade) {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::new(facade, data.as_ref(), BufferType::ArrayBuffer,
-                                    true));
+        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer, true));
         Ok(buffer.into())
     }
 
@@ -152,12 +150,12 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// ];
     ///
     /// let vertex_buffer = unsafe {
-    ///     glium::VertexBuffer::new_raw(&display, data, bindings, 3 * ::std::mem::size_of::<f32>())
+    ///     glium::VertexBuffer::new_raw(&display, &data, bindings, 3 * ::std::mem::size_of::<f32>())
     /// };
     /// # }
     /// ```
     ///
-    pub unsafe fn new_raw<F>(facade: &F, data: Vec<T>,
+    pub unsafe fn new_raw<F>(facade: &F, data: &[T],
                              bindings: VertexFormat, elements_size: usize)
                              -> Result<VertexBuffer<T>, CreationError>
                              where F: Facade
@@ -165,14 +163,13 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(BufferView::new(facade, &data[..], BufferType::ArrayBuffer,
-                                         false)),
+            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer, false)),
             bindings: bindings,
         })
     }
 
     /// Dynamic version of `new_raw`.
-    pub unsafe fn new_raw_dynamic<F>(facade: &F, data: Vec<T>,
+    pub unsafe fn new_raw_dynamic<F>(facade: &F, data: &[T],
                                      bindings: VertexFormat, elements_size: usize)
                                      -> Result<VertexBuffer<T>, CreationError>
                                      where F: Facade
@@ -180,8 +177,7 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(BufferView::new(facade, &data[..], BufferType::ArrayBuffer,
-                                         true)),
+            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer, true)),
             bindings: bindings,
         })
     }

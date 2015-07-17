@@ -10,7 +10,6 @@ use index::Index;
 use index::IndexType;
 use index::PrimitiveType;
 
-use std::convert::AsRef;
 use std::ops::{Deref, DerefMut, Range};
 
 /// Error that can happen while creating an index buffer.
@@ -41,9 +40,9 @@ pub struct IndexBuffer<T> where T: Index {
 
 impl<T> IndexBuffer<T> where T: Index {
     /// Builds a new index buffer from a list of indices and a primitive type.
-    pub fn new<F, D>(facade: &F, prim: PrimitiveType, data: D)
-                     -> Result<IndexBuffer<T>, CreationError>
-                     where F: Facade, D: AsRef<[T]>
+    pub fn new<F>(facade: &F, prim: PrimitiveType, data: &[T])
+                  -> Result<IndexBuffer<T>, CreationError>
+                  where F: Facade
     {
         if !prim.is_supported(facade) {
             return Err(CreationError::PrimitiveTypeNotSupported);
@@ -54,16 +53,16 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
+            buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer,
                                          false)).into(),
             primitives: prim,
         })
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
-    pub fn dynamic<F, D>(facade: &F, prim: PrimitiveType, data: D)
-                         -> Result<IndexBuffer<T>, CreationError>
-                         where F: Facade, D: AsRef<[T]>
+    pub fn dynamic<F>(facade: &F, prim: PrimitiveType, data: &[T])
+                      -> Result<IndexBuffer<T>, CreationError>
+                      where F: Facade
     {
         if !prim.is_supported(facade) {
             return Err(CreationError::PrimitiveTypeNotSupported);
@@ -74,7 +73,7 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(BufferView::new(facade, data.as_ref(), BufferType::ElementArrayBuffer,
+            buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer,
                                          true)).into(),
             primitives: prim,
         })

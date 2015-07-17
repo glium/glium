@@ -151,7 +151,7 @@ Which translates into this code:
 
 We now have our shape! There is a last step which consists in uploading this shape to the memory of our video card in what is called a *vertex buffer*, for faster access. Even though that is not strictly necessary, it is very easy to do so and it will make our draw operation considerably faster.
 
-    let vertex_buffer = glium::VertexBuffer::new(&display, shape).unwrap();
+    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
 More complex shapes consist of hundred or thousands of vertices. We not only need to have a list of vertices, but also a way to tell OpenGL how to link these vertices together to obtain triangles. Since we only have one triangle, this isn't really relevant for us, so we just create a dummy marker that we will pass to glium later on.
 
@@ -248,7 +248,7 @@ Here is the final code of our `src/main.rs` file:
         let vertex3 = Vertex { position: [ 0.5, -0.25] };
         let shape = vec![vertex1, vertex2, vertex3];
 
-        let vertex_buffer = glium::VertexBuffer::new(&display, shape).unwrap();
+        let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         let vertex_shader_src = r#"
