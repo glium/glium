@@ -45,25 +45,36 @@ impl<T> IndexBuffer<T> where T: Index {
                   -> Result<IndexBuffer<T>, CreationError>
                   where F: Facade
     {
-        if !prim.is_supported(facade) {
-            return Err(CreationError::PrimitiveTypeNotSupported);
-        }
-
-        if !T::is_supported(facade) {
-            return Err(CreationError::IndexTypeNotSupported);
-        }
-
-        Ok(IndexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer,
-                                         BufferMode::Default)).into(),
-            primitives: prim,
-        })
+        IndexBuffer::new_impl(facade, prim, data, BufferMode::Default)
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     pub fn dynamic<F>(facade: &F, prim: PrimitiveType, data: &[T])
                       -> Result<IndexBuffer<T>, CreationError>
                       where F: Facade
+    {
+        IndexBuffer::new_impl(facade, prim, data, BufferMode::Dynamic)
+    }
+
+    /// Builds a new index buffer from a list of indices and a primitive type.
+    pub fn persistent<F>(facade: &F, prim: PrimitiveType, data: &[T])
+                         -> Result<IndexBuffer<T>, CreationError>
+                         where F: Facade
+    {
+        IndexBuffer::new_impl(facade, prim, data, BufferMode::Persistent)
+    }
+
+    /// Builds a new index buffer from a list of indices and a primitive type.
+    pub fn immutable<F>(facade: &F, prim: PrimitiveType, data: &[T])
+                        -> Result<IndexBuffer<T>, CreationError>
+                        where F: Facade
+    {
+        IndexBuffer::new_impl(facade, prim, data, BufferMode::Immutable)
+    }
+
+    fn new_impl<F>(facade: &F, prim: PrimitiveType, data: &[T], mode: BufferMode)
+                   -> Result<IndexBuffer<T>, CreationError>
+                   where F: Facade
     {
         if !prim.is_supported(facade) {
             return Err(CreationError::PrimitiveTypeNotSupported);
@@ -74,8 +85,7 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer,
-                                         BufferMode::Dynamic)).into(),
+            buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer, mode)).into(),
             primitives: prim,
         })
     }
@@ -85,25 +95,36 @@ impl<T> IndexBuffer<T> where T: Index {
                     -> Result<IndexBuffer<T>, CreationError>
                     where F: Facade
     {
-        if !prim.is_supported(facade) {
-            return Err(CreationError::PrimitiveTypeNotSupported);
-        }
-
-        if !T::is_supported(facade) {
-            return Err(CreationError::IndexTypeNotSupported);
-        }
-
-        Ok(IndexBuffer {
-            buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 BufferMode::Default)).into(),
-            primitives: prim,
-        })
+        IndexBuffer::empty_impl(facade, prim, len, BufferMode::Default)
     }
 
     /// Builds a new empty index buffer.
     pub fn empty_dynamic<F>(facade: &F, prim: PrimitiveType, len: usize)
                             -> Result<IndexBuffer<T>, CreationError>
                             where F: Facade
+    {
+        IndexBuffer::empty_impl(facade, prim, len, BufferMode::Dynamic)
+    }
+
+    /// Builds a new empty index buffer.
+    pub fn empty_persistent<F>(facade: &F, prim: PrimitiveType, len: usize)
+                               -> Result<IndexBuffer<T>, CreationError>
+                               where F: Facade
+    {
+        IndexBuffer::empty_impl(facade, prim, len, BufferMode::Persistent)
+    }
+
+    /// Builds a new empty index buffer.
+    pub fn empty_immutable<F>(facade: &F, prim: PrimitiveType, len: usize)
+                              -> Result<IndexBuffer<T>, CreationError>
+                              where F: Facade
+    {
+        IndexBuffer::empty_impl(facade, prim, len, BufferMode::Immutable)
+    }
+
+    fn empty_impl<F>(facade: &F, prim: PrimitiveType, len: usize, mode: BufferMode)
+                     -> Result<IndexBuffer<T>, CreationError>
+                     where F: Facade
     {
         if !prim.is_supported(facade) {
             return Err(CreationError::PrimitiveTypeNotSupported);
@@ -115,7 +136,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
         Ok(IndexBuffer {
             buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 BufferMode::Dynamic)).into(),
+                                                 mode)).into(),
             primitives: prim,
         })
     }

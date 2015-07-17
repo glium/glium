@@ -4,6 +4,8 @@
 
  - `VertexBuffer` and `IndexBuffer` constructors now take a `&[T]`.
  - `BufferView`'s constructors now take a `BufferMode`.
+ - `new` and `dynamic` are now less specialized, which should fix some performance bottlenecks.
+ - All buffer constructors now come in four variants: `new`, `dynamic`, `persistent`, `immutable`.
  - All `new` and `empty` constructors now return an error if the operation is not supported.
  - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
  - Added `buffer::is_buffer_read_supported`.

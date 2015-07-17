@@ -72,13 +72,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     pub fn new<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
                   where F: Facade
     {
-        if !T::is_supported(facade) {
-            return Err(CreationError::FormatNotSupported);
-        }
-
-        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
-                                          BufferMode::Default));
-        Ok(buffer.into())
+        VertexBuffer::new_impl(facade, data, BufferMode::Default)
     }
 
     /// Builds a new vertex buffer.
@@ -87,12 +81,32 @@ impl<T> VertexBuffer<T> where T: Vertex {
     pub fn dynamic<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
                       where F: Facade
     {
+        VertexBuffer::new_impl(facade, data, BufferMode::Dynamic)
+    }
+
+    /// Builds a new vertex buffer.
+    pub fn persistent<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
+                         where F: Facade
+    {
+        VertexBuffer::new_impl(facade, data, BufferMode::Persistent)
+    }
+
+    /// Builds a new vertex buffer.
+    pub fn immutable<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
+                        where F: Facade
+    {
+        VertexBuffer::new_impl(facade, data, BufferMode::Immutable)
+    }
+
+    fn new_impl<F>(facade: &F, data: &[T], mode: BufferMode)
+                   -> Result<VertexBuffer<T>, CreationError>
+                   where F: Facade
+    {
         if !T::is_supported(facade) {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
-                                          BufferMode::Dynamic));
+        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer, mode));
         Ok(buffer.into())
     }
 
@@ -102,13 +116,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     pub fn empty<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
                     where F: Facade
     {
-        if !T::is_supported(facade) {
-            return Err(CreationError::FormatNotSupported);
-        }
-
-        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements,
-                                                  BufferMode::Default));
-        Ok(buffer.into())
+        VertexBuffer::empty_impl(facade, elements, BufferMode::Default)
     }
 
     /// Builds an empty vertex buffer.
@@ -117,12 +125,37 @@ impl<T> VertexBuffer<T> where T: Vertex {
     pub fn empty_dynamic<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
                             where F: Facade
     {
+        VertexBuffer::empty_impl(facade, elements, BufferMode::Dynamic)
+    }
+
+    /// Builds an empty vertex buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_persistent<F>(facade: &F, elements: usize)
+                               -> Result<VertexBuffer<T>, CreationError>
+                               where F: Facade
+    {
+        VertexBuffer::empty_impl(facade, elements, BufferMode::Persistent)
+    }
+
+    /// Builds an empty vertex buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_immutable<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
+                              where F: Facade
+    {
+        VertexBuffer::empty_impl(facade, elements, BufferMode::Immutable)
+    }
+
+    fn empty_impl<F>(facade: &F, elements: usize, mode: BufferMode)
+                     -> Result<VertexBuffer<T>, CreationError>
+                     where F: Facade
+    {
         if !T::is_supported(facade) {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements,
-                                                  BufferMode::Dynamic));
+        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, mode));
         Ok(buffer.into())
     }
 }
