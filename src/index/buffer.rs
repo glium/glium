@@ -1,4 +1,5 @@
-use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType, BufferCreationError};
+use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType};
+use buffer::{BufferMode, BufferCreationError};
 use gl;
 use BufferViewExt;
 use GlObject;
@@ -54,7 +55,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
         Ok(IndexBuffer {
             buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer,
-                                         false)).into(),
+                                         BufferMode::Default)).into(),
             primitives: prim,
         })
     }
@@ -74,7 +75,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
         Ok(IndexBuffer {
             buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer,
-                                         true)).into(),
+                                         BufferMode::Dynamic)).into(),
             primitives: prim,
         })
     }
@@ -94,7 +95,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
         Ok(IndexBuffer {
             buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 false)).into(),
+                                                 BufferMode::Default)).into(),
             primitives: prim,
         })
     }
@@ -114,7 +115,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
         Ok(IndexBuffer {
             buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 true)).into(),
+                                                 BufferMode::Dynamic)).into(),
             primitives: prim,
         })
     }

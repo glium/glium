@@ -12,7 +12,7 @@ use backend::Facade;
 
 use GlObject;
 use BufferViewExt;
-use buffer::{ReadError, BufferView, BufferType};
+use buffer::{ReadError, BufferView, BufferType, BufferMode};
 use gl;
 
 use texture::PixelValue;
@@ -31,7 +31,7 @@ impl<T> PixelBuffer<T> where T: PixelValue {
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
             buffer: BufferView::empty_array(facade, BufferType::PixelPackBuffer, capacity,
-                                            false).unwrap(),
+                                            BufferMode::Default).unwrap(),
             dimensions: Cell::new(None),
         }
     }

@@ -127,6 +127,86 @@ pub enum BufferCreationError {
     BufferTypeNotSupported,
 }
 
+/// How the buffer is created.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum BufferMode {
+    /// This is the default mode suitable for any usage. Will never be slow, will never be fast
+    /// either.
+    ///
+    /// Other modes should always be preferred, but you can use this one if you don't know what
+    /// will happen to the buffer.
+    ///
+    /// # Implementation
+    ///
+    /// Tries to use `glBufferStorage` with the `GL_DYNAMIC_STORAGE_BIT` flag.
+    ///
+    /// If this function is not available, falls back to `glBufferData` with `GL_STATIC_DRAW`.
+    ///
+    Default,
+
+    /// The mode to use when you modify a buffer multiple times per frame. Simiar to `Default` in
+    /// that it is suitable for most usages.
+    ///
+    /// Use this if you do a quick succession of modify the buffer, draw, modify, draw, etc. This
+    /// is something that you shouldn't do by the way.
+    ///
+    /// With this mode, the OpenGL driver automatically manages the buffer for us. It will try to
+    /// find the most appropriate storage depending on how we use it. It is guaranteed to never be
+    /// too slow, but it won't be too fast either.
+    ///
+    /// # Implementation
+    ///
+    /// Tries to use `glBufferStorage` with the `GL_DYNAMIC_STORAGE_BIT` and
+    /// `GL_CLIENT_STORAGE_BIT` flags.
+    ///
+    /// If this function is not available, falls back to `glBufferData` with `GL_DYNAMIC_DRAW`.
+    ///
+    Dynamic,
+
+    /// Optimized for when you modify a buffer exactly once per frame. You can modify it more than
+    /// once per frame, but if you modify it too often things will slow down.
+    ///
+    /// With this mode, glium automatically handles synchronization to prevent the buffer from
+    /// being access by both the GPU and the CPU simultaneously. If you try to modify the buffer,
+    /// the execution will block until the GPU has finished using it. For this reason, a quick
+    /// succession of modifying and drawing using the same buffer will be very slow.
+    ///
+    /// When using persistent mapping, it is recommended to use triple buffering. This is done by
+    /// creating a buffer that has three times the capacity that it would normally have. You modify
+    /// and draw the first third, then modify and draw the second third, then the last part, then
+    /// go back to the first third, etc.
+    ///
+    /// # Implementation
+    ///
+    /// Tries to use `glBufferStorage` with `GL_MAP_PERSISTENT_BIT`. Sync fences are automatically
+    /// managed by glium.
+    ///
+    /// If this function is not available, falls back to `glBufferData` with `GL_DYNAMIC_DRAW`.
+    ///
+    Persistent,
+
+    /// Optimized when you will never touch the content of the buffer.
+    ///
+    /// Immutable buffers should be created once and never touched again. Modifying their content
+    /// is permitted, but is very slow.
+    ///
+    /// # Implementation
+    ///
+    /// Tries to use `glBufferStorage` without any flag. Modifications are done by creating
+    /// temporary buffers and making the GPU copy the data from the temporary buffer to the real
+    /// one.
+    ///
+    /// If this function is not available, falls back to `glBufferData` with `GL_STATIC_DRAW`.
+    ///
+    Immutable,
+}
+
+impl Default for BufferMode {
+    fn default() -> BufferMode {
+        BufferMode::Default
+    }
+}
+
 /// Type of a buffer.
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
