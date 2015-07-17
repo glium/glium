@@ -18,6 +18,7 @@ use std::rc::Rc;
 use ContextExt;
 
 use buffer::BufferType;
+use buffer::BufferMode;
 use buffer::BufferCreationError;
 use buffer::Content;
 use buffer::fences::Fences;
@@ -40,17 +41,11 @@ pub struct BufferView<T: ?Sized> where T: Content {
 impl<T: ?Sized> BufferView<T> where T: Content {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
-    ///
-    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
-    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
-    ///
-    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
-    /// synchronizations manually.
-    pub fn new<F>(facade: &F, data: &T, ty: BufferType, dynamic: bool)
+    pub fn new<F>(facade: &F, data: &T, ty: BufferType, mode: BufferMode)
                   -> Result<BufferView<T>, BufferCreationError>
                   where F: Facade
     {
-        Buffer::new(facade, data, ty, dynamic)
+        Buffer::new(facade, data, ty, mode)
             .map(|buffer| {
                 BufferView {
                     alloc: Some(buffer),
@@ -61,18 +56,12 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     }
 
     /// Builds a new buffer of the given size.
-    ///
-    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
-    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
-    ///
-    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
-    /// synchronizations manually.
-    pub fn empty_unsized<F>(facade: &F, ty: BufferType, size: usize, dynamic: bool)
+    pub fn empty_unsized<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
                             -> Result<BufferView<T>, BufferCreationError> where F: Facade
     {
         assert!(<T as Content>::is_size_suitable(size));
 
-        Buffer::empty(facade, ty, size, dynamic)
+        Buffer::empty(facade, ty, size, mode)
             .map(|buffer| {
                 BufferView {
                     alloc: Some(buffer),
@@ -170,16 +159,10 @@ impl<T: ?Sized> BufferView<T> where T: Content {
 
 impl<T> BufferView<T> where T: Content + Copy {
     /// Builds a new buffer of the given size.
-    ///
-    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
-    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
-    ///
-    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
-    /// synchronizations manually.
-    pub fn empty<F>(facade: &F, ty: BufferType, dynamic: bool)
+    pub fn empty<F>(facade: &F, ty: BufferType, mode: BufferMode)
                     -> Result<BufferView<T>, BufferCreationError> where F: Facade
     {
-        Buffer::empty(facade, ty, mem::size_of::<T>(), dynamic)
+        Buffer::empty(facade, ty, mem::size_of::<T>(), mode)
             .map(|buffer| {
                 BufferView {
                     alloc: Some(buffer),
@@ -192,16 +175,10 @@ impl<T> BufferView<T> where T: Content + Copy {
 
 impl<T> BufferView<[T]> where [T]: Content, T: Copy {
     /// Builds a new buffer of the given size.
-    ///
-    /// If `dynamic` is false, glium will attempt to use buffer storage to create an immutable
-    /// buffer (without the `DYNAMIC_STORAGE_FLAG`).
-    ///
-    /// If `dynamic` is true, glium will attempt to use persistent mapping and manage
-    /// synchronizations manually.
-    pub fn empty_array<F>(facade: &F, ty: BufferType, len: usize, dynamic: bool)
+    pub fn empty_array<F>(facade: &F, ty: BufferType, len: usize, mode: BufferMode)
                           -> Result<BufferView<[T]>, BufferCreationError> where F: Facade
     {
-        Buffer::empty(facade, ty, len * mem::size_of::<T>(), dynamic)
+        Buffer::empty(facade, ty, len * mem::size_of::<T>(), mode)
             .map(|buffer| {
                 BufferView {
                     alloc: Some(buffer),

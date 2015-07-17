@@ -4,6 +4,7 @@ extern crate glium;
 mod support;
 
 use glium::Surface;
+use glium::buffer::BufferMode;
 use std::mem;
 
 #[test]
@@ -597,7 +598,8 @@ fn immutable_mapping_forget_then_remap() {
     let display = support::build_display();
 
     let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer, false)
+                                                 glium::buffer::BufferType::ArrayBuffer,
+                                                 BufferMode::Immutable)
                                                  .unwrap();
 
     {
@@ -618,7 +620,8 @@ fn immutable_mapping_forget_then_read() {
     let display = support::build_display();
 
     let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer, false)
+                                                 glium::buffer::BufferType::ArrayBuffer,
+                                                 BufferMode::Immutable)
                                                  .unwrap();
 
     {
@@ -644,7 +647,8 @@ fn immutable_mapping_forget_then_invalidate() {
     let display = support::build_display();
 
     let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer, false)
+                                                 glium::buffer::BufferType::ArrayBuffer,
+                                                 BufferMode::Immutable)
                                                  .unwrap();
 
     {
@@ -754,11 +758,12 @@ fn immutable_mapping_forget_then_draw() {
 }
 
 #[test]
-fn dynamic_mapping_forget_then_remap() {
+fn persistent_mapping_forget_then_remap() {
     let display = support::build_display();
 
     let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer, true)
+                                                 glium::buffer::BufferType::ArrayBuffer,
+                                                 BufferMode::Persistent)
                                                  .unwrap();
 
     {
@@ -776,11 +781,12 @@ fn dynamic_mapping_forget_then_remap() {
 
 #[test]
 #[ignore]       // TODO: mystic rust-related bug
-fn dynamic_mapping_forget_then_read() {
+fn persistent_mapping_forget_then_read() {
     let display = support::build_display();
 
     let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer, true)
+                                                 glium::buffer::BufferType::ArrayBuffer,
+                                                 BufferMode::Persistent)
                                                  .unwrap();
 
     {
@@ -802,11 +808,12 @@ fn dynamic_mapping_forget_then_read() {
 }
 
 #[test]
-fn dynamic_mapping_forget_then_invalidate() {
+fn persistent_mapping_forget_then_invalidate() {
     let display = support::build_display();
 
     let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer, true)
+                                                 glium::buffer::BufferType::ArrayBuffer,
+                                                 BufferMode::Persistent)
                                                  .unwrap();
 
     {

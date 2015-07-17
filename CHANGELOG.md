@@ -3,11 +3,12 @@
 ## Unreleased
 
  - `VertexBuffer` and `IndexBuffer` constructors now take a `&[T]`.
+ - `BufferView`'s constructors now take a `BufferMode`.
+ - All `new` and `empty` constructors now return an error if the operation is not supported.
  - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
  - Added `buffer::is_buffer_read_supported`.
  - Replaced all `new_if_supported` or `empty_if_supported` functions with `new` or `empty` and a proper error type.
- - All `new` and `empty` constructors now return an error if the operation is not supported.
- - Removed the deprecated `new_empty` function.
+ - Removed the deprecated `new_empty` function from textures.
  - Reworked `TextureCreationError` and removed `TextureMaybeSupportedCreationError`.
  - Add support for all missing vertex attributes.
 

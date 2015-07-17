@@ -13,7 +13,7 @@ use std::ops::{Deref, DerefMut, Range};
 use GlObject;
 use TransformFeedbackSessionExt;
 
-use buffer::{Content, BufferType, BufferCreationError};
+use buffer::{Content, BufferType, BufferMode, BufferCreationError};
 use vertex::TransformFeedbackSession;
 use vertex_array_object::VertexAttributesSystem;
 
@@ -50,7 +50,7 @@ pub struct Buffer {
     immutable: bool,
 
     /// If true, the buffer was created with the "dynamic" flag.
-    dynamic_creation_flag: bool,
+    creation_mode: BufferMode,
 
     /// True if the buffer is currently mapped with something else than persistent mapping.
     ///
@@ -64,7 +64,7 @@ pub struct Buffer {
 impl Buffer {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the
     /// size of the data.
-    pub fn new<D: ?Sized, F>(facade: &F, data: &D, ty: BufferType, dynamic: bool)
+    pub fn new<D: ?Sized, F>(facade: &F, data: &D, ty: BufferType, mode: BufferMode)
                              -> Result<Buffer, BufferCreationError>
                              where D: Content, F: Facade
     {
@@ -73,7 +73,7 @@ impl Buffer {
         let size = mem::size_of_val(data);
 
         let (id, immutable, persistent_mapping) = try!(unsafe {
-            create_buffer(&mut ctxt, size, Some(data), ty, dynamic, false)
+            create_buffer(&mut ctxt, size, Some(data), ty, mode)
         });
 
         Ok(Buffer {
@@ -83,20 +83,20 @@ impl Buffer {
             size: size,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
-            dynamic_creation_flag: dynamic,
+            creation_mode: mode,
             mapped: Cell::new(false),
             latest_shader_write: Cell::new(0),
         })
     }
 
     /// Builds a new empty buffer of the given size.
-    pub fn empty<F>(facade: &F, ty: BufferType, size: usize, dynamic: bool)
+    pub fn empty<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
                     -> Result<Buffer, BufferCreationError> where F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
 
         let (id, immutable, persistent_mapping) = try!(unsafe {
-            create_buffer::<()>(&mut ctxt, size, None, ty, dynamic, false)
+            create_buffer::<()>(&mut ctxt, size, None, ty, mode)
         });
 
         Ok(Buffer {
@@ -106,7 +106,7 @@ impl Buffer {
             size: size,
             persistent_mapping: persistent_mapping,
             immutable: immutable,
-            dynamic_creation_flag: dynamic,
+            creation_mode: mode,
             mapped: Cell::new(false),
             latest_shader_write: Cell::new(0),
         })
@@ -346,7 +346,7 @@ impl Buffer {
 
             let (tmp_buffer, _, _) = create_buffer(&mut ctxt, mem::size_of_val(data), Some(data),
                                                    BufferType::CopyReadBuffer,
-                                                   true, true).unwrap();
+                                                   BufferMode::Dynamic).unwrap();
             copy_buffer(&mut ctxt, tmp_buffer, 0, self.id, offset_bytes, mem::size_of_val(data));
             destroy_buffer(&mut ctxt, tmp_buffer);
 
@@ -424,10 +424,9 @@ impl Buffer {
 
         } else if !self.immutable {
             if is_whole_buffer {
-                let flags = if self.dynamic_creation_flag {
-                    gl::DYNAMIC_DRAW
-                } else {
-                    gl::STATIC_DRAW
+                let flags = match self.creation_mode {
+                    BufferMode::Default | BufferMode::Immutable => gl::STATIC_DRAW,
+                    BufferMode::Persistent | BufferMode::Dynamic => gl::DYNAMIC_DRAW,
                 };
 
                 if ctxt.version >= &Version(Api::Gl, 1, 5) ||
@@ -512,7 +511,7 @@ impl Buffer {
             let temporary_buffer = {
                 let (temporary_buffer, _, _) = create_buffer::<D>(&mut ctxt, size_bytes,
                                                                   None, BufferType::CopyWriteBuffer,
-                                                                  true, true).unwrap();
+                                                                  BufferMode::Dynamic).unwrap();
                 temporary_buffer
             };
 
@@ -977,7 +976,7 @@ pub fn is_buffer_read_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource
 ///
 /// Panics if `mem::size_of_val(&data) != size`.
 unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, data: Option<&D>,
-                                   ty: BufferType, dynamic: bool, avoid_persistent: bool)
+                                   ty: BufferType, mode: BufferMode)
                                    -> Result<(gl::types::GLuint, bool, Option<*mut libc::c_void>),
                                              BufferCreationError>
                                    where D: Content
@@ -990,23 +989,27 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
         assert!(mem::size_of_val(data) == size);
     }
 
-    let mut id: gl::types::GLuint = mem::uninitialized();
+    // creating the id of the buffer
+    let id = {
+        let mut id: gl::types::GLuint = mem::uninitialized();
+        if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+            ctxt.gl.CreateBuffers(1, &mut id);
+        } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+            ctxt.version >= &Version(Api::GlEs, 2, 0)
+        {
+            ctxt.gl.GenBuffers(1, &mut id);
+        } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+            ctxt.gl.GenBuffersARB(1, &mut id);
+        } else {
+            unreachable!();
+        }
+        id
+    };
 
-    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-        ctxt.gl.CreateBuffers(1, &mut id);
-    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-        ctxt.version >= &Version(Api::GlEs, 2, 0)
-    {
-        ctxt.gl.GenBuffers(1, &mut id);
-    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-        ctxt.gl.GenBuffersARB(1, &mut id);
-    } else {
-        unreachable!();
-    }
-
+    // raw pointer to data
     let data_ptr = if let Some(data) = data {
-        if size == 0 {
-            ptr::null()
+        if size == 0 {      // if the size is `0` we pass `1` instead (see below),
+            ptr::null()     // so it's important to have `null` here
         } else {
             data.to_void_ptr()
         }
@@ -1014,34 +1017,47 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
         ptr::null()
     };
 
+    // if the `size` is 0 bytes then we use 1 instead, otherwise nvidia drivers complain
+    // note that according to glium the size of the buffer will remain 0
     let size = match size {
-        0 => 1,     // use size 1 instead of 0, or nvidia drivers complain
+        0 => 1,
         a => a
     };
 
+    // the flags to use in the case where only `glBufferData` is supported
+    let mutable_storage_flags = match mode {
+        BufferMode::Persistent | BufferMode::Dynamic => gl::DYNAMIC_DRAW,
+        BufferMode::Default | BufferMode::Immutable => gl::STATIC_DRAW,
+    };
+
+    // the flags to use if `glBufferStorage` is supported
+    let immutable_storage_flags = match mode {
+        BufferMode::Default => gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT,
+        BufferMode::Dynamic => gl::DYNAMIC_STORAGE_BIT | gl::CLIENT_STORAGE_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT,
+        BufferMode::Persistent => gl::MAP_PERSISTENT_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT,
+        BufferMode::Immutable => 0,
+    };
+
+    // if true, there is a possibility that the buffer won't be modifiable with regular OpenGL
+    // function calls
+    let could_be_immutable = match mode {
+        BufferMode::Default | BufferMode::Dynamic => false,
+        BufferMode::Immutable | BufferMode::Persistent => true,
+    };
+
+    // will store the actual size of the buffer so that we can compare it with the expected size
     let mut obtained_size: gl::types::GLint = mem::uninitialized();
+
+    // the value of `immutable` is determined below
+    // if true, the buffer won't be modifiable with regular OpenGL function calls
     let immutable: bool;
-
-    let mutable_storage_flags = if dynamic {
-        gl::DYNAMIC_DRAW
-    } else {
-        gl::STATIC_DRAW
-    };
-
-    let immutable_storage_flags = if dynamic && avoid_persistent {
-        gl::DYNAMIC_STORAGE_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT
-    } else if dynamic {
-        gl::MAP_PERSISTENT_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT
-    } else {
-        0
-    };
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         ctxt.gl.NamedBufferStorage(id, size as gl::types::GLsizeiptr,
                                    data_ptr as *const libc::c_void,
                                    immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameteriv(id, gl::BUFFER_SIZE, &mut obtained_size);
-        immutable = !avoid_persistent;
+        immutable = could_be_immutable;
 
     } else if ctxt.extensions.gl_arb_buffer_storage &&
               ctxt.extensions.gl_ext_direct_state_access
@@ -1050,7 +1066,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
                                       data_ptr as *const libc::c_void,
                                       immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameterivEXT(id, gl::BUFFER_SIZE, &mut obtained_size);
-        immutable = !avoid_persistent;
+        immutable = could_be_immutable;
 
     } else if ctxt.version >= &Version(Api::Gl, 4, 4) ||
               ctxt.extensions.gl_arb_buffer_storage
@@ -1060,7 +1076,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
                               data_ptr as *const libc::c_void,
                               immutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
-        immutable = !avoid_persistent;
+        immutable = could_be_immutable;
 
     } else if ctxt.extensions.gl_ext_buffer_storage {
         let bind = bind_buffer(&mut ctxt, id, ty);
@@ -1068,7 +1084,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
                                  data_ptr as *const libc::c_void,
                                  immutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
-        immutable = !avoid_persistent;
+        immutable = could_be_immutable;
 
     } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
         ctxt.version >= &Version(Api::GlEs, 2, 0)
@@ -1104,30 +1120,34 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
         return Err(BufferCreationError::OutOfMemory);
     }
 
-    let persistent_mapping = if immutable && dynamic && !avoid_persistent {
-        let ptr = if ctxt.version >= &Version(Api::Gl, 4, 5) {
-            ctxt.gl.MapNamedBufferRange(id, 0, size as gl::types::GLsizeiptr,
-                                        gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                        gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
+    let persistent_mapping = if let BufferMode::Persistent = mode {
+        if immutable {
+            let ptr = if ctxt.version >= &Version(Api::Gl, 4, 5) {
+                ctxt.gl.MapNamedBufferRange(id, 0, size as gl::types::GLsizeiptr,
+                                            gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                            gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
 
-        } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                  ctxt.extensions.gl_arb_map_buffer_range
-        {
-            let bind = bind_buffer(&mut ctxt, id, ty);
-            ctxt.gl.MapBufferRange(bind, 0, size as gl::types::GLsizeiptr,
-                                   gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
-                                   gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                      ctxt.extensions.gl_arb_map_buffer_range
+            {
+                let bind = bind_buffer(&mut ctxt, id, ty);
+                ctxt.gl.MapBufferRange(bind, 0, size as gl::types::GLsizeiptr,
+                                       gl::MAP_READ_BIT | gl::MAP_WRITE_BIT |
+                                       gl::MAP_PERSISTENT_BIT | gl::MAP_FLUSH_EXPLICIT_BIT)
+            } else {
+                unreachable!();
+            };
+
+            if ptr.is_null() {
+                let error = ::get_gl_error(ctxt);
+                panic!("glMapBufferRange returned null (error: {:?})", error);
+            }
+
+            Some(ptr)
+
         } else {
-            unreachable!();
-        };
-
-        if ptr.is_null() {
-            let error = ::get_gl_error(ctxt);
-            panic!("glMapBufferRange returned null (error: {:?})", error);
+            None
         }
-
-        Some(ptr)
-
     } else {
         None
     };

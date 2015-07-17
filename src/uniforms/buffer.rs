@@ -1,4 +1,4 @@
-use buffer::{Content, BufferView, BufferViewAny, BufferType, BufferCreationError};
+use buffer::{Content, BufferView, BufferViewAny, BufferType, BufferMode, BufferCreationError};
 use uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
 use program;
 
@@ -23,7 +23,8 @@ impl<T> UniformBuffer<T> where T: Copy {
     pub fn new<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
                   where F: Facade
     {
-        let buffer = try!(BufferView::new(facade, &data, BufferType::UniformBuffer, true));
+        let buffer = try!(BufferView::new(facade, &data, BufferType::UniformBuffer,
+                                          BufferMode::Dynamic));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -32,7 +33,8 @@ impl<T> UniformBuffer<T> where T: Copy {
 
     /// Creates an empty buffer.
     pub fn empty<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError> where F: Facade {
-        let buffer = try!(BufferView::empty(facade, BufferType::UniformBuffer, true));
+        let buffer = try!(BufferView::empty(facade, BufferType::UniformBuffer,
+                                            BufferMode::Dynamic));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -51,7 +53,8 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
                             -> Result<UniformBuffer<T>, BufferCreationError>
                             where F: Facade
     {
-        let buffer = try!(BufferView::empty_unsized(facade, BufferType::UniformBuffer, size, true));
+        let buffer = try!(BufferView::empty_unsized(facade, BufferType::UniformBuffer, size,
+                                                    BufferMode::Dynamic));
 
         Ok(UniformBuffer {
             buffer: buffer,

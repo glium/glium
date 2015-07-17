@@ -1,6 +1,6 @@
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType, BufferCreationError};
+use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType, BufferMode, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -76,7 +76,8 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer, false));
+        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
+                                          BufferMode::Default));
         Ok(buffer.into())
     }
 
@@ -90,7 +91,8 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer, true));
+        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
+                                          BufferMode::Dynamic));
         Ok(buffer.into())
     }
 
@@ -104,7 +106,8 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, false));
+        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements,
+                                                  BufferMode::Default));
         Ok(buffer.into())
     }
 
@@ -118,7 +121,8 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, true));
+        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements,
+                                                  BufferMode::Dynamic));
         Ok(buffer.into())
     }
 }
@@ -163,7 +167,8 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer, false)),
+            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Default)),
             bindings: bindings,
         })
     }
@@ -177,7 +182,8 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer, true)),
+            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Dynamic)),
             bindings: bindings,
         })
     }

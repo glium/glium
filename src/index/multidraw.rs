@@ -6,7 +6,7 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 
 use backend::Facade;
-use buffer::{BufferCreationError, BufferType, BufferView};
+use buffer::{BufferCreationError, BufferType, BufferMode, BufferView};
 use index::{IndicesSource, PrimitiveType, IndexBuffer, Index};
 
 #[repr(C)]
@@ -59,7 +59,7 @@ impl DrawCommandsNoIndicesBuffer {
                     where F: Facade
     {
         let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, false));
+                                               elements, BufferMode::Default));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -71,7 +71,7 @@ impl DrawCommandsNoIndicesBuffer {
                             where F: Facade
     {
         let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, true));
+                                               elements, BufferMode::Dynamic));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -113,7 +113,7 @@ impl DrawCommandsIndicesBuffer {
                     where F: Facade
     {
         let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, false));
+                                               elements, BufferMode::Default));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -125,7 +125,7 @@ impl DrawCommandsIndicesBuffer {
                             where F: Facade
     {
         let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, true));
+                                               elements, BufferMode::Dynamic));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
