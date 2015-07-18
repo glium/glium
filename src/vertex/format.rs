@@ -8,6 +8,8 @@ use CapabilitiesSource;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
+#[cfg(feature = "nalgebra")]
+use nalgebra;
 
 #[allow(missing_docs)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -1257,88 +1259,800 @@ unsafe impl Attribute for cgmath::Matrix4<f64> {
 }
 
 
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8
+    }
+}
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8I8I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8I8I8I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8I8I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<i8> {
+    fn get_type() -> AttributeType {
+        AttributeType::I8I8I8I8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8U8U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8U8U8U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8U8U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<u8> {
+    fn get_type() -> AttributeType {
+        AttributeType::U8U8U8U8
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16I16I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16I16I16I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16I16I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<i16> {
+    fn get_type() -> AttributeType {
+        AttributeType::I16I16I16I16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16U16U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16U16U16U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16U16U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<u16> {
+    fn get_type() -> AttributeType {
+        AttributeType::U16U16U16U16
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32I32I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32I32I32I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32I32I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<i32> {
+    fn get_type() -> AttributeType {
+        AttributeType::I32I32I32I32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32U32U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32U32U32U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32U32U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<u32> {
+    fn get_type() -> AttributeType {
+        AttributeType::U32U32U32U32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<i64> {
+    fn get_type() -> AttributeType {
+        AttributeType::I64I64I64I64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<u64> {
+    fn get_type() -> AttributeType {
+        AttributeType::U64U64U64U64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32F32F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32F32F32F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32F32F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32F32F32F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat1<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat2<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32x2x2
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat3<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32x3x3
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat4<f32> {
+    fn get_type() -> AttributeType {
+        AttributeType::F32x4x4
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt1<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt2<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt3<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Pnt4<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec1<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec2<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec3<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Vec4<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64F64F64F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat1<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat2<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64x2x2
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat3<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64x3x3
+    }
+}
+
+#[cfg(feature="nalgebra")]
+unsafe impl Attribute for nalgebra::Mat4<f64> {
+    fn get_type() -> AttributeType {
+        AttributeType::F64x4x4
+    }
+}
 
 
 #[cfg(test)]
 mod tests {
     use std::mem;
 
+    macro_rules! test_layout {
+        ($from_fixed_ref:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
+            // from_fixed_ref is used instead of from_fixed because the later is not yet
+            // implemented due to rust-lang/rust#16418
+            let vaa = $literal.clone();
+            let val = $from_fixed_ref(&vaa);
+            let arr: &[$ety; $ncomps] = unsafe { mem::transmute(val) };
+            assert_eq!(*arr, $literal);
+        }}
+    }
+
     #[cfg(feature="cgmath")]
     #[test]
     fn test_cgmath_layout() {
         use cgmath::{self, FixedArray};
 
-        macro_rules! test_cgmath_layout {
-            ($from_fixed_ref:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
-                // from_fixed_ref is used instead of from_fixed because the later is not yet
-                // implemented due to rust-lang/rust#16418
-                let vaa = $literal.clone();
-                let val = $from_fixed_ref(&vaa);
-                let arr: &[$ety; $ncomps] = unsafe { mem::transmute(val) };
-                assert_eq!(*arr, $literal);
-            }}
-        }
+        test_layout!(cgmath::Vector2::from_fixed_ref, u8, 2, [0u8, 1]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, u8, 3, [0u8, 1, 2]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, u8, 4, [0u8, 1, 2, 3]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, i8, 2, [0i8, 1]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, i8, 3, [0i8, 1, 2]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, i8, 4, [0i8, 1, 2, 3]);
+        test_layout!(cgmath::Point2::from_fixed_ref, u8, 2, [0u8, 1]);
+        test_layout!(cgmath::Point3::from_fixed_ref, u8, 3, [0u8, 1, 2]);
+        test_layout!(cgmath::Point2::from_fixed_ref, i8, 2, [0i8, 1]);
+        test_layout!(cgmath::Point3::from_fixed_ref, i8, 3, [0i8, 1, 2]);
 
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, u8, 2, [0u8, 1]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, u8, 3, [0u8, 1, 2]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, u8, 4, [0u8, 1, 2, 3]);
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, i8, 2, [0i8, 1]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, i8, 3, [0i8, 1, 2]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, i8, 4, [0i8, 1, 2, 3]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, u8, 2, [0u8, 1]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, u8, 3, [0u8, 1, 2]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, i8, 2, [0i8, 1]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, i8, 3, [0i8, 1, 2]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, u16, 2, [0u16, 1]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, u16, 3, [0u16, 1, 2]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, u16, 4, [0u16, 1, 2, 3]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, i16, 2, [0i16, 1]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, i16, 3, [0i16, 1, 2]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, i16, 4, [0i16, 1, 2, 3]);
+        test_layout!(cgmath::Point2::from_fixed_ref, u16, 2, [0u16, 1]);
+        test_layout!(cgmath::Point3::from_fixed_ref, u16, 3, [0u16, 1, 2]);
+        test_layout!(cgmath::Point2::from_fixed_ref, i16, 2, [0i16, 1]);
+        test_layout!(cgmath::Point3::from_fixed_ref, i16, 3, [0i16, 1, 2]);
 
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, u16, 2, [0u16, 1]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, u16, 3, [0u16, 1, 2]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, u16, 4, [0u16, 1, 2, 3]);
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, i16, 2, [0i16, 1]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, i16, 3, [0i16, 1, 2]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, i16, 4, [0i16, 1, 2, 3]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, u16, 2, [0u16, 1]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, u16, 3, [0u16, 1, 2]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, i16, 2, [0i16, 1]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, i16, 3, [0i16, 1, 2]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, u32, 2, [0u32, 1]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, u32, 3, [0u32, 1, 2]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, u32, 4, [0u32, 1, 2, 3]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, i32, 2, [0i32, 1]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, i32, 3, [0i32, 1, 2]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, i32, 4, [0i32, 1, 2, 3]);
+        test_layout!(cgmath::Point2::from_fixed_ref, u32, 2, [0u32, 1]);
+        test_layout!(cgmath::Point3::from_fixed_ref, u32, 3, [0u32, 1, 2]);
+        test_layout!(cgmath::Point2::from_fixed_ref, i32, 2, [0i32, 1]);
+        test_layout!(cgmath::Point3::from_fixed_ref, i32, 3, [0i32, 1, 2]);
 
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, u32, 2, [0u32, 1]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, u32, 3, [0u32, 1, 2]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, u32, 4, [0u32, 1, 2, 3]);
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, i32, 2, [0i32, 1]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, i32, 3, [0i32, 1, 2]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, i32, 4, [0i32, 1, 2, 3]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, u32, 2, [0u32, 1]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, u32, 3, [0u32, 1, 2]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, i32, 2, [0i32, 1]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, i32, 3, [0i32, 1, 2]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, f32, 2, [0.0f32, 1.0]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout!(cgmath::Vector2::from_fixed_ref, f64, 2, [0.0f64, 1.0]);
+        test_layout!(cgmath::Vector3::from_fixed_ref, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout!(cgmath::Vector4::from_fixed_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout!(cgmath::Point2::from_fixed_ref, f32, 2, [0.0f32, 1.0]);
+        test_layout!(cgmath::Point3::from_fixed_ref, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout!(cgmath::Point2::from_fixed_ref, f64, 2, [0.0f64, 1.0]);
+        test_layout!(cgmath::Point3::from_fixed_ref, f64, 3, [0.0f64, 1.0, 2.0]);
 
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, f32, 2, [0.0f32, 1.0]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
-        test_cgmath_layout!(cgmath::Vector2::from_fixed_ref, f64, 2, [0.0f64, 1.0]);
-        test_cgmath_layout!(cgmath::Vector3::from_fixed_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_cgmath_layout!(cgmath::Vector4::from_fixed_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, f32, 2, [0.0f32, 1.0]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_cgmath_layout!(cgmath::Point2::from_fixed_ref, f64, 2, [0.0f64, 1.0]);
-        test_cgmath_layout!(cgmath::Point3::from_fixed_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_cgmath_layout!(cgmath::Matrix2::from_fixed_ref, [f32; 2], 2, [[0.0f32, 1.0],
-                                                                           [2.0f32, 3.0]]);
-        test_cgmath_layout!(cgmath::Matrix3::from_fixed_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
-                                                                           [3.0f32, 4.0, 5.0],
-                                                                           [6.0f32, 7.0, 8.0]]);
-        test_cgmath_layout!(cgmath::Matrix4::from_fixed_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
-                                                                           [4.0f32, 5.0, 6.0, 7.0],
-                                                                           [8.0f32, 9.0, 10.0, 11.0],
-                                                                           [12.0f32, 13.0, 14.0, 15.0]]);
-        test_cgmath_layout!(cgmath::Matrix2::from_fixed_ref, [f64; 2], 2, [[0.0f64, 1.0],
-                                                                           [2.0f64, 3.0]]);
-        test_cgmath_layout!(cgmath::Matrix3::from_fixed_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
-                                                                           [3.0f64, 4.0, 5.0],
-                                                                           [6.0f64, 7.0, 8.0]]);
-        test_cgmath_layout!(cgmath::Matrix4::from_fixed_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
-                                                                           [4.0f64, 5.0, 6.0, 7.0],
-                                                                           [8.0f64, 9.0, 10.0, 11.0],
-                                                                           [12.0f64, 13.0, 14.0, 15.0]]);
+        test_layout!(cgmath::Matrix2::from_fixed_ref, [f32; 2], 2, [[0.0f32, 1.0],
+                                                                    [2.0f32, 3.0]]);
+        test_layout!(cgmath::Matrix3::from_fixed_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
+                                                                    [3.0f32, 4.0, 5.0],
+                                                                    [6.0f32, 7.0, 8.0]]);
+        test_layout!(cgmath::Matrix4::from_fixed_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
+                                                                    [4.0f32, 5.0, 6.0, 7.0],
+                                                                    [8.0f32, 9.0, 10.0, 11.0],
+                                                                    [12.0f32, 13.0, 14.0, 15.0]]);
+
+        test_layout!(cgmath::Matrix2::from_fixed_ref, [f64; 2], 2, [[0.0f64, 1.0],
+                                                                    [2.0f64, 3.0]]);
+        test_layout!(cgmath::Matrix3::from_fixed_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
+                                                                    [3.0f64, 4.0, 5.0],
+                                                                    [6.0f64, 7.0, 8.0]]);
+        test_layout!(cgmath::Matrix4::from_fixed_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
+                                                                    [4.0f64, 5.0, 6.0, 7.0],
+                                                                    [8.0f64, 9.0, 10.0, 11.0],
+                                                                    [12.0f64, 13.0, 14.0, 15.0]]);
+    }
+
+    #[cfg(feature = "nalgebra")]
+    #[test]
+    fn test_nalgebra_layout() {
+        use nalgebra;
+
+        test_layout!(nalgebra::Vec1::from_array_ref, u8, 1, [0u8]);
+        test_layout!(nalgebra::Vec2::from_array_ref, u8, 2, [0u8, 1]);
+        test_layout!(nalgebra::Vec3::from_array_ref, u8, 3, [0u8, 1, 2]);
+        test_layout!(nalgebra::Vec4::from_array_ref, u8, 4, [0u8, 1, 2, 3]);
+        test_layout!(nalgebra::Vec1::from_array_ref, i8, 1, [0i8]);
+        test_layout!(nalgebra::Vec2::from_array_ref, i8, 2, [0i8, 1]);
+        test_layout!(nalgebra::Vec3::from_array_ref, i8, 3, [0i8, 1, 2]);
+        test_layout!(nalgebra::Vec4::from_array_ref, i8, 4, [0i8, 1, 2, 3]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, u8, 1, [0u8]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, u8, 2, [0u8, 1]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, u8, 3, [0u8, 1, 2]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, u8, 4, [0u8, 1, 2, 3]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, i8, 1, [0i8]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, i8, 2, [0i8, 1]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, i8, 3, [0i8, 1, 2]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, i8, 4, [0i8, 1, 2, 3]);
+
+        test_layout!(nalgebra::Vec1::from_array_ref, u16, 1, [0u16]);
+        test_layout!(nalgebra::Vec2::from_array_ref, u16, 2, [0u16, 1]);
+        test_layout!(nalgebra::Vec3::from_array_ref, u16, 3, [0u16, 1, 2]);
+        test_layout!(nalgebra::Vec4::from_array_ref, u16, 4, [0u16, 1, 2, 3]);
+        test_layout!(nalgebra::Vec1::from_array_ref, i16, 1, [0i16]);
+        test_layout!(nalgebra::Vec2::from_array_ref, i16, 2, [0i16, 1]);
+        test_layout!(nalgebra::Vec3::from_array_ref, i16, 3, [0i16, 1, 2]);
+        test_layout!(nalgebra::Vec4::from_array_ref, i16, 4, [0i16, 1, 2, 3]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, u16, 1, [0u16]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, u16, 2, [0u16, 1]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, u16, 3, [0u16, 1, 2]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, u16, 4, [0u16, 1, 2, 3]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, i16, 1, [0i16]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, i16, 2, [0i16, 1]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, i16, 3, [0i16, 1, 2]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, i16, 4, [0i16, 1, 2, 3]);
+
+        test_layout!(nalgebra::Vec1::from_array_ref, u32, 1, [0u32]);
+        test_layout!(nalgebra::Vec2::from_array_ref, u32, 2, [0u32, 1]);
+        test_layout!(nalgebra::Vec3::from_array_ref, u32, 3, [0u32, 1, 2]);
+        test_layout!(nalgebra::Vec4::from_array_ref, u32, 4, [0u32, 1, 2, 3]);
+        test_layout!(nalgebra::Vec1::from_array_ref, i32, 1, [0i32]);
+        test_layout!(nalgebra::Vec2::from_array_ref, i32, 2, [0i32, 1]);
+        test_layout!(nalgebra::Vec3::from_array_ref, i32, 3, [0i32, 1, 2]);
+        test_layout!(nalgebra::Vec4::from_array_ref, i32, 4, [0i32, 1, 2, 3]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, u32, 1, [0u32]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, u32, 2, [0u32, 1]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, u32, 3, [0u32, 1, 2]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, u32, 4, [0u32, 1, 2, 3]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, i32, 1, [0i32]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, i32, 2, [0i32, 1]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, i32, 3, [0i32, 1, 2]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, i32, 4, [0i32, 1, 2, 3]);
+
+        test_layout!(nalgebra::Vec1::from_array_ref, f32, 1, [0.0f32]);
+        test_layout!(nalgebra::Vec2::from_array_ref, f32, 2, [0.0f32, 1.0]);
+        test_layout!(nalgebra::Vec3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout!(nalgebra::Vec4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout!(nalgebra::Vec1::from_array_ref, f64, 1, [0.0f64]);
+        test_layout!(nalgebra::Vec2::from_array_ref, f64, 2, [0.0f64, 1.0]);
+        test_layout!(nalgebra::Vec3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout!(nalgebra::Vec4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, f32, 1, [0.0f32]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, f32, 2, [0.0f32, 1.0]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout!(nalgebra::Pnt1::from_array_ref, f64, 1, [0.0f64]);
+        test_layout!(nalgebra::Pnt2::from_array_ref, f64, 2, [0.0f64, 1.0]);
+        test_layout!(nalgebra::Pnt3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout!(nalgebra::Pnt4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+
+        test_layout!(nalgebra::Mat1::from_array_ref, [f32; 1], 1, [[0.0f32]]);
+        test_layout!(nalgebra::Mat2::from_array_ref, [f32; 2], 2, [[0.0f32, 1.0],
+                                                                   [2.0f32, 3.0]]);
+        test_layout!(nalgebra::Mat3::from_array_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
+                                                                   [3.0f32, 4.0, 5.0],
+                                                                   [6.0f32, 7.0, 8.0]]);
+        test_layout!(nalgebra::Mat4::from_array_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
+                                                                   [4.0f32, 5.0, 6.0, 7.0],
+                                                                   [8.0f32, 9.0, 10.0, 11.0],
+                                                                   [12.0f32, 13.0, 14.0, 15.0]]);
+
+        test_layout!(nalgebra::Mat1::from_array_ref, [f64; 1], 1, [[0.0f64]]);
+        test_layout!(nalgebra::Mat2::from_array_ref, [f64; 2], 2, [[0.0f64, 1.0],
+                                                                   [2.0f64, 3.0]]);
+        test_layout!(nalgebra::Mat3::from_array_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
+                                                                   [3.0f64, 4.0, 5.0],
+                                                                   [6.0f64, 7.0, 8.0]]);
+        test_layout!(nalgebra::Mat4::from_array_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
+                                                                   [4.0f64, 5.0, 6.0, 7.0],
+                                                                   [8.0f64, 9.0, 10.0, 11.0],
+                                                                   [12.0f64, 13.0, 14.0, 15.0]]);
     }
 }
