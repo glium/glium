@@ -75,6 +75,30 @@ impl DrawCommandsNoIndicesBuffer {
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
+    /// Builds an empty buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_persistent<F>(facade: &F, elements: usize)
+                               -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
+                               where F: Facade
+    {
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Persistent));
+        Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
+    }
+
+    /// Builds an empty buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_immutable<F>(facade: &F, elements: usize)
+                              -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
+                              where F: Facade
+    {
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Immutable));
+        Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
+    }
+
     /// Builds an indices source from this buffer and a primitives type. This indices source can
     /// be passed to the `draw()` function.
     pub fn with_primitive_type(&self, primitives: PrimitiveType) -> IndicesSource {
@@ -126,6 +150,30 @@ impl DrawCommandsIndicesBuffer {
     {
         let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Dynamic));
+        Ok(DrawCommandsIndicesBuffer { buffer: buf })
+    }
+
+    /// Builds an empty buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_persistent<F>(facade: &F, elements: usize)
+                               -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
+                               where F: Facade
+    {
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Persistent));
+        Ok(DrawCommandsIndicesBuffer { buffer: buf })
+    }
+
+    /// Builds an empty buffer.
+    ///
+    /// The parameter indicates the number of elements.
+    pub fn empty_immutable<F>(facade: &F, elements: usize)
+                              -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
+                              where F: Facade
+    {
+        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Immutable));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 

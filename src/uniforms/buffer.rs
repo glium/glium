@@ -23,8 +23,35 @@ impl<T> UniformBuffer<T> where T: Copy {
     pub fn new<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
                   where F: Facade
     {
-        let buffer = try!(BufferView::new(facade, &data, BufferType::UniformBuffer,
-                                          BufferMode::Dynamic));
+        UniformBuffer::new_impl(facade, data, BufferMode::Default)
+    }
+
+    /// Uploads data in the uniforms buffer.
+    pub fn dynamic<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
+                      where F: Facade
+    {
+        UniformBuffer::new_impl(facade, data, BufferMode::Dynamic)
+    }
+
+    /// Uploads data in the uniforms buffer.
+    pub fn persistent<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
+                  where F: Facade
+    {
+        UniformBuffer::new_impl(facade, data, BufferMode::Persistent)
+    }
+
+    /// Uploads data in the uniforms buffer.
+    pub fn immutable<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
+                        where F: Facade
+    {
+        UniformBuffer::new_impl(facade, data, BufferMode::Immutable)
+    }
+
+    fn new_impl<F>(facade: &F, data: T, mode: BufferMode)
+                   -> Result<UniformBuffer<T>, BufferCreationError>
+                   where F: Facade
+    {
+        let buffer = try!(BufferView::new(facade, &data, BufferType::UniformBuffer, mode));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -33,8 +60,34 @@ impl<T> UniformBuffer<T> where T: Copy {
 
     /// Creates an empty buffer.
     pub fn empty<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError> where F: Facade {
-        let buffer = try!(BufferView::empty(facade, BufferType::UniformBuffer,
-                                            BufferMode::Dynamic));
+        UniformBuffer::empty_impl(facade, BufferMode::Default)
+    }
+
+    /// Creates an empty buffer.
+    pub fn empty_dynamic<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError>
+                            where F: Facade
+    {
+        UniformBuffer::empty_impl(facade, BufferMode::Dynamic)
+    }
+
+    /// Creates an empty buffer.
+    pub fn empty_persistent<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError>
+                               where F: Facade
+    {
+        UniformBuffer::empty_impl(facade, BufferMode::Persistent)
+    }
+
+    /// Creates an empty buffer.
+    pub fn empty_immutable<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError>
+                              where F: Facade
+    {
+        UniformBuffer::empty_impl(facade, BufferMode::Immutable)
+    }
+
+    fn empty_impl<F>(facade: &F, mode: BufferMode) -> Result<UniformBuffer<T>, BufferCreationError>
+                     where F: Facade
+    {
+        let buffer = try!(BufferView::empty(facade, BufferType::UniformBuffer, mode));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -53,8 +106,53 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
                             -> Result<UniformBuffer<T>, BufferCreationError>
                             where F: Facade
     {
-        let buffer = try!(BufferView::empty_unsized(facade, BufferType::UniformBuffer, size,
-                                                    BufferMode::Dynamic));
+        UniformBuffer::empty_unsized_impl(facade, size, BufferMode::Default)
+    }
+
+    /// Creates an empty buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    ///
+    pub fn empty_unsized_dynamic<F>(facade: &F, size: usize)
+                                    -> Result<UniformBuffer<T>, BufferCreationError>
+                                    where F: Facade
+    {
+        UniformBuffer::empty_unsized_impl(facade, size, BufferMode::Dynamic)
+    }
+
+    /// Creates an empty buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    ///
+    pub fn empty_unsized_persistent<F>(facade: &F, size: usize)
+                                       -> Result<UniformBuffer<T>, BufferCreationError>
+                                       where F: Facade
+    {
+        UniformBuffer::empty_unsized_impl(facade, size, BufferMode::Persistent)
+    }
+
+    /// Creates an empty buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    ///
+    pub fn empty_unsized_immutable<F>(facade: &F, size: usize)
+                                      -> Result<UniformBuffer<T>, BufferCreationError>
+                                      where F: Facade
+    {
+        UniformBuffer::empty_unsized_impl(facade, size, BufferMode::Immutable)
+    }
+
+    fn empty_unsized_impl<F>(facade: &F, size: usize, mode: BufferMode)
+                             -> Result<UniformBuffer<T>, BufferCreationError>
+                             where F: Facade
+    {
+        let buffer = try!(BufferView::empty_unsized(facade, BufferType::UniformBuffer, size, mode));
 
         Ok(UniformBuffer {
             buffer: buffer,
