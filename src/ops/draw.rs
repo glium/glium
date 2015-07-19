@@ -410,7 +410,7 @@ fn sync_stencil(ctxt: &mut context::CommandContext, params: &DrawParameters) {
     }
 
     if ctxt.state.stencil_func_front != (test_ccw, params.stencil_reference_value_counter_clockwise, read_mask_ccw) {
-        unsafe { ctxt.gl.StencilFuncSeparate(gl::FRONT, test_cw, params.stencil_reference_value_clockwise, read_mask_cw) };
+        unsafe { ctxt.gl.StencilFuncSeparate(gl::FRONT, test_ccw, params.stencil_reference_value_counter_clockwise, read_mask_ccw) };
         ctxt.state.stencil_func_front = (test_ccw, params.stencil_reference_value_counter_clockwise, read_mask_ccw);
     }
 
