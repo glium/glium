@@ -1,17 +1,19 @@
 # Change Log
 
-## Unreleased
+## Version 0.8.0 (2015-07-19)
 
- - `VertexBuffer` and `IndexBuffer` constructors now take a `&[T]`.
- - `BufferView`'s constructors now take a `BufferMode`.
- - `new` and `dynamic` are now less specialized, which should fix some performance bottlenecks.
- - All buffer constructors now come in four variants: `new`, `dynamic`, `persistent`, `immutable`.
+ - Removed all Cargo features related to OpenGL compatibility.
+ - Replaced all `new_if_supported` or `empty_if_supported` functions with `new` or `empty` and a proper error type.
  - All `new` and `empty` constructors now return an error if the operation is not supported.
+ - `VertexBuffer` and `IndexBuffer` constructors now take a `&[T]`.
+ - Updated glutin to version 0.3.
+ - `BufferView`'s constructors now take a `BufferMode`.
  - Replaced `read` and `read_if_supported` with `read` that returns a `ReadError`.
  - Added `buffer::is_buffer_read_supported`.
- - Replaced all `new_if_supported` or `empty_if_supported` functions with `new` or `empty` and a proper error type.
  - Removed the deprecated `new_empty` function from textures.
  - Reworked `TextureCreationError` and removed `TextureMaybeSupportedCreationError`.
+ - `new` and `dynamic` are now less specialized, which should fix some performance bottlenecks.
+ - All buffer constructors now come in four variants: `new`, `dynamic`, `persistent`, `immutable`.
  - Add support for all missing vertex attributes.
  - Fixed stencil operations sometimes not working.
 
