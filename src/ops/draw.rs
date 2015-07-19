@@ -441,7 +441,9 @@ fn sync_stencil(ctxt: &mut context::CommandContext, params: &DrawParameters) {
     }
 
     let enable_stencil = test_cw != gl::ALWAYS || test_ccw != gl::ALWAYS ||
-                         op_back.0 != gl::KEEP || op_front.0 != gl::KEEP;
+                         op_back.0 != gl::KEEP || op_front.0 != gl::KEEP ||
+                         op_back.1 != gl::KEEP || op_front.1 != gl::KEEP ||
+                         op_back.2 != gl::KEEP || op_front.2 != gl::KEEP;
     if ctxt.state.enabled_stencil_test != enable_stencil {
         if enable_stencil {
             unsafe { ctxt.gl.Enable(gl::STENCIL_TEST) };

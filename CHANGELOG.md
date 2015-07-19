@@ -13,6 +13,7 @@
  - Removed the deprecated `new_empty` function from textures.
  - Reworked `TextureCreationError` and removed `TextureMaybeSupportedCreationError`.
  - Add support for all missing vertex attributes.
+ - Fixed stencil operations sometimes not working.
 
 ## Version 0.7.1 (2015-07-14)
 
