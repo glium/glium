@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Added `DrawParameters::ProvokingVertex` and `DrawError::ProvokingVertexNotSupported`.
+ - `DrawParametersBuilder` is now deprecated.
 
 ## Version 0.8.0 (2015-07-19)
 

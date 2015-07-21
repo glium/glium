@@ -11,20 +11,6 @@
 //! };
 //! ```
 //!
-//! # The new API
-//!
-//! A new API is currently in construction. Example:
-//!
-//! ```ignore
-//! # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-//! let params = glium::DrawParameters::new(&display)
-//!                 .with_rasterizer_discard_if_supported().unwrap()
-//!                 .With_scissor(glium::Rect { bottom: 0, left: 100, width: 100, height: 200 });
-//! ```
-//!
-//! Instead of the draw command generating errors because of non-supported parameters, the errors
-//! will be generated directly when creating the parameters.
-//!
 //! # Queries
 //!
 //! Query objects allow you to obtain information about the rendering process. For example, a
@@ -885,9 +871,7 @@ impl<'a> Default for DrawParameters<'a> {
     }
 }
 
-/// This is what the new API of `DrawParameters` will look like in a future version.
-///
-/// FIXME: add the missing functions (with a better API)
+/// DEPRECATED. Do not use.
 pub struct DrawParametersBuilder<'a> {
     context: &'a Rc<Context>,
     params: DrawParameters<'a>,
