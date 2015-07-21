@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added `DrawParameters::ProvokingVertex` and `DrawError::ProvokingVertexNotSupported`.
+
 ## Version 0.8.0 (2015-07-19)
 
  - Removed all Cargo features related to OpenGL compatibility.

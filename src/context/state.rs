@@ -200,6 +200,9 @@ pub struct GlState {
     /// The latest value passed to `glHint` for smoothing.
     pub smooth: (gl::types::GLenum, gl::types::GLenum),
 
+    /// The latest value passed to `glProvokingVertex`.
+    pub provoking_vertex: gl::types::GLenum,
+
     /// The latest value passed to `glPixelStore` with `GL_UNPACK_ALIGNMENT`.
     pub pixel_store_unpack_alignment: gl::types::GLint,
 
@@ -400,6 +403,7 @@ impl Default for GlState {
             cull_face: gl::BACK,
             polygon_mode: gl::FILL,
             smooth: (gl::DONT_CARE, gl::DONT_CARE),
+            provoking_vertex: gl::LAST_VERTEX_CONVENTION,
             pixel_store_unpack_alignment: 4,
             pixel_store_pack_alignment: 4,
             patch_patch_vertices: 3,

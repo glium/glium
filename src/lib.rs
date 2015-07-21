@@ -840,6 +840,9 @@ pub enum DrawError {
 
     /// You requested smoothing, but this is not supported by the backend.
     SmoothingNotSupported,
+
+    /// The requested provoking vertex is not supported by the backend.
+    ProvokingVertexNotSupported,
 }
 
 impl std::fmt::Display for DrawError {
@@ -893,6 +896,9 @@ impl std::fmt::Display for DrawError {
             &DrawError::WrongQueryOperation => write!(fmt, "Wrong query operation."),
             &DrawError::SmoothingNotSupported => write!(fmt, "Trying to use smoothing, but this is \
                                                               not supported by the backend."),
+            &DrawError::ProvokingVertexNotSupported => write!(fmt, "Trying to set the provoking \
+                                                                    vertex, but this is not \
+                                                                    supported by the backend."),
         }
     }
 }

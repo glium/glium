@@ -523,11 +523,23 @@ pub enum Smooth {
 impl ToGlEnum for Smooth {
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
-          Smooth::Fastest => gl::FASTEST,
-          Smooth::Nicest => gl::NICEST,
-          Smooth::DontCare => gl::DONT_CARE,
+            Smooth::Fastest => gl::FASTEST,
+            Smooth::Nicest => gl::NICEST,
+            Smooth::DontCare => gl::DONT_CARE,
         }
     }
+}
+
+/// The vertex to use for flat shading.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ProvokingVertex {
+    /// Use the last vertex of each primitive.
+    LastVertex,
+
+    /// Use the first vertex of each primitive.
+    ///
+    /// Note that for triangle fans, this is not the first vertex but the second vertex.
+    FirstVertex,
 }
 
 /// Represents the parameters to use when drawing.
@@ -785,6 +797,15 @@ pub struct DrawParameters<'a> {
     /// 
     /// Note that blending needs to be enabled for this to work.
     pub smooth: Option<Smooth>,
+
+    /// In your vertex shader or geometry shader, you have the possibility to mark some output
+    /// varyings as `flat`. If this is the case, the value of one of the vertices will be used
+    /// for the whole primitive. This variable allows you to specify which vertex.
+    ///
+    /// The default value is `LastVertex`, as this is the default in OpenGL. Any other value can
+    /// potentially trigger a `ProvokingVertexNotSupported` error. Most notably OpenGL ES doesn't
+    /// support anything else but `LastVertex`.
+    pub provoking_vertex: ProvokingVertex,
 }
 
 /// Condition whether to render or not.
@@ -859,6 +880,7 @@ impl<'a> Default for DrawParameters<'a> {
             condition: None,
             transform_feedback: None,
             smooth: None,
+            provoking_vertex: ProvokingVertex::LastVertex,
         }
     }
 }
