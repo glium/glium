@@ -24,7 +24,7 @@ use draw_parameters::{BlendingFunction, BackfaceCullingMode};
 use draw_parameters::{DepthTest, PolygonMode, StencilTest};
 use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
 use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery, ConditionalRendering};
-use draw_parameters::{Smooth};
+use draw_parameters::{Smooth, ProvokingVertex};
 use Rect;
 
 use libc;
@@ -195,6 +195,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                           draw_parameters.transform_feedback_primitives_written_query));
         sync_conditional_render(&mut ctxt, draw_parameters.condition);
         try!(sync_smooth(&mut ctxt, draw_parameters.smooth, indices.get_primitives_type()));
+        try!(sync_provoking_vertex(&mut ctxt, draw_parameters.provoking_vertex));
 
         // TODO: make sure that the program is the right one
         // TODO: changing the current transform feedback requires pausing/unbinding before changing the program
@@ -865,6 +866,33 @@ fn sync_smooth(ctxt: &mut context::CommandContext,
                 }
             }
         }
+    }
+
+    Ok(())
+}
+
+fn sync_provoking_vertex(ctxt: &mut context::CommandContext, value: ProvokingVertex)
+                         -> Result<(), DrawError>
+{
+    let value = match value {
+        ProvokingVertex::LastVertex => gl::LAST_VERTEX_CONVENTION,
+        ProvokingVertex::FirstVertex => gl::FIRST_VERTEX_CONVENTION,
+    };
+
+    if ctxt.state.provoking_vertex == value {
+        return Ok(());
+    }
+
+    if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_provoking_vertex {
+        unsafe { ctxt.gl.ProvokingVertex(value); }
+        ctxt.state.provoking_vertex = value;
+
+    } else if ctxt.extensions.gl_ext_provoking_vertex {
+        unsafe { ctxt.gl.ProvokingVertexEXT(value); }
+        ctxt.state.provoking_vertex = value;
+
+    } else {
+        return Err(DrawError::ProvokingVertexNotSupported);
     }
 
     Ok(())

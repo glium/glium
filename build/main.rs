@@ -65,6 +65,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_EXT_framebuffer_sRGB".to_string(),
                 "GL_EXT_gpu_shader4".to_string(),
                 "GL_EXT_packed_depth_stencil".to_string(),
+                "GL_EXT_provoking_vertex".to_string(),
                 "GL_EXT_texture_compression_s3tc".to_string(),
                 "GL_EXT_texture_filter_anisotropic".to_string(),
                 "GL_EXT_texture_integer".to_string(),

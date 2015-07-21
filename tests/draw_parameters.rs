@@ -761,3 +761,145 @@ blending_test!(one_plus_one, glium::BlendingFunction::Addition {
                    destination: glium::LinearBlendingFactor::One,
                },
                (0.0, 1.0, 1.0, 0.0), (1.0, 0.0, 0.0, 1.0), (255, 255, 255, 255));
+
+
+#[test]
+fn provoking_vertex_last() {
+    let display = support::build_display();
+
+    let vertex_buffer = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            value: (f32, f32),
+        }
+
+        implement_vertex!(Vertex, value);
+
+        glium::VertexBuffer::new(&display, &[
+            Vertex { value: (-1.0, 1.0) },
+            Vertex { value: (1.0, -1.0) },
+            Vertex { value: (-1.0, -1.0) },
+        ]).unwrap()
+    };
+
+    let program = glium::Program::from_source(&display, "
+            #version 100
+
+            attribute lowp vec2 value;
+            varying lowp flat float v_value;
+
+            void main() {
+                v_value = value.y;
+                gl_Position = vec4(value, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 100
+
+            varying lowp flat float v_value;
+
+            void main() {
+                gl_FragColor = vec4(1.0, (v_value + 1.0) * 0.5, 0.0, 1.0);
+            }
+        ", None);
+    let program = match program {
+        Err(_) => return,
+        Ok(p) => p
+    };
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList), &program,
+        &glium::uniforms::EmptyUniforms,
+        &glium::DrawParameters {
+            provoking_vertex: glium::draw_parameters::ProvokingVertex::LastVertex,
+            .. Default::default()
+        }).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+
+    // only the bottom-left half of the screen is filled
+    for row in data.iter().take(256) {
+        for pixel in row.iter().take(256) {
+            assert_eq!(pixel, &(255, 0, 0, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn provoking_vertex_first() {
+    let display = support::build_display();
+
+    let vertex_buffer = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            value: (f32, f32),
+        }
+
+        implement_vertex!(Vertex, value);
+
+        glium::VertexBuffer::new(&display, &[
+            Vertex { value: (-1.0, 1.0) },
+            Vertex { value: (1.0, -1.0) },
+            Vertex { value: (-1.0, -1.0) },
+        ]).unwrap()
+    };
+
+    let program = glium::Program::from_source(&display, "
+            #version 100
+
+            attribute lowp vec2 value;
+            varying lowp flat float v_value;
+
+            void main() {
+                v_value = value.y;
+                gl_Position = vec4(value, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 100
+
+            varying lowp flat float v_value;
+
+            void main() {
+                gl_FragColor = vec4(1.0, (v_value + 1.0) * 0.5, 0.0, 1.0);
+            }
+        ", None);
+    let program = match program {
+        Err(_) => return,
+        Ok(p) => p
+    };
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    let res = texture.as_surface().draw(&vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList), &program,
+        &glium::uniforms::EmptyUniforms,
+        &glium::DrawParameters {
+            provoking_vertex: glium::draw_parameters::ProvokingVertex::FirstVertex,
+            .. Default::default()
+        });
+
+    match res {
+        Ok(_) => (),
+        Err(glium::DrawError::ProvokingVertexNotSupported) => {
+            display.assert_no_error(None);
+            return;
+        },
+        e => e.unwrap(),
+    }
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+
+    // only the bottom-left half of the screen is filled
+    for row in data.iter().take(256) {
+        for pixel in row.iter().take(256) {
+            assert_eq!(pixel, &(255, 255, 0, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}

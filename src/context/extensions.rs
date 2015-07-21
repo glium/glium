@@ -60,6 +60,8 @@ pub struct ExtensionsList {
     pub gl_arb_pixel_buffer_object: bool,
     /// GL_ARB_program_interface_query
     pub gl_arb_program_interface_query: bool,
+    /// GL_ARB_provoking_vertex
+    pub gl_arb_provoking_vertex: bool,
     /// GL_ARB_sampler_objects
     pub gl_arb_sampler_objects: bool,
     /// GL_ARB_shader_image_load_store
@@ -134,6 +136,8 @@ pub struct ExtensionsList {
     pub gl_ext_occlusion_query_boolean: bool,
     /// GL_EXT_packed_depth_stencil
     pub gl_ext_packed_depth_stencil: bool,
+    /// GL_EXT_provoking_vertex
+    pub gl_ext_provoking_vertex: bool,
     /// GL_EXT_robustness
     pub gl_ext_robustness: bool,
     /// GL_EXT_sRGB_write_control
@@ -222,6 +226,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_arb_multi_draw_indirect: false,
         gl_arb_pixel_buffer_object: false,
         gl_arb_program_interface_query: false,
+        gl_arb_provoking_vertex: false,
         gl_arb_robustness: false,
         gl_arb_robust_buffer_access_behavior: false,
         gl_arb_sampler_objects: false,
@@ -260,6 +265,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
         gl_ext_multi_draw_indirect: false,
         gl_ext_occlusion_query_boolean: false,
         gl_ext_packed_depth_stencil: false,
+        gl_ext_provoking_vertex: false,
         gl_ext_robustness: false,
         gl_ext_srgb_write_control: false,
         gl_ext_texture_compression_s3tc: false,
@@ -313,6 +319,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_ARB_program_interface_query" => extensions.gl_arb_program_interface_query = true,
             "GL_ARB_map_buffer_range" => extensions.gl_arb_map_buffer_range = true,
             "GL_ARB_multi_draw_indirect" => extensions.gl_arb_multi_draw_indirect = true,
+            "GL_ARB_provoking_vertex" => extensions.gl_arb_provoking_vertex = true,
             "GL_ARB_robustness" => extensions.gl_arb_robustness = true,
             "GL_ARB_robust_buffer_access_behavior" => extensions.gl_arb_robust_buffer_access_behavior = true,
             "GL_ARB_sampler_objects" => extensions.gl_arb_sampler_objects = true,
@@ -351,6 +358,7 @@ pub unsafe fn get_extensions(gl: &gl::Gl, version: &Version) -> ExtensionsList {
             "GL_EXT_multi_draw_indirect" => extensions.gl_ext_multi_draw_indirect = true,
             "GL_EXT_occlusion_query_boolean" => extensions.gl_ext_occlusion_query_boolean = true,
             "GL_EXT_packed_depth_stencil" => extensions.gl_ext_packed_depth_stencil = true,
+            "GL_EXT_provoking_vertex" => extensions.gl_ext_provoking_vertex = true,
             "GL_EXT_robustness" => extensions.gl_ext_robustness = true,
             "GL_EXT_sRGB_write_control" => extensions.gl_ext_srgb_write_control = true,
             "GL_EXT_texture_compression_s3tc" => extensions.gl_ext_texture_compression_s3tc = true,
