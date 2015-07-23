@@ -351,23 +351,23 @@ impl VertexArrayObject {
     fn destroy(mut self, mut ctxt: &mut CommandContext) {
         self.destroyed = true;
 
-        unsafe {
-            // unbinding
-            bind_vao(ctxt, 0);
+        // unbinding
+        if ctxt.state.vertex_array == self.id {
+            ctxt.state.vertex_array = 0;
+        }
 
-            // deleting
-            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-                ctxt.extensions.gl_arb_vertex_array_object
-            {
-                ctxt.gl.DeleteVertexArrays(1, [ self.id ].as_ptr());
-            } else if ctxt.extensions.gl_oes_vertex_array_object {
-                ctxt.gl.DeleteVertexArraysOES(1, [ self.id ].as_ptr());
-            } else if ctxt.extensions.gl_apple_vertex_array_object {
-                ctxt.gl.DeleteVertexArraysAPPLE(1, [ self.id ].as_ptr());
-            } else {
-                unreachable!();
-            }
+        // deleting
+        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+            ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+            ctxt.extensions.gl_arb_vertex_array_object
+        {
+            unsafe { ctxt.gl.DeleteVertexArrays(1, [ self.id ].as_ptr()) };
+        } else if ctxt.extensions.gl_oes_vertex_array_object {
+            unsafe { ctxt.gl.DeleteVertexArraysOES(1, [ self.id ].as_ptr()) };
+        } else if ctxt.extensions.gl_apple_vertex_array_object {
+            unsafe { ctxt.gl.DeleteVertexArraysAPPLE(1, [ self.id ].as_ptr()) };
+        } else {
+            unreachable!();
         }
     }
 }
