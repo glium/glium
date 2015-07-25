@@ -784,3 +784,77 @@ fn unsized_array() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn array_layout_offsets() {
+    let display = support::build_display();
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 330
+            uniform layout(std140);
+
+            struct Foo {
+                vec3 pos;
+                vec3 dir;
+                float speed;
+            };
+
+            uniform MyBlock {
+                Foo data[256];
+            };
+
+            void main() {
+                gl_Position = vec4(data[0].pos, 1.0);
+            }
+        ",
+        "
+            #version 140
+
+            out vec4 color;
+
+            void main() {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        ",
+        None);
+
+    // ignoring test in case of compilation error (version may not be supported)
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
+
+    let blocks = program.get_uniform_blocks();
+
+    assert_eq!(blocks.len(), 1);
+    let my_block = blocks.get("MyBlock").unwrap();
+
+    assert_eq!(my_block.layout, glium::program::BlockLayout::Struct {
+        members: vec![
+            ("data".to_string(), glium::program::BlockLayout::Array {
+                content: Box::new(glium::program::BlockLayout::Struct {
+                    members: vec![
+                        ("pos".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::FloatVec3,
+                            offset_in_buffer: 0,
+                        }),
+
+                        ("dir".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::FloatVec3,
+                            offset_in_buffer: 16,
+                        }),
+
+                        ("speed".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::Float,
+                            offset_in_buffer: 28,
+                        }),
+                    ],
+                }),
+                length: 256,
+            }),
+        ]
+    });
+
+    display.assert_no_error(None);
+}
