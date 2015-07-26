@@ -107,6 +107,7 @@ extensions! {
     "GL_EXT_framebuffer_blit" => gl_ext_framebuffer_blit,
     "GL_EXT_framebuffer_object" => gl_ext_framebuffer_object,
     "GL_EXT_framebuffer_sRGB" => gl_ext_framebuffer_srgb,
+    "GL_EXT_geometry_shader" => gl_ext_geometry_shader,
     "GL_EXT_geometry_shader4" => gl_ext_geometry_shader4,
     "GL_EXT_gpu_shader4" => gl_ext_gpu_shader4,
     "GL_EXT_multi_draw_indirect" => gl_ext_multi_draw_indirect,

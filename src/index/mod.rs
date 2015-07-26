@@ -147,7 +147,8 @@ impl PrimitiveType {
             &PrimitiveType::TrianglesListAdjacency | &PrimitiveType::TriangleStripAdjacency => {
                 caps.get_version() >= &Version(Api::Gl, 3, 0) ||
                 caps.get_extensions().gl_arb_geometry_shader4 ||
-                caps.get_extensions().gl_ext_geometry_shader4
+                caps.get_extensions().gl_ext_geometry_shader4 ||
+                caps.get_extensions().gl_ext_geometry_shader
             },
 
             &PrimitiveType::Patches { .. } => {
