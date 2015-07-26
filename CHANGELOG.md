@@ -4,6 +4,7 @@
 
  - Added `DrawParameters::ProvokingVertex` and `DrawError::ProvokingVertexNotSupported`.
  - `DrawParametersBuilder` is now deprecated.
+ - `ProgramCreationInput` now has a `outputs_srgb` member.
  - Fixed a bug with offsets of members in arrays.
  - Added support for the `GL_EXT_geometry_shader` OpenGL ES extension.
 

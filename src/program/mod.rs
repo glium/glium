@@ -144,6 +144,13 @@ pub enum ProgramCreationInput<'a> {
         /// `None`, then you won't be able to use transform feedback.
         transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
 
+        /// Whether the fragment shader outputs colors in `sRGB` or `RGB`. This is false by default,
+        /// meaning that the program outputs `RGB`.
+        ///
+        /// If this is false, then `GL_FRAMEBUFFER_SRGB` will be enabled when this program is used
+        /// (if it is supported).
+        outputs_srgb: bool,
+
         /// Whether the shader uses point size.
         uses_point_size: bool,
     },
@@ -152,6 +159,9 @@ pub enum ProgramCreationInput<'a> {
     Binary {
         /// The data.
         data: Binary,
+
+        /// See `SourceCode::outputs_srgb`.
+        outputs_srgb: bool,
 
         /// Whether the shader uses point size.
         uses_point_size: bool,
@@ -188,6 +198,7 @@ impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
             geometry_shader: geometry_shader,
             fragment_shader: fragment_shader,
             transform_feedback_varyings: None,
+            outputs_srgb: false,
             uses_point_size: false,
         }
     }
@@ -206,6 +217,7 @@ impl<'a> From<Binary> for ProgramCreationInput<'a> {
     fn from(binary: Binary) -> ProgramCreationInput<'a> {
         ProgramCreationInput::Binary {
             data: binary,
+            outputs_srgb: false,
             uses_point_size: false,
         }
     }

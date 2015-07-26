@@ -271,7 +271,8 @@ trait ContextExt {
 
 /// Internal trait for programs.
 trait ProgramExt {
-    /// Calls `glUseProgram` and enables/disables `GL_PROGRAM_POINT_SIZE`.
+    /// Calls `glUseProgram` and enables/disables `GL_PROGRAM_POINT_SIZE` and
+    /// `GL_FRAMEBUFFER_SRGB`.
     fn use_program(&self, ctxt: &mut context::CommandContext);
 
     /// Changes the value of a uniform of the program.

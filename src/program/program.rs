@@ -30,6 +30,7 @@ use vertex::VertexFormat;
 /// A combination of shaders linked together.
 pub struct Program {
     raw: RawProgram,
+    outputs_srgb: bool,
     uses_point_size: bool,
 }
 
@@ -40,11 +41,11 @@ impl Program {
     {
         let input = input.into();
 
-        let (raw, uses_point_size) = match input {
+        let (raw, outputs_srgb, uses_point_size) = match input {
             ProgramCreationInput::SourceCode { vertex_shader, tessellation_control_shader,
                                                tessellation_evaluation_shader, geometry_shader,
                                                fragment_shader, transform_feedback_varyings,
-                                               uses_point_size } =>
+                                               outputs_srgb, uses_point_size } =>
             {
                 let mut has_geometry_shader = false;
                 let mut has_tessellation_shaders = false;
@@ -93,20 +94,23 @@ impl Program {
 
                 (try!(RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
                                                has_tessellation_shaders, transform_feedback_varyings)),
-                 uses_point_size)
+                 outputs_srgb, uses_point_size)
             },
 
-            ProgramCreationInput::Binary { data, uses_point_size } => {
+            ProgramCreationInput::Binary { data, outputs_srgb, uses_point_size } => {
                 if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
-                (try!(RawProgram::from_binary(facade, data)),
-                 uses_point_size)
+                (try!(RawProgram::from_binary(facade, data)), outputs_srgb, uses_point_size)
             },
         };
 
-        Ok(Program { raw: raw, uses_point_size: uses_point_size })
+        Ok(Program {
+            raw: raw,
+            outputs_srgb: outputs_srgb,
+            uses_point_size: uses_point_size,
+        })
     }
 
     /// Builds a new program from GLSL source code.
@@ -139,6 +143,7 @@ impl Program {
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
             transform_feedback_varyings: None,
+            outputs_srgb: false,
             uses_point_size: false,
         })
     }
@@ -247,7 +252,7 @@ impl Program {
 
     /// Returns true if the program has been configured to output sRGB instead of RGB.
     pub fn has_srgb_output(&self) -> bool {
-        self.raw.has_srgb_output()
+        self.outputs_srgb
     }
     
     /// Returns the list of shader storage blocks.
@@ -289,11 +294,25 @@ impl GlObject for Program {
 
 impl ProgramExt for Program {
     fn use_program(&self, ctxt: &mut CommandContext) {
+        // compatibility was checked at program creation
         if self.uses_point_size && !ctxt.state.enabled_program_point_size {
             unsafe { ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE); }
-        }
-        else if !self.uses_point_size && ctxt.state.enabled_program_point_size {
+        } else if !self.uses_point_size && ctxt.state.enabled_program_point_size {
             unsafe { ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE); }
+        }
+
+        if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
+           ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control
+        {
+            if ctxt.state.enabled_framebuffer_srgb == self.outputs_srgb {
+                ctxt.state.enabled_framebuffer_srgb = !self.outputs_srgb;
+
+                if self.outputs_srgb {
+                    unsafe { ctxt.gl.Disable(gl::FRAMEBUFFER_SRGB) };
+                } else {
+                    unsafe { ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB) };
+                }
+            }
         }
 
         self.raw.use_program(ctxt)
