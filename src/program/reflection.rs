@@ -344,6 +344,13 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
     let mut active_blocks: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCKS, &mut active_blocks);
 
+    // WORK-AROUND: AMD OpenGL ES drivers don't accept `GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH`
+    //              even though they report OpenGL ES 3.1. So we return early on if possible.
+    // TODO: find a better work-around ^
+    if active_blocks == 0 {
+        return HashMap::new();
+    }
+
     let mut active_blocks_max_name_len: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH,
                          &mut active_blocks_max_name_len);
