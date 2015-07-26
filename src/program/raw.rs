@@ -407,11 +407,6 @@ impl RawProgram {
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.attributes.iter()
     }
-
-    /// Returns true if the program has been configured to output sRGB instead of RGB.
-    pub fn has_srgb_output(&self) -> bool {
-        false
-    }
     
     /// Returns the list of shader storage blocks.
     ///

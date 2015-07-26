@@ -204,17 +204,6 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         } else {
             TransformFeedbackSession::unbind(&mut ctxt);
         }
-
-        if !program.has_srgb_output() {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
-               ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control
-            {
-                if !ctxt.state.enabled_framebuffer_srgb {
-                    ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB);
-                    ctxt.state.enabled_framebuffer_srgb = true;
-                }
-            }
-        }
     }
 
     // drawing

@@ -22,6 +22,7 @@ fn transform_feedback() {
         tessellation_control_shader: None,
         tessellation_evaluation_shader: None,
         geometry_shader: None,
+        outputs_srgb: false,
         uses_point_size: false,
 
         vertex_shader: "

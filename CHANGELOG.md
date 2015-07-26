@@ -4,6 +4,7 @@
 
  - Added `DrawParameters::ProvokingVertex` and `DrawError::ProvokingVertexNotSupported`.
  - `DrawParametersBuilder` is now deprecated.
+ - `ProgramCreationInput` now has a `outputs_srgb` member.
  - Fixed a bug with offsets of members in arrays.
 
 ## Version 0.8.0 (2015-07-19)
