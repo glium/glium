@@ -111,6 +111,12 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             match val as gl::types::GLenum {
                 gl::LOSE_CONTEXT_ON_RESET => true,
                 gl::NO_RESET_NOTIFICATION => false,
+
+                // WORK-AROUND: AMD drivers erroneously return this value, which doesn't even
+                //              correspond to any GLenum in the specs. We work around this bug
+                //              by interpreting it as `false`.
+                0x31BE => false,
+
                 _ => unreachable!()
             }
 
