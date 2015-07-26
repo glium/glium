@@ -187,7 +187,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         sync_dithering(&mut ctxt, draw_parameters.dithering);
         sync_viewport_scissor(&mut ctxt, draw_parameters.viewport, draw_parameters.scissor,
                               dimensions);
-        sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives);
+        try!(sync_rasterizer_discard(&mut ctxt, draw_parameters.draw_primitives));
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
         try!(sync_queries(&mut ctxt, draw_parameters.samples_passed_query,
                           draw_parameters.time_elapsed_query,
@@ -695,7 +695,9 @@ fn sync_viewport_scissor(ctxt: &mut context::CommandContext, viewport: Option<Re
     }
 }
 
-fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: bool) {
+fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: bool)
+                           -> Result<(), DrawError>
+{
     if ctxt.state.enabled_rasterizer_discard == draw_primitives {
         if ctxt.version >= &Version(Api::Gl, 3, 0) {
             if draw_primitives {
@@ -716,9 +718,11 @@ fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: 
             }
 
         } else {
-            unreachable!();
+            return Err(DrawError::RasterizerDiscardNotSupported);
         }
     }
+
+    Ok(())
 }
 
 unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext, vertices_per_patch: Option<u16>) {

@@ -1048,7 +1048,7 @@ pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawEr
     if !params.draw_primitives && context.get_version() < &Version(Api::Gl, 3, 0) &&
         !context.get_extensions().gl_ext_transform_feedback
     {
-        return Err(DrawError::TransformFeedbackNotSupported);
+        return Err(DrawError::RasterizerDiscardNotSupported);
     }
 
     Ok(())
