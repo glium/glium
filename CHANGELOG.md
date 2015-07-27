@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.8.1 (2015-07-27)
 
  - Added `DrawParameters::ProvokingVertex` and `DrawError::ProvokingVertexNotSupported`.
  - Added `DrawError::RasterizerDiscardNotSupported`.
