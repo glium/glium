@@ -317,6 +317,9 @@ trait QueryExt {
 
 /// Internal trait for textures.
 trait TextureExt {
+    /// Returns the ID of the texture.
+    fn get_texture_id(&self) -> gl::types::GLuint;
+
     /// Returns the context associated to this texture.
     fn get_context(&self) -> &Rc<Context>;
 

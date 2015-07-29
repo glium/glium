@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added a `buffer_texture` module in `texture`.
+
 ## Version 0.8.1 (2015-07-27)
 
  - Added `DrawParameters::ProvokingVertex` and `DrawError::ProvokingVertexNotSupported`.
