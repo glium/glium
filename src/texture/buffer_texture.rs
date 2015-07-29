@@ -17,13 +17,17 @@ it doesn't have any mipmap, etc.
 # Formats
 
 In order to build a `BufferTexture`, the elements of the buffer must implement the
-`TextureBufferContent` trait.
+`TextureBufferContent` trait. Even though a buffer can hold any type of data, a buffer texture
+only supports some precise formats of data.
 
-Support for some of the formats has been added over time in OpenGL. The following formats have the
+Support for various formats has been added in OpenGL over time. The following formats have the
 most chances of being supported:
 
  - `F16F16F16F16`
+ - `F32F32F32`
  - `F32F32F32F32`
+ - `U32U32U32`
+ - `I32I32I32`
  - `U8U8U8U8`
  - `I8I8I8I8`
  - `U16U16U16U16`
@@ -307,6 +311,16 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                                                                                       gl::RGBA16UI,
                 (TextureBufferContentType::U32U32U32U32, BufferTextureType::Unsigned) =>
                                                                                       gl::RGBA32UI,
+
+                (TextureBufferContentType::U32U32U32, BufferTextureType::Unsigned)
+                                            if ctxt.extensions.gl_arb_texture_buffer_object_rgb32
+                                                                                    => gl::RGB32UI,
+                (TextureBufferContentType::I32I32I32, BufferTextureType::Integral)
+                                            if ctxt.extensions.gl_arb_texture_buffer_object_rgb32
+                                                                                    => gl::RGB32I,
+                (TextureBufferContentType::F32F32F32, BufferTextureType::Float)
+                                            if ctxt.extensions.gl_arb_texture_buffer_object_rgb32
+                                                                                    => gl::RGB32F,
 
                 // TODO: intensity?
 
