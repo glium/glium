@@ -11,9 +11,11 @@ mod support;
 fn empty() {
     let display = support::build_display();
 
-    let texture: BufferTexture<(u8, u8, u8, u8)> = BufferTexture::empty(&display, 32,
-                                                                        BufferTextureType::Float)
-                                                                        .unwrap();
+    let texture = BufferTexture::empty(&display, 32, BufferTextureType::Float);
+    let texture: BufferTexture<(u8, u8, u8, u8)> = match texture {
+        Ok(t) => t,
+        Err(_) => return
+    };
 
     display.assert_no_error(None);
     drop(texture);
@@ -25,9 +27,11 @@ fn sample() {
     let display = support::build_display();
 
     let data = &[(255, 0, 255, 255)];
-    let buf_tex: BufferTexture<(u8, u8, u8, u8)> = BufferTexture::new(&display, data,
-                                                                      BufferTextureType::Float)
-                                                                      .unwrap();
+    let buf_tex = BufferTexture::new(&display, data, BufferTextureType::Float);
+    let buf_tex: BufferTexture<(u8, u8, u8, u8)> = match buf_tex {
+        Ok(t) => t,
+        Err(_) => return
+    };
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
@@ -50,7 +54,11 @@ fn sample() {
                 gl_FragColor = texelFetch(tex, 0);
             }
         ",
-        None).unwrap();
+        None);
+    let program = match program {
+        Ok(p) => p,
+        Err(_) => return
+    };
 
     let output = support::build_renderable_texture(&display);
     output.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
