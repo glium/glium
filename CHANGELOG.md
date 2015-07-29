@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.8.2 (2015-07-29)
 
  - Added a `buffer_texture` module in `texture`.
  - Added `DrawParameters::depth_clamp` and `DrawError::DepthClampNotSupported`.
