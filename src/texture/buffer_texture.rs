@@ -7,13 +7,19 @@ alternative to uniform buffers and SSBOs.
 
 */
 use std::mem;
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
 
 use gl;
 use version::Version;
 use version::Api;
 use backend::Facade;
+use context::Context;
+use context::CommandContext;
 use ContextExt;
+
+use TextureExt;
 
 use BufferViewExt;
 use buffer::BufferMode;
@@ -21,6 +27,9 @@ use buffer::BufferType;
 use buffer::BufferView;
 use buffer::BufferCreationError;
 use buffer::Content as BufferContent;
+
+use uniforms::AsUniformValue;
+use uniforms::UniformValue;
 
 /// Error that can happen while building the texture part of a buffer texture.
 #[derive(Copy, Clone, Debug)]
@@ -336,6 +345,65 @@ impl<T> Drop for BufferTexture<T> where [T]: BufferContent {
         }
 
         unsafe { ctxt.gl.DeleteTextures(1, [ self.texture ].as_ptr()); }
+    }
+}
+
+impl<T> BufferTexture<T> where [T]: BufferContent {
+    /// Builds a `BufferTextureRef`.
+    pub fn as_buffer_texture_ref(&self) -> BufferTextureRef {
+        BufferTextureRef {
+            texture: self.texture,
+            ty: self.ty,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
+    fn as_uniform_value(&self) -> UniformValue {
+        // FIXME: handle `glMemoryBarrier` for the buffer
+        UniformValue::BufferTexture(self.as_buffer_texture_ref())
+    }
+}
+
+impl<'a, T: 'a> AsUniformValue for &'a BufferTexture<T> where [T]: BufferContent {
+    fn as_uniform_value(&self) -> UniformValue {
+        // FIXME: handle `glMemoryBarrier` for the buffer
+        UniformValue::BufferTexture(self.as_buffer_texture_ref())
+    }
+}
+
+/// Holds a reference to a `BufferTexture`.
+#[derive(Copy, Clone)]
+pub struct BufferTextureRef<'a> {
+    texture: gl::types::GLuint,
+    ty: BufferTextureType,
+    marker: PhantomData<&'a ()>,
+}
+
+impl<'a> BufferTextureRef<'a> {
+    /// Return the type of the texture.
+    pub fn get_texture_type(&self) -> BufferTextureType {
+        self.ty
+    }
+}
+
+impl<'a> TextureExt for BufferTextureRef<'a> {
+    fn get_texture_id(&self) -> gl::types::GLuint {
+        self.texture
+    }
+
+    fn get_context(&self) -> &Rc<Context> {
+        unimplemented!();       // TODO:
+    }
+
+    fn get_bind_point(&self) -> gl::types::GLenum {
+        gl::TEXTURE_BUFFER
+    }
+
+    fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
+        unsafe { ctxt.gl.BindTexture(gl::TEXTURE_BUFFER, self.texture); }
+        gl::TEXTURE_BUFFER
     }
 }
 

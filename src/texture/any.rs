@@ -728,6 +728,10 @@ impl TextureAny {
 }
 
 impl TextureExt for TextureAny {
+    fn get_texture_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+
     fn get_context(&self) -> &Rc<Context> {
         &self.context
     }

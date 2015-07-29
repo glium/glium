@@ -195,6 +195,7 @@ pub enum UniformValue<'a> {
     IntegralTexture2dMultisampleArray(&'a texture::IntegralTexture2dMultisampleArray, Option<SamplerBehavior>),
     UnsignedTexture2dMultisampleArray(&'a texture::UnsignedTexture2dMultisampleArray, Option<SamplerBehavior>),
     DepthTexture2dMultisampleArray(&'a texture::DepthTexture2dMultisampleArray, Option<SamplerBehavior>),
+    BufferTexture(texture::buffer_texture::BufferTextureRef<'a>),
 }
 
 impl<'a> Clone for UniformValue<'a> {
@@ -251,6 +252,15 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::IntegralTexture2dArray(_, _), UniformType::ISampler2dArray) => true,
             (&UniformValue::UnsignedTexture2dArray(_, _), UniformType::USampler2dArray) => true,
             (&UniformValue::DepthTexture2dArray(_, _), UniformType::Sampler2dArray) => true,
+            (&UniformValue::BufferTexture(tex), UniformType::SamplerBuffer) => {
+                tex.get_texture_type() == texture::buffer_texture::BufferTextureType::Float
+            },
+            (&UniformValue::BufferTexture(tex), UniformType::ISamplerBuffer) => {
+                tex.get_texture_type() == texture::buffer_texture::BufferTextureType::Integral
+            },
+            (&UniformValue::BufferTexture(tex), UniformType::USamplerBuffer) => {
+                tex.get_texture_type() == texture::buffer_texture::BufferTextureType::Unsigned
+            },
             _ => false,
         }
     }
