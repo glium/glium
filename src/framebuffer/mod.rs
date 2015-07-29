@@ -131,28 +131,28 @@ impl<'a> SimpleFrameBuffer<'a> {
     {
         let color = match color {
             ColorAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
+                texture: tex.get_texture(), layer: None, level: tex.get_level()
             },
             ColorAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         };
 
         let depth = depth.map(|depth| match depth {
             DepthAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
+                texture: tex.get_texture(), layer: None, level: tex.get_level()
             },
             DepthAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
 
         let stencil = stencil.map(|stencil|  match stencil {
             StencilAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
+                texture: tex.get_texture(), layer: None, level: tex.get_level()
             },
             StencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
 
         let depthstencil = depthstencil.map(|depthstencil| match depthstencil {
             DepthStencilAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
+                texture: tex.get_texture(), layer: None, level: tex.get_level()
             },
             DepthStencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
@@ -320,7 +320,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         let depth = depth.map(|depth| match depth.to_depth_attachment() {
             DepthAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
+                texture: tex.get_texture(), layer: None, level: tex.get_level()
             },
             DepthAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
         });
