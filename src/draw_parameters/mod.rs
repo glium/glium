@@ -349,6 +349,30 @@ impl ToGlEnum for DepthTest {
     }
 }
 
+/// Specifies whether the depth value of samples should be clamped to `0.0` or `1.0`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DepthClamp {
+    /// Do not clamp. Samples with values outside of the `[0.0, 1.0]` range will be discarded.
+    ///
+    /// This is the default value and is supported everywhere.
+    NoClamp,
+
+    /// Clamp the depth values. All samples will always be drawn.
+    ///
+    /// This value is only supported on OpenGL.
+    Clamp,
+
+    /// Depth values inferior to `0.0` will be clamped to `0.0`.
+    ///
+    /// **This option is supported only by very few OpenGL devices**.
+    ClampNear,
+
+    /// Depth values superior to `1.0` will be clamped to `1.0`.
+    ///
+    /// **This option is supported only by very few OpenGL devices**.
+    ClampFar,
+}
+
 /// Specifies which comparison the GPU will do to determine whether a sample passes the stencil
 /// test. The general equation is `(ref & mask) CMP (stencil & mask)`, where `ref` is the reference
 /// value (`stencil_reference_value_clockwise` or `stencil_reference_value_counter_clockwise`),
@@ -572,6 +596,11 @@ pub struct DrawParameters<'a> {
     /// The second value must be the "far" value, where `1.0` will be mapped.
     /// It is possible for the "near" value to be greater than the "far" value.
     pub depth_range: (f32, f32),
+
+    /// Sets whether the depth values of samples should be clamped to `0.0` and `1.0`.
+    ///
+    /// The default value is `NoClamp`.
+    pub depth_clamp: DepthClamp,
 
     /// A comparaison against the existing value in the stencil buffer.
     ///
@@ -836,6 +865,7 @@ impl<'a> Default for DrawParameters<'a> {
             depth_test: DepthTest::Overwrite,
             depth_write: false,
             depth_range: (0.0, 1.0),
+            depth_clamp: DepthClamp::NoClamp,
             stencil_test_clockwise: StencilTest::AlwaysPass,
             stencil_reference_value_clockwise: 0,
             stencil_write_mask_clockwise: 0xffffffff,

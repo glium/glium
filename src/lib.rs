@@ -850,6 +850,9 @@ pub enum DrawError {
 
     /// Discarding rasterizer output isn't supported by the backend.
     RasterizerDiscardNotSupported,
+
+    /// Depth clamping isn't supported by the backend.
+    DepthClampNotSupported,
 }
 
 impl std::fmt::Display for DrawError {
@@ -906,9 +909,11 @@ impl std::fmt::Display for DrawError {
             &DrawError::ProvokingVertexNotSupported => write!(fmt, "Trying to set the provoking \
                                                                     vertex, but this is not \
                                                                     supported by the backend."),
-            &DrawError::RasterizerDiscardNotSupported => write!(fmt,  "Discarding rasterizer \
-                                                                       output is not supported by
-                                                                       the backend."),
+            &DrawError::RasterizerDiscardNotSupported => write!(fmt, "Discarding rasterizer \
+                                                                      output is not supported by
+                                                                      the backend."),
+            &DrawError::DepthClampNotSupported => write!(fmt, "The depth clamp mode is not \
+                                                               supported by the backend."),
         }
     }
 }

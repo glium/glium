@@ -903,3 +903,343 @@ fn provoking_vertex_first() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn depth_clamp_all() {
+    let display = support::build_display();
+
+    let vertex_buffer = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            position: (f32, f32, f32),
+        }
+
+        implement_vertex!(Vertex, position);
+
+        glium::VertexBuffer::new(&display, &[
+            Vertex { position: (-1.0, 1.0, -3.0) },
+            Vertex { position: (1.0, 1.0, 3.0) },
+            Vertex { position: (-1.0, -1.0, -3.0) },
+            Vertex { position: (1.0, -1.0, 3.0) },
+        ]).unwrap()
+    };
+
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
+
+                in vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
+
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    let res = texture.as_surface().draw(&vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
+        &glium::uniforms::EmptyUniforms,
+        &glium::DrawParameters {
+            depth_clamp: glium::draw_parameters::DepthClamp::Clamp,
+            .. Default::default()
+        });
+
+    match res {
+        Ok(_) => (),
+        Err(glium::DrawError::DepthClampNotSupported) => {
+            display.assert_no_error(None);
+            return;
+        },
+        e => e.unwrap(),
+    }
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+
+    for row in data.iter() {
+        for pixel in row.iter() {
+            assert_eq!(pixel, &(255, 0, 0, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn depth_clamp_near() {
+    let display = support::build_display();
+
+    let vertex_buffer = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            position: (f32, f32, f32),
+        }
+
+        implement_vertex!(Vertex, position);
+
+        glium::VertexBuffer::new(&display, &[
+            Vertex { position: (-1.0, 1.0, -3.0) },
+            Vertex { position: (1.0, 1.0, 3.0) },
+            Vertex { position: (-1.0, -1.0, -3.0) },
+            Vertex { position: (1.0, -1.0, 3.0) },
+        ]).unwrap()
+    };
+
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
+
+                in vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
+
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    let res = texture.as_surface().draw(&vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
+        &glium::uniforms::EmptyUniforms,
+        &glium::DrawParameters {
+            depth_clamp: glium::draw_parameters::DepthClamp::ClampNear,
+            .. Default::default()
+        });
+
+    match res {
+        Ok(_) => (),
+        Err(glium::DrawError::DepthClampNotSupported) => {
+            display.assert_no_error(None);
+            return;
+        },
+        e => e.unwrap(),
+    }
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+
+    // the left part of the texture is red
+    for row in data.iter() {
+        for pixel in row.iter().take(texture.get_width() as usize / 2) {
+            assert_eq!(pixel, &(255, 0, 0, 255));
+        }
+    }
+
+    // the right part of the texture is black
+    for row in data.iter() {
+        for pixel in row.iter().skip(3 * texture.get_width() as usize / 4) {
+            assert_eq!(pixel, &(0, 0, 0, 0));
+        }
+    }
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn depth_clamp_far() {
+    let display = support::build_display();
+
+    let vertex_buffer = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            position: (f32, f32, f32),
+        }
+
+        implement_vertex!(Vertex, position);
+
+        glium::VertexBuffer::new(&display, &[
+            Vertex { position: (-1.0, 1.0, -3.0) },
+            Vertex { position: (1.0, 1.0, 3.0) },
+            Vertex { position: (-1.0, -1.0, -3.0) },
+            Vertex { position: (1.0, -1.0, 3.0) },
+        ]).unwrap()
+    };
+
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
+
+                in vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
+
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    let res = texture.as_surface().draw(&vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
+        &glium::uniforms::EmptyUniforms,
+        &glium::DrawParameters {
+            depth_clamp: glium::draw_parameters::DepthClamp::ClampFar,
+            .. Default::default()
+        });
+
+    match res {
+        Ok(_) => (),
+        Err(glium::DrawError::DepthClampNotSupported) => {
+            display.assert_no_error(None);
+            return;
+        },
+        e => e.unwrap(),
+    }
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+
+    // the left part of the texture is black
+    for row in data.iter() {
+        for pixel in row.iter().take(texture.get_width() as usize / 4) {
+            assert_eq!(pixel, &(0, 0, 0, 0));
+        }
+    }
+
+    // the right part of the texture is red
+    for row in data.iter() {
+        for pixel in row.iter().skip(texture.get_width() as usize / 2) {
+            assert_eq!(pixel, &(255, 0, 0, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}

@@ -48,6 +48,7 @@ macro_rules! extensions {
 }
 
 extensions! {
+    "GL_AMD_depth_clamp_separate" => gl_amd_depth_clamp_separate,
     "GL_APPLE_sync" => gl_apple_sync,
     "GL_APPLE_vertex_array_object" => gl_apple_vertex_array_object,
     "GL_ARB_bindless_texture" => gl_arb_bindless_texture,
@@ -55,6 +56,7 @@ extensions! {
     "GL_ARB_compute_shader" => gl_arb_compute_shader,
     "GL_ARB_copy_buffer" => gl_arb_copy_buffer,
     "GL_ARB_debug_output" => gl_arb_debug_output,
+    "GL_ARB_depth_clamp" => gl_arb_depth_clamp,
     "GL_ARB_depth_texture" => gl_arb_depth_texture,
     "GL_ARB_direct_state_access" => gl_arb_direct_state_access,
     "GL_ARB_compatibility" => gl_arb_compatibility,
@@ -131,6 +133,7 @@ extensions! {
     "GL_KHR_robust_buffer_access_behavior" => gl_khr_robust_buffer_access_behavior,
     "GL_NV_conditional_render" => gl_nv_conditional_render,
     "GL_NV_copy_buffer" => gl_nv_copy_buffer,
+    "GL_NV_depth_clamp" => gl_nv_depth_clamp,
     "GL_NV_half_float" => gl_nv_half_float,
     "GL_NV_pixel_buffer_object" => gl_nv_pixel_buffer_object,
     "GL_nV_vertex_attrib_integer_64bit" => gl_nv_vertex_attrib_integer_64bit,

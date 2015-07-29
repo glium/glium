@@ -27,6 +27,12 @@ pub struct GlState {
     /// Whether GL_DEPTH_TEST is enabled
     pub enabled_depth_test: bool,
 
+    /// Whether DEPTH_CLAMP_NEAR is enabled.
+    pub enabled_depth_clamp_near: bool,
+
+    /// Whether DEPTH_CLAMP_FAR is enabled.
+    pub enabled_depth_clamp_far: bool,
+
     /// Whether GL_DITHER is enabled
     pub enabled_dither: bool,
 
@@ -346,6 +352,8 @@ impl Default for GlState {
             enabled_debug_output: None,
             enabled_debug_output_synchronous: false,
             enabled_depth_test: false,
+            enabled_depth_clamp_near: false,
+            enabled_depth_clamp_far: false,
             enabled_dither: false,
             enabled_framebuffer_srgb: false,
             enabled_multisample: true,
