@@ -21,7 +21,7 @@ use vertex_array_object::VertexAttributesSystem;
 
 use draw_parameters::DrawParameters;
 use draw_parameters::{BlendingFunction, BackfaceCullingMode};
-use draw_parameters::{DepthTest, PolygonMode, StencilTest};
+use draw_parameters::{DepthTest, DepthClamp, PolygonMode, StencilTest};
 use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
 use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery, ConditionalRendering};
 use draw_parameters::{Smooth, ProvokingVertex};
@@ -175,8 +175,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // sync-ing draw_parameters
     unsafe {
-        sync_depth(&mut ctxt, draw_parameters.depth_test, draw_parameters.depth_write,
-                   draw_parameters.depth_range);
+        try!(sync_depth(&mut ctxt, draw_parameters.depth_test, draw_parameters.depth_write,
+                        draw_parameters.depth_range, draw_parameters.depth_clamp));
         sync_stencil(&mut ctxt, &draw_parameters);
         sync_blending(&mut ctxt, draw_parameters.blending_function);
         sync_color_mask(&mut ctxt, draw_parameters.color_mask);
@@ -326,15 +326,102 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 }
 
 fn sync_depth(ctxt: &mut context::CommandContext, depth_test: DepthTest, depth_write: bool,
-              depth_range: (f32, f32))
+              depth_range: (f32, f32), depth_clamp: DepthClamp) -> Result<(), DrawError>
 {
+    // depth clamp
+    {
+        let state = &mut *ctxt.state;
+        match (depth_clamp, &mut state.enabled_depth_clamp_near,
+               &mut state.enabled_depth_clamp_far)
+        {
+            (DepthClamp::NoClamp, &mut false, &mut false) => (),
+            (DepthClamp::Clamp, &mut true, &mut true) => (),
+
+            (DepthClamp::NoClamp, near, far) => {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_depth_clamp ||
+                   ctxt.extensions.gl_nv_depth_clamp
+                {
+                    unsafe { ctxt.gl.Disable(gl::DEPTH_CLAMP) };
+                    *near = false;
+                    *far = false;
+                } else {
+                    return Err(DrawError::DepthClampNotSupported);
+                }
+            },
+
+            (DepthClamp::Clamp, near, far) => {
+                if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_depth_clamp ||
+                   ctxt.extensions.gl_nv_depth_clamp
+                {
+                    unsafe { ctxt.gl.Enable(gl::DEPTH_CLAMP) };
+                    *near = true;
+                    *far = true;
+                } else {
+                    return Err(DrawError::DepthClampNotSupported);
+                }
+            },
+
+            (DepthClamp::ClampNear, &mut true, &mut false) => (),
+            (DepthClamp::ClampFar, &mut false, &mut true) => (),
+
+            (DepthClamp::ClampNear, &mut true, far) => {
+                if ctxt.extensions.gl_amd_depth_clamp_separate {
+                    unsafe { ctxt.gl.Disable(gl::DEPTH_CLAMP_FAR_AMD) };
+                    *far = false;
+                } else {
+                    return Err(DrawError::DepthClampNotSupported);
+                }
+
+            },
+
+            (DepthClamp::ClampNear, near @ &mut false, far) => {
+                if ctxt.extensions.gl_amd_depth_clamp_separate {
+                    unsafe { ctxt.gl.Enable(gl::DEPTH_CLAMP_NEAR_AMD) };
+                    if *far { unsafe { ctxt.gl.Disable(gl::DEPTH_CLAMP_FAR_AMD); } }
+                    *near = true;
+                    *far = false;
+                } else {
+                    return Err(DrawError::DepthClampNotSupported);
+                }
+            },
+
+            (DepthClamp::ClampFar, near, &mut true) => {
+                if ctxt.extensions.gl_amd_depth_clamp_separate {
+                    unsafe { ctxt.gl.Disable(gl::DEPTH_CLAMP_NEAR_AMD) };
+                    *near = false;
+                } else {
+                    return Err(DrawError::DepthClampNotSupported);
+                }
+            },
+
+            (DepthClamp::ClampFar, near, far @ &mut false) => {
+                if ctxt.extensions.gl_amd_depth_clamp_separate {
+                    unsafe { ctxt.gl.Enable(gl::DEPTH_CLAMP_FAR_AMD) };
+                    if *near { unsafe { ctxt.gl.Disable(gl::DEPTH_CLAMP_NEAR_AMD); } }
+                    *near = false;
+                    *far = true;
+                } else {
+                    return Err(DrawError::DepthClampNotSupported);
+                }
+            },
+        }
+    }
+
+    // depth range
+    if depth_range != ctxt.state.depth_range {
+        unsafe {
+            ctxt.gl.DepthRange(depth_range.0 as f64, depth_range.1 as f64);
+        }
+        ctxt.state.depth_range = depth_range;
+    }
+
     if depth_test == DepthTest::Overwrite && !depth_write {
         // simply disabling GL_DEPTH_TEST
         if ctxt.state.enabled_depth_test {
             unsafe { ctxt.gl.Disable(gl::DEPTH_TEST) };
             ctxt.state.enabled_depth_test = false;
         }
-        return;
+        return Ok(());
 
     } else {
         if !ctxt.state.enabled_depth_test {
@@ -360,13 +447,7 @@ fn sync_depth(ctxt: &mut context::CommandContext, depth_test: DepthTest, depth_w
         ctxt.state.depth_mask = depth_write;
     }
 
-    // depth range
-    if depth_range != ctxt.state.depth_range {
-        unsafe {
-            ctxt.gl.DepthRange(depth_range.0 as f64, depth_range.1 as f64);
-        }
-        ctxt.state.depth_range = depth_range;
-    }
+    Ok(())
 }
 
 fn sync_stencil(ctxt: &mut context::CommandContext, params: &DrawParameters) {

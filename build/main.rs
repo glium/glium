@@ -30,6 +30,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             fallbacks: gl_generator::Fallbacks::None,
             api: gl_generator::registry::Ns::Gl.to_string(),
             extensions: vec![
+                "GL_AMD_depth_clamp_separate".to_string(),
                 "GL_APPLE_vertex_array_object".to_string(),
                 "GL_ARB_bindless_texture".to_string(),
                 "GL_ARB_buffer_storage".to_string(),
