@@ -182,6 +182,13 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         let context = context.get_context();
         let mut ctxt = context.make_current();
 
+        // checking capabilities
+        if buffer.get_size() / mem::size_of::<T>() > ctxt.capabilities
+                                                         .max_texture_buffer_size.unwrap() as usize
+        {
+            return Err((TextureCreationError::TooLarge, buffer));
+        }
+
         // before starting, we determine the internal format and check that buffer textures are
         // supported
         let internal_format = if ctxt.version >= &Version(Api::Gl, 3, 0) ||
@@ -267,8 +274,6 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         } else {
             return Err((TextureCreationError::NotSupported, buffer));
         };
-
-        // FIXME: check `TooLarge` error
 
         // TODO: use DSA if available
 
