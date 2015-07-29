@@ -41,6 +41,9 @@ pub struct Capabilities {
     /// `None` if the extension is not supported by the hardware.
     pub max_texture_max_anisotropy: Option<gl::types::GLfloat>,
 
+    /// Maximum size of a buffer texture. `None` if this is not supported.
+    pub max_texture_buffer_size: Option<gl::types::GLint>,
+
     /// Maximum width and height of `glViewport`.
     pub max_viewport_dims: (gl::types::GLint, gl::types::GLint),
 
@@ -235,6 +238,22 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                 gl.GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut val);
                 val
             })
+        },
+
+        max_texture_buffer_size: {
+            if version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_buffer_object ||
+               extensions.gl_ext_texture_buffer_object || extensions.gl_oes_texture_buffer ||
+               extensions.gl_ext_texture_buffer
+            {
+                Some({
+                    let mut val = mem::uninitialized();
+                    gl.GetIntegerv(gl::MAX_TEXTURE_BUFFER_SIZE, &mut val);
+                    val
+                })
+
+            } else {
+                None
+            }
         },
 
         max_viewport_dims: {

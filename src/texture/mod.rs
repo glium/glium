@@ -1,6 +1,8 @@
 /*!
 A texture is an image loaded in video memory, which can be sampled in your shaders.
 
+# Textures
+
 Textures come in ten different dimensions:
 
  - Textures with one dimension.
@@ -13,7 +15,6 @@ Textures come in ten different dimensions:
  - Arrays of two-dimensional textures.
  - Arrays of two-dimensional textures with multisampling enabled.
  - Arrays of cube textures.
- - Buffer textures, which are one-dimensional textures that are mapped to a buffer.
 
 In addition to this, there are six kinds of texture formats:
 
@@ -34,6 +35,12 @@ render-to-texture on the former.
 
 The most common types of textures are `CompressedTexture2d` and `Texture2d` (the two dimensions
 being the width and height). These are what you will use most of the time.
+
+# Buffer textures
+
+A `BufferTexture` is a special kind of one-dimensional texture that gets its data from a buffer.
+Buffer textures have very limited capabilities (you can't draw to them for example). They are an
+alternative to uniform buffers and SSBOs.
 
 */
 #![allow(unreachable_code)]     // TODO: remove
@@ -66,6 +73,8 @@ pub use self::any::{TextureAny, TextureAnyMipmap, Dimensions};
 pub use self::bindless::{ResidentTexture, TextureHandle, BindlessTexturesNotSupportedError};
 pub use self::get_format::{InternalFormat, InternalFormatType, GetFormatError};
 pub use self::pixel::PixelValue;
+
+pub mod buffer_texture;
 
 mod any;
 mod bindless;

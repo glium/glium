@@ -1189,6 +1189,13 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
             ctxt.extensions.gl_ext_multi_draw_indirect
         },
 
+        BufferType::TextureBuffer => {
+            ctxt.version >= &Version(Api::Gl, 3, 0) ||
+            ctxt.extensions.gl_arb_texture_buffer_object ||
+            ctxt.extensions.gl_ext_texture_buffer_object ||
+            ctxt.extensions.gl_ext_texture_buffer || ctxt.extensions.gl_oes_texture_buffer
+        },
+
         _ => false,     // FIXME: 
     }
 }
