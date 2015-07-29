@@ -1,9 +1,51 @@
 /*!
 
 A `BufferTexture` is a special kind of one-dimensional texture that gets its data from a buffer.
-Buffer textures have very limited capabilities (you can't draw to them for example). They are an
-alternative to uniform buffers and SSBOs.
+Buffer textures have very limited capabilities compared to other texture types.
 
+A buffer texture is composed of two things:
+ - A buffer.
+ - A texture.
+
+The `BufferTexture` object derefs to a `BufferView`, which allows you to modify the content of the
+buffer just like any other buffer type.
+
+The texture aspect of the buffer texture is very limited. The only thing you can do is use the
+texture for sampling or image load/store in your shaders. You can't upload or read the texture,
+it doesn't have any mipmap, etc.
+
+# Formats
+
+In order to build a `BufferTexture`, the elements of the buffer must implement the
+`TextureBufferContent` trait.
+
+Support for some of the formats has been added over time in OpenGL. The following formats have the
+most chances of being supported:
+
+ - `F16F16F16F16`
+ - `F32F32F32F32`
+ - `U8U8U8U8`
+ - `I8I8I8I8`
+ - `U16U16U16U16`
+ - `I16I16I16I16`
+ - `U32U32U32U32` (unsigned only)
+ - `I32I32I32I32` (signed only)
+
+# Buffer texture type
+
+The template parameter that you use for `BufferTexture` defines the content of the buffer. For
+example a `BufferTexture<(u8, u8, u8, u8)>` contains a list of four-component texels where each
+texel is a `u8`. However this data can be interpreted in two different ways: either as a normalized
+floating-point (where `0` is interpreted as `0.0` and `255` interpreted as `1.0`) or as an integral
+value.
+
+For this reason, you need to pass a `BufferTextureType` when creating the buffer texture.
+
+This type also corresponds to the type of sampler that you must use in your GLSL code. In order
+to sample from a buffer texture of type `Float` you need to use a `samplerBuffer`, in order to
+sample from a buffer texture of type `Integral` you need to use a `isamplerBuffer`, and in order
+to sample from a buffer texture of type `Unsigned` you need to use a `usamplerBuffer`. Using the
+wrong type will result in an error.
 
 */
 use std::mem;
