@@ -3,7 +3,7 @@ A texture is an image loaded in video memory, which can be sampled in your shade
 
 # Textures
 
-Textures come in ten different dimensions:
+Textures come in nine different dimensions:
 
  - Textures with one dimension.
  - Textures with two dimensions.
@@ -16,10 +16,12 @@ Textures come in ten different dimensions:
  - Arrays of two-dimensional textures with multisampling enabled.
  - Arrays of cube textures.
 
-In addition to this, there are six kinds of texture formats:
+In addition to this, there are nine kinds of texture formats:
 
  - The texture contains floating-point data,
    with either the `Compressed` prefix or no prefix at all.
+ - The texture contains floating-point data in the sRGB color space, with either the `Compressed`
+   prefix or not.
  - The texture contains signed integers, with the `Integral` prefix.
  - The texture contains unsigned integers, with the `Unsigned` prefix.
  - The texture contains depth information, with the `Depth` prefix.
@@ -27,20 +29,35 @@ In addition to this, there are six kinds of texture formats:
  - The texture contains depth and stencil information, with the `DepthStencil` prefix.
 
 Each combination of dimensions and format corresponds to a sampler type in GLSL. For example,
-an `IntegralTexture3d` can only be bound to an `isampler3D` uniform in GLSL. Some combinations
-don't exist, like `DepthBufferTexture`.
+an `IntegralTexture3d` can only be bound to an `isampler3D` uniform in GLSL.
 
 The difference between compressed textures and uncompressed textures is that you can't do
 render-to-texture on the former.
 
-The most common types of textures are `CompressedTexture2d` and `Texture2d` (the two dimensions
-being the width and height). These are what you will use most of the time.
+The most common types of textures are `CompressedSrgbTexture2d`, `SrgbTexture2d` and `Texture2d`
+(the two dimensions being the width and height). These are what you will use most of the time.
 
 # Buffer textures
 
 A `BufferTexture` is a special kind of one-dimensional texture that gets its data from a buffer.
 Buffer textures have very limited capabilities (you can't draw to them for example). They are an
 alternative to uniform buffers and SSBOs.
+
+See the `buffer_textures` module for more infos.
+
+# About sRGB
+
+For historical reasons, the color data contained in almost all image files are not in RGB but
+in sRGB. sRGB colors are slightly brighter than linear RGB in order to compensate for the fact
+that screens darken some values that they receive.
+
+When you load image files, you are encouraged to create sRGB textures (with `SrgbTexture2d` instead
+of `Texture2d` for example).
+
+By default, glium enables the `GL_FRAMEBUFFER_SRGB` trigger, which expects the output of your
+fragment shader to be in linear RGB and then turns it into sRGB before writing in the framebuffer.
+Sampling from an sRGB texture will convert the texture colors from sRGB to RGB. If you create a
+regular RGB texture and put sRGB data in it, then the result will be too bright.
 
 */
 #![allow(unreachable_code)]     // TODO: remove
