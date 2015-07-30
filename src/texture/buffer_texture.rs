@@ -331,46 +331,64 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
             return Err((TextureCreationError::NotSupported, buffer));
         };
 
-        // TODO: use DSA if available
-
-        // reserving the ID
-        let id = unsafe {
-            let mut id = mem::uninitialized();
-            ctxt.gl.GenTextures(1, &mut id);
-            id
-        };
-
-        // binding the texture
-        unsafe {
-            ctxt.gl.BindTexture(gl::TEXTURE_BUFFER, id);
-            let act = ctxt.state.active_texture as usize;
-            ctxt.state.texture_units[act].texture = id;
-        }
-
-        // binding the buffer
+        // now the texture creation
         debug_assert_eq!(buffer.get_offset_bytes(), 0);
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {
-            unsafe {
-                ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
-            }
-        } else if ctxt.extensions.gl_arb_texture_buffer_object {
-            unsafe {
-                ctxt.gl.TexBufferARB(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
-            }
-        } else if ctxt.extensions.gl_ext_texture_buffer_object ||
-                  ctxt.extensions.gl_ext_texture_buffer
+        let id = if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                    ctxt.extensions.gl_arb_direct_state_access
         {
             unsafe {
-                ctxt.gl.TexBufferEXT(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
+                let mut id = mem::uninitialized();
+                ctxt.gl.CreateTextures(gl::TEXTURE_BUFFER, 1, &mut id);
+                ctxt.gl.TextureBuffer(id, internal_format, buffer.get_buffer_id());
+                id
             }
-        } else if ctxt.extensions.gl_oes_texture_buffer {
-            unsafe {
-                ctxt.gl.TexBufferOES(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
-            }
+
         } else {
-            // handled above ; note that this will leak the texture
-            unreachable!();
-        }
+            // reserving the ID
+            let id = unsafe {
+                let mut id = mem::uninitialized();
+                ctxt.gl.GenTextures(1, &mut id);
+                id
+            };
+
+            // binding the texture
+            unsafe {
+                ctxt.gl.BindTexture(gl::TEXTURE_BUFFER, id);
+                let act = ctxt.state.active_texture as usize;
+                ctxt.state.texture_units[act].texture = id;
+            }
+
+            // binding the buffer
+            if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                unsafe {
+                    ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
+                }
+            } else if ctxt.extensions.gl_arb_texture_buffer_object {
+                unsafe {
+                    ctxt.gl.TexBufferARB(gl::TEXTURE_BUFFER, internal_format,
+                                         buffer.get_buffer_id());
+                }
+            } else if ctxt.extensions.gl_ext_texture_buffer_object ||
+                      ctxt.extensions.gl_ext_texture_buffer
+            {
+                unsafe {
+                    ctxt.gl.TexBufferEXT(gl::TEXTURE_BUFFER, internal_format,
+                                         buffer.get_buffer_id());
+                }
+            } else if ctxt.extensions.gl_oes_texture_buffer {
+                unsafe {
+                    ctxt.gl.TexBufferOES(gl::TEXTURE_BUFFER, internal_format,
+                                         buffer.get_buffer_id());
+                }
+
+            } else {
+                // handled during the choice for the internal format
+                // note that this panic will leak the texture
+                unreachable!();
+            }
+
+            id
+        };
 
         Ok(BufferTexture {
             buffer: buffer,
