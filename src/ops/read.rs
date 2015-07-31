@@ -16,13 +16,13 @@ use gl;
 /// A source for reading pixels.
 pub enum Source<'a> {
     // TODO: remove the second parameter
-    Attachment(&'a fbo::Attachment<'a>),
+    Attachment(&'a fbo::RegularAttachment<'a>),
     // TODO: use a Rust enum
     DefaultFramebuffer(gl::types::GLenum),
 }
 
-impl<'a> From<&'a fbo::Attachment<'a>> for Source<'a> {
-    fn from(a: &'a fbo::Attachment<'a>) -> Source<'a> {
+impl<'a> From<&'a fbo::RegularAttachment<'a>> for Source<'a> {
+    fn from(a: &'a fbo::RegularAttachment<'a>) -> Source<'a> {
         Source::Attachment(a)
     }
 }

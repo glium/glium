@@ -60,8 +60,8 @@ use smallvec::SmallVec;
 use GlObject;
 use TextureExt;
 
-use texture::TextureAny;
-use texture::Dimensions;
+use texture::TextureAnyImage;
+use texture::TextureAnyMipmap;
 use framebuffer::RenderBufferAny;
 
 use gl;
@@ -69,70 +69,79 @@ use context::CommandContext;
 use version::Version;
 use version::Api;
 
-/// Describes a single framebuffer attachment.
+/// Represents the attachments to use for an OpenGL framebuffer.
+#[derive(Clone)]
+pub enum FramebufferAttachments<'a> {
+    /// Each attachment is a single image.
+    Regular(FramebufferSpecificAttachments<RegularAttachment<'a>>),
+
+    /// Each attachment is a layer of images.
+    Layered(FramebufferSpecificAttachments<LayeredAttachment<'a>>),
+}
+
+/// Describes a single non-layered framebuffer attachment.
 #[derive(Copy, Clone)]
-pub enum Attachment<'a> {
+pub enum RegularAttachment<'a> {
     /// A texture.
-    Texture {
-        /// The texture.
-        texture: &'a TextureAny,
-
-        /// The layer to use. `None` for the whole texture. Non-array textures are considered as
-        /// having one layer. For non-array textures, `None` is the same as `Some(0)`.
-        layer: Option<u32>,
-
-        /// Mipmap level to use. The main texture is level 0.
-        level: u32,
-    },
-
+    Texture(TextureAnyImage<'a>),
     /// A renderbuffer.
     RenderBuffer(&'a RenderBufferAny),
 }
 
+/// Describes a single layered framebuffer attachment.
+#[derive(Copy, Clone)]
+pub struct LayeredAttachment<'a>(TextureAnyMipmap<'a>);
+
 /// Depth and/or stencil attachment to use.
 #[derive(Copy, Clone)]
-pub enum FramebufferDepthStencilAttachments<'a> {
+pub enum DepthStencilAttachments<T> {
     /// No depth or stencil buffer.
     None,
 
     /// A depth attachment.
-    DepthAttachment(Attachment<'a>),
+    DepthAttachment(T),
 
     /// A stencil attachment.
-    StencilAttachment(Attachment<'a>),
+    StencilAttachment(T),
 
     /// A depth attachment and a stencil attachment.
-    DepthAndStencilAttachments(Attachment<'a>, Attachment<'a>),
+    DepthAndStencilAttachments(T, T),
 
     /// A single attachment that serves as both depth and stencil buffer.
-    DepthStencilAttachment(Attachment<'a>),
+    DepthStencilAttachment(T),
 }
 
 /// Represents the attachments to use for an OpenGL framebuffer.
 #[derive(Clone)]
-pub struct FramebufferAttachments<'a> {
+pub struct FramebufferSpecificAttachments<T> {
     /// List of color attachments. The first parameter of the tuple is the index, and the
     /// second element is the attachment.
-    pub colors: SmallVec<[(u32, Attachment<'a>); 5]>,
+    pub colors: SmallVec<[(u32, T); 5]>,
 
     /// The depth and/or stencil attachment to use.
-    pub depth_stencil: FramebufferDepthStencilAttachments<'a>,
+    pub depth_stencil: DepthStencilAttachments<T>,
 }
 
 impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
     pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
+        // TODO: 
+        let attachments = match self {
+            FramebufferAttachments::Regular(attachments) => attachments,
+            _ => unimplemented!()
+        };
+
         // turning the attachments into raw attachments
         let (raw_attachments, dimensions, depth_bits, stencil_bits) = {
-            fn handle_attachment(a: &Attachment, dim: &mut Option<(u32, u32)>,
+            fn handle_attachment(a: &RegularAttachment, dim: &mut Option<(u32, u32)>,
                                  num_bits: Option<&mut Option<u16>>)
                                  -> RawAttachment
             {
                 match a {
-                    &Attachment::Texture { ref texture, level, layer } => {
+                    &RegularAttachment::Texture(ref texture) => {
                         if let Some(num_bits) = num_bits {
-                            *num_bits = Some(texture.get_internal_format()
+                            *num_bits = Some(texture.get_texture().get_internal_format()
                                                .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
                         }
 
@@ -144,24 +153,14 @@ impl<'a> FramebufferAttachments<'a> {
                             }
                         }
 
-                        let layer = match (layer, texture.get_texture_type()) {
-                            (l, Dimensions::Texture1dArray { .. }) => l,
-                            (l, Dimensions::Texture2dArray { .. }) => l,
-                            (l, Dimensions::Texture2dMultisampleArray { .. }) => l,
-                            (l, Dimensions::Texture3d { .. }) => l,
-                            (Some(l), _) if l == 0 => None,
-                            (Some(l), _) => panic!(),
-                            (None, _) => None,
-                        };
-
                         RawAttachment::Texture {
-                            texture: texture.get_id(),
-                            bind_point: texture.get_bind_point(),
-                            layer: layer,       // TODO: check validity
-                            level: level,       // TODO: check validity
+                            texture: texture.get_texture().get_id(),
+                            bind_point: texture.get_texture().get_bind_point(),
+                            layer: None,//Some(texture.get_layer()),
+                            level: texture.get_level(),
                         }
                     },
-                    &Attachment::RenderBuffer(ref buffer) => {
+                    &RegularAttachment::RenderBuffer(ref buffer) => {
                         if let Some(num_bits) = num_bits {
                             *num_bits = Some(24);    // FIXME: totally random
                         }
@@ -191,29 +190,29 @@ impl<'a> FramebufferAttachments<'a> {
             let mut stencil_bits = None;
 
             let mut raw_attachments = RawAttachments {
-                color: Vec::with_capacity(self.colors.len()),
+                color: Vec::with_capacity(attachments.colors.len()),
                 depth: None,
                 stencil: None,
                 depth_stencil: None,
             };
 
-            for &(index, ref a) in self.colors.iter() {
+            for &(index, ref a) in attachments.colors.iter() {
                 raw_attachments.color.push((index, handle_attachment(a, &mut dimensions, None)));
             }
 
-            match self.depth_stencil {
-                FramebufferDepthStencilAttachments::None => (),
-                FramebufferDepthStencilAttachments::DepthAttachment(ref a) => {
+            match attachments.depth_stencil {
+                DepthStencilAttachments::None => (),
+                DepthStencilAttachments::DepthAttachment(ref a) => {
                     raw_attachments.depth = Some(handle_attachment(a, &mut dimensions, Some(&mut depth_bits)));
                 },
-                FramebufferDepthStencilAttachments::StencilAttachment(ref a) => {
+                DepthStencilAttachments::StencilAttachment(ref a) => {
                     raw_attachments.stencil = Some(handle_attachment(a, &mut dimensions, Some(&mut stencil_bits)));
                 },
-                FramebufferDepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
+                DepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
                     raw_attachments.depth = Some(handle_attachment(d, &mut dimensions, Some(&mut depth_bits)));
                     raw_attachments.stencil = Some(handle_attachment(s, &mut dimensions, Some(&mut stencil_bits)));
                 },
-                FramebufferDepthStencilAttachments::DepthStencilAttachment(ref a) => {
+                DepthStencilAttachments::DepthStencilAttachment(ref a) => {
                     raw_attachments.depth_stencil = Some(handle_attachment(a, &mut dimensions, None));      // FIXME: bit counts
                 },
             }
@@ -228,10 +227,11 @@ impl<'a> FramebufferAttachments<'a> {
 
         Ok(ValidatedAttachments {
             raw: raw_attachments,
-            marker: PhantomData,
             dimensions: dimensions,
+            layers: None,       // FIXME: 
             depth_buffer_bits: depth_bits,
             stencil_buffer_bits: stencil_bits,
+            marker: PhantomData,
         })
     }
 }
@@ -241,12 +241,18 @@ impl<'a> FramebufferAttachments<'a> {
 pub struct ValidatedAttachments<'a> {
     raw: RawAttachments,
     dimensions: (u32, u32),
+    layers: Option<u32>,
     depth_buffer_bits: Option<u16>,
     stencil_buffer_bits: Option<u16>,
     marker: PhantomData<&'a ()>,
 }
 
 impl<'a> ValidatedAttachments<'a> {
+    /// Returns `true` if the framebuffer is layered.
+    pub fn is_layered(&self) -> bool {
+        self.layers.is_some()
+    }
+
     /// Returns the dimensions that the framebuffer will have if you use these attachments.
     pub fn get_dimensions(&self) -> (u32, u32) {
         self.dimensions
@@ -425,7 +431,7 @@ impl FramebuffersContainer {
     ///
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
-    pub unsafe fn bind_framebuffer_for_reading(ctxt: &mut CommandContext, attachment: &Attachment) {
+    pub unsafe fn bind_framebuffer_for_reading(ctxt: &mut CommandContext, attachment: &RegularAttachment) {
         // TODO: restore this optimisation
         /*for (attachments, fbo) in ctxt.framebuffer_objects.framebuffers.borrow_mut().iter() {
             for &(key, ref atc) in attachments.color.iter() {
@@ -435,10 +441,10 @@ impl FramebuffersContainer {
             }
         }*/
 
-        let attachments = FramebufferAttachments {
+        let attachments = FramebufferAttachments::Regular(FramebufferSpecificAttachments {
             colors: { let mut v = SmallVec::new(); v.push((0, attachment.clone())); v },
-            depth_stencil: FramebufferDepthStencilAttachments::None,
-        }.validate().unwrap();
+            depth_stencil: DepthStencilAttachments::None,
+        }).validate().unwrap();
 
         let framebuffer = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&attachments));
         bind_framebuffer(ctxt, framebuffer, false, true);

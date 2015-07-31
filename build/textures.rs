@@ -367,7 +367,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.mipmap(0, 0).unwrap())
+                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -376,7 +376,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.mipmap(0, 0).unwrap())
+                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -385,7 +385,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthAttachment for {name} {{
                             fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
-                                ::framebuffer::DepthAttachment::Texture(self.0.mipmap(0, 0).unwrap())
+                                ::framebuffer::DepthAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -394,7 +394,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToStencilAttachment for {name} {{
                             fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
-                                ::framebuffer::StencilAttachment::Texture(self.0.mipmap(0, 0).unwrap())
+                                ::framebuffer::StencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -403,7 +403,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthStencilAttachment for {name} {{
                             fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
-                                ::framebuffer::DepthStencilAttachment::Texture(self.0.mipmap(0, 0).unwrap())
+                                ::framebuffer::DepthStencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -717,7 +717,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
                 pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
-                    self.0.mipmap(0, 0).unwrap().read()
+                    self.0.mipmap(0).unwrap().read()
                 }}
             "#)).unwrap();
 
@@ -728,7 +728,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
                 pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
-                    self.0.mipmap(0, 0).unwrap().read_to_pixel_buffer()
+                    self.0.mipmap(0).unwrap().read_to_pixel_buffer()
                 }}
             "#)).unwrap();
     }
@@ -830,28 +830,19 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         "#)).unwrap();
 
     // writing the `layer()` function
-    if dimensions.is_array() {
-        (write!(dest, r#"
-                /// Access a single layer of this texture.
-                pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
-                    if layer < self.0.get_array_size().unwrap_or(1) {{
-                        Some({name}Layer {{
-                            texture: self,
-                            layer: layer,
-                        }})
-                    }} else {{
-                        None
-                    }}
-                }}
-            "#, name = name)).unwrap();
-    }
+    (write!(dest, r#"
+            /// Access a single layer of this texture.
+            pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
+                self.0.layer(layer).map(|l| {name}Layer(l, self))
+            }}
+        "#, name = name)).unwrap();
 
     // writing the `mipmap()` and `main_level()` functions
-    if !dimensions.is_array() {
+    {
         (write!(dest, r#"
                 /// Access a single mipmap level of this texture.
                 pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
-                    self.0.mipmap(0, level).map(|m| {name}Mipmap(m, self))
+                    self.0.mipmap(level).map(|m| {name}Mipmap(m, self))
                 }}
             "#, name = name)).unwrap();
 
@@ -867,17 +858,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     (writeln!(dest, "}}")).unwrap();
 
     // the `Layer` struct
-    if dimensions.is_array() {
+    {
         // writing the struct
         (write!(dest, r#"
                 /// Represents a single layer of a `{name}`.
                 ///
                 /// Can be obtained by calling `{name}::layer()`.
                 #[derive(Copy, Clone)]
-                pub struct {name}Layer<'t> {{
-                    texture: &'t {name},
-                    layer: u32,
-                }}
+                pub struct {name}Layer<'t>(TextureAnyLayer<'t>, &'t {name});
             "#, name = name)).unwrap();
 
         // opening `impl Layer` block
@@ -887,12 +875,12 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (write!(dest, "
                 /// Returns the corresponding texture.
                 pub fn get_texture(&self) -> &'t {name} {{
-                    self.texture
+                    &self.1
                 }}
 
                 /// Returns the layer index.
                 pub fn get_layer(&self) -> u32 {{
-                    self.layer
+                    self.0.get_layer()
                 }}
             ", name = name)).unwrap();
 
@@ -902,22 +890,22 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The minimum value is 1, since there is always a main texture.
                 pub fn get_mipmap_levels(&self) -> u32 {{
-                    self.texture.get_mipmap_levels()
+                    self.0.get_texture().get_mipmap_levels()
                 }}
             ")).unwrap();
 
         // writing the `mipmap()` function
         (write!(dest, r#"
                 /// Access a single mipmap level of this layer.
-                pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
-                    self.texture.0.mipmap(self.layer, level).map(|m| {name}Mipmap(m, &self.texture))
+                pub fn mipmap(&self, level: u32) -> Option<{name}LayerMipmap> {{
+                    self.0.mipmap(level).map(|m| {name}LayerMipmap(m, self.1))
                 }}
             "#, name = name)).unwrap();
 
         // writing the `main_level()` function
         (write!(dest, r#"
                 /// Access the main mipmap level of this layer.
-                pub fn main_level(&self) -> {name}Mipmap {{
+                pub fn main_level(&self) -> {name}LayerMipmap {{
                     self.mipmap(0).unwrap()
                 }}
             "#, name = name)).unwrap();
@@ -929,25 +917,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // the `Mipmap` struct
     {
         // writing the struct
-        if dimensions.is_array() {
-            (write!(dest, r#"
-                    /// Represents a single mipmap level of a `{name}`.
-                    ///
-                    /// Can be obtained by calling `{name}Layer::mipmap()` or
-                    /// `{name}Layer::main_level()`.
-                    #[derive(Copy, Clone)]
-                    pub struct {name}Mipmap<'t>(TextureAnyMipmap<'t>, &'t {name});
-                "#, name = name)).unwrap();
-
-        } else {
-            (write!(dest, r#"
-                    /// Represents a single mipmap level of a `{name}`.
-                    ///
-                    /// Can be obtained by calling `{name}::mipmap()` or `{name}::main_level()`.
-                    #[derive(Copy, Clone)]
-                    pub struct {name}Mipmap<'t>(TextureAnyMipmap<'t>, &'t {name});
-                "#, name = name)).unwrap();
-        }
+        (write!(dest, r#"
+                /// Represents a single mipmap level of a `{name}`.
+                ///
+                /// Can be obtained by calling `{name}::mipmap()`, `{name}::main_level()`,
+                /// `{name}Layer::mipmap()` or `{name}Layer::main_level()`.
+                #[derive(Copy, Clone)]
+                pub struct {name}Mipmap<'t>(TextureAnyMipmap<'t>, &'t {name});
+            "#, name = name)).unwrap();
 
         // opening `impl Mipmap` block
         (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
@@ -1067,17 +1044,23 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 }}
             ", name = name)).unwrap();
 
-        // writing the `get_layer` function
-        if dimensions.is_array() {
-            (write!(dest, "
-                    /// Returns the layer index.
-                    pub fn get_layer(&self) -> u32 {{
-                        self.0.get_layer()
-                    }}
-                ")).unwrap();
-        }
-
         // closing `impl Mipmap` block
+        (writeln!(dest, "}}")).unwrap();
+    }
+
+    // the `LayerMipmap` struct
+    {
+        // writing the struct
+        (write!(dest, r#"
+                /// Represents a single layer of a mipmap level of a `{name}`.
+                #[derive(Copy, Clone)]
+                pub struct {name}LayerMipmap<'t>(TextureAnyLayerMipmap<'t>, &'t {name});
+            "#, name = name)).unwrap();
+
+        // opening `impl LayerMipmap` block
+        (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
+
+        // closing `impl LayerMipmap` block
         (writeln!(dest, "}}")).unwrap();
     }
 }

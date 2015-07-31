@@ -40,7 +40,7 @@ use std::rc::Rc;
 use smallvec::SmallVec;
 
 use texture::Texture2d;
-use texture::TextureAnyMipmap;
+use texture::TextureAnyImage;
 use TextureExt;
 
 use backend::Facade;
@@ -130,47 +130,39 @@ impl<'a> SimpleFrameBuffer<'a> {
                    -> SimpleFrameBuffer<'a> where F: Facade
     {
         let color = match color {
-            ColorAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
-            },
-            ColorAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            ColorAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+            ColorAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         };
 
         let depth = depth.map(|depth| match depth {
-            DepthAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
-            },
-            DepthAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+            DepthAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });
 
         let stencil = stencil.map(|stencil|  match stencil {
-            StencilAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
-            },
-            StencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            StencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+            StencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });
 
         let depthstencil = depthstencil.map(|depthstencil| match depthstencil {
-            DepthStencilAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
-            },
-            DepthStencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+            DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });
 
-        let attachments = fbo::FramebufferAttachments {
+        let attachments = fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: { let mut v = SmallVec::new(); v.push((0, color)); v },
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
-                fbo::FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
+                fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
             } else if let Some(depth) = depth {
-                fbo::FramebufferDepthStencilAttachments::DepthAttachment(depth)
+                fbo::DepthStencilAttachments::DepthAttachment(depth)
             } else if let Some(stencil) = stencil {
-                fbo::FramebufferDepthStencilAttachments::StencilAttachment(stencil)
+                fbo::DepthStencilAttachments::StencilAttachment(stencil)
             } else if let Some(depthstencil) = depthstencil {
-                fbo::FramebufferDepthStencilAttachments::DepthStencilAttachment(depthstencil)
+                fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
             } else {
-                fbo::FramebufferDepthStencilAttachments::None
+                fbo::DepthStencilAttachments::None
             }
-        };
+        });
 
         let attachments = attachments.validate().unwrap();
 
@@ -268,9 +260,9 @@ impl<'a> FboAttachments for SimpleFrameBuffer<'a> {
 pub struct MultiOutputFrameBuffer<'a> {
     context: Rc<Context>,
     example_attachments: fbo::ValidatedAttachments<'a>,
-    color_attachments: Vec<(String, fbo::Attachment<'a>)>,
-    depth_attachment: Option<fbo::Attachment<'a>>,
-    stencil_attachment: Option<fbo::Attachment<'a>>,
+    color_attachments: Vec<(String, fbo::RegularAttachment<'a>)>,
+    depth_attachment: Option<fbo::RegularAttachment<'a>>,
+    stencil_attachment: Option<fbo::RegularAttachment<'a>>,
 }
 
 impl<'a> MultiOutputFrameBuffer<'a> {
@@ -305,9 +297,9 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                          -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment, F: Facade
     {
         let color = color.iter().map(|&(name, tex)| {
-            (name.to_string(), fbo::Attachment::Texture {
-                texture: tex, layer: None, level: 0
-            })
+            let atch = tex.to_color_attachment();
+            let atch = if let ColorAttachment::Texture(t) = atch { t } else { panic!() };
+            (name.to_string(), fbo::RegularAttachment::Texture(atch))
         }).collect::<Vec<_>>();
 
         let example_color = {
@@ -319,40 +311,38 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         };
 
         let depth = depth.map(|depth| match depth.to_depth_attachment() {
-            DepthAttachment::Texture(tex) => fbo::Attachment::Texture {
-                texture: tex.get_texture(), layer: Some(tex.get_layer()), level: tex.get_level()
-            },
-            DepthAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+            DepthAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });
 
         let stencil = None;/*stencil.map(|stencil|  match color {
-            StencilAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
+            StencilAttachment::Texture(tex) => fbo::RegularAttachment::TextureLayer {
                 texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
             },
-            StencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            StencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });*/       // TODO: 
 
         let depthstencil = None;/*depthstencil.map(|depthstencil| match color {
-            DepthStencilAttachment::Texture(tex) => fbo::Attachment::TextureLayer {
+            DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::TextureLayer {
                 texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
             },
-            DepthStencilAttachment::RenderBuffer(buffer) => fbo::Attachment::RenderBuffer(buffer),
+            DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });*/       // TODO: 
 
-        let example_attachments = fbo::FramebufferAttachments {
+        let example_attachments = fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: example_color,
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
-                fbo::FramebufferDepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
+                fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
             } else if let Some(depth) = depth {
-                fbo::FramebufferDepthStencilAttachments::DepthAttachment(depth)
+                fbo::DepthStencilAttachments::DepthAttachment(depth)
             } else if let Some(stencil) = stencil {
-                fbo::FramebufferDepthStencilAttachments::StencilAttachment(stencil)
+                fbo::DepthStencilAttachments::StencilAttachment(stencil)
             } else if let Some(depthstencil) = depthstencil {
-                fbo::FramebufferDepthStencilAttachments::DepthStencilAttachment(depthstencil)
+                fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
             } else {
-                fbo::FramebufferDepthStencilAttachments::None
+                fbo::DepthStencilAttachments::None
             }
-        }.validate().unwrap();
+        }).validate().unwrap();
 
         MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
@@ -375,14 +365,14 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             colors.push((location, attachment));
         }
 
-        fbo::FramebufferAttachments {
+        fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: colors,
             depth_stencil: if let Some(depth) = self.depth_attachment {
-                fbo::FramebufferDepthStencilAttachments::DepthAttachment(depth)
+                fbo::DepthStencilAttachments::DepthAttachment(depth)
             } else {        // FIXME: other cases
-                fbo::FramebufferDepthStencilAttachments::None
+                fbo::DepthStencilAttachments::None
             },
-        }.validate().unwrap()
+        }).validate().unwrap()
     }
 }
 
@@ -474,7 +464,7 @@ impl<'a> FboAttachments for MultiOutputFrameBuffer<'a> {
 #[derive(Copy, Clone)]
 pub enum ColorAttachment<'a> {
     /// A texture.
-    Texture(TextureAnyMipmap<'a>),
+    Texture(TextureAnyImage<'a>),
     /// A render buffer.
     RenderBuffer(&'a RenderBuffer),
 }
@@ -489,7 +479,7 @@ pub trait ToColorAttachment {
 #[derive(Copy, Clone)]
 pub enum DepthAttachment<'a> {
     /// A texture.
-    Texture(TextureAnyMipmap<'a>),
+    Texture(TextureAnyImage<'a>),
     /// A render buffer.
     RenderBuffer(&'a DepthRenderBuffer),
 }
@@ -504,7 +494,7 @@ pub trait ToDepthAttachment {
 #[derive(Copy, Clone)]
 pub enum StencilAttachment<'a> {
     /// A texture.
-    Texture(TextureAnyMipmap<'a>),
+    Texture(TextureAnyImage<'a>),
     /// A render buffer.
     RenderBuffer(&'a StencilRenderBuffer),
 }
@@ -519,7 +509,7 @@ pub trait ToStencilAttachment {
 #[derive(Copy, Clone)]
 pub enum DepthStencilAttachment<'a> {
     /// A texture.
-    Texture(TextureAnyMipmap<'a>),
+    Texture(TextureAnyImage<'a>),
     /// A render buffer.
     RenderBuffer(&'a DepthStencilRenderBuffer),
 }

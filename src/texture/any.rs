@@ -32,6 +32,19 @@ use std::rc::Rc;
 use ops;
 use fbo;
 
+/// Type of a texture.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[allow(missing_docs)]      // TODO: document and remove
+pub enum Dimensions {
+    Texture1d { width: u32 },
+    Texture1dArray { width: u32, array_size: u32 },
+    Texture2d { width: u32, height: u32 },
+    Texture2dArray { width: u32, height: u32, array_size: u32 },
+    Texture2dMultisample { width: u32, height: u32, samples: u32 },
+    Texture2dMultisampleArray { width: u32, height: u32, array_size: u32, samples: u32 },
+    Texture3d { width: u32, height: u32, depth: u32 },
+}
+
 /// A texture whose type isn't fixed at compile-time.
 pub struct TextureAny {
     context: Rc<Context>,
@@ -49,39 +62,6 @@ pub struct TextureAny {
     levels: u32,
     /// Is automatic mipmap generation allowed for this texture?
     generate_mipmaps: bool,
-}
-
-/// Represents a specific mipmap of a texture.
-#[derive(Copy, Clone)]
-pub struct TextureAnyMipmap<'a> {
-    /// The texture.
-    texture: &'a TextureAny,
-
-    /// Layer for array textures, or 0 for other textures.
-    layer: u32,
-
-    /// Mipmap level.
-    level: u32,
-
-    /// Width of this mipmap level.
-    width: u32,
-    /// Height of this mipmap level.
-    height: Option<u32>,
-    /// Depth of this mipmap level.
-    depth: Option<u32>,
-}
-
-/// Type of a texture.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[allow(missing_docs)]      // TODO: document and remove
-pub enum Dimensions {
-    Texture1d { width: u32 },
-    Texture1dArray { width: u32, array_size: u32 },
-    Texture2d { width: u32, height: u32 },
-    Texture2dArray { width: u32, height: u32, array_size: u32 },
-    Texture2dMultisample { width: u32, height: u32, samples: u32 },
-    Texture2dMultisampleArray { width: u32, height: u32, array_size: u32, samples: u32 },
-    Texture3d { width: u32, height: u32, depth: u32 },
 }
 
 /// Builds a new texture.
@@ -428,6 +408,253 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
     })
 }
 
+impl TextureAny {
+    /// Returns the width of the texture.
+    pub fn get_width(&self) -> u32 {
+        match self.ty {
+            Dimensions::Texture1d { width, .. } => width,
+            Dimensions::Texture1dArray { width, .. } => width,
+            Dimensions::Texture2d { width, .. } => width,
+            Dimensions::Texture2dArray { width, .. } => width,
+            Dimensions::Texture2dMultisample { width, .. } => width,
+            Dimensions::Texture2dMultisampleArray { width, .. } => width,
+            Dimensions::Texture3d { width, .. } => width,
+        }
+    }
+
+    /// Returns the height of the texture.
+    pub fn get_height(&self) -> Option<u32> {
+        match self.ty {
+            Dimensions::Texture1d { .. } => None,
+            Dimensions::Texture1dArray { .. } => None,
+            Dimensions::Texture2d { height, .. } => Some(height),
+            Dimensions::Texture2dArray { height, .. } => Some(height),
+            Dimensions::Texture2dMultisample { height, .. } => Some(height),
+            Dimensions::Texture2dMultisampleArray { height, .. } => Some(height),
+            Dimensions::Texture3d { height, .. } => Some(height),
+        }
+    }
+
+    /// Returns the depth of the texture.
+    pub fn get_depth(&self) -> Option<u32> {
+        match self.ty {
+            Dimensions::Texture3d { depth, .. } => Some(depth),
+            _ => None
+        }
+    }
+
+    /// Returns the array size of the texture.
+    pub fn get_array_size(&self) -> Option<u32> {
+        match self.ty {
+            Dimensions::Texture1d { .. } => None,
+            Dimensions::Texture1dArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture2d { .. } => None,
+            Dimensions::Texture2dArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture2dMultisample { .. } => None,
+            Dimensions::Texture2dMultisampleArray { array_size, .. } => Some(array_size),
+            Dimensions::Texture3d { .. } => None,
+        }
+    }
+
+    /// Returns a structure that represents the first layer of the texture. All textures have a
+    /// first layer.
+    pub fn first_layer(&self) -> TextureAnyLayer {
+        self.layer(0).unwrap()
+    }
+
+    /// Returns a structure that represents a specific layer of the texture.
+    ///
+    /// Non-array textures have only one layer. The number of layers can be queried with
+    /// `get_array_size`.
+    ///
+    /// Returns `None` if out of range.
+    pub fn layer(&self, layer: u32) -> Option<TextureAnyLayer> {
+        if layer >= self.get_array_size().unwrap_or(1) {
+            return None;
+        }
+
+        Some(TextureAnyLayer {
+            texture: self,
+            layer: layer,
+        })
+    }
+
+    /// Returns the type of the texture (1D, 2D, 3D, etc.).
+    pub fn get_texture_type(&self) -> Dimensions {
+        self.ty
+    }
+
+    /// Determines the internal format of this texture.
+    pub fn get_internal_format(&self) -> Result<InternalFormat, GetFormatError> {
+        if let Some(format) = self.actual_format.get() {
+            format
+
+        } else {
+            let mut ctxt = self.context.make_current();
+            let format = get_format::get_format(&mut ctxt, self);
+            self.actual_format.set(Some(format.clone()));
+            format
+        }
+    }
+
+    /// Returns the number of mipmap levels of the texture.
+    pub fn get_mipmap_levels(&self) -> u32 {
+        self.levels
+    }
+
+    /// Returns a structure that represents the main mipmap level of the texture.
+    pub fn main_level(&self) -> TextureAnyMipmap {
+        self.mipmap(0).unwrap()
+    }
+
+    /// Returns a structure that represents a specific mipmap of the texture.
+    ///
+    /// Returns `None` if out of range.
+    pub fn mipmap(&self, level: u32) -> Option<TextureAnyMipmap> {
+        if level >= self.levels {
+            return None;
+        }
+
+        let pow = 2u32.pow(level);
+        Some(TextureAnyMipmap {
+            texture: self,
+            level: level,
+            width: cmp::max(1, self.get_width() / pow),
+            height: self.get_height().map(|height| cmp::max(1, height / pow)),
+            depth: self.get_depth().map(|depth| cmp::max(1, depth / pow)),
+        })
+    }
+}
+
+impl TextureExt for TextureAny {
+    fn get_texture_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+
+    fn get_context(&self) -> &Rc<Context> {
+        &self.context
+    }
+
+    fn get_bind_point(&self) -> gl::types::GLenum {
+        match self.ty {
+            Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
+            Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
+            Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
+            Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
+            Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
+            Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+            Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
+        }
+    }
+
+    fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
+        let bind_point = self.get_bind_point();
+
+        let texture_unit = ctxt.state.active_texture;
+        if ctxt.state.texture_units[texture_unit as usize].texture != self.id {
+            unsafe { ctxt.gl.BindTexture(bind_point, self.id) };
+            ctxt.state.texture_units[texture_unit as usize].texture = self.id;
+        }
+
+        bind_point
+    }
+}
+
+impl GlObject for TextureAny {
+    type Id = gl::types::GLuint;
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+}
+
+impl fmt::Debug for TextureAny {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "Texture #{} (dimensions: {}x{}x{}x{})", self.id,
+               self.get_width(), self.get_height().unwrap_or(1), self.get_depth().unwrap_or(1),
+               self.get_array_size().unwrap_or(1))
+    }
+}
+
+impl Drop for TextureAny {
+    fn drop(&mut self) {
+        let mut ctxt = self.context.make_current();
+
+        // removing FBOs which contain this texture
+        fbo::FramebuffersContainer::purge_texture(&mut ctxt, self.id);
+
+        // resetting the bindings
+        for tex_unit in ctxt.state.texture_units.iter_mut() {
+            if tex_unit.texture == self.id {
+                tex_unit.texture = 0;
+            }
+        }
+
+        unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
+    }
+}
+
+/// Represents a specific layer of an array texture and 3D textures.
+#[derive(Copy, Clone)]
+pub struct TextureAnyLayer<'a> {
+    /// The texture.
+    texture: &'a TextureAny,
+    /// The layer.
+    layer: u32,
+}
+
+impl<'a> TextureAnyLayer<'a> {
+    /// Returns the texture.
+    pub fn get_texture(&self) -> &'a TextureAny {
+        self.texture
+    }
+
+    /// Returns the layer of the texture.
+    pub fn get_layer(&self) -> u32 {
+        self.layer
+    }
+
+    /// Returns a structure that represents the main mipmap level of this layer of the texture.
+    pub fn main_level(&self) -> TextureAnyLayerMipmap<'a> {
+        self.mipmap(0).unwrap()
+    }
+
+    /// Returns a structure that represents a specific mipmap of this layer of the texture.
+    ///
+    /// Returns `None` if out of range.
+    pub fn mipmap(&self, level: u32) -> Option<TextureAnyLayerMipmap<'a>> {
+        if level >= self.texture.levels {
+            return None;
+        }
+
+        let pow = 2u32.pow(level);
+
+        Some(TextureAnyLayerMipmap {
+            texture: self.texture,
+            level: level,
+            layer: self.layer,
+            width: cmp::max(1, self.texture.get_width() / pow),
+            height: self.texture.get_height().map(|height| cmp::max(1, height / pow)),
+        })
+    }
+}
+
+/// Represents a specific mipmap of a texture.
+#[derive(Copy, Clone)]
+pub struct TextureAnyMipmap<'a> {
+    /// The texture.
+    texture: &'a TextureAny,
+
+    /// Mipmap level.
+    level: u32,
+
+    /// Width of this mipmap level.
+    width: u32,
+    /// Height of this mipmap level.
+    height: Option<u32>,
+    /// Depth of this mipmap level.
+    depth: Option<u32>,
+}
+
 impl<'a> TextureAnyMipmap<'a> {
     /// Returns the texture.
     pub fn get_texture(&self) -> &'a TextureAny {
@@ -439,19 +666,40 @@ impl<'a> TextureAnyMipmap<'a> {
         self.level
     }
 
-    /// Returns the layer of the texture.
-    pub fn get_layer(&self) -> u32 {
-        self.layer
+    /// Returns a structure that represents the first layer of this mipmap of the texture. All
+    /// textures have a first layer.
+    pub fn first_layer(&self) -> TextureAnyLayerMipmap<'a> {
+        self.layer(0).unwrap()
+    }
+
+    /// Returns a structure that represents a specific layer of this mipmap of the texture.
+    ///
+    /// Non-array textures have only one layer. The number of layers can be queried with
+    /// `get_array_size`.
+    ///
+    /// Returns `None` if out of range.
+    pub fn layer(&self, layer: u32) -> Option<TextureAnyLayerMipmap<'a>> {
+        if layer >= self.texture.get_array_size().unwrap_or(1) {
+            return None;
+        }
+
+        if layer >= self.depth.unwrap_or(1) {
+            return None;
+        }
+
+        Some(TextureAnyLayerMipmap {
+            texture: self.texture,
+            layer: layer,
+            level: self.level,
+            width: self.width,
+            height: self.height,
+        })
     }
 }
 
 impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
-        let attachment = fbo::Attachment::Texture {
-            texture: &self.texture,
-            layer: Some(self.layer),
-            level: self.level,
-        };
+        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image().unwrap());
 
         let rect = Rect {
             bottom: 0,
@@ -470,11 +718,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {
         let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
 
-        let attachment = fbo::Attachment::Texture {
-            texture: &self.texture,
-            layer: Some(self.layer),
-            level: self.level,
-        };
+        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image().unwrap());
 
         let rect = Rect {
             bottom: 0,
@@ -632,164 +876,103 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     }
 }
 
-impl TextureAny {
-    /// Returns the width of the texture.
+/// Represents a specific layer of a specific mipmap. This is the same as `TextureAnyImage`, except
+/// for 3D textures, cubemaps and cubemap arrays.
+#[derive(Copy, Clone)]
+pub struct TextureAnyLayerMipmap<'a> {
+    /// The texture.
+    texture: &'a TextureAny,
+
+    /// Layer for array textures, or 0 for other textures.
+    layer: u32,
+    /// Mipmap level.
+    level: u32,
+
+    /// Width of this layer of mipmap.
+    width: u32,
+    /// Height of this layer of mipmap.
+    height: Option<u32>,
+}
+
+impl<'a> TextureAnyLayerMipmap<'a> {
+    /// Returns the texture.
+    pub fn get_texture(&self) -> &'a TextureAny {
+        self.texture
+    }
+
+    /// Returns the level of the texture.
+    pub fn get_level(&self) -> u32 {
+        self.level
+    }
+
+    /// Returns the layer of the texture.
+    pub fn get_layer(&self) -> u32 {
+        self.layer
+    }
+
+    /// Returns the width of this texture slice.
     pub fn get_width(&self) -> u32 {
-        match self.ty {
-            Dimensions::Texture1d { width, .. } => width,
-            Dimensions::Texture1dArray { width, .. } => width,
-            Dimensions::Texture2d { width, .. } => width,
-            Dimensions::Texture2dArray { width, .. } => width,
-            Dimensions::Texture2dMultisample { width, .. } => width,
-            Dimensions::Texture2dMultisampleArray { width, .. } => width,
-            Dimensions::Texture3d { width, .. } => width,
-        }
+        self.width
     }
 
-    /// Returns the height of the texture.
+    /// Returns the height of this texture slice.
     pub fn get_height(&self) -> Option<u32> {
-        match self.ty {
-            Dimensions::Texture1d { .. } => None,
-            Dimensions::Texture1dArray { .. } => None,
-            Dimensions::Texture2d { height, .. } => Some(height),
-            Dimensions::Texture2dArray { height, .. } => Some(height),
-            Dimensions::Texture2dMultisample { height, .. } => Some(height),
-            Dimensions::Texture2dMultisampleArray { height, .. } => Some(height),
-            Dimensions::Texture3d { height, .. } => Some(height),
-        }
+        self.height
     }
 
-    /// Returns the depth of the texture.
-    pub fn get_depth(&self) -> Option<u32> {
-        match self.ty {
-            Dimensions::Texture3d { depth, .. } => Some(depth),
-            _ => None
-        }
-    }
-
-    /// Returns the array size of the texture.
-    pub fn get_array_size(&self) -> Option<u32> {
-        match self.ty {
-            Dimensions::Texture1d { .. } => None,
-            Dimensions::Texture1dArray { array_size, .. } => Some(array_size),
-            Dimensions::Texture2d { .. } => None,
-            Dimensions::Texture2dArray { array_size, .. } => Some(array_size),
-            Dimensions::Texture2dMultisample { .. } => None,
-            Dimensions::Texture2dMultisampleArray { array_size, .. } => Some(array_size),
-            Dimensions::Texture3d { .. } => None,
-        }
-    }
-
-    /// Returns the number of mipmap levels of the texture.
-    pub fn get_mipmap_levels(&self) -> u32 {
-        self.levels
-    }
-
-    /// Returns the type of the texture (1D, 2D, 3D, etc.).
-    pub fn get_texture_type(&self) -> Dimensions {
-        self.ty
-    }
-
-    /// Determines the internal format of this texture.
-    pub fn get_internal_format(&self) -> Result<InternalFormat, GetFormatError> {
-        if let Some(format) = self.actual_format.get() {
-            format
-
-        } else {
-            let mut ctxt = self.context.make_current();
-            let format = get_format::get_format(&mut ctxt, self);
-            self.actual_format.set(Some(format.clone()));
-            format
-        }
-    }
-
-    /// Returns a structure that represents a specific mipmap of the texture.
-    ///
-    /// Returns `None` if out of range.
-    pub fn mipmap(&self, layer: u32, level: u32) -> Option<TextureAnyMipmap> {
-        if layer >= self.get_array_size().unwrap_or(1) {
-            return None;
-        }
-
-        if level >= self.levels {
-            return None;
-        }
-
-        let pow = 2u32.pow(level);
-        Some(TextureAnyMipmap {
-            texture: self,
-            level: level,
-            layer: layer,
-            width: cmp::max(1, self.get_width() / pow),
-            height: self.get_height().map(|height| cmp::max(1, height / pow)),
-            depth: self.get_depth().map(|depth| cmp::max(1, depth / pow)),
+    /// Turns this into an image.
+    // TODO: add a `Option<CubeMapLayer>` parameter
+    pub fn into_image(&self) -> Option<TextureAnyImage<'a>> {
+        Some(TextureAnyImage {
+            texture: self.texture,
+            layer: self.layer,
+            level: self.level,
+            width: self.width,
+            height: self.height,
         })
     }
 }
 
-impl TextureExt for TextureAny {
-    fn get_texture_id(&self) -> gl::types::GLuint {
-        self.id
-    }
+/// Represents a specific 2D image of a texture. 1D textures are considered as having a height of 1.
+#[derive(Copy, Clone)]
+pub struct TextureAnyImage<'a> {
+    /// The texture.
+    texture: &'a TextureAny,
 
-    fn get_context(&self) -> &Rc<Context> {
-        &self.context
-    }
+    /// Layer for array textures, or 0 for other textures.
+    layer: u32,
+    /// Mipmap level.
+    level: u32,
 
-    fn get_bind_point(&self) -> gl::types::GLenum {
-        match self.ty {
-            Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
-            Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
-            Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
-            Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
-            Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
-            Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-            Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
-        }
-    }
-
-    fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
-        let bind_point = self.get_bind_point();
-
-        let texture_unit = ctxt.state.active_texture;
-        if ctxt.state.texture_units[texture_unit as usize].texture != self.id {
-            unsafe { ctxt.gl.BindTexture(bind_point, self.id) };
-            ctxt.state.texture_units[texture_unit as usize].texture = self.id;
-        }
-
-        bind_point
-    }
+    /// Width of this image.
+    width: u32,
+    /// Height of this image.
+    height: Option<u32>,
 }
 
-impl GlObject for TextureAny {
-    type Id = gl::types::GLuint;
-    fn get_id(&self) -> gl::types::GLuint {
-        self.id
+impl<'a> TextureAnyImage<'a> {
+    /// Returns the texture.
+    pub fn get_texture(&self) -> &'a TextureAny {
+        self.texture
     }
-}
 
-impl fmt::Debug for TextureAny {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "Texture #{} (dimensions: {}x{}x{}x{})", self.id,
-               self.get_width(), self.get_height().unwrap_or(1), self.get_depth().unwrap_or(1),
-               self.get_array_size().unwrap_or(1))
+    /// Returns the level of the texture.
+    pub fn get_level(&self) -> u32 {
+        self.level
     }
-}
 
-impl Drop for TextureAny {
-    fn drop(&mut self) {
-        let mut ctxt = self.context.make_current();
+    /// Returns the layer of the texture.
+    pub fn get_layer(&self) -> u32 {
+        self.layer
+    }
 
-        // removing FBOs which contain this texture
-        fbo::FramebuffersContainer::purge_texture(&mut ctxt, self.id);
+    /// Returns the width of this texture slice.
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
 
-        // resetting the bindings
-        for tex_unit in ctxt.state.texture_units.iter_mut() {
-            if tex_unit.texture == self.id {
-                tex_unit.texture = 0;
-            }
-        }
-
-        unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
+    /// Returns the height of this texture slice.
+    pub fn get_height(&self) -> Option<u32> {
+        self.height
     }
 }
