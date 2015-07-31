@@ -614,14 +614,14 @@ impl<'a> TextureAnyLayer<'a> {
     }
 
     /// Returns a structure that represents the main mipmap level of this layer of the texture.
-    pub fn main_level(&self) -> TextureAnyLayerMipmap {
+    pub fn main_level(&self) -> TextureAnyLayerMipmap<'a> {
         self.mipmap(0).unwrap()
     }
 
     /// Returns a structure that represents a specific mipmap of this layer of the texture.
     ///
     /// Returns `None` if out of range.
-    pub fn mipmap(&self, level: u32) -> Option<TextureAnyLayerMipmap> {
+    pub fn mipmap(&self, level: u32) -> Option<TextureAnyLayerMipmap<'a>> {
         if level >= self.texture.levels {
             return None;
         }
@@ -634,7 +634,6 @@ impl<'a> TextureAnyLayer<'a> {
             layer: self.layer,
             width: cmp::max(1, self.texture.get_width() / pow),
             height: self.texture.get_height().map(|height| cmp::max(1, height / pow)),
-            depth: self.texture.get_depth().map(|depth| cmp::max(1, depth / pow)),
         })
     }
 }
@@ -669,7 +668,7 @@ impl<'a> TextureAnyMipmap<'a> {
 
     /// Returns a structure that represents the first layer of this mipmap of the texture. All
     /// textures have a first layer.
-    pub fn first_layer(&self) -> TextureAnyLayerMipmap {
+    pub fn first_layer(&self) -> TextureAnyLayerMipmap<'a> {
         self.layer(0).unwrap()
     }
 
@@ -679,8 +678,12 @@ impl<'a> TextureAnyMipmap<'a> {
     /// `get_array_size`.
     ///
     /// Returns `None` if out of range.
-    pub fn layer(&self, layer: u32) -> Option<TextureAnyLayerMipmap> {
+    pub fn layer(&self, layer: u32) -> Option<TextureAnyLayerMipmap<'a>> {
         if layer >= self.texture.get_array_size().unwrap_or(1) {
+            return None;
+        }
+
+        if layer >= self.depth.unwrap_or(1) {
             return None;
         }
 
@@ -690,18 +693,13 @@ impl<'a> TextureAnyMipmap<'a> {
             level: self.level,
             width: self.width,
             height: self.height,
-            depth: self.depth,
         })
     }
 }
 
 impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
-        let attachment = fbo::Attachment::Texture {
-            texture: &self.texture,
-            layer: None,        // TODO: 
-            level: self.level,
-        };
+        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image().unwrap());
 
         let rect = Rect {
             bottom: 0,
@@ -720,11 +718,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {
         let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
 
-        let attachment = fbo::Attachment::Texture {
-            texture: &self.texture,
-            layer: None,        // TODO: 
-            level: self.level,
-        };
+        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image().unwrap());
 
         let rect = Rect {
             bottom: 0,
@@ -898,8 +892,45 @@ pub struct TextureAnyLayerMipmap<'a> {
     width: u32,
     /// Height of this layer of mipmap.
     height: Option<u32>,
-    /// Depth of this layer of mipmap.
-    depth: Option<u32>,
+}
+
+impl<'a> TextureAnyLayerMipmap<'a> {
+    /// Returns the texture.
+    pub fn get_texture(&self) -> &'a TextureAny {
+        self.texture
+    }
+
+    /// Returns the level of the texture.
+    pub fn get_level(&self) -> u32 {
+        self.level
+    }
+
+    /// Returns the layer of the texture.
+    pub fn get_layer(&self) -> u32 {
+        self.layer
+    }
+
+    /// Returns the width of this texture slice.
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+
+    /// Returns the height of this texture slice.
+    pub fn get_height(&self) -> Option<u32> {
+        self.height
+    }
+
+    /// Turns this into an image.
+    // TODO: add a `Option<CubeMapLayer>` parameter
+    pub fn into_image(&self) -> Option<TextureAnyImage<'a>> {
+        Some(TextureAnyImage {
+            texture: self.texture,
+            layer: self.layer,
+            level: self.level,
+            width: self.width,
+            height: self.height,
+        })
+    }
 }
 
 /// Represents a specific 2D image of a texture. 1D textures are considered as having a height of 1.
@@ -916,5 +947,32 @@ pub struct TextureAnyImage<'a> {
     /// Width of this image.
     width: u32,
     /// Height of this image.
-    height: u32,
+    height: Option<u32>,
+}
+
+impl<'a> TextureAnyImage<'a> {
+    /// Returns the texture.
+    pub fn get_texture(&self) -> &'a TextureAny {
+        self.texture
+    }
+
+    /// Returns the level of the texture.
+    pub fn get_level(&self) -> u32 {
+        self.level
+    }
+
+    /// Returns the layer of the texture.
+    pub fn get_layer(&self) -> u32 {
+        self.layer
+    }
+
+    /// Returns the width of this texture slice.
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+
+    /// Returns the height of this texture slice.
+    pub fn get_height(&self) -> Option<u32> {
+        self.height
+    }
 }

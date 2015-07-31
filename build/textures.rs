@@ -367,7 +367,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.mipmap(0).unwrap())
+                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -376,7 +376,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.mipmap(0).unwrap())
+                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -385,7 +385,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthAttachment for {name} {{
                             fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
-                                ::framebuffer::DepthAttachment::Texture(self.0.mipmap(0).unwrap())
+                                ::framebuffer::DepthAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -394,7 +394,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToStencilAttachment for {name} {{
                             fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
-                                ::framebuffer::StencilAttachment::Texture(self.0.mipmap(0).unwrap())
+                                ::framebuffer::StencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -403,7 +403,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthStencilAttachment for {name} {{
                             fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
-                                ::framebuffer::DepthStencilAttachment::Texture(self.0.mipmap(0).unwrap())
+                                ::framebuffer::DepthStencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
