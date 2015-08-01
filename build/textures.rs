@@ -105,6 +105,33 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
 }
 
 fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
+    // building the name of the module
+    let module_name: String = {
+        let prefix = match ty {
+            TextureType::Regular => "",
+            TextureType::Compressed => "compressed_",
+            TextureType::Srgb => "srgb_",
+            TextureType::CompressedSrgb => "compressed_srgb_",
+            TextureType::Integral => "integral_",
+            TextureType::Unsigned => "unsigned_",
+            TextureType::Depth => "depth_",
+            TextureType::Stencil => "stencil_",
+            TextureType::DepthStencil => "depth_stencil_",
+        };
+
+        let suffix = match dimensions {
+            TextureDimensions::Texture1d => "texture1d",
+            TextureDimensions::Texture2d => "texture2d",
+            TextureDimensions::Texture2dMultisample => "texture2d_multisample",
+            TextureDimensions::Texture3d => "texture3d",
+            TextureDimensions::Texture1dArray => "texture1d_array",
+            TextureDimensions::Texture2dArray => "texture2d_array",
+            TextureDimensions::Texture2dMultisampleArray => "texture2d_multisample_array",
+        };
+
+        format!("{}{}", prefix, suffix)
+    };
+
     // building the name of the texture type
     let name: String = {
         let prefix = match ty {
@@ -225,6 +252,44 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             "Dimensions::Texture2dMultisampleArray { width: width, height: height, array_size: array_size, samples: samples }"
         },
     };
+
+    // writing the `use module::*;` statement
+    writeln!(dest, "pub use self::{}::{};", module_name, name).unwrap();
+
+    // opening `mod module {`
+    writeln!(dest, "
+        /// Contains the implementation of `{}`.
+        pub mod {} {{\
+            // the list of imports we need depends on the texture type, don't bother with this
+            #![allow(unused_imports)]
+
+            use std::borrow::Cow;
+
+            use texture::any::{{self, TextureAny, TextureAnyLayer, TextureAnyMipmap}};
+            use texture::any::{{TextureAnyLayerMipmap, TextureAnyImage, Dimensions}};
+            use texture::bindless::{{ResidentTexture, BindlessTexturesNotSupportedError}};
+            use texture::get_format::{{InternalFormat, InternalFormatType, GetFormatError}};
+            use texture::{{TextureCreationError, Texture1dDataSource, Texture2dDataSource}};
+            use texture::{{Texture3dDataSource, Texture2dDataSink, MipmapsOption, CompressedMipmapsOption, Texture}};
+            use texture::{{RawImage1d, RawImage2d, RawImage3d}};
+
+            use image_format::{{ClientFormatAny, TextureFormatRequest}};
+            use image_format::{{UncompressedFloatFormat, UncompressedIntFormat}};
+            use image_format::{{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat}};
+            use image_format::{{CompressedSrgbFormat, SrgbFormat, UncompressedUintFormat}};
+
+            use backend::Facade;
+            use pixel_buffer::PixelBuffer;
+            use uniforms::{{UniformValue, AsUniformValue, Sampler}};
+            use framebuffer;
+            use Rect;
+
+            use GlObject;
+            use TextureExt;
+            use TextureMipmapExt;
+            use gl;
+
+    ", name, module_name).unwrap();
 
     // writing the struct with doc-comment
     (write!(dest, "/// ")).unwrap();
@@ -1063,4 +1128,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // closing `impl LayerMipmap` block
         (writeln!(dest, "}}")).unwrap();
     }
+
+    // closing `mod module {`
+    writeln!(dest, "}}").unwrap();
 }

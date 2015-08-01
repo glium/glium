@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Textures are now inside submodules (for example `Texture2d` is in `texture::texture2d::Texture2d`) and reexported from `texture`.
+
 ## Version 0.8.2 (2015-07-29)
 
  - Added a `buffer_texture` module in `texture`.
