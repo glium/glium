@@ -19,6 +19,9 @@ pub struct Capabilities {
     /// True if it is possible for the OpenGL context to be lost.
     pub can_lose_context: bool,
 
+    /// What happens when you change the current OpenGL context.
+    pub release_behavior: ReleaseBehavior,
+
     /// Whether the context supports left and right buffers.
     pub stereo: bool,
 
@@ -67,6 +70,16 @@ pub struct Capabilities {
 
     /// Number of work groups for compute shaders.
     pub max_compute_work_group_count: (gl::types::GLint, gl::types::GLint, gl::types::GLint),
+}
+
+/// Defines what happens when you change the current context.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum ReleaseBehavior {
+    /// Nothing is done when using another context.
+    None,
+
+    /// The commands queue of the current context is flushed.
+    Flush,
 }
 
 /// Loads the capabilities.
@@ -125,6 +138,20 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         } else {
             false
+        },
+
+        release_behavior: if extensions.gl_khr_context_flush_control {
+            let mut val = mem::uninitialized();
+            gl.GetIntegerv(gl::CONTEXT_RELEASE_BEHAVIOR, &mut val);
+
+            match val as gl::types::GLenum {
+                gl::NONE => ReleaseBehavior::None,
+                gl::CONTEXT_RELEASE_BEHAVIOR_FLUSH => ReleaseBehavior::Flush,
+                _ => unreachable!()
+            }
+
+        } else {
+            ReleaseBehavior::Flush
         },
 
         stereo: {

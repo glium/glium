@@ -24,6 +24,7 @@ use context::ExtensionsList;
 use version::Version;
 
 pub use context::Context;
+pub use context::ReleaseBehavior;
 
 #[cfg(feature = "glutin")]
 pub mod glutin_backend;

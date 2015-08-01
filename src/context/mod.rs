@@ -29,7 +29,7 @@ use texture;
 use uniforms;
 use vertex_array_object;
 
-pub use self::capabilities::Capabilities;
+pub use self::capabilities::{ReleaseBehavior, Capabilities};
 pub use self::extensions::ExtensionsList;
 pub use self::state::GlState;
 
@@ -342,6 +342,14 @@ impl Context {
 
         if lost { ctxt.state.lost_context = true; }
         lost
+    }
+
+    /// Returns the behavior when the current OpenGL context is changed.
+    ///
+    /// The most common value is `Flush`. In order to get `None` you must explicitely request it
+    /// during creation.
+    pub fn get_release_behavior(&self) -> ReleaseBehavior {
+        self.capabilities().release_behavior
     }
 
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`

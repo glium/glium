@@ -129,6 +129,7 @@ extensions! {
     "GL_EXT_transform_feedback" => gl_ext_transform_feedback,
     "GL_GREMEDY_string_marker" => gl_gremedy_string_marker,
     "GL_KHR_debug" => gl_khr_debug,
+    "GL_KHR_context_flush_control" => gl_khr_context_flush_control,
     "GL_KHR_robustness" => gl_khr_robustness,
     "GL_KHR_robust_buffer_access_behavior" => gl_khr_robust_buffer_access_behavior,
     "GL_NV_conditional_render" => gl_nv_conditional_render,
