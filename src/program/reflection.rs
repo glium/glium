@@ -850,7 +850,6 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
     // ↓ actual body of `introspection_output_to_layout` starts here ↓
     let mut layout = BlockLayout::Struct { members: Vec::new() };
     for (name, offset, ty, array_size, top_level_array_size) in elements {
-        println!("{:?} {:?} {:?}", offset, array_size, top_level_array_size);
         process(&mut layout, &name, offset, ty, array_size, top_level_array_size);
     }
     layout

@@ -793,20 +793,20 @@ fn array_layout_offsets() {
     let program = glium::Program::from_source(&display,
         "
             #version 330
-            uniform layout(std140);
 
             struct Foo {
-                vec3 pos;
-                vec3 dir;
+                vec2 pos;
+                vec2 dir;
                 float speed;
             };
 
+            layout(std140)
             uniform MyBlock {
                 Foo data[256];
             };
 
             void main() {
-                gl_Position = vec4(data[0].pos, 1.0);
+                gl_Position = vec4(data[0].pos, 0.0, 1.0);
             }
         ",
         "
@@ -837,18 +837,18 @@ fn array_layout_offsets() {
                 content: Box::new(glium::program::BlockLayout::Struct {
                     members: vec![
                         ("pos".to_string(), glium::program::BlockLayout::BasicType {
-                            ty: glium::uniforms::UniformType::FloatVec3,
+                            ty: glium::uniforms::UniformType::FloatVec2,
                             offset_in_buffer: 0,
                         }),
 
                         ("dir".to_string(), glium::program::BlockLayout::BasicType {
-                            ty: glium::uniforms::UniformType::FloatVec3,
-                            offset_in_buffer: 16,
+                            ty: glium::uniforms::UniformType::FloatVec2,
+                            offset_in_buffer: 8,
                         }),
 
                         ("speed".to_string(), glium::program::BlockLayout::BasicType {
                             ty: glium::uniforms::UniformType::Float,
-                            offset_in_buffer: 28,
+                            offset_in_buffer: 16,
                         }),
                     ],
                 }),
