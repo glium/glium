@@ -63,24 +63,11 @@ regular RGB texture and put sRGB data in it, then the result will be too bright.
 #![allow(unreachable_code)]     // TODO: remove
 
 use std::borrow::Cow;
-use std::convert::From;
-
-use {gl, framebuffer};
 
 #[cfg(feature = "image")]
 use image;
 
-use backend::Facade;
-
-use pixel_buffer::PixelBuffer;
-use uniforms::{UniformValue, AsUniformValue, Sampler};
-use GlObject;
-
-use Rect;
-use TextureExt;
-use TextureMipmapExt;
-
-use image_format::{TextureFormatRequest, ClientFormatAny, FormatNotSupportedError};
+use image_format::FormatNotSupportedError;
 
 pub use image_format::{ClientFormat, TextureFormat};
 pub use image_format::{UncompressedFloatFormat, UncompressedIntFormat, UncompressedUintFormat};
