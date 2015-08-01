@@ -1,9 +1,60 @@
 /*!
 
-Handles bindless textures.
+Without bindless textures, using a texture in a shader requires binding the texture to a specific
+bind point before drawing. This not only slows down rendering, but may also prevent you from
+grouping multiple draw calls into one because of the limitation to the number of available
+texture units.
 
+Instead, bindless textures allow you to manually manipulate pointers to textures in video memory.
+You can use thousands of textures if you want.
 
+# Initialization
 
+Before using a bindless texture, you must turn it into a `ResidentTexture`. This is done by
+calling `resident` on the texture you want.
+
+Bindless textures are a very recent feature that is supported only by recent hardware and
+drivers. `resident` will return an `Err` if this feature is not supported.
+
+```no_run
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
+let texture = texture.resident().unwrap();
+```
+
+In a real application, you will likely manage a `Vec<ResidentTexture>`.
+
+# Usage
+
+You can then use a `TextureHandle` as if it was a pointer to a texture. A `TextureHandle` can be
+built from a `&ResidentTexture` and can't outlive it.
+
+```ignore       // TODO: doctest ICEs on Rust 1.1 (but not on nightly, so this can be `no_run` eventually)
+#[macro_use]
+extern crate glium;
+
+# fn main() {
+#[derive(Copy, Clone)]
+struct UniformBuffer<'a> {
+    texture: glium::texture::TextureHandle<'a>,
+    some_value: f32,
+}
+
+implement_uniform_block!(UniformBuffer<'a>, texture, some_value);
+
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let texture: glium::texture::bindless::ResidentTexture = unsafe { std::mem::uninitialized() };
+let uniform_buffer = glium::uniforms::UniformBuffer::new(&display, UniformBuffer {
+    texture: glium::texture::TextureHandle::new(&texture, &Default::default()),
+    some_value: 5.0,
+});
+# }
+```
+
+Inside your shader, you can refer to the texture with a traditional `sampler*` variable. Glium
+currently doesn't check whether the type of your texture matches the expected type (but it may
+do in the future). Binding the wrong type of texture may lead to undefined values when sampling
+the texture.
 
 */
 use texture::any::TextureAny;
@@ -94,7 +145,7 @@ impl Drop for ResidentTexture {
     }
 }
 
-/// Handle to a texture.
+/// Represents a handle to a texture. Contains a raw pointer to a texture that is hidden from you.
 #[derive(Copy, Clone)]
 pub struct TextureHandle<'a> {
     value: gl::types::GLuint64,
