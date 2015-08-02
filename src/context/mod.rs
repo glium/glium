@@ -461,16 +461,36 @@ impl Context {
         };
     }
 
-    /// Waits until all the previous commands have finished being executed.
+    /// DEPRECATED. Renamed `finish`.
+    pub fn synchronize(&self) {
+        self.finish();
+    }
+
+    /// Calls `glFinish()`. This waits until all the previously issued commands have finished
+    /// being executed.
     ///
     /// When you execute OpenGL functions, they are not executed immediately. Instead they are
-    /// put in a queue. This function waits until all commands have finished being executed, and
-    /// the queue is empty.
+    /// put in a queue. This function flushes this queue, then waits until all commands
+    /// have finished being executed.
     ///
     /// You normally don't need to call this function manually, except for debugging purposes.
-    pub fn synchronize(&self) {
+    pub fn finish(&self) {
         let ctxt = self.make_current();
         unsafe { ctxt.gl.Finish(); }
+    }
+
+    /// Calls `glFlush()`. This starts executing the commands that you have issued if it is not
+    /// yet the case.
+    ///
+    /// When you execute OpenGL functions, they are not executed immediately. Instead they are
+    /// put in a queue. This function flushes this queue so that commands start being executed.
+    ///
+    /// You normally don't need to call this function manually. Swapping buffers automatically
+    /// flushes the queue. This function can be useful if you want to benchmark the time it
+    /// takes from your OpenGL driver to process commands.
+    pub fn flush(&self) {
+        let ctxt = self.make_current();
+        unsafe { ctxt.gl.Flush(); }
     }
 
     /// Inserts a debugging string in the commands queue. If you use an OpenGL debugger, you will
