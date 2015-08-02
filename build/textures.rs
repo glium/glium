@@ -989,6 +989,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// `{name}Layer::mipmap()` or `{name}Layer::main_level()`.
                 #[derive(Copy, Clone)]
                 pub struct {name}Mipmap<'t>(TextureAnyMipmap<'t>, &'t {name});
+
+                impl<'a> ::std::ops::Deref for {name}Mipmap<'a> {{
+                    type Target = TextureAnyMipmap<'a>;
+                    
+                    fn deref(&self) -> &TextureAnyMipmap<'a> {{
+                        &self.0
+                    }}
+                }}
             "#, name = name)).unwrap();
 
         // opening `impl Mipmap` block

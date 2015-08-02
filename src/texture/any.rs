@@ -16,9 +16,12 @@ use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
 use texture::{MipmapsOption, TextureFormat, TextureCreationError};
 use texture::{get_format, InternalFormat, GetFormatError};
+use texture::pixel::PixelValue;
 
+use buffer::BufferView;
 use buffer::BufferViewAny;
 use BufferViewExt;
+use BufferViewSliceExt;
 
 use libc;
 use std::cmp;
@@ -694,6 +697,174 @@ impl<'a> TextureAnyMipmap<'a> {
             width: self.width,
             height: self.height,
         })
+    }
+
+    /// Uploads data to the texture from a buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
+    /// if the buffer is not big enough to hold the data.
+    pub fn raw_upload_from_pixel_buffer<P>(&self, source: &BufferView<[P]>, x_offset: u32,
+                                           y_offset: u32, z_offset: u32, width: u32, height: u32,
+                                           depth: u32)
+                                           where P: PixelValue
+    {
+        assert!(x_offset <= self.width);
+        assert!(y_offset <= self.height.unwrap_or(0));
+        assert!(z_offset <= self.depth.unwrap_or(0));
+        assert!(x_offset + width <= self.width);
+        assert!(y_offset + height <= self.height.unwrap_or(1));
+        assert!(z_offset + depth <= self.depth.unwrap_or(1));
+
+        if source.len() < (width * height * depth) as usize {
+            panic!("Buffer is too small");
+        }
+
+        let (client_format, client_type) =
+            image_format::client_format_to_glenum(&self.texture.context,
+                                                  ClientFormatAny::ClientFormat(P::get_format()),
+                                                  self.texture.requested_format).unwrap();
+
+        let mut ctxt = self.texture.context.make_current();
+
+        // binds the pixel buffer
+        source.prepare_and_bind_for_pixel_unpack(&mut ctxt);
+
+        match self.texture.ty {
+            Dimensions::Texture1d { .. } => {
+                if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                   ctxt.extensions.gl_arb_direct_state_access
+                {
+                    unsafe {
+                        ctxt.gl.TextureSubImage1D(self.texture.id,
+                                                  self.level as gl::types::GLint,
+                                                  x_offset as gl::types::GLint,
+                                                  width as gl::types::GLsizei,
+                                                  client_format, client_type,
+                                                  source.get_offset_bytes() as *const() as *const _);
+                    }
+
+                }  else if ctxt.extensions.gl_ext_direct_state_access {
+                    unsafe {
+                        ctxt.gl.TextureSubImage1DEXT(self.texture.id, self.texture.get_bind_point(),
+                                                     self.level as gl::types::GLint,
+                                                     x_offset as gl::types::GLint,
+                                                     width as gl::types::GLsizei,
+                                                     client_format, client_type,
+                                                     source.get_offset_bytes() as *const() as *const _);
+                    }
+
+                } else {
+                    self.texture.bind_to_current(&mut ctxt);
+                    unsafe {
+                        ctxt.gl.TexSubImage1D(self.texture.get_bind_point(),
+                                              self.level as gl::types::GLint,
+                                              x_offset as gl::types::GLint,
+                                              width as gl::types::GLsizei,
+                                              client_format, client_type,
+                                              source.get_offset_bytes() as *const() as *const _);
+                    }
+                }
+            },
+
+            Dimensions::Texture1dArray { .. } | Dimensions::Texture2d { .. } |
+            Dimensions::Texture2dMultisample { .. } |
+            Dimensions::Texture2dMultisampleArray { .. } => {
+                if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                   ctxt.extensions.gl_arb_direct_state_access
+                {
+                    unsafe {
+                        ctxt.gl.TextureSubImage2D(self.texture.id,
+                                                  self.level as gl::types::GLint,
+                                                  x_offset as gl::types::GLint,
+                                                  y_offset as gl::types::GLint,
+                                                  width as gl::types::GLsizei,
+                                                  height as gl::types::GLsizei,
+                                                  client_format, client_type,
+                                                  source.get_offset_bytes() as *const() as *const _);
+                    }
+
+                }  else if ctxt.extensions.gl_ext_direct_state_access {
+                    unsafe {
+                        ctxt.gl.TextureSubImage2DEXT(self.texture.id, self.texture.get_bind_point(),
+                                                     self.level as gl::types::GLint,
+                                                     x_offset as gl::types::GLint,
+                                                     y_offset as gl::types::GLint,
+                                                     width as gl::types::GLsizei,
+                                                     height as gl::types::GLsizei,
+                                                     client_format, client_type,
+                                                     source.get_offset_bytes() as *const() as *const _);
+                    }
+
+                } else {
+                    self.texture.bind_to_current(&mut ctxt);
+                    unsafe {
+                        ctxt.gl.TexSubImage2D(self.texture.get_bind_point(),
+                                              self.level as gl::types::GLint,
+                                              x_offset as gl::types::GLint,
+                                              y_offset as gl::types::GLint,
+                                              width as gl::types::GLsizei,
+                                              height as gl::types::GLsizei,
+                                              client_format, client_type,
+                                              source.get_offset_bytes() as *const() as *const _);
+                    }
+                }
+            },
+
+            Dimensions::Texture2dArray { .. } | Dimensions::Texture3d { .. } => {
+                if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                   ctxt.extensions.gl_arb_direct_state_access
+                {
+                    unsafe {
+                        ctxt.gl.TextureSubImage3D(self.texture.id,
+                                                  self.level as gl::types::GLint,
+                                                  x_offset as gl::types::GLint,
+                                                  y_offset as gl::types::GLint,
+                                                  z_offset as gl::types::GLint,
+                                                  width as gl::types::GLsizei,
+                                                  height as gl::types::GLsizei,
+                                                  depth as gl::types::GLsizei,
+                                                  client_format, client_type,
+                                                  source.get_offset_bytes() as *const() as *const _);
+                    }
+
+                }  else if ctxt.extensions.gl_ext_direct_state_access {
+                    unsafe {
+                        ctxt.gl.TextureSubImage3DEXT(self.texture.id, self.texture.get_bind_point(),
+                                                     self.level as gl::types::GLint,
+                                                     x_offset as gl::types::GLint,
+                                                     y_offset as gl::types::GLint,
+                                                     z_offset as gl::types::GLint,
+                                                     width as gl::types::GLsizei,
+                                                     height as gl::types::GLsizei,
+                                                     depth as gl::types::GLsizei,
+                                                     client_format, client_type,
+                                                     source.get_offset_bytes() as *const() as *const _);
+                    }
+
+                } else {
+                    self.texture.bind_to_current(&mut ctxt);
+                    unsafe {
+                        ctxt.gl.TexSubImage3D(self.texture.get_bind_point(),
+                                              self.level as gl::types::GLint,
+                                              x_offset as gl::types::GLint,
+                                              y_offset as gl::types::GLint,
+                                              z_offset as gl::types::GLint,
+                                              width as gl::types::GLsizei,
+                                              height as gl::types::GLsizei,
+                                              depth as gl::types::GLsizei,
+                                              client_format, client_type,
+                                              source.get_offset_bytes() as *const() as *const _);
+                    }
+                }
+            },
+        }
+
+        // handling synchronization for the buffer
+        if let Some(fence) = source.as_slice().add_fence() {
+            fence.insert(&mut ctxt);
+        }
     }
 }
 
