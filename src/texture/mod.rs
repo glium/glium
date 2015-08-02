@@ -59,6 +59,19 @@ fragment shader to be in linear RGB and then turns it into sRGB before writing i
 Sampling from an sRGB texture will convert the texture colors from sRGB to RGB. If you create a
 regular RGB texture and put sRGB data in it, then the result will be too bright.
 
+# Bindless textures
+
+*Bindless textures are a very recent feature that is supported only by recent hardware and
+drivers.*
+
+Without bindless textures, using a texture in a shader requires binding the texture to a specific
+bind point before drawing. This not only slows down rendering, but may also prevent you from
+grouping multiple draw calls into one because of the limitation to the number of available
+texture units.
+
+Instead, bindless textures allow you to manually manipulate pointers to textures in video memory.
+You can use thousands of textures if you want.
+
 */
 #![allow(unreachable_code)]     // TODO: remove
 
@@ -79,10 +92,10 @@ pub use self::bindless::{ResidentTexture, TextureHandle, BindlessTexturesNotSupp
 pub use self::get_format::{InternalFormat, InternalFormatType, GetFormatError};
 pub use self::pixel::PixelValue;
 
+pub mod bindless;
 pub mod buffer_texture;
 
 mod any;
-mod bindless;
 mod get_format;
 mod pixel;
 
