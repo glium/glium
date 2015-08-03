@@ -31,6 +31,7 @@ use std::ptr;
 use std::borrow::Cow;
 use std::cell::Cell;
 use std::rc::Rc;
+use std::ops::Range;
 
 use ops;
 use fbo;
@@ -705,17 +706,20 @@ impl<'a> TextureAnyMipmap<'a> {
     ///
     /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
     /// if the buffer is not big enough to hold the data.
-    pub fn raw_upload_from_pixel_buffer<P>(&self, source: &BufferView<[P]>, x_offset: u32,
-                                           y_offset: u32, z_offset: u32, width: u32, height: u32,
-                                           depth: u32)
+    pub fn raw_upload_from_pixel_buffer<P>(&self, source: &BufferView<[P]>, x: Range<u32>,
+                                           y: Range<u32>, z: Range<u32>)
                                            where P: PixelValue
     {
-        assert!(x_offset <= self.width);
-        assert!(y_offset <= self.height.unwrap_or(0));
-        assert!(z_offset <= self.depth.unwrap_or(0));
-        assert!(x_offset + width <= self.width);
-        assert!(y_offset + height <= self.height.unwrap_or(1));
-        assert!(z_offset + depth <= self.depth.unwrap_or(1));
+        assert!(x.start <= self.width);
+        assert!(y.start <= self.height.unwrap_or(0));
+        assert!(z.start <= self.depth.unwrap_or(0));
+        assert!(x.end <= self.width);
+        assert!(y.end <= self.height.unwrap_or(1));
+        assert!(z.end <= self.depth.unwrap_or(1));
+
+        let width = x.end - x.start;
+        let height = y.end - y.start;
+        let depth = z.end - z.start;
 
         if source.len() < (width * height * depth) as usize {
             panic!("Buffer is too small");
@@ -739,7 +743,7 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TextureSubImage1D(self.texture.id,
                                                   self.level as gl::types::GLint,
-                                                  x_offset as gl::types::GLint,
+                                                  x.start as gl::types::GLint,
                                                   width as gl::types::GLsizei,
                                                   client_format, client_type,
                                                   source.get_offset_bytes() as *const() as *const _);
@@ -749,7 +753,7 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TextureSubImage1DEXT(self.texture.id, self.texture.get_bind_point(),
                                                      self.level as gl::types::GLint,
-                                                     x_offset as gl::types::GLint,
+                                                     x.start as gl::types::GLint,
                                                      width as gl::types::GLsizei,
                                                      client_format, client_type,
                                                      source.get_offset_bytes() as *const() as *const _);
@@ -760,7 +764,7 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TexSubImage1D(self.texture.get_bind_point(),
                                               self.level as gl::types::GLint,
-                                              x_offset as gl::types::GLint,
+                                              x.start as gl::types::GLint,
                                               width as gl::types::GLsizei,
                                               client_format, client_type,
                                               source.get_offset_bytes() as *const() as *const _);
@@ -777,8 +781,8 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TextureSubImage2D(self.texture.id,
                                                   self.level as gl::types::GLint,
-                                                  x_offset as gl::types::GLint,
-                                                  y_offset as gl::types::GLint,
+                                                  x.start as gl::types::GLint,
+                                                  y.start as gl::types::GLint,
                                                   width as gl::types::GLsizei,
                                                   height as gl::types::GLsizei,
                                                   client_format, client_type,
@@ -789,8 +793,8 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TextureSubImage2DEXT(self.texture.id, self.texture.get_bind_point(),
                                                      self.level as gl::types::GLint,
-                                                     x_offset as gl::types::GLint,
-                                                     y_offset as gl::types::GLint,
+                                                     x.start as gl::types::GLint,
+                                                     y.start as gl::types::GLint,
                                                      width as gl::types::GLsizei,
                                                      height as gl::types::GLsizei,
                                                      client_format, client_type,
@@ -802,8 +806,8 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TexSubImage2D(self.texture.get_bind_point(),
                                               self.level as gl::types::GLint,
-                                              x_offset as gl::types::GLint,
-                                              y_offset as gl::types::GLint,
+                                              x.start as gl::types::GLint,
+                                              y.start as gl::types::GLint,
                                               width as gl::types::GLsizei,
                                               height as gl::types::GLsizei,
                                               client_format, client_type,
@@ -819,9 +823,9 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TextureSubImage3D(self.texture.id,
                                                   self.level as gl::types::GLint,
-                                                  x_offset as gl::types::GLint,
-                                                  y_offset as gl::types::GLint,
-                                                  z_offset as gl::types::GLint,
+                                                  x.start as gl::types::GLint,
+                                                  y.start as gl::types::GLint,
+                                                  z.start as gl::types::GLint,
                                                   width as gl::types::GLsizei,
                                                   height as gl::types::GLsizei,
                                                   depth as gl::types::GLsizei,
@@ -833,9 +837,9 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TextureSubImage3DEXT(self.texture.id, self.texture.get_bind_point(),
                                                      self.level as gl::types::GLint,
-                                                     x_offset as gl::types::GLint,
-                                                     y_offset as gl::types::GLint,
-                                                     z_offset as gl::types::GLint,
+                                                     x.start as gl::types::GLint,
+                                                     y.start as gl::types::GLint,
+                                                     z.start as gl::types::GLint,
                                                      width as gl::types::GLsizei,
                                                      height as gl::types::GLsizei,
                                                      depth as gl::types::GLsizei,
@@ -848,9 +852,9 @@ impl<'a> TextureAnyMipmap<'a> {
                     unsafe {
                         ctxt.gl.TexSubImage3D(self.texture.get_bind_point(),
                                               self.level as gl::types::GLint,
-                                              x_offset as gl::types::GLint,
-                                              y_offset as gl::types::GLint,
-                                              z_offset as gl::types::GLint,
+                                              x.start as gl::types::GLint,
+                                              y.start as gl::types::GLint,
+                                              z.start as gl::types::GLint,
                                               width as gl::types::GLsizei,
                                               height as gl::types::GLsizei,
                                               depth as gl::types::GLsizei,
