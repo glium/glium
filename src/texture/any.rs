@@ -18,7 +18,7 @@ use texture::{MipmapsOption, TextureFormat, TextureCreationError};
 use texture::{get_format, InternalFormat, GetFormatError};
 use texture::pixel::PixelValue;
 
-use buffer::BufferView;
+use buffer::BufferViewSlice;
 use buffer::BufferViewAny;
 use BufferViewExt;
 use BufferViewSliceExt;
@@ -706,7 +706,7 @@ impl<'a> TextureAnyMipmap<'a> {
     ///
     /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
     /// if the buffer is not big enough to hold the data.
-    pub fn raw_upload_from_pixel_buffer<P>(&self, source: &BufferView<[P]>, x: Range<u32>,
+    pub fn raw_upload_from_pixel_buffer<P>(&self, source: BufferViewSlice<[P]>, x: Range<u32>,
                                            y: Range<u32>, z: Range<u32>)
                                            where P: PixelValue
     {
@@ -866,7 +866,7 @@ impl<'a> TextureAnyMipmap<'a> {
         }
 
         // handling synchronization for the buffer
-        if let Some(fence) = source.as_slice().add_fence() {
+        if let Some(fence) = source.add_fence() {
             fence.insert(&mut ctxt);
         }
     }

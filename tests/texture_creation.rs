@@ -352,7 +352,7 @@ fn upload_from_pixel_buffer() {
     buffer.write(&[(0u8, 255u8, 0u8, 255u8), (255, 0, 255, 0), (255, 255, 0, 255),
                    (0, 0, 255, 255)]);
 
-    texture.main_level().raw_upload_from_pixel_buffer(&buffer, 0 .. 2, 0 .. 2, 0 .. 1);
+    texture.main_level().raw_upload_from_pixel_buffer(buffer.as_slice(), 0 .. 2, 0 .. 2, 0 .. 1);
 
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
