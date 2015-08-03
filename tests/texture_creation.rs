@@ -363,3 +363,25 @@ fn upload_from_pixel_buffer() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn upload_from_pixel_buffer_inverted() {
+    let display = support::build_display();
+
+    let texture = glium::texture::Texture2d::empty(&display, 2, 2).unwrap();
+
+    let buffer = glium::pixel_buffer::PixelBuffer::new_empty(&display, 4);
+    buffer.write(&[(0u8, 255u8, 0u8, 255u8), (255, 0, 255, 0), (255, 255, 0, 255),
+                   (0, 0, 255, 255)]);
+
+    texture.main_level().raw_upload_from_pixel_buffer_inverted(buffer.as_slice(), 0 .. 2, 0 .. 2, 0 .. 1);
+
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data[0][0], (0, 255, 0, 255));
+    assert_eq!(data[0][1], (255, 0, 255, 0));
+    assert_eq!(data[1][0], (0, 255, 255, 255));
+    assert_eq!(data[1][1], (255, 0, 0, 255));
+
+    display.assert_no_error(None);
+}

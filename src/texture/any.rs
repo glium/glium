@@ -134,7 +134,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         try!(image_format::format_request_to_glenum(facade.get_context(), data.as_ref().map(|&(c, _)| c), format));
 
     let (client_format, client_type) = match (&data, format) {
-        (&Some((client_format, _)), f) => try!(image_format::client_format_to_glenum(facade.get_context(), client_format, f)),
+        (&Some((client_format, _)), f) => try!(image_format::client_format_to_glenum(facade.get_context(), client_format, f, false)),
         (&None, TextureFormatRequest::AnyDepth) => (gl::DEPTH_COMPONENT, gl::FLOAT),
         (&None, TextureFormatRequest::Specific(TextureFormat::DepthFormat(_))) => (gl::DEPTH_COMPONENT, gl::FLOAT),
         (&None, TextureFormatRequest::AnyDepthStencil) => (gl::DEPTH_STENCIL, gl::UNSIGNED_INT_24_8),
@@ -710,6 +710,26 @@ impl<'a> TextureAnyMipmap<'a> {
                                            y: Range<u32>, z: Range<u32>)
                                            where P: PixelValue
     {
+        self.raw_upload_from_pixel_buffer_impl(source, x, y, z, false);
+    }
+
+    /// Uploads data to the texture from a buffer. The R, G and B components are flipped.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
+    /// if the buffer is not big enough to hold the data.
+    pub fn raw_upload_from_pixel_buffer_inverted<P>(&self, source: BufferViewSlice<[P]>,
+                                                    x: Range<u32>, y: Range<u32>, z: Range<u32>)
+                                                    where P: PixelValue
+    {
+        self.raw_upload_from_pixel_buffer_impl(source, x, y, z, true);
+    }
+
+    fn raw_upload_from_pixel_buffer_impl<P>(&self, source: BufferViewSlice<[P]>, x: Range<u32>,
+                                            y: Range<u32>, z: Range<u32>, inverted: bool)
+                                            where P: PixelValue
+    {
         assert!(x.start <= self.width);
         assert!(y.start <= self.height.unwrap_or(0));
         assert!(z.start <= self.depth.unwrap_or(0));
@@ -728,7 +748,7 @@ impl<'a> TextureAnyMipmap<'a> {
         let (client_format, client_type) =
             image_format::client_format_to_glenum(&self.texture.context,
                                                   ClientFormatAny::ClientFormat(P::get_format()),
-                                                  self.texture.requested_format).unwrap();
+                                                  self.texture.requested_format, inverted).unwrap();
 
         let mut ctxt = self.texture.context.make_current();
 
@@ -939,7 +959,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
 
         let (client_format, client_type) = try!(image_format::client_format_to_glenum(&self.texture.context,
                                                                                       format,
-                                                                                      self.texture.requested_format)
+                                                                                      self.texture.requested_format, false)
                                                                                       .map_err(|_| ()));
 
         let mut ctxt = self.texture.context.make_current();
