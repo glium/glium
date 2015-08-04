@@ -639,7 +639,7 @@ pub struct BlitTarget {
 /// to specify whether each color component (red, green, blue and alpha) is written to the color
 /// buffer.
 ///
-pub trait Surface: Sized {
+pub trait Surface {
     /// Clears some attachments of the target.
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
              depth: Option<f32>, stencil: Option<i32>);

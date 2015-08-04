@@ -4,6 +4,7 @@
 
  - Textures are now inside submodules (for example `Texture2d` is in `texture::texture2d::Texture2d`) and reexported from `texture`.
  - Added `Context::flush()` and `Context::finish()`. Deprecated `Context::synchronize`.
+ - Removed `Sized` contraint for `Surface` that was preventing one from using `&Surface` or `&mut Surface`.
  - Added `TextureAnyMipmap::raw_upload_from_pixel_buffer`.
  - Moved the `pixel_buffer` module to `texture::pixel_buffer` (the old module still exists for backward compatibility).
 
