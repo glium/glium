@@ -11,12 +11,12 @@ use TextureMipmapExt;
 use version::Api;
 use Rect;
 
-use pixel_buffer::PixelBuffer;
 use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
 use texture::{MipmapsOption, TextureFormat, TextureCreationError};
 use texture::{get_format, InternalFormat, GetFormatError};
 use texture::pixel::PixelValue;
+use texture::pixel_buffer::PixelBuffer;
 
 use buffer::BufferViewSlice;
 use buffer::BufferViewAny;

@@ -94,6 +94,7 @@ pub use self::pixel::PixelValue;
 
 pub mod bindless;
 pub mod buffer_texture;
+pub mod pixel_buffer;
 
 mod any;
 mod get_format;

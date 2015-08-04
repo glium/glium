@@ -269,6 +269,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             use texture::any::{{TextureAnyLayerMipmap, TextureAnyImage, Dimensions}};
             use texture::bindless::{{ResidentTexture, BindlessTexturesNotSupportedError}};
             use texture::get_format::{{InternalFormat, InternalFormatType, GetFormatError}};
+            use texture::pixel_buffer::PixelBuffer;
             use texture::{{TextureCreationError, Texture1dDataSource, Texture2dDataSource}};
             use texture::{{Texture3dDataSource, Texture2dDataSink, MipmapsOption, CompressedMipmapsOption, Texture}};
             use texture::{{RawImage1d, RawImage2d, RawImage3d}};
@@ -279,7 +280,6 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             use image_format::{{CompressedSrgbFormat, SrgbFormat, UncompressedUintFormat}};
 
             use backend::Facade;
-            use pixel_buffer::PixelBuffer;
             use uniforms::{{UniformValue, AsUniformValue, Sampler}};
             use framebuffer;
             use Rect;
