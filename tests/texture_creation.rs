@@ -348,7 +348,7 @@ fn upload_from_pixel_buffer() {
 
     let texture = glium::texture::Texture2d::empty(&display, 2, 2).unwrap();
 
-    let buffer = glium::pixel_buffer::PixelBuffer::new_empty(&display, 4);
+    let buffer = glium::texture::pixel_buffer::PixelBuffer::new_empty(&display, 4);
     buffer.write(&[(0u8, 255u8, 0u8, 255u8), (255, 0, 255, 0), (255, 255, 0, 255),
                    (0, 0, 255, 255)]);
 
@@ -370,7 +370,7 @@ fn upload_from_pixel_buffer_inverted() {
 
     let texture = glium::texture::Texture2d::empty(&display, 2, 2).unwrap();
 
-    let buffer = glium::pixel_buffer::PixelBuffer::new_empty(&display, 4);
+    let buffer = glium::texture::pixel_buffer::PixelBuffer::new_empty(&display, 4);
     buffer.write(&[(0u8, 255u8, 0u8, 255u8), (255, 0, 255, 0), (255, 255, 0, 255),
                    (0, 0, 255, 255)]);
 
