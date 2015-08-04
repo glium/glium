@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version (0.8.3)
 
  - Textures are now inside submodules (for example `Texture2d` is in `texture::texture2d::Texture2d`) and reexported from `texture`.
  - Added `Context::flush()` and `Context::finish()`. Deprecated `Context::synchronize`.
