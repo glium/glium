@@ -1652,11 +1652,15 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
 
 /// Checks that the client texture format is supported.
 ///
+/// If `inverted` is true, returns a format where the R, G and B components are flipped.
+///
 /// Returns two GLenums suitable for `glTexImage#D` and `glTexSubImage#D`.
-pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny, format: TextureFormatRequest)
-                               -> Result<(gl::types::GLenum, gl::types::GLenum), FormatNotSupportedError>
+pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny,
+                               format: TextureFormatRequest, inverted: bool)
+                               -> Result<(gl::types::GLenum, gl::types::GLenum),
+                                         FormatNotSupportedError>
 {
-    match format {
+    let value = match format {
         TextureFormatRequest::AnyCompressed if client.is_compressed() =>
         {
             let extensions = context.get_extensions();
@@ -1822,5 +1826,19 @@ pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny, forma
         {
             unimplemented!();
         },
+    };
+
+    if inverted {
+        value.and_then(|(format, ty)| {
+            let format = match format {
+                gl::RGB => gl::BGR,
+                gl::RGBA => gl::BGRA,
+                f => return Err(FormatNotSupportedError)
+            };
+
+            Ok((format, ty))
+        })
+    } else {
+        value
     }
 }
