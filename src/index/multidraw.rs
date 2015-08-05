@@ -54,6 +54,7 @@ impl DrawCommandsNoIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty<F>(facade: &F, elements: usize)
                     -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                     where F: Facade
@@ -66,6 +67,7 @@ impl DrawCommandsNoIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty_dynamic<F>(facade: &F, elements: usize)
                             -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                             where F: Facade
@@ -78,6 +80,7 @@ impl DrawCommandsNoIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty_persistent<F>(facade: &F, elements: usize)
                                -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                                where F: Facade
@@ -90,6 +93,7 @@ impl DrawCommandsNoIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty_immutable<F>(facade: &F, elements: usize)
                               -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                               where F: Facade
@@ -101,6 +105,7 @@ impl DrawCommandsNoIndicesBuffer {
 
     /// Builds an indices source from this buffer and a primitives type. This indices source can
     /// be passed to the `draw()` function.
+    #[inline]
     pub fn with_primitive_type(&self, primitives: PrimitiveType) -> IndicesSource {
         IndicesSource::MultidrawArray {
             buffer: self.buffer.as_slice_any(),
@@ -112,12 +117,14 @@ impl DrawCommandsNoIndicesBuffer {
 impl Deref for DrawCommandsNoIndicesBuffer {
     type Target = BufferView<[DrawCommandNoIndices]>;
 
+    #[inline]
     fn deref(&self) -> &BufferView<[DrawCommandNoIndices]> {
         &self.buffer
     }
 }
 
 impl DerefMut for DrawCommandsNoIndicesBuffer {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferView<[DrawCommandNoIndices]> {
         &mut self.buffer
     }
@@ -132,6 +139,7 @@ impl DrawCommandsIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty<F>(facade: &F, elements: usize)
                     -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                     where F: Facade
@@ -144,6 +152,7 @@ impl DrawCommandsIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty_dynamic<F>(facade: &F, elements: usize)
                             -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                             where F: Facade
@@ -156,6 +165,7 @@ impl DrawCommandsIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty_persistent<F>(facade: &F, elements: usize)
                                -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                                where F: Facade
@@ -168,6 +178,7 @@ impl DrawCommandsIndicesBuffer {
     /// Builds an empty buffer.
     ///
     /// The parameter indicates the number of elements.
+    #[inline]
     pub fn empty_immutable<F>(facade: &F, elements: usize)
                               -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                               where F: Facade
@@ -179,6 +190,7 @@ impl DrawCommandsIndicesBuffer {
 
     /// Builds an indices source from this buffer and a primitives type. This indices source can
     /// be passed to the `draw()` function.
+    #[inline]
     pub fn with_index_buffer<'a, T>(&'a self, index_buffer: &'a IndexBuffer<T>)
                                     -> IndicesSource<'a> where T: Index
     {
@@ -194,12 +206,14 @@ impl DrawCommandsIndicesBuffer {
 impl Deref for DrawCommandsIndicesBuffer {
     type Target = BufferView<[DrawCommandIndices]>;
 
+    #[inline]
     fn deref(&self) -> &BufferView<[DrawCommandIndices]> {
         &self.buffer
     }
 }
 
 impl DerefMut for DrawCommandsIndicesBuffer {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferView<[DrawCommandIndices]> {
         &mut self.buffer
     }

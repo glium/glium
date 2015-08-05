@@ -446,6 +446,7 @@ impl Default for GlState {
 }
 
 impl Default for TextureUnitState {
+    #[inline]
     fn default() -> TextureUnitState {
         TextureUnitState {
             texture: 0,
@@ -455,6 +456,7 @@ impl Default for TextureUnitState {
 }
 
 impl Default for IndexedBufferState {
+    #[inline]
     fn default() -> IndexedBufferState {
         IndexedBufferState {
             buffer: 0,

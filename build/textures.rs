@@ -331,18 +331,22 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // `Texture` trait impl
     (writeln!(dest, "
                 impl Texture for {} {{
+                    #[inline]
                     fn get_width(&self) -> u32 {{
                         self.0.get_width()
                     }}
 
+                    #[inline]
                     fn get_height(&self) -> Option<u32> {{
                         self.0.get_height()
                     }}
 
+                    #[inline]
                     fn get_depth(&self) -> Option<u32> {{
                         self.0.get_depth()
                     }}
 
+                    #[inline]
                     fn get_array_size(&self) -> Option<u32> {{
                         self.0.get_array_size()
                     }}
@@ -353,6 +357,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     (writeln!(dest, "
                 impl GlObject for {} {{
                     type Id = gl::types::GLuint;
+
+                    #[inline]
                     fn get_id(&self) -> gl::types::GLuint {{
                         self.0.get_id()
                     }}
@@ -362,6 +368,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // `Debug` trait impl
     (writeln!(dest, "
                 impl ::std::fmt::Debug for {} {{
+                    #[inline]
                     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error>
                     {{
                         self.0.fmt(f)
@@ -374,6 +381,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 impl ::std::ops::Deref for {} {{
                     type Target = TextureAny;
                     
+                    #[inline]
                     fn deref<'a>(&'a self) -> &'a TextureAny {{
                         &self.0
                     }}
@@ -388,12 +396,14 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
                 (writeln!(dest, "
                             impl<'a> AsUniformValue for &'a {myname} {{
+                                #[inline]
                                 fn as_uniform_value(&self) -> UniformValue {{
                                     UniformValue::{myname}(*self, None)
                                 }}
                             }}
 
                             impl<'a> AsUniformValue for Sampler<'a, {myname}> {{
+                                #[inline]
                                 fn as_uniform_value(&self) -> UniformValue {{
                                     UniformValue::{myname}(self.0, Some(self.1))
                                 }}
@@ -415,6 +425,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                                 /// }};
                                 /// # }}
                                 /// ```
+                                #[inline]
                                 pub fn sampled(&self) -> Sampler<{myname}> {{
                                     Sampler(self, Default::default())
                                 }}
@@ -431,6 +442,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::Regular => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
+                            #[inline]
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
                                 ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
@@ -440,6 +452,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::Srgb => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToColorAttachment for {name} {{
+                            #[inline]
                             fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
                                 ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
@@ -449,6 +462,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::Depth => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthAttachment for {name} {{
+                            #[inline]
                             fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
                                 ::framebuffer::DepthAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
@@ -458,6 +472,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::Stencil => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToStencilAttachment for {name} {{
+                            #[inline]
                             fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
                                 ::framebuffer::StencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
@@ -467,6 +482,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureType::DepthStencil => {
                 (writeln!(dest, "
                         impl ::framebuffer::ToDepthStencilAttachment for {name} {{
+                            #[inline]
                             fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
                                 ::framebuffer::DepthStencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
@@ -486,6 +502,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             ///
             /// The backend may not support querying the actual format, in which case an error
             /// is returned.
+            #[inline]
             pub fn get_internal_format(&self) -> Result<InternalFormat, GetFormatError> {{
                 self.0.get_internal_format()
             }}
@@ -513,6 +530,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Builds a new texture by uploading data.
                 ///
                 {gen_doc}
+                #[inline]
                 pub fn new<'a, F, T>(facade: &F, data: {param})
                               -> Result<{name}, TextureCreationError>
                               where T: {data_source_trait}<'a>, F: Facade
@@ -537,6 +555,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         (writeln!(dest, "
                 /// Builds a new texture by uploading data.
+                #[inline]
                 pub fn with_mipmaps<'a, F, T>(facade: &F, data: {param}, mipmaps: {mipmaps})
                                               -> Result<{name}, TextureCreationError>
                                               where T: {data_source_trait}<'a>, F: Facade
@@ -562,6 +581,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "
                 /// Builds a new texture with a specific format. The input data must also be of the
                 /// specified compressed format.
+                #[inline]
                 pub fn with_compressed_data<F>(facade: &F, data: {param}, {dim_params},
                                                       format: {format}, mipmaps: {mipmaps})
                                                       -> Result<{name}, TextureCreationError>
@@ -592,6 +612,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         (writeln!(dest, "
                 /// Builds a new texture with a specific format.
+                #[inline]
                 pub fn with_format<'a, F, T>(facade: &F, data: {param},
                                           format: {format}, mipmaps: {mipmaps})
                                           -> Result<{name}, TextureCreationError>
@@ -617,6 +638,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         };
 
         (writeln!(dest, "
+                #[inline]
                 fn new_impl<'a, F, T>(facade: &F, data: {param},
                                    format: Option<{relevant_format}>, mipmaps: {mipmaps})
                                    -> Result<{name}, TextureCreationError>
@@ -680,6 +702,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// No mipmap level (except for the main level) will be allocated or generated.
                 ///
                 /// The texture will contain undefined data.
+                #[inline]
                 pub fn empty<F>(facade: &F, {dim_params})
                                 -> Result<{name}, TextureCreationError>
                                 where F: Facade
@@ -703,6 +726,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Creates an empty texture with a specific format.
                 ///
                 /// The texture (and its mipmaps) will contain undefined data.
+                #[inline]
                 pub fn empty_with_format<F>(facade: &F, format: {format}, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
@@ -725,6 +749,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Creates an empty texture. Specifies whether is has mipmaps.
                 ///
                 /// The texture (and its mipmaps) will contain undefined data.
+                #[inline]
                 pub fn empty_with_mipmaps<F>(facade: &F, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name,
@@ -754,6 +779,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// created and cached. The following calls to `as_surface` will load the existing
                 /// FBO and re-use it. When the texture is destroyed, the FBO is destroyed too.
                 ///
+                #[inline]
                 pub fn as_surface<'a>(&'a self) -> framebuffer::SimpleFrameBuffer<'a> {{
                     framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self)
                 }}
@@ -765,6 +791,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             /// Returns the number of mipmap levels of the texture.
             ///
             /// The minimum value is 1, since there is always a main texture.
+            #[inline]
             pub fn get_mipmap_levels(&self) -> u32 {{
                 self.0.get_mipmap_levels()
             }}
@@ -781,6 +808,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// You should avoid doing this at all cost during performance-critical
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
+                #[inline]
                 pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
                     self.0.mipmap(0).unwrap().read()
                 }}
@@ -792,6 +820,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// This operation copies the texture's data into a buffer in video memory
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
+                #[inline]
                 pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
                     self.0.mipmap(0).unwrap().read_to_pixel_buffer()
                 }}
@@ -808,6 +837,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// Returns the compressed format of the texture and the compressed data, gives
                 /// `None` when the internal compression format is generic or unknown.
+                #[inline]
                 pub fn read_compressed_data(&self) -> Option<({format}, Vec<u8>)> {{
                     self.main_level().read_compressed_data()
                 }}
@@ -843,6 +873,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// Panics if the the dimensions of `data` don't match the `Rect`.
                 {compressed_restrictions}
+                #[inline]
                 pub fn write<'a, T>(&self, rect: Rect, data: T) where T: {data_source_trait}<'a> {{
                     self.main_level().write(rect, data)
                 }}
@@ -870,6 +901,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// the original texture dimensions. The contents of any texel outside the region modified
                 /// by the call are undefined. These restrictions may be relaxed for specific compressed
                 /// internal formats whose images are easily edited.
+                #[inline]
                 pub fn write_compressed_data(&self, rect: Rect, data: &[u8],
                                              width: u32, height: u32, format: {format})
                                              -> Result<(), ()>
@@ -889,6 +921,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             /// a "reference to it" in a buffer (actually not a reference but a raw pointer).
             ///
             /// See the documentation of `ResidentTexture` for more infos.
+            #[inline]
             pub fn resident(self) -> Result<ResidentTexture, BindlessTexturesNotSupportedError> {{
                 ResidentTexture::new(self.0)
             }}
@@ -897,6 +930,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // writing the `layer()` function
     (write!(dest, r#"
             /// Access a single layer of this texture.
+            #[inline]
             pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
                 self.0.layer(layer).map(|l| {name}Layer(l, self))
             }}
@@ -906,6 +940,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     {
         (write!(dest, r#"
                 /// Access a single mipmap level of this texture.
+                #[inline]
                 pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
                     self.0.mipmap(level).map(|m| {name}Mipmap(m, self))
                 }}
@@ -913,6 +948,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         (write!(dest, r#"
                 /// Access the main mipmap level of this texture.
+                #[inline]
                 pub fn main_level(&self) -> {name}Mipmap {{
                     self.mipmap(0).unwrap()
                 }}
@@ -939,11 +975,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // writing the `get_layer` and `get_texture` functions
         (write!(dest, "
                 /// Returns the corresponding texture.
+                #[inline]
                 pub fn get_texture(&self) -> &'t {name} {{
                     &self.1
                 }}
 
                 /// Returns the layer index.
+                #[inline]
                 pub fn get_layer(&self) -> u32 {{
                     self.0.get_layer()
                 }}
@@ -954,6 +992,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Returns the number of mipmap levels of the texture.
                 ///
                 /// The minimum value is 1, since there is always a main texture.
+                #[inline]
                 pub fn get_mipmap_levels(&self) -> u32 {{
                     self.0.get_texture().get_mipmap_levels()
                 }}
@@ -962,6 +1001,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // writing the `mipmap()` function
         (write!(dest, r#"
                 /// Access a single mipmap level of this layer.
+                #[inline]
                 pub fn mipmap(&self, level: u32) -> Option<{name}LayerMipmap> {{
                     self.0.mipmap(level).map(|m| {name}LayerMipmap(m, self.1))
                 }}
@@ -970,6 +1010,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // writing the `main_level()` function
         (write!(dest, r#"
                 /// Access the main mipmap level of this layer.
+                #[inline]
                 pub fn main_level(&self) -> {name}LayerMipmap {{
                     self.mipmap(0).unwrap()
                 }}
@@ -993,6 +1034,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 impl<'a> ::std::ops::Deref for {name}Mipmap<'a> {{
                     type Target = TextureAnyMipmap<'a>;
                     
+                    #[inline]
                     fn deref(&self) -> &TextureAnyMipmap<'a> {{
                         &self.0
                     }}
@@ -1094,6 +1136,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                     ///
                     /// Returns the compressed format of the texture and the compressed data, gives
                     /// `None` when the internal compression format is generic or unknown.
+                    #[inline]
                     pub fn read_compressed_data(&self) -> Option<({format}, Vec<u8>)> {{
                         match self.0.download_compressed_data() {{
                             Some(({client_format_any}(format), buf)) => Some((format, buf)),
@@ -1107,11 +1150,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // writing the `get_level` and `get_texture` functions
         (write!(dest, "
                 /// Returns the corresponding texture.
+                #[inline]
                 pub fn get_texture(&self) -> &'t {name} {{
                     self.1
                 }}
 
                 /// Returns the texture level.
+                #[inline]
                 pub fn get_level(&self) -> u32 {{
                     self.0.get_level()
                 }}

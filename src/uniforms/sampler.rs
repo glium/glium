@@ -20,6 +20,7 @@ pub enum SamplerWrapFunction {
 }
 
 impl ToGlEnum for SamplerWrapFunction {
+    #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             SamplerWrapFunction::Repeat => gl::REPEAT,
@@ -41,6 +42,7 @@ pub enum MagnifySamplerFilter {
 }
 
 impl ToGlEnum for MagnifySamplerFilter {
+    #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             MagnifySamplerFilter::Nearest => gl::NEAREST,
@@ -76,6 +78,7 @@ pub enum MinifySamplerFilter {
 }
 
 impl ToGlEnum for MinifySamplerFilter {
+    #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             MinifySamplerFilter::Nearest => gl::NEAREST,
@@ -149,6 +152,7 @@ pub struct SamplerBehavior {
 }
 
 impl Default for SamplerBehavior {
+    #[inline]
     fn default() -> SamplerBehavior {
         SamplerBehavior {
             wrap_function: (

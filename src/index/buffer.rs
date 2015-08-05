@@ -27,6 +27,7 @@ pub enum CreationError {
 }
 
 impl From<BufferCreationError> for CreationError {
+    #[inline]
     fn from(err: BufferCreationError) -> CreationError {
         CreationError::BufferCreationError(err)
     }
@@ -41,6 +42,7 @@ pub struct IndexBuffer<T> where T: Index {
 
 impl<T> IndexBuffer<T> where T: Index {
     /// Builds a new index buffer from a list of indices and a primitive type.
+    #[inline]
     pub fn new<F>(facade: &F, prim: PrimitiveType, data: &[T])
                   -> Result<IndexBuffer<T>, CreationError>
                   where F: Facade
@@ -49,6 +51,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
+    #[inline]
     pub fn dynamic<F>(facade: &F, prim: PrimitiveType, data: &[T])
                       -> Result<IndexBuffer<T>, CreationError>
                       where F: Facade
@@ -57,6 +60,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
+    #[inline]
     pub fn persistent<F>(facade: &F, prim: PrimitiveType, data: &[T])
                          -> Result<IndexBuffer<T>, CreationError>
                          where F: Facade
@@ -65,6 +69,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
+    #[inline]
     pub fn immutable<F>(facade: &F, prim: PrimitiveType, data: &[T])
                         -> Result<IndexBuffer<T>, CreationError>
                         where F: Facade
@@ -72,6 +77,7 @@ impl<T> IndexBuffer<T> where T: Index {
         IndexBuffer::new_impl(facade, prim, data, BufferMode::Immutable)
     }
 
+    #[inline]
     fn new_impl<F>(facade: &F, prim: PrimitiveType, data: &[T], mode: BufferMode)
                    -> Result<IndexBuffer<T>, CreationError>
                    where F: Facade
@@ -91,6 +97,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new empty index buffer.
+    #[inline]
     pub fn empty<F>(facade: &F, prim: PrimitiveType, len: usize)
                     -> Result<IndexBuffer<T>, CreationError>
                     where F: Facade
@@ -99,6 +106,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new empty index buffer.
+    #[inline]
     pub fn empty_dynamic<F>(facade: &F, prim: PrimitiveType, len: usize)
                             -> Result<IndexBuffer<T>, CreationError>
                             where F: Facade
@@ -107,6 +115,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new empty index buffer.
+    #[inline]
     pub fn empty_persistent<F>(facade: &F, prim: PrimitiveType, len: usize)
                                -> Result<IndexBuffer<T>, CreationError>
                                where F: Facade
@@ -115,6 +124,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Builds a new empty index buffer.
+    #[inline]
     pub fn empty_immutable<F>(facade: &F, prim: PrimitiveType, len: usize)
                               -> Result<IndexBuffer<T>, CreationError>
                               where F: Facade
@@ -122,6 +132,7 @@ impl<T> IndexBuffer<T> where T: Index {
         IndexBuffer::empty_impl(facade, prim, len, BufferMode::Immutable)
     }
 
+    #[inline]
     fn empty_impl<F>(facade: &F, prim: PrimitiveType, len: usize, mode: BufferMode)
                      -> Result<IndexBuffer<T>, CreationError>
                      where F: Facade
@@ -142,16 +153,19 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     /// Returns the type of primitives associated with this index buffer.
+    #[inline]
     pub fn get_primitives_type(&self) -> PrimitiveType {
         self.primitives
     }
 
     /// Returns the data type of the indices inside this index buffer.
+    #[inline]
     pub fn get_indices_type(&self) -> IndexType {
         <T as Index>::get_type()
     }
 
     /// Returns `None` if out of range.
+    #[inline]
     pub fn slice(&self, range: Range<usize>) -> Option<IndexBufferSlice<T>> {
         self.buffer.slice(range).map(|b| {
             IndexBufferSlice {
@@ -165,12 +179,14 @@ impl<T> IndexBuffer<T> where T: Index {
 impl<T> Deref for IndexBuffer<T> where T: Index {
     type Target = BufferView<[T]>;
 
+    #[inline]
     fn deref(&self) -> &BufferView<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for IndexBuffer<T> where T: Index {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferView<[T]> {
         &mut self.buffer
     }
@@ -180,12 +196,14 @@ impl<T> DerefMut for IndexBuffer<T> where T: Index {
 impl<T> GlObject for IndexBuffer<T> where T: Index {
     type Id = gl::types::GLuint;
 
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_buffer_id()
     }
 }
 
 impl<'a, T> From<&'a IndexBuffer<T>> for IndicesSource<'a> where T: Index {
+    #[inline]
     fn from(buf: &'a IndexBuffer<T>) -> IndicesSource<'a> {
         IndicesSource::IndexBuffer {
             buffer: buf.buffer.as_slice_any(),
@@ -204,16 +222,19 @@ pub struct IndexBufferSlice<'a, T: 'a> where T: Index {
 
 impl<'a, T: 'a> IndexBufferSlice<'a, T> where T: Index {
     /// Returns the type of primitives associated with this index buffer.
+    #[inline]
     pub fn get_primitives_type(&self) -> PrimitiveType {
         self.primitives
     }
 
     /// Returns the data type of the indices inside this index buffer.
+    #[inline]
     pub fn get_indices_type(&self) -> IndexType {
         <T as Index>::get_type()
     }
 
     /// Returns `None` if out of range.
+    #[inline]
     pub fn slice(&self, range: Range<usize>) -> Option<IndexBufferSlice<'a, T>> {
         self.buffer.slice(range).map(|b| {
             IndexBufferSlice {
@@ -227,18 +248,21 @@ impl<'a, T: 'a> IndexBufferSlice<'a, T> where T: Index {
 impl<'a, T> Deref for IndexBufferSlice<'a, T> where T: Index {
     type Target = BufferViewSlice<'a, [T]>;
 
+    #[inline]
     fn deref(&self) -> &BufferViewSlice<'a, [T]> {
         &self.buffer
     }
 }
 
 impl<'a, T> DerefMut for IndexBufferSlice<'a, T> where T: Index {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferViewSlice<'a, [T]> {
         &mut self.buffer
     }
 }
 
 impl<'a, T> From<IndexBufferSlice<'a, T>> for IndicesSource<'a> where T: Index {
+    #[inline]
     fn from(buf: IndexBufferSlice<'a, T>) -> IndicesSource<'a> {
         IndicesSource::IndexBuffer {
             buffer: buf.buffer.as_slice_any(),
@@ -249,6 +273,7 @@ impl<'a, T> From<IndexBufferSlice<'a, T>> for IndicesSource<'a> where T: Index {
 }
 
 impl<'a, 'r, T> From<&'r IndexBufferSlice<'a, T>> for IndicesSource<'a> where T: Index {
+    #[inline]
     fn from(buf: &'r IndexBufferSlice<'a, T>) -> IndicesSource<'a> {
         IndicesSource::IndexBuffer {
             buffer: buf.buffer.as_slice_any(),
@@ -270,11 +295,13 @@ pub struct IndexBufferAny {
 
 impl IndexBufferAny {
     /// Returns the type of primitives associated with this index buffer.
+    #[inline]
     pub fn get_primitives_type(&self) -> PrimitiveType {
         self.primitives
     }
 
     /// Returns the data type of the indices inside this index buffer.
+    #[inline]
     pub fn get_indices_type(&self) -> IndexType {
         self.data_type
     }
@@ -283,18 +310,21 @@ impl IndexBufferAny {
 impl Deref for IndexBufferAny {
     type Target = BufferViewAny;
 
+    #[inline]
     fn deref(&self) -> &BufferViewAny {
         &self.buffer
     }
 }
 
 impl DerefMut for IndexBufferAny {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferViewAny {
         &mut self.buffer
     }
 }
 
 impl<T> From<IndexBuffer<T>> for IndexBufferAny where T: Index {
+    #[inline]
     fn from(buffer: IndexBuffer<T>) -> IndexBufferAny {
         let ty = buffer.get_indices_type();
 
@@ -307,6 +337,7 @@ impl<T> From<IndexBuffer<T>> for IndexBufferAny where T: Index {
 }
 
 impl<'a> From<&'a IndexBufferAny> for IndicesSource<'a> {
+    #[inline]
     fn from(buf: &'a IndexBufferAny) -> IndicesSource<'a> {
         IndicesSource::IndexBuffer {
             buffer: buf.buffer.as_slice_any(),

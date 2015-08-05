@@ -220,6 +220,7 @@ impl Context {
     }
 
     /// Calls `get_framebuffer_dimensions` on the backend object stored by this context.
+    #[inline]
     pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.backend.borrow().get_framebuffer_dimensions()
     }
@@ -284,21 +285,25 @@ impl Context {
     }
 
     /// DEPRECATED. Use `get_opengl_version` instead.
+    #[inline]
     pub fn get_version(&self) -> &Version {
         &self.version
     }
 
     /// Returns the OpenGL version detected by this context.
+    #[inline]
     pub fn get_opengl_version(&self) -> &Version {
         &self.version
     }
 
     /// Returns the GLSL version guaranteed to be supported.
+    #[inline]
     pub fn get_supported_glsl_version(&self) -> Version {
         version::get_supported_glsl_version(self.get_version())
     }
 
     /// Returns true if the given GLSL version is supported.
+    #[inline]
     pub fn is_glsl_version_supported(&self, version: &Version) -> bool {
         self.capabilities().supported_glsl_versions.iter().find(|&v| v == version).is_some()
     }
@@ -307,11 +312,13 @@ impl Context {
     /// result in a crash.
     ///
     /// You should take extra care if `is_robust` returns false.
+    #[inline]
     pub fn is_robust(&self) -> bool {
         self.capabilities().robustness
     }
 
     /// Returns true if a context loss is possible.
+    #[inline]
     pub fn is_context_loss_possible(&self) -> bool {
         self.capabilities().can_lose_context
     }
@@ -348,12 +355,14 @@ impl Context {
     ///
     /// The most common value is `Flush`. In order to get `None` you must explicitely request it
     /// during creation.
+    #[inline]
     pub fn get_release_behavior(&self) -> ReleaseBehavior {
         self.capabilities().release_behavior
     }
 
     /// Returns the maximum value that can be used for anisotropic filtering, or `None`
     /// if the hardware doesn't support it.
+    #[inline]
     pub fn get_max_anisotropy_support(&self) -> Option<u16> {
         self.capabilities().max_texture_max_anisotropy.map(|v| v as u16)
     }
@@ -361,6 +370,7 @@ impl Context {
     /// Returns the maximum dimensions of the viewport.
     ///
     /// Glium will panic if you request a larger viewport than this when drawing.
+    #[inline]
     pub fn get_max_viewport_dimensions(&self) -> (u32, u32) {
         let d = self.capabilities().max_viewport_dims;
         (d.0 as u32, d.1 as u32)
@@ -440,6 +450,7 @@ impl Context {
     ///
     /// **If `action` manipulates any OpenGL state, it must be restored before `action`
     /// completes.**
+    #[inline]
     pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
                                             where T: Send + 'static,
                                             F: FnOnce() -> T + 'a
@@ -462,6 +473,7 @@ impl Context {
     }
 
     /// DEPRECATED. Renamed `finish`.
+    #[inline]
     pub fn synchronize(&self) {
         self.finish();
     }
@@ -474,6 +486,7 @@ impl Context {
     /// have finished being executed.
     ///
     /// You normally don't need to call this function manually, except for debugging purposes.
+    #[inline]
     pub fn finish(&self) {
         let ctxt = self.make_current();
         unsafe { ctxt.gl.Finish(); }
@@ -488,6 +501,7 @@ impl Context {
     /// You normally don't need to call this function manually. Swapping buffers automatically
     /// flushes the queue. This function can be useful if you want to benchmark the time it
     /// takes from your OpenGL driver to process commands.
+    #[inline]
     pub fn flush(&self) {
         let ctxt = self.make_current();
         unsafe { ctxt.gl.Flush(); }
@@ -522,6 +536,7 @@ impl Context {
 
     /// Same as `insert_debug_marker`, except that if you don't compile with `debug_assertions`
     /// it is a no-op and returns `Ok`.
+    #[inline]
     pub fn debug_insert_debug_marker(&self, marker: &str) -> Result<(), ()> {
         if cfg!(debug_assertions) {
             self.insert_debug_marker(marker)
@@ -532,6 +547,7 @@ impl Context {
 }
 
 impl ContextExt for Context {
+    #[inline]
     fn set_report_debug_output_errors(&self, value: bool) {
         self.report_debug_output_errors.set(value);
     }
@@ -560,24 +576,29 @@ impl ContextExt for Context {
         }
     }
 
+    #[inline]
     fn capabilities(&self) -> &Capabilities {
         &self.capabilities
     }
 
+    #[inline]
     fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
     }
 }
 
 impl CapabilitiesSource for Context {
+    #[inline]
     fn get_version(&self) -> &Version {
         &self.version
     }
 
+    #[inline]
     fn get_extensions(&self) -> &ExtensionsList {
         &self.extensions
     }
 
+    #[inline]
     fn get_capabilities(&self) -> &Capabilities {
         &self.capabilities
     }
@@ -634,14 +655,17 @@ impl Drop for Context {
 }
 
 impl<'a> CapabilitiesSource for CommandContext<'a> {
+    #[inline]
     fn get_version(&self) -> &Version {
         self.version
     }
 
+    #[inline]
     fn get_extensions(&self) -> &ExtensionsList {
         self.extensions
     }
 
+    #[inline]
     fn get_capabilities(&self) -> &Capabilities {
         self.capabilities
     }

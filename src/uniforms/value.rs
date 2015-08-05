@@ -199,6 +199,7 @@ pub enum UniformValue<'a> {
 }
 
 impl<'a> Clone for UniformValue<'a> {
+    #[inline]
     fn clone(&self) -> UniformValue<'a> {
         *self
     }
@@ -300,6 +301,7 @@ macro_rules! impl_uniform_block_basic {
                 }
             }
 
+            #[inline]
             fn build_layout(base_offset: usize) -> program::BlockLayout {
                 BlockLayout::BasicType {
                     ty: $uniform_ty,
@@ -311,30 +313,35 @@ macro_rules! impl_uniform_block_basic {
 }
 
 impl AsUniformValue for i8 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::SignedInt(*self as i32)
     }
 }
 
 impl AsUniformValue for u8 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::UnsignedInt(*self as u32)
     }
 }
 
 impl AsUniformValue for i16 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::SignedInt(*self as i32)
     }
 }
 
 impl AsUniformValue for u16 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::UnsignedInt(*self as u32)
     }
 }
 
 impl AsUniformValue for i32 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::SignedInt(*self as i32)
     }
@@ -349,6 +356,7 @@ impl_uniform_block_basic!([i32; 4], UniformType::IntVec4);
 impl_uniform_block_basic!((i32, i32, i32, i32), UniformType::IntVec4);
 
 impl AsUniformValue for u32 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::UnsignedInt(*self as u32)
     }
@@ -363,6 +371,7 @@ impl_uniform_block_basic!([u32; 4], UniformType::UnsignedIntVec4);
 impl_uniform_block_basic!((u32, u32, u32, u32), UniformType::UnsignedIntVec4);
 
 impl AsUniformValue for f32 {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Float(*self)
     }
@@ -371,6 +380,7 @@ impl AsUniformValue for f32 {
 impl_uniform_block_basic!(f32, UniformType::Float);
 
 impl AsUniformValue for [[f32; 2]; 2] {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Mat2(*self)
     }
@@ -379,6 +389,7 @@ impl AsUniformValue for [[f32; 2]; 2] {
 impl_uniform_block_basic!([[f32; 2]; 2], UniformType::FloatMat2);
 
 impl AsUniformValue for [[f32; 3]; 3] {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Mat3(*self)
     }
@@ -387,6 +398,7 @@ impl AsUniformValue for [[f32; 3]; 3] {
 impl_uniform_block_basic!([[f32; 3]; 3], UniformType::FloatMat3);
 
 impl AsUniformValue for [[f32; 4]; 4] {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Mat4(*self)
     }
@@ -395,6 +407,7 @@ impl AsUniformValue for [[f32; 4]; 4] {
 impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
 
 impl AsUniformValue for (f32, f32) {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec2([self.0, self.1])
     }
@@ -403,6 +416,7 @@ impl AsUniformValue for (f32, f32) {
 impl_uniform_block_basic!((f32, f32), UniformType::FloatVec2);
 
 impl AsUniformValue for (f32, f32, f32) {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec3([self.0, self.1, self.2])
     }
@@ -411,6 +425,7 @@ impl AsUniformValue for (f32, f32, f32) {
 impl_uniform_block_basic!((f32, f32, f32), UniformType::FloatVec3);
 
 impl AsUniformValue for (f32, f32, f32, f32) {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec4([self.0, self.1, self.2, self.3])
     }
@@ -419,6 +434,7 @@ impl AsUniformValue for (f32, f32, f32, f32) {
 impl_uniform_block_basic!((f32, f32, f32, f32), UniformType::FloatVec4);
 
 impl AsUniformValue for [f32; 2] {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec2(*self)
     }
@@ -427,6 +443,7 @@ impl AsUniformValue for [f32; 2] {
 impl_uniform_block_basic!([f32; 2], UniformType::FloatVec2);
 
 impl AsUniformValue for [f32; 3] {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec3(*self)
     }
@@ -435,6 +452,7 @@ impl AsUniformValue for [f32; 3] {
 impl_uniform_block_basic!([f32; 3], UniformType::FloatVec3);
 
 impl AsUniformValue for [f32; 4] {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         UniformValue::Vec4(*self)
     }
@@ -444,6 +462,7 @@ impl_uniform_block_basic!([f32; 4], UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Mat2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -455,6 +474,7 @@ impl_uniform_block_basic!(nalgebra::Mat2<f32>, UniformType::FloatMat2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Mat3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -466,6 +486,7 @@ impl_uniform_block_basic!(nalgebra::Mat3<f32>, UniformType::FloatMat3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Mat4<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -477,6 +498,7 @@ impl_uniform_block_basic!(nalgebra::Mat4<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Ortho3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.to_mat(); // Bind to a Mat4
         UniformValue::Mat4(*my_value.as_array())
@@ -488,6 +510,7 @@ impl_uniform_block_basic!(nalgebra::Ortho3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::OrthoMat3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_mat(); // Bind to a Mat4
         my_value.as_uniform_value()
@@ -499,6 +522,7 @@ impl_uniform_block_basic!(nalgebra::OrthoMat3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Persp3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.to_mat(); // Bind to a Mat4
         UniformValue::Mat4(*my_value.as_array())
@@ -510,6 +534,7 @@ impl_uniform_block_basic!(nalgebra::Persp3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::PerspMat3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_mat(); // Bind to a Mat4
         my_value.as_uniform_value()
@@ -521,6 +546,7 @@ impl_uniform_block_basic!(nalgebra::PerspMat3<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Pnt2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -532,6 +558,7 @@ impl_uniform_block_basic!(nalgebra::Pnt2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Pnt3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -543,6 +570,7 @@ impl_uniform_block_basic!(nalgebra::Pnt3<f32>, UniformType::FloatVec3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Pnt4<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -554,6 +582,7 @@ impl_uniform_block_basic!(nalgebra::Pnt4<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Quat<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -565,6 +594,7 @@ impl_uniform_block_basic!(nalgebra::Quat<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Rot2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.submat(); // Bind to a Mat2
         UniformValue::Mat2(*my_value.as_array())
@@ -576,6 +606,7 @@ impl_uniform_block_basic!(nalgebra::Rot2<f32>, UniformType::FloatMat2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Rot3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.submat(); // Bind to a Mat3
         UniformValue::Mat3(*my_value.as_array())
@@ -587,6 +618,7 @@ impl_uniform_block_basic!(nalgebra::Rot3<f32>, UniformType::FloatMat3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Rot4<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.submat(); // Bind to a Mat4
         UniformValue::Mat4(*my_value.as_array())
@@ -598,6 +630,7 @@ impl_uniform_block_basic!(nalgebra::Rot4<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::UnitQuat<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.quat(); // Bind to a Quat
         UniformValue::Vec4(*my_value.as_array())
@@ -609,6 +642,7 @@ impl_uniform_block_basic!(nalgebra::UnitQuat<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Vec2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -620,6 +654,7 @@ impl_uniform_block_basic!(nalgebra::Vec2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Vec3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -631,6 +666,7 @@ impl_uniform_block_basic!(nalgebra::Vec3<f32>, UniformType::FloatVec3);
 
 #[cfg(feature = "nalgebra")]
 impl AsUniformValue for nalgebra::Vec4<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         let my_value = self.as_array();
         my_value.as_uniform_value()
@@ -642,6 +678,7 @@ impl_uniform_block_basic!(nalgebra::Vec4<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Matrix2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -654,6 +691,7 @@ impl_uniform_block_basic!(cgmath::Matrix2<f32>, UniformType::FloatMat2);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Matrix3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -666,6 +704,7 @@ impl_uniform_block_basic!(cgmath::Matrix3<f32>, UniformType::FloatMat3);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Matrix4<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -678,6 +717,7 @@ impl_uniform_block_basic!(cgmath::Matrix4<f32>, UniformType::FloatMat4);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Vector2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -690,6 +730,7 @@ impl_uniform_block_basic!(cgmath::Vector2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Vector3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -702,6 +743,7 @@ impl_uniform_block_basic!(cgmath::Vector3<f32>, UniformType::FloatVec3);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Vector4<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -714,6 +756,7 @@ impl_uniform_block_basic!(cgmath::Vector4<f32>, UniformType::FloatVec4);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Point2<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();
@@ -726,6 +769,7 @@ impl_uniform_block_basic!(cgmath::Point2<f32>, UniformType::FloatVec2);
 
 #[cfg(feature = "cgmath")]
 impl AsUniformValue for cgmath::Point3<f32> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         use cgmath::FixedArray;
         let my_value = self.into_fixed();

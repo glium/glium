@@ -35,6 +35,7 @@ pub struct SyncFence {
 
 impl SyncFence {
     /// Builds a new `SyncFence` that is injected in the server.
+    #[inline]
     pub fn new<F>(facade: &F) -> Result<SyncFence, SyncNotSupportedError> where F: Facade {
         let mut ctxt = facade.get_context().make_current();
         unsafe { new_linear_sync_fence(&mut ctxt) }.map(|f| f.into_sync_fence(facade))
@@ -56,6 +57,7 @@ impl SyncFence {
 }
 
 impl Drop for SyncFence {
+    #[inline]
     fn drop(&mut self) {
         let sync = match self.id {
             None => return,     // fence has already been deleted
@@ -80,6 +82,7 @@ unsafe impl Send for LinearSyncFence {}
 
 impl LinearSyncFence {
     /// Turns the prototype into a real fence.
+    #[inline]
     pub fn into_sync_fence<F>(mut self, facade: &F) -> SyncFence where F: Facade {
         SyncFence {
             context: facade.get_context().clone(),
@@ -89,6 +92,7 @@ impl LinearSyncFence {
 }
 
 impl Drop for LinearSyncFence {
+    #[inline]
     fn drop(&mut self) {
         if !thread::panicking() {
             assert!(self.id.is_none());
@@ -117,6 +121,7 @@ pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext)
 }
 
 /// Waits for this fence and destroys it, from within the commands context.
+#[inline]
 pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
                                               ctxt: &mut CommandContext)
 {
@@ -126,6 +131,7 @@ pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
 }
 
 /// Destroys a fence, from within the commands context.
+#[inline]
 pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext, mut fence: LinearSyncFence) {
     let fence = fence.id.take().unwrap();
     delete_fence(ctxt, fence);
@@ -180,6 +186,7 @@ unsafe fn client_wait(ctxt: &mut CommandContext, fence: gl::types::GLsync) -> gl
 ///
 /// The fence object must exist.
 ///
+#[inline]
 unsafe fn delete_fence(ctxt: &mut CommandContext, fence: gl::types::GLsync) {
     if ctxt.version >= &Version(Api::Gl, 3, 2) ||
        ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync

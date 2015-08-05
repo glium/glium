@@ -138,11 +138,13 @@ pub enum CompressedMipmapsOption {
 }
 
 impl MipmapsOption {
+    #[inline]
     fn to_regular(self) -> MipmapsOption {
         self
     }
 
     /// Tells whether mipmaps should be automatically generated.
+    #[inline]
     fn should_generate(self) -> bool {
         use self::MipmapsOption::*;
         match self {
@@ -177,6 +179,7 @@ impl MipmapsOption {
 }
 
 impl CompressedMipmapsOption {
+    #[inline]
     fn to_regular(self) -> MipmapsOption {
         use self::CompressedMipmapsOption::*;
         match self {
@@ -241,6 +244,7 @@ pub struct RawImage1d<'a, T: Clone + 'a> {
 impl<'a, P: PixelValue> Texture1dDataSource<'a> for Vec<P> where P: Copy + Clone + Send + 'static {
     type Data = P;
 
+    #[inline]
     fn into_raw(self) -> RawImage1d<'a, P> {
         let width = self.len() as u32;
 
@@ -255,12 +259,14 @@ impl<'a, P: PixelValue> Texture1dDataSource<'a> for Vec<P> where P: Copy + Clone
 impl<'a, P: PixelValue + Clone> Texture1dDataSource<'a> for RawImage1d<'a, P> {
     type Data = P;
 
+    #[inline]
     fn into_raw(self) -> RawImage1d<'a, P> {
         self
     }
 }
 
 impl<P> Texture1dDataSink<P> for Vec<P> where P: Copy + Clone + Send {
+    #[inline]
     fn from_raw(data: Cow<[P]>, _width: u32) -> Self {
         data.into_owned()
     }
@@ -269,6 +275,7 @@ impl<P> Texture1dDataSink<P> for Vec<P> where P: Copy + Clone + Send {
 impl<'a, P: PixelValue> Texture1dDataSource<'a> for &'a[P] where P: Copy + Clone + Send + 'static {
     type Data = P;
 
+    #[inline]
     fn into_raw(self) -> RawImage1d<'a, P> {
         let width = self.len();
 
@@ -368,6 +375,7 @@ impl<'a, P: PixelValue + Clone> Texture2dDataSource<'a> for Vec<Vec<P>> {
 impl<'a, P: PixelValue + Clone> Texture2dDataSource<'a> for RawImage2d<'a, P> {
     type Data = P;
 
+    #[inline]
     fn into_raw(self) -> RawImage2d<'a, P> {
         self
     }
@@ -431,6 +439,7 @@ impl<T, P> Texture2dDataSink<P> for image::ImageBuffer<P, Vec<T>>
 impl<'a> Texture2dDataSource<'a> for image::DynamicImage {
     type Data = u8;
 
+    #[inline]
     fn into_raw(self) -> RawImage2d<'a, u8> {
         Texture2dDataSource::into_raw(self.to_rgba())
     }
@@ -438,6 +447,7 @@ impl<'a> Texture2dDataSource<'a> for image::DynamicImage {
 
 #[cfg(feature = "image")]
 impl Texture2dDataSink<(u8, u8, u8, u8)> for image::DynamicImage {
+    #[inline]
     fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, w: u32, h: u32) -> image::DynamicImage {
         let data = unsafe { ::std::mem::transmute(data) };     // FIXME: <-
         image::DynamicImage::ImageRgba8(Texture2dDataSink::from_raw(data, w, h))
@@ -538,12 +548,14 @@ impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for Vec<Vec<Vec<P>>> {
 impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for RawImage3d<'a, P> {
     type Data = P;
 
+    #[inline]
     fn into_raw(self) -> RawImage3d<'a, P> {
         self
     }
 }
 
 impl<P> Texture3dDataSink<P> for Vec<Vec<Vec<P>>> where P: Copy + Clone {
+    #[inline]
     fn from_raw(_data: Cow<[P]>, _width: u32, _height: u32, _depth: u32) -> Self {
         unimplemented!()
     }
@@ -563,6 +575,7 @@ pub enum TextureCreationError {
 }
 
 impl From<FormatNotSupportedError> for TextureCreationError {
+    #[inline]
     fn from(_: FormatNotSupportedError) -> TextureCreationError {
         TextureCreationError::FormatNotSupported
     }

@@ -249,23 +249,27 @@ pub struct ValidatedAttachments<'a> {
 
 impl<'a> ValidatedAttachments<'a> {
     /// Returns `true` if the framebuffer is layered.
+    #[inline]
     pub fn is_layered(&self) -> bool {
         self.layers.is_some()
     }
 
     /// Returns the dimensions that the framebuffer will have if you use these attachments.
+    #[inline]
     pub fn get_dimensions(&self) -> (u32, u32) {
         self.dimensions
     }
 
     /// Returns the number of bits of precision of the depth buffer, or `None` if there is no
     /// depth buffer. Also works for depth-stencil buffers.
+    #[inline]
     pub fn get_depth_buffer_bits(&self) -> Option<u16> {
         self.depth_buffer_bits
     }
 
     /// Returns the number of bits of precision of the stencil buffer, or `None` if there is no
     /// stencil buffer. Also works for depth-stencil buffers.
+    #[inline]
     pub fn get_stencil_buffer_bits(&self) -> Option<u16> {
         self.stencil_buffer_bits
     }
@@ -314,6 +318,7 @@ pub struct FramebuffersContainer {
 
 impl FramebuffersContainer {
     /// Initializes the container.
+    #[inline]
     pub fn new() -> FramebuffersContainer {
         FramebuffersContainer {
             framebuffers: RefCell::new(HashMap::new()),
@@ -331,6 +336,7 @@ impl FramebuffersContainer {
     }
 
     /// Destroys all framebuffer objects that contain a precise texture.
+    #[inline]
     pub fn purge_texture(ctxt: &mut CommandContext, texture: gl::types::GLuint) {
         FramebuffersContainer::purge_if(ctxt, |a| {
             match a {
@@ -341,6 +347,7 @@ impl FramebuffersContainer {
     }
 
     /// Destroys all framebuffer objects that contain a precise renderbuffer.
+    #[inline]
     pub fn purge_renderbuffer(ctxt: &mut CommandContext, renderbuffer: gl::types::GLuint) {
         FramebuffersContainer::purge_if(ctxt, |a| a == &RawAttachment::RenderBuffer(renderbuffer));
     }
@@ -403,6 +410,7 @@ impl FramebuffersContainer {
     ///
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
+    #[inline]
     pub fn get_framebuffer_for_drawing(ctxt: &mut CommandContext,
                                        attachments: Option<&ValidatedAttachments>)
                                        -> gl::types::GLuint
@@ -417,6 +425,7 @@ impl FramebuffersContainer {
     /// Binds the default framebuffer to `GL_READ_FRAMEBUFFER` or `GL_FRAMEBUFFER` so that it
     /// becomes the target of `glReadPixels`, `glCopyTexImage2D`, etc.
     // TODO: use an enum for the read buffer instead
+    #[inline]
     pub fn bind_default_framebuffer_for_reading(ctxt: &mut CommandContext,
                                                 read_buffer: gl::types::GLenum)
     {
@@ -473,6 +482,7 @@ impl FramebuffersContainer {
 }
 
 impl Drop for FramebuffersContainer {
+    #[inline]
     fn drop(&mut self) {
         if self.framebuffers.borrow().len() != 0 {
             panic!()
@@ -588,6 +598,8 @@ impl FrameBufferObject {
 
 impl GlObject for FrameBufferObject {
     type Id = gl::types::GLuint;
+    
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

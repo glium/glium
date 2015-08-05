@@ -744,6 +744,7 @@ pub trait Surface {
                      filter: uniforms::MagnifySamplerFilter) where S: Surface;
 
     /// Copies the entire surface to a target surface. See `blit_color`.
+    #[inline]
     fn blit_whole_color_to<S>(&self, target: &S, target_rect: &BlitTarget,
         filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
@@ -753,6 +754,7 @@ pub trait Surface {
     }
 
     /// Copies the entire surface to the entire target. See `blit_color`.
+    #[inline]
     fn fill<S>(&self, target: &S, filter: uniforms::MagnifySamplerFilter) where S: Surface {
         let src_dim = self.get_dimensions();
         let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
@@ -952,6 +954,7 @@ pub struct Frame {
 
 impl Frame {
     /// Builds a new `Frame`. Use the `draw` function on `Display` instead of this function.
+    #[inline]
     pub fn new(context: Rc<Context>, dimensions: (u32, u32)) -> Frame {
         Frame {
             context: context,
@@ -963,6 +966,7 @@ impl Frame {
     /// Stop drawing, swap the buffers, and consume the Frame.
     ///
     /// See the documentation of `SwapBuffersError` about what is being returned.
+    #[inline]
     pub fn finish(mut self) -> Result<(), SwapBuffersError> {
         self.set_finish()
     }
@@ -971,6 +975,7 @@ impl Frame {
     ///
     /// The Frame can now be dropped regularly.  Calling `finish()` or `set_finish()` again will
     /// cause `Err(SwapBuffersError::AlreadySwapped)` to be returned.
+    #[inline]
     pub fn set_finish(&mut self) -> Result<(), SwapBuffersError> {
         if self.destroyed {
             return Err(SwapBuffersError::AlreadySwapped);
@@ -982,6 +987,7 @@ impl Frame {
 }
 
 impl Surface for Frame {
+    #[inline]
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
              depth: Option<f32>, stencil: Option<i32>)
     {
@@ -1029,12 +1035,14 @@ impl Surface for Frame {
                   uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
+    #[inline]
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
                      filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
         target.blit_from_frame(source_rect, target_rect, filter)
     }
 
+    #[inline]
     fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter)
     {
@@ -1042,6 +1050,7 @@ impl Surface for Frame {
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
+    #[inline]
     fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
@@ -1050,6 +1059,7 @@ impl Surface for Frame {
                   gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
     }
 
+    #[inline]
     fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
@@ -1060,12 +1070,14 @@ impl Surface for Frame {
 }
 
 impl FboAttachments for Frame {
+    #[inline]
     fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
         None
     }
 }
 
 impl Drop for Frame {
+    #[inline]
     fn drop(&mut self) {
         if !thread::panicking() {
             assert!(self.destroyed, "The `Frame` object must be explicitly destroyed \
@@ -1116,6 +1128,7 @@ impl<T> std::fmt::Display for GliumCreationError<T> where T: std::error::Error {
 }
 
 impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
+    #[inline]
     fn description(&self) -> &str {
         match self {
             &GliumCreationError::BackendCreationError(_) => "Error while creating the backend",
@@ -1123,6 +1136,7 @@ impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
         }
     }
 
+    #[inline]
     fn cause(&self) -> Option<&std::error::Error> {
         match self {
             &GliumCreationError::BackendCreationError(ref err) => Some(err as &std::error::Error),
@@ -1132,12 +1146,14 @@ impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
 }
 
 impl<T> std::convert::From<T> for GliumCreationError<T> {
+    #[inline]
     fn from(err: T) -> GliumCreationError<T> {
         GliumCreationError::BackendCreationError(err)
     }
 }
 
 #[allow(dead_code)]
+#[inline]
 fn get_gl_error(ctxt: &mut context::CommandContext) -> Option<&'static str> {
     match unsafe { ctxt.gl.GetError() } {
         gl::NO_ERROR => None,

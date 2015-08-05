@@ -20,16 +20,19 @@ mod shader;
 mod uniforms_storage;
 
 /// Returns true if the backend supports geometry shaders.
+#[inline]
 pub fn is_geometry_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
     shader::check_shader_type_compatibility(ctxt, gl::GEOMETRY_SHADER)
 }
 
 /// Returns true if the backend supports tessellation shaders.
+#[inline]
 pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
     shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
 }
 
 /// Returns true if the backend supports creating and retreiving binary format.
+#[inline]
 pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
     ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
         || ctxt.get_extensions().gl_arb_get_programy_binary
@@ -107,6 +110,7 @@ impl Error for ProgramCreationError {
         }
     }
 
+    #[inline]
     fn cause(&self) -> Option<&Error> {
         None
     }
@@ -187,6 +191,7 @@ pub struct SourceCode<'a> {
 }
 
 impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
+    #[inline]
     fn from(code: SourceCode<'a>) -> ProgramCreationInput<'a> {
         let SourceCode { vertex_shader, fragment_shader, geometry_shader,
                          tessellation_control_shader, tessellation_evaluation_shader } = code;
@@ -214,6 +219,7 @@ pub struct Binary {
 }
 
 impl<'a> From<Binary> for ProgramCreationInput<'a> {
+    #[inline]
     fn from(binary: Binary) -> ProgramCreationInput<'a> {
         ProgramCreationInput::Binary {
             data: binary,

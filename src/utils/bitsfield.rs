@@ -6,12 +6,14 @@ pub struct Bitsfield {
 }
 
 impl Bitsfield {
+    #[inline]
     pub fn new() -> Bitsfield {
         Bitsfield {
             data: [0xffffffff; NUM_DWORDS],
         }
     }
 
+    #[inline]
     pub fn set_used(&mut self, mut bit: u16) {
         let mut offset = 0;
 
@@ -32,6 +34,7 @@ impl Bitsfield {
         }
     }
 
+    #[inline]
     pub fn set_unused(&mut self, mut bit: u16) {
         let mut offset = 0;
 
@@ -51,6 +54,7 @@ impl Bitsfield {
         }
     }
 
+    #[inline]
     pub fn is_used(&self, mut bit: u16) -> bool {
         let mut offset = 0;
 
@@ -69,6 +73,7 @@ impl Bitsfield {
         }
     }
 
+    #[inline]
     pub fn get_unused(&self) -> Option<u16> {
         let mut offset = 0;
 

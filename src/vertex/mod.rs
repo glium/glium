@@ -176,6 +176,7 @@ pub trait IntoVerticesSource<'a> {
 }
 
 impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
+    #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
         self
     }
@@ -188,6 +189,7 @@ pub struct EmptyVertexAttributes {
 }
 
 impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
+    #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::Marker { len: self.len, per_instance: false }
     }
@@ -200,6 +202,7 @@ pub struct EmptyInstanceAttributes {
 }
 
 impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
+    #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::Marker { len: self.len, per_instance: true }
     }
@@ -209,6 +212,7 @@ impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
 pub struct PerInstance<'a>(BufferViewAnySlice<'a>, &'a VertexFormat);
 
 impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
+    #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.0, self.1, true)
     }
@@ -228,6 +232,7 @@ impl<'a, T> MultiVerticesSource<'a> for T
 {
     type Iterator = IntoIter<VerticesSource<'a>>;
 
+    #[inline]
     fn iter(self) -> IntoIter<VerticesSource<'a>> {
         Some(self.into_vertices_source()).into_iter()
     }
@@ -240,6 +245,7 @@ macro_rules! impl_for_tuple {
         {
             type Iterator = IntoIter<VerticesSource<'a>>;
 
+            #[inline]
             fn iter(self) -> IntoIter<VerticesSource<'a>> {
                 Some(self.0.into_vertices_source()).into_iter()
             }
@@ -254,6 +260,7 @@ macro_rules! impl_for_tuple {
             type Iterator = Chain<<($t1,) as MultiVerticesSource<'a>>::Iterator,
                                   <($t2,) as MultiVerticesSource<'a>>::Iterator>;
 
+            #[inline]
             fn iter(self) -> Chain<<($t1,) as MultiVerticesSource<'a>>::Iterator,
                                    <($t2,) as MultiVerticesSource<'a>>::Iterator>
             {
@@ -273,6 +280,7 @@ macro_rules! impl_for_tuple {
             type Iterator = Chain<<($t1,) as MultiVerticesSource<'a>>::Iterator,
                                   <($($t2),+) as MultiVerticesSource<'a>>::Iterator>;
 
+            #[inline]
             fn iter(self) -> Chain<<($t1,) as MultiVerticesSource<'a>>::Iterator,
                                   <($($t2),+) as MultiVerticesSource<'a>>::Iterator>
             {
@@ -316,6 +324,7 @@ pub unsafe trait Attribute: Sized {
     fn get_type() -> AttributeType;
 
     /// Returns true if the backend supports this type of attribute.
+    #[inline]
     fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
         Self::get_type().is_supported(caps)
     }

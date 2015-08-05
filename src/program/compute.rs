@@ -29,11 +29,13 @@ pub struct ComputeShader {
 
 impl ComputeShader {
     /// Returns true if the backend supports compute shaders.
+    #[inline]
     pub fn is_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
         check_shader_type_compatibility(ctxt, gl::COMPUTE_SHADER)
     }
 
     /// Builds a new compute shader from some source code.
+    #[inline]
     pub fn from_source<F>(facade: &F, src: &str) -> Result<ComputeShader, ProgramCreationError>
                           where F: Facade
     {
@@ -47,6 +49,7 @@ impl ComputeShader {
     }
 
     /// Builds a new compute shader from some binary.
+    #[inline]
     pub fn from_binary<F>(facade: &F, data: Binary) -> Result<ComputeShader, ProgramCreationError>
                           where F: Facade
     {
@@ -62,6 +65,7 @@ impl ComputeShader {
     /// `x * y * z` work groups will be started. The current work group can be retreived with
     /// `gl_WorkGroupID`. Inside each work group, additional local work groups can be started
     /// depending on the attributes of the compute shader itself.
+    #[inline]
     pub fn execute<U>(&self, uniforms: U, x: u32, y: u32, z: u32) where U: Uniforms {
         unsafe { self.raw.dispatch_compute(uniforms, x, y, z) }.unwrap();       // FIXME: return error
     }
@@ -70,11 +74,13 @@ impl ComputeShader {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
+    #[inline]
     pub fn get_binary(&self) -> Result<Binary, GetBinaryError> {
         self.raw.get_binary()
     }
 
     /// Returns informations about a uniform variable, if it exists.
+    #[inline]
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
@@ -89,6 +95,7 @@ impl ComputeShader {
     ///     println!("Name: {} - Type: {:?}", name, uniform.ty);
     /// }
     /// ```
+    #[inline]
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.raw.uniforms()
     }
@@ -103,6 +110,7 @@ impl ComputeShader {
     ///     println!("Name: {}", name);
     /// }
     /// ```
+    #[inline]
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_uniform_blocks()
     }
@@ -117,12 +125,14 @@ impl ComputeShader {
     ///     println!("Name: {}", name);
     /// }
     /// ```
+    #[inline]
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
     }
 }
 
 impl fmt::Debug for ComputeShader {
+    #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(formatter, "{:?}", self.raw)
     }
@@ -131,28 +141,33 @@ impl fmt::Debug for ComputeShader {
 impl GlObject for ComputeShader {
     type Id = Handle;
 
+    #[inline]
     fn get_id(&self) -> Handle {
         self.raw.get_id()
     }
 }
 
 impl ProgramExt for ComputeShader {
+    #[inline]
     fn use_program(&self, ctxt: &mut CommandContext) {
         self.raw.use_program(ctxt)
     }
 
+    #[inline]
     fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
         self.raw.set_uniform(ctxt, uniform_location, value)
     }
 
+    #[inline]
     fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
                                  value: gl::types::GLuint)
     {
         self.raw.set_uniform_block_binding(ctxt, block_location, value)
     }
 
+    #[inline]
     fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint)
@@ -160,14 +175,17 @@ impl ProgramExt for ComputeShader {
         self.raw.set_shader_storage_block_binding(ctxt, block_location, value)
     }
 
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
 
+    #[inline]
     fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_uniform_blocks()
     }
 
+    #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
     }

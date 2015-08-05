@@ -93,6 +93,7 @@ pub enum IndicesSource<'a> {
 
 impl<'a> IndicesSource<'a> {
     /// Returns the type of the primitives.
+    #[inline]
     pub fn get_primitives_type(&self) -> PrimitiveType {
         match self {
             &IndicesSource::IndexBuffer { primitives, .. } => primitives,
@@ -160,6 +161,7 @@ impl PrimitiveType {
 }
 
 impl ToGlEnum for PrimitiveType {
+    #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
             &PrimitiveType::Points => gl::POINTS,
@@ -186,6 +188,7 @@ impl ToGlEnum for PrimitiveType {
 pub struct NoIndices(pub PrimitiveType);
 
 impl<'a> From<NoIndices> for IndicesSource<'a> {
+    #[inline]
     fn from(marker: NoIndices) -> IndicesSource<'a> {
         IndicesSource::NoIndices {
             primitives: marker.0
@@ -194,6 +197,7 @@ impl<'a> From<NoIndices> for IndicesSource<'a> {
 }
 
 impl<'a, 'b> From<&'b NoIndices> for IndicesSource<'a> {
+    #[inline]
     fn from(marker: &'b NoIndices) -> IndicesSource<'a> {
         IndicesSource::NoIndices {
             primitives: marker.0
@@ -215,6 +219,7 @@ pub enum IndexType {
 
 impl IndexType {
     /// Returns the size in bytes of each index of this type.
+    #[inline]
     pub fn get_size(&self) -> usize {
         match *self {
             IndexType::U8 => mem::size_of::<u8>(),
@@ -224,6 +229,7 @@ impl IndexType {
     }
 
     /// Returns true if the backend supports this type of index.
+    #[inline]
     pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
         match self {
             &IndexType::U8 => true,
@@ -237,6 +243,7 @@ impl IndexType {
 }
 
 impl ToGlEnum for IndexType {
+    #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         *self as gl::types::GLenum
     }
@@ -254,18 +261,21 @@ pub unsafe trait Index: Copy + Send + 'static {
 }
 
 unsafe impl Index for u8 {
+    #[inline]
     fn get_type() -> IndexType {
         IndexType::U8
     }
 }
 
 unsafe impl Index for u16 {
+    #[inline]
     fn get_type() -> IndexType {
         IndexType::U16
     }
 }
 
 unsafe impl Index for u32 {
+    #[inline]
     fn get_type() -> IndexType {
         IndexType::U32
     }

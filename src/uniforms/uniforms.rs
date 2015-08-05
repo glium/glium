@@ -5,6 +5,7 @@ use uniforms::{Uniforms, UniformValue, AsUniformValue};
 pub struct EmptyUniforms;
 
 impl Uniforms for EmptyUniforms {
+    #[inline]
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, _: F) {
     }
 }
@@ -18,6 +19,7 @@ pub struct UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
 
 impl<'n, T> UniformsStorage<'n, T, EmptyUniforms> where T: AsUniformValue {
     /// Builds a new storage with a value.
+    #[inline]
     pub fn new(name: &'n str, value: T)
                -> UniformsStorage<'n, T, EmptyUniforms>
     {
@@ -31,6 +33,7 @@ impl<'n, T> UniformsStorage<'n, T, EmptyUniforms> where T: AsUniformValue {
 
 impl<'n, T, R> UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
     /// Adds a value to the storage.
+    #[inline]
     pub fn add<U>(self, name: &'n str, value: U)
                   -> UniformsStorage<'n, U, UniformsStorage<'n, T, R>>
                   where U: AsUniformValue
@@ -44,6 +47,7 @@ impl<'n, T, R> UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
 }
 
 impl<'n, T, R> Uniforms for UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
+    #[inline]
     fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, mut output: F) {
         output(self.name, self.value.as_uniform_value());
         self.rest.visit_values(output);

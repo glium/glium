@@ -104,6 +104,7 @@ pub enum TransformFeedbackSessionCreationError {
 }
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
+#[inline]
 pub fn is_transform_feedback_supported<F>(facade: &F) -> bool where F: Facade {
     let context = facade.get_context();
 
@@ -174,6 +175,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
         }
     }
 
+    #[inline]
     fn unbind(mut ctxt: &mut CommandContext) {
         if ctxt.state.transform_feedback_enabled.is_none() {
             return;
@@ -206,6 +208,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
 }
 
 impl<'a> Drop for TransformFeedbackSession<'a> {
+    #[inline]
     fn drop(&mut self) {
         // FIXME: since the session can be mem::forget'ed, the code in buffer/alloc.rs should make
         //        sure that the buffer isn't in use for transform feedback

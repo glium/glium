@@ -20,6 +20,7 @@ pub struct TypelessUniformBuffer {
 
 impl<T> UniformBuffer<T> where T: Copy {
     /// Uploads data in the uniforms buffer.
+    #[inline]
     pub fn new<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
                   where F: Facade
     {
@@ -27,6 +28,7 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 
     /// Uploads data in the uniforms buffer.
+    #[inline]
     pub fn dynamic<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
                       where F: Facade
     {
@@ -34,6 +36,7 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 
     /// Uploads data in the uniforms buffer.
+    #[inline]
     pub fn persistent<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
                   where F: Facade
     {
@@ -41,12 +44,14 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 
     /// Uploads data in the uniforms buffer.
+    #[inline]
     pub fn immutable<F>(facade: &F, data: T) -> Result<UniformBuffer<T>, BufferCreationError>
                         where F: Facade
     {
         UniformBuffer::new_impl(facade, data, BufferMode::Immutable)
     }
 
+    #[inline]
     fn new_impl<F>(facade: &F, data: T, mode: BufferMode)
                    -> Result<UniformBuffer<T>, BufferCreationError>
                    where F: Facade
@@ -59,11 +64,13 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 
     /// Creates an empty buffer.
+    #[inline]
     pub fn empty<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError> where F: Facade {
         UniformBuffer::empty_impl(facade, BufferMode::Default)
     }
 
     /// Creates an empty buffer.
+    #[inline]
     pub fn empty_dynamic<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError>
                             where F: Facade
     {
@@ -71,6 +78,7 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 
     /// Creates an empty buffer.
+    #[inline]
     pub fn empty_persistent<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError>
                                where F: Facade
     {
@@ -78,12 +86,14 @@ impl<T> UniformBuffer<T> where T: Copy {
     }
 
     /// Creates an empty buffer.
+    #[inline]
     pub fn empty_immutable<F>(facade: &F) -> Result<UniformBuffer<T>, BufferCreationError>
                               where F: Facade
     {
         UniformBuffer::empty_impl(facade, BufferMode::Immutable)
     }
 
+    #[inline]
     fn empty_impl<F>(facade: &F, mode: BufferMode) -> Result<UniformBuffer<T>, BufferCreationError>
                      where F: Facade
     {
@@ -102,6 +112,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// Panicks if the size passed as parameter is not suitable for the type of data.
     ///
+    #[inline]
     pub fn empty_unsized<F>(facade: &F, size: usize)
                             -> Result<UniformBuffer<T>, BufferCreationError>
                             where F: Facade
@@ -115,6 +126,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// Panicks if the size passed as parameter is not suitable for the type of data.
     ///
+    #[inline]
     pub fn empty_unsized_dynamic<F>(facade: &F, size: usize)
                                     -> Result<UniformBuffer<T>, BufferCreationError>
                                     where F: Facade
@@ -128,6 +140,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// Panicks if the size passed as parameter is not suitable for the type of data.
     ///
+    #[inline]
     pub fn empty_unsized_persistent<F>(facade: &F, size: usize)
                                        -> Result<UniformBuffer<T>, BufferCreationError>
                                        where F: Facade
@@ -141,6 +154,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// Panicks if the size passed as parameter is not suitable for the type of data.
     ///
+    #[inline]
     pub fn empty_unsized_immutable<F>(facade: &F, size: usize)
                                       -> Result<UniformBuffer<T>, BufferCreationError>
                                       where F: Facade
@@ -148,6 +162,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
         UniformBuffer::empty_unsized_impl(facade, size, BufferMode::Immutable)
     }
 
+    #[inline]
     fn empty_unsized_impl<F>(facade: &F, size: usize, mode: BufferMode)
                              -> Result<UniformBuffer<T>, BufferCreationError>
                              where F: Facade
@@ -163,19 +178,23 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
 impl<T: ?Sized> Deref for UniformBuffer<T> where T: Content {
     type Target = BufferView<T>;
 
+    #[inline]
     fn deref(&self) -> &BufferView<T> {
         &self.buffer
     }
 }
 
 impl<T: ?Sized> DerefMut for UniformBuffer<T> where T: Content {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferView<T> {
         &mut self.buffer
     }
 }
 
 impl<'a, T: ?Sized> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Content {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
+        #[inline]
         fn f<T: ?Sized>(block: &program::UniformBlock)
                         -> Result<(), LayoutMismatchError> where T: UniformBlock + Content
         {

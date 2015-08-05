@@ -28,6 +28,7 @@ pub struct PixelBuffer<T> where T: PixelValue {
 
 impl<T> PixelBuffer<T> where T: PixelValue {
     /// Builds a new buffer with an uninitialized content.
+    #[inline]
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
             buffer: BufferView::empty_array(facade, BufferType::PixelPackBuffer, capacity,
@@ -37,6 +38,7 @@ impl<T> PixelBuffer<T> where T: PixelValue {
     }
 
     /// Reads the content of the pixel buffer.
+    #[inline]
     pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError> where S: Texture2dDataSink<T> {
         let dimensions = self.dimensions.get().expect("The pixel buffer is empty");
         let data = try!(self.read());
@@ -47,12 +49,14 @@ impl<T> PixelBuffer<T> where T: PixelValue {
 impl<T> Deref for PixelBuffer<T> where T: PixelValue {
     type Target = BufferView<[T]>;
 
+    #[inline]
     fn deref(&self) -> &BufferView<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferView<[T]> {
         &mut self.buffer
     }
@@ -62,6 +66,7 @@ impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
 impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
     type Id = gl::types::GLuint;
 
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_buffer_id()
     }
@@ -69,6 +74,7 @@ impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
 
 // TODO: remove this hack
 #[doc(hidden)]
+#[inline]
 pub fn store_infos<T>(b: &PixelBuffer<T>, dimensions: (u32, u32)) where T: PixelValue {
     b.dimensions.set(Some(dimensions));
 }
