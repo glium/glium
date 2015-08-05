@@ -302,16 +302,16 @@ impl Drop for RenderBufferAny {
                ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 if ctxt.state.renderbuffer == self.id {
-                    ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
                     ctxt.state.renderbuffer = 0;
                 }
+
                 ctxt.gl.DeleteRenderbuffers(1, [ self.id ].as_ptr());
 
             } else if ctxt.extensions.gl_ext_framebuffer_object {
                 if ctxt.state.renderbuffer == self.id {
-                    ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, 0);
                     ctxt.state.renderbuffer = 0;
                 }
+
                 ctxt.gl.DeleteRenderbuffersEXT(1, [ self.id ].as_ptr());
 
             } else {
