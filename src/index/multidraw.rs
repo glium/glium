@@ -9,9 +9,9 @@ use backend::Facade;
 use buffer::{BufferCreationError, BufferType, BufferMode, BufferView};
 use index::{IndicesSource, PrimitiveType, IndexBuffer, Index};
 
+/// Represents an element in a list of draw commands.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[allow(missing_docs)]      // TODO: remove this
 pub struct DrawCommandNoIndices {
     /// Number of vertices to draw.
     pub count: libc::c_uint,
@@ -26,9 +26,9 @@ pub struct DrawCommandNoIndices {
 implement_uniform_block!(DrawCommandNoIndices, count, instance_count,
                          first_index, base_instance);
 
+/// Represents an element in a list of draw commands.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[allow(missing_docs)]      // TODO: remove this
 pub struct DrawCommandIndices {
     /// Number of indices to use in the index buffer.
     pub count: libc::c_uint,
