@@ -1,6 +1,6 @@
 /*!
-In order to draw, you need to provide a source of indices which is used to link the vertices
-together into *primitives*.
+In order to draw, you need to provide a way for the video card to know how to link primitives
+together.
 
 There are eleven types of primitives, each one with a corresponding struct:
 
@@ -16,20 +16,17 @@ There are eleven types of primitives, each one with a corresponding struct:
  - `TriangleFan`
  - `Patches`
 
-These structs can be turned into an `IndexBuffer`, which uploads the data in video memory.
+There are two ways to specify the indices that must be used:
 
-There are three ways to specify the indices that must be used:
+ - Passing a reference to an `IndexBuffer`, which contains a list of indices.
+ - `NoIndices`, in which case the vertices will be used in the order in which they are in the
+   vertex buffer.
 
- - Passing a reference to one of these structs.
- - Passing a reference to an `IndexBuffer`.
- - `NoIndices`, which is equivalent to `(0, 1, 2, 3, 4, 5, 6, 7, ..)`.
+## Multidraw indirect
 
-For performances it is highly recommended to use either an `IndexBuffer` or `NoIndices`, and to
-avoid passing indices in RAM.
+In addition to indices, you can also use **multidraw indirect** rendering.
 
-When you draw something, a draw command is sent to the GPU and the execution continues immediatly
-after. But if you pass indices in RAM, the execution has to block until the GPU has finished
-drawing in order to make sure that the indices are not free'd.
+The idea is to put a list of things to render in a buffer, and pass that buffer to OpenGL.
 
 */
 use gl;
