@@ -17,6 +17,7 @@ pub struct UniformsStorage {
 
 impl UniformsStorage {
     /// Builds a new empty storage.
+    #[inline]
     pub fn new() -> UniformsStorage {
         UniformsStorage {
             values: RefCell::new(SmallVec::new()),

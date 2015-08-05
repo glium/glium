@@ -168,7 +168,9 @@ pub trait AsUniformValue {
 
 // TODO: no way to bind a slice
 impl<'a, T: ?Sized> AsUniformValue for &'a BufferView<T> where T: UniformBlock + BufferContent {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
+        #[inline]
         fn f<T: ?Sized>(block: &program::UniformBlock)
                         -> Result<(), LayoutMismatchError> where T: UniformBlock + BufferContent
         {
@@ -220,6 +222,7 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
         }
     }
 
+    #[inline]
     fn build_layout(base_offset: usize) -> BlockLayout {
         BlockLayout::DynamicSizedArray {
             content: Box::new(<T as UniformBlock>::build_layout(base_offset)),

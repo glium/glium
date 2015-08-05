@@ -37,6 +37,7 @@ pub enum QueryType {
 }
 
 impl ToGlEnum for QueryType {
+    #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         match *self {
             QueryType::SamplesPassed => gl::SAMPLES_PASSED,
@@ -268,6 +269,7 @@ impl RawQuery {
     /// Returns the value of the query. Blocks until it is available.
     ///
     /// This function doesn't block if `is_ready` returns true.
+    #[inline]
     pub fn get_bool(&self) -> bool {
         self.get_u32() != 0
     }
@@ -500,6 +502,7 @@ impl QueryExt for RawQuery {
         }
     }
 
+    #[inline]
     fn end_time_elapsed_query(ctxt: &mut CommandContext) {
         if ctxt.state.time_elapsed_query != 0 {
             ctxt.state.time_elapsed_query = 0;
@@ -507,6 +510,7 @@ impl QueryExt for RawQuery {
         }
     }
 
+    #[inline]
     fn end_primitives_generated_query(ctxt: &mut CommandContext) {
         if ctxt.state.primitives_generated_query != 0 {
             ctxt.state.primitives_generated_query = 0;
@@ -514,6 +518,7 @@ impl QueryExt for RawQuery {
         }
     }
 
+    #[inline]
     fn end_transform_feedback_primitives_written_query(ctxt: &mut CommandContext) {
         if ctxt.state.transform_feedback_primitives_written_query != 0 {
             ctxt.state.transform_feedback_primitives_written_query = 0;
@@ -585,6 +590,7 @@ impl QueryExt for RawQuery {
 }
 
 impl fmt::Debug for RawQuery {
+    #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "Query object #{}", self.id)
     }
@@ -593,6 +599,7 @@ impl fmt::Debug for RawQuery {
 impl GlObject for RawQuery {
     type Id = gl::types::GLuint;
 
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }
@@ -648,6 +655,7 @@ macro_rules! impl_helper {
     ($name:ident, $ret:ty, $get_fn:ident) => {
         impl $name {
             /// Queries the counter to see if the result is already available.
+            #[inline]
             pub fn is_ready(&self) -> bool {
                 self.query.is_ready()
             }
@@ -661,6 +669,7 @@ macro_rules! impl_helper {
             ///
             /// Queries should either have their result written into a buffer, be used for
             /// conditional rendering, or stored and checked during the next frame.
+            #[inline]
             pub fn get(self) -> $ret {
                 self.query.$get_fn()
             }
@@ -669,40 +678,49 @@ macro_rules! impl_helper {
         impl GlObject for $name {
             type Id = gl::types::GLuint;
 
+            #[inline]
             fn get_id(&self) -> gl::types::GLuint {
                 self.query.get_id()
             }
         }
 
         impl QueryExt for $name {
+            #[inline]
             fn begin_query(&self, ctxt: &mut CommandContext) -> Result<(), DrawError> {
                 self.query.begin_query(ctxt)
             }
 
+            #[inline]
             fn end_samples_passed_query(ctxt: &mut CommandContext) {
                 RawQuery::end_samples_passed_query(ctxt)
             }
 
+            #[inline]
             fn end_time_elapsed_query(ctxt: &mut CommandContext) {
                 RawQuery::end_time_elapsed_query(ctxt)
             }
 
+            #[inline]
             fn end_primitives_generated_query(ctxt: &mut CommandContext) {
                 RawQuery::end_primitives_generated_query(ctxt)
             }
 
+            #[inline]
             fn end_transform_feedback_primitives_written_query(ctxt: &mut CommandContext) {
                 RawQuery::end_transform_feedback_primitives_written_query(ctxt)
             }
 
+            #[inline]
             fn begin_conditional_render(&self, ctxt: &mut CommandContext, wait: bool, per_region: bool) {
                 self.query.begin_conditional_render(ctxt, wait, per_region)
             }
 
+            #[inline]
             fn end_conditional_render(ctxt: &mut CommandContext) {
                 RawQuery::end_conditional_render(ctxt)
             }
 
+            #[inline]
             fn is_unused(&self) -> bool {
                 self.query.is_unused()
             }
@@ -722,6 +740,7 @@ pub struct SamplesPassedQuery {
 
 impl SamplesPassedQuery {
     /// Builds a new query.
+    #[inline]
     pub fn new<F>(facade: &F) -> Result<SamplesPassedQuery, QueryCreationError> where F: Facade {
         RawQuery::new(facade, QueryType::SamplesPassed).map(|q| SamplesPassedQuery { query: q })
     }
@@ -740,6 +759,7 @@ pub struct TimeElapsedQuery {
 
 impl TimeElapsedQuery {
     /// Builds a new query.
+    #[inline]
     pub fn new<F>(facade: &F) -> Result<TimeElapsedQuery, QueryCreationError> where F: Facade {
         RawQuery::new(facade, QueryType::TimeElapsed).map(|q| TimeElapsedQuery { query: q })
     }
@@ -799,6 +819,7 @@ pub struct PrimitivesGeneratedQuery {
 
 impl PrimitivesGeneratedQuery {
     /// Builds a new query.
+    #[inline]
     pub fn new<F>(facade: &F) -> Result<PrimitivesGeneratedQuery, QueryCreationError>
                   where F: Facade
     {
@@ -817,6 +838,7 @@ pub struct TransformFeedbackPrimitivesWrittenQuery {
 
 impl TransformFeedbackPrimitivesWrittenQuery {
     /// Builds a new query.
+    #[inline]
     pub fn new<F>(facade: &F) -> Result<TransformFeedbackPrimitivesWrittenQuery, QueryCreationError>
                   where F: Facade
     {

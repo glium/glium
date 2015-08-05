@@ -316,6 +316,7 @@ pub enum UncompressedFloatFormat {
 
 impl UncompressedFloatFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::UncompressedFloat(self)
     }
@@ -331,6 +332,7 @@ pub enum SrgbFormat {
 
 impl SrgbFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::Srgb(self)
     }
@@ -359,6 +361,7 @@ pub enum UncompressedIntFormat {
 
 impl UncompressedIntFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::UncompressedIntegral(self)
     }
@@ -388,6 +391,7 @@ pub enum UncompressedUintFormat {
 
 impl UncompressedUintFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::UncompressedUnsigned(self)
     }
@@ -436,6 +440,7 @@ pub enum CompressedSrgbFormat {
 
 impl CompressedFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::CompressedFormat(self)
     }
@@ -528,6 +533,7 @@ impl CompressedFormat {
 
 impl CompressedSrgbFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::CompressedSrgbFormat(self)
     }
@@ -592,6 +598,7 @@ pub enum DepthFormat {
 
 impl DepthFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::DepthFormat(self)
     }
@@ -609,6 +616,7 @@ pub enum DepthStencilFormat {
 
 impl DepthStencilFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::DepthStencilFormat(self)
     }
@@ -630,6 +638,7 @@ pub enum StencilFormat {
 
 impl StencilFormat {
     /// Turns this format into a more generic `TextureFormat`.
+    #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::StencilFormat(self)
     }
@@ -659,6 +668,7 @@ pub enum ClientFormatAny {
 
 impl ClientFormatAny {
     /// Checks if this format is a compressed format.
+    #[inline]
     pub fn is_compressed(&self) -> bool {
         match *self {
             ClientFormatAny::ClientFormat(_) => false,
@@ -733,6 +743,7 @@ impl ClientFormatAny {
         }
     }
 
+    #[inline]
     pub fn get_num_components(&self) -> u8 {
         match *self {
             ClientFormatAny::ClientFormat(ref format) => format.get_num_components(),

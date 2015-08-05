@@ -107,6 +107,7 @@ impl ResidentTexture {
     }
 
     /// Unwraps the texture and restores it.
+    #[inline]
     pub fn into_inner(mut self) -> TextureAny {
         self.into_inner_impl()
     }
@@ -128,18 +129,21 @@ impl ResidentTexture {
 impl Deref for ResidentTexture {
     type Target = TextureAny;
 
+    #[inline]
     fn deref(&self) -> &TextureAny {
         self.texture.as_ref().unwrap()
     }
 }
 
 impl DerefMut for ResidentTexture {
+    #[inline]
     fn deref_mut(&mut self) -> &mut TextureAny {
         self.texture.as_mut().unwrap()
     }
 }
 
 impl Drop for ResidentTexture {
+    #[inline]
     fn drop(&mut self) {
         self.into_inner_impl();
     }
@@ -154,6 +158,7 @@ pub struct TextureHandle<'a> {
 
 impl<'a> TextureHandle<'a> {
     /// Builds a new handle.
+    #[inline]
     pub fn new(texture: &'a ResidentTexture, _: &SamplerBehavior) -> TextureHandle<'a> {
         // FIXME: take sampler into account
         TextureHandle {
@@ -163,6 +168,7 @@ impl<'a> TextureHandle<'a> {
     }
 
     /// Sets the value to the given texture.
+    #[inline]
     pub fn set(&mut self, texture: &'a ResidentTexture, _: &SamplerBehavior) {
         // FIXME: take sampler into account
         self.value = texture.handle;
@@ -170,6 +176,7 @@ impl<'a> TextureHandle<'a> {
 }
 
 impl<'a> AsUniformValue for TextureHandle<'a> {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         // TODO: u64
         unimplemented!();
@@ -268,6 +275,7 @@ impl<'a> UniformBlock for TextureHandle<'a> {
         }
     }
 
+    #[inline]
     fn build_layout(base_offset: usize) -> BlockLayout {
         BlockLayout::BasicType {
             ty: UniformType::Sampler2d,       // TODO: wrong

@@ -95,6 +95,7 @@ impl<T> CapabilitiesSource for T where T: Facade {
 }
 
 impl Facade for Rc<Context> {
+    #[inline]
     fn get_context(&self) -> &Rc<Context> {
         self
     }

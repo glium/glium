@@ -36,6 +36,7 @@ pub struct Binder<'a, 'b, 'c: 'b> {
 
 impl VertexAttributesSystem {
     /// Builds a new `VertexAttributesSystem`.
+    #[inline]
     pub fn new() -> VertexAttributesSystem {
         VertexAttributesSystem {
             vaos: RefCell::new(HashMap::new()),
@@ -46,6 +47,7 @@ impl VertexAttributesSystem {
     ///
     /// `base_vertex` should be set to true if the backend supports the `glDraw*BaseVertex`
     /// functions. If `base_vertex` is true, then `bind` will return the base vertex to use.
+    #[inline]
     pub fn start<'a, 'b, 'c: 'b>(ctxt: &'b mut CommandContext<'c>, program: &'a Program,
                                  indices: Option<BufferViewAnySlice<'a>>, base_vertex: bool)
                                  -> Binder<'a, 'b, 'c>
@@ -65,6 +67,7 @@ impl VertexAttributesSystem {
 
     /// This function *must* be called whenever you destroy a buffer so that the system can
     /// purge its VAOs cache.
+    #[inline]
     pub fn purge_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint) {
         VertexAttributesSystem::purge_if(ctxt, |&(ref buffers, _)| {
             buffers.iter().find(|&&(b, _)| b == id).is_some()
@@ -73,6 +76,7 @@ impl VertexAttributesSystem {
 
     /// This function *must* be called whenever you destroy a program so that the system can
     /// purge its VAOs cache.
+    #[inline]
     pub fn purge_program(ctxt: &mut CommandContext, program: Handle) {
         VertexAttributesSystem::purge_if(ctxt, |&(_, p)| p == program)
     }
@@ -137,6 +141,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     /// - `buffer`: The buffer to bind.
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
+    #[inline]
     pub fn add(mut self, buffer: &BufferViewAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
                -> Binder<'a, 'b, 'c>
     {
@@ -373,6 +378,7 @@ impl VertexArrayObject {
 }
 
 impl Drop for VertexArrayObject {
+    #[inline]
     fn drop(&mut self) {
         assert!(self.destroyed);
     }
@@ -381,6 +387,7 @@ impl Drop for VertexArrayObject {
 impl GlObject for VertexArrayObject {
     type Id = gl::types::GLuint;
 
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

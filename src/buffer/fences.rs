@@ -24,6 +24,7 @@ impl Fences {
     }
 
     /// Creates an `Inserter` that allows inserting a fence in the list for the given range.
+    #[inline]
     pub fn inserter(&self, range: Range<usize>) -> Inserter {
         Inserter {
             fences: self,

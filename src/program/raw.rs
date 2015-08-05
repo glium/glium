@@ -310,6 +310,7 @@ impl RawProgram {
     }
 
     /// Returns informations about a uniform variable, if it exists.
+    #[inline]
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
     }
@@ -324,6 +325,7 @@ impl RawProgram {
     ///     println!("Name: {} - Type: {:?}", name, uniform.ty);
     /// }
     /// ```
+    #[inline]
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.uniforms.iter()
     }
@@ -338,11 +340,13 @@ impl RawProgram {
     ///     println!("Name: {}", name);
     /// }
     /// ```
+    #[inline]
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.uniform_blocks
     }
 
     /// Returns the list of transform feedback varyings.
+    #[inline]
     pub fn get_transform_feedback_buffers(&self) -> &[TransformFeedbackBuffer] {
         &self.tf_buffers
     }
@@ -380,16 +384,19 @@ impl RawProgram {
     ///
     /// This corresponds to `GL_GEOMETRY_OUTPUT_TYPE` or `GL_TESS_GEN_MODE`. If the program doesn't
     /// contain either a geometry shader or a tessellation evaluation shader, returns `None`.
+    #[inline]
     pub fn get_output_primitives(&self) -> Option<OutputPrimitives> {
         self.output_primitives
     }
 
     /// Returns true if the program contains a tessellation stage.
+    #[inline]
     pub fn has_tessellation_shaders(&self) -> bool {
         self.has_tessellation_shaders
     }
 
     /// Returns informations about an attribute, if it exists.
+    #[inline]
     pub fn get_attribute(&self, name: &str) -> Option<&Attribute> {
         self.attributes.get(name)
     }
@@ -404,6 +411,7 @@ impl RawProgram {
     ///     println!("Name: {} - Type: {:?}", name, attribute.ty);
     /// }
     /// ```
+    #[inline]
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.attributes.iter()
     }
@@ -418,6 +426,7 @@ impl RawProgram {
     ///     println!("Name: {}", name);
     /// }
     /// ```
+    #[inline]
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
     }
@@ -460,6 +469,7 @@ impl RawProgram {
 }
 
 impl fmt::Debug for RawProgram {
+    #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         (format!("Program #{:?}", self.id)).fmt(formatter)
     }
@@ -467,12 +477,15 @@ impl fmt::Debug for RawProgram {
 
 impl GlObject for RawProgram {
     type Id = Handle;
+
+    #[inline]
     fn get_id(&self) -> Handle {
         self.id
     }
 }
 
 impl ProgramExt for RawProgram {
+    #[inline]
     fn use_program(&self, ctxt: &mut CommandContext) {
         unsafe {
             let program_id = self.get_id();
@@ -486,18 +499,21 @@ impl ProgramExt for RawProgram {
         }
     }
 
+    #[inline]
     fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
         self.uniform_values.set_uniform_value(ctxt, self.id, uniform_location, value);
     }
 
+    #[inline]
     fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
                                  value: gl::types::GLuint)
     {
         self.uniform_values.set_uniform_block_binding(ctxt, self.id, block_location, value);
     }
 
+    #[inline]
     fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint)
@@ -505,14 +521,17 @@ impl ProgramExt for RawProgram {
         self.uniform_values.set_shader_storage_block_binding(ctxt, self.id, block_location, value);
     }
 
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
     }
 
+    #[inline]
     fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.uniform_blocks
     }
 
+    #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
     }

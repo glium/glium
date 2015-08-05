@@ -20,6 +20,7 @@ pub enum Api {
 }
 
 impl PartialOrd for Version {
+    #[inline]
     fn partial_cmp(&self, other: &Version) -> Option<Ordering> {
         if self.0 != other.0 {
             return None;

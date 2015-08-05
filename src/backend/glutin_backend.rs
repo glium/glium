@@ -37,6 +37,7 @@ pub struct GlutinFacade {
 }
 
 impl backend::Facade for GlutinFacade {
+    #[inline]
     fn get_context(&self) -> &Rc<Context> {
         &self.context
     }
@@ -50,6 +51,7 @@ pub struct PollEventsIter<'a> {
 impl<'a> Iterator for PollEventsIter<'a> {
     type Item = glutin::Event;
 
+    #[inline]
     fn next(&mut self) -> Option<glutin::Event> {
         if let Some(window) = self.window.as_ref() {
             window.borrow().poll_events().next()
@@ -70,6 +72,7 @@ pub struct WaitEventsIter<'a> {
 impl<'a> Iterator for WaitEventsIter<'a> {
     type Item = glutin::Event;
 
+    #[inline]
     fn next(&mut self) -> Option<glutin::Event> {
         if let Some(window) = self.window.as_ref() {
             window.borrow().wait_events().next()
@@ -85,6 +88,7 @@ pub struct WinRef<'a>(Ref<'a, Rc<GlutinWindowBackend>>);
 impl<'a> Deref for WinRef<'a> {
     type Target = glutin::Window;
 
+    #[inline]
     fn deref(&self) -> &glutin::Window {
         self.0.get_window()
     }
@@ -94,6 +98,7 @@ impl GlutinFacade {
     /// Reads all events received by the window.
     ///
     /// This iterator polls for events and can be exhausted.
+    #[inline]
     pub fn poll_events(&self) -> PollEventsIter {
         PollEventsIter {
             window: Option::as_ref(&self.backend),
@@ -101,6 +106,7 @@ impl GlutinFacade {
     }
 
     /// Reads all events received by the window.
+    #[inline]
     pub fn wait_events(&self) -> WaitEventsIter {
         WaitEventsIter {
             window: Option::as_ref(&self.backend),
@@ -108,6 +114,7 @@ impl GlutinFacade {
     }
 
     /// Returns the underlying window, or `None` if glium uses a headless context.
+    #[inline]
     pub fn get_window(&self) -> Option<WinRef> {
         Option::as_ref(&self.backend).map(|w| WinRef(w.borrow()))
     }
@@ -118,6 +125,7 @@ impl GlutinFacade {
     /// destroyed, the buffers are swapped.
     ///
     /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
+    #[inline]
     pub fn draw(&self) -> Frame {
         Frame::new(self.context.clone(), self.get_framebuffer_dimensions())
     }
@@ -126,6 +134,7 @@ impl GlutinFacade {
 impl Deref for GlutinFacade {
     type Target = Context;
 
+    #[inline]
     fn deref(&self) -> &Context {
         &self.context
     }
@@ -208,6 +217,7 @@ pub struct GlutinWindowBackend {
 }
 
 unsafe impl Backend for GlutinWindowBackend {
+    #[inline]
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         match self.window.swap_buffers() {
             Ok(()) => Ok(()),
@@ -216,20 +226,24 @@ unsafe impl Backend for GlutinWindowBackend {
         }
     }
 
+    #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
         self.window.get_proc_address(symbol)
     }
 
+    #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         let (width, height) = self.window.get_inner_size().unwrap_or((800, 600));      // TODO: 800x600 ?
         let scale = self.window.hidpi_factor();
         ((width as f32 * scale) as u32, (height as f32 * scale) as u32)
     }
 
+    #[inline]
     fn is_current(&self) -> bool {
         self.window.is_current()
     }
 
+    #[inline]
     unsafe fn make_current(&self) {
         self.window.make_current().unwrap();
     }
@@ -248,14 +262,17 @@ impl GlutinWindowBackend {
         })
     }
 
+    #[inline]
     pub fn get_window(&self) -> &glutin::Window {
         &self.window
     }
 
+    #[inline]
     pub fn poll_events(&self) -> glutin::PollEventsIterator {
         self.window.poll_events()
     }
 
+    #[inline]
     pub fn wait_events(&self) -> glutin::WaitEventsIterator {
         self.window.wait_events()
     }
@@ -277,22 +294,27 @@ pub struct GlutinHeadlessBackend {
 }
 
 unsafe impl Backend for GlutinHeadlessBackend {
+    #[inline]
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         Ok(())
     }
 
+    #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
         self.context.get_proc_address(symbol)
     }
 
+    #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         (800, 600)      // FIXME: these are random
     }
 
+    #[inline]
     fn is_current(&self) -> bool {
         self.context.is_current()
     }
 
+    #[inline]
     unsafe fn make_current(&self) {
         self.context.make_current().unwrap();
     }

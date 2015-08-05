@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added `#[inline]` attributes on many functions.
+
 ## Version (0.8.3)
 
  - Textures are now inside submodules (for example `Texture2d` is in `texture::texture2d::Texture2d`) and reexported from `texture`.

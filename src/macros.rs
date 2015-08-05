@@ -97,6 +97,7 @@ macro_rules! uniform {
 macro_rules! implement_vertex {
     ($struct_name:ident, $($field_name:ident),+) => (
         impl $crate::vertex::Vertex for $struct_name {
+            #[inline]
             fn build_bindings() -> $crate::vertex::VertexFormat {
                 use std::borrow::Cow;
 
@@ -163,6 +164,7 @@ macro_rules! implement_buffer_content {
             unsafe impl<$($gs)*> $crate::buffer::Content for $struct_name<$($gs)*> {
                 type Owned = Box<$struct_name<$($gs)*>>;
 
+                #[inline]
                 fn read<F, E>(size: usize, f: F) -> Result<Box<$struct_name<$($gs)*>>, E>
                               where F: FnOnce(&mut $struct_name<$($gs)*>) -> Result<(), E>
                 {
@@ -179,6 +181,7 @@ macro_rules! implement_buffer_content {
                     Ok(storage)
                 }
 
+                #[inline]
                 fn get_elements_size() -> usize {
                     use std::mem;
 
@@ -186,12 +189,14 @@ macro_rules! implement_buffer_content {
                     mem::size_of_val(fake_ptr)
                 }
 
+                #[inline]
                 fn to_void_ptr(&self) -> *const () {
                     use std::mem;
                     let (ptr, _): (*const (), usize) = unsafe { mem::transmute(self) };
                     ptr
                 }
 
+                #[inline]
                 fn ref_from_ptr(ptr: *mut (), size: usize) -> Option<*mut $struct_name<$($gs)*>> {
                     use std::mem;
 
@@ -213,6 +218,7 @@ macro_rules! implement_buffer_content {
                     Some(unsafe { mem::transmute((ptr, (variadic / step) as usize)) })
                 }
 
+                #[inline]
                 fn is_size_suitable(size: usize) -> bool {
                     use std::mem;
 

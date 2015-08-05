@@ -59,6 +59,7 @@ impl SamplerObject {
     }
 
     /// 
+    #[inline]
     pub fn destroy(mut self, ctxt: &mut CommandContext) {
         self.destroyed = true;
 
@@ -71,12 +72,14 @@ impl SamplerObject {
 impl GlObject for SamplerObject {
     type Id = gl::types::GLuint;
 
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }
 }
 
 impl Drop for SamplerObject {
+    #[inline]
     fn drop(&mut self) {
         assert!(self.destroyed);
     }

@@ -113,16 +113,19 @@ impl Buffer {
     }
 
     /// Returns the context corresponding to this buffer.
+    #[inline]
     pub fn get_context(&self) -> &Rc<Context> {
         &self.context
     }
 
     /// Returns the total size in bytes of this buffer.
+    #[inline]
     pub fn get_size(&self) -> usize {
         self.size
     }
 
     /// Returns true if the buffer is persistently mapped in memory.
+    #[inline]
     pub fn uses_persistent_mapping(&self) -> bool {
         self.persistent_mapping.is_some()
     }
@@ -144,6 +147,7 @@ impl Buffer {
     }
 
     /// Ensures that the buffer isn't used by the transform feedback process.
+    #[inline]
     fn assert_not_transform_feedback(&self, ctxt: &mut CommandContext) {
         TransformFeedbackSession::ensure_buffer_out_of_transform_feedback(ctxt, self.id);
     }
@@ -207,6 +211,7 @@ impl Buffer {
     }
 
     /// Makes sure that nothing is binded to `GL_PIXEL_PACK_BUFFER`.
+    #[inline]
     pub fn unbind_pixel_pack(ctxt: &mut CommandContext) {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelPackBuffer); }
     }
@@ -226,6 +231,7 @@ impl Buffer {
     }
 
     /// Makes sure that nothing is binded to `GL_PIXEL_UNPACK_BUFFER`.
+    #[inline]
     pub fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelUnpackBuffer); }
     }
@@ -280,6 +286,7 @@ impl Buffer {
 
     /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
     /// feedback object.
+    #[inline]
     pub fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
                                       range: Range<usize>)
     {
@@ -293,6 +300,7 @@ impl Buffer {
     /// # Panic
     ///
     /// Panicks if the backend doesn't allow binding this buffer to the specified point.
+    #[inline]
     fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
         self.assert_unmapped(ctxt);
         unsafe { bind_buffer(ctxt, self.id, ty); }
@@ -308,6 +316,7 @@ impl Buffer {
     /// - Panicks if the backend doesn't allow binding this buffer to the specified point.
     /// - Panicks if the bind point is not an indexed bind point.
     /// - Panicks if the bind point is over the maximum value.
+    #[inline]
     fn indexed_bind(&self, mut ctxt: &mut CommandContext, ty: BufferType,
                     index: gl::types::GLuint, range: Range<usize>)
     {
@@ -616,6 +625,7 @@ impl Buffer {
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
+    #[inline]
     pub unsafe fn map<D: ?Sized>(&mut self, bytes_range: Range<usize>)
                                  -> Mapping<D> where D: Content
     {
@@ -635,6 +645,7 @@ impl Buffer {
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
+    #[inline]
     pub unsafe fn map_read<D: ?Sized>(&mut self, bytes_range: Range<usize>)
                                       -> ReadMapping<D> where D: Content
     {
@@ -654,6 +665,7 @@ impl Buffer {
     /// If the buffer uses persistent mapping, the caller of this function must handle
     /// synchronization.
     ///
+    #[inline]
     pub unsafe fn map_write<D: ?Sized>(&mut self, bytes_range: Range<usize>)
                                        -> WriteMapping<D> where D: Content
     {
@@ -747,6 +759,8 @@ impl Drop for Buffer {
 
 impl GlObject for Buffer {
     type Id = gl::types::GLuint;
+    
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }
@@ -838,6 +852,7 @@ pub struct Mapping<'b, D: ?Sized> where D: Content {
 impl<'a, D: ?Sized> Deref for Mapping<'a, D> where D: Content {
     type Target = D;
 
+    #[inline]
     fn deref(&self) -> &D {
         match self.mapping {
             MappingImpl::PersistentMapping { data, .. } => {
@@ -856,6 +871,7 @@ impl<'a, D: ?Sized> Deref for Mapping<'a, D> where D: Content {
 }
 
 impl<'a, D: ?Sized> DerefMut for Mapping<'a, D> where D: Content {
+    #[inline]
     fn deref_mut(&mut self) -> &mut D {
         match self.mapping {
             MappingImpl::PersistentMapping { data, .. } => {
@@ -881,6 +897,7 @@ pub struct ReadMapping<'b, D: ?Sized> where D: Content {
 impl<'a, D: ?Sized> Deref for ReadMapping<'a, D> where D: Content {
     type Target = D;
 
+    #[inline]
     fn deref(&self) -> &D {
         match self.mapping {
             MappingImpl::PersistentMapping { data, .. } => {
@@ -904,6 +921,7 @@ pub struct WriteMapping<'b, D: ?Sized> where D: Content {
 }
 
 impl<'b, D: ?Sized> WriteMapping<'b, D> where D: Content {
+    #[inline]
     fn get_slice(&mut self) -> &mut D {
         match self.mapping {
             MappingImpl::PersistentMapping { data, .. } => {
@@ -923,6 +941,7 @@ impl<'b, D: ?Sized> WriteMapping<'b, D> where D: Content {
 
 impl<'b, D> WriteMapping<'b, D> where D: Content + Copy {
     /// Writes the whole content.
+    #[inline]
     pub fn write(&mut self, value: D) {
         let slice = self.get_slice();
         *slice = value;
@@ -931,6 +950,7 @@ impl<'b, D> WriteMapping<'b, D> where D: Content + Copy {
 
 impl<'b, D> WriteMapping<'b, [D]> where [D]: Content, D: Copy {
     /// Returns the length of the mapping.
+    #[inline]
     pub fn len(&self) -> usize {
         match self.mapping {
             MappingImpl::PersistentMapping { data, .. } => unsafe { (&*data).len() },
@@ -945,6 +965,7 @@ impl<'b, D> WriteMapping<'b, [D]> where [D]: Content, D: Copy {
     ///
     /// Panics if out of range.
     ///
+    #[inline]
     pub fn set(&mut self, index: usize, value: D) {
         let slice = self.get_slice();
         slice[index] = value;

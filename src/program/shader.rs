@@ -24,6 +24,7 @@ pub struct Shader {
 impl GlObject for Shader {
     type Id = Handle;
 
+    #[inline]
     fn get_id(&self) -> Handle {
         self.id
     }

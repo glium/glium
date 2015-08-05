@@ -132,6 +132,7 @@ impl Program {
     ///     Some(geometry_source));
     /// ```
     ///
+    #[inline]
     pub fn from_source<'a, F>(facade: &F, vertex_shader: &'a str, fragment_shader: &'a str,
                               geometry_shader: Option<&'a str>)
                               -> Result<Program, ProgramCreationError> where F: Facade
@@ -152,6 +153,7 @@ impl Program {
     ///
     /// You can store the result in a file, then reload it later. This avoids having to compile
     /// the source code every time.
+    #[inline]
     pub fn get_binary(&self) -> Result<Binary, GetBinaryError> {
         self.raw.get_binary()
     }
@@ -167,11 +169,13 @@ impl Program {
     /// out vec4 foo;
     /// ```
     ///
+    #[inline]
     pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
         self.raw.get_frag_data_location(name)
     }
 
     /// Returns informations about a uniform variable, if it exists.
+    #[inline]
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
@@ -186,6 +190,7 @@ impl Program {
     ///     println!("Name: {} - Type: {:?}", name, uniform.ty);
     /// }
     /// ```
+    #[inline]
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.raw.uniforms()
     }
@@ -200,11 +205,13 @@ impl Program {
     ///     println!("Name: {}", name);
     /// }
     /// ```
+    #[inline]
     pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_uniform_blocks()
     }
 
     /// Returns the list of transform feedback varyings.
+    #[inline]
     pub fn get_transform_feedback_buffers(&self) -> &[TransformFeedbackBuffer] {
         self.raw.get_transform_feedback_buffers()
     }
@@ -213,6 +220,7 @@ impl Program {
     /// and `stride`.
     ///
     /// The `stride` is the number of bytes between two vertices.
+    #[inline]
     pub fn transform_feedback_matches(&self, format: &VertexFormat, stride: usize) -> bool {
         self.raw.transform_feedback_matches(format, stride)
     }
@@ -222,16 +230,19 @@ impl Program {
     ///
     /// This corresponds to `GL_GEOMETRY_OUTPUT_TYPE` or `GL_TESS_GEN_MODE`. If the program doesn't
     /// contain either a geometry shader or a tessellation evaluation shader, returns `None`.
+    #[inline]
     pub fn get_output_primitives(&self) -> Option<OutputPrimitives> {
         self.raw.get_output_primitives()
     }
 
     /// Returns true if the program contains a tessellation stage.
+    #[inline]
     pub fn has_tessellation_shaders(&self) -> bool {
         self.raw.has_tessellation_shaders()
     }
 
     /// Returns informations about an attribute, if it exists.
+    #[inline]
     pub fn get_attribute(&self, name: &str) -> Option<&Attribute> {
         self.raw.get_attribute(name)
     }
@@ -246,11 +257,13 @@ impl Program {
     ///     println!("Name: {} - Type: {:?}", name, attribute.ty);
     /// }
     /// ```
+    #[inline]
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.raw.attributes()
     }
 
     /// Returns true if the program has been configured to output sRGB instead of RGB.
+    #[inline]
     pub fn has_srgb_output(&self) -> bool {
         self.outputs_srgb
     }
@@ -265,6 +278,7 @@ impl Program {
     ///     println!("Name: {}", name);
     /// }
     /// ```
+    #[inline]
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
     }
@@ -273,12 +287,14 @@ impl Program {
     ///
     /// If the program uses `gl_PointSize` without having been configured appropriately, then
     /// setting the value of `gl_PointSize` will have no effect.
+    #[inline]
     pub fn uses_point_size(&self) -> bool {
       self.uses_point_size
     }
 }
 
 impl fmt::Debug for Program {
+    #[inline]
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(formatter, "{:?}", self.raw)
     }
@@ -287,6 +303,7 @@ impl fmt::Debug for Program {
 impl GlObject for Program {
     type Id = Handle;
 
+    #[inline]
     fn get_id(&self) -> Handle {
         self.raw.get_id()
     }
@@ -318,18 +335,21 @@ impl ProgramExt for Program {
         self.raw.use_program(ctxt)
     }
 
+    #[inline]
     fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
         self.raw.set_uniform(ctxt, uniform_location, value)
     }
 
+    #[inline]
     fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
                                  value: gl::types::GLuint)
     {
         self.raw.set_uniform_block_binding(ctxt, block_location, value)
     }
 
+    #[inline]
     fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint)
@@ -337,14 +357,17 @@ impl ProgramExt for Program {
         self.raw.set_shader_storage_block_binding(ctxt, block_location, value)
     }
 
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
 
+    #[inline]
     fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_uniform_blocks()
     }
 
+    #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
     }

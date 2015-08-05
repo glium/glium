@@ -855,6 +855,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
     layout
 }
 
+#[inline]
 fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
     match ty {
         gl::FLOAT => UniformType::Float,
@@ -966,6 +967,7 @@ fn glenum_to_uniform_type(ty: gl::types::GLenum) -> UniformType {
     }
 }
 
+#[inline]
 fn glenum_to_attribute_type(value: gl::types::GLenum) -> AttributeType {
     match value {
         gl::FLOAT => AttributeType::F32,
@@ -996,6 +998,7 @@ fn glenum_to_attribute_type(value: gl::types::GLenum) -> AttributeType {
     }
 }
 
+#[inline]
 fn glenum_to_transform_feedback_mode(value: gl::types::GLenum) -> TransformFeedbackMode {
     match value {
         gl::INTERLEAVED_ATTRIBS/* | gl::INTERLEAVED_ATTRIBS_EXT*/ => {

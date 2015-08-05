@@ -81,6 +81,7 @@ pub enum InternalFormat {
 
 impl InternalFormat {
     /// Returns the total number of bits of this format.
+    #[inline]
     pub fn get_total_bits(&self) -> usize {
         match self {
             &InternalFormat::OneComponent { bits1, .. } => bits1,
@@ -109,6 +110,7 @@ pub enum InternalFormatType {
 
 impl InternalFormatType {
     /// Builds the `InternalFormatType` of the GLenum. Panics if the value is not recognized.
+    #[inline]
     fn from_glenum(val: gl::types::GLenum) -> InternalFormatType {
         match val {
             gl::SIGNED_NORMALIZED => InternalFormatType::SignedNormalized,

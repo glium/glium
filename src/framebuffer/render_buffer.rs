@@ -51,6 +51,7 @@ impl RenderBuffer {
 }
 
 impl ToColorAttachment for RenderBuffer {
+    #[inline]
     fn to_color_attachment(&self) -> ColorAttachment {
         ColorAttachment::RenderBuffer(self)
     }
@@ -59,12 +60,14 @@ impl ToColorAttachment for RenderBuffer {
 impl Deref for RenderBuffer {
     type Target = RenderBufferAny;
 
+    #[inline]
     fn deref(&self) -> &RenderBufferAny {
         &self.buffer
     }
 }
 
 impl DerefMut for RenderBuffer {
+    #[inline]
     fn deref_mut(&mut self) -> &mut RenderBufferAny {
         &mut self.buffer
     }
@@ -72,6 +75,8 @@ impl DerefMut for RenderBuffer {
 
 impl GlObject for RenderBuffer {
     type Id = gl::types::GLuint;
+
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -108,12 +113,14 @@ impl ToDepthAttachment for DepthRenderBuffer {
 impl Deref for DepthRenderBuffer {
     type Target = RenderBufferAny;
 
+    #[inline]
     fn deref(&self) -> &RenderBufferAny {
         &self.buffer
     }
 }
 
 impl DerefMut for DepthRenderBuffer {
+    #[inline]
     fn deref_mut(&mut self) -> &mut RenderBufferAny {
         &mut self.buffer
     }
@@ -121,6 +128,8 @@ impl DerefMut for DepthRenderBuffer {
 
 impl GlObject for DepthRenderBuffer {
     type Id = gl::types::GLuint;
+
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -149,6 +158,7 @@ impl StencilRenderBuffer {
 }
 
 impl ToStencilAttachment for StencilRenderBuffer {
+    #[inline]
     fn to_stencil_attachment(&self) -> StencilAttachment {
         StencilAttachment::RenderBuffer(self)
     }
@@ -157,12 +167,14 @@ impl ToStencilAttachment for StencilRenderBuffer {
 impl Deref for StencilRenderBuffer {
     type Target = RenderBufferAny;
 
+    #[inline]
     fn deref(&self) -> &RenderBufferAny {
         &self.buffer
     }
 }
 
 impl DerefMut for StencilRenderBuffer {
+    #[inline]
     fn deref_mut(&mut self) -> &mut RenderBufferAny {
         &mut self.buffer
     }
@@ -170,6 +182,8 @@ impl DerefMut for StencilRenderBuffer {
 
 impl GlObject for StencilRenderBuffer {
     type Id = gl::types::GLuint;
+
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -198,6 +212,7 @@ impl DepthStencilRenderBuffer {
 }
 
 impl ToDepthStencilAttachment for DepthStencilRenderBuffer {
+    #[inline]
     fn to_depth_stencil_attachment(&self) -> DepthStencilAttachment {
         DepthStencilAttachment::RenderBuffer(self)
     }
@@ -206,12 +221,14 @@ impl ToDepthStencilAttachment for DepthStencilRenderBuffer {
 impl Deref for DepthStencilRenderBuffer {
     type Target = RenderBufferAny;
 
+    #[inline]
     fn deref(&self) -> &RenderBufferAny {
         &self.buffer
     }
 }
 
 impl DerefMut for DepthStencilRenderBuffer {
+    #[inline]
     fn deref_mut(&mut self) -> &mut RenderBufferAny {
         &mut self.buffer
     }
@@ -219,6 +236,8 @@ impl DerefMut for DepthStencilRenderBuffer {
 
 impl GlObject for DepthStencilRenderBuffer {
     type Id = gl::types::GLuint;
+
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.buffer.get_id()
     }
@@ -285,6 +304,7 @@ impl RenderBufferAny {
     }
 
     /// Returns the dimensions of the render buffer.
+    #[inline]
     pub fn get_dimensions(&self) -> (u32, u32) {
         (self.width, self.height)
     }
@@ -323,6 +343,8 @@ impl Drop for RenderBufferAny {
 
 impl GlObject for RenderBufferAny {
     type Id = gl::types::GLuint;
+    
+    #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
     }

@@ -52,6 +52,7 @@ pub unsafe trait Content {
 unsafe impl<T> Content for T where T: Copy {
     type Owned = T;
 
+    #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
         assert!(size == mem::size_of::<T>());
         let mut value = unsafe { mem::uninitialized() };
@@ -59,14 +60,17 @@ unsafe impl<T> Content for T where T: Copy {
         Ok(value)
     }
 
+    #[inline]
     fn get_elements_size() -> usize {
         mem::size_of::<T>()
     }
 
+    #[inline]
     fn to_void_ptr(&self) -> *const () {
         self as *const T as *const ()
     }
 
+    #[inline]
     fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut T> {
         if size != mem::size_of::<T>() {
             return None;
@@ -75,6 +79,7 @@ unsafe impl<T> Content for T where T: Copy {
         Some(ptr as *mut T)
     }
 
+    #[inline]
     fn is_size_suitable(size: usize) -> bool {
         size == mem::size_of::<T>()
     }
@@ -83,6 +88,7 @@ unsafe impl<T> Content for T where T: Copy {
 unsafe impl<T> Content for [T] where T: Copy {
     type Owned = Vec<T>;
 
+    #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<Vec<T>, E>
                   where F: FnOnce(&mut [T]) -> Result<(), E>
     {
@@ -94,14 +100,17 @@ unsafe impl<T> Content for [T] where T: Copy {
         Ok(value)
     }
 
+    #[inline]
     fn get_elements_size() -> usize {
         mem::size_of::<T>()
     }
 
+    #[inline]
     fn to_void_ptr(&self) -> *const () {
         &self[0] as *const T as *const ()
     }
 
+    #[inline]
     fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut [T]> {
         if size % mem::size_of::<T>() != 0 {
             return None;
@@ -112,6 +121,7 @@ unsafe impl<T> Content for [T] where T: Copy {
         Some(unsafe { slice::from_raw_parts_mut(&mut *ptr, size) as *mut [T] })
     }
 
+    #[inline]
     fn is_size_suitable(size: usize) -> bool {
         size % mem::size_of::<T>() == 0
     }

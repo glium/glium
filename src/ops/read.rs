@@ -22,6 +22,7 @@ pub enum Source<'a> {
 }
 
 impl<'a> From<&'a fbo::RegularAttachment<'a>> for Source<'a> {
+    #[inline]
     fn from(a: &'a fbo::RegularAttachment<'a>) -> Source<'a> {
         Source::Attachment(a)
     }
@@ -35,12 +36,14 @@ pub enum Destination<'a, P> where P: PixelValue {
 }
 
 impl<'a, P> From<&'a mut Vec<P>> for Destination<'a, P> where P: PixelValue {
+    #[inline]
     fn from(mem: &'a mut Vec<P>) -> Destination<'a, P> {
         Destination::Memory(mem)
     }
 }
 
 impl<'a, P> From<&'a PixelBuffer<P>> for Destination<'a, P> where P: PixelValue {
+    #[inline]
     fn from(pb: &'a PixelBuffer<P>) -> Destination<'a, P> {
         Destination::PixelBuffer(pb)
     }
@@ -51,6 +54,7 @@ impl<'a, P> From<&'a PixelBuffer<P>> for Destination<'a, P> where P: PixelValue 
 /// Panicks if the destination is not large enough.
 ///
 /// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
+    #[inline]
 pub fn read<'a, S, D>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D)
                       where S: Into<Source<'a>>, D: Into<Destination<'a, (u8, u8, u8, u8)>>
 {

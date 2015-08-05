@@ -101,12 +101,14 @@ pub enum CreationError {
 }
 
 impl From<BufferCreationError> for CreationError {
+    #[inline]
     fn from(err: BufferCreationError) -> CreationError {
         CreationError::BufferCreationError(err)
     }
 }
 
 impl From<TextureCreationError> for CreationError {
+    #[inline]
     fn from(err: TextureCreationError) -> CreationError {
         CreationError::TextureCreationError(err)
     }
@@ -141,6 +143,7 @@ pub struct BufferTexture<T> where [T]: BufferContent {
 
 impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Copy {
     /// Builds a new texture buffer from data.
+    #[inline]
     pub fn new<F>(facade: &F, data: &[T], ty: BufferTextureType)
                   -> Result<BufferTexture<T>, CreationError>
                   where F: Facade
@@ -149,6 +152,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new texture buffer from data.
+    #[inline]
     pub fn dynamic<F>(facade: &F, data: &[T], ty: BufferTextureType)
                   -> Result<BufferTexture<T>, CreationError>
                       where F: Facade
@@ -157,6 +161,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new texture buffer from data.
+    #[inline]
     pub fn persistent<F>(facade: &F, data: &[T], ty: BufferTextureType)
                   -> Result<BufferTexture<T>, CreationError>
                          where F: Facade
@@ -165,6 +170,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new texture buffer from data.
+    #[inline]
     pub fn immutable<F>(facade: &F, data: &[T], ty: BufferTextureType)
                         -> Result<BufferTexture<T>, CreationError>
                         where F: Facade
@@ -172,6 +178,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         BufferTexture::new_impl(facade, data, BufferMode::Immutable, ty)
     }
 
+    #[inline]
     fn new_impl<F>(facade: &F, data: &[T], mode: BufferMode, ty: BufferTextureType)
                    -> Result<BufferTexture<T>, CreationError>
                    where F: Facade
@@ -181,6 +188,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new empty buffer buffer.
+    #[inline]
     pub fn empty<F>(facade: &F, len: usize, ty: BufferTextureType)
                     -> Result<BufferTexture<T>, CreationError>
                     where F: Facade
@@ -189,6 +197,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new empty buffer buffer.
+    #[inline]
     pub fn empty_dynamic<F>(facade: &F, len: usize, ty: BufferTextureType)
                             -> Result<BufferTexture<T>, CreationError>
                             where F: Facade
@@ -197,6 +206,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new empty buffer buffer.
+    #[inline]
     pub fn empty_persistent<F>(facade: &F, len: usize, ty: BufferTextureType)
                                -> Result<BufferTexture<T>, CreationError>
                                where F: Facade
@@ -205,6 +215,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new empty buffer buffer.
+    #[inline]
     pub fn empty_immutable<F>(facade: &F, len: usize, ty: BufferTextureType)
                               -> Result<BufferTexture<T>, CreationError>
                               where F: Facade
@@ -212,6 +223,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         BufferTexture::empty_impl(facade, len, ty, BufferMode::Immutable)
     }
 
+    #[inline]
     fn empty_impl<F>(facade: &F, len: usize, ty: BufferTextureType, mode: BufferMode)
                      -> Result<BufferTexture<T>, CreationError>
                      where F: Facade
@@ -401,12 +413,14 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 impl<T> Deref for BufferTexture<T> where [T]: BufferContent {
     type Target = BufferView<[T]>;
 
+    #[inline]
     fn deref(&self) -> &BufferView<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for BufferTexture<T> where [T]: BufferContent {
+    #[inline]
     fn deref_mut(&mut self) -> &mut BufferView<[T]> {
         &mut self.buffer
     }
@@ -429,6 +443,7 @@ impl<T> Drop for BufferTexture<T> where [T]: BufferContent {
 
 impl<T> BufferTexture<T> where [T]: BufferContent {
     /// Builds a `BufferTextureRef`.
+    #[inline]
     pub fn as_buffer_texture_ref(&self) -> BufferTextureRef {
         BufferTextureRef {
             texture: self.texture,
@@ -439,6 +454,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent {
 }
 
 impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         // FIXME: handle `glMemoryBarrier` for the buffer
         UniformValue::BufferTexture(self.as_buffer_texture_ref())
@@ -446,6 +462,7 @@ impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
 }
 
 impl<'a, T: 'a> AsUniformValue for &'a BufferTexture<T> where [T]: BufferContent {
+    #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         // FIXME: handle `glMemoryBarrier` for the buffer
         UniformValue::BufferTexture(self.as_buffer_texture_ref())
@@ -462,24 +479,29 @@ pub struct BufferTextureRef<'a> {
 
 impl<'a> BufferTextureRef<'a> {
     /// Return the type of the texture.
+    #[inline]
     pub fn get_texture_type(&self) -> BufferTextureType {
         self.ty
     }
 }
 
 impl<'a> TextureExt for BufferTextureRef<'a> {
+    #[inline]
     fn get_texture_id(&self) -> gl::types::GLuint {
         self.texture
     }
 
+    #[inline]
     fn get_context(&self) -> &Rc<Context> {
         unimplemented!();       // TODO:
     }
 
+    #[inline]
     fn get_bind_point(&self) -> gl::types::GLenum {
         gl::TEXTURE_BUFFER
     }
 
+    #[inline]
     fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
         unsafe { ctxt.gl.BindTexture(gl::TEXTURE_BUFFER, self.texture); }
         gl::TEXTURE_BUFFER
@@ -528,144 +550,168 @@ pub unsafe trait TextureBufferContent: BufferContent {
 }
 
 unsafe impl TextureBufferContent for u8 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U8
     }
 }
 
 unsafe impl TextureBufferContent for i8 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I8
     }
 }
 
 unsafe impl TextureBufferContent for u16 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U16
     }
 }
 
 unsafe impl TextureBufferContent for i16 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I16
     }
 }
 
 unsafe impl TextureBufferContent for u32 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U32
     }
 }
 
 unsafe impl TextureBufferContent for i32 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32
     }
 }
 
 unsafe impl TextureBufferContent for (u8, u8) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U8U8
     }
 }
 
 unsafe impl TextureBufferContent for (i8, i8) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I8I8
     }
 }
 
 unsafe impl TextureBufferContent for (u16, u16) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U16U16
     }
 }
 
 unsafe impl TextureBufferContent for (i16, i16) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I16I16
     }
 }
 
 unsafe impl TextureBufferContent for (u32, u32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U32U32
     }
 }
 
 unsafe impl TextureBufferContent for (i32, i32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32I32
     }
 }
 
 unsafe impl TextureBufferContent for (u32, u32, u32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U32U32U32
     }
 }
 
 unsafe impl TextureBufferContent for (i32, i32, i32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32I32I32
     }
 }
 
 unsafe impl TextureBufferContent for (u8, u8, u8, u8) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U8U8U8U8
     }
 }
 
 unsafe impl TextureBufferContent for (i8, i8, i8, i8) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I8I8I8I8
     }
 }
 
 unsafe impl TextureBufferContent for (u16, u16, u16, u16) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U16U16U16U16
     }
 }
 
 unsafe impl TextureBufferContent for (i16, i16, i16, i16) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I16I16I16I16
     }
 }
 
 unsafe impl TextureBufferContent for (u32, u32, u32, u32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::U32U32U32U32
     }
 }
 
 unsafe impl TextureBufferContent for (i32, i32, i32, i32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32I32I32I32
     }
 }
 
 unsafe impl TextureBufferContent for f32 {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::F32
     }
 }
 
 unsafe impl TextureBufferContent for (f32, f32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::F32F32
     }
 }
 
 unsafe impl TextureBufferContent for (f32, f32, f32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::F32F32F32
     }
 }
 
 unsafe impl TextureBufferContent for (f32, f32, f32, f32) {
+    #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::F32F32F32F32
     }
