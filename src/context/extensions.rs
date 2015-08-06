@@ -49,6 +49,7 @@ macro_rules! extensions {
 
 extensions! {
     "GL_AMD_depth_clamp_separate" => gl_amd_depth_clamp_separate,
+    "GL_AMD_query_buffer_object" => gl_amd_query_buffer_object,
     "GL_APPLE_sync" => gl_apple_sync,
     "GL_APPLE_vertex_array_object" => gl_apple_vertex_array_object,
     "GL_ARB_bindless_texture" => gl_arb_bindless_texture,
@@ -73,6 +74,7 @@ extensions! {
     "GL_ARB_occlusion_query2" => gl_arb_occlusion_query2,
     "GL_ARB_pixel_buffer_object" => gl_arb_pixel_buffer_object,
     "GL_ARB_program_interface_query" => gl_arb_program_interface_query,
+    "GL_ARB_query_buffer_object" => gl_arb_query_buffer_object,
     "GL_ARB_map_buffer_range" => gl_arb_map_buffer_range,
     "GL_ARB_multi_draw_indirect" => gl_arb_multi_draw_indirect,
     "GL_ARB_provoking_vertex" => gl_arb_provoking_vertex,

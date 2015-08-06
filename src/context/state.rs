@@ -310,6 +310,10 @@ pub struct GlState {
     /// The draw call ID of the latest call to `glMemoryBarrier` with
     /// `GL_SHADER_STORAGE_BARRIER_BIT`.
     pub latest_memory_barrier_shader_storage: u64,
+
+    /// The draw call ID of the latest call to `glMemoryBarrier` with
+    /// `GL_QUERY_BUFFER_BARRIER_BIT`.
+    pub latest_memory_barrier_query_buffer: u64,
 }
 
 /// State of a texture unit (the one designated by `glActiveTexture`).
@@ -441,6 +445,7 @@ impl Default for GlState {
             latest_memory_barrier_transform_feedback: 1,
             latest_memory_barrier_atomic_counter: 1,
             latest_memory_barrier_shader_storage: 1,
+            latest_memory_barrier_query_buffer: 1,
         }
     }
 }

@@ -229,6 +229,13 @@ trait BufferViewExt {
     /// Makes sure that nothing is binded to `GL_PIXEL_UNPACK_BUFFER`.
     fn unbind_pixel_unpack(&mut CommandContext);
 
+    /// Makes sure that the buffer is binded to the `GL_QUERY_BUFFER` and calls
+    /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_query(&self, &mut CommandContext);
+
+    /// Makes sure that nothing is binded to `GL_QUERY_BUFFER`.
+    fn unbind_query(&mut CommandContext);
+
     /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_draw_indirect(&self, &mut CommandContext);

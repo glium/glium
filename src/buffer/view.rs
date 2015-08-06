@@ -354,6 +354,17 @@ impl<T: ?Sized> BufferViewExt for BufferView<T> where T: Content {
     }
 
     #[inline]
+    fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_query(ctxt);
+    }
+
+    #[inline]
+    fn unbind_query(ctxt: &mut CommandContext) {
+        Buffer::unbind_query(ctxt)
+    }
+
+    #[inline]
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
         let alloc = self.alloc.as_ref().unwrap();
         alloc.prepare_and_bind_for_draw_indirect(ctxt);
@@ -578,6 +589,16 @@ impl<'a, T: ?Sized> BufferViewExt for BufferViewSlice<'a, T> where T: Content {
     #[inline]
     fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
         Buffer::unbind_pixel_unpack(ctxt)
+    }
+
+    #[inline]
+    fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_query(ctxt);
+    }
+
+    #[inline]
+    fn unbind_query(ctxt: &mut CommandContext) {
+        Buffer::unbind_query(ctxt)
     }
 
     #[inline]
@@ -915,6 +936,16 @@ impl BufferViewExt for BufferViewAny {
     }
 
     #[inline]
+    fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_query(ctxt);
+    }
+
+    #[inline]
+    fn unbind_query(ctxt: &mut CommandContext) {
+        Buffer::unbind_query(ctxt)
+    }
+
+    #[inline]
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
         self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
     }
@@ -1037,6 +1068,16 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
     #[inline]
     fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
         Buffer::unbind_pixel_unpack(ctxt)
+    }
+
+    #[inline]
+    fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_query(ctxt);
+    }
+
+    #[inline]
+    fn unbind_query(ctxt: &mut CommandContext) {
+        Buffer::unbind_query(ctxt)
     }
 
     #[inline]

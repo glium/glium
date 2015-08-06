@@ -248,3 +248,38 @@ fn conditional_render_simultaneous_query() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn query_to_buffer() {
+    let display = support::build_display();
+
+    let query = match glium::draw_parameters::SamplesPassedQuery::new(&display) {
+        Err(_) => return,
+        Ok(q) => q
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+
+    {
+        let params = glium::DrawParameters::new(&display)
+                        .with_samples_passed_query(&query);
+
+        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+               .unwrap();
+    }
+
+    let mut buffer = glium::buffer::BufferView::empty(&display,
+                                                      glium::buffer::BufferType::ArrayBuffer,
+                                                      glium::buffer::BufferMode::Default).unwrap();
+    if let Err(_) = query.to_buffer_u32(buffer.as_slice()) {
+        return;
+    }
+
+    let mapping = buffer.map();
+    assert!(*mapping == 1024 * 1024); // texture dimensions
+
+    display.assert_no_error(None);
+}
