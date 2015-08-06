@@ -236,6 +236,30 @@ impl Buffer {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelUnpackBuffer); }
     }
 
+    /// Makes sure that the buffer is binded to the `GL_QUERY_BUFFER` and calls
+    /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_query(&self, mut ctxt: &mut CommandContext) {
+        assert!(ctxt.version >= &Version(Api::Gl, 4, 4) ||
+                ctxt.extensions.gl_arb_query_buffer_object ||
+                ctxt.extensions.gl_amd_query_buffer_object);
+
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_pixel_buffer {
+            unsafe { ctxt.gl.MemoryBarrier(gl::QUERY_BUFFER_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_query_buffer = ctxt.state.next_draw_call_id;
+        }
+
+        unsafe { bind_buffer(ctxt, self.id, BufferType::QueryBuffer); }
+    }
+
+    /// Makes sure that nothing is binded to `GL_QUERY_BUFFER`.
+    #[inline]
+    pub fn unbind_query(ctxt: &mut CommandContext) {
+        unsafe { bind_buffer(ctxt, 0, BufferType::QueryBuffer); }
+    }
+
     /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_draw_indirect(&self, mut ctxt: &mut CommandContext) {
@@ -1215,6 +1239,12 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
             ctxt.extensions.gl_arb_texture_buffer_object ||
             ctxt.extensions.gl_ext_texture_buffer_object ||
             ctxt.extensions.gl_ext_texture_buffer || ctxt.extensions.gl_oes_texture_buffer
+        },
+
+        BufferType::QueryBuffer => {
+            ctxt.version >= &Version(Api::Gl, 4, 4) ||
+            ctxt.extensions.gl_arb_query_buffer_object ||
+            ctxt.extensions.gl_amd_query_buffer_object
         },
 
         _ => false,     // FIXME: 

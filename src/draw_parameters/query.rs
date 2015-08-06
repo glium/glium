@@ -12,6 +12,11 @@ use std::fmt;
 use std::mem;
 use std::rc::Rc;
 
+use buffer::BufferView;
+use buffer::BufferViewSlice;
+use BufferViewExt;
+use BufferViewSliceExt;
+
 use gl;
 use version::Api;
 use version::Version;
@@ -57,6 +62,13 @@ impl ToGlEnum for QueryType {
 #[derive(Copy, Clone, Debug)]
 pub enum QueryCreationError {
     /// The given query type is not supported.
+    NotSupported,
+}
+
+/// Error that can happen when writing the value of a query to a buffer.
+#[derive(Copy, Clone, Debug)]
+pub enum ToBufferError {
+    /// Writing the result to a buffer is not supported.
     NotSupported,
 }
 
@@ -165,6 +177,8 @@ impl RawQuery {
             return false;
         }
 
+        BufferView::<u8>::unbind_query(&mut ctxt);
+
         unsafe {
             let mut value = mem::uninitialized();
 
@@ -200,27 +214,57 @@ impl RawQuery {
             return 0;
         }
 
+        BufferView::<u8>::unbind_query(&mut ctxt);
+
         unsafe {
             let mut value = mem::uninitialized();
-
-            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-               ctxt.version >= &Version(Api::GlEs, 3, 0)
-            {
-                ctxt.gl.GetQueryObjectuiv(self.id, gl::QUERY_RESULT, &mut value);
-
-            } else if ctxt.extensions.gl_arb_occlusion_query {
-                ctxt.gl.GetQueryObjectuivARB(self.id, gl::QUERY_RESULT, &mut value);
-
-            } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
-                ctxt.gl.GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT, &mut value);
-
-            } else {
-                // if we reach here, user shouldn't have been able to create a query in the
-                // first place
-                unreachable!();
-            }
-            
+            self.raw_get_u32(&mut ctxt, &mut value);
             value
+        }
+    }
+
+    /// Writes the value of the query to a buffer.
+    pub fn write_u32_to_buffer(&self, target: BufferViewSlice<u32>) -> Result<(), ToBufferError> {
+        let mut ctxt = self.context.make_current();
+
+        if !(ctxt.version >= &Version(Api::Gl, 4, 4) || ctxt.extensions.gl_arb_query_buffer_object ||
+             ctxt.extensions.gl_amd_query_buffer_object)
+        {
+            return Err(ToBufferError::NotSupported);
+        }
+
+        self.deactivate(&mut ctxt);
+
+        if !self.has_been_used.get() {
+            panic!();
+        }
+
+        assert!(target.get_offset_bytes() % 4 == 0);
+
+        target.prepare_and_bind_for_query(&mut ctxt);
+        unsafe { self.raw_get_u32(&mut ctxt, target.get_offset_bytes() as *mut _); }
+
+        if let Some(fence) = target.add_fence() {
+            fence.insert(&mut ctxt);
+        }
+
+        Ok(())
+    }
+
+    unsafe fn raw_get_u32(&self, ctxt: &mut CommandContext, target: *mut gl::types::GLuint) {
+        if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
+            ctxt.gl.GetQueryObjectuiv(self.id, gl::QUERY_RESULT, target);
+
+        } else if ctxt.extensions.gl_arb_occlusion_query {
+            ctxt.gl.GetQueryObjectuivARB(self.id, gl::QUERY_RESULT, target);
+
+        } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
+            ctxt.gl.GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT, target);
+
+        } else {
+            // if we reach here, user shouldn't have been able to create a query in the
+            // first place
+            unreachable!();
         }
     }
 
@@ -235,34 +279,29 @@ impl RawQuery {
             return 0;
         }
 
+        BufferView::<u8>::unbind_query(&mut ctxt);
+
         unsafe {
-            if ctxt.version >= &Version(Api::Gl, 3, 3) {
-                let mut value = mem::uninitialized();
-                ctxt.gl.GetQueryObjectui64v(self.id, gl::QUERY_RESULT, &mut value);
-                value
-
-            } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                      ctxt.version >= &Version(Api::GlEs, 3, 0)
-            {
-                let mut value = mem::uninitialized();
-                ctxt.gl.GetQueryObjectuiv(self.id, gl::QUERY_RESULT, &mut value);
-                value as u64
-
-            } else if ctxt.extensions.gl_arb_occlusion_query {
-                let mut value = mem::uninitialized();
-                ctxt.gl.GetQueryObjectuivARB(self.id, gl::QUERY_RESULT, &mut value);
-                value as u64
-
-            } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
-                let mut value = mem::uninitialized();
-                ctxt.gl.GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT, &mut value);
-                value as u64
-
-            } else {
-                // if we reach here, user shouldn't have been able to create a query in the
-                // first place
-                unreachable!();
+            let mut value = mem::uninitialized();
+            if let Ok(_) = self.raw_get_u64(&mut ctxt, &mut value) {
+                return value;
             }
+
+            let mut value = mem::uninitialized();
+            self.raw_get_u32(&mut ctxt, &mut value);
+            value as u64
+        }
+    }
+
+    unsafe fn raw_get_u64(&self, ctxt: &mut CommandContext, target: *mut gl::types::GLuint64)
+                          -> Result<(), ()>
+    {
+        if ctxt.version >= &Version(Api::Gl, 3, 3) {
+            ctxt.gl.GetQueryObjectui64v(self.id, gl::QUERY_RESULT, target);
+            Ok(())
+
+        } else {
+            Err(())
         }
     }
 
@@ -672,6 +711,19 @@ macro_rules! impl_helper {
             #[inline]
             pub fn get(self) -> $ret {
                 self.query.$get_fn()
+            }
+
+            /// Writes the result of the query to a buffer when it is available.
+            ///
+            /// This function doesn't block. Instead it submits a commands to the GPU's commands
+            /// queue and orders the GPU to write the result of the query to a buffer.
+            ///
+            /// This operation is not necessarly supported everywhere.
+            #[inline]
+            pub fn to_buffer_u32(&self, target: BufferViewSlice<u32>)
+                                 -> Result<(), ToBufferError>
+            {
+                self.query.write_u32_to_buffer(target)
             }
         }
 

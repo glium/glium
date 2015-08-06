@@ -4,6 +4,7 @@
 
  - Added `#[inline]` attributes on many functions.
  - Added `slice_element` and `slice_element_mut` to buffers, which allow you to get slices over anything inside the buffer.
+ - Added `Query::to_buffer_u32` to write the result of a query to a buffer.
 
 ## Version 0.8.3 (2015-08-04)
 
