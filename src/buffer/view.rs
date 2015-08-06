@@ -147,6 +147,71 @@ impl<T: ?Sized> BufferView<T> where T: Content {
         unsafe { self.alloc.as_mut().unwrap().map_write(0 .. size) }
     }
 
+    /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// #[derive(Copy, Clone)]
+    /// struct BufferContent {
+    ///     value1: u16,
+    ///     value2: u16,
+    /// }
+    /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
+    /// #                                                   unsafe { std::mem::uninitialized() };
+    /// let slice = unsafe { buffer.slice_element(|content| &content.value2) };
+    /// ```
+    ///
+    /// # Safety
+    ///
+    /// The object whose reference is passed to the closure is uninitialized. Therefore you
+    /// **must not** access the content of the object.
+    ///
+    /// You **must** return a reference to an element from the parameter. The closure **must not**
+    /// panic.
+    #[inline]
+    pub unsafe fn slice_element<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<R>
+                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                    R: Content
+    {
+        self.as_slice().slice_element(f)
+    }
+
+    /// Same as `slice_element` but returns a mutable slice.
+    #[inline]
+    pub unsafe fn slice_element_mut<F, R: ?Sized>(&mut self, f: F) -> BufferViewMutSlice<R>
+                                                  where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                        R: Content
+    {
+        self.as_mut_slice().slice_element(f)
+    }
+
+    /// Builds a slice containing the whole subbuffer.
+    #[inline]
+    pub fn as_slice(&self) -> BufferViewSlice<T> {
+        BufferViewSlice {
+            alloc: self.alloc.as_ref().unwrap(),
+            bytes_start: 0,
+            bytes_end: self.get_size(),
+            fence: self.fence.as_ref().unwrap(),
+            marker: PhantomData,
+        }
+    }
+
+    /// Builds a slice containing the whole subbuffer.
+    #[inline]
+    pub fn as_mut_slice(&mut self) -> BufferViewMutSlice<T> {
+        let size = self.get_size();
+
+        BufferViewMutSlice {
+            alloc: self.alloc.as_mut().unwrap(),
+            bytes_start: 0,
+            bytes_end: size,
+            fence: self.fence.as_ref().unwrap(),
+            marker: PhantomData,
+        }
+    }
+
     /// Builds a slice-any containing the whole subbuffer.
     pub fn as_slice_any(&self) -> BufferViewAnySlice {
         let size = self.get_size();
@@ -208,32 +273,6 @@ impl<T> BufferView<[T]> where [T]: Content, T: Copy {
     #[inline]
     pub fn slice_mut(&mut self, range: Range<usize>) -> Option<BufferViewMutSlice<[T]>> {
         self.as_mut_slice().slice(range)
-    }
-
-    /// Builds a slice containing the whole subbuffer.
-    #[inline]
-    pub fn as_slice(&self) -> BufferViewSlice<[T]> {
-        BufferViewSlice {
-            alloc: self.alloc.as_ref().unwrap(),
-            bytes_start: 0,
-            bytes_end: self.get_size(),
-            fence: self.fence.as_ref().unwrap(),
-            marker: PhantomData,
-        }
-    }
-
-    /// Builds a slice containing the whole subbuffer.
-    #[inline]
-    pub fn as_mut_slice(&mut self) -> BufferViewMutSlice<[T]> {
-        let size = self.get_size();
-
-        BufferViewMutSlice {
-            alloc: self.alloc.as_mut().unwrap(),
-            bytes_start: 0,
-            bytes_end: size,
-            fence: self.fence.as_ref().unwrap(),
-            marker: PhantomData,
-        }
     }
 }
 
@@ -384,6 +423,50 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
 
         unsafe {
             self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
+        }
+    }
+
+    /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// #[derive(Copy, Clone)]
+    /// struct BufferContent {
+    ///     value1: u16,
+    ///     value2: u16,
+    /// }
+    /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
+    /// #                                                   unsafe { std::mem::uninitialized() };
+    /// let slice = unsafe { buffer.slice_element(|content| &content.value2) };
+    /// ```
+    ///
+    /// # Safety
+    ///
+    /// The object whose reference is passed to the closure is uninitialized. Therefore you
+    /// **must not** access the content of the object.
+    ///
+    /// You **must** return a reference to an element from the parameter. The closure **must not**
+    /// panic.
+    #[inline]
+    pub unsafe fn slice_element<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<'a, R>
+                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                    R: Content
+    {
+        let data: &T = mem::zeroed();
+        let result = f(data);
+        let size = mem::size_of_val(result);
+        let result = result as *const R as *const () as usize;
+
+        assert!(result <= self.get_size());
+        assert!(result + size <= self.get_size());
+
+        BufferViewSlice {
+            alloc: self.alloc,
+            bytes_start: self.bytes_start + result,
+            bytes_end: self.bytes_start + result + size,
+            fence: self.fence,
+            marker: PhantomData,
         }
     }
 
@@ -583,6 +666,50 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     pub fn read(&self) -> Result<T::Owned, ReadError> {
         unsafe {
             self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
+        }
+    }
+
+    /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// #[derive(Copy, Clone)]
+    /// struct BufferContent {
+    ///     value1: u16,
+    ///     value2: u16,
+    /// }
+    /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
+    /// #                                                   unsafe { std::mem::uninitialized() };
+    /// let slice = unsafe { buffer.slice_element(|content| &content.value2) };
+    /// ```
+    ///
+    /// # Safety
+    ///
+    /// The object whose reference is passed to the closure is uninitialized. Therefore you
+    /// **must not** access the content of the object.
+    ///
+    /// You **must** return a reference to an element from the parameter. The closure **must not**
+    /// panic.
+    #[inline]
+    pub unsafe fn slice_element<F, R: ?Sized>(self, f: F) -> BufferViewMutSlice<'a, R>
+                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                    R: Content
+    {
+        let data: &T = mem::zeroed();
+        let result = f(data);
+        let size = mem::size_of_val(result);
+        let result = result as *const R as *const () as usize;
+
+        assert!(result <= self.get_size());
+        assert!(result + size <= self.get_size());
+
+        BufferViewMutSlice {
+            alloc: self.alloc,
+            bytes_start: self.bytes_start + result,
+            bytes_end: self.bytes_start + result + size,
+            fence: self.fence,
+            marker: PhantomData,
         }
     }
 

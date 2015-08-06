@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Added `#[inline]` attributes on many functions.
+ - Added `slice_element` and `slice_element_mut` to buffers, which allow you to get slices over anything inside the buffer.
 
 ## Version 0.8.3 (2015-08-04)
 
