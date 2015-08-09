@@ -138,6 +138,7 @@ pub struct FramebufferSpecificAttachments<T> {
 impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
+    #[inline]
     pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
         match self {
             FramebufferAttachments::Regular(a) => FramebufferAttachments::validate_regular(a),
