@@ -225,7 +225,7 @@ pub enum UncompressedFloatFormat {
     /// Guaranteed to be supported for textures.
     I16I16,
     ///
-    U3U32U,
+    U3U3U2,
     ///
     U4U4U4,
     ///
@@ -242,6 +242,10 @@ pub enum UncompressedFloatFormat {
     U10U10U10,
     ///
     U12U12U12,
+    ///
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    U16U16U16,
     ///
     ///
     /// Guaranteed to be supported for textures.
@@ -270,6 +274,10 @@ pub enum UncompressedFloatFormat {
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
     U16U16U16U16,
+    ///
+    ///
+    /// Guaranteed to be supported for both textures and renderbuffers.
+    I16I16I16I16,
     ///
     ///
     /// Guaranteed to be supported for both textures and renderbuffers.
@@ -342,6 +350,7 @@ impl UncompressedFloatFormat {
             &UncompressedFloatFormat::I8I8I8I8 => true,
             &UncompressedFloatFormat::U10U10U10U2 => true,
             &UncompressedFloatFormat::U16U16U16U16 => true,
+            &UncompressedFloatFormat::I16I16I16I16 => true,
             &UncompressedFloatFormat::F16 => true,
             &UncompressedFloatFormat::F16F16 => true,
             &UncompressedFloatFormat::F16F16F16 => true,
@@ -359,33 +368,42 @@ impl UncompressedFloatFormat {
     /// Returns true if this format is supported by the backend.
     pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
+        let extensions = context.get_extensions();
 
         match self {
             &UncompressedFloatFormat::U8 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_rg
             },
             &UncompressedFloatFormat::I8 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
             &UncompressedFloatFormat::U16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_rg
             },
             &UncompressedFloatFormat::I16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
             &UncompressedFloatFormat::U8U8 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_rg
             },
             &UncompressedFloatFormat::I8I8 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
             &UncompressedFloatFormat::U16U16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_rg
             },
             &UncompressedFloatFormat::I16I16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U3U32U => {
+            &UncompressedFloatFormat::U3U3U2 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
             &UncompressedFloatFormat::U4U4U4 => {
@@ -398,7 +416,8 @@ impl UncompressedFloatFormat {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
             &UncompressedFloatFormat::I8I8I8 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
             &UncompressedFloatFormat::U10U10U10 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
@@ -406,8 +425,12 @@ impl UncompressedFloatFormat {
             &UncompressedFloatFormat::U12U12U12 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::I16I16I16 => {
+            &UncompressedFloatFormat::U16U16U16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+            },
+            &UncompressedFloatFormat::I16I16I16 => {
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
             &UncompressedFloatFormat::U2U2U2U2 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
@@ -422,7 +445,8 @@ impl UncompressedFloatFormat {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
             &UncompressedFloatFormat::I8I8I8I8 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
             },
             &UncompressedFloatFormat::U10U10U10U2 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
@@ -433,35 +457,47 @@ impl UncompressedFloatFormat {
             &UncompressedFloatFormat::U16U16U16U16 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
+            &UncompressedFloatFormat::I16I16I16I16 => {
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_texture_snorm
+            },
             &UncompressedFloatFormat::F16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
             &UncompressedFloatFormat::F16F16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
             &UncompressedFloatFormat::F16F16F16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
             &UncompressedFloatFormat::F16F16F16F16 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
             &UncompressedFloatFormat::F32 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
             &UncompressedFloatFormat::F32F32 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
             &UncompressedFloatFormat::F32F32F32 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
             &UncompressedFloatFormat::F32F32F32F32 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
             &UncompressedFloatFormat::F11F11F10 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0)
             },
             &UncompressedFloatFormat::F9F9F9 => {
-                version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0)
             },
         }
     }
@@ -476,13 +512,14 @@ impl UncompressedFloatFormat {
             &UncompressedFloatFormat::I8I8 => gl::RG8_SNORM,
             &UncompressedFloatFormat::U16U16 => gl::RG16,
             &UncompressedFloatFormat::I16I16 => gl::RG16_SNORM,
-            &UncompressedFloatFormat::U3U32U => gl::R3_G3_B2,
+            &UncompressedFloatFormat::U3U3U2 => gl::R3_G3_B2,
             &UncompressedFloatFormat::U4U4U4 => gl::RGB4,
             &UncompressedFloatFormat::U5U5U5 => gl::RGB5,
             &UncompressedFloatFormat::U8U8U8 => gl::RGB8,
             &UncompressedFloatFormat::I8I8I8 => gl::RGB8_SNORM,
             &UncompressedFloatFormat::U10U10U10 => gl::RGB10,
             &UncompressedFloatFormat::U12U12U12 => gl::RGB12,
+            &UncompressedFloatFormat::U16U16U16 => gl::RGB16,
             &UncompressedFloatFormat::I16I16I16 => gl::RGB16_SNORM,
             &UncompressedFloatFormat::U2U2U2U2 => gl::RGBA2,
             &UncompressedFloatFormat::U4U4U4U4 => gl::RGBA4,
@@ -492,6 +529,7 @@ impl UncompressedFloatFormat {
             &UncompressedFloatFormat::U10U10U10U2 => gl::RGB10_A2,
             &UncompressedFloatFormat::U12U12U12U12 => gl::RGBA12,
             &UncompressedFloatFormat::U16U16U16U16 => gl::RGBA16,
+            &UncompressedFloatFormat::I16I16I16I16 => gl::RGBA16_SNORM,
             &UncompressedFloatFormat::F16 => gl::R16F,
             &UncompressedFloatFormat::F16F16 => gl::RG16F,
             &UncompressedFloatFormat::F16F16F16 => gl::RGB16F,
@@ -745,7 +783,7 @@ impl UncompressedUintFormat {
             },
 
             &UncompressedUintFormat::U10U10U10U2 => {
-                version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
+                version >= &Version(Api::Gl, 3, 3) || extensions.gl_arb_texture_rgb10_a2ui
             },
         }
     }
