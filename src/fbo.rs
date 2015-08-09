@@ -501,12 +501,18 @@ struct FrameBufferObject {
 
 impl FrameBufferObject {
     /// Builds a new FBO.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if anything wrong or not supported is detected with the raw attachments.
+    ///
     fn new(mut ctxt: &mut CommandContext, attachments: &RawAttachments) -> FrameBufferObject {
         if attachments.color.len() > ctxt.capabilities.max_draw_buffers as usize {
             panic!("Trying to attach {} color buffers, but the hardware only supports {}",
                    attachments.color.len(), ctxt.capabilities.max_draw_buffers);
         }
 
+        // building the FBO
         let id = unsafe {
             let mut id = mem::uninitialized();
 
@@ -527,13 +533,12 @@ impl FrameBufferObject {
             id
         };
 
-        let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
-
+        // attaching the attachments, and building the list of enums to pass to `glDrawBuffers`
+        let mut raw_attachments = Vec::with_capacity(attachments.color.len());
         for &(slot, atchmnt) in attachments.color.iter() {
             unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
-            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
+            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as gl::types::GLenum);
         }
-
         if let Some(depth) = attachments.depth {
             unsafe { attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth) };
         }
@@ -544,30 +549,46 @@ impl FrameBufferObject {
             unsafe { attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil) };
         }
 
-        if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-           ctxt.extensions.gl_arb_direct_state_access
-        {
-            unsafe {
-                ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
-                                                    as gl::types::GLsizei,
-                                                    raw_attachments.as_ptr());
+        // calling `glDrawBuffers` if necessary
+        if raw_attachments != &[gl::COLOR_ATTACHMENT0] {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+               ctxt.extensions.gl_arb_direct_state_access
+            {
+                unsafe {
+                    ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
+                                                        as gl::types::GLsizei,
+                                                        raw_attachments.as_ptr());
+                }
+
+            } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                      ctxt.version >= &Version(Api::GlEs, 3, 0)
+            {
+                unsafe {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
+                                        raw_attachments.as_ptr());
+                }
+
+            } else if ctxt.extensions.gl_arb_draw_buffers {
+                unsafe {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffersARB(raw_attachments.len() as gl::types::GLsizei,
+                                           raw_attachments.as_ptr());
+                }
+
+            } else if ctxt.extensions.gl_ati_draw_buffers {
+                unsafe {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffersATI(raw_attachments.len() as gl::types::GLsizei,
+                                           raw_attachments.as_ptr());
+                }
+
+            } else {
+                // OpenGL ES 2 and OpenGL 1 don't support calling `glDrawBuffers`
+                panic!("Using more than one attachment is not supported by the backend");
             }
-
-        } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                  ctxt.version >= &Version(Api::GlEs, 3, 0)
-        {
-            unsafe {
-                bind_framebuffer(&mut ctxt, id, true, false);
-                ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
-                                    raw_attachments.as_ptr());
-            }
-
-        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-            assert_eq!(raw_attachments, &[gl::COLOR_ATTACHMENT0]);
-
-        } else {
-            unimplemented!();       // FIXME: use an extension
         }
+
 
         FrameBufferObject {
             id: id,
