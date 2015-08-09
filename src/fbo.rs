@@ -156,7 +156,7 @@ impl<'a> FramebufferAttachments<'a> {
                         RawAttachment::Texture {
                             texture: texture.get_texture().get_id(),
                             bind_point: texture.get_texture().get_bind_point(),
-                            layer: None,//Some(texture.get_layer()),
+                            layer: Some(texture.get_layer()),
                             level: texture.get_level(),
                         }
                     },
@@ -282,6 +282,8 @@ pub enum ValidationError {
 }
 
 /// Data structure stored in the hashmap.
+///
+/// These attachments are guaranteed to be valid.
 #[derive(Hash, Clone, Eq, PartialEq)]
 struct RawAttachments {
     color: Vec<(u32, RawAttachment)>,
@@ -290,7 +292,7 @@ struct RawAttachments {
     depth_stencil: Option<RawAttachment>,
 }
 
-/// Single attachment.
+/// Single attachment of `RawAttachments`.
 #[derive(Hash, Copy, Clone, Eq, PartialEq)]
 enum RawAttachment {
     /// A texture.
@@ -299,7 +301,8 @@ enum RawAttachment {
         bind_point: gl::types::GLenum,      // TODO: Dimensions instead
         // id of the texture
         texture: gl::types::GLuint,
-        // if `Some`, the texture **must** be an array, cubemap, or texture 3d
+        // if `Some`, use a regular attachment ; if `None`, use a layered attachment
+        // if `None`, the texture **must** be an array, cubemap, or texture 3d
         layer: Option<u32>,
         // mipmap level
         level: u32,
@@ -610,6 +613,7 @@ impl GlObject for FrameBufferObject {
 /// # Safety
 ///
 /// The id of the FBO must be valid.
+///
 pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
                                draw: bool, read: bool)
 {
@@ -646,159 +650,203 @@ pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLu
 
 /// Attaches something to a framebuffer object.
 ///
+/// # Panic
+///
+/// - Panicks if `layer` is `None` and layered attachments are not supported.
+/// - Panicks if `layer` is `None` and the texture is not an array or a 3D texture.
+/// - Panicks if the texture is an array and attaching an array is not supported.
+///
 /// # Safety
 ///
 /// All parameters must be valid.
+///
 unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: RawAttachment)
 {
-    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-        match attachment {
-            RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if let Some(layer) = layer {
-                    ctxt.gl.NamedFramebufferTextureLayer(id, slot, tex_id,
-                                                         level as gl::types::GLint,
-                                                         layer as gl::types::GLint);
-                } else {
-                    ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
-                                                    level as gl::types::GLint);
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.NamedFramebufferRenderbuffer(id, slot, gl::RENDERBUFFER,
-                                                     buf_id);
-            },
-        }
+    match attachment {
+        RawAttachment::Texture { texture: tex_id, level, layer, bind_point } => {
+            match bind_point {
+                // these textures can't be layered
+                gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D |
+                gl::TEXTURE_RECTANGLE =>
+                {
+                    assert_eq!(layer, Some(0));
 
-    } else if ctxt.extensions.gl_ext_direct_state_access &&
-              ctxt.extensions.gl_ext_geometry_shader4
-    {
-        match attachment {
-            RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if let Some(layer) = layer {
-                    ctxt.gl.NamedFramebufferTextureLayerEXT(id, slot, tex_id,
-                                                            level as gl::types::GLint,
-                                                            layer as gl::types::GLint);
-                } else {
-                    ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
-                                                       level as gl::types::GLint);
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER,
-                                                        buf_id);
-            },
-        }
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
+                                                        level as gl::types::GLint);
 
-    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
-        bind_framebuffer(ctxt, id, true, false);
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                           level as gl::types::GLint);
 
-        match attachment {
-            RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if let Some(layer) = layer {
-                    ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
-                                                    slot, tex_id,
-                                                    level as gl::types::GLint,
-                                                    layer as gl::types::GLint);
-                } else {
-                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
-                                               slot, tex_id, level as gl::types::GLint);
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
-                                                gl::RENDERBUFFER, buf_id);
-            },
-        }
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                   slot, tex_id, level as gl::types::GLint);
 
-    } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
-        bind_framebuffer(ctxt, id, true, false);
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                        bind_framebuffer(ctxt, id, true, false);
 
-        match attachment {
-            RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
-                match bind_point {
-                    gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture1D(gl::DRAW_FRAMEBUFFER,
-                                                     slot, bind_point, tex_id,
+                        match bind_point {
+                            gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
+                                ctxt.gl.FramebufferTexture1D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint);
+                            },
+                            gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE => {
+                                ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint);
+                            },
+                            _ => unreachable!()
+                        }
+
+                    } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                        bind_framebuffer(ctxt, id, true, true);
+                        assert!(bind_point == gl::TEXTURE_2D);
+                        ctxt.gl.FramebufferTexture2D(gl::FRAMEBUFFER, slot, bind_point, tex_id,
                                                      level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
-                                                     slot, bind_point, tex_id,
-                                                     level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_3D | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
+
+                    } else if ctxt.extensions.gl_ext_framebuffer_object {
+                        bind_framebuffer(ctxt, id, true, true);
+
+                        match bind_point {
+                            gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
+                                ctxt.gl.FramebufferTexture1DEXT(gl::FRAMEBUFFER_EXT,
+                                                                slot, bind_point, tex_id,
+                                                                level as gl::types::GLint);
+                            },
+                            gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE => {
+                                ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                                slot, bind_point, tex_id,
+                                                                level as gl::types::GLint);
+                            },
+                            _ => unreachable!()
+                        }
+
+                    } else {
+                        // it's not possible to create an OpenGL context that doesn't support FBOs
+                        unreachable!();
+                    }
+                },
+
+                // non-layered attachments
+                gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY |
+                gl::TEXTURE_3D if layer.is_some() =>
+                {
+                    let layer = layer.unwrap();
+
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTextureLayer(id, slot, tex_id,
+                                                             level as gl::types::GLint,
+                                                             layer as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureLayerEXT(id, slot, tex_id,
+                                                                level as gl::types::GLint,
+                                                                layer as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                        bind_framebuffer(ctxt, id, true, false);
                         ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
                                                         slot, tex_id,
                                                         level as gl::types::GLint,
-                                                        layer.unwrap() as gl::types::GLint);
-                    },
-                    _ => unreachable!()
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
-                                                gl::RENDERBUFFER, buf_id);
-            },
-        }
+                                                        layer as gl::types::GLint);
 
-    } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-        bind_framebuffer(ctxt, id, true, true);
-
-        match attachment {
-            RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
-                match bind_point {
-                    gl::TEXTURE_2D => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture2D(gl::FRAMEBUFFER,
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) &&
+                              bind_point == gl::TEXTURE_3D
+                    {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture3D(gl::DRAW_FRAMEBUFFER,
                                                      slot, bind_point, tex_id,
-                                                     level as gl::types::GLint);
-                    },
-                    _ => unreachable!()
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
-                                                gl::RENDERBUFFER, buf_id);
-            },
-        }
+                                                     level as gl::types::GLint,
+                                                     layer as gl::types::GLint);
 
-    } else if ctxt.extensions.gl_ext_framebuffer_object {
-        bind_framebuffer(ctxt, id, true, true);
-
-        match attachment {
-            RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
-                match bind_point {
-                    gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture1DEXT(gl::FRAMEBUFFER_EXT,
-                                                        slot, bind_point, tex_id,
-                                                        level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
-                                                        slot, bind_point, tex_id,
-                                                        level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_3D | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
+                    } else if ctxt.extensions.gl_ext_framebuffer_object &&
+                              bind_point == gl::TEXTURE_3D
+                    {
+                        bind_framebuffer(ctxt, id, true, true);
                         ctxt.gl.FramebufferTexture3DEXT(gl::FRAMEBUFFER_EXT,
                                                         slot, bind_point, tex_id,
                                                         level as gl::types::GLint,
-                                                        layer.unwrap() as gl::types::GLint);
-                    },
-                    _ => unreachable!()
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbufferEXT(gl::DRAW_FRAMEBUFFER, slot,
-                                                   gl::RENDERBUFFER, buf_id);
-            },
-        }
+                                                        layer as gl::types::GLint);
 
-    } else {
-        unreachable!();
+                    } else {
+                        panic!("Attaching a texture array is not supported");
+                    }
+                },
+
+                // layered attachments
+                gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY |
+                gl::TEXTURE_3D if layer.is_none() =>
+                {
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
+                                                        level as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                           level as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                   slot, tex_id, level as gl::types::GLint);
+
+                    } else {
+                        // note that this should have been detected earlier
+                        panic!("Layered framebuffers are not supported");
+                    }
+                },
+
+                _ => unreachable!()     // TODO: cubemaps & cubemap arrays
+            }
+        },
+
+        // renderbuffers are straight-forward
+        RawAttachment::RenderBuffer(renderbuffer) => {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+               ctxt.extensions.gl_arb_direct_state_access
+            {
+                ctxt.gl.NamedFramebufferRenderbuffer(id, slot, gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.extensions.gl_ext_direct_state_access &&
+                      ctxt.extensions.gl_ext_geometry_shader4
+            {
+                ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                bind_framebuffer(ctxt, id, true, false);
+                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                bind_framebuffer(ctxt, id, true, true);
+                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                bind_framebuffer(ctxt, id, true, true);
+                ctxt.gl.FramebufferRenderbufferEXT(gl::DRAW_FRAMEBUFFER, slot,
+                                                   gl::RENDERBUFFER, renderbuffer);
+
+            } else {
+                // it's not possible to create an OpenGL context that doesn't support FBOs
+                unreachable!();
+            }
+        },
     }
 }
