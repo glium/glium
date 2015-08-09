@@ -691,7 +691,7 @@ fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreat
     }
 
     if !ctxt.extensions.gl_ext_framebuffer_object && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 2, 0))
+        !(ctxt.version >= &Version(Api::GlEs, 2, 0)) && !ctxt.extensions.gl_arb_framebuffer_object
     {
         result.push("OpenGL implementation doesn't support framebuffers");
     }

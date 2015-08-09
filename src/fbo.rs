@@ -57,6 +57,8 @@ use std::marker::PhantomData;
 
 use smallvec::SmallVec;
 
+use CapabilitiesSource;
+use ContextExt;
 use GlObject;
 use TextureExt;
 
@@ -68,6 +70,17 @@ use gl;
 use context::CommandContext;
 use version::Version;
 use version::Api;
+
+/// Returns true if the backend supports attachments with varying dimensions.
+///
+/// If this function returns `true` and you pass attachments with different dimensions, the
+/// intersection between all the attachments will be used. If this function returns `false`, you'll
+/// get an error instead.
+pub fn is_dimensions_mismatch_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+    context.get_version() >= &Version(Api::Gl, 3, 0) ||
+    context.get_version() >= &Version(Api::GlEs, 2, 0) ||
+    context.get_extensions().gl_arb_framebuffer_object
+}
 
 /// Represents the attachments to use for an OpenGL framebuffer.
 #[derive(Clone)]
@@ -125,110 +138,275 @@ pub struct FramebufferSpecificAttachments<T> {
 impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
+    #[inline]
     pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
-        // TODO: 
-        let attachments = match self {
-            FramebufferAttachments::Regular(attachments) => attachments,
-            _ => unimplemented!()
-        };
+        match self {
+            FramebufferAttachments::Regular(a) => FramebufferAttachments::validate_regular(a),
+            FramebufferAttachments::Layered(a) => FramebufferAttachments::validate_layered(a),
+        }
+    }
 
-        // turning the attachments into raw attachments
-        let (raw_attachments, dimensions, depth_bits, stencil_bits) = {
-            fn handle_attachment(a: &RegularAttachment, dim: &mut Option<(u32, u32)>,
-                                 num_bits: Option<&mut Option<u16>>)
-                                 -> RawAttachment
-            {
-                match a {
-                    &RegularAttachment::Texture(ref texture) => {
-                        if let Some(num_bits) = num_bits {
-                            *num_bits = Some(texture.get_texture().get_internal_format()
-                                               .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
-                        }
+    fn validate_layered(FramebufferSpecificAttachments { colors, depth_stencil }:
+                        FramebufferSpecificAttachments<LayeredAttachment<'a>>)
+                        -> Result<ValidatedAttachments<'a>, ValidationError>
+    {
+        // TODO: make sure that all attachments are layered
 
-                        match dim {
-                            d @ &mut None => *d = Some((texture.get_width(), texture.get_height().unwrap_or(1))),
-                            &mut Some((ref mut x, ref mut y)) => {
-                                *x = cmp::min(*x, texture.get_width());
-                                *y = cmp::min(*y, texture.get_height().unwrap_or(1));
-                            }
-                        }
+        macro_rules! handle_tex {
+            ($tex:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
+                $num_bits = Some($tex.get_texture().get_internal_format()
+                                     .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
+                handle_tex!($tex, $dim, $samples)
+            });
 
-                        RawAttachment::Texture {
-                            texture: texture.get_texture().get_id(),
-                            bind_point: texture.get_texture().get_bind_point(),
-                            layer: None,//Some(texture.get_layer()),
-                            level: texture.get_level(),
+            ($tex:ident, $dim:ident, $samples:ident) => ({
+                // TODO: check that internal format is renderable
+                let context = $tex.get_texture().get_context();
+
+                match &mut $samples {
+                    &mut Some(samples) => {
+                        if samples != $tex.get_samples().unwrap_or(0) {
+                            return Err(ValidationError::SamplesCountMismatch);
                         }
                     },
-                    &RegularAttachment::RenderBuffer(ref buffer) => {
-                        if let Some(num_bits) = num_bits {
-                            *num_bits = Some(24);    // FIXME: totally random
-                        }
+                    s @ &mut None => {
+                        *s = Some($tex.get_samples().unwrap_or(0));
+                    }
+                }
 
-                        match dim {
-                            d @ &mut None => *d = Some(buffer.get_dimensions()),
-                            &mut Some((ref mut x, ref mut y)) => {
-                                let curr = buffer.get_dimensions();
-                                *x = cmp::min(*x, curr.0);
-                                *y = cmp::min(*y, curr.1);
+                match &mut $dim {
+                    &mut Some((ref mut w, ref mut h)) => {
+                        let height = $tex.get_height().unwrap_or(1);
+                        if *w != $tex.get_width() || *h != height {
+                            *w = cmp::min(*w, $tex.get_width());
+                            *h = cmp::min(*h, height);
+
+                            // checking that multiple different sizes is supported by the backend
+                            if !is_dimensions_mismatch_supported(context) {
+                                return Err(ValidationError::DimensionsMismatchNotSupported);
                             }
                         }
+                    },
 
-                        RawAttachment::RenderBuffer(buffer.get_id())
+                    dim @ &mut None => {
+                        *dim = Some(($tex.get_width(), $tex.get_height().unwrap_or(1)));
                     },
                 }
-            }
 
-            // TODO: check number of samples
-            // TODO: check layering
+                RawAttachment::Texture {
+                    texture: $tex.get_texture().get_id(),
+                    bind_point: $tex.get_texture().get_bind_point(),
+                    layer: None,
+                    level: $tex.get_level(),
+                }
+            });
+        }
 
-            // the dimensions of the framebuffer object
-            let mut dimensions = None;
-            // number of depth bits
-            let mut depth_bits = None;
-            // number of stencil bits
-            let mut stencil_bits = None;
+        let mut raw_attachments = RawAttachments {
+            color: Vec::with_capacity(colors.len()),
+            depth: None,
+            stencil: None,
+            depth_stencil: None,
+        };
 
-            let mut raw_attachments = RawAttachments {
-                color: Vec::with_capacity(attachments.colors.len()),
-                depth: None,
-                stencil: None,
-                depth_stencil: None,
-            };
+        let mut dimensions = None;
+        let mut depth_bits = None;
+        let mut stencil_bits = None;
+        let mut samples = None;     // contains `0` if not multisampling and `None` if unknown
 
-            for &(index, ref a) in attachments.colors.iter() {
-                raw_attachments.color.push((index, handle_attachment(a, &mut dimensions, None)));
-            }
+        for &(index, LayeredAttachment(ref attachment)) in colors.iter() {
+            raw_attachments.color.push((index, handle_tex!(attachment, dimensions, samples)));
+        }
 
-            match attachments.depth_stencil {
-                DepthStencilAttachments::None => (),
-                DepthStencilAttachments::DepthAttachment(ref a) => {
-                    raw_attachments.depth = Some(handle_attachment(a, &mut dimensions, Some(&mut depth_bits)));
-                },
-                DepthStencilAttachments::StencilAttachment(ref a) => {
-                    raw_attachments.stencil = Some(handle_attachment(a, &mut dimensions, Some(&mut stencil_bits)));
-                },
-                DepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
-                    raw_attachments.depth = Some(handle_attachment(d, &mut dimensions, Some(&mut depth_bits)));
-                    raw_attachments.stencil = Some(handle_attachment(s, &mut dimensions, Some(&mut stencil_bits)));
-                },
-                DepthStencilAttachments::DepthStencilAttachment(ref a) => {
-                    raw_attachments.depth_stencil = Some(handle_attachment(a, &mut dimensions, None));      // FIXME: bit counts
-                },
-            }
+        match depth_stencil {
+            DepthStencilAttachments::None => (),
+            DepthStencilAttachments::DepthAttachment(LayeredAttachment(ref d)) => {
+                raw_attachments.depth = Some(handle_tex!(d, dimensions, samples, depth_bits));
+            },
+            DepthStencilAttachments::StencilAttachment(LayeredAttachment(ref s)) => {
+                raw_attachments.stencil = Some(handle_tex!(s, dimensions, samples, stencil_bits));
+            },
+            DepthStencilAttachments::DepthAndStencilAttachments(LayeredAttachment(ref d),
+                                                                 LayeredAttachment(ref s))
+            => {
+                raw_attachments.depth = Some(handle_tex!(d, dimensions, samples, depth_bits));
+                raw_attachments.stencil = Some(handle_tex!(s, dimensions, samples, stencil_bits));
+            },
+            DepthStencilAttachments::DepthStencilAttachment(LayeredAttachment(ref ds)) => {
+                // FIXME: bits count
+                raw_attachments.depth_stencil = Some(handle_tex!(ds, dimensions, samples));
+            },
+        }
 
-            let dimensions = match dimensions {
-                Some(d) => d,
-                None => return Err(ValidationError::EmptyFramebufferObjectsNotSupported)
-            };
-
-            (raw_attachments, dimensions, depth_bits, stencil_bits)
+        let dimensions = if let Some(dimensions) = dimensions {
+            dimensions
+        } else {
+            // TODO: handle this
+            return Err(ValidationError::EmptyFramebufferObjectsNotSupported);
         };
 
         Ok(ValidatedAttachments {
             raw: raw_attachments,
             dimensions: dimensions,
-            layers: None,       // FIXME: 
+            layers: None,
+            depth_buffer_bits: depth_bits,
+            stencil_buffer_bits: stencil_bits,
+            marker: PhantomData,
+        })
+    }
+
+    fn validate_regular(FramebufferSpecificAttachments { colors, depth_stencil }:
+                        FramebufferSpecificAttachments<RegularAttachment<'a>>)
+                        -> Result<ValidatedAttachments<'a>, ValidationError>
+    {
+        macro_rules! handle_tex {
+            ($tex:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
+                $num_bits = Some($tex.get_texture().get_internal_format()
+                                     .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
+                handle_tex!($tex, $dim, $samples)
+            });
+
+            ($tex:ident, $dim:ident, $samples:ident) => ({
+                // TODO: check that internal format is renderable
+                let context = $tex.get_texture().get_context();
+
+                match &mut $samples {
+                    &mut Some(samples) => {
+                        if samples != $tex.get_samples().unwrap_or(0) {
+                            return Err(ValidationError::SamplesCountMismatch);
+                        }
+                    },
+                    s @ &mut None => {
+                        *s = Some($tex.get_samples().unwrap_or(0));
+                    }
+                }
+
+                match &mut $dim {
+                    &mut Some((ref mut w, ref mut h)) => {
+                        let height = $tex.get_height().unwrap_or(1);
+                        if *w != $tex.get_width() || *h != height {
+                            *w = cmp::min(*w, $tex.get_width());
+                            *h = cmp::min(*h, height);
+
+                            // checking that multiple different sizes is supported by the backend
+                            if !is_dimensions_mismatch_supported(context) {
+                                return Err(ValidationError::DimensionsMismatchNotSupported);
+                            }
+                        }
+                    },
+
+                    dim @ &mut None => {
+                        *dim = Some(($tex.get_width(), $tex.get_height().unwrap_or(1)));
+                    },
+                }
+
+                RawAttachment::Texture {
+                    texture: $tex.get_texture().get_id(),
+                    bind_point: $tex.get_texture().get_bind_point(),
+                    layer: Some($tex.get_layer()),
+                    level: $tex.get_level(),
+                }
+            });
+        }
+
+        macro_rules! handle_rb {
+            ($rb:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
+                $num_bits = Some(24);       // FIXME: totally arbitrary
+                handle_rb!($rb, $dim, $samples)
+            });
+
+            ($rb:ident, $dim:ident, $samples:ident) => ({
+                // TODO: check that internal format is renderable
+                let context = $rb.get_context();
+                let dimensions = $rb.get_dimensions();
+
+                match &mut $samples {
+                    &mut Some(samples) => {
+                        if samples != $rb.get_samples().unwrap_or(0) {
+                            return Err(ValidationError::SamplesCountMismatch);
+                        }
+                    },
+                    s @ &mut None => {
+                        *s = Some($rb.get_samples().unwrap_or(0));
+                    }
+                }
+
+                match &mut $dim {
+                    &mut Some((ref mut w, ref mut h)) => {
+                        if *w != dimensions.0 || *h != dimensions.1 {
+                            *w = cmp::min(*w, dimensions.0);
+                            *h = cmp::min(*h, dimensions.1);
+
+                            // checking that multiple different sizes is supported by the backend
+                            if !is_dimensions_mismatch_supported(context) {
+                                return Err(ValidationError::DimensionsMismatchNotSupported);
+                            }
+                        }
+                    },
+
+                    dim @ &mut None => {
+                        *dim = Some((dimensions.0, dimensions.1));
+                    },
+                }
+
+                RawAttachment::RenderBuffer($rb.get_id())
+            });
+        }
+
+        macro_rules! handle_atch {
+            ($atch:ident, $($t:tt)*) => (
+                match $atch {
+                    &RegularAttachment::Texture(ref tex) => handle_tex!(tex, $($t)*),
+                    &RegularAttachment::RenderBuffer(ref rb) => handle_rb!(rb, $($t)*),
+                }
+            );
+        }
+
+        let mut raw_attachments = RawAttachments {
+            color: Vec::with_capacity(colors.len()),
+            depth: None,
+            stencil: None,
+            depth_stencil: None,
+        };
+
+        let mut dimensions = None;
+        let mut depth_bits = None;
+        let mut stencil_bits = None;
+        let mut samples = None;     // contains `0` if not multisampling and `None` if unknown
+
+        for &(index, ref attachment) in colors.iter() {
+            raw_attachments.color.push((index, handle_atch!(attachment, dimensions, samples)));
+        }
+
+        match depth_stencil {
+            DepthStencilAttachments::None => (),
+            DepthStencilAttachments::DepthAttachment(ref d) => {
+                raw_attachments.depth = Some(handle_atch!(d, dimensions, samples, depth_bits));
+            },
+            DepthStencilAttachments::StencilAttachment(ref s) => {
+                raw_attachments.stencil = Some(handle_atch!(s, dimensions, samples, stencil_bits));
+            },
+            DepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
+                raw_attachments.depth = Some(handle_atch!(d, dimensions, samples, depth_bits));
+                raw_attachments.stencil = Some(handle_atch!(s, dimensions, samples, stencil_bits));
+            },
+            DepthStencilAttachments::DepthStencilAttachment(ref ds) => {
+                // FIXME: bits count
+                raw_attachments.depth_stencil = Some(handle_atch!(ds, dimensions, samples));
+            },
+        }
+
+        let dimensions = if let Some(dimensions) = dimensions {
+            dimensions
+        } else {
+            // TODO: handle this
+            return Err(ValidationError::EmptyFramebufferObjectsNotSupported);
+        };
+
+        Ok(ValidatedAttachments {
+            raw: raw_attachments,
+            dimensions: dimensions,
+            layers: None,
             depth_buffer_bits: depth_bits,
             stencil_buffer_bits: stencil_bits,
             marker: PhantomData,
@@ -279,9 +457,28 @@ impl<'a> ValidatedAttachments<'a> {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ValidationError {
     EmptyFramebufferObjectsNotSupported,
+
+    /// The backend doesn't support attachments with various dimensions.
+    ///
+    /// Note that almost all OpenGL implementations support attachments with various dimensions.
+    /// Only very old versions don't.
+    DimensionsMismatchNotSupported,
+
+    /// All attachments must have the same number of samples.
+    SamplesCountMismatch,
+
+    /// Backends only support a certain number of color attachments.
+    TooManyColorAttachments {
+        /// Maximum number of attachments.
+        maximum: usize,
+        /// Number of attachments that were given.
+        obtained: usize,
+    },
 }
 
 /// Data structure stored in the hashmap.
+///
+/// These attachments are guaranteed to be valid.
 #[derive(Hash, Clone, Eq, PartialEq)]
 struct RawAttachments {
     color: Vec<(u32, RawAttachment)>,
@@ -290,7 +487,7 @@ struct RawAttachments {
     depth_stencil: Option<RawAttachment>,
 }
 
-/// Single attachment.
+/// Single attachment of `RawAttachments`.
 #[derive(Hash, Copy, Clone, Eq, PartialEq)]
 enum RawAttachment {
     /// A texture.
@@ -299,7 +496,8 @@ enum RawAttachment {
         bind_point: gl::types::GLenum,      // TODO: Dimensions instead
         // id of the texture
         texture: gl::types::GLuint,
-        // if `Some`, the texture **must** be an array, cubemap, or texture 3d
+        // if `Some`, use a regular attachment ; if `None`, use a layered attachment
+        // if `None`, the texture **must** be an array, cubemap, or texture 3d
         layer: Option<u32>,
         // mipmap level
         level: u32,
@@ -498,12 +696,18 @@ struct FrameBufferObject {
 
 impl FrameBufferObject {
     /// Builds a new FBO.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if anything wrong or not supported is detected with the raw attachments.
+    ///
     fn new(mut ctxt: &mut CommandContext, attachments: &RawAttachments) -> FrameBufferObject {
         if attachments.color.len() > ctxt.capabilities.max_draw_buffers as usize {
             panic!("Trying to attach {} color buffers, but the hardware only supports {}",
                    attachments.color.len(), ctxt.capabilities.max_draw_buffers);
         }
 
+        // building the FBO
         let id = unsafe {
             let mut id = mem::uninitialized();
 
@@ -511,26 +715,32 @@ impl FrameBufferObject {
                 ctxt.extensions.gl_arb_direct_state_access
             {
                 ctxt.gl.CreateFramebuffers(1, &mut id);
+
             } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 2, 0)
+                      ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+                      ctxt.extensions.gl_arb_framebuffer_object
             {
                 ctxt.gl.GenFramebuffers(1, &mut id);
                 bind_framebuffer(&mut ctxt, id, true, false);
-            } else {
+
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
                 ctxt.gl.GenFramebuffersEXT(1, &mut id);
                 bind_framebuffer(&mut ctxt, id, true, false);
+
+            } else {
+                // glium doesn't allow creating contexts that don't support FBOs
+                unreachable!();
             }
 
             id
         };
 
-        let mut raw_attachments: Vec<gl::types::GLenum> = Vec::new();
-
+        // attaching the attachments, and building the list of enums to pass to `glDrawBuffers`
+        let mut raw_attachments = Vec::with_capacity(attachments.color.len());
         for &(slot, atchmnt) in attachments.color.iter() {
             unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
-            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as u32);
+            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as gl::types::GLenum);
         }
-
         if let Some(depth) = attachments.depth {
             unsafe { attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth) };
         }
@@ -541,30 +751,46 @@ impl FrameBufferObject {
             unsafe { attach(&mut ctxt, gl::DEPTH_STENCIL_ATTACHMENT, id, depth_stencil) };
         }
 
-        if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-           ctxt.extensions.gl_arb_direct_state_access
-        {
-            unsafe {
-                ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
-                                                    as gl::types::GLsizei,
-                                                    raw_attachments.as_ptr());
+        // calling `glDrawBuffers` if necessary
+        if raw_attachments != &[gl::COLOR_ATTACHMENT0] {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+               ctxt.extensions.gl_arb_direct_state_access
+            {
+                unsafe {
+                    ctxt.gl.NamedFramebufferDrawBuffers(id, raw_attachments.len()
+                                                        as gl::types::GLsizei,
+                                                        raw_attachments.as_ptr());
+                }
+
+            } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                      ctxt.version >= &Version(Api::GlEs, 3, 0)
+            {
+                unsafe {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
+                                        raw_attachments.as_ptr());
+                }
+
+            } else if ctxt.extensions.gl_arb_draw_buffers {
+                unsafe {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffersARB(raw_attachments.len() as gl::types::GLsizei,
+                                           raw_attachments.as_ptr());
+                }
+
+            } else if ctxt.extensions.gl_ati_draw_buffers {
+                unsafe {
+                    bind_framebuffer(&mut ctxt, id, true, false);
+                    ctxt.gl.DrawBuffersATI(raw_attachments.len() as gl::types::GLsizei,
+                                           raw_attachments.as_ptr());
+                }
+
+            } else {
+                // OpenGL ES 2 and OpenGL 1 don't support calling `glDrawBuffers`
+                panic!("Using more than one attachment is not supported by the backend");
             }
-
-        } else if ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                  ctxt.version >= &Version(Api::GlEs, 3, 0)
-        {
-            unsafe {
-                bind_framebuffer(&mut ctxt, id, true, false);
-                ctxt.gl.DrawBuffers(raw_attachments.len() as gl::types::GLsizei,
-                                    raw_attachments.as_ptr());
-            }
-
-        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-            assert_eq!(raw_attachments, &[gl::COLOR_ATTACHMENT0]);
-
-        } else {
-            unimplemented!();       // FIXME: use an extension
         }
+
 
         FrameBufferObject {
             id: id,
@@ -585,7 +811,8 @@ impl FrameBufferObject {
 
         // deleting
         if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-            ctxt.version >= &Version(Api::GlEs, 2, 0)
+            ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+            ctxt.extensions.gl_arb_framebuffer_object
         {
             unsafe { ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr()) };
         } else if ctxt.extensions.gl_ext_framebuffer_object {
@@ -610,195 +837,295 @@ impl GlObject for FrameBufferObject {
 /// # Safety
 ///
 /// The id of the FBO must be valid.
+///
 pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
                                draw: bool, read: bool)
 {
-    if draw && ctxt.state.draw_framebuffer != fbo_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {
-            ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
-        } else {
-            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
+    if draw && read {
+        if ctxt.state.draw_framebuffer != fbo_id || ctxt.state.read_framebuffer != fbo_id {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else {
+                unreachable!();
+            }
         }
-    }
 
-    if read && ctxt.state.read_framebuffer != fbo_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {
-            ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
-            ctxt.state.read_framebuffer = fbo_id;
-        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
-        } else {
-            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
+
+    } else {
+
+        if draw && ctxt.state.draw_framebuffer != fbo_id {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else {
+                unreachable!();
+            }
         }
+
+        if read && ctxt.state.read_framebuffer != fbo_id {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else {
+                unreachable!();
+            }
+        }
+
     }
 }
 
 /// Attaches something to a framebuffer object.
 ///
+/// # Panic
+///
+/// - Panicks if `layer` is `None` and layered attachments are not supported.
+/// - Panicks if `layer` is `None` and the texture is not an array or a 3D texture.
+/// - Panicks if the texture is an array and attaching an array is not supported.
+///
 /// # Safety
 ///
 /// All parameters must be valid.
+///
 unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: RawAttachment)
 {
-    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
-        match attachment {
-            RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if let Some(layer) = layer {
-                    ctxt.gl.NamedFramebufferTextureLayer(id, slot, tex_id,
-                                                         level as gl::types::GLint,
-                                                         layer as gl::types::GLint);
-                } else {
-                    ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
-                                                    level as gl::types::GLint);
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.NamedFramebufferRenderbuffer(id, slot, gl::RENDERBUFFER,
-                                                     buf_id);
-            },
-        }
+    match attachment {
+        RawAttachment::Texture { texture: tex_id, level, layer, bind_point } => {
+            match bind_point {
+                // these textures can't be layered
+                gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D |
+                gl::TEXTURE_RECTANGLE =>
+                {
+                    assert_eq!(layer, Some(0));
 
-    } else if ctxt.extensions.gl_ext_direct_state_access &&
-              ctxt.extensions.gl_ext_geometry_shader4
-    {
-        match attachment {
-            RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if let Some(layer) = layer {
-                    ctxt.gl.NamedFramebufferTextureLayerEXT(id, slot, tex_id,
-                                                            level as gl::types::GLint,
-                                                            layer as gl::types::GLint);
-                } else {
-                    ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
-                                                       level as gl::types::GLint);
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER,
-                                                        buf_id);
-            },
-        }
-
-    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
-        bind_framebuffer(ctxt, id, true, false);
-
-        match attachment {
-            RawAttachment::Texture { texture: tex_id, level, layer, .. } => {
-                if let Some(layer) = layer {
-                    ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
-                                                    slot, tex_id,
-                                                    level as gl::types::GLint,
-                                                    layer as gl::types::GLint);
-                } else {
-                    ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
-                                               slot, tex_id, level as gl::types::GLint);
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
-                                                gl::RENDERBUFFER, buf_id);
-            },
-        }
-
-    } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
-        bind_framebuffer(ctxt, id, true, false);
-
-        match attachment {
-            RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
-                match bind_point {
-                    gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture1D(gl::DRAW_FRAMEBUFFER,
-                                                     slot, bind_point, tex_id,
-                                                     level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
-                                                     slot, bind_point, tex_id,
-                                                     level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_3D | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
-                        ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
-                                                        slot, tex_id,
-                                                        level as gl::types::GLint,
-                                                        layer.unwrap() as gl::types::GLint);
-                    },
-                    _ => unreachable!()
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
-                                                gl::RENDERBUFFER, buf_id);
-            },
-        }
-
-    } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-        bind_framebuffer(ctxt, id, true, true);
-
-        match attachment {
-            RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
-                match bind_point {
-                    gl::TEXTURE_2D => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture2D(gl::FRAMEBUFFER,
-                                                     slot, bind_point, tex_id,
-                                                     level as gl::types::GLint);
-                    },
-                    _ => unreachable!()
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
-                                                gl::RENDERBUFFER, buf_id);
-            },
-        }
-
-    } else if ctxt.extensions.gl_ext_framebuffer_object {
-        bind_framebuffer(ctxt, id, true, true);
-
-        match attachment {
-            RawAttachment::Texture { bind_point, texture: tex_id, level, layer } => {
-                match bind_point {
-                    gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture1DEXT(gl::FRAMEBUFFER_EXT,
-                                                        slot, bind_point, tex_id,
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
                                                         level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D_ARRAY => {
-                        assert!(layer.is_none());
-                        ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
-                                                        slot, bind_point, tex_id,
-                                                        level as gl::types::GLint);
-                    },
-                    gl::TEXTURE_3D | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                           level as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                   slot, tex_id, level as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                              ctxt.extensions.gl_arb_framebuffer_object
+                    {
+                        bind_framebuffer(ctxt, id, true, false);
+
+                        match bind_point {
+                            gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
+                                ctxt.gl.FramebufferTexture1D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint);
+                            },
+                            gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE => {
+                                ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint);
+                            },
+                            _ => unreachable!()
+                        }
+
+                    } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                        bind_framebuffer(ctxt, id, true, true);
+                        assert!(bind_point == gl::TEXTURE_2D);
+                        ctxt.gl.FramebufferTexture2D(gl::FRAMEBUFFER, slot, bind_point, tex_id,
+                                                     level as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_framebuffer_object {
+                        bind_framebuffer(ctxt, id, true, true);
+
+                        match bind_point {
+                            gl::TEXTURE_1D | gl::TEXTURE_RECTANGLE => {
+                                ctxt.gl.FramebufferTexture1DEXT(gl::FRAMEBUFFER_EXT,
+                                                                slot, bind_point, tex_id,
+                                                                level as gl::types::GLint);
+                            },
+                            gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE => {
+                                ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                                slot, bind_point, tex_id,
+                                                                level as gl::types::GLint);
+                            },
+                            _ => unreachable!()
+                        }
+
+                    } else {
+                        // it's not possible to create an OpenGL context that doesn't support FBOs
+                        unreachable!();
+                    }
+                },
+
+                // non-layered attachments
+                gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY |
+                gl::TEXTURE_3D if layer.is_some() =>
+                {
+                    let layer = layer.unwrap();
+
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTextureLayer(id, slot, tex_id,
+                                                             level as gl::types::GLint,
+                                                             layer as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureLayerEXT(id, slot, tex_id,
+                                                                level as gl::types::GLint,
+                                                                layer as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                              ctxt.extensions.gl_arb_framebuffer_object
+                    {
+                        bind_framebuffer(ctxt, id, true, false);
+
+                        match bind_point {
+                            gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY |
+                            gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
+                                ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
+                                                                slot, tex_id,
+                                                                level as gl::types::GLint,
+                                                                layer as gl::types::GLint);
+
+                            },
+
+                            gl::TEXTURE_3D => {
+                                ctxt.gl.FramebufferTexture3D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint,
+                                                             layer as gl::types::GLint);
+                            },
+
+                            _ => unreachable!()
+                        }
+
+                    } else if ctxt.extensions.gl_ext_framebuffer_object &&
+                              bind_point == gl::TEXTURE_3D
+                    {
+                        bind_framebuffer(ctxt, id, true, true);
                         ctxt.gl.FramebufferTexture3DEXT(gl::FRAMEBUFFER_EXT,
                                                         slot, bind_point, tex_id,
                                                         level as gl::types::GLint,
-                                                        layer.unwrap() as gl::types::GLint);
-                    },
-                    _ => unreachable!()
-                }
-            },
-            RawAttachment::RenderBuffer(buf_id) => {
-                ctxt.gl.FramebufferRenderbufferEXT(gl::DRAW_FRAMEBUFFER, slot,
-                                                   gl::RENDERBUFFER, buf_id);
-            },
-        }
+                                                        layer as gl::types::GLint);
 
-    } else {
-        unreachable!();
+                    } else if ctxt.extensions.gl_ext_texture_array &&
+                              bind_point == gl::TEXTURE_1D_ARRAY ||
+                              bind_point == gl::TEXTURE_2D_ARRAY ||
+                              bind_point == gl::TEXTURE_2D_MULTISAMPLE_ARRAY
+                    {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTextureLayerEXT(gl::DRAW_FRAMEBUFFER,
+                                                           slot, tex_id,
+                                                           level as gl::types::GLint,
+                                                           layer as gl::types::GLint);
+
+                    } else {
+                        panic!("Attaching a texture array is not supported");
+                    }
+                },
+
+                // layered attachments
+                gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY |
+                gl::TEXTURE_3D if layer.is_none() =>
+                {
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
+                                                        level as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                           level as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                   slot, tex_id, level as gl::types::GLint);
+
+                    } else {
+                        // note that this should have been detected earlier
+                        panic!("Layered framebuffers are not supported");
+                    }
+                },
+
+                _ => unreachable!()     // TODO: cubemaps & cubemap arrays
+            }
+        },
+
+        // renderbuffers are straight-forward
+        RawAttachment::RenderBuffer(renderbuffer) => {
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+               ctxt.extensions.gl_arb_direct_state_access
+            {
+                ctxt.gl.NamedFramebufferRenderbuffer(id, slot, gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.extensions.gl_ext_direct_state_access &&
+                      ctxt.extensions.gl_ext_geometry_shader4
+            {
+                ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                      ctxt.extensions.gl_arb_framebuffer_object
+            {
+                bind_framebuffer(ctxt, id, true, false);
+                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                bind_framebuffer(ctxt, id, true, true);
+                ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
+                                                gl::RENDERBUFFER, renderbuffer);
+
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                bind_framebuffer(ctxt, id, true, true);
+                ctxt.gl.FramebufferRenderbufferEXT(gl::DRAW_FRAMEBUFFER, slot,
+                                                   gl::RENDERBUFFER, renderbuffer);
+
+            } else {
+                // it's not possible to create an OpenGL context that doesn't support FBOs
+                unreachable!();
+            }
+        },
     }
 }

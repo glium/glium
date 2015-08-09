@@ -291,7 +291,8 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         max_draw_buffers: {
             if version >= &Version(Api::Gl, 2, 0) ||
-                version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::GlEs, 3, 0) ||
+                extensions.gl_ati_draw_buffers || extensions.gl_arb_draw_buffers
             {
                 let mut val = 1;
                 gl.GetIntegerv(gl::MAX_DRAW_BUFFERS, &mut val);

@@ -464,6 +464,16 @@ impl TextureAny {
         }
     }
 
+    /// Returns the number of samples of the texture if it is a multisampling texture.
+    #[inline]
+    pub fn get_samples(&self) -> Option<u32> {
+        match self.ty {
+            Dimensions::Texture2dMultisample { samples, .. } => Some(samples),
+            Dimensions::Texture2dMultisampleArray { samples, .. } => Some(samples),
+            _ => None
+        }
+    }
+
     /// Returns a structure that represents the first layer of the texture. All textures have a
     /// first layer.
     #[inline]
@@ -630,6 +640,12 @@ impl<'a> TextureAnyLayer<'a> {
         self.texture
     }
 
+    /// Returns the number of samples of the texture.
+    #[inline]
+    pub fn get_samples(&self) -> Option<u32> {
+        self.texture.get_samples()
+    }
+
     /// Returns the layer of the texture.
     #[inline]
     pub fn get_layer(&self) -> u32 {
@@ -681,6 +697,30 @@ pub struct TextureAnyMipmap<'a> {
 }
 
 impl<'a> TextureAnyMipmap<'a> {
+    /// Returns the width of the mipmap.
+    #[inline]
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+
+    /// Returns the height of the mipmap.
+    #[inline]
+    pub fn get_height(&self) -> Option<u32> {
+        self.height
+    }
+
+    /// Returns the depth of the mipmap.
+    #[inline]
+    pub fn get_depth(&self) -> Option<u32> {
+        self.depth
+    }
+
+    /// Returns the number of samples of the texture.
+    #[inline]
+    pub fn get_samples(&self) -> Option<u32> {
+        self.texture.get_samples()
+    }
+
     /// Returns the texture.
     #[inline]
     pub fn get_texture(&self) -> &'a TextureAny {
@@ -1147,6 +1187,12 @@ impl<'a> TextureAnyLayerMipmap<'a> {
         self.height
     }
 
+    /// Returns the number of samples of the texture.
+    #[inline]
+    pub fn get_samples(&self) -> Option<u32> {
+        self.texture.get_samples()
+    }
+
     /// Turns this into an image.
     // TODO: add a `Option<CubeMapLayer>` parameter
     #[inline]
@@ -1207,5 +1253,11 @@ impl<'a> TextureAnyImage<'a> {
     #[inline]
     pub fn get_height(&self) -> Option<u32> {
         self.height
+    }
+
+    /// Returns the number of samples of the texture.
+    #[inline]
+    pub fn get_samples(&self) -> Option<u32> {
+        self.texture.get_samples()
     }
 }
