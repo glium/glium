@@ -494,7 +494,8 @@ impl UncompressedFloatFormat {
                     extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
             &UncompressedFloatFormat::F11F11F10 => {
-                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0)
+                version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_ext_packed_float
             },
             &UncompressedFloatFormat::F9F9F9 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0)

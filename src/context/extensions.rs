@@ -124,6 +124,7 @@ extensions! {
     "GL_EXT_multi_draw_indirect" => gl_ext_multi_draw_indirect,
     "GL_EXT_occlusion_query_boolean" => gl_ext_occlusion_query_boolean,
     "GL_EXT_packed_depth_stencil" => gl_ext_packed_depth_stencil,
+    "GL_EXT_packed_float" => gl_ext_packed_float,
     "GL_EXT_provoking_vertex" => gl_ext_provoking_vertex,
     "GL_EXT_robustness" => gl_ext_robustness,
     "GL_EXT_sRGB_write_control" => gl_ext_srgb_write_control,
