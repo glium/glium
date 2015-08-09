@@ -6,8 +6,7 @@ use vertex::format::VertexFormat;
 
 use backend::Facade;
 use version::{Api, Version};
-
-use ContextExt;
+use CapabilitiesSource;
 
 /// Error that can happen when creating a vertex buffer.
 #[derive(Copy, Clone, Debug)]

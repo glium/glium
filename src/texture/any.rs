@@ -5,6 +5,7 @@ use backend::Facade;
 use version::Version;
 use context::Context;
 use context::CommandContext;
+use CapabilitiesSource;
 use ContextExt;
 use TextureExt;
 use TextureMipmapExt;

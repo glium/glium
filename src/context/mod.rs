@@ -580,11 +580,6 @@ impl ContextExt for Context {
     fn capabilities(&self) -> &Capabilities {
         &self.capabilities
     }
-
-    #[inline]
-    fn get_extensions(&self) -> &ExtensionsList {
-        &self.extensions
-    }
 }
 
 impl CapabilitiesSource for Context {
