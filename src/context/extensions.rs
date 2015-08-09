@@ -134,6 +134,7 @@ extensions! {
     "GL_EXT_texture_compression_s3tc" => gl_ext_texture_compression_s3tc,
     "GL_EXT_texture_filter_anisotropic" => gl_ext_texture_filter_anisotropic,
     "GL_EXT_texture_integer" => gl_ext_texture_integer,
+    "GL_EXT_texture_shared_exponent" => gl_ext_texture_shared_exponent,
     "GL_EXT_texture_snorm" => gl_ext_texture_snorm,
     "GL_EXT_texture_sRGB" => gl_ext_texture_srgb,
     "GL_EXT_transform_feedback" => gl_ext_transform_feedback,
