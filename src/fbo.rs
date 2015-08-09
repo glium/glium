@@ -676,14 +676,21 @@ impl FrameBufferObject {
                 ctxt.extensions.gl_arb_direct_state_access
             {
                 ctxt.gl.CreateFramebuffers(1, &mut id);
+
             } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 2, 0)
+                      ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+                      ctxt.extensions.gl_arb_framebuffer_object
             {
                 ctxt.gl.GenFramebuffers(1, &mut id);
                 bind_framebuffer(&mut ctxt, id, true, false);
-            } else {
+
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
                 ctxt.gl.GenFramebuffersEXT(1, &mut id);
                 bind_framebuffer(&mut ctxt, id, true, false);
+
+            } else {
+                // glium doesn't allow creating contexts that don't support FBOs
+                unreachable!();
             }
 
             id
@@ -765,7 +772,8 @@ impl FrameBufferObject {
 
         // deleting
         if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-            ctxt.version >= &Version(Api::GlEs, 2, 0)
+            ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+            ctxt.extensions.gl_arb_framebuffer_object
         {
             unsafe { ctxt.gl.DeleteFramebuffers(1, [ self.id ].as_ptr()) };
         } else if ctxt.extensions.gl_ext_framebuffer_object {
@@ -795,7 +803,9 @@ pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLu
                                draw: bool, read: bool)
 {
     if draw && ctxt.state.draw_framebuffer != fbo_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+           ctxt.extensions.gl_arb_framebuffer_object
+        {
             ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
             ctxt.state.draw_framebuffer = fbo_id;
         } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
@@ -810,7 +820,9 @@ pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLu
     }
 
     if read && ctxt.state.read_framebuffer != fbo_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) {
+        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+           ctxt.extensions.gl_arb_framebuffer_object
+        {
             ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
             ctxt.state.read_framebuffer = fbo_id;
         } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
@@ -866,7 +878,9 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                         ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
                                                    slot, tex_id, level as gl::types::GLint);
 
-                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                              ctxt.extensions.gl_arb_framebuffer_object
+                    {
                         bind_framebuffer(ctxt, id, true, false);
 
                         match bind_point {
@@ -932,7 +946,9 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                                                                 level as gl::types::GLint,
                                                                 layer as gl::types::GLint);
 
-                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                              ctxt.extensions.gl_arb_framebuffer_object
+                    {
                         bind_framebuffer(ctxt, id, true, false);
 
                         match bind_point {
@@ -1023,7 +1039,9 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
             {
                 ctxt.gl.NamedFramebufferRenderbufferEXT(id, slot, gl::RENDERBUFFER, renderbuffer);
 
-            } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                      ctxt.extensions.gl_arb_framebuffer_object
+            {
                 bind_framebuffer(ctxt, id, true, false);
                 ctxt.gl.FramebufferRenderbuffer(gl::DRAW_FRAMEBUFFER, slot,
                                                 gl::RENDERBUFFER, renderbuffer);
