@@ -843,88 +843,61 @@ impl CompressedFormat {
         TextureFormat::CompressedFormat(self)
     }
 
-    /// Transforms this format into a gl::types::GLenum only if the format is supported by the context.
-    fn to_glenum_if_supported(&self, context: &Context) -> Result<gl::types::GLenum, FormatNotSupportedError> {
+    /// Returns true if this format is supported by the backend.
+    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
-        match *self {
-            CompressedFormat::RgtcFormatU => {
-                if version >= &Version(Api::Gl, 3, 0) {
-                    Ok(gl::COMPRESSED_RED_RGTC1)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+
+        match self {
+            &CompressedFormat::RgtcFormatU => {
+                version >= &Version(Api::Gl, 3, 0)
             },
-            CompressedFormat::RgtcFormatI => {
-                if version >= &Version(Api::Gl, 3, 0) {
-                    Ok(gl::COMPRESSED_SIGNED_RED_RGTC1)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::RgtcFormatI => {
+                version >= &Version(Api::Gl, 3, 0)
             },
-            CompressedFormat::RgtcFormatUU => {
-                if version >= &Version(Api::Gl, 3, 0) {
-                    Ok(gl::COMPRESSED_RG_RGTC2)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::RgtcFormatUU => {
+                version >= &Version(Api::Gl, 3, 0)
             },
-            CompressedFormat::RgtcFormatII => {
-                if version >= &Version(Api::Gl, 3, 0) {
-                    Ok(gl::COMPRESSED_SIGNED_RG_RGTC2)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::RgtcFormatII => {
+                version >= &Version(Api::Gl, 3, 0)
             },
-            CompressedFormat::BptcUnorm4 => {
-                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                    Ok(gl::COMPRESSED_RGBA_BPTC_UNORM)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::BptcUnorm4 => {
+                version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            CompressedFormat::BptcSignedFloat3 => {
-                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                    Ok(gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::BptcSignedFloat3 => {
+                version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            CompressedFormat::BptcUnsignedFloat3 => {
-                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                    Ok(gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::BptcUnsignedFloat3 => {
+                version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            CompressedFormat::S3tcDxt1NoAlpha => {
-                if extensions.gl_ext_texture_compression_s3tc {
-                    Ok(gl::COMPRESSED_RGB_S3TC_DXT1_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::S3tcDxt1NoAlpha => {
+                extensions.gl_ext_texture_compression_s3tc
             },
-            CompressedFormat::S3tcDxt1Alpha => {
-                if extensions.gl_ext_texture_compression_s3tc {
-                    Ok(gl::COMPRESSED_RGBA_S3TC_DXT1_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::S3tcDxt1Alpha => {
+                extensions.gl_ext_texture_compression_s3tc
             },
-            CompressedFormat::S3tcDxt3Alpha => {
-                if extensions.gl_ext_texture_compression_s3tc {
-                    Ok(gl::COMPRESSED_RGBA_S3TC_DXT3_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::S3tcDxt3Alpha => {
+                extensions.gl_ext_texture_compression_s3tc
             },
-           CompressedFormat::S3tcDxt5Alpha => {
-                if extensions.gl_ext_texture_compression_s3tc {
-                    Ok(gl::COMPRESSED_RGBA_S3TC_DXT5_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedFormat::S3tcDxt5Alpha => {
+                extensions.gl_ext_texture_compression_s3tc
             },
+        }
+    }
+
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &CompressedFormat::RgtcFormatU => gl::COMPRESSED_RED_RGTC1,
+            &CompressedFormat::RgtcFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
+            &CompressedFormat::RgtcFormatUU => gl::COMPRESSED_RG_RGTC2,
+            &CompressedFormat::RgtcFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
+            &CompressedFormat::BptcUnorm4 => gl::COMPRESSED_RGBA_BPTC_UNORM,
+            &CompressedFormat::BptcSignedFloat3 => gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
+            &CompressedFormat::BptcUnsignedFloat3 => gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
+            &CompressedFormat::S3tcDxt1NoAlpha => gl::COMPRESSED_RGB_S3TC_DXT1_EXT,
+            &CompressedFormat::S3tcDxt1Alpha => gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,
+            &CompressedFormat::S3tcDxt3Alpha => gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,
+            &CompressedFormat::S3tcDxt5Alpha => gl::COMPRESSED_RGBA_S3TC_DXT5_EXT,
         }
     }
 }
@@ -948,46 +921,37 @@ impl CompressedSrgbFormat {
         TextureFormat::CompressedSrgbFormat(self)
     }
 
-    /// Transforms this format into a gl::types::GLenum only if the format is supported by the context.
-    fn to_glenum_if_supported(&self, context: &Context) -> Result<gl::types::GLenum, FormatNotSupportedError> {
+    /// Returns true if this format is supported by the backend.
+    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
-        match *self {
-            CompressedSrgbFormat::Bptc => {
-                if version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc {
-                    Ok(gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+
+        match self {
+            &CompressedSrgbFormat::Bptc => {
+                version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            CompressedSrgbFormat::S3tcDxt1NoAlpha => {
-                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                    Ok(gl::COMPRESSED_SRGB_S3TC_DXT1_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedSrgbFormat::S3tcDxt1NoAlpha => {
+                extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
-            CompressedSrgbFormat::S3tcDxt1Alpha => {
-                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                    Ok(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedSrgbFormat::S3tcDxt1Alpha => {
+                extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
-            CompressedSrgbFormat::S3tcDxt3Alpha => {
-                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                    Ok(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedSrgbFormat::S3tcDxt3Alpha => {
+                extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
-            CompressedSrgbFormat::S3tcDxt5Alpha => {
-                if extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb {
-                    Ok(gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT)
-                } else {
-                    Err(FormatNotSupportedError)
-                }
+            &CompressedSrgbFormat::S3tcDxt5Alpha => {
+                extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
+        }
+    }
+
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &CompressedSrgbFormat::Bptc => gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM,
+            &CompressedSrgbFormat::S3tcDxt1NoAlpha => gl::COMPRESSED_SRGB_S3TC_DXT1_EXT,
+            &CompressedSrgbFormat::S3tcDxt1Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+            &CompressedSrgbFormat::S3tcDxt3Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+            &CompressedSrgbFormat::S3tcDxt5Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
         }
     }
 }
@@ -1336,7 +1300,6 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
         /*******************************************************************/
         /*                         COMPRESSED                              */
         /*******************************************************************/
-
         TextureFormatRequest::AnyCompressed if is_client_compressed => {
             // Note: client is always Some here. When refactoring this function it'd be a good idea
             // to let the client participate on the matching process.
@@ -1378,7 +1341,12 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
         },
 
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(format)) => {
-            try!(format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
+            if format.is_supported(context) {
+                let e = format.to_glenum();
+                (e, Some(e))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
         },
 
         /*******************************************************************/
@@ -1416,7 +1384,6 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
         /*******************************************************************/
         /*                        COMPRESSED SRGB                          */
         /*******************************************************************/
-
         TextureFormatRequest::AnyCompressedSrgb if is_client_compressed => {
             let newformat = TextureFormat::CompressedSrgbFormat(match client {
                 Some(ClientFormatAny::CompressedSrgbFormat(format)) => format,
@@ -1443,7 +1410,12 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
         },
 
         TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(format)) => {
-            try!(format.to_glenum_if_supported(context).map(|gl| (gl, Some(gl))))
+            if format.is_supported(context) {
+                let e = format.to_glenum();
+                (e, Some(e))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
         },
 
         /*******************************************************************/
@@ -1624,22 +1596,29 @@ pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny,
                                          FormatNotSupportedError>
 {
     let value = match format {
-        TextureFormatRequest::AnyCompressed if client.is_compressed() =>
-        {
-            let extensions = context.get_extensions();
+        TextureFormatRequest::AnyCompressed if client.is_compressed() => {
             match client {
                 ClientFormatAny::CompressedFormat(client_format) => {
-                    client_format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+                    if client_format.is_supported(context) {
+                        let e = client_format.to_glenum();
+                        Ok((e, e))
+                    } else {
+                        return Err(FormatNotSupportedError);
+                    }
                 },
                 _ => unreachable!(),
             }
         },
 
-        TextureFormatRequest::AnyCompressedSrgb  if client.is_compressed() =>
-        {
+        TextureFormatRequest::AnyCompressedSrgb if client.is_compressed() => {
             match client {
                 ClientFormatAny::CompressedSrgbFormat(client_format) => {
-                    client_format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+                    if client_format.is_supported(context) {
+                        let e = client_format.to_glenum();
+                        Ok((e, e))
+                    } else {
+                        return Err(FormatNotSupportedError);
+                    }
                 },
                 _ => unreachable!(),
             }
@@ -1647,12 +1626,22 @@ pub fn client_format_to_glenum(context: &Context, client: ClientFormatAny,
 
         TextureFormatRequest::Specific(TextureFormat::CompressedFormat(format))
                                                         if client.is_compressed() => {
-            format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+            if format.is_supported(context) {
+                let e = format.to_glenum();
+                Ok((e, e))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
         },
 
         TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(format))
                                                         if client.is_compressed() => {
-            format.to_glenum_if_supported(context).map(|gl| (gl, gl))
+            if format.is_supported(context) {
+                let e = format.to_glenum();
+                Ok((e, e))
+            } else {
+                return Err(FormatNotSupportedError);
+            }
         },
 
         TextureFormatRequest::AnyFloatingPoint | TextureFormatRequest::AnyCompressed |
