@@ -780,6 +780,17 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                                                         level as gl::types::GLint,
                                                         layer as gl::types::GLint);
 
+                    } else if ctxt.extensions.gl_ext_texture_array &&
+                              bind_point == gl::TEXTURE_1D_ARRAY ||
+                              bind_point == gl::TEXTURE_2D_ARRAY ||
+                              bind_point == gl::TEXTURE_2D_MULTISAMPLE_ARRAY
+                    {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTextureLayerEXT(gl::DRAW_FRAMEBUFFER,
+                                                           slot, tex_id,
+                                                           level as gl::types::GLint,
+                                                           layer as gl::types::GLint);
+
                     } else {
                         panic!("Attaching a texture array is not supported");
                     }

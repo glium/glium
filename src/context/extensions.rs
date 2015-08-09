@@ -122,6 +122,7 @@ extensions! {
     "GL_EXT_provoking_vertex" => gl_ext_provoking_vertex,
     "GL_EXT_robustness" => gl_ext_robustness,
     "GL_EXT_sRGB_write_control" => gl_ext_srgb_write_control,
+    "GL_EXT_texture_array" => gl_ext_texture_array,
     "GL_EXT_texture_buffer" => gl_ext_texture_buffer,
     "GL_EXT_texture_buffer_object" => gl_ext_texture_buffer_object,
     "GL_EXT_texture_compression_s3tc" => gl_ext_texture_compression_s3tc,
