@@ -50,6 +50,10 @@ Some restrictions apply when you use framebuffers:
    the same dimensions). You can use the `is_dimensions_mismatch_supported` function to check
    what the hardware supports.
 
+ - You will get undefined results if you try to sample to a texture mipmap attached to the
+   framebuffer that you are using. This is not enforced by glium as it depends on your shader's
+   source code.
+
 # Empty framebuffers
 
 Not yet supported
