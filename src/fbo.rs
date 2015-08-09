@@ -57,6 +57,7 @@ use std::marker::PhantomData;
 
 use smallvec::SmallVec;
 
+use CapabilitiesSource;
 use ContextExt;
 use GlObject;
 use TextureExt;
@@ -69,6 +70,17 @@ use gl;
 use context::CommandContext;
 use version::Version;
 use version::Api;
+
+/// Returns true if the backend supports attachments with varying dimensions.
+///
+/// If this function returns `true` and you pass attachments with different dimensions, the
+/// intersection between all the attachments will be used. If this function returns `false`, you'll
+/// get an error instead.
+pub fn is_dimensions_mismatch_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+    context.get_version() >= &Version(Api::Gl, 3, 0) ||
+    context.get_version() >= &Version(Api::GlEs, 2, 0) ||
+    context.get_extensions().gl_arb_framebuffer_object
+}
 
 /// Represents the attachments to use for an OpenGL framebuffer.
 #[derive(Clone)]
@@ -169,10 +181,7 @@ impl<'a> FramebufferAttachments<'a> {
                             *h = cmp::min(*h, height);
 
                             // checking that multiple different sizes is supported by the backend
-                            if !(context.get_opengl_version() >= &Version(Api::Gl, 3, 0) ||
-                                 context.get_opengl_version() >= &Version(Api::GlEs, 2, 0) ||
-                                 context.get_extensions().gl_arb_framebuffer_object)
-                            {
+                            if !is_dimensions_mismatch_supported(context) {
                                 return Err(ValidationError::DimensionsMismatchNotSupported);
                             }
                         }
@@ -279,10 +288,7 @@ impl<'a> FramebufferAttachments<'a> {
                             *h = cmp::min(*h, height);
 
                             // checking that multiple different sizes is supported by the backend
-                            if !(context.get_opengl_version() >= &Version(Api::Gl, 3, 0) ||
-                                 context.get_opengl_version() >= &Version(Api::GlEs, 2, 0) ||
-                                 context.get_extensions().gl_arb_framebuffer_object)
-                            {
+                            if !is_dimensions_mismatch_supported(context) {
                                 return Err(ValidationError::DimensionsMismatchNotSupported);
                             }
                         }
@@ -331,10 +337,7 @@ impl<'a> FramebufferAttachments<'a> {
                             *h = cmp::min(*h, dimensions.1);
 
                             // checking that multiple different sizes is supported by the backend
-                            if !(context.get_opengl_version() >= &Version(Api::Gl, 3, 0) ||
-                                 context.get_opengl_version() >= &Version(Api::GlEs, 2, 0) ||
-                                 context.get_extensions().gl_arb_framebuffer_object)
-                            {
+                            if !is_dimensions_mismatch_supported(context) {
                                 return Err(ValidationError::DimensionsMismatchNotSupported);
                             }
                         }
