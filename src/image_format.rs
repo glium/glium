@@ -1056,8 +1056,9 @@ impl DepthStencilFormat {
 /// List of formats available for stencil textures.
 ///
 /// You are strongly advised to only use `I8`.
-// TODO: Stencil only formats cannot be used for Textures, unless OpenGL 4.4 or
-//       ARB_texture_stencil8 is available.
+///
+/// Stencil textures are a very recent OpenGL feature that may not be supported everywhere.
+/// Only `I8` is supported for textures. All the other formats can only be used with renderbuffers.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StencilFormat {
@@ -1072,6 +1073,59 @@ impl StencilFormat {
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
         TextureFormat::StencilFormat(self)
+    }
+
+    /// Returns true if this format is supported by the backend for textures.
+    pub fn is_supported_for_textures<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+        let version = context.get_version();
+        let extensions = context.get_extensions();
+
+        match self {
+            &StencilFormat::I8 => {
+                version >= &Version(Api::Gl, 4, 4) || extensions.gl_arb_texture_stencil8
+            },
+
+            _ => false
+        }
+    }
+
+    /// Returns true if this format is supported by the backend for renderbuffers.
+    pub fn is_supported_for_renderbuffers<C>(&self, context: &C) -> bool
+                                             where C: CapabilitiesSource
+    {
+        let version = context.get_version();
+        let extensions = context.get_extensions();
+
+        match self {
+            &StencilFormat::I1 => {
+                version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_framebuffer_object ||
+                    extensions.gl_arb_framebuffer_object || extensions.gl_oes_stencil1
+            },
+
+            &StencilFormat::I4 => {
+                version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_framebuffer_object ||
+                    extensions.gl_arb_framebuffer_object || extensions.gl_oes_stencil4
+            },
+
+            &StencilFormat::I8 => {
+                version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_stencil8 ||
+                    version >= &Version(Api::GlEs, 2, 0)
+            },
+
+            &StencilFormat::I16 => {
+                version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_framebuffer_object ||
+                    extensions.gl_arb_framebuffer_object
+            },
+        }
+    }
+
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &StencilFormat::I1 => gl::STENCIL_INDEX1,
+            &StencilFormat::I4 => gl::STENCIL_INDEX4,
+            &StencilFormat::I8 => gl::STENCIL_INDEX8,
+            &StencilFormat::I16 => gl::STENCIL_INDEX16,
+        }
     }
 }
 
@@ -1544,6 +1598,7 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
         /*                           STENCIL                               */
         /*******************************************************************/
         TextureFormatRequest::AnyStencil => {
+            // just request I8
             if version < &Version(Api::Gl, 3, 0) {
                 return Err(FormatNotSupportedError);
             }
