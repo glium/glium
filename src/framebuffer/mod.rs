@@ -35,6 +35,29 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 
 **Note**: depth-stencil attachments are not yet implemented.
 
+# A note on restrictions
+
+Some restrictions apply when you use framebuffers:
+
+ - All textures must have an internal format that is renderable. Not all formats are supported.
+
+ - All attachments must have the same number of samples, or must all have multisampling disabled.
+   For example you can't create a texture with 4x multisampling, another texture with 2x
+   multisampling, and draw on them simultaneously.
+
+ - On old hardware all the framebuffer attachments must have the same dimensions (on more recent
+   hardware the intersection between all the attachments is taken if all attachments don't have
+   the same dimensions). You can use the `is_dimensions_mismatch_supported` function to check
+   what the hardware supports.
+
+# Empty framebuffers
+
+Not yet supported
+
+# Layered framebuffers
+
+Not yet supported
+
 */
 use std::rc::Rc;
 use smallvec::SmallVec;
