@@ -57,6 +57,7 @@ use std::marker::PhantomData;
 
 use smallvec::SmallVec;
 
+use ContextExt;
 use GlObject;
 use TextureExt;
 
@@ -126,109 +127,250 @@ impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
     pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
-        // TODO: 
-        let attachments = match self {
-            FramebufferAttachments::Regular(attachments) => attachments,
-            _ => unimplemented!()
-        };
+        match self {
+            FramebufferAttachments::Regular(a) => FramebufferAttachments::validate_regular(a),
+            FramebufferAttachments::Layered(a) => FramebufferAttachments::validate_layered(a),
+        }
+    }
 
-        // turning the attachments into raw attachments
-        let (raw_attachments, dimensions, depth_bits, stencil_bits) = {
-            fn handle_attachment(a: &RegularAttachment, dim: &mut Option<(u32, u32)>,
-                                 num_bits: Option<&mut Option<u16>>)
-                                 -> RawAttachment
-            {
-                match a {
-                    &RegularAttachment::Texture(ref texture) => {
-                        if let Some(num_bits) = num_bits {
-                            *num_bits = Some(texture.get_texture().get_internal_format()
-                                               .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
-                        }
+    fn validate_layered(FramebufferSpecificAttachments { colors, depth_stencil }:
+                        FramebufferSpecificAttachments<LayeredAttachment<'a>>)
+                        -> Result<ValidatedAttachments<'a>, ValidationError>
+    {
+        // TODO: make sure that all attachments are layered
 
-                        match dim {
-                            d @ &mut None => *d = Some((texture.get_width(), texture.get_height().unwrap_or(1))),
-                            &mut Some((ref mut x, ref mut y)) => {
-                                *x = cmp::min(*x, texture.get_width());
-                                *y = cmp::min(*y, texture.get_height().unwrap_or(1));
+        macro_rules! handle_tex {
+            ($tex:ident, $dim:ident, $num_bits:ident) => ({
+                $num_bits = Some($tex.get_texture().get_internal_format()
+                                     .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
+                handle_tex!($tex, $dim)
+            });
+
+            ($tex:ident, $dim:ident) => ({
+                // TODO: check that internal format is renderable
+                // TODO: check number of samples mismatch
+                let context = $tex.get_texture().get_context();
+
+                match &mut $dim {
+                    &mut Some((ref mut w, ref mut h)) => {
+                        let height = $tex.get_height().unwrap_or(1);
+                        if *w != $tex.get_width() || *h != height {
+                            *w = cmp::min(*w, $tex.get_width());
+                            *h = cmp::min(*h, height);
+
+                            // checking that multiple different sizes is supported by the backend
+                            if !(context.get_opengl_version() >= &Version(Api::Gl, 3, 0) ||
+                                 context.get_opengl_version() >= &Version(Api::GlEs, 2, 0) ||
+                                 context.get_extensions().gl_arb_framebuffer_object)
+                            {
+                                return Err(ValidationError::DimensionsMismatchNotSupported);
                             }
-                        }
-
-                        RawAttachment::Texture {
-                            texture: texture.get_texture().get_id(),
-                            bind_point: texture.get_texture().get_bind_point(),
-                            layer: Some(texture.get_layer()),
-                            level: texture.get_level(),
                         }
                     },
-                    &RegularAttachment::RenderBuffer(ref buffer) => {
-                        if let Some(num_bits) = num_bits {
-                            *num_bits = Some(24);    // FIXME: totally random
-                        }
 
-                        match dim {
-                            d @ &mut None => *d = Some(buffer.get_dimensions()),
-                            &mut Some((ref mut x, ref mut y)) => {
-                                let curr = buffer.get_dimensions();
-                                *x = cmp::min(*x, curr.0);
-                                *y = cmp::min(*y, curr.1);
-                            }
-                        }
-
-                        RawAttachment::RenderBuffer(buffer.get_id())
+                    dim @ &mut None => {
+                        *dim = Some(($tex.get_width(), $tex.get_height().unwrap_or(1)));
                     },
                 }
-            }
 
-            // TODO: check number of samples
-            // TODO: check layering
+                RawAttachment::Texture {
+                    texture: $tex.get_texture().get_id(),
+                    bind_point: $tex.get_texture().get_bind_point(),
+                    layer: None,
+                    level: $tex.get_level(),
+                }
+            });
+        }
 
-            // the dimensions of the framebuffer object
-            let mut dimensions = None;
-            // number of depth bits
-            let mut depth_bits = None;
-            // number of stencil bits
-            let mut stencil_bits = None;
+        let mut raw_attachments = RawAttachments {
+            color: Vec::with_capacity(colors.len()),
+            depth: None,
+            stencil: None,
+            depth_stencil: None,
+        };
 
-            let mut raw_attachments = RawAttachments {
-                color: Vec::with_capacity(attachments.colors.len()),
-                depth: None,
-                stencil: None,
-                depth_stencil: None,
-            };
+        let mut dimensions = None;
+        let mut depth_bits = None;
+        let mut stencil_bits = None;
 
-            for &(index, ref a) in attachments.colors.iter() {
-                raw_attachments.color.push((index, handle_attachment(a, &mut dimensions, None)));
-            }
+        for &(index, LayeredAttachment(ref attachment)) in colors.iter() {
+            raw_attachments.color.push((index, handle_tex!(attachment, dimensions)));
+        }
 
-            match attachments.depth_stencil {
-                DepthStencilAttachments::None => (),
-                DepthStencilAttachments::DepthAttachment(ref a) => {
-                    raw_attachments.depth = Some(handle_attachment(a, &mut dimensions, Some(&mut depth_bits)));
-                },
-                DepthStencilAttachments::StencilAttachment(ref a) => {
-                    raw_attachments.stencil = Some(handle_attachment(a, &mut dimensions, Some(&mut stencil_bits)));
-                },
-                DepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
-                    raw_attachments.depth = Some(handle_attachment(d, &mut dimensions, Some(&mut depth_bits)));
-                    raw_attachments.stencil = Some(handle_attachment(s, &mut dimensions, Some(&mut stencil_bits)));
-                },
-                DepthStencilAttachments::DepthStencilAttachment(ref a) => {
-                    raw_attachments.depth_stencil = Some(handle_attachment(a, &mut dimensions, None));      // FIXME: bit counts
-                },
-            }
+        match depth_stencil {
+            DepthStencilAttachments::None => (),
+            DepthStencilAttachments::DepthAttachment(LayeredAttachment(ref d)) => {
+                raw_attachments.depth = Some(handle_tex!(d, dimensions, depth_bits));
+            },
+            DepthStencilAttachments::StencilAttachment(LayeredAttachment(ref s)) => {
+                raw_attachments.stencil = Some(handle_tex!(s, dimensions, stencil_bits));
+            },
+            DepthStencilAttachments::DepthAndStencilAttachments(LayeredAttachment(ref d),
+                                                                 LayeredAttachment(ref s))
+            => {
+                raw_attachments.depth = Some(handle_tex!(d, dimensions, depth_bits));
+                raw_attachments.stencil = Some(handle_tex!(s, dimensions, stencil_bits));
+            },
+            DepthStencilAttachments::DepthStencilAttachment(LayeredAttachment(ref ds)) => {
+                // FIXME: bits count
+                raw_attachments.depth_stencil = Some(handle_tex!(ds, dimensions));
+            },
+        }
 
-            let dimensions = match dimensions {
-                Some(d) => d,
-                None => return Err(ValidationError::EmptyFramebufferObjectsNotSupported)
-            };
-
-            (raw_attachments, dimensions, depth_bits, stencil_bits)
+        let dimensions = if let Some(dimensions) = dimensions {
+            dimensions
+        } else {
+            // TODO: handle this
+            return Err(ValidationError::EmptyFramebufferObjectsNotSupported);
         };
 
         Ok(ValidatedAttachments {
             raw: raw_attachments,
             dimensions: dimensions,
-            layers: None,       // FIXME: 
+            layers: None,
+            depth_buffer_bits: depth_bits,
+            stencil_buffer_bits: stencil_bits,
+            marker: PhantomData,
+        })
+    }
+
+    fn validate_regular(FramebufferSpecificAttachments { colors, depth_stencil }:
+                        FramebufferSpecificAttachments<RegularAttachment<'a>>)
+                        -> Result<ValidatedAttachments<'a>, ValidationError>
+    {
+        macro_rules! handle_tex {
+            ($tex:ident, $dim:ident, $num_bits:ident) => ({
+                $num_bits = Some($tex.get_texture().get_internal_format()
+                                     .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
+                handle_tex!($tex, $dim)
+            });
+
+            ($tex:ident, $dim:ident) => ({
+                // TODO: check that internal format is renderable
+                // TODO: check number of samples mismatch
+                let context = $tex.get_texture().get_context();
+
+                match &mut $dim {
+                    &mut Some((ref mut w, ref mut h)) => {
+                        let height = $tex.get_height().unwrap_or(1);
+                        if *w != $tex.get_width() || *h != height {
+                            *w = cmp::min(*w, $tex.get_width());
+                            *h = cmp::min(*h, height);
+
+                            // checking that multiple different sizes is supported by the backend
+                            if !(context.get_opengl_version() >= &Version(Api::Gl, 3, 0) ||
+                                 context.get_opengl_version() >= &Version(Api::GlEs, 2, 0) ||
+                                 context.get_extensions().gl_arb_framebuffer_object)
+                            {
+                                return Err(ValidationError::DimensionsMismatchNotSupported);
+                            }
+                        }
+                    },
+
+                    dim @ &mut None => {
+                        *dim = Some(($tex.get_width(), $tex.get_height().unwrap_or(1)));
+                    },
+                }
+
+                RawAttachment::Texture {
+                    texture: $tex.get_texture().get_id(),
+                    bind_point: $tex.get_texture().get_bind_point(),
+                    layer: Some($tex.get_layer()),
+                    level: $tex.get_level(),
+                }
+            });
+        }
+
+        macro_rules! handle_rb {
+            ($rb:ident, $dim:ident, $num_bits:ident) => ({
+                $num_bits = Some(24);       // FIXME: totally arbitrary
+                handle_rb!($rb, $dim)
+            });
+
+            ($rb:ident, $dim:ident) => ({
+                // TODO: check that internal format is renderable
+                // TODO: check number of samples mismatch
+                let context = $rb.get_context();
+                let dimensions = $rb.get_dimensions();
+
+                match &mut $dim {
+                    &mut Some((ref mut w, ref mut h)) => {
+                        if *w != dimensions.0 || *h != dimensions.1 {
+                            *w = cmp::min(*w, dimensions.0);
+                            *h = cmp::min(*h, dimensions.1);
+
+                            // checking that multiple different sizes is supported by the backend
+                            if !(context.get_opengl_version() >= &Version(Api::Gl, 3, 0) ||
+                                 context.get_opengl_version() >= &Version(Api::GlEs, 2, 0) ||
+                                 context.get_extensions().gl_arb_framebuffer_object)
+                            {
+                                return Err(ValidationError::DimensionsMismatchNotSupported);
+                            }
+                        }
+                    },
+
+                    dim @ &mut None => {
+                        *dim = Some((dimensions.0, dimensions.1));
+                    },
+                }
+
+                RawAttachment::RenderBuffer($rb.get_id())
+            });
+        }
+
+        macro_rules! handle_atch {
+            ($atch:ident, $($t:tt)*) => (
+                match $atch {
+                    &RegularAttachment::Texture(ref tex) => handle_tex!(tex, $($t)*),
+                    &RegularAttachment::RenderBuffer(ref rb) => handle_rb!(rb, $($t)*),
+                }
+            );
+        }
+
+        let mut raw_attachments = RawAttachments {
+            color: Vec::with_capacity(colors.len()),
+            depth: None,
+            stencil: None,
+            depth_stencil: None,
+        };
+
+        let mut dimensions = None;
+        let mut depth_bits = None;
+        let mut stencil_bits = None;
+
+        for &(index, ref attachment) in colors.iter() {
+            raw_attachments.color.push((index, handle_atch!(attachment, dimensions)));
+        }
+
+        match depth_stencil {
+            DepthStencilAttachments::None => (),
+            DepthStencilAttachments::DepthAttachment(ref d) => {
+                raw_attachments.depth = Some(handle_atch!(d, dimensions, depth_bits));
+            },
+            DepthStencilAttachments::StencilAttachment(ref s) => {
+                raw_attachments.stencil = Some(handle_atch!(s, dimensions, stencil_bits));
+            },
+            DepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
+                raw_attachments.depth = Some(handle_atch!(d, dimensions, depth_bits));
+                raw_attachments.stencil = Some(handle_atch!(s, dimensions, stencil_bits));
+            },
+            DepthStencilAttachments::DepthStencilAttachment(ref ds) => {
+                // FIXME: bits count
+                raw_attachments.depth_stencil = Some(handle_atch!(ds, dimensions));
+            },
+        }
+
+        let dimensions = if let Some(dimensions) = dimensions {
+            dimensions
+        } else {
+            // TODO: handle this
+            return Err(ValidationError::EmptyFramebufferObjectsNotSupported);
+        };
+
+        Ok(ValidatedAttachments {
+            raw: raw_attachments,
+            dimensions: dimensions,
+            layers: None,
             depth_buffer_bits: depth_bits,
             stencil_buffer_bits: stencil_bits,
             marker: PhantomData,
@@ -279,6 +421,20 @@ impl<'a> ValidatedAttachments<'a> {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ValidationError {
     EmptyFramebufferObjectsNotSupported,
+
+    /// The backend doesn't support attachments with various dimensions.
+    ///
+    /// Note that almost all OpenGL implementations support attachments with various dimensions.
+    /// Only very old versions don't.
+    DimensionsMismatchNotSupported,
+
+    /// Backends only support a certain number of color attachments.
+    TooManyColorAttachments {
+        /// Maximum number of attachments.
+        maximum: usize,
+        /// Number of attachments that were given.
+        obtained: usize,
+    },
 }
 
 /// Data structure stored in the hashmap.

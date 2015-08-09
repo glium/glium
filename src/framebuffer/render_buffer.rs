@@ -308,6 +308,11 @@ impl RenderBufferAny {
     pub fn get_dimensions(&self) -> (u32, u32) {
         (self.width, self.height)
     }
+
+    /// Returns the context used to create this renderbuffer.
+    pub fn get_context(&self) -> &Rc<Context> {
+        &self.context
+    }
 }
 
 impl Drop for RenderBufferAny {

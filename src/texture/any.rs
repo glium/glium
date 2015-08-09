@@ -681,6 +681,24 @@ pub struct TextureAnyMipmap<'a> {
 }
 
 impl<'a> TextureAnyMipmap<'a> {
+    /// Returns the width of the mipmap.
+    #[inline]
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+
+    /// Returns the height of the mipmap.
+    #[inline]
+    pub fn get_height(&self) -> Option<u32> {
+        self.height
+    }
+
+    /// Returns the depth of the mipmap.
+    #[inline]
+    pub fn get_depth(&self) -> Option<u32> {
+        self.depth
+    }
+
     /// Returns the texture.
     #[inline]
     pub fn get_texture(&self) -> &'a TextureAny {

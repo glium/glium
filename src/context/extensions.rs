@@ -66,6 +66,7 @@ extensions! {
     "GL_ARB_ES3_compatibility" => gl_arb_es3_compatibility,
     "GL_ARB_ES3_1_compatibility" => gl_arb_es3_1_compatibility,
     "GL_ARB_fragment_shader" => gl_arb_fragment_shader,
+    "GL_ARB_framebuffer_object" => gl_arb_framebuffer_object,
     "GL_ARB_framebuffer_sRGB" => gl_arb_framebuffer_srgb,
     "GL_ARB_geometry_shader4" => gl_arb_geometry_shader4,
     "GL_ARB_get_program_binary" => gl_arb_get_programy_binary,
