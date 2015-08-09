@@ -755,21 +755,28 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                                                                 level as gl::types::GLint,
                                                                 layer as gl::types::GLint);
 
-                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
                         bind_framebuffer(ctxt, id, true, false);
-                        ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
-                                                        slot, tex_id,
-                                                        level as gl::types::GLint,
-                                                        layer as gl::types::GLint);
 
-                    } else if ctxt.version >= &Version(Api::Gl, 3, 0) &&
-                              bind_point == gl::TEXTURE_3D
-                    {
-                        bind_framebuffer(ctxt, id, true, false);
-                        ctxt.gl.FramebufferTexture3D(gl::DRAW_FRAMEBUFFER,
-                                                     slot, bind_point, tex_id,
-                                                     level as gl::types::GLint,
-                                                     layer as gl::types::GLint);
+                        match bind_point {
+                            gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY |
+                            gl::TEXTURE_2D_MULTISAMPLE_ARRAY => {
+                                ctxt.gl.FramebufferTextureLayer(gl::DRAW_FRAMEBUFFER,
+                                                                slot, tex_id,
+                                                                level as gl::types::GLint,
+                                                                layer as gl::types::GLint);
+
+                            },
+
+                            gl::TEXTURE_3D => {
+                                ctxt.gl.FramebufferTexture3D(gl::DRAW_FRAMEBUFFER,
+                                                             slot, bind_point, tex_id,
+                                                             level as gl::types::GLint,
+                                                             layer as gl::types::GLint);
+                            },
+
+                            _ => unreachable!()
+                        }
 
                     } else if ctxt.extensions.gl_ext_framebuffer_object &&
                               bind_point == gl::TEXTURE_3D
