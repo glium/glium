@@ -802,38 +802,65 @@ impl GlObject for FrameBufferObject {
 pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLuint,
                                draw: bool, read: bool)
 {
-    if draw && ctxt.state.draw_framebuffer != fbo_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-           ctxt.extensions.gl_arb_framebuffer_object
-        {
-            ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
-        } else {
-            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
+    if draw && read {
+        if ctxt.state.draw_framebuffer != fbo_id || ctxt.state.read_framebuffer != fbo_id {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else {
+                unreachable!();
+            }
         }
-    }
 
-    if read && ctxt.state.read_framebuffer != fbo_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-           ctxt.extensions.gl_arb_framebuffer_object
-        {
-            ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
-            ctxt.state.read_framebuffer = fbo_id;
-        } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-            ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
-        } else {
-            ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
-            ctxt.state.draw_framebuffer = fbo_id;
-            ctxt.state.read_framebuffer = fbo_id;
+
+    } else {
+
+        if draw && ctxt.state.draw_framebuffer != fbo_id {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else {
+                unreachable!();
+            }
         }
+
+        if read && ctxt.state.read_framebuffer != fbo_id {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, fbo_id);
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, fbo_id);
+                ctxt.state.draw_framebuffer = fbo_id;
+                ctxt.state.read_framebuffer = fbo_id;
+            } else {
+                unreachable!();
+            }
+        }
+
     }
 }
 
