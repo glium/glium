@@ -140,16 +140,26 @@ impl<'a> FramebufferAttachments<'a> {
         // TODO: make sure that all attachments are layered
 
         macro_rules! handle_tex {
-            ($tex:ident, $dim:ident, $num_bits:ident) => ({
+            ($tex:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
                 $num_bits = Some($tex.get_texture().get_internal_format()
                                      .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
-                handle_tex!($tex, $dim)
+                handle_tex!($tex, $dim, $samples)
             });
 
-            ($tex:ident, $dim:ident) => ({
+            ($tex:ident, $dim:ident, $samples:ident) => ({
                 // TODO: check that internal format is renderable
-                // TODO: check number of samples mismatch
                 let context = $tex.get_texture().get_context();
+
+                match &mut $samples {
+                    &mut Some(samples) => {
+                        if samples != $tex.get_samples().unwrap_or(0) {
+                            return Err(ValidationError::SamplesCountMismatch);
+                        }
+                    },
+                    s @ &mut None => {
+                        *s = Some($tex.get_samples().unwrap_or(0));
+                    }
+                }
 
                 match &mut $dim {
                     &mut Some((ref mut w, ref mut h)) => {
@@ -192,28 +202,29 @@ impl<'a> FramebufferAttachments<'a> {
         let mut dimensions = None;
         let mut depth_bits = None;
         let mut stencil_bits = None;
+        let mut samples = None;     // contains `0` if not multisampling and `None` if unknown
 
         for &(index, LayeredAttachment(ref attachment)) in colors.iter() {
-            raw_attachments.color.push((index, handle_tex!(attachment, dimensions)));
+            raw_attachments.color.push((index, handle_tex!(attachment, dimensions, samples)));
         }
 
         match depth_stencil {
             DepthStencilAttachments::None => (),
             DepthStencilAttachments::DepthAttachment(LayeredAttachment(ref d)) => {
-                raw_attachments.depth = Some(handle_tex!(d, dimensions, depth_bits));
+                raw_attachments.depth = Some(handle_tex!(d, dimensions, samples, depth_bits));
             },
             DepthStencilAttachments::StencilAttachment(LayeredAttachment(ref s)) => {
-                raw_attachments.stencil = Some(handle_tex!(s, dimensions, stencil_bits));
+                raw_attachments.stencil = Some(handle_tex!(s, dimensions, samples, stencil_bits));
             },
             DepthStencilAttachments::DepthAndStencilAttachments(LayeredAttachment(ref d),
                                                                  LayeredAttachment(ref s))
             => {
-                raw_attachments.depth = Some(handle_tex!(d, dimensions, depth_bits));
-                raw_attachments.stencil = Some(handle_tex!(s, dimensions, stencil_bits));
+                raw_attachments.depth = Some(handle_tex!(d, dimensions, samples, depth_bits));
+                raw_attachments.stencil = Some(handle_tex!(s, dimensions, samples, stencil_bits));
             },
             DepthStencilAttachments::DepthStencilAttachment(LayeredAttachment(ref ds)) => {
                 // FIXME: bits count
-                raw_attachments.depth_stencil = Some(handle_tex!(ds, dimensions));
+                raw_attachments.depth_stencil = Some(handle_tex!(ds, dimensions, samples));
             },
         }
 
@@ -239,16 +250,26 @@ impl<'a> FramebufferAttachments<'a> {
                         -> Result<ValidatedAttachments<'a>, ValidationError>
     {
         macro_rules! handle_tex {
-            ($tex:ident, $dim:ident, $num_bits:ident) => ({
+            ($tex:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
                 $num_bits = Some($tex.get_texture().get_internal_format()
                                      .map(|f| f.get_total_bits()).ok().unwrap_or(24) as u16);     // TODO: how to handle this?
-                handle_tex!($tex, $dim)
+                handle_tex!($tex, $dim, $samples)
             });
 
-            ($tex:ident, $dim:ident) => ({
+            ($tex:ident, $dim:ident, $samples:ident) => ({
                 // TODO: check that internal format is renderable
-                // TODO: check number of samples mismatch
                 let context = $tex.get_texture().get_context();
+
+                match &mut $samples {
+                    &mut Some(samples) => {
+                        if samples != $tex.get_samples().unwrap_or(0) {
+                            return Err(ValidationError::SamplesCountMismatch);
+                        }
+                    },
+                    s @ &mut None => {
+                        *s = Some($tex.get_samples().unwrap_or(0));
+                    }
+                }
 
                 match &mut $dim {
                     &mut Some((ref mut w, ref mut h)) => {
@@ -282,16 +303,26 @@ impl<'a> FramebufferAttachments<'a> {
         }
 
         macro_rules! handle_rb {
-            ($rb:ident, $dim:ident, $num_bits:ident) => ({
+            ($rb:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
                 $num_bits = Some(24);       // FIXME: totally arbitrary
-                handle_rb!($rb, $dim)
+                handle_rb!($rb, $dim, $samples)
             });
 
-            ($rb:ident, $dim:ident) => ({
+            ($rb:ident, $dim:ident, $samples:ident) => ({
                 // TODO: check that internal format is renderable
-                // TODO: check number of samples mismatch
                 let context = $rb.get_context();
                 let dimensions = $rb.get_dimensions();
+
+                match &mut $samples {
+                    &mut Some(samples) => {
+                        if samples != $rb.get_samples().unwrap_or(0) {
+                            return Err(ValidationError::SamplesCountMismatch);
+                        }
+                    },
+                    s @ &mut None => {
+                        *s = Some($rb.get_samples().unwrap_or(0));
+                    }
+                }
 
                 match &mut $dim {
                     &mut Some((ref mut w, ref mut h)) => {
@@ -337,26 +368,27 @@ impl<'a> FramebufferAttachments<'a> {
         let mut dimensions = None;
         let mut depth_bits = None;
         let mut stencil_bits = None;
+        let mut samples = None;     // contains `0` if not multisampling and `None` if unknown
 
         for &(index, ref attachment) in colors.iter() {
-            raw_attachments.color.push((index, handle_atch!(attachment, dimensions)));
+            raw_attachments.color.push((index, handle_atch!(attachment, dimensions, samples)));
         }
 
         match depth_stencil {
             DepthStencilAttachments::None => (),
             DepthStencilAttachments::DepthAttachment(ref d) => {
-                raw_attachments.depth = Some(handle_atch!(d, dimensions, depth_bits));
+                raw_attachments.depth = Some(handle_atch!(d, dimensions, samples, depth_bits));
             },
             DepthStencilAttachments::StencilAttachment(ref s) => {
-                raw_attachments.stencil = Some(handle_atch!(s, dimensions, stencil_bits));
+                raw_attachments.stencil = Some(handle_atch!(s, dimensions, samples, stencil_bits));
             },
             DepthStencilAttachments::DepthAndStencilAttachments(ref d, ref s) => {
-                raw_attachments.depth = Some(handle_atch!(d, dimensions, depth_bits));
-                raw_attachments.stencil = Some(handle_atch!(s, dimensions, stencil_bits));
+                raw_attachments.depth = Some(handle_atch!(d, dimensions, samples, depth_bits));
+                raw_attachments.stencil = Some(handle_atch!(s, dimensions, samples, stencil_bits));
             },
             DepthStencilAttachments::DepthStencilAttachment(ref ds) => {
                 // FIXME: bits count
-                raw_attachments.depth_stencil = Some(handle_atch!(ds, dimensions));
+                raw_attachments.depth_stencil = Some(handle_atch!(ds, dimensions, samples));
             },
         }
 
@@ -427,6 +459,9 @@ pub enum ValidationError {
     /// Note that almost all OpenGL implementations support attachments with various dimensions.
     /// Only very old versions don't.
     DimensionsMismatchNotSupported,
+
+    /// All attachments must have the same number of samples.
+    SamplesCountMismatch,
 
     /// Backends only support a certain number of color attachments.
     TooManyColorAttachments {

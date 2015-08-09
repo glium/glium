@@ -309,6 +309,13 @@ impl RenderBufferAny {
         (self.width, self.height)
     }
 
+    /// Returns the number of samples of the render buffer, or `None` if multisampling isn't
+    /// enabled.
+    #[inline]
+    pub fn get_samples(&self) -> Option<u32> {
+        None       // TODO: multisample renderbuffers not implemented
+    }
+
     /// Returns the context used to create this renderbuffer.
     pub fn get_context(&self) -> &Rc<Context> {
         &self.context
