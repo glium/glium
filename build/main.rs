@@ -43,6 +43,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_ARB_ES2_compatibility".to_string(),
                 "GL_ARB_ES3_compatibility".to_string(),
                 "GL_ARB_ES3_1_compatibility".to_string(),
+                "GL_ARB_ES3_2_compatibility".to_string(),
                 "GL_ARB_framebuffer_sRGB".to_string(),
                 "GL_ARB_geometry_shader4".to_string(),
                 "GL_ARB_invalidate_subdata".to_string(),
