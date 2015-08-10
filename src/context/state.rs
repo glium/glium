@@ -255,6 +255,9 @@ pub struct GlState {
     // TODO: move this inside transform feedback objects
     pub transform_feedback_paused: bool,
 
+    /// The latest value passed to `glPrimitiveBoundingBox`.
+    pub primitive_bounding_box: (f32, f32, f32, f32, f32, f32, f32, f32),
+
     /// Current draw call ID.
     /// We maintain a counter that is incremented at each draw call.
     pub next_draw_call_id: u64,
@@ -430,6 +433,7 @@ impl Default for GlState {
             conditional_render: None,
             transform_feedback_enabled: None,
             transform_feedback_paused: false,
+            primitive_bounding_box: (-1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0),
 
             next_draw_call_id: 1,
             latest_memory_barrier_vertex_attrib_array: 1,
