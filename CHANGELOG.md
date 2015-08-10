@@ -11,6 +11,7 @@
  - Changed the `framebuffer::To*Attachment` traits with a lifetime parameter, and to take by value instead of by reference.
  - The `framebuffer::To*Attachment` traits are now implemented on `TextureLayerMipmap` structs.
  - Fixed `.layer()` function returning `None` when it shouldn't.
+ - GLSL ES 3.2 is now recognized.
 
 ## Version 0.8.3 (2015-08-04)
 
