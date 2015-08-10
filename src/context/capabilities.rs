@@ -99,7 +99,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             get_supported_glsl(gl, version, extensions)
         },
 
-        robustness: if version >= &Version(Api::Gl, 4, 5) ||
+        robustness: if version >= &Version(Api::Gl, 4, 5) || version >= &Version(Api::GlEs, 3, 2) ||
                        (version >= &Version(Api::Gl, 3, 0) && extensions.gl_arb_robustness)
         {
             // TODO: there seems to be no way to query `GL_CONTEXT_FLAGS` before OpenGL 3.0, even

@@ -337,7 +337,10 @@ impl Context {
 
         let mut ctxt = self.make_current();
 
-        let lost = if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_khr_robustness {
+        let lost = if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                      ctxt.version >= &Version(Api::GlEs, 3, 2) ||
+                      ctxt.extensions.gl_khr_robustness
+        {
             unsafe { ctxt.gl.GetGraphicsResetStatus() != gl::NO_ERROR }
         } else if ctxt.extensions.gl_ext_robustness {
             unsafe { ctxt.gl.GetGraphicsResetStatusEXT() != gl::NO_ERROR }
@@ -750,8 +753,8 @@ fn init_debug_callback(context: &Rc<Context>) {
     unsafe {
         let mut ctxt = context.make_current();
 
-        if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug ||
-            ctxt.extensions.gl_arb_debug_output
+        if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.version >= &Version(Api::GlEs, 3, 2) ||
+           ctxt.extensions.gl_khr_debug || ctxt.extensions.gl_arb_debug_output
         {
             if ctxt.state.enabled_debug_output_synchronous != true {
                 ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
@@ -759,7 +762,8 @@ fn init_debug_callback(context: &Rc<Context>) {
             }
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-                (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
+               ctxt.version >= &Version(Api::GlEs, 3, 2) ||
+               (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
             {
                 ctxt.gl.DebugMessageCallback(callback_wrapper, context_raw_ptr.0
                                                                  as *const libc::c_void);
@@ -772,7 +776,7 @@ fn init_debug_callback(context: &Rc<Context>) {
                 }
 
             } else if ctxt.version >= &Version(Api::GlEs, 2, 0) &&
-                ctxt.extensions.gl_khr_debug
+                      ctxt.extensions.gl_khr_debug
             {
                 ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, context_raw_ptr.0
                                                                  as *const libc::c_void);
