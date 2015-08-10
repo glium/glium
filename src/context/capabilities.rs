@@ -422,6 +422,10 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
         result.push(Version(Api::GlEs, 3, 1));
     }
 
+    if version >= &Version(Api::GlEs, 3, 2) || extensions.gl_arb_es3_2_compatibility {
+        result.push(Version(Api::GlEs, 3, 1));
+    }
+
     if version >= &Version(Api::Gl, 2, 0) && version <= &Version(Api::Gl, 3, 0) ||
        extensions.gl_arb_compatibility
     {
