@@ -64,7 +64,7 @@ use context::Context;
 use version::Version;
 use version::Api;
 
-use ContextExt;
+use CapabilitiesSource;
 use DrawError;
 use Rect;
 use ToGlEnum;

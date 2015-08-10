@@ -271,9 +271,6 @@ trait ContextExt {
 
     /// Returns the capabilities of the backend.
     fn capabilities(&self) -> &context::Capabilities;
-
-    /// Returns the list of extensions supported by the backend.
-    fn get_extensions(&self) -> &context::ExtensionsList;
 }
 
 /// Internal trait for programs.

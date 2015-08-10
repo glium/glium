@@ -5,7 +5,7 @@ use version::Version;
 use context::CommandContext;
 use backend::Facade;
 use BufferViewExt;
-use ContextExt;
+use CapabilitiesSource;
 use TransformFeedbackSessionExt;
 use buffer::{BufferView, BufferViewAnySlice};
 use index::PrimitiveType;

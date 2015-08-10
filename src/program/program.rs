@@ -5,7 +5,7 @@ use version::Version;
 use version::Api;
 
 use backend::Facade;
-use ContextExt;
+use CapabilitiesSource;
 
 use std::fmt;
 use std::error::Error;
