@@ -1084,7 +1084,8 @@ impl StencilFormat {
 
         match self {
             &StencilFormat::I8 => {
-                version >= &Version(Api::Gl, 4, 4) || extensions.gl_arb_texture_stencil8
+                version >= &Version(Api::Gl, 4, 4) || version >= &Version(Api::GlEs, 3, 2) ||
+                extensions.gl_arb_texture_stencil8 || extensions.gl_oes_texture_stencil8
             },
 
             _ => false

@@ -371,7 +371,9 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
             }
 
             // binding the buffer
-            if ctxt.version >= &Version(Api::Gl, 3, 0) {
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.version >= &Version(Api::GlEs, 3, 2)
+            {
                 unsafe {
                     ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
                 }

@@ -189,16 +189,20 @@ pub fn check_shader_type_compatibility<C>(ctxt: &C, shader_type: gl::types::GLen
         gl::VERTEX_SHADER | gl::FRAGMENT_SHADER => (),
         gl::GEOMETRY_SHADER => {
             if !(ctxt.get_version() >= &Version(Api::Gl, 3, 0))
+                && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2))
                 && !ctxt.get_extensions().gl_arb_geometry_shader4
                 && !ctxt.get_extensions().gl_ext_geometry_shader4
                 && !ctxt.get_extensions().gl_ext_geometry_shader
+                && !ctxt.get_extensions().gl_oes_geometry_shader
             {
                 return false;
             }
         },
         gl::TESS_CONTROL_SHADER | gl::TESS_EVALUATION_SHADER => {
             if !(ctxt.get_version() >= &Version(Api::Gl, 4, 0))
-                && !ctxt.get_extensions().gl_arb_tessellation_shader 
+                && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2))
+                && !ctxt.get_extensions().gl_arb_tessellation_shader
+                && !ctxt.get_extensions().gl_oes_tessellation_shader
             {
                 return false;
             }

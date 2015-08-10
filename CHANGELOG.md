@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Add support for OpenGL ES 3.2 for geometry shaders, tessellation shaders, robustness, debug output, buffer textures, stencil textures.
+
 ## Version 0.8.4 (2015-08-10)
 
  - Added `#[inline]` attributes on many functions.
