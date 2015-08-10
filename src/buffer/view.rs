@@ -159,7 +159,7 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     /// }
     /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::uninitialized() };
-    /// let slice = unsafe { buffer.slice_element(|content| &content.value2) };
+    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
     /// ```
     ///
     /// # Safety
@@ -170,20 +170,20 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     /// You **must** return a reference to an element from the parameter. The closure **must not**
     /// panic.
     #[inline]
-    pub unsafe fn slice_element<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<R>
-                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
+    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<R>
+                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
                                                     R: Content
     {
-        self.as_slice().slice_element(f)
+        self.as_slice().slice_custom(f)
     }
 
-    /// Same as `slice_element` but returns a mutable slice.
+    /// Same as `slice_custom` but returns a mutable slice.
     #[inline]
-    pub unsafe fn slice_element_mut<F, R: ?Sized>(&mut self, f: F) -> BufferViewMutSlice<R>
-                                                  where F: for<'r> FnOnce(&'r T) -> &'r R,
+    pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> BufferViewMutSlice<R>
+                                                 where F: for<'r> FnOnce(&'r T) -> &'r R,
                                                         R: Content
     {
-        self.as_mut_slice().slice_element(f)
+        self.as_mut_slice().slice_custom(f)
     }
 
     /// Builds a slice containing the whole subbuffer.
@@ -449,7 +449,7 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
     /// }
     /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::uninitialized() };
-    /// let slice = unsafe { buffer.slice_element(|content| &content.value2) };
+    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
     /// ```
     ///
     /// # Safety
@@ -460,9 +460,9 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
     /// You **must** return a reference to an element from the parameter. The closure **must not**
     /// panic.
     #[inline]
-    pub unsafe fn slice_element<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<'a, R>
-                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                    R: Content
+    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<'a, R>
+                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                   R: Content
     {
         let data: &T = mem::zeroed();
         let result = f(data);
@@ -702,7 +702,7 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     /// }
     /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::uninitialized() };
-    /// let slice = unsafe { buffer.slice_element(|content| &content.value2) };
+    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
     /// ```
     ///
     /// # Safety
@@ -713,9 +713,9 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     /// You **must** return a reference to an element from the parameter. The closure **must not**
     /// panic.
     #[inline]
-    pub unsafe fn slice_element<F, R: ?Sized>(self, f: F) -> BufferViewMutSlice<'a, R>
-                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                    R: Content
+    pub unsafe fn slice_custom<F, R: ?Sized>(self, f: F) -> BufferViewMutSlice<'a, R>
+                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                   R: Content
     {
         let data: &T = mem::zeroed();
         let result = f(data);

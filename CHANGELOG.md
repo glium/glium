@@ -3,7 +3,7 @@
 ## Unreleased
 
  - Added `#[inline]` attributes on many functions.
- - Added `slice_element` and `slice_element_mut` to buffers, which allow you to get slices over anything inside the buffer.
+ - Added `slice_custom` and `slice_custom_mut` to buffers, which allow you to get slices over anything inside the buffer.
  - Added `Query::to_buffer_u32` to write the result of a query to a buffer.
  - Added `is_supported` functions for all the texture and renderbuffer formats.
  - Added missing `I16I16I16I16` and `U16U16U16` float formats. Renamed `U3U32U`to `U3U3U2`.
