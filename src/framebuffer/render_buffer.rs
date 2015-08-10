@@ -50,9 +50,9 @@ impl RenderBuffer {
     }
 }
 
-impl ToColorAttachment for RenderBuffer {
+impl<'a> ToColorAttachment<'a> for &'a RenderBuffer {
     #[inline]
-    fn to_color_attachment(&self) -> ColorAttachment {
+    fn to_color_attachment(self) -> ColorAttachment<'a> {
         ColorAttachment::RenderBuffer(self)
     }
 }
@@ -104,8 +104,8 @@ impl DepthRenderBuffer {
     }
 }
 
-impl ToDepthAttachment for DepthRenderBuffer {
-    fn to_depth_attachment(&self) -> DepthAttachment {
+impl<'a> ToDepthAttachment<'a> for &'a DepthRenderBuffer {
+    fn to_depth_attachment(self) -> DepthAttachment<'a> {
         DepthAttachment::RenderBuffer(self)
     }
 }
@@ -157,9 +157,9 @@ impl StencilRenderBuffer {
     }
 }
 
-impl ToStencilAttachment for StencilRenderBuffer {
+impl<'a> ToStencilAttachment<'a> for &'a StencilRenderBuffer {
     #[inline]
-    fn to_stencil_attachment(&self) -> StencilAttachment {
+    fn to_stencil_attachment(self) -> StencilAttachment<'a> {
         StencilAttachment::RenderBuffer(self)
     }
 }
@@ -211,9 +211,9 @@ impl DepthStencilRenderBuffer {
     }
 }
 
-impl ToDepthStencilAttachment for DepthStencilRenderBuffer {
+impl<'a> ToDepthStencilAttachment<'a> for &'a DepthStencilRenderBuffer {
     #[inline]
-    fn to_depth_stencil_attachment(&self) -> DepthStencilAttachment {
+    fn to_depth_stencil_attachment(self) -> DepthStencilAttachment<'a> {
         DepthStencilAttachment::RenderBuffer(self)
     }
 }

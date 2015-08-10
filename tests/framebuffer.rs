@@ -244,3 +244,19 @@ fn multioutput() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn array_level() {
+    let display = support::build_display();
+
+    let texture = match glium::texture::Texture2dArray::empty(&display, 128, 128, 4) {
+        Ok(t) => t,
+        Err(_) => return
+    };
+
+    let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display,
+                                                          texture.main_level().layer(2).unwrap());
+    assert_eq!(framebuffer.get_dimensions(), (128, 128));
+
+    display.assert_no_error(None);
+}

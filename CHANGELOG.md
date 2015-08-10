@@ -8,6 +8,9 @@
  - Added `is_supported` functions for all the texture and renderbuffer formats.
  - Added missing `I16I16I16I16` and `U16U16U16` float formats. Renamed `U3U32U`to `U3U3U2`.
  - Various fixes and improvements when determining whether a format is supported.
+ - Changed the `framebuffer::To*Attachment` traits with a lifetime parameter, and to take by value instead of by reference.
+ - The `framebuffer::To*Attachment` traits are now implemented on `TextureLayerMipmap` structs.
+ - Fixed `.layer()` function returning `None` when it shouldn't.
 
 ## Version 0.8.3 (2015-08-04)
 
