@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.8.4 (2015-08-10)
 
  - Added `#[inline]` attributes on many functions.
  - Added `slice_custom` and `slice_custom_mut` to buffers, which allow you to get slices over anything inside the buffer.
