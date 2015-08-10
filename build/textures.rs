@@ -437,13 +437,15 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // `ToXXXAttachment` trait impl
-    if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample {
+    if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample ||
+       dimensions == TextureDimensions::Texture1d
+    {
         match ty {
             TextureType::Regular => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToColorAttachment for {name} {{
+                        impl<'t> ::framebuffer::ToColorAttachment<'t> for &'t {name} {{
                             #[inline]
-                            fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
+                            fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
                                 ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
@@ -451,9 +453,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             },
             TextureType::Srgb => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToColorAttachment for {name} {{
+                        impl<'t> ::framebuffer::ToColorAttachment<'t> for &'t {name} {{
                             #[inline]
-                            fn to_color_attachment(&self) -> ::framebuffer::ColorAttachment {{
+                            fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
                                 ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
@@ -461,9 +463,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             },
             TextureType::Depth => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToDepthAttachment for {name} {{
+                        impl<'t> ::framebuffer::ToDepthAttachment<'t> for &'t {name} {{
                             #[inline]
-                            fn to_depth_attachment(&self) -> ::framebuffer::DepthAttachment {{
+                            fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
                                 ::framebuffer::DepthAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
@@ -471,9 +473,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             },
             TextureType::Stencil => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToStencilAttachment for {name} {{
+                        impl<'t> ::framebuffer::ToStencilAttachment<'t> for &'t {name} {{
                             #[inline]
-                            fn to_stencil_attachment(&self) -> ::framebuffer::StencilAttachment {{
+                            fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
                                 ::framebuffer::StencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
@@ -481,9 +483,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             },
             TextureType::DepthStencil => {
                 (writeln!(dest, "
-                        impl ::framebuffer::ToDepthStencilAttachment for {name} {{
+                        impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for &'t {name} {{
                             #[inline]
-                            fn to_depth_stencil_attachment(&self) -> ::framebuffer::DepthStencilAttachment {{
+                            fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
                                 ::framebuffer::DepthStencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
                             }}
                         }}
@@ -927,33 +929,32 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             }}
         "#)).unwrap();
 
-    // writing the `layer()` function
+    // writing the layer & mipmap access functions
     (write!(dest, r#"
+            /// Access the first layer of this texture.
+            #[inline]
+            pub fn first_layer(&self) -> {name}Layer {{
+                self.layer(0).unwrap()
+            }}
+
             /// Access a single layer of this texture.
             #[inline]
             pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
                 self.0.layer(layer).map(|l| {name}Layer(l, self))
             }}
+
+            /// Access a single mipmap level of this texture.
+            #[inline]
+            pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
+                self.0.mipmap(level).map(|m| {name}Mipmap(m, self))
+            }}
+
+            /// Access the main mipmap level of this texture.
+            #[inline]
+            pub fn main_level(&self) -> {name}Mipmap {{
+                self.mipmap(0).unwrap()
+            }}
         "#, name = name)).unwrap();
-
-    // writing the `mipmap()` and `main_level()` functions
-    {
-        (write!(dest, r#"
-                /// Access a single mipmap level of this texture.
-                #[inline]
-                pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
-                    self.0.mipmap(level).map(|m| {name}Mipmap(m, self))
-                }}
-            "#, name = name)).unwrap();
-
-        (write!(dest, r#"
-                /// Access the main mipmap level of this texture.
-                #[inline]
-                pub fn main_level(&self) -> {name}Mipmap {{
-                    self.mipmap(0).unwrap()
-                }}
-            "#, name = name)).unwrap();
-    }
 
     // closing `impl Texture` block
     (writeln!(dest, "}}")).unwrap();
@@ -998,23 +999,20 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 }}
             ")).unwrap();
 
-        // writing the `mipmap()` function
+        // writing the layer & mipmap access functions
         (write!(dest, r#"
-                /// Access a single mipmap level of this layer.
-                #[inline]
-                pub fn mipmap(&self, level: u32) -> Option<{name}LayerMipmap> {{
-                    self.0.mipmap(level).map(|m| {name}LayerMipmap(m, self.1))
-                }}
-            "#, name = name)).unwrap();
+            /// Access a single mipmap level of this layer.
+            #[inline]
+            pub fn mipmap(&self, level: u32) -> Option<{name}LayerMipmap<'t>> {{
+                self.0.mipmap(level).map(|m| {name}LayerMipmap(m, self.1))
+            }}
 
-        // writing the `main_level()` function
-        (write!(dest, r#"
-                /// Access the main mipmap level of this layer.
-                #[inline]
-                pub fn main_level(&self) -> {name}LayerMipmap {{
-                    self.mipmap(0).unwrap()
-                }}
-            "#, name = name)).unwrap();
+            /// Access the main mipmap level of this layer.
+            #[inline]
+            pub fn main_level(&self) -> {name}LayerMipmap<'t> {{
+                self.mipmap(0).unwrap()
+            }}
+        "#, name = name)).unwrap();
 
         // closing `impl Layer` block
         (writeln!(dest, "}}")).unwrap();
@@ -1160,10 +1158,81 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 pub fn get_level(&self) -> u32 {{
                     self.0.get_level()
                 }}
+
+                /// Access the first layer of this texture.
+                #[inline]
+                pub fn first_layer(&self) -> {name}LayerMipmap<'t> {{
+                    self.layer(0).unwrap()
+                }}
+
+                /// Access a single layer of this texture.
+                #[inline]
+                pub fn layer(&self, layer: u32) -> Option<{name}LayerMipmap<'t>> {{
+                    self.0.layer(layer).map(|l| {name}LayerMipmap(l, self.1))
+                }}
             ", name = name)).unwrap();
 
         // closing `impl Mipmap` block
         (writeln!(dest, "}}")).unwrap();
+
+        // `ToXXXAttachment` trait impl
+        if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample ||
+           dimensions == TextureDimensions::Texture1d
+        {
+            match ty {
+                TextureType::Regular => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
+                                #[inline]
+                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
+                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::Srgb => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
+                                #[inline]
+                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
+                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::Depth => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}Mipmap<'t> {{
+                                #[inline]
+                                fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
+                                    ::framebuffer::DepthAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::Stencil => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}Mipmap<'t> {{
+                                #[inline]
+                                fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
+                                    ::framebuffer::StencilAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::DepthStencil => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}Mipmap<'t> {{
+                                #[inline]
+                                fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
+                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                _ => ()
+            }
+        }
     }
 
     // the `LayerMipmap` struct
@@ -1176,10 +1245,67 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             "#, name = name)).unwrap();
 
         // opening `impl LayerMipmap` block
-        (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
+        (writeln!(dest, "impl<'t> {}LayerMipmap<'t> {{", name)).unwrap();
 
         // closing `impl LayerMipmap` block
         (writeln!(dest, "}}")).unwrap();
+
+        // attachment traits
+        if dimensions != TextureDimensions::Texture3d {
+            match ty {
+                TextureType::Regular => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
+                                #[inline]
+                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
+                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::Srgb => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
+                                #[inline]
+                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
+                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::Depth => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}LayerMipmap<'t> {{
+                                #[inline]
+                                fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
+                                    ::framebuffer::DepthAttachment::Texture(self.0.into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::Stencil => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}LayerMipmap<'t> {{
+                                #[inline]
+                                fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
+                                    ::framebuffer::StencilAttachment::Texture(self.0.into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                TextureType::DepthStencil => {
+                    (writeln!(dest, "
+                            impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}LayerMipmap<'t> {{
+                                #[inline]
+                                fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
+                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.into_image().unwrap())
+                                }}
+                            }}
+                        ", name = name)).unwrap();
+                },
+                _ => ()
+            }
+        }
     }
 
     // closing `mod module {`

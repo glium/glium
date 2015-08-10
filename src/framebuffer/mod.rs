@@ -102,8 +102,8 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
     #[inline]
-    pub fn new<F, C>(facade: &F, color: &'a C) -> SimpleFrameBuffer<'a>
-                  where C: ToColorAttachment, F: Facade
+    pub fn new<F, C>(facade: &F, color: C) -> SimpleFrameBuffer<'a>
+                     where C: ToColorAttachment<'a>, F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None, None)
     }
@@ -111,9 +111,10 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth
     /// buffer, but no stencil buffer.
     #[inline]
-    pub fn with_depth_buffer<F, C, D>(facade: &F, color: &'a C, depth: &'a D)
+    pub fn with_depth_buffer<F, C, D>(facade: &F, color: C, depth: D)
                                       -> SimpleFrameBuffer<'a>
-                                      where C: ToColorAttachment, D: ToDepthAttachment, F: Facade
+                                      where C: ToColorAttachment<'a>,
+                                            D: ToDepthAttachment<'a>, F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
                                     Some(depth.to_depth_attachment()), None, None)
@@ -122,11 +123,11 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment, a depth
     /// buffer, and a stencil buffer.
     #[inline]
-    pub fn with_depth_and_stencil_buffer<F, C, D, S>(facade: &F, color: &'a C, depth: &'a D,
-                                                     stencil: &'a S) -> SimpleFrameBuffer<'a>
-                                                     where C: ToColorAttachment,
-                                                           D: ToDepthAttachment,
-                                                           S: ToStencilAttachment, F: Facade
+    pub fn with_depth_and_stencil_buffer<F, C, D, S>(facade: &F, color: C, depth: D,
+                                                     stencil: S) -> SimpleFrameBuffer<'a>
+                                                     where C: ToColorAttachment<'a>,
+                                                           D: ToDepthAttachment<'a>,
+                                                           S: ToStencilAttachment<'a>, F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
                                     Some(depth.to_depth_attachment()),
@@ -136,9 +137,9 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
     /// buffer, but no depth buffer.
     #[inline]
-    pub fn with_stencil_buffer<F, C, S>(facade: &F, color: &'a C, stencil: &'a S)
+    pub fn with_stencil_buffer<F, C, S>(facade: &F, color: C, stencil: S)
                                         -> SimpleFrameBuffer<'a>
-                                        where C: ToColorAttachment, S: ToStencilAttachment,
+                                        where C: ToColorAttachment<'a>, S: ToStencilAttachment<'a>,
                                               F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None,
@@ -147,10 +148,10 @@ impl<'a> SimpleFrameBuffer<'a> {
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
     #[inline]
-    pub fn with_depth_stencil_buffer<F, C, D>(facade: &F, color: &'a C, depthstencil: &'a D)
+    pub fn with_depth_stencil_buffer<F, C, D>(facade: &F, color: C, depthstencil: D)
                                               -> SimpleFrameBuffer<'a>
-                                              where C: ToColorAttachment,
-                                                    D: ToDepthStencilAttachment, F: Facade
+                                              where C: ToColorAttachment<'a>,
+                                                    D: ToDepthStencilAttachment<'a>, F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None,
                                     Some(depthstencil.to_depth_stencil_attachment()))
@@ -329,16 +330,16 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
     pub fn with_depth_buffer<F, D>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
-                                   depth: &'a D) -> MultiOutputFrameBuffer<'a>
-                                   where D: ToDepthAttachment, F: Facade
+                                   depth: D) -> MultiOutputFrameBuffer<'a>
+                                   where D: ToDepthAttachment<'a>, F: Facade
     {
         MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
                                          None::<&StencilRenderBuffer>)
     }
 
     fn new_impl<F, D, S>(facade: &F, color: &[(&str, &'a Texture2d)],
-                         depth: Option<&'a D>, stencil: Option<&'a S>)
-                         -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment, F: Facade
+                         depth: Option<D>, stencil: Option<S>)
+                         -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment<'a>, F: Facade
     {
         let color = color.iter().map(|&(name, tex)| {
             let atch = tex.to_color_attachment();
@@ -523,9 +524,9 @@ pub enum ColorAttachment<'a> {
 }
 
 /// Trait for objects that can be used as color attachments.
-pub trait ToColorAttachment {
+pub trait ToColorAttachment<'a> {
     /// Builds the `ColorAttachment`.
-    fn to_color_attachment(&self) -> ColorAttachment;
+    fn to_color_attachment(self) -> ColorAttachment<'a>;
 }
 
 /// Describes an attachment for a depth buffer.
@@ -538,9 +539,9 @@ pub enum DepthAttachment<'a> {
 }
 
 /// Trait for objects that can be used as depth attachments.
-pub trait ToDepthAttachment {
+pub trait ToDepthAttachment<'a> {
     /// Builds the `DepthAttachment`.
-    fn to_depth_attachment(&self) -> DepthAttachment;
+    fn to_depth_attachment(self) -> DepthAttachment<'a>;
 }
 
 /// Describes an attachment for a stencil buffer.
@@ -553,9 +554,9 @@ pub enum StencilAttachment<'a> {
 }
 
 /// Trait for objects that can be used as stencil attachments.
-pub trait ToStencilAttachment {
+pub trait ToStencilAttachment<'a> {
     /// Builds the `StencilAttachment`.
-    fn to_stencil_attachment(&self) -> StencilAttachment;
+    fn to_stencil_attachment(self) -> StencilAttachment<'a>;
 }
 
 /// Describes an attachment for a depth and stencil buffer.
@@ -568,7 +569,7 @@ pub enum DepthStencilAttachment<'a> {
 }
 
 /// Trait for objects that can be used as depth and stencil attachments.
-pub trait ToDepthStencilAttachment {
+pub trait ToDepthStencilAttachment<'a> {
     /// Builds the `DepthStencilAttachment`.
-    fn to_depth_stencil_attachment(&self) -> DepthStencilAttachment;
+    fn to_depth_stencil_attachment(self) -> DepthStencilAttachment<'a>;
 }

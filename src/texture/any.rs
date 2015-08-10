@@ -749,11 +749,19 @@ impl<'a> TextureAnyMipmap<'a> {
     /// Returns `None` if out of range.
     #[inline]
     pub fn layer(&self, layer: u32) -> Option<TextureAnyLayerMipmap<'a>> {
-        if layer >= self.texture.get_array_size().unwrap_or(1) {
-            return None;
+        if let Some(array_size) = self.texture.get_array_size() {
+            if layer >= array_size {
+                return None;
+            }
         }
 
-        if layer >= self.depth.unwrap_or(1) {
+        if let Some(depth) = self.depth {
+            if layer >= depth {
+                return None;
+            }
+        }
+
+        if layer >= 1 && self.depth.is_none() && self.texture.get_array_size().is_none() {
             return None;
         }
 
