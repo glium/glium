@@ -6,6 +6,7 @@
  - Add support for OpenGL ES 3.2 for geometry shaders, tessellation shaders, robustness, debug output, buffer textures, stencil textures, base vertex.
  - Add support for `GL_OES_geometry_shader`, `GL_OES_tessellation_shader` `GL_OES_draw_elements_base_vertex`, `GL_OES_draw_elements_base_vertex`.
  - Add support for specifying the primitive bounding box as an optimization hint to the backend.
+ - Added various `is_texture_*_supported` functions in the `texture` module to check whether a texture type is supported.
 
 ## Version 0.8.4 (2015-08-10)
 
