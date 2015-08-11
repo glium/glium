@@ -51,7 +51,7 @@ smallvec = "0.1.5"
 
 [build-dependencies]
 gl_generator = "0.0.25"
-khronos_api = "0.0.7"
+khronos_api = "0.0.8"
 
 [dev-dependencies]
 clock_ticks = "0.0.5"

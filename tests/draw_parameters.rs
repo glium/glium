@@ -1243,3 +1243,21 @@ fn depth_clamp_far() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn primitive_bounding_box() {
+    let display = support::build_display();
+
+    let params = glium::DrawParameters {
+        primitive_bounding_box: (0.0 .. 1.0, -0.2 .. 0.3, 0.0 .. 1.0, -1.0 .. 1.0),
+        .. Default::default()
+    };
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface()
+           .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
+
+    display.assert_no_error(None);
+}

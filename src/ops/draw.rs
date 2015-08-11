@@ -1,4 +1,5 @@
 use std::ptr;
+use std::ops::Range;
 
 use BufferViewExt;
 use BufferViewSliceExt;
@@ -199,6 +200,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         sync_conditional_render(&mut ctxt, draw_parameters.condition);
         try!(sync_smooth(&mut ctxt, draw_parameters.smooth, indices.get_primitives_type()));
         try!(sync_provoking_vertex(&mut ctxt, draw_parameters.provoking_vertex));
+        sync_primitive_bounding_box(&mut ctxt, &draw_parameters.primitive_bounding_box);
 
         // TODO: make sure that the program is the right one
         // TODO: changing the current transform feedback requires pausing/unbinding before changing the program
@@ -1008,4 +1010,36 @@ fn sync_provoking_vertex(ctxt: &mut context::CommandContext, value: ProvokingVer
     }
 
     Ok(())
+}
+
+fn sync_primitive_bounding_box(ctxt: &mut context::CommandContext,
+                               bb: &(Range<f32>, Range<f32>, Range<f32>, Range<f32>))
+{
+    let value = (bb.0.start, bb.1.start, bb.2.start, bb.3.start,
+                 bb.0.end, bb.1.end, bb.2.end, bb.3.end);
+
+    if ctxt.state.primitive_bounding_box == value {
+        return;
+    }
+
+    if ctxt.version >= &Version(Api::GlEs, 3, 2) {
+        unsafe { ctxt.gl.PrimitiveBoundingBox(value.0, value.1, value.2, value.3,
+                                              value.4, value.5, value.6, value.7); }
+        ctxt.state.primitive_bounding_box = value;
+
+    } else if ctxt.extensions.gl_arb_es3_2_compatibility {
+        unsafe { ctxt.gl.PrimitiveBoundingBoxARB(value.0, value.1, value.2, value.3,
+                                                 value.4, value.5, value.6, value.7); }
+        ctxt.state.primitive_bounding_box = value;
+
+    } else if ctxt.extensions.gl_oes_primitive_bounding_box {
+        unsafe { ctxt.gl.PrimitiveBoundingBoxOES(value.0, value.1, value.2, value.3,
+                                                 value.4, value.5, value.6, value.7); }
+        ctxt.state.primitive_bounding_box = value;
+
+    } else if ctxt.extensions.gl_ext_primitive_bounding_box {
+        unsafe { ctxt.gl.PrimitiveBoundingBoxEXT(value.0, value.1, value.2, value.3,
+                                                 value.4, value.5, value.6, value.7); }
+        ctxt.state.primitive_bounding_box = value;
+    }
 }

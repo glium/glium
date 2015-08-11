@@ -70,7 +70,7 @@ use Rect;
 use ToGlEnum;
 use vertex::TransformFeedbackSession;
 
-use std::ops::{Deref, DerefMut};
+use std::ops::{Range, Deref, DerefMut};
 use std::rc::Rc;
 
 pub use self::query::{QueryCreationError};
@@ -569,7 +569,7 @@ pub enum ProvokingVertex {
 /// };
 /// ```
 ///
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct DrawParameters<'a> {
     /// The function that the GPU will use to determine whether to write over an existing pixel
     /// on the target. Don't forget to set `depth_write` appropriately if you use a depth test.
@@ -826,6 +826,21 @@ pub struct DrawParameters<'a> {
     /// potentially trigger a `ProvokingVertexNotSupported` error. Most notably OpenGL ES doesn't
     /// support anything else but `LastVertex`.
     pub provoking_vertex: ProvokingVertex,
+
+    /// Hint for the GPU of the bounding box of the geometry.
+    ///
+    /// If you're using geometry shaders or tessellation shaders, it can be extremely advantageous
+    /// for the GPU to know where on the screen the primitive is. This field specificies the
+    /// bounding box (`x`, `y`, `z`, `w`) of the primitive and serves as a hint to the GPU.
+    ///
+    /// The GPU is free not to draw samples outside of the bounding box. Whether the samples are
+    /// drawn is implementation-specific.
+    ///
+    /// This field is useless if you're not using a geometry shader or tessellation shader.
+    ///
+    /// Since this is purely an optimization, this parameter is ignored if the backend doesn't
+    /// support it.
+    pub primitive_bounding_box: (Range<f32>, Range<f32>, Range<f32>, Range<f32>),
 }
 
 /// Condition whether to render or not.
@@ -904,6 +919,7 @@ impl<'a> Default for DrawParameters<'a> {
             transform_feedback: None,
             smooth: None,
             provoking_vertex: ProvokingVertex::LastVertex,
+            primitive_bounding_box: (-1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0),
         }
     }
 }

@@ -2,8 +2,10 @@
 
 ## Unreleased
 
+ - `DrawParameters` no longer implements `Copy`.
  - Add support for OpenGL ES 3.2 for geometry shaders, tessellation shaders, robustness, debug output, buffer textures, stencil textures, base vertex.
  - Add support for `GL_OES_geometry_shader`, `GL_OES_tessellation_shader` `GL_OES_draw_elements_base_vertex`, `GL_OES_draw_elements_base_vertex`.
+ - Add support for specifying the primitive bounding box as an optimization hint to the backend.
 
 ## Version 0.8.4 (2015-08-10)
 
