@@ -91,6 +91,11 @@ pub use self::any::{TextureAnyImage, Dimensions};
 pub use self::bindless::{ResidentTexture, TextureHandle, BindlessTexturesNotSupportedError};
 pub use self::get_format::{InternalFormat, InternalFormatType, GetFormatError};
 pub use self::pixel::PixelValue;
+pub use self::ty_support::{is_texture_1d_supported, is_texture_2d_supported};
+pub use self::ty_support::{is_texture_3d_supported, is_texture_1d_array_supported};
+pub use self::ty_support::{is_texture_2d_array_supported, is_texture_2d_multisample_supported};
+pub use self::ty_support::{is_texture_2d_multisample_array_supported, is_cubemaps_supported};
+pub use self::ty_support::is_cubemap_arrays_supported;
 
 pub mod bindless;
 pub mod buffer_texture;
@@ -99,6 +104,7 @@ pub mod pixel_buffer;
 mod any;
 mod get_format;
 mod pixel;
+mod ty_support;
 
 include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
