@@ -358,6 +358,48 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
         UniformValue::DepthTexture2dMultisampleArray(texture, sampler) => {
             bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
         },
+        UniformValue::Cubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::CompressedCubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::SrgbCubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::CompressedSrgbCubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::IntegralCubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::UnsignedCubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::DepthCubemap(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::CubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::CompressedCubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::SrgbCubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::CompressedSrgbCubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::IntegralCubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::UnsignedCubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
+        UniformValue::DepthCubemapArray(texture, sampler) => {
+            bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
+        },
         UniformValue::BufferTexture(texture) => {
             bind_texture_uniform(ctxt, &texture, None, location, program, texture_bind_points)
         },

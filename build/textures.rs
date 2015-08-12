@@ -22,6 +22,8 @@ enum TextureDimensions {
     Texture1dArray,
     Texture2dArray,
     Texture2dMultisampleArray,
+    Cubemap,
+    CubemapArray,
 }
 
 impl TextureDimensions {
@@ -37,6 +39,14 @@ impl TextureDimensions {
         match self {
             &TextureDimensions::Texture2dMultisample => true,
             &TextureDimensions::Texture2dMultisampleArray => true,
+            _ => false
+        }
+    }
+
+    fn is_cube(&self) -> bool {
+        match self {
+            &TextureDimensions::Cubemap => true,
+            &TextureDimensions::CubemapArray => true,
             _ => false
         }
     }
@@ -102,6 +112,24 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisampleArray);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dMultisampleArray);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(dest, TextureType::Regular, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Compressed, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Integral, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Unsigned, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Depth, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Stencil, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Cubemap);
+    build_texture(dest, TextureType::Regular, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::Compressed, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::Srgb, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::Integral, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::Unsigned, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::Depth, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::Stencil, TextureDimensions::CubemapArray);
+    build_texture(dest, TextureType::DepthStencil, TextureDimensions::CubemapArray);
 }
 
 fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
@@ -127,6 +155,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureDimensions::Texture1dArray => "texture1d_array",
             TextureDimensions::Texture2dArray => "texture2d_array",
             TextureDimensions::Texture2dMultisampleArray => "texture2d_multisample_array",
+            TextureDimensions::Cubemap => "cubemap",
+            TextureDimensions::CubemapArray => "cubemap_array",
         };
 
         format!("{}{}", prefix, suffix)
@@ -154,6 +184,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             TextureDimensions::Texture1dArray => "Texture1dArray",
             TextureDimensions::Texture2dArray => "Texture2dArray",
             TextureDimensions::Texture2dMultisampleArray => "Texture2dMultisampleArray",
+            TextureDimensions::Cubemap => "Cubemap",
+            TextureDimensions::CubemapArray => "CubemapArray",
         };
 
         format!("{}{}", prefix, suffix)
@@ -164,7 +196,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
         TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
         TextureDimensions::Texture3d => "Texture3dDataSource",
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray |
+        TextureDimensions::Cubemap | TextureDimensions::CubemapArray => {
             "unreachable"
         },
     };
@@ -227,6 +260,8 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
         TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
         TextureDimensions::Texture2dMultisampleArray => "width: u32, height: u32, array_size: u32, samples: u32",
+        TextureDimensions::Cubemap => "dimension: u32",
+        TextureDimensions::CubemapArray => "dimension: u32, array_size: u32",
     };
 
     let dimensions_parameters_passing = match dimensions {
@@ -251,6 +286,12 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         TextureDimensions::Texture2dMultisampleArray => {
             "Dimensions::Texture2dMultisampleArray { width: width, height: height, array_size: array_size, samples: samples }"
         },
+        TextureDimensions::Cubemap => {
+            "Dimensions::Cubemap { dimension: dimension }"
+        },
+        TextureDimensions::CubemapArray => {
+            "Dimensions::CubemapArray { dimension: dimension, array_size: array_size }"
+        },
     };
 
     // writing the `use module::*;` statement
@@ -272,7 +313,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             use texture::pixel_buffer::PixelBuffer;
             use texture::{{TextureCreationError, Texture1dDataSource, Texture2dDataSource}};
             use texture::{{Texture3dDataSource, Texture2dDataSink, MipmapsOption, CompressedMipmapsOption, Texture}};
-            use texture::{{RawImage1d, RawImage2d, RawImage3d}};
+            use texture::{{RawImage1d, RawImage2d, RawImage3d, CubeLayer}};
 
             use image_format::{{ClientFormatAny, TextureFormatRequest}};
             use image_format::{{UncompressedFloatFormat, UncompressedIntFormat}};
@@ -295,9 +336,11 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     (write!(dest, "/// ")).unwrap();
     (write!(dest, "{}", match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d => "A ",
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d |
+        TextureDimensions::Cubemap => "A ",
         TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisampleArray => "An array of ",
+        TextureDimensions::Texture2dMultisampleArray |
+        TextureDimensions::CubemapArray => "An array of ",
     })).unwrap();
     if is_compressed {
         (write!(dest, "compressed ")).unwrap();
@@ -309,12 +352,15 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             "two-dimensional "
         },
         TextureDimensions::Texture3d => "three-dimensional ",
+        TextureDimensions::Cubemap | TextureDimensions::CubemapArray => "cube ",
     })).unwrap();
     (write!(dest, "{}", match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d => "texture ",
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d |
+        TextureDimensions::Cubemap => "texture ",
         TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisampleArray => "textures ",
+        TextureDimensions::Texture2dMultisampleArray |
+        TextureDimensions::CubemapArray => "textures ",
     })).unwrap();
     (write!(dest, "{}", match ty {
         TextureType::Regular | TextureType::Compressed => " containing floating-point data",
@@ -446,7 +492,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         impl<'t> ::framebuffer::ToColorAttachment<'t> for &'t {name} {{
                             #[inline]
                             fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
+                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image(None).unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -456,7 +502,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         impl<'t> ::framebuffer::ToColorAttachment<'t> for &'t {name} {{
                             #[inline]
                             fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
+                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image(None).unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -466,7 +512,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         impl<'t> ::framebuffer::ToDepthAttachment<'t> for &'t {name} {{
                             #[inline]
                             fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
-                                ::framebuffer::DepthAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
+                                ::framebuffer::DepthAttachment::Texture(self.0.main_level().first_layer().into_image(None).unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -476,7 +522,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         impl<'t> ::framebuffer::ToStencilAttachment<'t> for &'t {name} {{
                             #[inline]
                             fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
-                                ::framebuffer::StencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
+                                ::framebuffer::StencilAttachment::Texture(self.0.main_level().first_layer().into_image(None).unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -486,7 +532,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                         impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for &'t {name} {{
                             #[inline]
                             fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
-                                ::framebuffer::DepthStencilAttachment::Texture(self.0.main_level().first_layer().into_image().unwrap())
+                                ::framebuffer::DepthStencilAttachment::Texture(self.0.main_level().first_layer().into_image(None).unwrap())
                             }}
                         }}
                     ", name = name)).unwrap();
@@ -511,7 +557,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         ").unwrap();
 
     // writing the `new` function
-    if !dimensions.is_multisample() {
+    if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
@@ -544,7 +590,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `with_mipmaps` function
-    if !dimensions.is_multisample() {
+    if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
@@ -569,7 +615,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `with_compressed_data` function
-    if is_compressed && !dimensions.is_multisample() {
+    if is_compressed && !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "&[u8]",
@@ -601,7 +647,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `with_format` function
-    if !dimensions.is_multisample() {
+    if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
@@ -628,7 +674,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // writing the `new_impl` function
-    if !dimensions.is_multisample() {
+    if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
             TextureDimensions::Texture3d => "T",
@@ -1185,7 +1231,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
                                 #[inline]
                                 fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1195,7 +1241,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
                                 #[inline]
                                 fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1205,7 +1251,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}Mipmap<'t> {{
                                 #[inline]
                                 fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
-                                    ::framebuffer::DepthAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                    ::framebuffer::DepthAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1215,7 +1261,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}Mipmap<'t> {{
                                 #[inline]
                                 fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
-                                    ::framebuffer::StencilAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                    ::framebuffer::StencilAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1225,7 +1271,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}Mipmap<'t> {{
                                 #[inline]
                                 fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
-                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.first_layer().into_image().unwrap())
+                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1247,18 +1293,27 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // opening `impl LayerMipmap` block
         (writeln!(dest, "impl<'t> {}LayerMipmap<'t> {{", name)).unwrap();
 
+        // to the image struct
+        if dimensions.is_cube() {
+            writeln!(dest,
+                "/// Provides an object representing a single layer of this cubemap.
+                pub fn image(&self, layer: CubeLayer) -> {name}Image<'t> {{
+                    {name}Image(self.0.into_image(Some(layer)).unwrap(), self.1)
+                }}", name = name).unwrap();
+        }
+
         // closing `impl LayerMipmap` block
         (writeln!(dest, "}}")).unwrap();
 
         // attachment traits
-        if dimensions != TextureDimensions::Texture3d {
+        if dimensions != TextureDimensions::Texture3d && !dimensions.is_cube() {
             match ty {
                 TextureType::Regular => {
                     (writeln!(dest, "
                             impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
                                 #[inline]
                                 fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image().unwrap())
+                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1268,7 +1323,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
                                 #[inline]
                                 fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image().unwrap())
+                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1278,7 +1333,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}LayerMipmap<'t> {{
                                 #[inline]
                                 fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
-                                    ::framebuffer::DepthAttachment::Texture(self.0.into_image().unwrap())
+                                    ::framebuffer::DepthAttachment::Texture(self.0.into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1288,7 +1343,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}LayerMipmap<'t> {{
                                 #[inline]
                                 fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
-                                    ::framebuffer::StencilAttachment::Texture(self.0.into_image().unwrap())
+                                    ::framebuffer::StencilAttachment::Texture(self.0.into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
@@ -1298,13 +1353,84 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                             impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}LayerMipmap<'t> {{
                                 #[inline]
                                 fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
-                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.into_image().unwrap())
+                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.into_image(None).unwrap())
                                 }}
                             }}
                         ", name = name)).unwrap();
                 },
                 _ => ()
             }
+        }
+    }
+
+    // the `Image` struct, only for cubemaps
+    if dimensions.is_cube() {
+        // writing the struct
+        (write!(dest, r#"
+                /// Represents a single image of a mipmap level of a layer of `{name}`.
+                #[derive(Copy, Clone)]
+                pub struct {name}Image<'t>(TextureAnyImage<'t>, &'t {name});
+            "#, name = name)).unwrap();
+
+        // opening `impl Image` block
+        (writeln!(dest, "impl<'t> {}Image<'t> {{", name)).unwrap();
+
+        // closing `impl Image` block
+        (writeln!(dest, "}}")).unwrap();
+
+        // attachment traits
+        match ty {
+            TextureType::Regular => {
+                (writeln!(dest, "
+                        impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Image<'t> {{
+                            #[inline]
+                            fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
+                                ::framebuffer::ColorAttachment::Texture(self.0)
+                            }}
+                        }}
+                    ", name = name)).unwrap();
+            },
+            TextureType::Srgb => {
+                (writeln!(dest, "
+                        impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Image<'t> {{
+                            #[inline]
+                            fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
+                                ::framebuffer::ColorAttachment::Texture(self.0)
+                            }}
+                        }}
+                    ", name = name)).unwrap();
+            },
+            TextureType::Depth => {
+                (writeln!(dest, "
+                        impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}Image<'t> {{
+                            #[inline]
+                            fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
+                                ::framebuffer::DepthAttachment::Texture(self.0)
+                            }}
+                        }}
+                    ", name = name)).unwrap();
+            },
+            TextureType::Stencil => {
+                (writeln!(dest, "
+                        impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}Image<'t> {{
+                            #[inline]
+                            fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
+                                ::framebuffer::StencilAttachment::Texture(self.0)
+                            }}
+                        }}
+                    ", name = name)).unwrap();
+            },
+            TextureType::DepthStencil => {
+                (writeln!(dest, "
+                        impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}Image<'t> {{
+                            #[inline]
+                            fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
+                                ::framebuffer::DepthStencilAttachment::Texture(self.0)
+                            }}
+                        }}
+                    ", name = name)).unwrap();
+            },
+            _ => ()
         }
     }
 
