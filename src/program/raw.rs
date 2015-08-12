@@ -305,7 +305,7 @@ impl RawProgram {
             a => Some(a as u32),
         };
 
-        self.frag_data_locations.borrow_mut().insert(name.to_string(), location);
+        self.frag_data_locations.borrow_mut().insert(name.to_owned(), location);
         location
     }
 

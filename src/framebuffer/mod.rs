@@ -344,7 +344,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         let color = color.iter().map(|&(name, tex)| {
             let atch = tex.to_color_attachment();
             let atch = if let ColorAttachment::Texture(t) = atch { t } else { panic!() };
-            (name.to_string(), fbo::RegularAttachment::Texture(atch))
+            (name.to_owned(), fbo::RegularAttachment::Texture(atch))
         }).collect::<Vec<_>>();
 
         let example_color = {

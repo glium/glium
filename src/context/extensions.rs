@@ -205,6 +205,6 @@ unsafe fn get_extensions_strings(gl: &gl::Gl, version: &Version) -> Vec<String> 
         assert!(!list.is_null());
         let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec())
                                      .unwrap();
-        list.split(' ').map(|e| e.to_string()).collect()
+        list.split(' ').map(|e| e.to_owned()).collect()
     }
 }
