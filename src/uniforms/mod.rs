@@ -200,7 +200,7 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
             <T as UniformBlock>::matches(content, base_offset)
                 .map_err(|err| {
                     LayoutMismatchError::MemberMismatch {
-                        member: "<dynamic array content>".to_string(),
+                        member: "<dynamic array content>".to_owned(),
                         err: Box::new(err),
                     }
                 })
@@ -209,7 +209,7 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
             <T as UniformBlock>::matches(content, base_offset)
                 .map_err(|err| {
                     LayoutMismatchError::MemberMismatch {
-                        member: "<dynamic array content>".to_string(),
+                        member: "<dynamic array content>".to_owned(),
                         err: Box::new(err),
                     }
                 })

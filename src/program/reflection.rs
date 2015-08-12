@@ -801,11 +801,11 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                 // member doesn't exist yet in the output, adding it
                 if let Some(array) = array {
                     if top_level_array_size == Some(0) {
-                        members.push((current_component.to_string(), BlockLayout::DynamicSizedArray {
+                        members.push((current_component.to_owned(), BlockLayout::DynamicSizedArray {
                             content: Box::new(BlockLayout::Struct { members: Vec::new() }),
                         }));
                     } else {
-                        members.push((current_component.to_string(), BlockLayout::Array {
+                        members.push((current_component.to_owned(), BlockLayout::Array {
                             content: Box::new(BlockLayout::Struct { members: Vec::new() }),
                             length: if name_rest.is_some() { array } else { array_size },
                         }));
@@ -818,7 +818,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                     }
 
                 } else {
-                    members.push((current_component.to_string(), BlockLayout::Struct {
+                    members.push((current_component.to_owned(), BlockLayout::Struct {
                         members: Vec::new()
                     }));
                     &mut members.last_mut().unwrap().1

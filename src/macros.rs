@@ -306,7 +306,7 @@ macro_rules! implement_uniform_block {
                             let reflected_ty = match reflected_ty {
                                 Some(t) => &t.1,
                                 None => return Err(LayoutMismatchError::MissingField {
-                                    name: stringify!($field_name).to_string(),
+                                    name: stringify!($field_name).to_owned(),
                                 })
                             };
 
@@ -321,7 +321,7 @@ macro_rules! implement_uniform_block {
                             match matches_from_ty(&dummy.$field_name, reflected_ty, input_offset) {
                                 Ok(_) => (),
                                 Err(e) => return Err(LayoutMismatchError::MemberMismatch {
-                                    member: stringify!($field_name).to_string(),
+                                    member: stringify!($field_name).to_owned(),
                                     err: Box::new(e),
                                 })
                             };
@@ -353,7 +353,7 @@ macro_rules! implement_uniform_block {
                         members: vec![
                             $(
                                 (
-                                    stringify!($field_name).to_string(),
+                                    stringify!($field_name).to_owned(),
                                     {
                                         let offset = {
                                             let dummy_field: *const _ = &dummy.$field_name;

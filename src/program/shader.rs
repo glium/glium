@@ -175,7 +175,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                 Ok(msg) => Err(ProgramCreationError::CompilationError(msg)),
                 Err(_) => Err(
                     ProgramCreationError::CompilationError("Could not convert the log \
-                                                            message to UTF-8".to_string())
+                                                            message to UTF-8".to_owned())
                 ),
             }
         }

@@ -49,7 +49,7 @@ impl<U> UniformsExt for U where U: Uniforms {
 
                 if !value.is_usable_with(&uniform.ty) {
                     visiting_result = Err(DrawError::UniformTypeMismatch {
-                        name: name.to_string(),
+                        name: name.to_owned(),
                         expected: uniform.ty,
                     });
                     return;
@@ -114,7 +114,7 @@ fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &Uniform
                 Ok(_) => (),
                 Err(e) => {
                     return Err(DrawError::UniformBlockLayoutMismatch {
-                        name: name.to_string(),
+                        name: name.to_owned(),
                         err: e,
                     });
                 }
@@ -133,7 +133,7 @@ fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &Uniform
             Ok(fence)
         },
         _ => {
-            Err(DrawError::UniformValueToBlock { name: name.to_string() })
+            Err(DrawError::UniformValueToBlock { name: name.to_owned() })
         }
     }
 }
@@ -150,7 +150,7 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &
                 Ok(_) => (),
                 Err(e) => {
                     return Err(DrawError::UniformBlockLayoutMismatch {
-                        name: name.to_string(),
+                        name: name.to_owned(),
                         err: e,
                     });
                 }
@@ -169,7 +169,7 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &
             Ok(fence)
         },
         _ => {
-            Err(DrawError::UniformValueToBlock { name: name.to_string() })
+            Err(DrawError::UniformValueToBlock { name: name.to_owned() })
         }
     }
 }
@@ -184,7 +184,7 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
     match *value {
         UniformValue::Block(_, _) => {
             Err(DrawError::UniformBufferToValue {
-                name: name.to_string(),
+                name: name.to_owned(),
             })
         },
         UniformValue::SignedInt(val) => {
