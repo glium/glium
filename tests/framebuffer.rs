@@ -266,3 +266,31 @@ fn array_level() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn cubemap_layer() {
+    // ignoring test on travis
+    // TODO: find out why they are failing
+    if ::std::env::var("TRAVIS").is_ok() {
+        return;
+    }
+
+    let display = support::build_display();
+
+    let texture = match glium::texture::Cubemap::empty(&display, 128) {
+        Ok(t) => t,
+        Err(_) => return
+    };
+
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display,
+                    texture.main_level().first_layer().image(glium::texture::CubeLayer::PositiveY));
+    assert_eq!(framebuffer.get_dimensions(), (128, 128));
+
+    let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
+    framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
+                     &Default::default()).unwrap();
+
+    // TODO: read the texture to see if it succeeded
+
+    display.assert_no_error(None);
+}

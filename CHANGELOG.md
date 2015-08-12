@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Added support for cubemaps and cubemap arrays. Not all operations are available yet.
  - `DrawParameters` no longer implements `Copy`.
  - Add support for OpenGL ES 3.2 for geometry shaders, tessellation shaders, robustness, debug output, buffer textures, stencil textures, base vertex.
  - Add support for `GL_OES_geometry_shader`, `GL_OES_tessellation_shader` `GL_OES_draw_elements_base_vertex`, `GL_OES_draw_elements_base_vertex`.

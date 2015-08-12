@@ -14,7 +14,7 @@ use Rect;
 
 use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
-use texture::{MipmapsOption, TextureFormat, TextureCreationError};
+use texture::{MipmapsOption, TextureFormat, TextureCreationError, CubeLayer};
 use texture::{get_format, InternalFormat, GetFormatError};
 use texture::pixel::PixelValue;
 use texture::pixel_buffer::PixelBuffer;
@@ -48,6 +48,8 @@ pub enum Dimensions {
     Texture2dMultisample { width: u32, height: u32, samples: u32 },
     Texture2dMultisampleArray { width: u32, height: u32, array_size: u32, samples: u32 },
     Texture3d { width: u32, height: u32, depth: u32 },
+    Cubemap { dimension: u32 },
+    CubemapArray { dimension: u32, array_size: u32 },
 }
 
 /// A texture whose type isn't fixed at compile-time.
@@ -89,6 +91,8 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         Dimensions::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
         Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
         Dimensions::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
+        Dimensions::Cubemap { dimension } => (dimension, Some(dimension), None, None, None),
+        Dimensions::CubemapArray { dimension, array_size } => (dimension, Some(dimension), None, Some(array_size * 6), None),
     };
 
     let (is_client_compressed, data_bufsize) = match data {
@@ -115,7 +119,13 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
         Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
         Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
+        Dimensions::Cubemap { .. } => gl::TEXTURE_CUBE_MAP,
+        Dimensions::CubemapArray { .. } => gl::TEXTURE_CUBE_MAP_ARRAY,
     };
+
+    if bind_point == gl::TEXTURE_CUBE_MAP || bind_point == gl::TEXTURE_CUBE_MAP_ARRAY {
+        assert!(data.is_none());        // TODO: not supported
+    }
 
     // checking non-power-of-two
     if facade.get_context().get_version() < &Version(Api::Gl, 2, 0) &&
@@ -204,7 +214,9 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAX_LEVEL, 0);
         }
 
-        if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
+        if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY ||
+           bind_point == gl::TEXTURE_CUBE_MAP_ARRAY
+        {
             let mut data_raw = data_raw;
 
             let width = match width as gl::types::GLsizei {
@@ -249,7 +261,9 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                 }
             }
 
-        } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY {
+        } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY ||
+                  bind_point == gl::TEXTURE_CUBE_MAP
+        {
             let mut data_raw = data_raw;
 
             let width = match width as gl::types::GLsizei {
@@ -425,6 +439,8 @@ impl TextureAny {
             Dimensions::Texture2dMultisample { width, .. } => width,
             Dimensions::Texture2dMultisampleArray { width, .. } => width,
             Dimensions::Texture3d { width, .. } => width,
+            Dimensions::Cubemap { dimension, .. } => dimension,
+            Dimensions::CubemapArray { dimension, .. } => dimension,
         }
     }
 
@@ -439,6 +455,8 @@ impl TextureAny {
             Dimensions::Texture2dMultisample { height, .. } => Some(height),
             Dimensions::Texture2dMultisampleArray { height, .. } => Some(height),
             Dimensions::Texture3d { height, .. } => Some(height),
+            Dimensions::Cubemap { dimension, .. } => Some(dimension),
+            Dimensions::CubemapArray { dimension, .. } => Some(dimension),
         }
     }
 
@@ -462,6 +480,8 @@ impl TextureAny {
             Dimensions::Texture2dMultisample { .. } => None,
             Dimensions::Texture2dMultisampleArray { array_size, .. } => Some(array_size),
             Dimensions::Texture3d { .. } => None,
+            Dimensions::Cubemap { .. } => None,
+            Dimensions::CubemapArray { array_size, .. } => Some(array_size),
         }
     }
 
@@ -573,6 +593,8 @@ impl TextureExt for TextureAny {
             Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
             Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
             Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
+            Dimensions::Cubemap { .. } => gl::TEXTURE_CUBE_MAP,
+            Dimensions::CubemapArray { .. } => gl::TEXTURE_CUBE_MAP_ARRAY,
         }
     }
 
@@ -959,6 +981,10 @@ impl<'a> TextureAnyMipmap<'a> {
                     }
                 }
             },
+
+            Dimensions::Cubemap { .. } | Dimensions::CubemapArray { .. } => {
+                panic!("Can't upload to cubemaps");     // TODO: better handling
+            },
         }
 
         // handling synchronization for the buffer
@@ -970,7 +996,8 @@ impl<'a> TextureAnyMipmap<'a> {
 
 impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
-        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image().unwrap());
+        // TODO: cubemap layer?
+        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image(None).unwrap());
 
         let rect = Rect {
             bottom: 0,
@@ -989,7 +1016,8 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
     fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {
         let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
 
-        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image().unwrap());
+        // TODO: cubemap layer?
+        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image(None).unwrap());
 
         let rect = Rect {
             bottom: 0,
@@ -1203,13 +1231,25 @@ impl<'a> TextureAnyLayerMipmap<'a> {
     }
 
     /// Turns this into an image.
-    // TODO: add a `Option<CubeMapLayer>` parameter
+    ///
+    /// Returns `None` if `cube_layer` is `None` and the texture is a cubemap. Returns `None` if
+    /// `cube_layer` is `Some` and the texture is not a cubemap.
     #[inline]
-    pub fn into_image(&self) -> Option<TextureAnyImage<'a>> {
+    pub fn into_image(&self, cube_layer: Option<CubeLayer>) -> Option<TextureAnyImage<'a>> {
+        match (self.texture.ty, cube_layer) {
+            (Dimensions::Cubemap { .. }, Some(_)) => (),
+            (Dimensions::CubemapArray { .. }, Some(_)) => (),
+            (Dimensions::Cubemap { .. }, None) => return None,
+            (Dimensions::CubemapArray { .. }, None) => return None,
+            (_, Some(_)) => return None,
+            _ => ()
+        };
+
         Some(TextureAnyImage {
             texture: self.texture,
             layer: self.layer,
             level: self.level,
+            cube_layer: cube_layer,
             width: self.width,
             height: self.height,
         })
@@ -1226,6 +1266,8 @@ pub struct TextureAnyImage<'a> {
     layer: u32,
     /// Mipmap level.
     level: u32,
+    /// The layer of the cubemap if relevant.
+    cube_layer: Option<CubeLayer>,
 
     /// Width of this image.
     width: u32,
@@ -1250,6 +1292,12 @@ impl<'a> TextureAnyImage<'a> {
     #[inline]
     pub fn get_layer(&self) -> u32 {
         self.layer
+    }
+
+    /// Returns the cubemap layer of this image, or `None` if the texture is not a cubemap.
+    #[inline]
+    pub fn get_cubemap_layer(&self) -> Option<CubeLayer> {
+        self.cube_layer
     }
 
     /// Returns the width of this texture slice.

@@ -108,6 +108,36 @@ mod ty_support;
 
 include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
+/// Represents a layer of a cubemap.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[allow(missing_docs)]      // TODO: 
+pub enum CubeLayer {
+    PositiveX,
+    NegativeX,
+    PositiveY,
+    NegativeY,
+    PositiveZ,
+    NegativeZ,
+}
+
+impl CubeLayer {
+    /// In some situations whole cubemaps can be binded at once. If this is the case, each layer
+    /// of the cubemap has a specific index.
+    ///
+    /// For example, if you bind a whole cubemap array, then the index `8` will correspond to the
+    /// `PositiveY` face of the cubemap whose index is `1` in the array.
+    pub fn get_layer_index(&self) -> usize {
+        match self {
+            &CubeLayer::PositiveX => 0,
+            &CubeLayer::NegativeX => 1,
+            &CubeLayer::PositiveY => 2,
+            &CubeLayer::NegativeY => 3,
+            &CubeLayer::PositiveZ => 4,
+            &CubeLayer::NegativeZ => 5,
+        }
+    }
+}
+
 /// Describes what to do about mipmaps during texture creation.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum MipmapsOption {

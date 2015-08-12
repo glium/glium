@@ -62,6 +62,7 @@ use ContextExt;
 use GlObject;
 use TextureExt;
 
+use texture::CubeLayer;
 use texture::TextureAnyImage;
 use texture::TextureAnyMipmap;
 use framebuffer::RenderBufferAny;
@@ -198,6 +199,7 @@ impl<'a> FramebufferAttachments<'a> {
                     bind_point: $tex.get_texture().get_bind_point(),
                     layer: None,
                     level: $tex.get_level(),
+                    cubemap_layer: None,
                 }
             });
         }
@@ -248,7 +250,7 @@ impl<'a> FramebufferAttachments<'a> {
         Ok(ValidatedAttachments {
             raw: raw_attachments,
             dimensions: dimensions,
-            layers: None,
+            layers: None,       // FIXME: count layers
             depth_buffer_bits: depth_bits,
             stencil_buffer_bits: stencil_bits,
             marker: PhantomData,
@@ -305,6 +307,7 @@ impl<'a> FramebufferAttachments<'a> {
                     bind_point: $tex.get_texture().get_bind_point(),
                     layer: Some($tex.get_layer()),
                     level: $tex.get_level(),
+                    cubemap_layer: $tex.get_cubemap_layer(),
                 }
             });
         }
@@ -501,6 +504,8 @@ enum RawAttachment {
         layer: Option<u32>,
         // mipmap level
         level: u32,
+        // layer of the cubemap, if this is a cubemap
+        cubemap_layer: Option<CubeLayer>,
     },
 
     /// A renderbuffer with its ID.
@@ -919,13 +924,14 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                  id: gl::types::GLuint, attachment: RawAttachment)
 {
     match attachment {
-        RawAttachment::Texture { texture: tex_id, level, layer, bind_point } => {
+        RawAttachment::Texture { texture: tex_id, level, layer, bind_point, cubemap_layer } => {
             match bind_point {
                 // these textures can't be layered
                 gl::TEXTURE_2D | gl::TEXTURE_2D_MULTISAMPLE | gl::TEXTURE_1D |
                 gl::TEXTURE_RECTANGLE =>
                 {
                     assert_eq!(layer, Some(0));
+                    debug_assert!(cubemap_layer.is_none());
 
                     if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                        ctxt.extensions.gl_arb_direct_state_access
@@ -994,9 +1000,14 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
 
                 // non-layered attachments
                 gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY |
-                gl::TEXTURE_3D if layer.is_some() =>
+                gl::TEXTURE_3D | gl::TEXTURE_CUBE_MAP_ARRAY if layer.is_some() =>
                 {
-                    let layer = layer.unwrap();
+                    let layer = if bind_point == gl::TEXTURE_CUBE_MAP_ARRAY {
+                        layer.unwrap() * 6 + cubemap_layer.unwrap().get_layer_index()
+                                                                               as gl::types::GLenum
+                    } else {
+                        layer.unwrap()
+                    };
 
                     if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                        ctxt.extensions.gl_arb_direct_state_access
@@ -1064,7 +1075,7 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
 
                 // layered attachments
                 gl::TEXTURE_1D_ARRAY | gl::TEXTURE_2D_ARRAY | gl::TEXTURE_2D_MULTISAMPLE_ARRAY |
-                gl::TEXTURE_3D if layer.is_none() =>
+                gl::TEXTURE_3D | gl::TEXTURE_CUBE_MAP_ARRAY if layer.is_none() =>
                 {
                     if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                        ctxt.extensions.gl_arb_direct_state_access
@@ -1089,7 +1100,62 @@ unsafe fn attach(ctxt: &mut CommandContext, slot: gl::types::GLenum,
                     }
                 },
 
-                _ => unreachable!()     // TODO: cubemaps & cubemap arrays
+                // non-layered cubemaps
+                gl::TEXTURE_CUBE_MAP if layer.is_some() => {
+                    let bind_point = gl::TEXTURE_CUBE_MAP_POSITIVE_X +
+                                    cubemap_layer.unwrap().get_layer_index() as gl::types::GLenum;
+
+                    if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                              ctxt.extensions.gl_arb_framebuffer_object
+                    {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture2D(gl::DRAW_FRAMEBUFFER,
+                                                     slot, bind_point, tex_id,
+                                                     level as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                        bind_framebuffer(ctxt, id, true, true);
+                        ctxt.gl.FramebufferTexture2D(gl::FRAMEBUFFER, slot, bind_point, tex_id,
+                                                     level as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_framebuffer_object {
+                        bind_framebuffer(ctxt, id, true, true);
+                        ctxt.gl.FramebufferTexture2DEXT(gl::FRAMEBUFFER_EXT,
+                                                        slot, bind_point, tex_id,
+                                                        level as gl::types::GLint);
+
+                    } else {
+                        // it's not possible to create an OpenGL context that doesn't support FBOs
+                        unreachable!();
+                    }
+                },
+
+                // layered cubemaps
+                gl::TEXTURE_CUBE_MAP if layer.is_none() => {
+                    if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+                       ctxt.extensions.gl_arb_direct_state_access
+                    {
+                        ctxt.gl.NamedFramebufferTexture(id, slot, tex_id,
+                                                        level as gl::types::GLint);
+
+                    } else if ctxt.extensions.gl_ext_direct_state_access &&
+                              ctxt.extensions.gl_ext_geometry_shader4
+                    {
+                        ctxt.gl.NamedFramebufferTextureEXT(id, slot, tex_id,
+                                                           level as gl::types::GLint);
+
+                    } else if ctxt.version >= &Version(Api::Gl, 3, 2) {
+                        bind_framebuffer(ctxt, id, true, false);
+                        ctxt.gl.FramebufferTexture(gl::DRAW_FRAMEBUFFER,
+                                                   slot, tex_id, level as gl::types::GLint);
+
+                    } else {
+                        // note that this should have been detected earlier
+                        panic!("Layered framebuffers are not supported");
+                    }
+                },
+
+                _ => unreachable!()
             }
         },
 
