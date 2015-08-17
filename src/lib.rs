@@ -157,7 +157,7 @@ mod gl {
 /// Cloning the display allows you to easily share the `Display` object throughout
 /// your program.
 #[cfg(feature = "glutin")]
-pub type Display = backend::glutin_backend::GlutinFacade;
+pub use backend::glutin_backend::GlutinFacade as Display;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.
 pub trait CapabilitiesSource {
