@@ -4,10 +4,10 @@ use version::Api;
 use version::Version;
 use context::CommandContext;
 use backend::Facade;
-use BufferViewExt;
+use BufferExt;
 use CapabilitiesSource;
 use TransformFeedbackSessionExt;
-use buffer::{BufferView, BufferViewAnySlice};
+use buffer::{Buffer, BufferAnySlice};
 use index::PrimitiveType;
 use program::OutputPrimitives;
 use program::Program;
@@ -89,7 +89,7 @@ use gl;
 /// ```
 #[derive(Debug)]
 pub struct TransformFeedbackSession<'a> {
-    buffer: BufferViewAnySlice<'a>,
+    buffer: BufferAnySlice<'a>,
     program: &'a Program,
 }
 
@@ -118,7 +118,7 @@ impl<'a> TransformFeedbackSession<'a> {
     ///
     /// TODO: this constructor should ultimately support passing multiple buffers of different
     ///       types
-    pub fn new<F, V>(facade: &F, program: &'a Program, buffer: &'a mut BufferView<[V]>)
+    pub fn new<F, V>(facade: &F, program: &'a Program, buffer: &'a mut Buffer<[V]>)
                      -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
                      where F: Facade, V: Vertex + Copy + Send + 'static
     {

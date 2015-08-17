@@ -1,4 +1,4 @@
-use buffer::{Content, BufferView, BufferViewAny, BufferType, BufferMode, BufferCreationError};
+use buffer::{Content, Buffer, BufferAny, BufferType, BufferMode, BufferCreationError};
 use uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
 use program;
 
@@ -9,13 +9,13 @@ use backend::Facade;
 /// Buffer that contains a uniform block.
 #[derive(Debug)]
 pub struct UniformBuffer<T: ?Sized> where T: Content {
-    buffer: BufferView<T>,
+    buffer: Buffer<T>,
 }
 
 /// Same as `UniformBuffer` but doesn't contain any information about the type.
 #[derive(Debug)]
 pub struct TypelessUniformBuffer {
-    buffer: BufferViewAny,
+    buffer: BufferAny,
 }
 
 impl<T> UniformBuffer<T> where T: Copy {
@@ -56,7 +56,7 @@ impl<T> UniformBuffer<T> where T: Copy {
                    -> Result<UniformBuffer<T>, BufferCreationError>
                    where F: Facade
     {
-        let buffer = try!(BufferView::new(facade, &data, BufferType::UniformBuffer, mode));
+        let buffer = try!(Buffer::new(facade, &data, BufferType::UniformBuffer, mode));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -97,7 +97,7 @@ impl<T> UniformBuffer<T> where T: Copy {
     fn empty_impl<F>(facade: &F, mode: BufferMode) -> Result<UniformBuffer<T>, BufferCreationError>
                      where F: Facade
     {
-        let buffer = try!(BufferView::empty(facade, BufferType::UniformBuffer, mode));
+        let buffer = try!(Buffer::empty(facade, BufferType::UniformBuffer, mode));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -167,7 +167,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
                              -> Result<UniformBuffer<T>, BufferCreationError>
                              where F: Facade
     {
-        let buffer = try!(BufferView::empty_unsized(facade, BufferType::UniformBuffer, size, mode));
+        let buffer = try!(Buffer::empty_unsized(facade, BufferType::UniformBuffer, size, mode));
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -176,17 +176,17 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
 }
 
 impl<T: ?Sized> Deref for UniformBuffer<T> where T: Content {
-    type Target = BufferView<T>;
+    type Target = Buffer<T>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<T> {
+    fn deref(&self) -> &Buffer<T> {
         &self.buffer
     }
 }
 
 impl<T: ?Sized> DerefMut for UniformBuffer<T> where T: Content {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<T> {
+    fn deref_mut(&mut self) -> &mut Buffer<T> {
         &mut self.buffer
     }
 }

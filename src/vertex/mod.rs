@@ -141,7 +141,7 @@ pub use self::buffer::CreationError as BufferCreationError;
 pub use self::format::{AttributeType, VertexFormat};
 pub use self::transform_feedback::{is_transform_feedback_supported, TransformFeedbackSession};
 
-use buffer::BufferViewAnySlice;
+use buffer::BufferAnySlice;
 use CapabilitiesSource;
 
 mod buffer;
@@ -157,7 +157,7 @@ pub enum VerticesSource<'a> {
     ///
     /// The third parameter tells whether or not this buffer is "per instance" (true) or
     /// "per vertex" (false).
-    VertexBuffer(BufferViewAnySlice<'a>, &'a VertexFormat, bool),
+    VertexBuffer(BufferAnySlice<'a>, &'a VertexFormat, bool),
 
     /// A marker indicating a "phantom list of attributes".
     Marker {
@@ -209,7 +209,7 @@ impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
 }
 
 /// Marker that instructs glium that the buffer is to be used per instance.
-pub struct PerInstance<'a>(BufferViewAnySlice<'a>, &'a VertexFormat);
+pub struct PerInstance<'a>(BufferAnySlice<'a>, &'a VertexFormat);
 
 impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
     #[inline]

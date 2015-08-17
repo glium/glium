@@ -12,10 +12,10 @@ use std::fmt;
 use std::mem;
 use std::rc::Rc;
 
-use buffer::BufferView;
-use buffer::BufferViewSlice;
-use BufferViewExt;
-use BufferViewSliceExt;
+use buffer::Buffer;
+use buffer::BufferSlice;
+use BufferExt;
+use BufferSliceExt;
 
 use gl;
 use version::Api;
@@ -177,7 +177,7 @@ impl RawQuery {
             return false;
         }
 
-        BufferView::<u8>::unbind_query(&mut ctxt);
+        Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
             let mut value = mem::uninitialized();
@@ -214,7 +214,7 @@ impl RawQuery {
             return 0;
         }
 
-        BufferView::<u8>::unbind_query(&mut ctxt);
+        Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
             let mut value = mem::uninitialized();
@@ -224,7 +224,7 @@ impl RawQuery {
     }
 
     /// Writes the value of the query to a buffer.
-    pub fn write_u32_to_buffer(&self, target: BufferViewSlice<u32>) -> Result<(), ToBufferError> {
+    pub fn write_u32_to_buffer(&self, target: BufferSlice<u32>) -> Result<(), ToBufferError> {
         let mut ctxt = self.context.make_current();
 
         if !(ctxt.version >= &Version(Api::Gl, 4, 4) || ctxt.extensions.gl_arb_query_buffer_object ||
@@ -279,7 +279,7 @@ impl RawQuery {
             return 0;
         }
 
-        BufferView::<u8>::unbind_query(&mut ctxt);
+        Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
             let mut value = mem::uninitialized();
@@ -720,7 +720,7 @@ macro_rules! impl_helper {
             ///
             /// This operation is not necessarly supported everywhere.
             #[inline]
-            pub fn to_buffer_u32(&self, target: BufferViewSlice<u32>)
+            pub fn to_buffer_u32(&self, target: BufferSlice<u32>)
                                  -> Result<(), ToBufferError>
             {
                 self.query.write_u32_to_buffer(target)

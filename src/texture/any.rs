@@ -19,10 +19,10 @@ use texture::{get_format, InternalFormat, GetFormatError};
 use texture::pixel::PixelValue;
 use texture::pixel_buffer::PixelBuffer;
 
-use buffer::BufferViewSlice;
-use buffer::BufferViewAny;
-use BufferViewExt;
-use BufferViewSliceExt;
+use buffer::BufferSlice;
+use buffer::BufferAny;
+use BufferExt;
+use BufferSliceExt;
 
 use libc;
 use std::cmp;
@@ -169,7 +169,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
             ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
         }
 
-        BufferViewAny::unbind_pixel_unpack(&mut ctxt);
+        BufferAny::unbind_pixel_unpack(&mut ctxt);
 
         let id: gl::types::GLuint = mem::uninitialized();
         ctxt.gl.GenTextures(1, mem::transmute(&id));
@@ -803,7 +803,7 @@ impl<'a> TextureAnyMipmap<'a> {
     /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
     /// if the buffer is not big enough to hold the data.
     #[inline]
-    pub fn raw_upload_from_pixel_buffer<P>(&self, source: BufferViewSlice<[P]>, x: Range<u32>,
+    pub fn raw_upload_from_pixel_buffer<P>(&self, source: BufferSlice<[P]>, x: Range<u32>,
                                            y: Range<u32>, z: Range<u32>)
                                            where P: PixelValue
     {
@@ -817,14 +817,14 @@ impl<'a> TextureAnyMipmap<'a> {
     /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
     /// if the buffer is not big enough to hold the data.
     #[inline]
-    pub fn raw_upload_from_pixel_buffer_inverted<P>(&self, source: BufferViewSlice<[P]>,
+    pub fn raw_upload_from_pixel_buffer_inverted<P>(&self, source: BufferSlice<[P]>,
                                                     x: Range<u32>, y: Range<u32>, z: Range<u32>)
                                                     where P: PixelValue
     {
         self.raw_upload_from_pixel_buffer_impl(source, x, y, z, true);
     }
 
-    fn raw_upload_from_pixel_buffer_impl<P>(&self, source: BufferViewSlice<[P]>, x: Range<u32>,
+    fn raw_upload_from_pixel_buffer_impl<P>(&self, source: BufferSlice<[P]>, x: Range<u32>,
                                             y: Range<u32>, z: Range<u32>, inverted: bool)
                                             where P: PixelValue
     {
@@ -1074,7 +1074,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
                 ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
             }
 
-            BufferViewAny::unbind_pixel_unpack(&mut ctxt);
+            BufferAny::unbind_pixel_unpack(&mut ctxt);
             let bind_point = self.texture.bind_to_current(&mut ctxt);
 
             if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY {
@@ -1145,7 +1145,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
                         let mut buf = Vec::with_capacity(buffer_size as usize);
                         buf.set_len(buffer_size as usize);
 
-                        BufferViewAny::unbind_pixel_pack(&mut ctxt);
+                        BufferAny::unbind_pixel_pack(&mut ctxt);
                         
                         // adjusting data alignement
                         let ptr = buf.as_ptr() as *const u8;

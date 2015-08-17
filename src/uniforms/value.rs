@@ -7,7 +7,7 @@ use uniforms::LayoutMismatchError;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
 
-use buffer::BufferViewAnySlice;
+use buffer::BufferAnySlice;
 
 #[cfg(feature = "cgmath")]
 use cgmath;
@@ -137,7 +137,7 @@ pub enum UniformValue<'a> {
     /// can be binded on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
-    Block(BufferViewAnySlice<'a>, fn(&program::UniformBlock) -> Result<(), LayoutMismatchError>),
+    Block(BufferAnySlice<'a>, fn(&program::UniformBlock) -> Result<(), LayoutMismatchError>),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),

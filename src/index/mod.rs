@@ -37,7 +37,7 @@ use version::Version;
 
 use std::mem;
 
-use buffer::BufferViewAnySlice;
+use buffer::BufferAnySlice;
 
 pub use self::buffer::{IndexBuffer, IndexBufferSlice, IndexBufferAny};
 pub use self::buffer::CreationError as BufferCreationError;
@@ -53,7 +53,7 @@ pub enum IndicesSource<'a> {
     /// A buffer uploaded in video memory.
     IndexBuffer {
         /// The buffer.
-        buffer: BufferViewAnySlice<'a>,
+        buffer: BufferAnySlice<'a>,
         /// Type of indices in the buffer.
         data_type: IndexType,
         /// Type of primitives contained in the vertex source.
@@ -63,7 +63,7 @@ pub enum IndicesSource<'a> {
     /// Use a multidraw indirect buffer without indices.
     MultidrawArray {
         /// The buffer.
-        buffer: BufferViewAnySlice<'a>,
+        buffer: BufferAnySlice<'a>,
         /// Type of primitives contained in the vertex source.
         primitives: PrimitiveType,
     },
@@ -71,9 +71,9 @@ pub enum IndicesSource<'a> {
     /// Use a multidraw indirect buffer with indices.
     MultidrawElement {
         /// The buffer of the commands.
-        commands: BufferViewAnySlice<'a>,
+        commands: BufferAnySlice<'a>,
         /// The buffer of the indices.
-        indices: BufferViewAnySlice<'a>,
+        indices: BufferAnySlice<'a>,
         /// Type of indices in the buffer.
         data_type: IndexType,
         /// Type of primitives contained in the vertex source.

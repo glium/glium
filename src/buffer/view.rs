@@ -8,8 +8,8 @@ use texture::{PixelValue, Texture1dDataSink};
 use gl;
 
 use backend::Facade;
-use BufferViewExt;
-use BufferViewSliceExt;
+use BufferExt;
+use BufferSliceExt;
 use GlObject;
 
 use context::Context;
@@ -23,31 +23,31 @@ use buffer::BufferCreationError;
 use buffer::Content;
 use buffer::fences::Fences;
 use buffer::fences::Inserter;
-use buffer::alloc::Buffer;
+use buffer::alloc::Alloc;
 use buffer::alloc::Mapping;
 use buffer::alloc::ReadMapping;
 use buffer::alloc::WriteMapping;
 use buffer::alloc::ReadError;
 
 /// Represents a view of a buffer.
-pub struct BufferView<T: ?Sized> where T: Content {
+pub struct Buffer<T: ?Sized> where T: Content {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
-    alloc: Option<Buffer>,
+    alloc: Option<Alloc>,
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     fence: Option<Fences>,
     marker: PhantomData<T>,
 }
 
-impl<T: ?Sized> BufferView<T> where T: Content {
+impl<T: ?Sized> Buffer<T> where T: Content {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
     pub fn new<F>(facade: &F, data: &T, ty: BufferType, mode: BufferMode)
-                  -> Result<BufferView<T>, BufferCreationError>
+                  -> Result<Buffer<T>, BufferCreationError>
                   where F: Facade
     {
-        Buffer::new(facade, data, ty, mode)
+        Alloc::new(facade, data, ty, mode)
             .map(|buffer| {
-                BufferView {
+                Buffer {
                     alloc: Some(buffer),
                     fence: Some(Fences::new()),
                     marker: PhantomData,
@@ -57,13 +57,13 @@ impl<T: ?Sized> BufferView<T> where T: Content {
 
     /// Builds a new buffer of the given size.
     pub fn empty_unsized<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
-                            -> Result<BufferView<T>, BufferCreationError> where F: Facade
+                            -> Result<Buffer<T>, BufferCreationError> where F: Facade
     {
         assert!(<T as Content>::is_size_suitable(size));
 
-        Buffer::empty(facade, ty, size, mode)
+        Alloc::empty(facade, ty, size, mode)
             .map(|buffer| {
-                BufferView {
+                Buffer {
                     alloc: Some(buffer),
                     fence: Some(Fences::new()),
                     marker: PhantomData,
@@ -157,7 +157,7 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
+    /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::uninitialized() };
     /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
     /// ```
@@ -170,7 +170,7 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     /// You **must** return a reference to an element from the parameter. The closure **must not**
     /// panic.
     #[inline]
-    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<R>
+    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferSlice<R>
                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
                                                     R: Content
     {
@@ -179,7 +179,7 @@ impl<T: ?Sized> BufferView<T> where T: Content {
 
     /// Same as `slice_custom` but returns a mutable slice.
     #[inline]
-    pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> BufferViewMutSlice<R>
+    pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> BufferMutSlice<R>
                                                  where F: for<'r> FnOnce(&'r T) -> &'r R,
                                                         R: Content
     {
@@ -188,8 +188,8 @@ impl<T: ?Sized> BufferView<T> where T: Content {
 
     /// Builds a slice containing the whole subbuffer.
     #[inline]
-    pub fn as_slice(&self) -> BufferViewSlice<T> {
-        BufferViewSlice {
+    pub fn as_slice(&self) -> BufferSlice<T> {
+        BufferSlice {
             alloc: self.alloc.as_ref().unwrap(),
             bytes_start: 0,
             bytes_end: self.get_size(),
@@ -200,10 +200,10 @@ impl<T: ?Sized> BufferView<T> where T: Content {
 
     /// Builds a slice containing the whole subbuffer.
     #[inline]
-    pub fn as_mut_slice(&mut self) -> BufferViewMutSlice<T> {
+    pub fn as_mut_slice(&mut self) -> BufferMutSlice<T> {
         let size = self.get_size();
 
-        BufferViewMutSlice {
+        BufferMutSlice {
             alloc: self.alloc.as_mut().unwrap(),
             bytes_start: 0,
             bytes_end: size,
@@ -213,10 +213,10 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
-    pub fn as_slice_any(&self) -> BufferViewAnySlice {
+    pub fn as_slice_any(&self) -> BufferAnySlice {
         let size = self.get_size();
 
-        BufferViewAnySlice {
+        BufferAnySlice {
             alloc: self.alloc.as_ref().unwrap(),
             bytes_start: 0,
             bytes_end: self.get_size(),
@@ -226,14 +226,14 @@ impl<T: ?Sized> BufferView<T> where T: Content {
     }
 }
 
-impl<T> BufferView<T> where T: Content + Copy {
+impl<T> Buffer<T> where T: Content + Copy {
     /// Builds a new buffer of the given size.
     pub fn empty<F>(facade: &F, ty: BufferType, mode: BufferMode)
-                    -> Result<BufferView<T>, BufferCreationError> where F: Facade
+                    -> Result<Buffer<T>, BufferCreationError> where F: Facade
     {
-        Buffer::empty(facade, ty, mem::size_of::<T>(), mode)
+        Alloc::empty(facade, ty, mem::size_of::<T>(), mode)
             .map(|buffer| {
-                BufferView {
+                Buffer {
                     alloc: Some(buffer),
                     fence: Some(Fences::new()),
                     marker: PhantomData,
@@ -242,14 +242,14 @@ impl<T> BufferView<T> where T: Content + Copy {
     }
 }
 
-impl<T> BufferView<[T]> where [T]: Content, T: Copy {
+impl<T> Buffer<[T]> where [T]: Content, T: Copy {
     /// Builds a new buffer of the given size.
     pub fn empty_array<F>(facade: &F, ty: BufferType, len: usize, mode: BufferMode)
-                          -> Result<BufferView<[T]>, BufferCreationError> where F: Facade
+                          -> Result<Buffer<[T]>, BufferCreationError> where F: Facade
     {
-        Buffer::empty(facade, ty, len * mem::size_of::<T>(), mode)
+        Alloc::empty(facade, ty, len * mem::size_of::<T>(), mode)
             .map(|buffer| {
-                BufferView {
+                Buffer {
                     alloc: Some(buffer),
                     fence: Some(Fences::new()),
                     marker: PhantomData,
@@ -265,18 +265,18 @@ impl<T> BufferView<[T]> where [T]: Content, T: Copy {
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
     #[inline]
-    pub fn slice(&self, range: Range<usize>) -> Option<BufferViewSlice<[T]>> {
+    pub fn slice(&self, range: Range<usize>) -> Option<BufferSlice<[T]>> {
         self.as_slice().slice(range)
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
     #[inline]
-    pub fn slice_mut(&mut self, range: Range<usize>) -> Option<BufferViewMutSlice<[T]>> {
+    pub fn slice_mut(&mut self, range: Range<usize>) -> Option<BufferMutSlice<[T]>> {
         self.as_mut_slice().slice(range)
     }
 }
 
-impl<T> BufferView<[T]> where T: PixelValue {
+impl<T> Buffer<[T]> where T: PixelValue {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
@@ -285,14 +285,14 @@ impl<T> BufferView<[T]> where T: PixelValue {
     }
 }
 
-impl<T: ?Sized> fmt::Debug for BufferView<T> where T: Content {
+impl<T: ?Sized> fmt::Debug for Buffer<T> where T: Content {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc.as_ref().unwrap())
     }
 }
 
-impl<T: ?Sized> Drop for BufferView<T> where T: Content {
+impl<T: ?Sized> Drop for Buffer<T> where T: Content {
     #[inline]
     fn drop(&mut self) {
         if let (Some(alloc), Some(mut fence)) = (self.alloc.take(), self.fence.take()) {
@@ -301,7 +301,7 @@ impl<T: ?Sized> Drop for BufferView<T> where T: Content {
     }
 }
 
-impl<T: ?Sized> BufferViewExt for BufferView<T> where T: Content {
+impl<T: ?Sized> BufferExt for Buffer<T> where T: Content {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         0
@@ -339,7 +339,7 @@ impl<T: ?Sized> BufferViewExt for BufferView<T> where T: Content {
 
     #[inline]
     fn unbind_pixel_pack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_pack(ctxt)
+        Alloc::unbind_pixel_pack(ctxt)
     }
 
     #[inline]
@@ -350,7 +350,7 @@ impl<T: ?Sized> BufferViewExt for BufferView<T> where T: Content {
 
     #[inline]
     fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_unpack(ctxt)
+        Alloc::unbind_pixel_unpack(ctxt)
     }
 
     #[inline]
@@ -361,7 +361,7 @@ impl<T: ?Sized> BufferViewExt for BufferView<T> where T: Content {
 
     #[inline]
     fn unbind_query(ctxt: &mut CommandContext) {
-        Buffer::unbind_query(ctxt)
+        Alloc::unbind_query(ctxt)
     }
 
     #[inline]
@@ -391,15 +391,15 @@ impl<T: ?Sized> BufferViewExt for BufferView<T> where T: Content {
 
 /// Represents a sub-part of a buffer.
 #[derive(Copy, Clone)]
-pub struct BufferViewSlice<'a, T: ?Sized> where T: Content + 'a {
-    alloc: &'a Buffer,
+pub struct BufferSlice<'a, T: ?Sized> where T: Content + 'a {
+    alloc: &'a Alloc,
     bytes_start: usize,
     bytes_end: usize,
     fence: &'a Fences,
     marker: PhantomData<&'a T>,
 }
 
-impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
+impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     /// Returns the size in bytes of this slice.
     #[inline]
     pub fn get_size(&self) -> usize {
@@ -447,7 +447,7 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
+    /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::uninitialized() };
     /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
     /// ```
@@ -460,7 +460,7 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
     /// You **must** return a reference to an element from the parameter. The closure **must not**
     /// panic.
     #[inline]
-    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferViewSlice<'a, R>
+    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferSlice<'a, R>
                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
                                                    R: Content
     {
@@ -472,7 +472,7 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
         assert!(result <= self.get_size());
         assert!(result + size <= self.get_size());
 
-        BufferViewSlice {
+        BufferSlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start + result,
             bytes_end: self.bytes_start + result + size,
@@ -483,8 +483,8 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
 
     /// Builds a slice-any containing the whole subbuffer.
     #[inline]
-    pub fn as_slice_any(&self) -> BufferViewAnySlice<'a> {
-        BufferViewAnySlice {
+    pub fn as_slice_any(&self) -> BufferAnySlice<'a> {
+        BufferAnySlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start,
             bytes_end: self.bytes_end,
@@ -494,7 +494,7 @@ impl<'a, T: ?Sized> BufferViewSlice<'a, T> where T: Content + 'a {
     }
 }
 
-impl<'a, T> BufferViewSlice<'a, [T]> where [T]: Content + 'a {
+impl<'a, T> BufferSlice<'a, [T]> where [T]: Content + 'a {
     /// Returns the number of elements in this slice.
     #[inline]
     pub fn len(&self) -> usize {
@@ -503,12 +503,12 @@ impl<'a, T> BufferViewSlice<'a, [T]> where [T]: Content + 'a {
 
     /// Builds a subslice of this slice. Returns `None` if out of range.
     #[inline]
-    pub fn slice(&self, range: Range<usize>) -> Option<BufferViewSlice<'a, [T]>> {
+    pub fn slice(&self, range: Range<usize>) -> Option<BufferSlice<'a, [T]>> {
         if range.start > self.len() || range.end > self.len() {
             return None;
         }
 
-        Some(BufferViewSlice {
+        Some(BufferSlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start + range.start * mem::size_of::<T>(),
             bytes_end: self.bytes_start + range.end * mem::size_of::<T>(),
@@ -518,7 +518,7 @@ impl<'a, T> BufferViewSlice<'a, [T]> where [T]: Content + 'a {
     }
 }
 
-impl<'a, T> BufferViewSlice<'a, [T]> where T: PixelValue + 'a {
+impl<'a, T> BufferSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
@@ -527,14 +527,14 @@ impl<'a, T> BufferViewSlice<'a, [T]> where T: PixelValue + 'a {
     }
 }
 
-impl<'a, T: ?Sized> fmt::Debug for BufferViewSlice<'a, T> where T: Content {
+impl<'a, T: ?Sized> fmt::Debug for BufferSlice<'a, T> where T: Content {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
     }
 }
 
-impl<'a, T: ?Sized> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: Content {
+impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferSlice<'a, T> where T: Content {
     #[inline]
     fn add_fence(&self) -> Option<Inserter<'a>> {
         if !self.alloc.uses_persistent_mapping() {
@@ -545,7 +545,7 @@ impl<'a, T: ?Sized> BufferViewSliceExt<'a> for BufferViewSlice<'a, T> where T: C
     }
 }
 
-impl<'a, T: ?Sized> BufferViewExt for BufferViewSlice<'a, T> where T: Content {
+impl<'a, T: ?Sized> BufferExt for BufferSlice<'a, T> where T: Content {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         self.bytes_start
@@ -578,7 +578,7 @@ impl<'a, T: ?Sized> BufferViewExt for BufferViewSlice<'a, T> where T: Content {
 
     #[inline]
     fn unbind_pixel_pack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_pack(ctxt)
+        Alloc::unbind_pixel_pack(ctxt)
     }
 
     #[inline]
@@ -588,7 +588,7 @@ impl<'a, T: ?Sized> BufferViewExt for BufferViewSlice<'a, T> where T: Content {
 
     #[inline]
     fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_unpack(ctxt)
+        Alloc::unbind_pixel_unpack(ctxt)
     }
 
     #[inline]
@@ -598,7 +598,7 @@ impl<'a, T: ?Sized> BufferViewExt for BufferViewSlice<'a, T> where T: Content {
 
     #[inline]
     fn unbind_query(ctxt: &mut CommandContext) {
-        Buffer::unbind_query(ctxt)
+        Alloc::unbind_query(ctxt)
     }
 
     #[inline]
@@ -623,15 +623,15 @@ impl<'a, T: ?Sized> BufferViewExt for BufferViewSlice<'a, T> where T: Content {
 }
 
 /// Represents a sub-part of a buffer.
-pub struct BufferViewMutSlice<'a, T: ?Sized> where T: Content {
-    alloc: &'a mut Buffer,
+pub struct BufferMutSlice<'a, T: ?Sized> where T: Content {
+    alloc: &'a mut Alloc,
     bytes_start: usize,
     bytes_end: usize,
     fence: &'a Fences,
     marker: PhantomData<T>,
 }
 
-impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
+impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     /// Returns the size in bytes of this slice.
     #[inline]
     pub fn get_size(&self) -> usize {
@@ -700,7 +700,7 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// # let buffer: glium::buffer::BufferViewSlice<BufferContent> =
+    /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::uninitialized() };
     /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
     /// ```
@@ -713,7 +713,7 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     /// You **must** return a reference to an element from the parameter. The closure **must not**
     /// panic.
     #[inline]
-    pub unsafe fn slice_custom<F, R: ?Sized>(self, f: F) -> BufferViewMutSlice<'a, R>
+    pub unsafe fn slice_custom<F, R: ?Sized>(self, f: F) -> BufferMutSlice<'a, R>
                                              where F: for<'r> FnOnce(&'r T) -> &'r R,
                                                    R: Content
     {
@@ -725,7 +725,7 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
         assert!(result <= self.get_size());
         assert!(result + size <= self.get_size());
 
-        BufferViewMutSlice {
+        BufferMutSlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start + result,
             bytes_end: self.bytes_start + result + size,
@@ -736,8 +736,8 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
 
     /// Builds a slice-any containing the whole subbuffer.
     #[inline]
-    pub fn as_slice_any(self) -> BufferViewAnySlice<'a> {
-        BufferViewAnySlice {
+    pub fn as_slice_any(self) -> BufferAnySlice<'a> {
+        BufferAnySlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start,
             bytes_end: self.bytes_end,
@@ -747,7 +747,7 @@ impl<'a, T: ?Sized> BufferViewMutSlice<'a, T> where T: Content {
     }
 }
 
-impl<'a, T> BufferViewMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
+impl<'a, T> BufferMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
     /// Returns the number of elements in this slice.
     #[inline]
     pub fn len(&self) -> usize {
@@ -756,12 +756,12 @@ impl<'a, T> BufferViewMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
 
     /// Builds a subslice of this slice. Returns `None` if out of range.
     #[inline]
-    pub fn slice(self, range: Range<usize>) -> Option<BufferViewMutSlice<'a, [T]>> {
+    pub fn slice(self, range: Range<usize>) -> Option<BufferMutSlice<'a, [T]>> {
         if range.start > self.len() || range.end > self.len() {
             return None;
         }
 
-        Some(BufferViewMutSlice {
+        Some(BufferMutSlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start + range.start * mem::size_of::<T>(),
             bytes_end: self.bytes_start + range.end * mem::size_of::<T>(),
@@ -771,7 +771,7 @@ impl<'a, T> BufferViewMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
     }
 }
 
-impl<'a, T> BufferViewMutSlice<'a, [T]> where T: PixelValue + 'a {
+impl<'a, T> BufferMutSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
@@ -780,7 +780,7 @@ impl<'a, T> BufferViewMutSlice<'a, [T]> where T: PixelValue + 'a {
     }
 }
 
-impl<'a, T: ?Sized> fmt::Debug for BufferViewMutSlice<'a, T> where T: Content {
+impl<'a, T: ?Sized> fmt::Debug for BufferMutSlice<'a, T> where T: Content {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
@@ -789,19 +789,19 @@ impl<'a, T: ?Sized> fmt::Debug for BufferViewMutSlice<'a, T> where T: Content {
 
 /// Represents a sub-part of a buffer.
 ///
-/// Doesn't contain any information about the content, contrary to `BufferView`.
-pub struct BufferViewAny {
-    alloc: Buffer,
+/// Doesn't contain any information about the content, contrary to `Buffer`.
+pub struct BufferAny {
+    alloc: Alloc,
     size: usize,
     elements_size: usize,
     fence: Fences,
 }
 
-impl BufferViewAny {
+impl BufferAny {
     /// Builds a slice-any containing the whole subbuffer.
     #[inline]
-    pub fn as_slice_any(&self) -> BufferViewAnySlice {
-        BufferViewAnySlice {
+    pub fn as_slice_any(&self) -> BufferAnySlice {
+        BufferAnySlice {
             alloc: &self.alloc,
             bytes_start: 0,
             bytes_end: self.size,
@@ -861,12 +861,12 @@ impl BufferViewAny {
     }
 }
 
-impl<T: ?Sized> From<BufferView<T>> for BufferViewAny where T: Content + Send + 'static {
+impl<T: ?Sized> From<Buffer<T>> for BufferAny where T: Content + Send + 'static {
     #[inline]
-    fn from(mut buffer: BufferView<T>) -> BufferViewAny {
+    fn from(mut buffer: Buffer<T>) -> BufferAny {
         let size = buffer.get_size();
 
-        BufferViewAny {
+        BufferAny {
             alloc: buffer.alloc.take().unwrap(),
             size: size,
             elements_size: <T as Content>::get_elements_size(),
@@ -875,21 +875,21 @@ impl<T: ?Sized> From<BufferView<T>> for BufferViewAny where T: Content + Send + 
     }
 }
 
-impl Drop for BufferViewAny {
+impl Drop for BufferAny {
     #[inline]
     fn drop(&mut self) {
         self.fence.clean(&mut self.alloc.get_context().make_current());
     }
 }
 
-impl fmt::Debug for BufferViewAny {
+impl fmt::Debug for BufferAny {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
     }
 }
 
-impl BufferViewExt for BufferViewAny {
+impl BufferExt for BufferAny {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         0
@@ -922,7 +922,7 @@ impl BufferViewExt for BufferViewAny {
 
     #[inline]
     fn unbind_pixel_pack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_pack(ctxt)
+        Alloc::unbind_pixel_pack(ctxt)
     }
 
     #[inline]
@@ -932,7 +932,7 @@ impl BufferViewExt for BufferViewAny {
 
     #[inline]
     fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_unpack(ctxt)
+        Alloc::unbind_pixel_unpack(ctxt)
     }
 
     #[inline]
@@ -942,7 +942,7 @@ impl BufferViewExt for BufferViewAny {
 
     #[inline]
     fn unbind_query(ctxt: &mut CommandContext) {
-        Buffer::unbind_query(ctxt)
+        Alloc::unbind_query(ctxt)
     }
 
     #[inline]
@@ -966,17 +966,17 @@ impl BufferViewExt for BufferViewAny {
     }
 }
 
-/// Slice of a `BufferView` without any type info.
+/// Slice of a `Buffer` without any type info.
 #[derive(Copy, Clone)]
-pub struct BufferViewAnySlice<'a> {
-    alloc: &'a Buffer,
+pub struct BufferAnySlice<'a> {
+    alloc: &'a Alloc,
     bytes_start: usize,
     bytes_end: usize,
     elements_size: usize,
     fence: &'a Fences,
 }
 
-impl<'a> BufferViewAnySlice<'a> {
+impl<'a> BufferAnySlice<'a> {
     /// Returns the number of bytes in this slice.
     #[inline]
     pub fn get_size(&self) -> usize {
@@ -1006,14 +1006,14 @@ impl<'a> BufferViewAnySlice<'a> {
     }
 }
 
-impl<'a> fmt::Debug for BufferViewAnySlice<'a> {
+impl<'a> fmt::Debug for BufferAnySlice<'a> {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
     }
 }
 
-impl<'a> BufferViewSliceExt<'a> for BufferViewAnySlice<'a> {
+impl<'a> BufferSliceExt<'a> for BufferAnySlice<'a> {
     #[inline]
     fn add_fence(&self) -> Option<Inserter<'a>> {
         if !self.alloc.uses_persistent_mapping() {
@@ -1024,7 +1024,7 @@ impl<'a> BufferViewSliceExt<'a> for BufferViewAnySlice<'a> {
     }
 }
 
-impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
+impl<'a> BufferExt for BufferAnySlice<'a> {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         self.bytes_start
@@ -1057,7 +1057,7 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
 
     #[inline]
     fn unbind_pixel_pack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_pack(ctxt)
+        Alloc::unbind_pixel_pack(ctxt)
     }
 
     #[inline]
@@ -1067,7 +1067,7 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
 
     #[inline]
     fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
-        Buffer::unbind_pixel_unpack(ctxt)
+        Alloc::unbind_pixel_unpack(ctxt)
     }
 
     #[inline]
@@ -1077,7 +1077,7 @@ impl<'a> BufferViewExt for BufferViewAnySlice<'a> {
 
     #[inline]
     fn unbind_query(ctxt: &mut CommandContext) {
-        Buffer::unbind_query(ctxt)
+        Alloc::unbind_query(ctxt)
     }
 
     #[inline]

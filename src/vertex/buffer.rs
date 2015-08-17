@@ -1,6 +1,6 @@
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType, BufferMode, BufferCreationError};
+use buffer::{Buffer, BufferSlice, BufferAny, BufferType, BufferMode, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -30,13 +30,13 @@ impl From<BufferCreationError> for CreationError {
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct VertexBuffer<T> where T: Copy {
-    buffer: BufferView<[T]>,
+    buffer: Buffer<[T]>,
     bindings: VertexFormat,
 }
 
 /// Represents a slice of a `VertexBuffer`.
 pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
-    buffer: BufferViewSlice<'b, [T]>,
+    buffer: BufferSlice<'b, [T]>,
     bindings: &'b VertexFormat,
 }
 
@@ -111,7 +111,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::new(facade, data, BufferType::ArrayBuffer, mode));
+        let buffer = try!(Buffer::new(facade, data, BufferType::ArrayBuffer, mode));
         Ok(buffer.into())
     }
 
@@ -165,7 +165,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(BufferView::empty_array(facade, BufferType::ArrayBuffer, elements, mode));
+        let buffer = try!(Buffer::empty_array(facade, BufferType::ArrayBuffer, elements, mode));
         Ok(buffer.into())
     }
 }
@@ -211,7 +211,7 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
+            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
                                          BufferMode::Default)),
             bindings: bindings,
         })
@@ -227,7 +227,7 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ArrayBuffer,
+            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
                                          BufferMode::Dynamic)),
             bindings: bindings,
         })
@@ -286,9 +286,9 @@ impl<T> VertexBuffer<T> where T: Copy + Send + 'static {
     }
 }
 
-impl<T> From<BufferView<[T]>> for VertexBuffer<T> where T: Vertex + Copy {
+impl<T> From<Buffer<[T]>> for VertexBuffer<T> where T: Vertex + Copy {
     #[inline]
-    fn from(buffer: BufferView<[T]>) -> VertexBuffer<T> {
+    fn from(buffer: Buffer<[T]>) -> VertexBuffer<T> {
         assert!(T::is_supported(buffer.get_context()));
 
         let bindings = <T as Vertex>::build_bindings();
@@ -301,17 +301,17 @@ impl<T> From<BufferView<[T]>> for VertexBuffer<T> where T: Vertex + Copy {
 }
 
 impl<T> Deref for VertexBuffer<T> where T: Copy {
-    type Target = BufferView<[T]>;
+    type Target = Buffer<[T]>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<[T]> {
+    fn deref(&self) -> &Buffer<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for VertexBuffer<T> where T: Copy {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<[T]> {
+    fn deref_mut(&mut self) -> &mut Buffer<[T]> {
         &mut self.buffer
     }
 }
@@ -324,17 +324,17 @@ impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Copy {
 }
 
 impl<'a, T> Deref for VertexBufferSlice<'a, T> where T: Copy {
-    type Target = BufferViewSlice<'a, [T]>;
+    type Target = BufferSlice<'a, [T]>;
 
     #[inline]
-    fn deref(&self) -> &BufferViewSlice<'a, [T]> {
+    fn deref(&self) -> &BufferSlice<'a, [T]> {
         &self.buffer
     }
 }
 
 impl<'a, T> DerefMut for VertexBufferSlice<'a, T> where T: Copy {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferViewSlice<'a, [T]> {
+    fn deref_mut(&mut self) -> &mut BufferSlice<'a, [T]> {
         &mut self.buffer
     }
 }
@@ -355,7 +355,7 @@ impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy {
 /// or return a `VertexBufferAny` instead of a `VertexBuffer<MyPrivateVertexType>`.
 #[derive(Debug)]
 pub struct VertexBufferAny {
-    buffer: BufferViewAny,
+    buffer: BufferAny,
     bindings: VertexFormat,
 }
 
@@ -410,9 +410,9 @@ impl<T> From<VertexBuffer<T>> for VertexBufferAny where T: Copy + Send + 'static
     }
 }
 
-impl<T> From<BufferView<[T]>> for VertexBufferAny where T: Vertex + Copy + Send + 'static {
+impl<T> From<Buffer<[T]>> for VertexBufferAny where T: Vertex + Copy + Send + 'static {
     #[inline]
-    fn from(buf: BufferView<[T]>) -> VertexBufferAny {
+    fn from(buf: Buffer<[T]>) -> VertexBufferAny {
         let buf: VertexBuffer<T> = buf.into();
         buf.into_vertex_buffer_any()
     }

@@ -1,8 +1,8 @@
 use std::ptr;
 use std::ops::Range;
 
-use BufferViewExt;
-use BufferViewSliceExt;
+use BufferExt;
+use BufferSliceExt;
 use ProgramExt;
 use DrawError;
 use UniformsExt;

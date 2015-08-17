@@ -96,7 +96,7 @@ pub use self::uniforms::{EmptyUniforms, UniformsStorage};
 pub use self::value::{UniformValue, UniformType};
 
 use buffer::Content as BufferContent;
-use buffer::BufferView;
+use buffer::Buffer;
 use program;
 use program::BlockLayout;
 
@@ -167,7 +167,7 @@ pub trait AsUniformValue {
 }
 
 // TODO: no way to bind a slice
-impl<'a, T: ?Sized> AsUniformValue for &'a BufferView<T> where T: UniformBlock + BufferContent {
+impl<'a, T: ?Sized> AsUniformValue for &'a Buffer<T> where T: UniformBlock + BufferContent {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         #[inline]

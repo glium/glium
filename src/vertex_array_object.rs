@@ -6,12 +6,12 @@ use std::mem;
 use smallvec::SmallVec;
 
 use Handle;
-use buffer::BufferViewAnySlice;
+use buffer::BufferAnySlice;
 use program::Program;
 use vertex::AttributeType;
 use vertex::VertexFormat;
 use GlObject;
-use BufferViewExt;
+use BufferExt;
 
 use {libc, gl};
 use context::CommandContext;
@@ -29,7 +29,7 @@ pub struct VertexAttributesSystem {
 pub struct Binder<'a, 'b, 'c: 'b> {
     context: &'b mut CommandContext<'c>,
     program: &'a Program,
-    element_array_buffer: Option<BufferViewAnySlice<'a>>,
+    element_array_buffer: Option<BufferAnySlice<'a>>,
     vertex_buffers: SmallVec<[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>); 2]>,
     base_vertex: bool,
 }
@@ -49,7 +49,7 @@ impl VertexAttributesSystem {
     /// functions. If `base_vertex` is true, then `bind` will return the base vertex to use.
     #[inline]
     pub fn start<'a, 'b, 'c: 'b>(ctxt: &'b mut CommandContext<'c>, program: &'a Program,
-                                 indices: Option<BufferViewAnySlice<'a>>, base_vertex: bool)
+                                 indices: Option<BufferAnySlice<'a>>, base_vertex: bool)
                                  -> Binder<'a, 'b, 'c>
     {
         if let Some(indices) = indices {
@@ -142,7 +142,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
     #[inline]
-    pub fn add(mut self, buffer: &BufferViewAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
+    pub fn add(mut self, buffer: &BufferAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
                -> Binder<'a, 'b, 'c>
     {
         let offset = buffer.get_offset_bytes();
@@ -255,7 +255,7 @@ impl VertexArrayObject {
     /// VAO, and the VB & program attributes must not change.
     unsafe fn new(mut ctxt: &mut CommandContext,
                   vertex_buffers: &[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)],
-                  index_buffer: Option<BufferViewAnySlice>, program: &Program) -> VertexArrayObject
+                  index_buffer: Option<BufferAnySlice>, program: &Program) -> VertexArrayObject
     {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {

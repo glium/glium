@@ -7,7 +7,7 @@ A buffer texture is composed of two things:
  - A buffer.
  - A texture.
 
-The `BufferTexture` object derefs to a `BufferView`, which allows you to modify the content of the
+The `BufferTexture` object derefs to a `Buffer`, which allows you to modify the content of the
 buffer just like any other buffer type.
 
 The texture aspect of the buffer texture is very limited. The only thing you can do is use the
@@ -67,10 +67,10 @@ use ContextExt;
 
 use TextureExt;
 
-use BufferViewExt;
+use BufferExt;
 use buffer::BufferMode;
 use buffer::BufferType;
-use buffer::BufferView;
+use buffer::Buffer;
 use buffer::BufferCreationError;
 use buffer::Content as BufferContent;
 
@@ -136,7 +136,7 @@ pub enum BufferTextureType {
 
 /// A one-dimensional texture that gets its data from a buffer.
 pub struct BufferTexture<T> where [T]: BufferContent {
-    buffer: BufferView<[T]>,
+    buffer: Buffer<[T]>,
     texture: gl::types::GLuint,
     ty: BufferTextureType,
 }
@@ -183,7 +183,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                    -> Result<BufferTexture<T>, CreationError>
                    where F: Facade
     {
-        let buffer = try!(BufferView::new(facade, data, BufferType::TextureBuffer, mode));
+        let buffer = try!(Buffer::new(facade, data, BufferType::TextureBuffer, mode));
         BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }
 
@@ -228,13 +228,13 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                      -> Result<BufferTexture<T>, CreationError>
                      where F: Facade
     {
-        let buffer = try!(BufferView::empty_array(facade, BufferType::TextureBuffer, len, mode));
+        let buffer = try!(Buffer::empty_array(facade, BufferType::TextureBuffer, len, mode));
         BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }
 
     /// Builds a new buffer texture by taking ownership of a buffer.
-    pub fn from_buffer<F>(context: &F, buffer: BufferView<[T]>, ty: BufferTextureType)
-                          -> Result<BufferTexture<T>, (TextureCreationError, BufferView<[T]>)>
+    pub fn from_buffer<F>(context: &F, buffer: Buffer<[T]>, ty: BufferTextureType)
+                          -> Result<BufferTexture<T>, (TextureCreationError, Buffer<[T]>)>
                           where F: Facade
     {
         let context = context.get_context();
@@ -413,17 +413,17 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 }
 
 impl<T> Deref for BufferTexture<T> where [T]: BufferContent {
-    type Target = BufferView<[T]>;
+    type Target = Buffer<[T]>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<[T]> {
+    fn deref(&self) -> &Buffer<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for BufferTexture<T> where [T]: BufferContent {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<[T]> {
+    fn deref_mut(&mut self) -> &mut Buffer<[T]> {
         &mut self.buffer
     }
 }
