@@ -1,7 +1,7 @@
-use buffer::{BufferView, BufferViewSlice, BufferViewAny, BufferType};
+use buffer::{Buffer, BufferSlice, BufferAny, BufferType};
 use buffer::{BufferMode, BufferCreationError};
 use gl;
-use BufferViewExt;
+use BufferExt;
 use GlObject;
 
 use backend::Facade;
@@ -36,7 +36,7 @@ impl From<BufferCreationError> for CreationError {
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct IndexBuffer<T> where T: Index {
-    buffer: BufferView<[T]>,
+    buffer: Buffer<[T]>,
     primitives: PrimitiveType,
 }
 
@@ -91,7 +91,7 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(BufferView::new(facade, data, BufferType::ElementArrayBuffer, mode)).into(),
+            buffer: try!(Buffer::new(facade, data, BufferType::ElementArrayBuffer, mode)).into(),
             primitives: prim,
         })
     }
@@ -146,7 +146,7 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(BufferView::empty_array(facade, BufferType::ElementArrayBuffer, len,
+            buffer: try!(Buffer::empty_array(facade, BufferType::ElementArrayBuffer, len,
                                                  mode)).into(),
             primitives: prim,
         })
@@ -177,17 +177,17 @@ impl<T> IndexBuffer<T> where T: Index {
 }
 
 impl<T> Deref for IndexBuffer<T> where T: Index {
-    type Target = BufferView<[T]>;
+    type Target = Buffer<[T]>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<[T]> {
+    fn deref(&self) -> &Buffer<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for IndexBuffer<T> where T: Index {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<[T]> {
+    fn deref_mut(&mut self) -> &mut Buffer<[T]> {
         &mut self.buffer
     }
 }
@@ -216,7 +216,7 @@ impl<'a, T> From<&'a IndexBuffer<T>> for IndicesSource<'a> where T: Index {
 /// Slice of an `IndexBuffer`.
 #[derive(Debug)]
 pub struct IndexBufferSlice<'a, T: 'a> where T: Index {
-    buffer: BufferViewSlice<'a, [T]>,
+    buffer: BufferSlice<'a, [T]>,
     primitives: PrimitiveType,
 }
 
@@ -246,17 +246,17 @@ impl<'a, T: 'a> IndexBufferSlice<'a, T> where T: Index {
 }
 
 impl<'a, T> Deref for IndexBufferSlice<'a, T> where T: Index {
-    type Target = BufferViewSlice<'a, [T]>;
+    type Target = BufferSlice<'a, [T]>;
 
     #[inline]
-    fn deref(&self) -> &BufferViewSlice<'a, [T]> {
+    fn deref(&self) -> &BufferSlice<'a, [T]> {
         &self.buffer
     }
 }
 
 impl<'a, T> DerefMut for IndexBufferSlice<'a, T> where T: Index {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferViewSlice<'a, [T]> {
+    fn deref_mut(&mut self) -> &mut BufferSlice<'a, [T]> {
         &mut self.buffer
     }
 }
@@ -288,7 +288,7 @@ impl<'a, 'r, T> From<&'r IndexBufferSlice<'a, T>> for IndicesSource<'a> where T:
 /// Makes it easier to store in a `Vec` or return from a function, for example.
 #[derive(Debug)]
 pub struct IndexBufferAny {
-    buffer: BufferViewAny,
+    buffer: BufferAny,
     primitives: PrimitiveType,
     data_type: IndexType,
 }
@@ -308,17 +308,17 @@ impl IndexBufferAny {
 }
 
 impl Deref for IndexBufferAny {
-    type Target = BufferViewAny;
+    type Target = BufferAny;
 
     #[inline]
-    fn deref(&self) -> &BufferViewAny {
+    fn deref(&self) -> &BufferAny {
         &self.buffer
     }
 }
 
 impl DerefMut for IndexBufferAny {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferViewAny {
+    fn deref_mut(&mut self) -> &mut BufferAny {
         &mut self.buffer
     }
 }

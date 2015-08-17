@@ -8,16 +8,27 @@
 //! There are three levels of abstraction in glium:
 //!
 //!  - A `Buffer` corresponds to an OpenGL buffer object. This type is not public.
-//!  - A `BufferView` corresponds to a part of a `Buffer`. One buffer can contain one or multiple
+//!  - A `Buffer` corresponds to a part of a `Buffer`. One buffer can contain one or multiple
 //!    subbuffers.
 //!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, ... types are
 //!    abstractions over a subbuffer indicating their specific purpose. They implement `Deref`
 //!    for the subbuffer. These types are in the `vertex`, `index`, ... modules.
 //!
-pub use self::view::{BufferView, BufferViewAny, BufferViewMutSlice};
-pub use self::view::{BufferViewSlice, BufferViewAnySlice};
+pub use self::view::{Buffer, BufferAny, BufferMutSlice};
+pub use self::view::{BufferSlice, BufferAnySlice};
 pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, is_buffer_read_supported};
 pub use self::fences::Inserter;
+
+/// DEPRECATED. Only here for backward compatibility.
+pub use self::view::Buffer as BufferView;
+/// DEPRECATED. Only here for backward compatibility.
+pub use self::view::BufferSlice as BufferViewSlice;
+/// DEPRECATED. Only here for backward compatibility.
+pub use self::view::BufferMutSlice as BufferViewMutSlice;
+/// DEPRECATED. Only here for backward compatibility.
+pub use self::view::BufferAny as BufferViewAny;
+/// DEPRECATED. Only here for backward compatibility.
+pub use self::view::BufferAnySlice as BufferViewAnySlice;
 
 use gl;
 use std::mem;

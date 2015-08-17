@@ -11,8 +11,8 @@ use std::ops::{Deref, DerefMut};
 use backend::Facade;
 
 use GlObject;
-use BufferViewExt;
-use buffer::{ReadError, BufferView, BufferType, BufferMode};
+use BufferExt;
+use buffer::{ReadError, Buffer, BufferType, BufferMode};
 use gl;
 
 use texture::PixelValue;
@@ -22,7 +22,7 @@ use texture::Texture2dDataSink;
 ///
 /// The generic type represents the type of pixels that the buffer contains.
 pub struct PixelBuffer<T> where T: PixelValue {
-    buffer: BufferView<[T]>,
+    buffer: Buffer<[T]>,
     dimensions: Cell<Option<(u32, u32)>>,
 }
 
@@ -31,7 +31,7 @@ impl<T> PixelBuffer<T> where T: PixelValue {
     #[inline]
     pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
-            buffer: BufferView::empty_array(facade, BufferType::PixelPackBuffer, capacity,
+            buffer: Buffer::empty_array(facade, BufferType::PixelPackBuffer, capacity,
                                             BufferMode::Default).unwrap(),
             dimensions: Cell::new(None),
         }
@@ -47,17 +47,17 @@ impl<T> PixelBuffer<T> where T: PixelValue {
 }
 
 impl<T> Deref for PixelBuffer<T> where T: PixelValue {
-    type Target = BufferView<[T]>;
+    type Target = Buffer<[T]>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<[T]> {
+    fn deref(&self) -> &Buffer<[T]> {
         &self.buffer
     }
 }
 
 impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<[T]> {
+    fn deref_mut(&mut self) -> &mut Buffer<[T]> {
         &mut self.buffer
     }
 }

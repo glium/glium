@@ -5,8 +5,8 @@ Handles binding uniforms to the OpenGL state machine.
 */
 use gl;
 
-use BufferViewExt;
-use BufferViewSliceExt;
+use BufferExt;
+use BufferSliceExt;
 use DrawError;
 use ProgramExt;
 use UniformsExt;

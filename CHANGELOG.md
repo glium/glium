@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Renamed `BufferView` to `Buffer`. `BufferView` still exists for backward compatibility.
+
 ## Version 0.8.5 (2015-08-12)
 
  - Added support for cubemaps and cubemap arrays. Not all operations are available yet.

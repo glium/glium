@@ -30,7 +30,7 @@ pub enum ReadError {
 }
 
 /// A buffer in the graphics card's memory.
-pub struct Buffer {
+pub struct Alloc {
     context: Rc<Context>,
 
     /// OpenGL identifier ; can't be zero.
@@ -61,11 +61,11 @@ pub struct Buffer {
     latest_shader_write: Cell<u64>,
 }
 
-impl Buffer {
+impl Alloc {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the
     /// size of the data.
     pub fn new<D: ?Sized, F>(facade: &F, data: &D, ty: BufferType, mode: BufferMode)
-                             -> Result<Buffer, BufferCreationError>
+                             -> Result<Alloc, BufferCreationError>
                              where D: Content, F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
@@ -76,7 +76,7 @@ impl Buffer {
             create_buffer(&mut ctxt, size, Some(data), ty, mode)
         });
 
-        Ok(Buffer {
+        Ok(Alloc {
             context: facade.get_context().clone(),
             id: id,
             ty: ty,
@@ -91,7 +91,7 @@ impl Buffer {
 
     /// Builds a new empty buffer of the given size.
     pub fn empty<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
-                    -> Result<Buffer, BufferCreationError> where F: Facade
+                    -> Result<Alloc, BufferCreationError> where F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
 
@@ -99,7 +99,7 @@ impl Buffer {
             create_buffer::<()>(&mut ctxt, size, None, ty, mode)
         });
 
-        Ok(Buffer {
+        Ok(Alloc {
             context: facade.get_context().clone(),
             id: id,
             ty: ty,
@@ -131,7 +131,7 @@ impl Buffer {
     }
 
     /// Changes the type of the buffer. Returns `Err` if this is forbidden.
-    pub fn set_type(mut self, ty: BufferType) -> Result<Buffer, Buffer> {
+    pub fn set_type(mut self, ty: BufferType) -> Result<Alloc, Alloc> {
         // FIXME: return Err for GLES2
         self.ty = ty;
         Ok(self)
@@ -763,13 +763,13 @@ impl Buffer {
     }
 }
 
-impl fmt::Debug for Buffer {
+impl fmt::Debug for Alloc {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "Buffer #{} (size: {} bytes)", self.id, self.size)
     }
 }
 
-impl Drop for Buffer {
+impl Drop for Alloc {
     fn drop(&mut self) {
         unsafe {
             let mut ctxt = self.context.make_current();
@@ -781,7 +781,7 @@ impl Drop for Buffer {
     }
 }
 
-impl GlObject for Buffer {
+impl GlObject for Alloc {
     type Id = gl::types::GLuint;
     
     #[inline]
@@ -793,14 +793,14 @@ impl GlObject for Buffer {
 /// A mapping of a buffer. Private object.
 enum MappingImpl<'b, D: ?Sized> {
     PersistentMapping {
-        buffer: &'b Buffer,
+        buffer: &'b Alloc,
         offset_bytes: usize,
         data: *mut D,
         needs_flushing: bool,
     },
 
     TemporaryBuffer {
-        original_buffer: &'b Buffer,
+        original_buffer: &'b Alloc,
         original_buffer_offset: usize,
         temporary_buffer: gl::types::GLuint,
         temporary_buffer_data: *mut D,
@@ -808,7 +808,7 @@ enum MappingImpl<'b, D: ?Sized> {
     },
 
     RegularMapping {
-        buffer: &'b mut Buffer,
+        buffer: &'b mut Alloc,
         data: *mut D,
         needs_flushing: bool,
     },

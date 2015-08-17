@@ -6,7 +6,7 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 
 use backend::Facade;
-use buffer::{BufferCreationError, BufferType, BufferMode, BufferView};
+use buffer::{BufferCreationError, BufferType, BufferMode, Buffer};
 use index::{IndicesSource, PrimitiveType, IndexBuffer, Index};
 
 /// Represents an element in a list of draw commands.
@@ -47,7 +47,7 @@ implement_uniform_block!(DrawCommandIndices, count, instance_count, first_index,
 
 /// A buffer containing a list of draw commands.
 pub struct DrawCommandsNoIndicesBuffer {
-    buffer: BufferView<[DrawCommandNoIndices]>,
+    buffer: Buffer<[DrawCommandNoIndices]>,
 }
 
 impl DrawCommandsNoIndicesBuffer {
@@ -59,7 +59,7 @@ impl DrawCommandsNoIndicesBuffer {
                     -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                     where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Default));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
@@ -72,7 +72,7 @@ impl DrawCommandsNoIndicesBuffer {
                             -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                             where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Dynamic));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
@@ -85,7 +85,7 @@ impl DrawCommandsNoIndicesBuffer {
                                -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                                where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Persistent));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
@@ -98,7 +98,7 @@ impl DrawCommandsNoIndicesBuffer {
                               -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                               where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Immutable));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
@@ -115,24 +115,24 @@ impl DrawCommandsNoIndicesBuffer {
 }
 
 impl Deref for DrawCommandsNoIndicesBuffer {
-    type Target = BufferView<[DrawCommandNoIndices]>;
+    type Target = Buffer<[DrawCommandNoIndices]>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<[DrawCommandNoIndices]> {
+    fn deref(&self) -> &Buffer<[DrawCommandNoIndices]> {
         &self.buffer
     }
 }
 
 impl DerefMut for DrawCommandsNoIndicesBuffer {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<[DrawCommandNoIndices]> {
+    fn deref_mut(&mut self) -> &mut Buffer<[DrawCommandNoIndices]> {
         &mut self.buffer
     }
 }
 
 /// A buffer containing a list of draw commands.
 pub struct DrawCommandsIndicesBuffer {
-    buffer: BufferView<[DrawCommandIndices]>,
+    buffer: Buffer<[DrawCommandIndices]>,
 }
 
 impl DrawCommandsIndicesBuffer {
@@ -144,7 +144,7 @@ impl DrawCommandsIndicesBuffer {
                     -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                     where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Default));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
@@ -157,7 +157,7 @@ impl DrawCommandsIndicesBuffer {
                             -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                             where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Dynamic));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
@@ -170,7 +170,7 @@ impl DrawCommandsIndicesBuffer {
                                -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                                where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Persistent));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
@@ -183,7 +183,7 @@ impl DrawCommandsIndicesBuffer {
                               -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                               where F: Facade
     {
-        let buf = try!(BufferView::empty_array(facade, BufferType::DrawIndirectBuffer,
+        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
                                                elements, BufferMode::Immutable));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
@@ -204,17 +204,17 @@ impl DrawCommandsIndicesBuffer {
 }
 
 impl Deref for DrawCommandsIndicesBuffer {
-    type Target = BufferView<[DrawCommandIndices]>;
+    type Target = Buffer<[DrawCommandIndices]>;
 
     #[inline]
-    fn deref(&self) -> &BufferView<[DrawCommandIndices]> {
+    fn deref(&self) -> &Buffer<[DrawCommandIndices]> {
         &self.buffer
     }
 }
 
 impl DerefMut for DrawCommandsIndicesBuffer {
     #[inline]
-    fn deref_mut(&mut self) -> &mut BufferView<[DrawCommandIndices]> {
+    fn deref_mut(&mut self) -> &mut Buffer<[DrawCommandIndices]> {
         &mut self.buffer
     }
 }

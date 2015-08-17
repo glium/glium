@@ -7,8 +7,8 @@ use texture::PixelValue;
 use fbo;
 use fbo::FramebuffersContainer;
 
-use buffer::BufferViewAny;
-use BufferViewExt;
+use buffer::BufferAny;
+use BufferExt;
 use Rect;
 use context::CommandContext;
 use gl;
@@ -96,7 +96,7 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, 
             Destination::Memory(dest) => {
                 let mut buf = Vec::with_capacity(pixels_to_read as usize);
 
-                BufferViewAny::unbind_pixel_pack(ctxt);
+                BufferAny::unbind_pixel_pack(ctxt);
 
                 // adjusting data alignement
                 let ptr = buf.as_mut_ptr() as *mut D;
