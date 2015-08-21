@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Renamed `BufferView` to `Buffer`. `BufferView` still exists for backward compatibility.
+ - Fixed OpenGL ES 3.2 not working.
 
 ## Version 0.8.5 (2015-08-12)
 
