@@ -995,44 +995,6 @@ impl<'a> TextureAnyMipmap<'a> {
 }
 
 impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
-    fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
-        // TODO: cubemap layer?
-        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image(None).unwrap());
-
-        let rect = Rect {
-            bottom: 0,
-            left: 0,
-            width: self.width,
-            height: self.height.unwrap_or(1),
-        };
-
-        let mut ctxt = self.texture.context.make_current();
-
-        let mut data = Vec::with_capacity(0);
-        ops::read(&mut ctxt, &attachment, &rect, &mut data);
-        T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
-    }
-
-    fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {
-        let size = self.width as usize * self.height.unwrap_or(1) as usize * 4;
-
-        // TODO: cubemap layer?
-        let attachment = fbo::RegularAttachment::Texture(self.first_layer().into_image(None).unwrap());
-
-        let rect = Rect {
-            bottom: 0,
-            left: 0,
-            width: self.width,
-            height: self.height.unwrap_or(1),
-        };
-
-        let pb = PixelBuffer::new_empty(&self.texture.context, size);
-
-        let mut ctxt = self.texture.context.make_current();
-        ops::read(&mut ctxt, &attachment, &rect, &pb);
-        pb
-    }
-
     fn upload_texture<'d, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
                              (format, data): (ClientFormatAny, Cow<'d, [P]>), width: u32,
                              height: Option<u32>, depth: Option<u32>,
@@ -1316,5 +1278,39 @@ impl<'a> TextureAnyImage<'a> {
     #[inline]
     pub fn get_samples(&self) -> Option<u32> {
         self.texture.get_samples()
+    }
+
+    /// Reads the content of the image.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the rect is out of range.
+    ///
+    pub fn raw_read<T>(&self, rect: &Rect) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
+        assert!(rect.left + rect.width <= self.width);
+        assert!(rect.bottom + rect.height <= self.height.unwrap_or(1));
+
+        let mut ctxt = self.texture.context.make_current();
+
+        let mut data = Vec::new();
+        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, &mut data);
+        T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
+    }
+
+    /// Reads the content of the image to a pixel buffer.
+    ///
+    /// # Panic
+    ///
+    /// - Panicks if the rect is out of range.
+    /// - Panicks if the buffer is not large enough.
+    ///
+    pub fn raw_read_to_pixel_buffer(&self, rect: &Rect, dest: &PixelBuffer<(u8, u8, u8, u8)>) {
+        assert!(rect.left + rect.width <= self.width);
+        assert!(rect.bottom + rect.height <= self.height.unwrap_or(1));
+        assert!(dest.len() >= rect.width as usize * rect.height as usize);
+
+        let size = rect.width as usize * rect.height as usize * 4;
+        let mut ctxt = self.texture.context.make_current();
+        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest);
     }
 }
