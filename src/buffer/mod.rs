@@ -7,12 +7,42 @@
 //!
 //! There are three levels of abstraction in glium:
 //!
-//!  - A `Buffer` corresponds to an OpenGL buffer object. This type is not public.
-//!  - A `Buffer` corresponds to a part of a `Buffer`. One buffer can contain one or multiple
-//!    subbuffers.
-//!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, ... types are
-//!    abstractions over a subbuffer indicating their specific purpose. They implement `Deref`
-//!    for the subbuffer. These types are in the `vertex`, `index`, ... modules.
+//!  - An `Alloc` corresponds to an OpenGL buffer object and is unsafe to use.
+//!    This type is not public.
+//!  - A `Buffer` wraps around an `Alloc` and provides safety by handling the data type and fences.
+//!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, etc. types are
+//!    abstractions over a `Buffer` indicating their specific purpose. They implement `Deref`
+//!    for the `Buffer`. These types are in the `vertex`, `index`, etc. modules.
+//!
+//! # Unsized types
+//!
+//! In order to put some data in a buffer, it must implement the `Content` trait. This trait is
+//! automatically implemented on all `Sized` types and on slices (like `[u8]`). This means that
+//! you can create a `Buffer<Foo>` (if `Foo` is sized) or a `Buffer<[u8]>` for example without
+//! worrying about it.
+//!
+//! However unsized structs don't automatically implement this trait and you must call the
+//! `implement_buffer_content!` macro on them. You must then use the `empty_unsized` constructor.
+//!
+//! ```no_run
+//! # #[macro_use] extern crate glium; fn main() {
+//! # use std::mem;
+//! # use glium::buffer::{BufferType, BufferMode};
+//! # let display: glium::Display = unsafe { mem::uninitialized() };
+//! struct Data {
+//!     data: [f32],        // `[f32]` is unsized, therefore `Data` is unsized too
+//! }
+//!
+//! implement_buffer_content!(Data);    // without this, you can't put `Data` in a glium buffer
+//!
+//! // creates a buffer of 64 bytes, which thus holds 8 f32s
+//! let mut buffer = glium::buffer::Buffer::<Data>::empty_unsized(&display, BufferType::UniformBuffer,
+//!                                                               64, BufferMode::Default).unwrap();
+//!
+//! // you can then write to it like you normally would
+//! buffer.map().data[4] = 2.1;
+//! # }
+//! ```
 //!
 pub use self::view::{Buffer, BufferAny, BufferMutSlice};
 pub use self::view::{BufferSlice, BufferAnySlice};
