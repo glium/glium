@@ -921,3 +921,59 @@ fn dynamic_mapping_forget_then_draw() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn copy_to() {
+    let display = support::build_display();
+
+    let buf1 = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+                                              glium::buffer::BufferType::ArrayBuffer,
+                                              BufferMode::Persistent);
+    let mut buf1 = if let Ok(buf) = buf1 { buf } else { return };
+
+    let buf2 = glium::buffer::BufferView::new(&display, &[0, 0, 0],
+                                              glium::buffer::BufferType::ArrayBuffer,
+                                              BufferMode::Persistent);
+    let mut buf2 = if let Ok(buf) = buf2 { buf } else { return };
+
+    if let Err(_) = buf1.copy_to(buf2.as_slice()) {
+        return;
+    }
+
+    let result = match buf2.read() {
+        Ok(r) => r,
+        Err(_) => return
+    };
+
+    assert_eq!(result, [1, 2, 3]);
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn copy_to_slice() {
+    let display = support::build_display();
+
+    let buf1 = glium::buffer::BufferView::<[u8]>::new(&display, &[1, 2],
+                                                      glium::buffer::BufferType::ArrayBuffer,
+                                                      BufferMode::Persistent);
+    let mut buf1 = if let Ok(buf) = buf1 { buf } else { return };
+
+    let buf2 = glium::buffer::BufferView::<[u8]>::new(&display, &[0, 0, 0],
+                                                      glium::buffer::BufferType::ArrayBuffer,
+                                                      BufferMode::Persistent);
+    let mut buf2 = if let Ok(buf) = buf2 { buf } else { return };
+
+    if let Err(_) = buf1.copy_to(buf2.slice(1 .. 3).unwrap()) {
+        return;
+    }
+
+    let result = match buf2.read() {
+        Ok(r) => r,
+        Err(_) => return
+    };
+
+    assert_eq!(result, [0, 1, 2]);
+
+    display.assert_no_error(None);
+}

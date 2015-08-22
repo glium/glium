@@ -46,7 +46,8 @@
 //!
 pub use self::view::{Buffer, BufferAny, BufferMutSlice};
 pub use self::view::{BufferSlice, BufferAnySlice};
-pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, is_buffer_read_supported};
+pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
+pub use self::alloc::{is_buffer_read_supported};
 pub use self::fences::Inserter;
 
 /// DEPRECATED. Only here for backward compatibility.

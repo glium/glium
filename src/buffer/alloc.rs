@@ -29,6 +29,13 @@ pub enum ReadError {
     ContextLost,
 }
 
+/// Error that can happen when copying data between buffers.
+#[derive(Debug, Copy, Clone)]
+pub enum CopyError {
+    /// The backend doesn't support copying between buffers.
+    NotSupported,
+}
+
 /// A buffer in the graphics card's memory.
 pub struct Alloc {
     context: Rc<Context>,
@@ -761,6 +768,32 @@ impl Alloc {
             })
         }
     }
+
+    /// Copies data from this buffer to another one.
+    ///
+    /// With persistent-mapped buffers you must create a sync fence *after* this operation.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the offset/sizes are out of range.
+    ///
+    pub fn copy_to(&self, range: Range<usize>, target: &Alloc, dest_offset: usize)
+                   -> Result<(), CopyError>
+    {
+        // TODO: read+write manually
+        // TODO: check that the other buffer belongs to the same context
+
+        assert!(range.end >= range.start);
+        assert!(range.end <= self.size);
+        assert!(dest_offset + range.end - range.start <= target.size);
+
+        let mut ctxt = self.context.make_current();
+
+        unsafe {
+            copy_buffer(&mut ctxt, self.id, range.start, target.id, dest_offset,
+                        range.end - range.start)
+        }
+    }
 }
 
 impl fmt::Debug for Alloc {
@@ -1406,9 +1439,14 @@ unsafe fn indexed_bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLui
 }
 
 /// Copies from a buffer to another.
+///
+/// # Safety
+///
+/// The buffer IDs must be valid. The offsets and size must be valid.
+///
 unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
                       source_offset: usize, dest: gl::types::GLuint, dest_offset: usize,
-                      size: usize)
+                      size: usize) -> Result<(), CopyError>
 {
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         ctxt.gl.CopyNamedBufferSubData(source, dest, source_offset as gl::types::GLintptr,
@@ -1478,9 +1516,10 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
         }
 
     } else {
-        // TODO: use proper error result
-        panic!("Buffers copy are not supported");
+        return Err(CopyError::NotSupported);
     }
+
+    Ok(())
 }
 
 /// Destroys a buffer.

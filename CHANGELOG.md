@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Renamed `BufferView` to `Buffer`. `BufferView` still exists for backward compatibility.
+ - Add a `copy_to` method to buffers.
  - Add support for the `GL_OES_element_index_uint` extension.
  - Fixed OpenGL ES 3.2 not working.
 
