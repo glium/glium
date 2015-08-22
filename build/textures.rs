@@ -858,7 +858,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Use `read_to_pixel_buffer` instead.
                 #[inline]
                 pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
-                    self.0.mipmap(0).unwrap().read()
+                    let rect = Rect {{ left: 0, bottom: 0, width: self.get_width(),
+                                       height: self.get_height().unwrap_or(1) }};
+                    self.0.main_level().first_layer().into_image(None).unwrap().raw_read(&rect)
                 }}
             "#)).unwrap();
 
@@ -870,7 +872,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// done asynchronously and doesn't need a synchronization.
                 #[inline]
                 pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
-                    self.0.mipmap(0).unwrap().read_to_pixel_buffer()
+                    let rect = Rect {{ left: 0, bottom: 0, width: self.get_width(),
+                                       height: self.get_height().unwrap_or(1) }};
+                    let pb = PixelBuffer::new_empty(self.0.get_context(),
+                                                    rect.width as usize * rect.height as usize);
+                    self.0.main_level().first_layer().into_image(None).unwrap()
+                          .raw_read_to_pixel_buffer(&rect, &pb);
+                    pb
                 }}
             "#)).unwrap();
     }
