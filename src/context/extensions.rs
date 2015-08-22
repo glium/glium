@@ -161,6 +161,7 @@ extensions! {
     "GL_NVX_gpu_memory_info" => gl_nvx_gpu_memory_info,
     "GL_OES_depth_texture" => gl_oes_depth_texture,
     "GL_OES_draw_elements_base_vertex" => gl_oes_draw_elements_base_vertex,
+    "GL_OES_element_index_uint" => gl_oes_element_index_uint,
     "GL_OES_fixed_point" => gl_oes_fixed_point,
     "GL_OES_geometry_shader" => gl_oes_geometry_shader,
     "GL_OES_packed_depth_stencil" => gl_oes_packed_depth_stencil,

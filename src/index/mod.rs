@@ -233,7 +233,8 @@ impl IndexType {
             &IndexType::U16 => true,
             &IndexType::U32 => {
                 caps.get_version() >= &Version(Api::Gl, 1, 0) ||
-                caps.get_version() >= &Version(Api::GlEs, 3, 0)
+                caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
+                caps.get_extensions().gl_oes_element_index_uint
             },
         }
     }
