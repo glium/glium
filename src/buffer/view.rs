@@ -28,6 +28,7 @@ use buffer::alloc::Mapping;
 use buffer::alloc::ReadMapping;
 use buffer::alloc::WriteMapping;
 use buffer::alloc::ReadError;
+use buffer::alloc::CopyError;
 
 /// Represents a view of a buffer.
 pub struct Buffer<T: ?Sized> where T: Content {
@@ -145,6 +146,29 @@ impl<T: ?Sized> Buffer<T> where T: Content {
                                           0 .. self.get_size());
         let size = self.get_size();
         unsafe { self.alloc.as_mut().unwrap().map_write(0 .. size) }
+    }
+
+    /// Copies the content of the buffer to another buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `T` is unsized and the other buffer is too small.
+    pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
+        let alloc = self.alloc.as_ref().unwrap();
+
+        try!(alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes()));
+
+        if let Some(inserter) = self.as_slice().add_fence() {
+            let mut ctxt = alloc.get_context().make_current();
+            inserter.insert(&mut ctxt);
+        }
+
+        if let Some(inserter) = target.add_fence() {
+            let mut ctxt = alloc.get_context().make_current();
+            inserter.insert(&mut ctxt);
+        }
+
+        Ok(())
     }
 
     /// Builds a slice that contains an element from inside the buffer.
@@ -437,6 +461,28 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
         }
     }
 
+    /// Copies the content of this slice to another slice.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `T` is unsized and the other buffer is too small.
+    pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
+        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+                                target.get_offset_bytes()));
+
+        if let Some(inserter) = self.add_fence() {
+            let mut ctxt = self.alloc.get_context().make_current();
+            inserter.insert(&mut ctxt);
+        }
+
+        if let Some(inserter) = target.add_fence() {
+            let mut ctxt = self.alloc.get_context().make_current();
+            inserter.insert(&mut ctxt);
+        }
+
+        Ok(())
+    }
+
     /// Builds a slice that contains an element from inside the buffer.
     ///
     /// # Example
@@ -690,6 +736,28 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
         }
     }
 
+    /// Copies the content of this slice to another slice.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `T` is unsized and the other buffer is too small.
+    pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
+        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+                                target.get_offset_bytes()));
+
+        if let Some(inserter) = self.add_fence() {
+            let mut ctxt = self.alloc.get_context().make_current();
+            inserter.insert(&mut ctxt);
+        }
+
+        if let Some(inserter) = self.add_fence() {
+            let mut ctxt = self.alloc.get_context().make_current();
+            inserter.insert(&mut ctxt);
+        }
+
+        Ok(())
+    }
+
     /// Builds a slice that contains an element from inside the buffer.
     ///
     /// # Example
@@ -777,6 +845,17 @@ impl<'a, T> BufferMutSlice<'a, [T]> where T: PixelValue + 'a {
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
         let data = try!(self.read());
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
+    }
+}
+
+impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferMutSlice<'a, T> where T: Content {
+    #[inline]
+    fn add_fence(&self) -> Option<Inserter<'a>> {
+        if !self.alloc.uses_persistent_mapping() {
+            return None;
+        }
+
+        Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
     }
 }
 
