@@ -67,6 +67,12 @@ impl UniformsStorage {
             (&RawUniformValue::Vec2(a), &mut Some(RawUniformValue::Vec2(b))) if a == b => (),
             (&RawUniformValue::Vec3(a), &mut Some(RawUniformValue::Vec3(b))) if a == b => (),
             (&RawUniformValue::Vec4(a), &mut Some(RawUniformValue::Vec4(b))) if a == b => (),
+            (&RawUniformValue::IntVec2(a), &mut Some(RawUniformValue::IntVec2(b))) if a == b => (),
+            (&RawUniformValue::IntVec3(a), &mut Some(RawUniformValue::IntVec3(b))) if a == b => (),
+            (&RawUniformValue::IntVec4(a), &mut Some(RawUniformValue::IntVec4(b))) if a == b => (),
+            (&RawUniformValue::UnsignedIntVec2(a), &mut Some(RawUniformValue::UnsignedIntVec2(b))) if a == b => (),
+            (&RawUniformValue::UnsignedIntVec3(a), &mut Some(RawUniformValue::UnsignedIntVec3(b))) if a == b => (),
+            (&RawUniformValue::UnsignedIntVec4(a), &mut Some(RawUniformValue::UnsignedIntVec4(b))) if a == b => (),
 
             (&RawUniformValue::SignedInt(v), target) => {
                 *target = Some(RawUniformValue::SignedInt(v));
@@ -126,6 +132,70 @@ impl UniformsStorage {
                 *target = Some(RawUniformValue::Vec4(v));
                 uniform!(ctxt, Uniform4fv, Uniform4fvARB, location, 1, v.as_ptr() as *const f32);
             },
+
+            (&RawUniformValue::IntVec2(v), target) => {
+                *target = Some(RawUniformValue::IntVec2(v));
+                uniform!(ctxt, Uniform2iv, Uniform2ivARB, location, 1, v.as_ptr() as *const gl::types::GLint);
+            },
+
+            (&RawUniformValue::IntVec3(v), target) => {
+                *target = Some(RawUniformValue::IntVec3(v));
+                uniform!(ctxt, Uniform3iv, Uniform3ivARB, location, 1, v.as_ptr() as *const gl::types::GLint);
+            },
+
+            (&RawUniformValue::IntVec4(v), target) => {
+                *target = Some(RawUniformValue::IntVec4(v));
+                uniform!(ctxt, Uniform4iv, Uniform4ivARB, location, 1, v.as_ptr() as *const gl::types::GLint);
+            },
+
+            (&RawUniformValue::UnsignedIntVec2(v), target) => {
+                *target = Some(RawUniformValue::UnsignedIntVec2(v));
+
+                // Uniform2uivARB doesn't exist
+                unsafe {
+                    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                       ctxt.version >= &Version(Api::GlEs, 2, 0)
+                    {
+                        ctxt.gl.Uniform2uiv(location, 1, v.as_ptr() as *const gl::types::GLuint)
+                    } else {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.Uniform2ivARB(location, 1, v.as_ptr() as *const gl::types::GLint)
+                    }
+                }
+            },
+
+            (&RawUniformValue::UnsignedIntVec3(v), target) => {
+                *target = Some(RawUniformValue::UnsignedIntVec3(v));
+
+                // Uniform3uivARB doesn't exist
+                unsafe {
+                    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                       ctxt.version >= &Version(Api::GlEs, 2, 0)
+                    {
+                        ctxt.gl.Uniform3uiv(location, 1, v.as_ptr() as *const gl::types::GLuint)
+                    } else {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.Uniform3ivARB(location, 1, v.as_ptr() as *const gl::types::GLint)
+                    }
+                }
+            },
+
+            (&RawUniformValue::UnsignedIntVec4(v), target) => {
+                *target = Some(RawUniformValue::UnsignedIntVec4(v));
+
+                // Uniform4uivARB doesn't exist
+                unsafe {
+                    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                       ctxt.version >= &Version(Api::GlEs, 2, 0)
+                    {
+                        ctxt.gl.Uniform4uiv(location, 1, v.as_ptr() as *const gl::types::GLuint)
+                    } else {
+                        assert!(ctxt.extensions.gl_arb_shader_objects);
+                        ctxt.gl.Uniform4ivARB(location, 1, v.as_ptr() as *const gl::types::GLint)
+                    }
+                }
+            },
+
         }
     }
 
