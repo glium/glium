@@ -5,6 +5,7 @@
  - Renamed `BufferView` to `Buffer`. `BufferView` still exists for backward compatibility.
  - Add support for the `GL_OES_element_index_uint` extension.
  - Fixed OpenGL ES 3.2 not working.
+ - Add support for `IntVec{2|3|4}` and `UnsignedIntVec{2|3|4}` uniform types.
 
 ## Version 0.8.5 (2015-08-12)
 
