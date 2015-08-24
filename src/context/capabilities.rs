@@ -1,6 +1,8 @@
 use context::ExtensionsList;
 use version::Version;
 use version::Api;
+use std::cmp;
+use std::ffi::CStr;
 use std::mem;
 use gl;
 
@@ -94,6 +96,14 @@ pub enum ReleaseBehavior {
 pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
                                -> Capabilities
 {
+    // getting the value of `GL_RENDERER`
+    let renderer = unsafe {
+        let s = gl.GetString(gl::RENDERER);
+        assert!(!s.is_null());
+        String::from_utf8(CStr::from_ptr(s as *const i8).to_bytes().to_vec()).ok()
+                                    .expect("glGetString(GL_RENDERER) returned an non-UTF8 string")
+    };
+
     Capabilities {
         supported_glsl_versions: {
             get_supported_glsl(gl, version, extensions)
@@ -253,6 +263,13 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         max_combined_texture_image_units: {
             let mut val = 2;
             gl.GetIntegerv(gl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, &mut val);
+
+            // WORK-AROUND (issue #1181)
+            // Some Radeon drivers crash if you use texture units 32 or more.
+            if renderer.contains("Radeon") {
+                val = cmp::min(val, 32);
+            }
+
             val
         },
 
