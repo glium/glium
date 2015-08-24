@@ -390,6 +390,12 @@ enum RawUniformValue {
     Vec2([gl::types::GLfloat; 2]),
     Vec3([gl::types::GLfloat; 3]),
     Vec4([gl::types::GLfloat; 4]),
+    IntVec2([gl::types::GLint; 2]),
+    IntVec3([gl::types::GLint; 3]),
+    IntVec4([gl::types::GLint; 4]),
+    UnsignedIntVec2([gl::types::GLuint; 2]),
+    UnsignedIntVec3([gl::types::GLuint; 3]),
+    UnsignedIntVec4([gl::types::GLuint; 4]),
 }
 
 /// Area of a surface in pixels.
