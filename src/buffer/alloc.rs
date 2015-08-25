@@ -387,12 +387,12 @@ impl Alloc {
             let (tmp_buffer, _, _) = create_buffer(&mut ctxt, mem::size_of_val(data), Some(data),
                                                    BufferType::CopyReadBuffer,
                                                    BufferMode::Dynamic).unwrap();
-            copy_buffer(&mut ctxt, tmp_buffer, 0, self.id, offset_bytes, mem::size_of_val(data));
+            copy_buffer(&mut ctxt, tmp_buffer, 0, self.id, offset_bytes, mem::size_of_val(data)).unwrap();
             destroy_buffer(&mut ctxt, tmp_buffer);
 
         } else {
             assert!(offset_bytes < self.size);
-            
+
             let mut ctxt = self.context.make_current();
             self.barrier_for_buffer_update(&mut ctxt);
 
@@ -561,7 +561,7 @@ impl Alloc {
 
                 if read {
                     copy_buffer(&mut ctxt, self.id, bytes_range.start,
-                                temporary_buffer, 0, size_bytes);
+                                temporary_buffer, 0, size_bytes).unwrap();
                 }
 
                 map_buffer(&mut ctxt, temporary_buffer, self.ty, 0 .. size_bytes, true, true)
@@ -575,7 +575,7 @@ impl Alloc {
                     panic!("Wrong bytes range");
                 }
             };
-        
+
             MappingImpl::TemporaryBuffer {
                 original_buffer: self,
                 original_buffer_offset: bytes_range.start,
@@ -816,7 +816,7 @@ impl Drop for Alloc {
 
 impl GlObject for Alloc {
     type Id = gl::types::GLuint;
-    
+
     #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
@@ -877,7 +877,7 @@ impl<'a, D: ?Sized> Drop for MappingImpl<'a, D> {
                     unmap_buffer(&mut ctxt, temporary_buffer, original_buffer.ty);
                     if needs_flushing {
                         copy_buffer(&mut ctxt, temporary_buffer, 0, original_buffer.id,
-                                    original_buffer_offset, mem::size_of_val(&*temporary_buffer_data));
+                                    original_buffer_offset, mem::size_of_val(&*temporary_buffer_data)).unwrap();
                     }
 
                     destroy_buffer(&mut ctxt, temporary_buffer);
@@ -1194,7 +1194,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
         } else {
             unreachable!();
         }
-        
+
         return Err(BufferCreationError::OutOfMemory);
     }
 
@@ -1280,7 +1280,7 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
             ctxt.extensions.gl_amd_query_buffer_object
         },
 
-        _ => false,     // FIXME: 
+        _ => false,     // FIXME:
     }
 }
 
@@ -1664,7 +1664,7 @@ unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: B
                                     flags) as *mut ())
 
     } else {
-        None       // FIXME: 
+        None       // FIXME:
     }
 }
 
