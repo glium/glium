@@ -138,6 +138,7 @@ pub enum UniformValue<'a> {
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
     Block(BufferAnySlice<'a>, fn(&program::UniformBlock) -> Result<(), LayoutMismatchError>),
+    Bool(bool),
     SignedInt(i32),
     UnsignedInt(u32),
     Float(f32),
@@ -229,6 +230,7 @@ impl<'a> UniformValue<'a> {
     /// Returns true if this value can be used with a uniform of the given type.
     pub fn is_usable_with(&self, ty: &UniformType) -> bool {
         match (self, *ty) {
+            (&UniformValue::Bool(_), UniformType::Bool) => true,
             (&UniformValue::SignedInt(_), UniformType::Int) => true,
             (&UniformValue::UnsignedInt(_), UniformType::UnsignedInt) => true,
             (&UniformValue::Float(_), UniformType::Float) => true,
@@ -350,6 +352,13 @@ macro_rules! impl_uniform_block_basic {
             }
         }
     )
+}
+
+impl AsUniformValue for bool {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Bool(*self)
+    }
 }
 
 impl AsUniformValue for i8 {

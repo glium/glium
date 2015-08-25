@@ -187,6 +187,11 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
                 name: name.to_owned(),
             })
         },
+        UniformValue::Bool(val) => {
+            // Booleans get passed as integers.
+            program.set_uniform(ctxt, location, &RawUniformValue::SignedInt(val as i32));
+            Ok(())
+        },
         UniformValue::SignedInt(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::SignedInt(val));
             Ok(())
