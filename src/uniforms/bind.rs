@@ -252,6 +252,21 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
             program.set_uniform(ctxt, location, &RawUniformValue::UnsignedIntVec4(val));
             Ok(())
         },
+        UniformValue::BoolVec2(val) => {
+            let val_casted = [val[0] as i32, val[1] as i32];
+            program.set_uniform(ctxt, location, &RawUniformValue::IntVec2(val_casted));
+            Ok(())
+        },
+        UniformValue::BoolVec3(val) => {
+            let val_casted = [val[0] as i32, val[1] as i32, val[2] as i32];
+            program.set_uniform(ctxt, location, &RawUniformValue::IntVec3(val_casted));
+            Ok(())
+        },
+        UniformValue::BoolVec4(val) => {
+            let val_casted = [val[0] as i32, val[1] as i32, val[2] as i32, val[3] as i32];
+            program.set_uniform(ctxt, location, &RawUniformValue::IntVec4(val_casted));
+            Ok(())
+        },
         UniformValue::Texture1d(texture, sampler) => {
             bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
         },

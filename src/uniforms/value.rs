@@ -157,6 +157,9 @@ pub enum UniformValue<'a> {
     UnsignedIntVec2([u32; 2]),
     UnsignedIntVec3([u32; 3]),
     UnsignedIntVec4([u32; 4]),
+    BoolVec2([bool; 2]),
+    BoolVec3([bool; 3]),
+    BoolVec4([bool; 4]),
     Texture1d(&'a texture::Texture1d, Option<SamplerBehavior>),
     CompressedTexture1d(&'a texture::CompressedTexture1d, Option<SamplerBehavior>),
     SrgbTexture1d(&'a texture::SrgbTexture1d, Option<SamplerBehavior>),
@@ -246,6 +249,9 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::UnsignedIntVec2(_), UniformType::UnsignedIntVec2) => true,
             (&UniformValue::UnsignedIntVec3(_), UniformType::UnsignedIntVec3) => true,
             (&UniformValue::UnsignedIntVec4(_), UniformType::UnsignedIntVec4) => true,
+            (&UniformValue::BoolVec2(_), UniformType::BoolVec2) => true,
+            (&UniformValue::BoolVec3(_), UniformType::BoolVec3) => true,
+            (&UniformValue::BoolVec4(_), UniformType::BoolVec4) => true,
             (&UniformValue::Texture1d(_, _), UniformType::Sampler1d) => true,
             (&UniformValue::CompressedTexture1d(_, _), UniformType::Sampler1d) => true,
             (&UniformValue::SrgbTexture1d(_, _), UniformType::Sampler1d) => true,
@@ -360,6 +366,60 @@ impl AsUniformValue for bool {
         UniformValue::Bool(*self)
     }
 }
+
+impl AsUniformValue for [bool; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::BoolVec2(*self)
+    }
+}
+
+impl_uniform_block_basic!([bool; 2], UniformType::BoolVec2);
+
+impl AsUniformValue for (bool, bool) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::BoolVec2([self.0, self.1])
+    }
+}
+
+impl_uniform_block_basic!((bool, bool), UniformType::BoolVec2);
+
+impl AsUniformValue for [bool; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::BoolVec3(*self)
+    }
+}
+
+impl_uniform_block_basic!([bool; 3], UniformType::BoolVec3);
+
+impl AsUniformValue for (bool, bool, bool) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::BoolVec3([self.0, self.1, self.2])
+    }
+}
+
+impl_uniform_block_basic!((bool, bool, bool), UniformType::BoolVec3);
+
+impl AsUniformValue for [bool; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::BoolVec4(*self)
+    }
+}
+
+impl_uniform_block_basic!([bool; 4], UniformType::BoolVec4);
+
+impl AsUniformValue for (bool, bool, bool, bool) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::BoolVec4([self.0, self.1, self.2, self.3])
+    }
+}
+
+impl_uniform_block_basic!((bool, bool, bool, bool), UniformType::BoolVec4);
 
 impl AsUniformValue for i8 {
     #[inline]
