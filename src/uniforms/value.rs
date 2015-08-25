@@ -160,6 +160,13 @@ pub enum UniformValue<'a> {
     BoolVec2([bool; 2]),
     BoolVec3([bool; 3]),
     BoolVec4([bool; 4]),
+    Double(f64),
+    DoubleVec2([f64; 2]),
+    DoubleVec3([f64; 3]),
+    DoubleVec4([f64; 4]),
+    DoubleMat2([[f64;2]; 2]),
+    DoubleMat3([[f64;3]; 3]),
+    DoubleMat4([[f64;4]; 4]),
     Texture1d(&'a texture::Texture1d, Option<SamplerBehavior>),
     CompressedTexture1d(&'a texture::CompressedTexture1d, Option<SamplerBehavior>),
     SrgbTexture1d(&'a texture::SrgbTexture1d, Option<SamplerBehavior>),
@@ -252,6 +259,13 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::BoolVec2(_), UniformType::BoolVec2) => true,
             (&UniformValue::BoolVec3(_), UniformType::BoolVec3) => true,
             (&UniformValue::BoolVec4(_), UniformType::BoolVec4) => true,
+            (&UniformValue::Double(_), UniformType::Double) => true,
+            (&UniformValue::DoubleMat2(_), UniformType::DoubleMat2) => true,
+            (&UniformValue::DoubleMat3(_), UniformType::DoubleMat3) => true,
+            (&UniformValue::DoubleMat4(_), UniformType::DoubleMat4) => true,
+            (&UniformValue::DoubleVec2(_), UniformType::DoubleVec2) => true,
+            (&UniformValue::DoubleVec3(_), UniformType::DoubleVec3) => true,
+            (&UniformValue::DoubleVec4(_), UniformType::DoubleVec4) => true,
             (&UniformValue::Texture1d(_, _), UniformType::Sampler1d) => true,
             (&UniformValue::CompressedTexture1d(_, _), UniformType::Sampler1d) => true,
             (&UniformValue::SrgbTexture1d(_, _), UniformType::Sampler1d) => true,
@@ -986,3 +1000,95 @@ impl AsUniformValue for cgmath::Point3<f32> {
 
 #[cfg(feature = "cgmath")]
 impl_uniform_block_basic!(cgmath::Point3<f32>, UniformType::FloatVec3);
+
+//TODO bool, i32, u32 and f64 should also be implemented as cgmath and nalgebra variants (i.e. nalgebra::Vec3<f64>).
+// Start of double type variants
+impl AsUniformValue for f64 {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Double(*self)
+    }
+}
+
+impl_uniform_block_basic!(f64, UniformType::Double);
+
+impl AsUniformValue for [f64; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleVec2(*self)
+    }
+}
+
+impl_uniform_block_basic!([f64; 2], UniformType::DoubleVec2);
+
+impl AsUniformValue for (f64, f64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleVec2([self.0, self.1])
+    }
+}
+
+impl_uniform_block_basic!((f64, f64), UniformType::DoubleVec2);
+
+impl AsUniformValue for [f64; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleVec3(*self)
+    }
+}
+
+impl_uniform_block_basic!([f64; 3], UniformType::DoubleVec3);
+
+impl AsUniformValue for (f64, f64, f64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleVec3([self.0, self.1, self.2])
+    }
+}
+
+impl_uniform_block_basic!((f64, f64, f64), UniformType::DoubleVec3);
+
+impl AsUniformValue for [f64; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleVec4(*self)
+    }
+}
+
+impl_uniform_block_basic!([f64; 4], UniformType::DoubleVec4);
+
+impl AsUniformValue for (f64, f64, f64, f64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleVec4([self.0, self.1, self.2, self.3])
+    }
+}
+
+impl_uniform_block_basic!((f64, f64, f64, f64), UniformType::DoubleVec4);
+
+impl AsUniformValue for [[f64; 2]; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleMat2(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 2]; 2], UniformType::DoubleMat2);
+
+impl AsUniformValue for [[f64; 3]; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleMat3(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 3]; 3], UniformType::DoubleMat3);
+
+impl AsUniformValue for [[f64; 4]; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::DoubleMat4(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 4]; 4], UniformType::DoubleMat4);

@@ -57,6 +57,19 @@ impl UniformsStorage {
             )
         );
 
+        macro_rules! uniform64(
+            ($ctxt:expr, $uniform:ident, $($params:expr),+) => (
+                unsafe {
+                    if $ctxt.extensions.gl_arb_gpu_shader_fp64
+                    {
+                        $ctxt.gl.$uniform($($params),+)
+                    } else {
+                        panic!("Double precision is not supported on this system.")
+                    }
+                }
+            )
+        );
+
         match (value, &mut values[location as usize]) {
             (&RawUniformValue::SignedInt(a), &mut Some(RawUniformValue::SignedInt(b))) if a == b => (),
             (&RawUniformValue::UnsignedInt(a), &mut Some(RawUniformValue::UnsignedInt(b))) if a == b => (),
@@ -73,6 +86,13 @@ impl UniformsStorage {
             (&RawUniformValue::UnsignedIntVec2(a), &mut Some(RawUniformValue::UnsignedIntVec2(b))) if a == b => (),
             (&RawUniformValue::UnsignedIntVec3(a), &mut Some(RawUniformValue::UnsignedIntVec3(b))) if a == b => (),
             (&RawUniformValue::UnsignedIntVec4(a), &mut Some(RawUniformValue::UnsignedIntVec4(b))) if a == b => (),
+            (&RawUniformValue::Double(a), &mut Some(RawUniformValue::Double(b))) if a == b => (),
+            (&RawUniformValue::DoubleMat2(a), &mut Some(RawUniformValue::DoubleMat2(b))) if a == b => (),
+            (&RawUniformValue::DoubleMat3(a), &mut Some(RawUniformValue::DoubleMat3(b))) if a == b => (),
+            (&RawUniformValue::DoubleMat4(a), &mut Some(RawUniformValue::DoubleMat4(b))) if a == b => (),
+            (&RawUniformValue::DoubleVec2(a), &mut Some(RawUniformValue::DoubleVec2(b))) if a == b => (),
+            (&RawUniformValue::DoubleVec3(a), &mut Some(RawUniformValue::DoubleVec3(b))) if a == b => (),
+            (&RawUniformValue::DoubleVec4(a), &mut Some(RawUniformValue::DoubleVec4(b))) if a == b => (),
 
             (&RawUniformValue::SignedInt(v), target) => {
                 *target = Some(RawUniformValue::SignedInt(v));
@@ -94,40 +114,40 @@ impl UniformsStorage {
                     }
                 }
             },
-            
+
             (&RawUniformValue::Float(v), target) => {
                 *target = Some(RawUniformValue::Float(v));
                 uniform!(ctxt, Uniform1f, Uniform1fARB, location, v);
             },
-            
+
             (&RawUniformValue::Mat2(v), target) => {
                 *target = Some(RawUniformValue::Mat2(v));
                 uniform!(ctxt, UniformMatrix2fv, UniformMatrix2fvARB,
                          location, 1, gl::FALSE, v.as_ptr() as *const f32);
             },
-            
+
             (&RawUniformValue::Mat3(v), target) => {
                 *target = Some(RawUniformValue::Mat3(v));
                 uniform!(ctxt, UniformMatrix3fv, UniformMatrix3fvARB,
                          location, 1, gl::FALSE, v.as_ptr() as *const f32);
             },
-            
+
             (&RawUniformValue::Mat4(v), target) => {
                 *target = Some(RawUniformValue::Mat4(v));
                 uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
                          location, 1, gl::FALSE, v.as_ptr() as *const f32);
             },
-            
+
             (&RawUniformValue::Vec2(v), target) => {
                 *target = Some(RawUniformValue::Vec2(v));
                 uniform!(ctxt, Uniform2fv, Uniform2fvARB, location, 1, v.as_ptr() as *const f32);
             },
-            
+
             (&RawUniformValue::Vec3(v), target) => {
                 *target = Some(RawUniformValue::Vec3(v));
                 uniform!(ctxt, Uniform3fv, Uniform3fvARB, location, 1, v.as_ptr() as *const f32);
             },
-            
+
             (&RawUniformValue::Vec4(v), target) => {
                 *target = Some(RawUniformValue::Vec4(v));
                 uniform!(ctxt, Uniform4fv, Uniform4fvARB, location, 1, v.as_ptr() as *const f32);
@@ -195,7 +215,43 @@ impl UniformsStorage {
                     }
                 }
             },
+            (&RawUniformValue::Double(v), target) => {
+                *target = Some(RawUniformValue::Double(v));
+                uniform64!(ctxt, Uniform1d, location, v);
+            },
 
+            (&RawUniformValue::DoubleMat2(v), target) => {
+                *target = Some(RawUniformValue::DoubleMat2(v));
+                uniform64!(ctxt, UniformMatrix2dv,
+                         location, 1, gl::FALSE, v.as_ptr() as *const gl::types::GLdouble);
+            },
+
+            (&RawUniformValue::DoubleMat3(v), target) => {
+                *target = Some(RawUniformValue::DoubleMat3(v));
+                uniform64!(ctxt, UniformMatrix3dv,
+                         location, 1, gl::FALSE, v.as_ptr() as *const gl::types::GLdouble);
+            },
+
+            (&RawUniformValue::DoubleMat4(v), target) => {
+                *target = Some(RawUniformValue::DoubleMat4(v));
+                uniform64!(ctxt, UniformMatrix4dv,
+                         location, 1, gl::FALSE, v.as_ptr() as *const gl::types::GLdouble);
+            },
+
+            (&RawUniformValue::DoubleVec2(v), target) => {
+                *target = Some(RawUniformValue::DoubleVec2(v));
+                uniform64!(ctxt, Uniform2dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+            },
+
+            (&RawUniformValue::DoubleVec3(v), target) => {
+                *target = Some(RawUniformValue::DoubleVec3(v));
+                uniform64!(ctxt, Uniform3dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+            },
+
+            (&RawUniformValue::DoubleVec4(v), target) => {
+                *target = Some(RawUniformValue::DoubleVec4(v));
+                uniform64!(ctxt, Uniform4dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+            },
         }
     }
 
