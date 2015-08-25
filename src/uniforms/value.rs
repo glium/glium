@@ -521,6 +521,8 @@ impl AsUniformValue for bool {
     }
 }
 
+impl_uniform_block_basic!(bool, UniformType::Bool);
+
 impl AsUniformValue for [bool; 2] {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
