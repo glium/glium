@@ -45,7 +45,7 @@ impl RenderBuffer {
         let format = format.expect("Format not supported");
 
         RenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height, None)
         }
     }
 }
@@ -99,7 +99,7 @@ impl DepthRenderBuffer {
         let format = format.expect("Format not supported");
 
         DepthRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height, None)
         }
     }
 }
@@ -152,7 +152,7 @@ impl StencilRenderBuffer {
         let format = format.expect("Format not supported");
 
         StencilRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height, None)
         }
     }
 }
@@ -206,7 +206,7 @@ impl DepthStencilRenderBuffer {
         let format = format.expect("Format not supported");
 
         DepthStencilRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height)
+            buffer: RenderBufferAny::new(facade, format, width, height, None)
         }
     }
 }
@@ -249,38 +249,112 @@ pub struct RenderBufferAny {
     id: gl::types::GLuint,
     width: u32,
     height: u32,
+    samples: Option<u32>,
 }
 
 impl RenderBufferAny {
     /// Builds a new render buffer.
-    fn new<F>(facade: &F, format: gl::types::GLenum, width: u32, height: u32)
+    fn new<F>(facade: &F, format: gl::types::GLenum, width: u32, height: u32, samples: Option<u32>)
               -> RenderBufferAny where F: Facade
     {
-        // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
-        let mut ctxt = facade.get_context().make_current();
-
-        let id = unsafe {
+        unsafe {
+            // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
+            // FIXME: gles2 only supports very few formats
+            let mut ctxt = facade.get_context().make_current();
             let mut id = mem::uninitialized();
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-                ctxt.extensions.gl_arb_direct_state_access
+               ctxt.extensions.gl_arb_direct_state_access
             {
                 ctxt.gl.CreateRenderbuffers(1, &mut id);
-                ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
-                                                 height as gl::types::GLsizei);
+                if let Some(samples) = samples {
+                    ctxt.gl.NamedRenderbufferStorageMultisample(id, samples as gl::types::GLsizei,
+                                                                format, width as gl::types::GLsizei,
+                                                                height as gl::types::GLsizei);
+                } else {
+                    ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
+                                                     height as gl::types::GLsizei);
+                }
 
-            } else if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                      ctxt.version >= &Version(Api::GlEs, 2, 0)
+            } else if samples.is_some() && (ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                                            ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+                                            ctxt.extensions.gl_apple_framebuffer_multisample ||
+                                            ctxt.extensions.gl_angle_framebuffer_multisample ||
+                                            ctxt.extensions.gl_ext_multisampled_render_to_texture ||
+                                            ctxt.extensions.gl_nv_framebuffer_multisample)
             {
                 ctxt.gl.GenRenderbuffers(1, &mut id);
                 ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
                 ctxt.state.renderbuffer = id;
-                // FIXME: gles2 only supports very few formats
+
+                let samples = samples.unwrap();
+
+                if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                   ctxt.version >= &Version(Api::GlEs, 3, 0)
+                {
+                    ctxt.gl.RenderbufferStorageMultisample(gl::RENDERBUFFER, 
+                                                           samples as gl::types::GLsizei,
+                                                           format,
+                                                           width as gl::types::GLsizei,
+                                                           height as gl::types::GLsizei);
+
+                } else if ctxt.extensions.gl_apple_framebuffer_multisample {
+                    ctxt.gl.RenderbufferStorageMultisampleAPPLE(gl::RENDERBUFFER,
+                                                                samples as gl::types::GLsizei,
+                                                                format,
+                                                                width as gl::types::GLsizei,
+                                                                height as gl::types::GLsizei);
+
+                } else if ctxt.extensions.gl_angle_framebuffer_multisample {
+                    ctxt.gl.RenderbufferStorageMultisampleANGLE(gl::RENDERBUFFER,
+                                                                samples as gl::types::GLsizei,
+                                                                format,
+                                                                width as gl::types::GLsizei,
+                                                                height as gl::types::GLsizei);
+
+                } else if ctxt.extensions.gl_ext_multisampled_render_to_texture {
+                    ctxt.gl.RenderbufferStorageMultisampleEXT(gl::RENDERBUFFER,
+                                                              samples as gl::types::GLsizei,
+                                                              format,
+                                                              width as gl::types::GLsizei,
+                                                              height as gl::types::GLsizei);
+
+                } else if ctxt.extensions.gl_nv_framebuffer_multisample {
+                    ctxt.gl.RenderbufferStorageMultisampleNV(gl::RENDERBUFFER,
+                                                             samples as gl::types::GLsizei,
+                                                             format,
+                                                             width as gl::types::GLsizei,
+                                                             height as gl::types::GLsizei);
+
+                } else {
+                    unreachable!();
+                }
+
+            } else if samples.is_none() && (ctxt.version >= &Version(Api::Gl, 3, 0) ||
+                                            ctxt.version >= &Version(Api::GlEs, 2, 0))
+            {
+                ctxt.gl.GenRenderbuffers(1, &mut id);
+                ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
+                ctxt.state.renderbuffer = id;
                 ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format,
                                             width as gl::types::GLsizei,
                                             height as gl::types::GLsizei);
 
-            } else if ctxt.extensions.gl_ext_framebuffer_object {
+            } else if samples.is_some() && ctxt.extensions.gl_ext_framebuffer_object &&
+                      ctxt.extensions.gl_ext_framebuffer_multisample
+            {
+                ctxt.gl.GenRenderbuffersEXT(1, &mut id);
+                ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, id);
+                ctxt.state.renderbuffer = id;
+
+                let samples = samples.unwrap();
+                ctxt.gl.RenderbufferStorageMultisampleEXT(gl::RENDERBUFFER_EXT,
+                                                          samples as gl::types::GLsizei,
+                                                          format,
+                                                          width as gl::types::GLsizei,
+                                                          height as gl::types::GLsizei);
+
+            } else if samples.is_none() && ctxt.extensions.gl_ext_framebuffer_object {
                 ctxt.gl.GenRenderbuffersEXT(1, &mut id);
                 ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, id);
                 ctxt.state.renderbuffer = id;
@@ -292,14 +366,13 @@ impl RenderBufferAny {
                 unreachable!();
             }
 
-            id
-        };
-
-        RenderBufferAny {
-            context: facade.get_context().clone(),
-            id: id,
-            width: width,
-            height: height,
+            RenderBufferAny {
+                context: facade.get_context().clone(),
+                id: id,
+                width: width,
+                height: height,
+                samples: samples,
+            }
         }
     }
 
@@ -313,10 +386,11 @@ impl RenderBufferAny {
     /// enabled.
     #[inline]
     pub fn get_samples(&self) -> Option<u32> {
-        None       // TODO: multisample renderbuffers not implemented
+        self.samples
     }
 
     /// Returns the context used to create this renderbuffer.
+    #[inline]
     pub fn get_context(&self) -> &Rc<Context> {
         &self.context
     }
