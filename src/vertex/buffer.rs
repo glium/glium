@@ -380,7 +380,7 @@ impl VertexBufferAny {
 
     /// Turns the vertex buffer into a `VertexBuffer` without checking the type.
     #[inline]
-    pub unsafe fn into_vertex_buffer<T>(self) -> VertexBuffer<T> {
+    pub unsafe fn into_vertex_buffer<T: Copy>(self) -> VertexBuffer<T> {
         unimplemented!();
     }
 

@@ -110,7 +110,7 @@ include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
 /// Represents a layer of a cubemap.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-#[allow(missing_docs)]      // TODO: 
+#[allow(missing_docs)]      // TODO:
 pub enum CubeLayer {
     PositiveX,
     NegativeX,
@@ -258,7 +258,7 @@ pub trait Texture1dDataSource<'a> {
 /// as this is the only format that is guaranteed to be supported by OpenGL when reading pixels.
 pub trait Texture1dDataSink<T> {
     /// Builds a new object from raw data.
-    fn from_raw(data: Cow<[T]>, width: u32) -> Self;
+    fn from_raw(data: Cow<[T]>, width: u32) -> Self where [T]: ToOwned;
 }
 
 /// Represents raw data for a two-dimensional image.
@@ -340,7 +340,7 @@ pub trait Texture2dDataSource<'a> {
 /// as this is the only format that is guaranteed to be supported by OpenGL when reading pixels.
 pub trait Texture2dDataSink<T> {
     /// Builds a new object from raw data.
-    fn from_raw(data: Cow<[T]>, width: u32, height: u32) -> Self;
+    fn from_raw(data: Cow<[T]>, width: u32, height: u32) -> Self where [T]: ToOwned;
 }
 
 /// Represents raw data for a two-dimensional image.
@@ -507,7 +507,7 @@ pub trait Texture3dDataSource<'a> {
 /// as this is the only format that is guaranteed to be supported by OpenGL when reading pixels.
 pub trait Texture3dDataSink<T> {
     /// Builds a new object from raw data.
-    fn from_raw(data: Cow<[T]>, width: u32, height: u32, depth: u32) -> Self;
+    fn from_raw(data: Cow<[T]>, width: u32, height: u32, depth: u32) -> Self where [T]: ToOwned;
 }
 
 /// Represents raw data for a two-dimensional image.
