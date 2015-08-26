@@ -178,10 +178,49 @@ macro_rules! uniform_test(
         fn $name() {
             let display = support::build_display();
             let (vb, ib) = support::build_rectangle_vb_ib(&display);
-            // TODO Supply #version 400 for doubles and #version 100 for fallback (but uint needs 130 I believe)
-            let program = glium::Program::from_source(&display,
+
+            // Definition of multiple shader versions
+            let v400 = (
                 &format!("
-                    #version 130
+                    #version 400
+                    in vec2 position;
+                    uniform {} my_uniform;
+                    void main() {{
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }}
+                ", $glsl_ty),
+                &format!("
+                    #version 400
+                    uniform {} my_uniform;
+                    out vec4 color;
+                    void main() {{
+                        color = vec4(1.0, 1.0, 1.0, 1.0);
+                    }}
+                ", $glsl_ty)
+            );
+
+            let v140 = (
+                &format!("
+                    #version 140
+                    in vec2 position;
+                    uniform {} my_uniform;
+                    void main() {{
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }}
+                ", $glsl_ty),
+                &format!("
+                    #version 140
+                    uniform {} my_uniform;
+                    out vec4 color;
+                    void main() {{
+                        color = vec4(1.0, 1.0, 1.0, 1.0);
+                    }}
+                ", $glsl_ty)
+            );
+
+            let v110 = (
+                &format!("
+                    #version 110
                     attribute vec2 position;
                     uniform {} my_uniform;
                     void main() {{
@@ -189,13 +228,43 @@ macro_rules! uniform_test(
                     }}
                 ", $glsl_ty),
                 &format!("
-                    #version 130
+                    #version 110
                     uniform {} my_uniform;
                     void main() {{
                         gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
                     }}
+                ", $glsl_ty)
+            );
+
+            let v100 = (
+                &format!("
+                    #version 100
+                    attribute vec2 position;
+                    uniform {} my_uniform;
+                    void main() {{
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }}
                 ", $glsl_ty),
-                None).unwrap();
+                &format!("
+                    #version 100
+                    uniform {} my_uniform;
+                    void main() {{
+                        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                    }}
+                ", $glsl_ty)
+            );
+
+            let program = if let Ok(program) = glium::Program::from_source(&display, v400.0, v400.1, None) {
+                program
+            } else if let Ok(program) = glium::Program::from_source(&display, v140.0, v140.1, None) {
+                program
+            } else if let Ok(program) = glium::Program::from_source(&display, v110.0, v110.1, None) {
+                program
+            } else if let Ok(program) = glium::Program::from_source(&display, v100.0, v100.1, None) {
+                program
+            } else {
+                return
+            };
 
             let uniforms = glium::uniforms::UniformsStorage::new("my_uniform", $value);
             let mut target = display.draw();
