@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Now possible to create a stencil renderbuffer or texture.
+
 ## Version 0.8.6 (2015-08-26)
 
  - Renamed `BufferView` to `Buffer`. `BufferView` still exists for backward compatibility.
