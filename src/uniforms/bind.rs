@@ -187,6 +187,11 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
                 name: name.to_owned(),
             })
         },
+        UniformValue::Bool(val) => {
+            // Booleans get passed as integers.
+            program.set_uniform(ctxt, location, &RawUniformValue::SignedInt(val as i32));
+            Ok(())
+        },
         UniformValue::SignedInt(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::SignedInt(val));
             Ok(())
@@ -245,6 +250,21 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
         },
         UniformValue::UnsignedIntVec4(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::UnsignedIntVec4(val));
+            Ok(())
+        },
+        UniformValue::BoolVec2(val) => {
+            let val_casted = [val[0] as i32, val[1] as i32];
+            program.set_uniform(ctxt, location, &RawUniformValue::IntVec2(val_casted));
+            Ok(())
+        },
+        UniformValue::BoolVec3(val) => {
+            let val_casted = [val[0] as i32, val[1] as i32, val[2] as i32];
+            program.set_uniform(ctxt, location, &RawUniformValue::IntVec3(val_casted));
+            Ok(())
+        },
+        UniformValue::BoolVec4(val) => {
+            let val_casted = [val[0] as i32, val[1] as i32, val[2] as i32, val[3] as i32];
+            program.set_uniform(ctxt, location, &RawUniformValue::IntVec4(val_casted));
             Ok(())
         },
         UniformValue::Texture1d(texture, sampler) => {
