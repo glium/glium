@@ -1637,20 +1637,30 @@ pub fn format_request_to_glenum(context: &Context, client: Option<ClientFormatAn
         /*                           STENCIL                               */
         /*******************************************************************/
         TextureFormatRequest::AnyStencil => {
-            // just request I8
-            if version < &Version(Api::Gl, 3, 0) {
-                return Err(FormatNotSupportedError);
-            }
-
             // TODO: we just request I8, but this could be more flexible
             return format_request_to_glenum(context, client,
                                      TextureFormatRequest::Specific(
-                                        TextureFormat::UncompressedIntegral(
-                                            UncompressedIntFormat::I8)), rq_ty);
+                                        TextureFormat::StencilFormat(
+                                            StencilFormat::I8)), rq_ty);
         },
 
-        TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) => {
-            unimplemented!();
+        TextureFormatRequest::Specific(TextureFormat::StencilFormat(format)) => {
+            match rq_ty {
+                RequestType::TexImage | RequestType::TexStorage => {
+                    if format.is_supported_for_textures(context) {
+                        format.to_glenum()
+                    } else {
+                        return Err(FormatNotSupportedError);
+                    }
+                },
+                RequestType::Renderbuffer => {
+                    if format.is_supported_for_renderbuffers(context) {
+                        format.to_glenum()
+                    } else {
+                        return Err(FormatNotSupportedError);
+                    }
+                },
+            }
         },
 
         /*******************************************************************/
