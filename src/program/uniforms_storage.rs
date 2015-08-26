@@ -60,8 +60,7 @@ impl UniformsStorage {
         macro_rules! uniform64(
             ($ctxt:expr, $uniform:ident, $($params:expr),+) => (
                 unsafe {
-                    if $ctxt.extensions.gl_arb_gpu_shader_fp64
-                    {
+                    if $ctxt.extensions.gl_arb_gpu_shader_fp64 {
                         $ctxt.gl.$uniform($($params),+)
                     } else {
                         panic!("Double precision is not supported on this system.")
