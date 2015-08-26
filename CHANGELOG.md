@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.8.6 (2015-08-26)
 
  - Renamed `BufferView` to `Buffer`. `BufferView` still exists for backward compatibility.
  - Add a `copy_to` method to buffers.
