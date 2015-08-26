@@ -313,6 +313,8 @@ uniform_test!(uniform_type_f32arr_floatmat4, "mat4", [[ 1.0f32,     2.4, -100000
 //                                                         [12.0f64, 12345.0,    0.11111,  0.0]]);
 
 // Integer
+uniform_test!(uniform_type_i8_int, "int", 5i8);
+uniform_test!(uniform_type_i16_int, "int", -1000i16);
 uniform_test!(uniform_type_i32_int, "int", 12i32);
 uniform_test!(uniform_type_i32arr_intvec2, "ivec2", [1i32, 24]);
 uniform_test!(uniform_type_i32tup_intvec2, "ivec2", (1i32, 24));
@@ -322,6 +324,8 @@ uniform_test!(uniform_type_i32arr_intvec4, "ivec4", [1i32, 24, -7, -123456]);
 uniform_test!(uniform_type_i32tup_intvec4, "ivec4", (1i32, 24, -7, -123456));
 
 // Unsigned integer
+uniform_test!(uniform_type_u8_uint, "uint", 5u8);
+uniform_test!(uniform_type_u16_uint, "uint", 1000u16);
 uniform_test!(uniform_type_u32_uint, "uint", 12u32);
 uniform_test!(uniform_type_u32arr_uintvec2, "uvec2", [1u32, 24]);
 uniform_test!(uniform_type_u32tup_uintvec2, "uvec2", (1u32, 24));
