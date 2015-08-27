@@ -74,6 +74,7 @@ extensions! {
     "GL_ARB_framebuffer_sRGB" => gl_arb_framebuffer_srgb,
     "GL_ARB_geometry_shader4" => gl_arb_geometry_shader4,
     "GL_ARB_get_program_binary" => gl_arb_get_programy_binary,
+    "GL_ARB_gpu_shader_fp64" => gl_arb_gpu_shader_fp64,
     "GL_ARB_instanced_arrays" => gl_arb_instanced_arrays,
     "GL_ARB_invalidate_subdata" => gl_arb_invalidate_subdata,
     "GL_ARB_occlusion_query" => gl_arb_occlusion_query,

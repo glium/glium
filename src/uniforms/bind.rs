@@ -267,6 +267,34 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
             program.set_uniform(ctxt, location, &RawUniformValue::IntVec4(val_casted));
             Ok(())
         },
+        UniformValue::Double(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Double(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat2(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat3(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat4(val));
+            Ok(())
+        },
+        UniformValue::DoubleVec2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleVec2(val));
+            Ok(())
+        },
+        UniformValue::DoubleVec3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleVec3(val));
+            Ok(())
+        },
+        UniformValue::DoubleVec4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleVec4(val));
+            Ok(())
+        },
         UniformValue::Texture1d(texture, sampler) => {
             bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
         },
