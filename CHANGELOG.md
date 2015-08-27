@@ -1,8 +1,9 @@
 # Change Log
 
-## Unreleased
+## Version 0.8.7 (2015-08-27)
 
- - Now possible to create a stencil renderbuffer or texture.
+ - Fix a panic when creating a stencil renderbuffer or texture.
+ - Add support for `f64` uniforms.
 
 ## Version 0.8.6 (2015-08-26)
 
