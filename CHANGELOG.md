@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fix an OpenGL error when mapping a buffer with `map_read`.
+
 ## Version 0.8.7 (2015-08-27)
 
  - Fix a panic when creating a stencil renderbuffer or texture.
