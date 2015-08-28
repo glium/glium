@@ -623,9 +623,11 @@ impl Alloc {
                     self.assert_unmapped(&mut ctxt);
                     self.assert_not_transform_feedback(&mut ctxt);
                     self.barrier_for_buffer_update(&mut ctxt);
+                    let ptr = map_buffer(&mut ctxt, self.id, self.ty, bytes_range.clone(),
+                                         read, write)
+                                        .expect("Buffer mapping is not supported by the backend");
                     self.mapped.set(true);
-                    map_buffer(&mut ctxt, self.id, self.ty, bytes_range.clone(), read, write)
-                                          .expect("Buffer mapping is not supported by the backend")
+                    ptr
                 };
 
                 match Content::ref_from_ptr(ptr, bytes_range.end - bytes_range.start) {
@@ -1644,9 +1646,9 @@ unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: B
 {
     let flags = match (read, write) {
         (true, true) => gl::MAP_FLUSH_EXPLICIT_BIT | gl::MAP_READ_BIT | gl::MAP_WRITE_BIT,
-        (true, false) => gl::MAP_FLUSH_EXPLICIT_BIT | gl::MAP_READ_BIT,
+        (true, false) => gl::MAP_READ_BIT,
         (false, true) => gl::MAP_FLUSH_EXPLICIT_BIT | gl::MAP_WRITE_BIT,
-        (false, false) => gl::MAP_FLUSH_EXPLICIT_BIT
+        (false, false) => 0,
     };
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) {
