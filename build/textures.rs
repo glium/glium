@@ -638,7 +638,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                     let data = Cow::Borrowed(data.as_ref());
                     let client_format = {client_format_any}(format);
                     Ok({name}(try!(any::new_texture(facade, {default_format}, Some((client_format, data)),
-                                                    mipmaps.to_regular(), {dim_params_passing}))))
+                                                    mipmaps.into(), {dim_params_passing}))))
                 }}
             ", dim_params = dimensions_parameters_input, dim_params_passing = dimensions_parameters_passing,
                param = param, client_format_any = client_format_any_ty, 
@@ -734,7 +734,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         // writing the constructor
         (write!(dest, "Ok({}(try!(any::new_texture(facade, format, \
-                       Some((client_format, data)), mipmaps.to_regular(), {}", name, dimensions_parameters_passing)).unwrap();
+                       Some((client_format, data)), mipmaps.into(), {}", name, dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "))))")).unwrap();
 
         // end of "new" function block
@@ -760,7 +760,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                )).unwrap();
 
         // writing the constructor
-        (write!(dest, "any::new_texture::<_, u8>(facade, format, None, {mipmap}::NoMipmap.to_regular(), {}).map(|t| {}(t))",
+        (write!(dest, "any::new_texture::<_, u8>(facade, format, None, {mipmap}::NoMipmap.into(), {}).map(|t| {}(t))",
                 dimensions_parameters_passing, name, mipmap = mipmaps_option_ty)).unwrap();
 
         // closing function
@@ -782,7 +782,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                mipmaps = mipmaps_option_ty)).unwrap();
 
         // writing the constructor
-        (write!(dest, "let t = any::new_texture::<_, u8>(facade, format, None, mipmaps.to_regular(), {});", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "let t = any::new_texture::<_, u8>(facade, format, None, mipmaps.into(), {});", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, "
             t.map(|t| {}(t))", name)).unwrap();
 
@@ -804,7 +804,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                mipmaps = mipmaps_option_ty)).unwrap();
 
         // writing the constructor
-        (write!(dest, "any::new_texture::<_, u8>(facade, format, None, mipmaps.to_regular(), {})", dimensions_parameters_passing)).unwrap();
+        (write!(dest, "any::new_texture::<_, u8>(facade, format, None, mipmaps.into(), {})", dimensions_parameters_passing)).unwrap();
         (writeln!(dest, ".map(|t| {}(t))", name)).unwrap();
 
         // closing function
