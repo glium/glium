@@ -24,3 +24,19 @@ fn texture_2d_write() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn cubemap_layer() {
+    let display = support::build_display();
+
+    let texture = match glium::texture::Cubemap::empty(&display, 2) {
+        Ok(t) => t,
+        Err(_) => return
+    };
+
+    texture.main_level().first_layer().image(glium::texture::CubeLayer::PositiveX)
+           .raw_write(&glium::Rect { bottom: 1, left: 1, width: 1, height: 1 },
+                      vec![vec![(128u8, 64u8, 2u8)]]);
+
+    display.assert_no_error(None);
+}

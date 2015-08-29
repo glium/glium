@@ -3,6 +3,8 @@
 ## Unreleased
 
  - Fix an OpenGL error when mapping a buffer with `map_read`.
+ - Add an unstable `raw_write` method to `TextureAnyImage`.
+ - `CubemapImage` and `CubemapArrayImage` now deref to `TextureAnyImage`.
 
 ## Version 0.8.7 (2015-08-27)
 

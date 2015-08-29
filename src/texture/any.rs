@@ -15,7 +15,7 @@ use Rect;
 use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
 use texture::{MipmapsOption, TextureFormat, TextureCreationError, CubeLayer};
-use texture::{get_format, InternalFormat, GetFormatError};
+use texture::{get_format, InternalFormat, GetFormatError, Texture2dDataSource, RawImage2d};
 use texture::pixel::PixelValue;
 use texture::pixel_buffer::PixelBuffer;
 
@@ -1138,7 +1138,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
 }
 
 /// Represents a specific layer of a specific mipmap. This is the same as `TextureAnyImage`, except
-/// for 3D textures, cubemaps and cubemap arrays.
+/// for cubemaps and cubemap arrays.
 #[derive(Copy, Clone)]
 pub struct TextureAnyLayerMipmap<'a> {
     /// The texture.
@@ -1312,5 +1312,97 @@ impl<'a> TextureAnyImage<'a> {
         let size = rect.width as usize * rect.height as usize * 4;
         let mut ctxt = self.texture.context.make_current();
         ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest);
+    }
+
+    /// UNSTABLE! Uploads data to the image.
+    ///
+    /// # Panic
+    ///
+    /// - Panicks if the rect is out of range.
+    /// - Panicks if the dimensions of the `Rect` don't match the data.
+    /// - Panicks if this is a multisample texture. OpenGL doesn't allow uploading data to
+    ///   multisample textures.
+    ///
+    pub fn raw_write<D>(&self, rect: &Rect, data: D) where D: Texture2dDataSource<'a> {
+        let RawImage2d { data, width, height, format: client_format } = data.into_raw();
+
+        let (client_format, client_type) = {
+            image_format::client_format_to_glenum(&self.texture.context, client_format.into(),
+                                                  self.texture.requested_format, false).unwrap()
+        };
+
+        // TODO: check data size
+        assert!(rect.width == width);
+        assert!(rect.height == height);
+        assert!(rect.left + rect.width <= self.width);
+        assert!(rect.bottom + rect.height <= self.height.unwrap_or(1));
+
+        let mut ctxt = self.texture.context.make_current();
+
+        // TODO: move somewhere else
+        if ctxt.state.pixel_store_unpack_alignment != 1 {
+            unsafe { ctxt.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1) };
+            ctxt.state.pixel_store_unpack_alignment = 1;
+        }
+
+        BufferAny::unbind_pixel_unpack(&mut ctxt);
+        let data_raw = data.as_ptr() as *const _;
+
+        match self.texture.ty {
+            Dimensions::Texture1d { .. } => {
+                unsafe {
+                    let bind_point = self.texture.bind_to_current(&mut ctxt);
+                    ctxt.gl.TexSubImage1D(bind_point, self.level as gl::types::GLint,
+                                          rect.left as gl::types::GLint,
+                                          rect.width as gl::types::GLint, client_format,
+                                          client_type, data_raw);
+                }
+            },
+
+            Dimensions::Texture1dArray { .. } | Dimensions::Texture2d { .. } |
+            Dimensions::Cubemap { .. } => {
+                unsafe {
+                    let bind_point = match self.cube_layer {
+                        Some(layer) => {
+                            self.texture.bind_to_current(&mut ctxt);
+                            gl::TEXTURE_CUBE_MAP_POSITIVE_X + layer.get_layer_index() as gl::types::GLenum
+                        },
+                        None => self.texture.bind_to_current(&mut ctxt),
+                    };
+
+                    ctxt.gl.TexSubImage2D(bind_point, self.level as gl::types::GLint,
+                                          rect.left as gl::types::GLint,
+                                          rect.bottom as gl::types::GLint,
+                                          rect.width as gl::types::GLint,
+                                          rect.height as gl::types::GLint, client_format,
+                                          client_type, data_raw);
+                }
+            },
+
+            Dimensions::Texture2dArray { .. } | Dimensions::Texture3d { .. } |
+            Dimensions::CubemapArray { .. } => {
+                unsafe {
+                    let bind_point = self.texture.bind_to_current(&mut ctxt);
+
+                    let layer = match self.cube_layer {
+                        Some(cube_layer) => self.layer * 6 + cube_layer.get_layer_index() as u32,
+                        None => self.layer,
+                    };
+
+                    ctxt.gl.TexSubImage3D(bind_point, self.level as gl::types::GLint,
+                                          rect.left as gl::types::GLint,
+                                          rect.bottom as gl::types::GLint,
+                                          layer as gl::types::GLint,
+                                          rect.width as gl::types::GLint,
+                                          rect.height as gl::types::GLint, 1, client_format,
+                                          client_type, data_raw);
+                }
+            },
+
+            Dimensions::Texture2dMultisample { .. } |
+            Dimensions::Texture2dMultisampleArray { .. } => {
+                panic!("Can't upload to a multisample texture.");
+            },
+        };
     }
 }
