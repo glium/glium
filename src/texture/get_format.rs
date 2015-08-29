@@ -7,6 +7,7 @@ use std::mem;
 
 use texture::any::TextureAny;
 use TextureExt;
+use GlObject;
 
 /// Error that can happen when retrieving the internal format of a texture.
 #[derive(Copy, Clone, Debug)]
@@ -134,39 +135,76 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
         let (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
              alpha_sz, alpha_ty, depth_sz, depth_ty) = unsafe
         {
-            // TODO: use DSA if available
-
-            let bind_point = texture.bind_to_current(ctxt);
-
             let mut red_sz = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_SIZE, &mut red_sz);
-
             let mut red_ty = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_TYPE, &mut red_ty);
-
             let mut green_sz = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_GREEN_SIZE, &mut green_sz);
-
             let mut green_ty = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_GREEN_TYPE, &mut green_ty);
-
             let mut blue_sz = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_BLUE_SIZE, &mut blue_sz);
-
             let mut blue_ty = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_BLUE_TYPE, &mut blue_ty);
-
             let mut alpha_sz = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_ALPHA_SIZE, &mut alpha_sz);
-
             let mut alpha_ty = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_ALPHA_TYPE, &mut alpha_ty);
-
             let mut depth_sz = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_DEPTH_SIZE, &mut depth_sz);
-
             let mut depth_ty = mem::uninitialized();
-            ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_DEPTH_TYPE, &mut depth_ty);
+
+            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+               ctxt.extensions.gl_arb_direct_state_access
+            {
+                let id = texture.get_id();
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_RED_SIZE, &mut red_sz);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_RED_TYPE, &mut red_ty);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_GREEN_SIZE, &mut green_sz);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_GREEN_TYPE, &mut green_ty);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_BLUE_SIZE, &mut blue_sz);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_BLUE_TYPE, &mut blue_ty);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_ALPHA_SIZE, &mut alpha_sz);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_ALPHA_TYPE, &mut alpha_ty);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_DEPTH_SIZE, &mut depth_sz);
+                ctxt.gl.GetTextureLevelParameteriv(id, 0, gl::TEXTURE_DEPTH_TYPE, &mut depth_ty);
+
+            } else if ctxt.extensions.gl_ext_direct_state_access {
+                let id = texture.get_id();
+                let bind_point = texture.get_bind_point();
+
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_RED_SIZE,
+                                                      &mut red_sz);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_RED_TYPE,
+                                                      &mut red_ty);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_GREEN_SIZE,
+                                                      &mut green_sz);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_GREEN_TYPE,
+                                                      &mut green_ty);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_BLUE_SIZE,
+                                                      &mut blue_sz);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_BLUE_TYPE,
+                                                      &mut blue_ty);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_ALPHA_SIZE,
+                                                      &mut alpha_sz);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_ALPHA_TYPE,
+                                                      &mut alpha_ty);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_DEPTH_SIZE,
+                                                      &mut depth_sz);
+                ctxt.gl.GetTextureLevelParameterivEXT(id, bind_point, 0, gl::TEXTURE_DEPTH_TYPE,
+                                                      &mut depth_ty);
+
+            } else {
+                let bind_point = texture.bind_to_current(ctxt);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_SIZE, &mut red_sz);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_RED_TYPE, &mut red_ty);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_GREEN_SIZE,
+                                               &mut green_sz);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_GREEN_TYPE,
+                                               &mut green_ty);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_BLUE_SIZE, &mut blue_sz);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_BLUE_TYPE, &mut blue_ty);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_ALPHA_SIZE,
+                                               &mut alpha_sz);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_ALPHA_TYPE,
+                                               &mut alpha_ty);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_DEPTH_SIZE,
+                                               &mut depth_sz);
+                ctxt.gl.GetTexLevelParameteriv(bind_point, 0, gl::TEXTURE_DEPTH_TYPE,
+                                               &mut depth_ty);
+            }
 
             (red_sz as gl::types::GLenum, red_ty as gl::types::GLenum,
              green_sz as gl::types::GLenum, green_ty as gl::types::GLenum,
