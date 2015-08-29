@@ -72,6 +72,9 @@ pub struct Capabilities {
 
     /// Number of work groups for compute shaders.
     pub max_compute_work_group_count: (gl::types::GLint, gl::types::GLint, gl::types::GLint),
+
+    /// Maximum number of color attachment bind points.
+    pub max_color_attachments: gl::types::GLint,
 }
 
 /// Defines what happens when you change the current context.
@@ -389,6 +392,12 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         } else {
             (0, 0, 0)
         },
+
+        max_color_attachments: {
+            let mut val = 4;
+            gl.GetIntegerv(gl::MAX_COLOR_ATTACHMENTS, &mut val);
+            val
+        }
     }
 }
 

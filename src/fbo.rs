@@ -743,6 +743,10 @@ impl FrameBufferObject {
         // attaching the attachments, and building the list of enums to pass to `glDrawBuffers`
         let mut raw_attachments = Vec::with_capacity(attachments.color.len());
         for &(slot, atchmnt) in attachments.color.iter() {
+            if slot >= ctxt.capabilities.max_color_attachments as u32 {
+                panic!("Trying to attach a color buffer to slot {}, but the hardware only supports {} bind points",
+                    slot, ctxt.capabilities.max_color_attachments);
+            }
             unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
             raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as gl::types::GLenum);
         }
