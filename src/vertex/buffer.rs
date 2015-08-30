@@ -1,3 +1,5 @@
+use std::error::Error;
+use std::fmt;
 use std::ops::{Range, Deref, DerefMut};
 
 use buffer::{Buffer, BufferSlice, BufferAny, BufferType, BufferMode, BufferCreationError};
@@ -24,6 +26,33 @@ impl From<BufferCreationError> for CreationError {
     #[inline]
     fn from(err: BufferCreationError) -> CreationError {
         CreationError::BufferCreationError(err)
+    }
+}
+
+impl fmt::Display for CreationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &CreationError::FormatNotSupported => "The vertex format is not supported by the \
+                                                   backend".fmt(formatter),
+            &CreationError::BufferCreationError(error) => error.fmt(formatter),
+        }
+    }
+}
+
+impl Error for CreationError {
+    fn description(&self) -> &str {
+        match self {
+            &CreationError::FormatNotSupported => "The vertex format is not supported by the \
+                                                   backend",
+            &CreationError::BufferCreationError(..) => "Error while creating the vertex buffer",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        match self {
+            &CreationError::FormatNotSupported => None,
+            &CreationError::BufferCreationError(ref error) => Some(error),
+        }
     }
 }
 
