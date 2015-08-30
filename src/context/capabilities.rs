@@ -394,10 +394,19 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         max_color_attachments: {
-            let mut val = 4;
-            gl.GetIntegerv(gl::MAX_COLOR_ATTACHMENTS, &mut val);
-            val
-        }
+            if version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
+               extensions.gl_arb_framebuffer_object || extensions.gl_ext_framebuffer_object ||
+               extensions.gl_nv_fbo_color_attachments
+            {
+                let mut val = 4;
+                gl.GetIntegerv(gl::MAX_COLOR_ATTACHMENTS, &mut val);
+                val
+            } else if version >= &Version(Api::GlEs, 2, 0) {
+                1
+            } else {
+                0
+            }
+        },
     }
 }
 

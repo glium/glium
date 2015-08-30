@@ -156,6 +156,7 @@ extensions! {
     "GL_KHR_context_flush_control" => gl_khr_context_flush_control,
     "GL_KHR_robustness" => gl_khr_robustness,
     "GL_KHR_robust_buffer_access_behavior" => gl_khr_robust_buffer_access_behavior,
+    "GL_NV_fbo_color_attachments" => gl_nv_fbo_color_attachments,
     "GL_NV_conditional_render" => gl_nv_conditional_render,
     "GL_NV_copy_buffer" => gl_nv_copy_buffer,
     "GL_NV_depth_clamp" => gl_nv_depth_clamp,
