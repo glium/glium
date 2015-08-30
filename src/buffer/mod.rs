@@ -62,6 +62,8 @@ pub use self::view::BufferAny as BufferViewAny;
 pub use self::view::BufferAnySlice as BufferViewAnySlice;
 
 use gl;
+use std::error::Error;
+use std::fmt;
 use std::mem;
 use std::slice;
 
@@ -177,6 +179,21 @@ pub enum BufferCreationError {
 
     /// This type of buffer is not supported.
     BufferTypeNotSupported,
+}
+
+impl fmt::Display for BufferCreationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        self.description().fmt(formatter)
+    }
+}
+
+impl Error for BufferCreationError {
+    fn description(&self) -> &str {
+        match self {
+            &BufferCreationError::OutOfMemory => "Not enough memory to create the buffer",
+            &BufferCreationError::BufferTypeNotSupported => "This type of buffer is not supported",
+        }
+    }
 }
 
 /// How the buffer is created.
