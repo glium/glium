@@ -294,23 +294,21 @@ uniform_test!(uniform_type_f32arr_floatmat4, "mat4", [[ 1.0f32,     2.4, -100000
                                                       [12.0f32, 12345.0,    0.11111,  0.0]]);
 
 // Doubles
-// TODO these need at least version 400 shaders to compile.
-// These get ignored until double precision uniforms are implemented.
-// uniform_test!(uniform_type_f64_double, "double", 12.567f64);
-// uniform_test!(uniform_type_f64arr_doublevec2, "dvec2", [1.0f64, 2.4]);
-// uniform_test!(uniform_type_f64tup_doublevec2, "dvec2", (1.0f64, 2.4));
-// uniform_test!(uniform_type_f64arr_doublevec3, "dvec3", [1.0f64, 2.4, 0.0003]);
-// uniform_test!(uniform_type_f64tup_doublevec3, "dvec3", (1.0f64, 2.4, 0.0003));
-// uniform_test!(uniform_type_f64arr_doublevec4, "dvec4", [1.0f64, 2.4, 0.0003, 123456]);
-// uniform_test!(uniform_type_f64tup_doublevec4, "dvec4", (1.0f64, 2.4, 0.0003, 123456));
-// uniform_test!(uniform_type_f64arr_doublemat2, "dmat2", [[1.0f64, 2.4], [-2.0f64, -7.8867]]);
-// uniform_test!(uniform_type_f64arr_doublemat3, "dmat3", [[ 1.0f64,     2.4, -1000000.0],
-//                                                         [-2.0f64, -7.8867,     6.6666],
-//                                                         [ 1.1f64,     7.7,       -6.1]]);
-// uniform_test!(uniform_type_f64arr_doublemat4, "dmat4", [[ 1.0f64,     2.4, -1000000.0,  0.0],
-//                                                         [-2.0f64, -7.8867,     6.6666, -0.0],
-//                                                         [ 1.1f64,     7.7,       -6.1,  0.0],
-//                                                         [12.0f64, 12345.0,    0.11111,  0.0]]);
+uniform_test!(uniform_type_f64_double, "double", 12.567f64);
+uniform_test!(uniform_type_f64arr_doublevec2, "dvec2", [1.0f64, 2.4]);
+uniform_test!(uniform_type_f64tup_doublevec2, "dvec2", (1.0f64, 2.4));
+uniform_test!(uniform_type_f64arr_doublevec3, "dvec3", [1.0f64, 2.4, 0.0003]);
+uniform_test!(uniform_type_f64tup_doublevec3, "dvec3", (1.0f64, 2.4, 0.0003));
+uniform_test!(uniform_type_f64arr_doublevec4, "dvec4", [1.0f64, 2.4, 0.0003, 123456.0]);
+uniform_test!(uniform_type_f64tup_doublevec4, "dvec4", (1.0f64, 2.4, 0.0003, 123456.0));
+uniform_test!(uniform_type_f64arr_doublemat2, "dmat2", [[1.0f64, 2.4], [-2.0f64, -7.8867]]);
+uniform_test!(uniform_type_f64arr_doublemat3, "dmat3", [[ 1.0f64,     2.4, -1000000.0],
+                                                        [-2.0f64, -7.8867,     6.6666],
+                                                        [ 1.1f64,     7.7,       -6.1]]);
+uniform_test!(uniform_type_f64arr_doublemat4, "dmat4", [[ 1.0f64,     2.4, -1000000.0,  0.0],
+                                                        [-2.0f64, -7.8867,     6.6666, -0.0],
+                                                        [ 1.1f64,     7.7,       -6.1,  0.0],
+                                                        [12.0f64, 12345.0,    0.11111,  0.0]]);
 
 // Integer
 uniform_test!(uniform_type_i8_int, "int", 5i8);
