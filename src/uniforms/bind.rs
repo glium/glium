@@ -295,6 +295,38 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
             program.set_uniform(ctxt, location, &RawUniformValue::DoubleVec4(val));
             Ok(())
         },
+        UniformValue::Int64(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Int64(val));
+            Ok(())
+        },
+        UniformValue::Int64Vec2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Int64Vec2(val));
+            Ok(())
+        },
+        UniformValue::Int64Vec3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Int64Vec3(val));
+            Ok(())
+        },
+        UniformValue::Int64Vec4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Int64Vec4(val));
+            Ok(())
+        },
+        UniformValue::UnsignedInt64(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::UnsignedInt64(val));
+            Ok(())
+        },
+        UniformValue::UnsignedInt64Vec2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::UnsignedInt64Vec2(val));
+            Ok(())
+        },
+        UniformValue::UnsignedInt64Vec3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::UnsignedInt64Vec3(val));
+            Ok(())
+        },
+        UniformValue::UnsignedInt64Vec4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::UnsignedInt64Vec4(val));
+            Ok(())
+        },
         UniformValue::Texture1d(texture, sampler) => {
             bind_texture_uniform(ctxt, &**texture, sampler, location, program, texture_bind_points)
         },

@@ -57,13 +57,25 @@ impl UniformsStorage {
             )
         );
 
-        macro_rules! uniform64(
+        macro_rules! uniform_f64(
             ($ctxt:expr, $uniform:ident, $($params:expr),+) => (
                 unsafe {
                     if $ctxt.extensions.gl_arb_gpu_shader_fp64 {
                         $ctxt.gl.$uniform($($params),+)
                     } else {
-                        panic!("Double precision is not supported on this system.")
+                        panic!("Double precision floats are not supported on this system.")
+                    }
+                }
+            )
+        );
+
+        macro_rules! uniform_i64(
+            ($ctxt:expr, $uniform:ident, $($params:expr),+) => (
+                unsafe {
+                    if $ctxt.extensions.gl_arb_gpu_shader_int64 {
+                        $ctxt.gl.$uniform($($params),+)
+                    } else {
+                        panic!("Double precision integers are not supported on this system.")
                     }
                 }
             )
@@ -92,6 +104,14 @@ impl UniformsStorage {
             (&RawUniformValue::DoubleVec2(a), &mut Some(RawUniformValue::DoubleVec2(b))) if a == b => (),
             (&RawUniformValue::DoubleVec3(a), &mut Some(RawUniformValue::DoubleVec3(b))) if a == b => (),
             (&RawUniformValue::DoubleVec4(a), &mut Some(RawUniformValue::DoubleVec4(b))) if a == b => (),
+            (&RawUniformValue::Int64(a), &mut Some(RawUniformValue::Int64(b))) if a == b => (),
+            (&RawUniformValue::Int64Vec2(a), &mut Some(RawUniformValue::Int64Vec2(b))) if a == b => (),
+            (&RawUniformValue::Int64Vec3(a), &mut Some(RawUniformValue::Int64Vec3(b))) if a == b => (),
+            (&RawUniformValue::Int64Vec4(a), &mut Some(RawUniformValue::Int64Vec4(b))) if a == b => (),
+            (&RawUniformValue::UnsignedInt64(a), &mut Some(RawUniformValue::UnsignedInt64(b))) if a == b => (),
+            (&RawUniformValue::UnsignedInt64Vec2(a), &mut Some(RawUniformValue::UnsignedInt64Vec2(b))) if a == b => (),
+            (&RawUniformValue::UnsignedInt64Vec3(a), &mut Some(RawUniformValue::UnsignedInt64Vec3(b))) if a == b => (),
+            (&RawUniformValue::UnsignedInt64Vec4(a), &mut Some(RawUniformValue::UnsignedInt64Vec4(b))) if a == b => (),
 
             (&RawUniformValue::SignedInt(v), target) => {
                 *target = Some(RawUniformValue::SignedInt(v));
@@ -216,40 +236,76 @@ impl UniformsStorage {
             },
             (&RawUniformValue::Double(v), target) => {
                 *target = Some(RawUniformValue::Double(v));
-                uniform64!(ctxt, Uniform1d, location, v);
+                uniform_f64!(ctxt, Uniform1d, location, v);
             },
 
             (&RawUniformValue::DoubleMat2(v), target) => {
                 *target = Some(RawUniformValue::DoubleMat2(v));
-                uniform64!(ctxt, UniformMatrix2dv,
+                uniform_f64!(ctxt, UniformMatrix2dv,
                          location, 1, gl::FALSE, v.as_ptr() as *const gl::types::GLdouble);
             },
 
             (&RawUniformValue::DoubleMat3(v), target) => {
                 *target = Some(RawUniformValue::DoubleMat3(v));
-                uniform64!(ctxt, UniformMatrix3dv,
+                uniform_f64!(ctxt, UniformMatrix3dv,
                          location, 1, gl::FALSE, v.as_ptr() as *const gl::types::GLdouble);
             },
 
             (&RawUniformValue::DoubleMat4(v), target) => {
                 *target = Some(RawUniformValue::DoubleMat4(v));
-                uniform64!(ctxt, UniformMatrix4dv,
+                uniform_f64!(ctxt, UniformMatrix4dv,
                          location, 1, gl::FALSE, v.as_ptr() as *const gl::types::GLdouble);
             },
 
             (&RawUniformValue::DoubleVec2(v), target) => {
                 *target = Some(RawUniformValue::DoubleVec2(v));
-                uniform64!(ctxt, Uniform2dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+                uniform_f64!(ctxt, Uniform2dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
             },
 
             (&RawUniformValue::DoubleVec3(v), target) => {
                 *target = Some(RawUniformValue::DoubleVec3(v));
-                uniform64!(ctxt, Uniform3dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+                uniform_f64!(ctxt, Uniform3dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
             },
 
             (&RawUniformValue::DoubleVec4(v), target) => {
                 *target = Some(RawUniformValue::DoubleVec4(v));
-                uniform64!(ctxt, Uniform4dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+                uniform_f64!(ctxt, Uniform4dv, location, 1, v.as_ptr() as *const gl::types::GLdouble);
+            },
+            (&RawUniformValue::Int64(v), target) => {
+                *target = Some(RawUniformValue::Int64(v));
+                uniform_i64!(ctxt, Uniform1i64ARB, location, v);
+            },
+            (&RawUniformValue::Int64Vec2(v), target) => {
+                *target = Some(RawUniformValue::Int64Vec2(v));
+                uniform_i64!(ctxt, Uniform2i64vARB, location, 1, v.as_ptr() as *const gl::types::GLint64);
+            },
+
+            (&RawUniformValue::Int64Vec3(v), target) => {
+                *target = Some(RawUniformValue::Int64Vec3(v));
+                uniform_i64!(ctxt, Uniform3i64vARB, location, 1, v.as_ptr() as *const gl::types::GLint64);
+            },
+
+            (&RawUniformValue::Int64Vec4(v), target) => {
+                *target = Some(RawUniformValue::Int64Vec4(v));
+                uniform_i64!(ctxt, Uniform4i64vARB, location, 1, v.as_ptr() as *const gl::types::GLint64);
+            },
+            (&RawUniformValue::UnsignedInt64(v), target) => {
+                *target = Some(RawUniformValue::UnsignedInt64(v));
+                uniform_i64!(ctxt, Uniform1ui64ARB, location, v);
+            },
+            (&RawUniformValue::UnsignedInt64Vec2(v), target) => {
+                *target = Some(RawUniformValue::UnsignedInt64Vec2(v));
+                uniform_i64!(ctxt, Uniform2ui64vARB, location, 1, v.as_ptr() as *const gl::types::GLuint64);
+            },
+
+            (&RawUniformValue::UnsignedInt64Vec3(v), target) => {
+                *target = Some(RawUniformValue::UnsignedInt64Vec3(v));
+                uniform_i64!(ctxt, Uniform3ui64vARB, location, 1, v.as_ptr() as *const gl::types::GLuint64);
+            },
+
+            (&RawUniformValue::UnsignedInt64Vec4(v), target) => {
+                *target = Some(RawUniformValue::UnsignedInt64Vec4(v));
+                uniform_i64!(ctxt, Uniform4ui64vARB, location, 1, v.as_ptr() as *const gl::types::GLuint64);
             },
         }
     }

@@ -332,6 +332,24 @@ uniform_test!(uniform_type_u32tup_uintvec3, "uvec3", (1u32, 24, 7));
 uniform_test!(uniform_type_u32arr_uintvec4, "uvec4", [1u32, 24, 7, 123456]);
 uniform_test!(uniform_type_u32tup_uintvec4, "uvec4", (1u32, 24, 7, 123456));
 
+// Integer 64 bit
+uniform_test!(uniform_type_i64_int64_t, "int64_t", 9_223_372_036_854_775_807i64);
+uniform_test!(uniform_type_i64arr_i64vec2, "i64vec2", [1i64, 24]);
+uniform_test!(uniform_type_i64tup_i64vec2, "i64vec2", (1i64, 24));
+uniform_test!(uniform_type_i64arr_i64vec3, "i64vec3", [1i64, 24, -7]);
+uniform_test!(uniform_type_i64tup_i64vec3, "i64vec3", (1i64, 24, -7));
+uniform_test!(uniform_type_i64arr_i64vec4, "i64vec4", [1i64, 24, -7, -123456]);
+uniform_test!(uniform_type_i64tup_i64vec4, "i64vec4", (1i64, 24, -7, -123456));
+
+// Unsigned integer 64 bit
+uniform_test!(uniform_type_u64_uint64_t, "uint64_t", 9_223_372_036_854_775_807u64);
+uniform_test!(uniform_type_u64arr_u64vec2, "u64vec2", [1u64, 24]);
+uniform_test!(uniform_type_u64tup_u64vec2, "u64vec2", (1u64, 24));
+uniform_test!(uniform_type_u64arr_u64vec3, "u64vec3", [1u64, 24, 7]);
+uniform_test!(uniform_type_u64tup_u64vec3, "u64vec3", (1u64, 24, 7));
+uniform_test!(uniform_type_u64arr_u64vec4, "u64vec4", [1u64, 24, 7, 123456]);
+uniform_test!(uniform_type_u64tup_u64vec4, "u64vec4", (1u64, 24, 7, 123456));
+
 // Booleans
 uniform_test!(uniform_type_bool_bool, "bool", true);
 uniform_test!(uniform_type_boolarr_boolvec2, "bvec2", [true, false]);
