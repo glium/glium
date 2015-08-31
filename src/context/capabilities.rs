@@ -97,7 +97,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                                -> Capabilities
 {
     // getting the value of `GL_RENDERER`
-    let renderer = unsafe {
+    let renderer = {
         let s = gl.GetString(gl::RENDERER);
         assert!(!s.is_null());
         String::from_utf8(CStr::from_ptr(s as *const i8).to_bytes().to_vec()).ok()
