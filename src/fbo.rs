@@ -227,9 +227,9 @@ impl<'a> FramebufferAttachments<'a> {
 
         for &(index, LayeredAttachment(ref attachment)) in colors.iter() {
             if index >= max_color_attachments as u32 {
-                return Err(ValidationError::ColorAttachmentBindPointNotSupported{
+                return Err(ValidationError::TooManyColorAttachments{
                     maximum: max_color_attachments as usize,
-                    bind_point: index as usize,
+                    obtained: index as usize,
                 });
             }
             raw_attachments.color.push((index, handle_tex!(attachment, dimensions, samples)));
@@ -403,9 +403,9 @@ impl<'a> FramebufferAttachments<'a> {
 
         for &(index, ref attachment) in colors.iter() {
             if index >= max_color_attachments as u32 {
-                return Err(ValidationError::ColorAttachmentBindPointNotSupported{
+                return Err(ValidationError::TooManyColorAttachments{
                     maximum: max_color_attachments as usize,
-                    bind_point: index as usize,
+                    obtained: index as usize,
                 });
             }
             raw_attachments.color.push((index, handle_atch!(attachment, dimensions, samples)));
@@ -506,14 +506,6 @@ pub enum ValidationError {
         maximum: usize,
         /// Number of attachments that were given.
         obtained: usize,
-    },
-
-    /// Backends only support a certain number of color attachment bind points.
-    ColorAttachmentBindPointNotSupported {
-        /// Highest possible bind point.
-        maximum: usize,
-        /// Bind point that were given.
-        bind_point: usize,
     },
 }
 

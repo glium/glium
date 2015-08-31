@@ -404,7 +404,8 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             } else if version >= &Version(Api::GlEs, 2, 0) {
                 1
             } else {
-                0
+                // glium doesn't allow creating contexts that don't support FBOs
+                unreachable!()
             }
         },
     }
