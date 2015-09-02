@@ -79,14 +79,42 @@ pub use self::query::{AnySamplesPassedQuery, TransformFeedbackPrimitivesWrittenQ
 
 mod query;
 
-/// Function that the GPU will use for blending.
+/// Blend effect that the GPU will use for blending.
 ///
 /// Blending happens at the end of the rendering process, when the GPU wants to write the
 /// pixels over pixels that already exist in the framebuffer. The blending function allows
 /// you to choose how it should merge the two.
 ///
-/// If you want to add transparent objects one over another, the usual value
-/// is `Addition { source: SourceAlpha, destination: OneMinusSourceAlpha }`.
+/// If you want to add transparent objects one over another, use
+/// `Blend::alpha_blending()`.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Blend {
+    /// The blending function for color channels.
+    pub color: BlendingFunction,
+    /// The blending function for alpha channels.
+    pub alpha: BlendingFunction,
+    /// A constant color that can be used in the blending functions.
+    pub constant_value: (f32, f32, f32, f32),
+}
+
+impl Blend {
+    /// Returns a blend effect to add transparent objects over others.
+    pub fn alpha_blending() -> Blend {
+        Blend {
+            color: BlendingFunction::Addition {
+                source: LinearBlendingFactor::SourceAlpha,
+                destination: LinearBlendingFactor::OneMinusSourceAlpha,
+            },
+            alpha: BlendingFunction::Addition {
+                source: LinearBlendingFactor::One,
+                destination: LinearBlendingFactor::One
+            },
+            constant_value: (1.0, 1.0, 1.0, 1.0)
+        }
+    }
+}
+
+/// Function that the GPU will use for blending.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BlendingFunction {
     /// Simply overwrite the destination pixel with the source pixel.
@@ -186,6 +214,10 @@ pub enum LinearBlendingFactor {
     /// Multiply the source or destination component by the alpha value of the source.
     SourceAlpha,
 
+    /// Multiply the source or destination component by the smallest value of
+    /// `SourceAlpha` and `1 - DestinationAlpha`.
+    SourceAlphaSaturate,
+
     /// Multiply the source or destination component by `1.0` minus the alpha value of the source.
     OneMinusSourceAlpha,
 
@@ -195,6 +227,21 @@ pub enum LinearBlendingFactor {
     /// Multiply the source or destination component by `1.0` minus the alpha value of the
     /// destination.
     OneMinusDestinationAlpha,
+
+    /// Multiply the source or destination component by the corresponding value
+    /// in `Blend::const_value`.
+    ConstantColor,
+
+    /// Multiply the source or destination compoent by `1.0` minus the corresponding
+    /// value in `Blend::const_value`.
+    OneMinusConstantColor,
+
+    /// Multiply the source or destination component by the alpha value of `Blend::const_value`.
+    ConstantAlpha,
+
+    /// Multiply the source or destination componet by `1.0` minus the alpha value of
+    /// `Blend::const_value`.
+    OneMinusConstantAlpha,
 }
 
 impl ToGlEnum for LinearBlendingFactor {
@@ -210,6 +257,11 @@ impl ToGlEnum for LinearBlendingFactor {
             LinearBlendingFactor::OneMinusSourceAlpha => gl::ONE_MINUS_SRC_ALPHA,
             LinearBlendingFactor::DestinationAlpha => gl::DST_ALPHA,
             LinearBlendingFactor::OneMinusDestinationAlpha => gl::ONE_MINUS_DST_ALPHA,
+            LinearBlendingFactor::SourceAlphaSaturate => gl::SRC_ALPHA_SATURATE,
+            LinearBlendingFactor::ConstantColor => gl::CONSTANT_COLOR,
+            LinearBlendingFactor::OneMinusConstantColor => gl::ONE_MINUS_CONSTANT_COLOR,
+            LinearBlendingFactor::ConstantAlpha => gl::CONSTANT_ALPHA,
+            LinearBlendingFactor::OneMinusConstantAlpha => gl::ONE_MINUS_CONSTANT_ALPHA,
         }
     }
 }
@@ -814,7 +866,7 @@ pub struct DrawParameters<'a> {
     pub transform_feedback: Option<&'a TransformFeedbackSession<'a>>,
 
     /// If set, then the generated primitives will be smoothed.
-    /// 
+    ///
     /// Note that blending needs to be enabled for this to work.
     pub smooth: Option<Smooth>,
 
