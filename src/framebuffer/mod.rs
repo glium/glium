@@ -64,6 +64,7 @@ Not yet supported
 
 */
 use std::rc::Rc;
+use std::ops::Deref;
 use smallvec::SmallVec;
 
 use texture::Texture2d;
@@ -198,7 +199,7 @@ impl<'a> SimpleFrameBuffer<'a> {
             }
         });
 
-        let attachments = attachments.validate().unwrap();
+        let attachments = attachments.validate(facade).unwrap();
 
         SimpleFrameBuffer {
             context: facade.get_context().clone(),
@@ -387,7 +388,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             } else {
                 fbo::DepthStencilAttachments::None
             }
-        }).validate().unwrap();
+        }).validate(facade).unwrap();
 
         MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
@@ -417,7 +418,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             } else {        // FIXME: other cases
                 fbo::DepthStencilAttachments::None
             },
-        }).validate().unwrap()
+        }).validate(&self.context).unwrap()
     }
 }
 

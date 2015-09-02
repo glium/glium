@@ -140,16 +140,17 @@ impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
     #[inline]
-    pub fn validate(self) -> Result<ValidatedAttachments<'a>, ValidationError> {
+    pub fn validate<C>(self, context: &C) -> Result<ValidatedAttachments<'a>, ValidationError> where C: CapabilitiesSource {
         match self {
-            FramebufferAttachments::Regular(a) => FramebufferAttachments::validate_regular(a),
-            FramebufferAttachments::Layered(a) => FramebufferAttachments::validate_layered(a),
+            FramebufferAttachments::Regular(a) => FramebufferAttachments::validate_regular(context, a),
+            FramebufferAttachments::Layered(a) => FramebufferAttachments::validate_layered(context, a),
         }
     }
 
-    fn validate_layered(FramebufferSpecificAttachments { colors, depth_stencil }:
+    fn validate_layered<C>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
                         FramebufferSpecificAttachments<LayeredAttachment<'a>>)
                         -> Result<ValidatedAttachments<'a>, ValidationError>
+                        where C: CapabilitiesSource
     {
         // TODO: make sure that all attachments are layered
 
@@ -204,6 +205,14 @@ impl<'a> FramebufferAttachments<'a> {
             });
         }
 
+        let max_color_attachments = context.get_capabilities().max_color_attachments;
+        if colors.len() > max_color_attachments as usize {
+            return Err(ValidationError::TooManyColorAttachments{
+                maximum: max_color_attachments as usize,
+                obtained: colors.len(),
+            });
+        }
+
         let mut raw_attachments = RawAttachments {
             color: Vec::with_capacity(colors.len()),
             depth: None,
@@ -217,6 +226,12 @@ impl<'a> FramebufferAttachments<'a> {
         let mut samples = None;     // contains `0` if not multisampling and `None` if unknown
 
         for &(index, LayeredAttachment(ref attachment)) in colors.iter() {
+            if index >= max_color_attachments as u32 {
+                return Err(ValidationError::TooManyColorAttachments{
+                    maximum: max_color_attachments as usize,
+                    obtained: index as usize,
+                });
+            }
             raw_attachments.color.push((index, handle_tex!(attachment, dimensions, samples)));
         }
 
@@ -257,9 +272,10 @@ impl<'a> FramebufferAttachments<'a> {
         })
     }
 
-    fn validate_regular(FramebufferSpecificAttachments { colors, depth_stencil }:
+    fn validate_regular<C>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
                         FramebufferSpecificAttachments<RegularAttachment<'a>>)
                         -> Result<ValidatedAttachments<'a>, ValidationError>
+                        where C: CapabilitiesSource
     {
         macro_rules! handle_tex {
             ($tex:ident, $dim:ident, $samples:ident, $num_bits:ident) => ({
@@ -365,6 +381,14 @@ impl<'a> FramebufferAttachments<'a> {
             );
         }
 
+        let max_color_attachments = context.get_capabilities().max_color_attachments;
+        if colors.len() > max_color_attachments as usize {
+            return Err(ValidationError::TooManyColorAttachments{
+                maximum: max_color_attachments as usize,
+                obtained: colors.len(),
+            });
+        }
+
         let mut raw_attachments = RawAttachments {
             color: Vec::with_capacity(colors.len()),
             depth: None,
@@ -378,6 +402,12 @@ impl<'a> FramebufferAttachments<'a> {
         let mut samples = None;     // contains `0` if not multisampling and `None` if unknown
 
         for &(index, ref attachment) in colors.iter() {
+            if index >= max_color_attachments as u32 {
+                return Err(ValidationError::TooManyColorAttachments{
+                    maximum: max_color_attachments as usize,
+                    obtained: index as usize,
+                });
+            }
             raw_attachments.color.push((index, handle_atch!(attachment, dimensions, samples)));
         }
 
@@ -656,7 +686,7 @@ impl FramebuffersContainer {
         let attachments = FramebufferAttachments::Regular(FramebufferSpecificAttachments {
             colors: { let mut v = SmallVec::new(); v.push((0, attachment.clone())); v },
             depth_stencil: DepthStencilAttachments::None,
-        }).validate().unwrap();
+        }).validate(ctxt).unwrap();
 
         let framebuffer = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&attachments));
         bind_framebuffer(ctxt, framebuffer, false, true);
@@ -743,6 +773,10 @@ impl FrameBufferObject {
         // attaching the attachments, and building the list of enums to pass to `glDrawBuffers`
         let mut raw_attachments = Vec::with_capacity(attachments.color.len());
         for &(slot, atchmnt) in attachments.color.iter() {
+            if slot >= ctxt.capabilities.max_color_attachments as u32 {
+                panic!("Trying to attach a color buffer to slot {}, but the hardware only supports {} bind points",
+                    slot, ctxt.capabilities.max_color_attachments);
+            }
             unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
             raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as gl::types::GLenum);
         }

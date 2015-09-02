@@ -294,3 +294,22 @@ fn cubemap_layer() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+#[should_panic]
+fn multi_color_attachments_maximum() {
+   let display = support::build_display();
+
+   let color_textures = (0 .. 32)
+        .map(|_| {
+            glium::Texture2d::empty_with_format(&display,
+                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
+                                               glium::texture::MipmapsOption::NoMipmap,
+                                               128, 128).unwrap()
+        })
+        .collect::<Vec<_>>();
+
+   let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} ).collect::<Vec<_>>();
+
+   let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]);
+}
