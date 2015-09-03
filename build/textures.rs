@@ -305,6 +305,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             #![allow(unused_imports)]
 
             use std::borrow::Cow;
+            use std::ops::{{Deref, DerefMut}};
 
             use texture::any::{{self, TextureAny, TextureAnyLayer, TextureAnyMipmap}};
             use texture::any::{{TextureAnyLayerMipmap, TextureAnyImage, Dimensions}};
@@ -1385,6 +1386,21 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         // closing `impl Image` block
         (writeln!(dest, "}}")).unwrap();
+
+        // `impl Deref`
+        (writeln!(dest, "impl<'t> Deref for {name}Image<'t> {{
+                             type Target = TextureAnyImage<'t>;
+
+                             fn deref(&self) -> &TextureAnyImage<'t> {{
+                                &self.0
+                             }}
+                         }}
+
+                         impl<'t> DerefMut for {name}Image<'t> {{
+                             fn deref_mut(&mut self) -> &mut TextureAnyImage<'t> {{
+                                &mut self.0
+                             }}
+                         }}", name = name)).unwrap();
 
         // attachment traits
         match ty {

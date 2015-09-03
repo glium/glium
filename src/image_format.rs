@@ -1263,6 +1263,12 @@ impl ClientFormatAny {
     }
 }
 
+impl From<ClientFormat> for ClientFormatAny {
+    fn from(f: ClientFormat) -> ClientFormatAny {
+        ClientFormatAny::ClientFormat(f)
+    }
+}
+
 /// Type of request.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum RequestType {
