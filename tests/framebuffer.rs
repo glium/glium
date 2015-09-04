@@ -298,9 +298,9 @@ fn cubemap_layer() {
 #[test]
 #[should_panic]
 fn multi_color_attachments_maximum() {
-   let display = support::build_display();
+    let display = support::build_display();
 
-   let color_textures = (0 .. 32)
+    let color_textures = (0 .. 32)
         .map(|_| {
             glium::Texture2d::empty_with_format(&display,
                                                glium::texture::UncompressedFloatFormat::U8U8U8U8,
@@ -309,7 +309,133 @@ fn multi_color_attachments_maximum() {
         })
         .collect::<Vec<_>>();
 
-   let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} ).collect::<Vec<_>>();
+    let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} ).collect::<Vec<_>>();
 
-   let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]);
+    let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]);
+}
+
+#[test]
+#[should_panic]
+fn empty_framebuffer_wrong_layers() {
+    use glium::framebuffer::EmptyFrameBuffer;
+
+    let display = support::build_display();
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_supported(&display) {
+        panic!();
+    }
+
+    let _fb = EmptyFrameBuffer::new(&display, 256, 256, Some(0), None, true);
+}
+
+#[test]
+#[should_panic]
+fn empty_framebuffer_wrong_samples() {
+    use glium::framebuffer::EmptyFrameBuffer;
+
+    let display = support::build_display();
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_supported(&display) {
+        panic!();
+    }
+
+    let _fb = EmptyFrameBuffer::new(&display, 256, 256, None, Some(0), true);
+}
+
+#[test]
+fn empty_framebuffer_width_out_of_range() {
+    use glium::framebuffer::{EmptyFrameBuffer, ValidationError};
+
+    let display = support::build_display();
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_supported(&display) {
+        return;
+    }
+
+    let _fb = match EmptyFrameBuffer::new(&display, 4294967295, 256, None, None, true) {
+        Err(ValidationError::EmptyFramebufferUnsupportedDimensions) => (),
+        _ => panic!(),
+    };
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn empty_framebuffer_height_out_of_range() {
+    use glium::framebuffer::{EmptyFrameBuffer, ValidationError};
+
+    let display = support::build_display();
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_supported(&display) {
+        return;
+    }
+
+    let _fb = match EmptyFrameBuffer::new(&display, 256, 4294967295, None, None, true) {
+        Err(ValidationError::EmptyFramebufferUnsupportedDimensions) => (),
+        _ => panic!(),
+    };
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn empty_framebuffer_layers_out_of_range() {
+    use glium::framebuffer::{EmptyFrameBuffer, ValidationError};
+
+    let display = support::build_display();
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_layered_supported(&display) {
+        return;
+    }
+
+    let _fb = match EmptyFrameBuffer::new(&display, 256, 256, Some(4294967295), None, true) {
+        Err(ValidationError::EmptyFramebufferUnsupportedDimensions) => (),
+        _ => panic!(),
+    };
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn empty_framebuffer_samples_out_of_range() {
+    use glium::framebuffer::{EmptyFrameBuffer, ValidationError};
+
+    let display = support::build_display();
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_supported(&display) {
+        return;
+    }
+
+    let _fb = match EmptyFrameBuffer::new(&display, 256, 256, None, Some(4294967295), true) {
+        Err(ValidationError::EmptyFramebufferUnsupportedDimensions) => (),
+        _ => panic!(),
+    };
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn empty_framebuffer_simple_draw() {
+    use glium::framebuffer::{EmptyFrameBuffer, ValidationError};
+
+    let display = support::build_display();
+    let (vertex_buffer, index_buffer, program) = support::build_fullscreen_red_pipeline(&display);
+
+    // ignore the test
+    if !EmptyFrameBuffer::is_supported(&display) {
+        return;
+    }
+
+    let mut fb = EmptyFrameBuffer::new(&display, 256, 256, None, None, true).unwrap();
+    fb.clear_color(0.0, 0.0, 0.0, 0.0);
+    fb.draw(&vertex_buffer, &index_buffer, &program,
+            &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+
+    display.assert_no_error(None);
 }

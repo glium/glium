@@ -73,6 +73,9 @@ use TextureExt;
 
 use backend::Facade;
 use context::Context;
+use CapabilitiesSource;
+use version::Version;
+use version::Api;
 
 use FboAttachments;
 use Rect;
@@ -90,6 +93,7 @@ use {fbo, gl};
 pub use self::render_buffer::{RenderBuffer, RenderBufferAny, DepthRenderBuffer};
 pub use self::render_buffer::{StencilRenderBuffer, DepthStencilRenderBuffer};
 pub use fbo::is_dimensions_mismatch_supported;
+pub use fbo::ValidationError;
 
 mod render_buffer;
 
@@ -512,6 +516,175 @@ impl<'a> FboAttachments for MultiOutputFrameBuffer<'a> {
     #[inline]
     fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
         unimplemented!();
+    }
+}
+
+/// A framebuffer with no attachment at all.
+///
+/// Note that this is only supported on recent hardware.
+pub struct EmptyFrameBuffer {
+    context: Rc<Context>,
+    attachments: fbo::ValidatedAttachments<'static>,
+}
+
+impl<'a> EmptyFrameBuffer {
+    /// Returns true if empty framebuffers are supported by the backend.
+    pub fn is_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+        context.get_version() >= &Version(Api::Gl, 4, 3) ||
+        context.get_version() >= &Version(Api::GlEs, 3, 1) ||
+        context.get_extensions().gl_arb_framebuffer_no_attachments
+    }
+
+    /// Returns true if layered empty framebuffers are supported by the backend.
+    pub fn is_layered_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+        context.get_version() >= &Version(Api::Gl, 4, 3) ||
+        context.get_version() >= &Version(Api::GlEs, 3, 2) ||
+        context.get_extensions().gl_arb_framebuffer_no_attachments
+    }
+
+    /// Returns the maximum width of empty framebuffers that the backend supports, or `None` if
+    /// empty framebuffers are not supported.
+    pub fn get_max_supported_width<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+        context.get_capabilities().max_framebuffer_width.map(|v| v as u32)
+    }
+
+    /// Returns the maximum height of empty framebuffers that the backend supports, or `None` if
+    /// empty framebuffers are not supported.
+    pub fn get_max_supported_height<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+        context.get_capabilities().max_framebuffer_height.map(|v| v as u32)
+    }
+
+    /// Returns the maximum number of samples of empty framebuffers that the backend supports,
+    /// or `None` if empty framebuffers are not supported.
+    pub fn get_max_supported_samples<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+        context.get_capabilities().max_framebuffer_samples.map(|v| v as u32)
+    }
+
+    /// Returns the maximum number of layers of empty framebuffers that the backend supports,
+    /// or `None` if layered empty framebuffers are not supported.
+    pub fn get_max_supported_layers<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+        context.get_capabilities().max_framebuffer_layers.map(|v| v as u32)
+    }
+
+    /// Creates a `EmptyFrameBuffer`.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if `layers` or `samples` is equal to `Some(0)`.
+    ///
+    #[inline]
+    pub fn new<F>(facade: &F, width: u32, height: u32, layers: Option<u32>,
+                  samples: Option<u32>, fixed_samples: bool)
+                  -> Result<EmptyFrameBuffer, ValidationError> where F: Facade
+    {
+        let context = facade.get_context();
+
+        let attachments = fbo::FramebufferAttachments::Empty {
+            width: width,
+            height: height,
+            layers: layers,
+            samples: samples,
+            fixed_samples: fixed_samples,
+        };
+
+        let attachments = try!(attachments.validate(context));
+
+        Ok(EmptyFrameBuffer {
+            context: context.clone(),
+            attachments: attachments,
+        })
+    }
+}
+
+impl Surface for EmptyFrameBuffer {
+    #[inline]
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
+             depth: Option<f32>, stencil: Option<i32>)
+    {
+        ops::clear(&self.context, Some(&self.attachments), rect, color, depth, stencil);
+    }
+
+    #[inline]
+    fn get_dimensions(&self) -> (u32, u32) {
+        self.attachments.get_dimensions()
+    }
+
+    #[inline]
+    fn get_depth_buffer_bits(&self) -> Option<u16> {
+        None
+    }
+
+    #[inline]
+    fn get_stencil_buffer_bits(&self) -> Option<u16> {
+        None
+    }
+
+    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
+        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
+        where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
+        V: ::vertex::MultiVerticesSource<'v>
+    {
+        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
+                        draw_parameters.depth_write)
+        {
+            return Err(DrawError::NoDepthBuffer);
+        }
+
+        if let Some(viewport) = draw_parameters.viewport {
+            if viewport.width > self.context.capabilities().max_viewport_dims.0
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
+            if viewport.height > self.context.capabilities().max_viewport_dims.1
+                    as u32
+            {
+                return Err(DrawError::ViewportTooLarge);
+            }
+        }
+
+        ops::draw(&self.context, Some(&self.attachments), vb,
+                  ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
+    }
+
+    #[inline]
+    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    {
+        unimplemented!()        // TODO: 
+    }
+
+    #[inline]
+    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.context, None, self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    #[inline]
+    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
+                                    source_rect: &Rect, target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+
+    #[inline]
+    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
+                                         source_rect: &Rect, target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter)
+    {
+        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    }
+}
+
+impl FboAttachments for EmptyFrameBuffer {
+    #[inline]
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
+        Some(&self.attachments)
     }
 }
 
