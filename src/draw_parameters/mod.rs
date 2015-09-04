@@ -763,11 +763,9 @@ pub struct DrawParameters<'a> {
     /// The default value is `Keep`.
     pub stencil_depth_pass_operation_counter_clockwise: StencilOperation,
 
-    /// The function that the GPU will use to merge the existing pixel with the pixel that is
+    /// The effect that the GPU will use to merge the existing pixel with the pixel that is
     /// being written.
-    ///
-    /// `None` means "don't care" (usually when you know that the alpha is always 1).
-    pub blending_function: Option<BlendingFunction>,
+    pub blend: Blend,
 
     /// Allows you to disable some color components.
     ///
@@ -952,7 +950,11 @@ impl<'a> Default for DrawParameters<'a> {
             stencil_fail_operation_counter_clockwise: StencilOperation::Keep,
             stencil_pass_depth_fail_operation_counter_clockwise: StencilOperation::Keep,
             stencil_depth_pass_operation_counter_clockwise: StencilOperation::Keep,
-            blending_function: Some(BlendingFunction::AlwaysReplace),
+            blend: Blend {
+                color: BlendingFunction::AlwaysReplace,
+                alpha: BlendingFunction::AlwaysReplace,
+                constant_value: (1.0, 1.0, 1.0, 1.0)
+            },
             color_mask: (true, true, true, true),
             line_width: None,
             point_size: None,
@@ -1012,13 +1014,13 @@ impl<'a> DrawParametersBuilder<'a> {
         self
     }
 
-    /// Sets the function that the GPU will use to merge the existing pixel with the pixel that is
+    /// Sets the effect that the GPU will use to merge the existing pixel with the pixel that is
     /// being written.
     #[inline]
-    pub fn with_blending_function(mut self, blending: BlendingFunction)
+    pub fn with_blend(mut self, blend: Blend)
                                  -> DrawParametersBuilder<'a>
     {
-        self.params.blending_function = Some(blending);
+        self.params.blend = blend;
         self
     }
 

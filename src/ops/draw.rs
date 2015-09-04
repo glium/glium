@@ -21,7 +21,7 @@ use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
 
 use draw_parameters::DrawParameters;
-use draw_parameters::{BlendingFunction, BackfaceCullingMode};
+use draw_parameters::{Blend, BackfaceCullingMode};
 use draw_parameters::{DepthTest, DepthClamp, PolygonMode, StencilTest};
 use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
 use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery, ConditionalRendering};
@@ -182,7 +182,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         try!(sync_depth(&mut ctxt, draw_parameters.depth_test, draw_parameters.depth_write,
                         draw_parameters.depth_range, draw_parameters.depth_clamp));
         sync_stencil(&mut ctxt, &draw_parameters);
-        sync_blending(&mut ctxt, draw_parameters.blending_function);
+        sync_blending(&mut ctxt, draw_parameters.blend);
         sync_color_mask(&mut ctxt, draw_parameters.color_mask);
         sync_line_width(&mut ctxt, draw_parameters.line_width);
         sync_point_size(&mut ctxt, draw_parameters.point_size);
@@ -566,81 +566,8 @@ fn sync_stencil(ctxt: &mut context::CommandContext, params: &DrawParameters) {
     }
 }
 
-fn sync_blending(ctxt: &mut context::CommandContext, blending_function: Option<BlendingFunction>) {
-    let blend_factors = match blending_function {
-        Some(BlendingFunction::AlwaysReplace) => unsafe {
-            if ctxt.state.enabled_blend {
-                ctxt.gl.Disable(gl::BLEND);
-                ctxt.state.enabled_blend = false;
-            }
-            None
-        },
-        Some(BlendingFunction::Min) => unsafe {
-            if ctxt.state.blend_equation != gl::MIN {
-                ctxt.gl.BlendEquation(gl::MIN);
-                ctxt.state.blend_equation = gl::MIN;
-            }
-            if !ctxt.state.enabled_blend {
-                ctxt.gl.Enable(gl::BLEND);
-                ctxt.state.enabled_blend = true;
-            }
-            None
-        },
-        Some(BlendingFunction::Max) => unsafe {
-            if ctxt.state.blend_equation != gl::MAX {
-                ctxt.gl.BlendEquation(gl::MAX);
-                ctxt.state.blend_equation = gl::MAX;
-            }
-            if !ctxt.state.enabled_blend {
-                ctxt.gl.Enable(gl::BLEND);
-                ctxt.state.enabled_blend = true;
-            }
-            None
-        },
-        Some(BlendingFunction::Addition { source, destination }) => unsafe {
-            if ctxt.state.blend_equation != gl::FUNC_ADD {
-                ctxt.gl.BlendEquation(gl::FUNC_ADD);
-                ctxt.state.blend_equation = gl::FUNC_ADD;
-            }
-            if !ctxt.state.enabled_blend {
-                ctxt.gl.Enable(gl::BLEND);
-                ctxt.state.enabled_blend = true;
-            }
-            Some((source, destination))
-        },
-        Some(BlendingFunction::Subtraction { source, destination }) => unsafe {
-            if ctxt.state.blend_equation != gl::FUNC_SUBTRACT {
-                ctxt.gl.BlendEquation(gl::FUNC_SUBTRACT);
-                ctxt.state.blend_equation = gl::FUNC_SUBTRACT;
-            }
-            if !ctxt.state.enabled_blend {
-                ctxt.gl.Enable(gl::BLEND);
-                ctxt.state.enabled_blend = true;
-            }
-            Some((source, destination))
-        },
-        Some(BlendingFunction::ReverseSubtraction { source, destination }) => unsafe {
-            if ctxt.state.blend_equation != gl::FUNC_REVERSE_SUBTRACT {
-                ctxt.gl.BlendEquation(gl::FUNC_REVERSE_SUBTRACT);
-                ctxt.state.blend_equation = gl::FUNC_REVERSE_SUBTRACT;
-            }
-            if !ctxt.state.enabled_blend {
-                ctxt.gl.Enable(gl::BLEND);
-                ctxt.state.enabled_blend = true;
-            }
-            Some((source, destination))
-        },
-        _ => None
-    };
-    if let Some((source, destination)) = blend_factors {
-        let source = source.to_glenum();
-        let destination = destination.to_glenum();
+fn sync_blending(ctxt: &mut context::CommandContext, blend: Blend) {
 
-        if ctxt.state.blend_func != (source, destination) {
-            unsafe { ctxt.gl.BlendFunc(source, destination) };
-            ctxt.state.blend_func = (source, destination);
-        }
-    };
 }
 
 fn sync_color_mask(ctxt: &mut context::CommandContext, mask: (bool, bool, bool, bool)) {
