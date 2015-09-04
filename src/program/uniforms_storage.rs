@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 use RawUniformValue;
 
 use smallvec::SmallVec;
@@ -10,7 +11,7 @@ use version::Version;
 use version::Api;
 
 pub struct UniformsStorage {
-    values: RefCell<SmallVec<[Option<RawUniformValue>; 16]>>,
+    values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>>>,
     uniform_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
     shader_storage_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
 }
@@ -20,7 +21,7 @@ impl UniformsStorage {
     #[inline]
     pub fn new() -> UniformsStorage {
         UniformsStorage {
-            values: RefCell::new(SmallVec::new()),
+            values: RefCell::new(HashMap::new()),
             uniform_blocks: RefCell::new(SmallVec::new()),
             shader_storage_blocks: RefCell::new(SmallVec::new()),
         }
@@ -33,14 +34,13 @@ impl UniformsStorage {
     {
         let mut values = self.values.borrow_mut();
 
-        if values.len() <= location as usize {
-            for _ in (values.len() .. location as usize + 1) {
-                values.push(None);
-            }
-        }
-
         // TODO: don't assume that, instead use DSA if the program is not current
         assert!(ctxt.state.program == program);
+
+        // TODO: more optimized
+        if values.get(&location).is_none() {
+            values.insert(location, None);
+        }
 
         macro_rules! uniform(
             ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
@@ -69,7 +69,7 @@ impl UniformsStorage {
             )
         );
 
-        match (value, &mut values[location as usize]) {
+        match (value, values.get_mut(&location).unwrap()) {
             (&RawUniformValue::SignedInt(a), &mut Some(RawUniformValue::SignedInt(b))) if a == b => (),
             (&RawUniformValue::UnsignedInt(a), &mut Some(RawUniformValue::UnsignedInt(b))) if a == b => (),
             (&RawUniformValue::Float(a), &mut Some(RawUniformValue::Float(b))) if a == b => (),
