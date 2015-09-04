@@ -157,6 +157,10 @@ pub struct GlState {
     pub blend_func: (gl::types::GLenum, gl::types::GLenum,
         gl::types::GLenum, gl::types::GLenum),
 
+    /// The latest value passed to `glBlendColor`.
+    pub blend_color: (gl::types::GLclampf, gl::types::GLclampf,
+                      gl::types::GLclampf, gl::types::GLclampf),
+
     /// The latest value passed to `glDepthFunc`.
     pub depth_func: gl::types::GLenum,
 
@@ -412,6 +416,7 @@ impl Default for GlState {
             stencil_op_back: (gl::KEEP, gl::KEEP, gl::KEEP),
             blend_equation: (gl::FUNC_ADD, gl::FUNC_ADD),
             blend_func: (gl::ONE, gl::ZERO, gl::ONE, gl::ZERO),
+            blend_color: (0.0, 0.0, 0.0, 0.0),
             viewport: None,
             scissor: None,
             line_width: 1.0,

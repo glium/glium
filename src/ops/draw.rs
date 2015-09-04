@@ -632,6 +632,13 @@ fn sync_blending(ctxt: &mut context::CommandContext, blend: Blend) {
             ctxt.state.blend_func = (color_factor_src, color_factor_dst,
                 alpha_factor_src, alpha_factor_dst);
         }
+
+        // Update blend color.
+        if ctxt.state.blend_color != blend.constant_value {
+            let (r, g, b, a) = blend.constant_value;
+            unsafe { ctxt.gl.BlendColor(r, g, b, a); }
+            ctxt.state.blend_color = blend.constant_value;
+        }
     }
 }
 
