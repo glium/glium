@@ -21,7 +21,8 @@ use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
 
 use draw_parameters::DrawParameters;
-use draw_parameters::{Blend, BackfaceCullingMode};
+use draw_parameters::{Blend, BlendingFunction, BackfaceCullingMode,
+    LinearBlendingFactor};
 use draw_parameters::{DepthTest, DepthClamp, PolygonMode, StencilTest};
 use draw_parameters::{SamplesQueryParam, TransformFeedbackPrimitivesWrittenQuery};
 use draw_parameters::{PrimitivesGeneratedQuery, TimeElapsedQuery, ConditionalRendering};
@@ -567,7 +568,71 @@ fn sync_stencil(ctxt: &mut context::CommandContext, params: &DrawParameters) {
 }
 
 fn sync_blending(ctxt: &mut context::CommandContext, blend: Blend) {
+    #[inline(always)]
+    fn blend_eq(blending_function: BlendingFunction) -> gl::types::GLenum {
+        match blending_function {
+            BlendingFunction::AlwaysReplace |
+            BlendingFunction::Addition { .. } => gl::FUNC_ADD,
+            BlendingFunction::Min => gl::MIN,
+            BlendingFunction::Max => gl::MAX,
+            BlendingFunction::Subtraction { .. } => gl::FUNC_SUBTRACT,
+            BlendingFunction::ReverseSubtraction { .. } =>
+                gl::FUNC_REVERSE_SUBTRACT,
+        }
+    }
 
+    #[inline(always)]
+    fn blending_factors(blending_function: BlendingFunction) ->
+        Option<(LinearBlendingFactor, LinearBlendingFactor)> {
+        match blending_function {
+            BlendingFunction::AlwaysReplace |
+            BlendingFunction::Min |
+            BlendingFunction::Max => None,
+            BlendingFunction::Addition { source, destination } =>
+                Some((source, destination)),
+            BlendingFunction::Subtraction { source, destination } =>
+                Some((source, destination)),
+            BlendingFunction::ReverseSubtraction { source, destination } =>
+                Some((source, destination)),
+        }
+    }
+
+    if let (BlendingFunction::AlwaysReplace, BlendingFunction::AlwaysReplace) =
+        (blend.color, blend.alpha) {
+        // Both color and alpha always replace. This equals no blending.
+        if ctxt.state.enabled_blend {
+            unsafe { ctxt.gl.Disable(gl::BLEND); }
+            ctxt.state.enabled_blend = false;
+        }
+    } else {
+        if !ctxt.state.enabled_blend {
+            unsafe { ctxt.gl.Enable(gl::BLEND); }
+            ctxt.state.enabled_blend = true;
+        }
+        let (color_eq, alpha_eq) = (blend_eq(blend.color), blend_eq(blend.alpha));
+        if ctxt.state.blend_equation != (color_eq, alpha_eq) {
+            unsafe { ctxt.gl.BlendEquationSeparate(color_eq, alpha_eq); }
+            ctxt.state.blend_equation = (color_eq, alpha_eq);
+        }
+        // Map to dummy factors if the blending equation does not use the factors.
+        let (color_factor_src, color_factor_dst) = blending_factors(blend.color)
+            .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
+        let (alpha_factor_src, alpha_factor_dst) = blending_factors(blend.alpha)
+            .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
+        let color_factor_src = color_factor_src.to_glenum();
+        let color_factor_dst = color_factor_dst.to_glenum();
+        let alpha_factor_src = alpha_factor_src.to_glenum();
+        let alpha_factor_dst = alpha_factor_dst.to_glenum();
+        if ctxt.state.blend_func != (color_factor_src, color_factor_dst,
+            alpha_factor_src, alpha_factor_dst) {
+            unsafe {
+                ctxt.gl.BlendFuncSeparate(color_factor_src, color_factor_dst,
+                    alpha_factor_src, alpha_factor_dst);
+            }
+            ctxt.state.blend_func = (color_factor_src, color_factor_dst,
+                alpha_factor_src, alpha_factor_dst);
+        }
+    }
 }
 
 fn sync_color_mask(ctxt: &mut context::CommandContext, mask: (bool, bool, bool, bool)) {
