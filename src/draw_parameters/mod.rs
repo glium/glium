@@ -106,8 +106,8 @@ impl Blend {
                 destination: LinearBlendingFactor::OneMinusSourceAlpha,
             },
             alpha: BlendingFunction::Addition {
-                source: LinearBlendingFactor::One,
-                destination: LinearBlendingFactor::One
+                source: LinearBlendingFactor::SourceAlpha,
+                destination: LinearBlendingFactor::OneMinusSourceAlpha
             },
             constant_value: (1.0, 1.0, 1.0, 1.0)
         }

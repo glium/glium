@@ -155,7 +155,7 @@ pub struct GlState {
 
     /// The latest values passed to `glBlendFunc`.
     pub blend_func: (gl::types::GLenum, gl::types::GLenum,
-        gl::types::GLenum, gl::types::GLenum),
+                     gl::types::GLenum, gl::types::GLenum),
 
     /// The latest value passed to `glBlendColor`.
     pub blend_color: (gl::types::GLclampf, gl::types::GLclampf,

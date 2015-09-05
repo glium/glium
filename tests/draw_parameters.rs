@@ -670,10 +670,7 @@ macro_rules! blending_test {
             let params = glium::DrawParameters {
                 blend: glium::Blend {
                     color: $func,
-                    alpha: glium::BlendingFunction::Addition {
-                        source: glium::LinearBlendingFactor::One,
-                        destination: glium::LinearBlendingFactor::Zero
-                    },
+                    alpha: $func,
                     constant_value: (1.0, 1.0, 1.0, 1.0)
                 },
                 .. Default::default()
