@@ -109,7 +109,7 @@ impl Blend {
                 source: LinearBlendingFactor::SourceAlpha,
                 destination: LinearBlendingFactor::OneMinusSourceAlpha
             },
-            constant_value: (1.0, 1.0, 1.0, 1.0)
+            constant_value: (0.0, 0.0, 0.0, 0.0)
         }
     }
 }
