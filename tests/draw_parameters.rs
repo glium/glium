@@ -668,7 +668,11 @@ macro_rules! blending_test {
             let display = support::build_display();
 
             let params = glium::DrawParameters {
-                blending_function: Some($func),
+                blend: glium::Blend {
+                    color: $func,
+                    alpha: $func,
+                    constant_value: (1.0, 1.0, 1.0, 1.0)
+                },
                 .. Default::default()
             };
 

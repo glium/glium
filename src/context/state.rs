@@ -151,10 +151,15 @@ pub struct GlState {
     pub renderbuffer: gl::types::GLuint,
 
     /// The latest values passed to `glBlendEquation`.
-    pub blend_equation: gl::types::GLenum,
+    pub blend_equation: (gl::types::GLenum, gl::types::GLenum),
 
     /// The latest values passed to `glBlendFunc`.
-    pub blend_func: (gl::types::GLenum, gl::types::GLenum),
+    pub blend_func: (gl::types::GLenum, gl::types::GLenum,
+                     gl::types::GLenum, gl::types::GLenum),
+
+    /// The latest value passed to `glBlendColor`.
+    pub blend_color: (gl::types::GLclampf, gl::types::GLclampf,
+                      gl::types::GLclampf, gl::types::GLclampf),
 
     /// The latest value passed to `glDepthFunc`.
     pub depth_func: gl::types::GLenum,
@@ -409,8 +414,9 @@ impl Default for GlState {
             stencil_mask_back: 0xffffffff,
             stencil_op_front: (gl::KEEP, gl::KEEP, gl::KEEP),
             stencil_op_back: (gl::KEEP, gl::KEEP, gl::KEEP),
-            blend_equation: gl::FUNC_ADD,
-            blend_func: (gl::ONE, gl::ZERO),
+            blend_equation: (gl::FUNC_ADD, gl::FUNC_ADD),
+            blend_func: (gl::ONE, gl::ZERO, gl::ONE, gl::ZERO),
+            blend_color: (0.0, 0.0, 0.0, 0.0),
             viewport: None,
             scissor: None,
             line_width: 1.0,

@@ -43,7 +43,7 @@ fn main() {
         }
 
         implement_vertex!(Vertex, position, normal, texcoord);
-        
+
         glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-1.0, 0.0, -1.0, 1.0], normal: [0.0, 1.0, 0.0, 1.0], texcoord: [1.0, 0.0] },
@@ -65,7 +65,7 @@ fn main() {
         }
 
         implement_vertex!(Vertex, position, texcoord);
-        
+
         glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [0.0, 0.0, 0.0, 1.0], texcoord: [0.0, 0.0] },
@@ -108,7 +108,7 @@ fn main() {
         // fragment shader
         "
             #version 140
-            
+
             uniform sampler2D tex;
 
             smooth in vec4 frag_position;
@@ -153,7 +153,7 @@ fn main() {
         // fragment shader
         "
             #version 140
-            
+
             uniform sampler2D position_texture;
             uniform sampler2D normal_texture;
             uniform vec4 light_position;
@@ -180,7 +180,7 @@ fn main() {
                     );
                     attenuation_factor *= (1.0 - pow((light_distance / light_radius), 2.0));
                     diffuse *= attenuation_factor;
-                    
+
                 }
                 frag_output = vec4(light_color * diffuse, 1.0);
             }
@@ -333,10 +333,17 @@ fn main() {
         // lighting
         let draw_params = glium::DrawParameters {
             //depth_function: glium::DepthFunction::IfLessOrEqual,
-            blending_function: Some(glium::BlendingFunction::Addition{
-                source: glium::LinearBlendingFactor::One,
-                destination: glium::LinearBlendingFactor::One
-            }),
+            blend: glium::Blend {
+                color: glium::BlendingFunction::Addition {
+                    source: glium::LinearBlendingFactor::One,
+                    destination: glium::LinearBlendingFactor::One
+                },
+                alpha: glium::BlendingFunction::Addition {
+                    source: glium::LinearBlendingFactor::One,
+                    destination: glium::LinearBlendingFactor::One
+                },
+                constant_value: (1.0, 1.0, 1.0, 1.0)
+            },
             .. Default::default()
         };
         light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);

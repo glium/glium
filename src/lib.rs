@@ -104,7 +104,7 @@ extern crate smallvec;
 
 #[cfg(feature = "glutin")]
 pub use backend::glutin_backend::glutin;
-pub use draw_parameters::{BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
+pub use draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
 pub use draw_parameters::{Smooth};
 pub use index::IndexBuffer;
