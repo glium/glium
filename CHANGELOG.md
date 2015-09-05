@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Fix an OpenGL error when mapping a buffer with `map_read`.
+ - The blending function now uses a dedicated struct named `Blend`.
 
 ## Version 0.8.7 (2015-08-27)
 
