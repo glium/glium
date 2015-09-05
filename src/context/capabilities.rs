@@ -75,6 +75,18 @@ pub struct Capabilities {
 
     /// Maximum number of color attachment bind points.
     pub max_color_attachments: gl::types::GLint,
+
+    /// Maximum width of an empty framebuffer. `None` if not supported.
+    pub max_framebuffer_width: Option<gl::types::GLint>,
+
+    /// Maximum height of an empty framebuffer. `None` if not supported.
+    pub max_framebuffer_height: Option<gl::types::GLint>,
+
+    /// Maximum layers of an empty framebuffer. `None` if not supported.
+    pub max_framebuffer_layers: Option<gl::types::GLint>,
+
+    /// Maximum samples of an empty framebuffer. `None` if not supported.
+    pub max_framebuffer_samples: Option<gl::types::GLint>,
 }
 
 /// Defines what happens when you change the current context.
@@ -406,6 +418,58 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             } else {
                 // glium doesn't allow creating contexts that don't support FBOs
                 unreachable!()
+            }
+        },
+
+        max_framebuffer_width: {
+            if version >= &Version(Api::Gl, 4, 3) || version >= &Version(Api::GlEs, 3, 1) ||
+               extensions.gl_arb_framebuffer_no_attachments
+            {
+                let mut val = 0;
+                gl.GetIntegerv(gl::MAX_FRAMEBUFFER_WIDTH, &mut val);
+                Some(val)
+
+            } else {
+                None
+            }
+        },
+
+        max_framebuffer_height: {
+            if version >= &Version(Api::Gl, 4, 3) || version >= &Version(Api::GlEs, 3, 1) ||
+               extensions.gl_arb_framebuffer_no_attachments
+            {
+                let mut val = 0;
+                gl.GetIntegerv(gl::MAX_FRAMEBUFFER_HEIGHT, &mut val);
+                Some(val)
+
+            } else {
+                None
+            }
+        },
+
+        max_framebuffer_layers: {
+            if version >= &Version(Api::Gl, 4, 3) || version >= &Version(Api::GlEs, 3, 2) ||
+               extensions.gl_arb_framebuffer_no_attachments
+            {
+                let mut val = 0;
+                gl.GetIntegerv(gl::MAX_FRAMEBUFFER_LAYERS, &mut val);
+                Some(val)
+
+            } else {
+                None
+            }
+        },
+
+        max_framebuffer_samples: {
+            if version >= &Version(Api::Gl, 4, 3) || version >= &Version(Api::GlEs, 3, 1) ||
+               extensions.gl_arb_framebuffer_no_attachments
+            {
+                let mut val = 0;
+                gl.GetIntegerv(gl::MAX_FRAMEBUFFER_SAMPLES, &mut val);
+                Some(val)
+
+            } else {
+                None
             }
         },
     }

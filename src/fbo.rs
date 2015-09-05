@@ -91,6 +91,15 @@ pub enum FramebufferAttachments<'a> {
 
     /// Each attachment is a layer of images.
     Layered(FramebufferSpecificAttachments<LayeredAttachment<'a>>),
+
+    /// An empty framebuffer.
+    Empty {
+        width: u32,
+        height: u32,
+        layers: Option<u32>,
+        samples: Option<u32>,
+        fixed_samples: bool,
+    },
 }
 
 /// Describes a single non-layered framebuffer attachment.
@@ -140,17 +149,63 @@ impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
     #[inline]
-    pub fn validate<C>(self, context: &C) -> Result<ValidatedAttachments<'a>, ValidationError> where C: CapabilitiesSource {
+    pub fn validate<C>(self, context: &C) -> Result<ValidatedAttachments<'a>, ValidationError>
+                       where C: CapabilitiesSource
+    {
         match self {
             FramebufferAttachments::Regular(a) => FramebufferAttachments::validate_regular(context, a),
             FramebufferAttachments::Layered(a) => FramebufferAttachments::validate_layered(context, a),
+
+            FramebufferAttachments::Empty { width, height, layers, samples, fixed_samples } => {
+                if context.get_version() >= &Version(Api::Gl, 4, 3) ||
+                   context.get_version() >= &Version(Api::GlEs, 3, 1) ||
+                   context.get_extensions().gl_arb_framebuffer_no_attachments
+                {
+                    assert!(width >= 1);
+                    assert!(height >= 1);
+                    if let Some(layers) = layers { assert!(layers >= 1); }
+                    if let Some(samples) = samples { assert!(samples >= 1); }
+
+                    if width > context.get_capabilities().max_framebuffer_width.unwrap_or(0) as u32 ||
+                       height > context.get_capabilities().max_framebuffer_height.unwrap_or(0) as u32 ||
+                       samples.unwrap_or(0) > context.get_capabilities()
+                                                     .max_framebuffer_samples.unwrap_or(0) as u32 ||
+                       layers.unwrap_or(0) > context.get_capabilities()
+                                                    .max_framebuffer_layers.unwrap_or(0) as u32
+                    {
+                        return Err(ValidationError::EmptyFramebufferUnsupportedDimensions);
+                    }
+
+                    Ok(ValidatedAttachments {
+                        raw: RawAttachments {
+                            color: Vec::new(),
+                            depth: None,
+                            stencil: None,
+                            depth_stencil: None,
+                            default_width: Some(width),
+                            default_height: Some(height),
+                            default_layers: if context.get_version() <= &Version(Api::GlEs, 3, 1) { None } else { Some(layers.unwrap_or(0)) },
+                            default_samples: Some(samples.unwrap_or(0)),
+                            default_samples_fixed: Some(fixed_samples),
+                        },
+                        dimensions: (width, height),
+                        layers: layers,
+                        depth_buffer_bits: None,
+                        stencil_buffer_bits: None,
+                        marker: PhantomData,
+                    })
+
+                } else {
+                    Err(ValidationError::EmptyFramebufferObjectsNotSupported)
+                }
+            },
         }
     }
 
     fn validate_layered<C>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
-                        FramebufferSpecificAttachments<LayeredAttachment<'a>>)
-                        -> Result<ValidatedAttachments<'a>, ValidationError>
-                        where C: CapabilitiesSource
+                           FramebufferSpecificAttachments<LayeredAttachment<'a>>)
+                           -> Result<ValidatedAttachments<'a>, ValidationError>
+                           where C: CapabilitiesSource
     {
         // TODO: make sure that all attachments are layered
 
@@ -218,6 +273,11 @@ impl<'a> FramebufferAttachments<'a> {
             depth: None,
             stencil: None,
             depth_stencil: None,
+            default_width: None,
+            default_height: None,
+            default_layers: None,
+            default_samples: None,
+            default_samples_fixed: None,
         };
 
         let mut dimensions = None;
@@ -394,6 +454,11 @@ impl<'a> FramebufferAttachments<'a> {
             depth: None,
             stencil: None,
             depth_stencil: None,
+            default_width: None,
+            default_height: None,
+            default_layers: None,
+            default_samples: None,
+            default_samples_fixed: None,
         };
 
         let mut dimensions = None;
@@ -489,7 +554,11 @@ impl<'a> ValidatedAttachments<'a> {
 /// An error that can happen while validating attachments.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ValidationError {
+    /// You requested an empty framebuffer object, but they are not supported.
     EmptyFramebufferObjectsNotSupported,
+
+    /// The requested characteristics of an empty framebuffer object are out of range.
+    EmptyFramebufferUnsupportedDimensions,
 
     /// The backend doesn't support attachments with various dimensions.
     ///
@@ -518,6 +587,13 @@ struct RawAttachments {
     depth: Option<RawAttachment>,
     stencil: Option<RawAttachment>,
     depth_stencil: Option<RawAttachment>,
+
+    // values to set through `glFramebufferParameteri`, they are `None` if they should not be set
+    default_width: Option<u32>,
+    default_height: Option<u32>,
+    default_layers: Option<u32>,
+    default_samples: Option<u32>,
+    default_samples_fixed: Option<bool>,
 }
 
 /// Single attachment of `RawAttachments`.
@@ -769,6 +845,74 @@ impl FrameBufferObject {
 
             id
         };
+
+        // framebuffer parameters
+        // TODO: DSA
+        if let Some(width) = attachments.default_width {
+            unsafe { bind_framebuffer(&mut ctxt, id, true, false) };       // TODO: remove once DSA is used
+            if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+               ctxt.extensions.gl_arb_framebuffer_no_attachments
+            {
+                unsafe {
+                    ctxt.gl.FramebufferParameteri(gl::DRAW_FRAMEBUFFER, gl::FRAMEBUFFER_DEFAULT_WIDTH,
+                                                  width as gl::types::GLint);
+                }
+            } else {
+                unreachable!();
+            }
+        }
+        if let Some(height) = attachments.default_height {
+            unsafe { bind_framebuffer(&mut ctxt, id, true, false) };       // TODO: remove once DSA is used
+            if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+               ctxt.extensions.gl_arb_framebuffer_no_attachments
+            {
+                unsafe {
+                    ctxt.gl.FramebufferParameteri(gl::DRAW_FRAMEBUFFER, gl::FRAMEBUFFER_DEFAULT_HEIGHT,
+                                                  height as gl::types::GLint);
+                }
+            } else {
+                unreachable!();
+            }
+        }
+        if let Some(layers) = attachments.default_layers {
+            unsafe { bind_framebuffer(&mut ctxt, id, true, false) };       // TODO: remove once DSA is used
+            if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 2) ||
+               ctxt.extensions.gl_arb_framebuffer_no_attachments
+            {
+                unsafe {
+                    ctxt.gl.FramebufferParameteri(gl::DRAW_FRAMEBUFFER, gl::FRAMEBUFFER_DEFAULT_LAYERS,
+                                                  layers as gl::types::GLint);
+                }
+            } else {
+                unreachable!();
+            }
+        }
+        if let Some(samples) = attachments.default_samples {
+            unsafe { bind_framebuffer(&mut ctxt, id, true, false) };       // TODO: remove once DSA is used
+            if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+               ctxt.extensions.gl_arb_framebuffer_no_attachments
+            {
+                unsafe {
+                    ctxt.gl.FramebufferParameteri(gl::DRAW_FRAMEBUFFER, gl::FRAMEBUFFER_DEFAULT_SAMPLES,
+                                                  samples as gl::types::GLint);
+                }
+            } else {
+                unreachable!();
+            }
+        }
+        if let Some(samples_fixed) = attachments.default_samples_fixed {
+            unsafe { bind_framebuffer(&mut ctxt, id, true, false) };       // TODO: remove once DSA is used
+            if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+               ctxt.extensions.gl_arb_framebuffer_no_attachments
+            {
+                unsafe {
+                    ctxt.gl.FramebufferParameteri(gl::DRAW_FRAMEBUFFER, gl::FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS,
+                                                  if samples_fixed { 1 } else { 0 });
+                }
+            } else {
+                unreachable!();
+            }
+        }
 
         // attaching the attachments, and building the list of enums to pass to `glDrawBuffers`
         let mut raw_attachments = Vec::with_capacity(attachments.color.len());
