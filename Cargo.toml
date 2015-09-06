@@ -44,6 +44,7 @@ version = "0.3.9"
 optional = true
 
 [dependencies]
+backtrace = "0.1.5"
 lazy_static = "0.1"
 gl_common = "0.0.4"
 libc = "0.1"
