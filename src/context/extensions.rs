@@ -119,6 +119,7 @@ extensions! {
     "GL_ATI_meminfo" => gl_ati_meminfo,
     "GL_ATI_draw_buffers" => gl_ati_draw_buffers,
     "GL_ATI_texture_float" => gl_ati_texture_float,
+    "GL_EXT_blend_minmax" => gl_ext_blend_minmax,
     "GL_EXT_buffer_storage" => gl_ext_buffer_storage,
     "GL_EXT_debug_marker" => gl_ext_debug_marker,
     "GL_EXT_direct_state_access" => gl_ext_direct_state_access,
