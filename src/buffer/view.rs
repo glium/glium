@@ -92,7 +92,15 @@ impl<T: ?Sized> Buffer<T> where T: Content {
 
     /// Uploads some data in this buffer.
     ///
-    /// ## Panic
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+    ///   memcpies the data to the mapping.
+    /// - For immutable buffers, creates a temporary buffer that contains the data then calls
+    ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
+    /// - For other types, calls `glBufferSubData`.
+    ///
+    /// # Panic
     ///
     /// Panics if the length of `data` is different from the length of this buffer.
     pub fn write(&self, data: &T) {
@@ -109,6 +117,13 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// the first half of the buffer, you invalidate the whole buffer then write the first half.
     ///
     /// This operation is a no-op if the backend doesn't support it.
+    ///
+    /// # Implementation
+    ///
+    /// Calls `glInvalidateBufferData` if supported. Otherwise, calls `glBufferData` with a null
+    /// pointer for data. If `glBufferStorage` has been used to create the buffer and
+    /// `glInvalidateBufferData` is not supported, does nothing.
+    ///
     #[inline]
     pub fn invalidate(&self) {
         self.alloc.as_ref().unwrap().invalidate(0, self.get_size());
@@ -125,6 +140,16 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Maps the buffer in memory for both reading and writing.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
+    ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
+    ///   to the real buffer.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
     pub fn map(&mut self) -> Mapping<T> {
         self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
                                           0 .. self.get_size());
@@ -133,6 +158,15 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Maps the buffer in memory for reading.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
+    ///   maps it.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
     pub fn map_read(&mut self) -> ReadMapping<T> {
         self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
                                           0 .. self.get_size());
@@ -141,6 +175,16 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Maps the buffer in memory for writing only.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer and
+    ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
+    ///   to the real buffer.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
     pub fn map_write(&mut self) -> WriteMapping<T> {
         self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
                                           0 .. self.get_size());
@@ -153,6 +197,7 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// # Panic
     ///
     /// Panics if `T` is unsized and the other buffer is too small.
+    ///
     pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
         let alloc = self.alloc.as_ref().unwrap();
 
@@ -172,6 +217,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     ///
     /// # Example
     ///
@@ -202,6 +250,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Same as `slice_custom` but returns a mutable slice.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> BufferMutSlice<R>
                                                  where F: for<'r> FnOnce(&'r T) -> &'r R,
@@ -211,6 +262,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Builds a slice containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn as_slice(&self) -> BufferSlice<T> {
         BufferSlice {
@@ -223,6 +277,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Builds a slice containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn as_mut_slice(&mut self) -> BufferMutSlice<T> {
         let size = self.get_size();
@@ -237,6 +294,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     pub fn as_slice_any(&self) -> BufferAnySlice {
         let size = self.get_size();
 
@@ -288,12 +348,18 @@ impl<T> Buffer<[T]> where [T]: Content, T: Copy {
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn slice(&self, range: Range<usize>) -> Option<BufferSlice<[T]>> {
         self.as_slice().slice(range)
     }
 
     /// Builds a slice of this subbuffer. Returns `None` if out of range.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn slice_mut(&mut self, range: Range<usize>) -> Option<BufferMutSlice<[T]>> {
         self.as_mut_slice().slice(range)
@@ -432,7 +498,15 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
 
     /// Uploads some data in this buffer.
     ///
-    /// ## Panic
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+    ///   memcpies the data to the mapping.
+    /// - For immutable buffers, creates a temporary buffer that contains the data then calls
+    ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
+    /// - For other types, calls `glBufferSubData`.
+    ///
+    /// # Panic
     ///
     /// Panics if the length of `data` is different from the length of this buffer.
     pub fn write(&self, data: &T) {
@@ -446,6 +520,11 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
     /// This operation is a no-op if the backend doesn't support it.
+    ///
+    /// # Implementation
+    ///
+    /// Calls `glInvalidateBufferSubData` if supported.
+    ///
     #[inline]
     pub fn invalidate(&self) {
         self.alloc.invalidate(self.bytes_start, self.get_size());
@@ -484,6 +563,9 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     }
 
     /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     ///
     /// # Example
     ///
@@ -528,6 +610,9 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn as_slice_any(&self) -> BufferAnySlice<'a> {
         BufferAnySlice {
@@ -548,6 +633,9 @@ impl<'a, T> BufferSlice<'a, [T]> where [T]: Content + 'a {
     }
 
     /// Builds a subslice of this slice. Returns `None` if out of range.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn slice(&self, range: Range<usize>) -> Option<BufferSlice<'a, [T]>> {
         if range.start > self.len() || range.end > self.len() {
@@ -685,6 +773,16 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     }
 
     /// Maps the buffer in memory for both reading and writing.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
+    ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
+    ///   to the real buffer.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
     #[inline]
     pub fn map(self) -> Mapping<'a, T> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
@@ -693,6 +791,15 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     }
 
     /// Maps the buffer in memory for reading.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
+    ///   maps it.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
     #[inline]
     pub fn map_read(self) -> ReadMapping<'a, T> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
@@ -701,6 +808,15 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     }
 
     /// Maps the buffer in memory for writing only.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer and maps it. When the mapping object
+    ///   is destroyed, copies the content of the temporary buffer to the real buffer.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
     #[inline]
     pub fn map_write(self) -> WriteMapping<'a, T> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
@@ -710,7 +826,15 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
 
     /// Uploads some data in this buffer.
     ///
-    /// ## Panic
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+    ///   memcpies the data to the mapping.
+    /// - For immutable buffers, creates a temporary buffer that contains the data then calls
+    ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
+    /// - For other types, calls `glBufferSubData`.
+    ///
+    /// # Panic
     ///
     /// Panics if the length of `data` is different from the length of this buffer.
     #[inline]
@@ -723,6 +847,11 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
     /// This operation is a no-op if the backend doesn't support it.
+    ///
+    /// # Implementation
+    ///
+    /// Calls `glInvalidateBufferSubData` if supported.
+    ///
     #[inline]
     pub fn invalidate(&self) {
         self.alloc.invalidate(self.bytes_start, self.get_size());
@@ -759,6 +888,9 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     }
 
     /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     ///
     /// # Example
     ///
@@ -803,6 +935,9 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     }
 
     /// Builds a slice-any containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn as_slice_any(self) -> BufferAnySlice<'a> {
         BufferAnySlice {
@@ -823,6 +958,9 @@ impl<'a, T> BufferMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
     }
 
     /// Builds a subslice of this slice. Returns `None` if out of range.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
     #[inline]
     pub fn slice(self, range: Range<usize>) -> Option<BufferMutSlice<'a, [T]>> {
         if range.start > self.len() || range.end > self.len() {
