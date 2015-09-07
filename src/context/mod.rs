@@ -2,6 +2,7 @@
 
 use gl;
 use libc;
+use backtrace;
 
 use std::env;
 use std::mem;
@@ -740,9 +741,36 @@ fn init_debug_callback(context: &Rc<Context>) {
                     String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
                 };
 
-                panic!("Debug message with high or medium severity: `{}`.\n\
-                        Please report this error: https://github.com/tomaka/glium/issues",
+                print!("Debug message with high or medium severity: `{}`.\n\
+                        Please report this error: https://github.com/tomaka/glium/issues\n\
+                        Backtrace:",
                         message);
+
+                let mut frame_id = 1;
+                backtrace::trace(&mut |frame| {
+                    let ip = frame.ip();
+                    print!("\n{:>#4} - {:p}", frame_id, ip);
+
+                    backtrace::resolve(ip, &mut |symbol| {
+                        let name = String::from_utf8(symbol.name()
+                                                           .unwrap_or(&b"<unknown>"[..])
+                                                           .to_owned())
+                                        .unwrap_or_else(|_| "<not-utf8>".to_owned());
+                        let filename = String::from_utf8(symbol.filename()
+                                                               .unwrap_or(&b"<unknown>"[..])
+                                                               .to_owned())
+                                            .unwrap_or_else(|_| "<not-utf8>".to_owned());
+                        let line = symbol.lineno().map(|l| l.to_string())
+                                                  .unwrap_or_else(|| "??".to_owned());
+
+                        print!("\n         {} at {}:{}", name, filename, line);
+                    });
+
+                    frame_id += 1;
+                    true
+                });
+
+                println!("\n");
             }
         }
     }
