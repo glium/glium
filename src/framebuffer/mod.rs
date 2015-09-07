@@ -107,7 +107,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
     #[inline]
-    pub fn new<F, C>(facade: &F, color: C) -> SimpleFrameBuffer<'a>
+    pub fn new<F, C>(facade: &F, color: C) -> Result<SimpleFrameBuffer<'a>, ValidationError>
                      where C: ToColorAttachment<'a>, F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None, None)
@@ -117,7 +117,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// buffer, but no stencil buffer.
     #[inline]
     pub fn with_depth_buffer<F, C, D>(facade: &F, color: C, depth: D)
-                                      -> SimpleFrameBuffer<'a>
+                                      -> Result<SimpleFrameBuffer<'a>, ValidationError>
                                       where C: ToColorAttachment<'a>,
                                             D: ToDepthAttachment<'a>, F: Facade
     {
@@ -129,7 +129,9 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// buffer, and a stencil buffer.
     #[inline]
     pub fn with_depth_and_stencil_buffer<F, C, D, S>(facade: &F, color: C, depth: D,
-                                                     stencil: S) -> SimpleFrameBuffer<'a>
+                                                     stencil: S)
+                                                     -> Result<SimpleFrameBuffer<'a>,
+                                                               ValidationError>
                                                      where C: ToColorAttachment<'a>,
                                                            D: ToDepthAttachment<'a>,
                                                            S: ToStencilAttachment<'a>, F: Facade
@@ -143,7 +145,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// buffer, but no depth buffer.
     #[inline]
     pub fn with_stencil_buffer<F, C, S>(facade: &F, color: C, stencil: S)
-                                        -> SimpleFrameBuffer<'a>
+                                        -> Result<SimpleFrameBuffer<'a>, ValidationError>
                                         where C: ToColorAttachment<'a>, S: ToStencilAttachment<'a>,
                                               F: Facade
     {
@@ -154,7 +156,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
     #[inline]
     pub fn with_depth_stencil_buffer<F, C, D>(facade: &F, color: C, depthstencil: D)
-                                              -> SimpleFrameBuffer<'a>
+                                              -> Result<SimpleFrameBuffer<'a>, ValidationError>
                                               where C: ToColorAttachment<'a>,
                                                     D: ToDepthStencilAttachment<'a>, F: Facade
     {
@@ -166,7 +168,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     fn new_impl<F>(facade: &F, color: ColorAttachment<'a>, depth: Option<DepthAttachment<'a>>,
                    stencil: Option<StencilAttachment<'a>>,
                    depthstencil: Option<DepthStencilAttachment<'a>>)
-                   -> SimpleFrameBuffer<'a> where F: Facade
+                   -> Result<SimpleFrameBuffer<'a>, ValidationError> where F: Facade
     {
         let color = match color {
             ColorAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
@@ -203,12 +205,12 @@ impl<'a> SimpleFrameBuffer<'a> {
             }
         });
 
-        let attachments = attachments.validate(facade).unwrap();
+        let attachments = try!(attachments.validate(facade));
 
-        SimpleFrameBuffer {
+        Ok(SimpleFrameBuffer {
             context: facade.get_context().clone(),
             attachments: attachments,
-        }
+        })
     }
 }
 
@@ -321,7 +323,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
     pub fn new<F>(facade: &F, color_attachments: &[(&str, &'a Texture2d)])
-                  -> MultiOutputFrameBuffer<'a> where F: Facade
+                  -> Result<MultiOutputFrameBuffer<'a>, ValidationError> where F: Facade
     {
         MultiOutputFrameBuffer::new_impl(facade, color_attachments,
                                          None::<&DepthRenderBuffer>,
@@ -335,7 +337,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
     pub fn with_depth_buffer<F, D>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
-                                   depth: D) -> MultiOutputFrameBuffer<'a>
+                                   depth: D) -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
                                    where D: ToDepthAttachment<'a>, F: Facade
     {
         MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
@@ -344,7 +346,8 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
     fn new_impl<F, D, S>(facade: &F, color: &[(&str, &'a Texture2d)],
                          depth: Option<D>, stencil: Option<S>)
-                         -> MultiOutputFrameBuffer<'a> where D: ToDepthAttachment<'a>, F: Facade
+                         -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+                         where D: ToDepthAttachment<'a>, F: Facade
     {
         let color = color.iter().map(|&(name, tex)| {
             let atch = tex.to_color_attachment();
@@ -379,7 +382,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });*/       // TODO: 
 
-        let example_attachments = fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
+        let example_attachments = try!(fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: example_color,
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
                 fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
@@ -392,15 +395,15 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             } else {
                 fbo::DepthStencilAttachments::None
             }
-        }).validate(facade).unwrap();
+        }).validate(facade));
 
-        MultiOutputFrameBuffer {
+        Ok(MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
             example_attachments: example_attachments,
             color_attachments: color,
             depth_attachment: depth,
             stencil_attachment: stencil,
-        }
+        })
     }
 
     fn build_attachments(&self, program: &Program) -> fbo::ValidatedAttachments {

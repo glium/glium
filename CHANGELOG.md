@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - `SimpleFrameBuffer` and `MultiOutputFrameBuffer`'s constructors now return a `Result`.
  - Add support for empty framebuffers with the `EmptyFrameBuffer` type.
  - Fix an OpenGL error when mapping a buffer with `map_read`.
  - The blending function now uses a dedicated struct named `Blend`.
