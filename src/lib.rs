@@ -866,6 +866,9 @@ pub enum DrawError {
 
     /// Depth clamping isn't supported by the backend.
     DepthClampNotSupported,
+
+    /// One of the blending parameters is not supported by the backend.
+    BlendingParameterNotSupported,
 }
 
 impl std::fmt::Display for DrawError {
@@ -927,6 +930,8 @@ impl std::fmt::Display for DrawError {
                                                                       the backend."),
             &DrawError::DepthClampNotSupported => write!(fmt, "The depth clamp mode is not \
                                                                supported by the backend."),
+            &DrawError::BlendingParameterNotSupported => write!(fmt, "One the blending parameters is not \
+                                                                      supported by the backend."),
         }
     }
 }
