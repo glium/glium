@@ -29,7 +29,7 @@ In a real application, you will likely manage a `Vec<ResidentTexture>`.
 You can then use a `TextureHandle` as if it was a pointer to a texture. A `TextureHandle` can be
 built from a `&ResidentTexture` and can't outlive it.
 
-```ignore       // TODO: doctest ICEs on Rust 1.1 (but not on nightly, so this can be `no_run` eventually)
+```no_run
 #[macro_use]
 extern crate glium;
 
