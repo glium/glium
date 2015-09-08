@@ -165,8 +165,8 @@ macro_rules! implement_buffer_content {
                 type Owned = Box<$struct_name<$($gs)*>>;
 
                 #[inline]
-                fn read<F, E>(size: usize, f: F) -> Result<Box<$struct_name<$($gs)*>>, E>
-                              where F: FnOnce(&mut $struct_name<$($gs)*>) -> Result<(), E>
+                fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
+                              where F: FnOnce(&mut $struct_name<$($gs)*>) -> ::std::result::Result<(), E>
                 {
                     use std::mem;
 
@@ -275,7 +275,7 @@ macro_rules! implement_uniform_block {
         implement_uniform_block! { __as_item
             impl<$($gs)*> $crate::uniforms::UniformBlock for $struct_name<$($gs)*> {
                 fn matches(layout: &$crate::program::BlockLayout, base_offset: usize)
-                           -> Result<(), $crate::uniforms::LayoutMismatchError>
+                           -> ::std::result::Result<(), $crate::uniforms::LayoutMismatchError>
                 {
                     use std::mem;
                     use $crate::program::BlockLayout;
@@ -293,7 +293,7 @@ macro_rules! implement_uniform_block {
 
                         fn matches_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T,
                             layout: &$crate::program::BlockLayout, base_offset: usize)
-                            -> Result<(), $crate::uniforms::LayoutMismatchError>
+                            -> ::std::result::Result<(), $crate::uniforms::LayoutMismatchError>
                         {
                             <T as $crate::uniforms::UniformBlock>::matches(layout, base_offset)
                         }
