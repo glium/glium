@@ -20,8 +20,10 @@ fn query_sequence() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     for _ in (0 .. 3) {
-        let params = glium::DrawParameters::new(&display)
-                        .with_samples_passed_query(&query);
+        let params = glium::DrawParameters {
+            samples_passed_query: Some((&query).into()),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -48,8 +50,10 @@ fn samples_passed() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_samples_passed_query(&query);
+        let params = glium::DrawParameters {
+            samples_passed_query: Some((&query).into()),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -76,8 +80,10 @@ fn any_samples_passed() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_samples_passed_query(&query);
+        let params = glium::DrawParameters {
+            samples_passed_query: Some((&query).into()),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -106,8 +112,10 @@ fn any_samples_passed_conservative() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_samples_passed_query(&query);
+        let params = glium::DrawParameters {
+            samples_passed_query: Some((&query).into()),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -136,8 +144,10 @@ fn time_elapsed() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_time_elapsed_query(&query);
+        let params = glium::DrawParameters {
+            time_elapsed_query: Some(&query),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -165,8 +175,10 @@ fn primitives_generated() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_primitives_generated_query(&query);
+        let params = glium::DrawParameters {
+            primitives_generated_query: Some(&query),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -198,8 +210,14 @@ fn conditional_render_nodraw() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_conditional_rendering(&query, true, false);
+        let params = glium::DrawParameters {
+            condition: Some(glium::draw_parameters::ConditionalRendering {
+                query: (&query).into(),
+                wait: true,
+                per_region: false,
+            }),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();
@@ -234,9 +252,15 @@ fn conditional_render_simultaneous_query() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    let params = glium::DrawParameters::new(&display)
-                    .with_samples_passed_query(&query)
-                    .with_conditional_rendering(&query, true, false);
+    let params = glium::DrawParameters {
+        samples_passed_query: Some((&query).into()),
+        condition: Some(glium::draw_parameters::ConditionalRendering {
+            query: (&query).into(),
+            wait: true,
+            per_region: false,
+        }),
+        .. Default::default()
+    };
 
     let res = texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
                                         &params);
@@ -264,8 +288,10 @@ fn query_to_buffer() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
     {
-        let params = glium::DrawParameters::new(&display)
-                        .with_samples_passed_query(&query);
+        let params = glium::DrawParameters {
+            samples_passed_query: Some((&query).into()),
+            .. Default::default()
+        };
 
         texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
                .unwrap();

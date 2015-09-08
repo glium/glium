@@ -6,6 +6,7 @@
  - Fix an OpenGL error when mapping a buffer with `map_read`.
  - The blending function now uses a dedicated struct named `Blend`.
  - Glium no longer panics in case of OpenGL error. It prints a message with backtrace on stdout instead.
+ - Removed the `DrawParametersBuilder` struct.
 
 ## Version 0.8.7 (2015-08-27)
 
