@@ -13,7 +13,7 @@ fn no_depth_buffer_depth_test() {
     let texture = glium::texture::Texture2d::empty_with_format(&display,
                             glium::texture::UncompressedFloatFormat::U8U8U8U8, 
                             glium::texture::MipmapsOption::NoMipmap, 128, 128).unwrap();
-    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
 
     let parameters = glium::DrawParameters {
         depth_test: glium::DepthTest::IfLess,
@@ -38,7 +38,7 @@ fn no_depth_buffer_depth_write() {
     let texture = glium::texture::Texture2d::empty_with_format(&display,
                             glium::texture::UncompressedFloatFormat::U8U8U8U8,
                                             glium::texture::MipmapsOption::NoMipmap, 128, 128).unwrap();
-    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
 
     let parameters = glium::DrawParameters {
         depth_write: true,
@@ -64,7 +64,7 @@ fn simple_dimensions() {
                                             glium::texture::MipmapsOption::NoMipmap,
                                               128, 128).unwrap();
 
-    let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+    let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
     assert_eq!(framebuffer.get_dimensions(), (128, 128));
 
     display.assert_no_error(None);
@@ -80,7 +80,7 @@ fn simple_render_to_texture() {
                                             glium::texture::MipmapsOption::NoMipmap,
                                               128, 128).unwrap();
 
-    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
+    let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
@@ -154,7 +154,7 @@ fn depth_texture2d() {
 
     // drawing with the `IfLess` depth test
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display,
-                                                                                   &color, &depth);
+                                                                                   &color, &depth).unwrap();
     let params = glium::DrawParameters {
         depth_test: glium::DepthTest::IfLess,
         .. Default::default()
@@ -220,7 +220,7 @@ fn multioutput() {
 
     // building the framebuffer
     let mut framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display,
-                                             &[("color1", &color1), ("color2", &color2)]);
+                                             &[("color1", &color1), ("color2", &color2)]).unwrap();
 
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
                      &Default::default()).unwrap();
@@ -255,7 +255,7 @@ fn array_level() {
     };
 
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display,
-                                                          texture.main_level().layer(2).unwrap());
+                                                          texture.main_level().layer(2).unwrap()).unwrap();
     assert_eq!(framebuffer.get_dimensions(), (128, 128));
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -283,7 +283,7 @@ fn cubemap_layer() {
     };
 
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display,
-                    texture.main_level().first_layer().image(glium::texture::CubeLayer::PositiveY));
+                    texture.main_level().first_layer().image(glium::texture::CubeLayer::PositiveY)).unwrap();
     assert_eq!(framebuffer.get_dimensions(), (128, 128));
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -311,7 +311,7 @@ fn multi_color_attachments_maximum() {
 
     let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} ).collect::<Vec<_>>();
 
-    let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]);
+    let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]).unwrap();
 }
 
 #[test]

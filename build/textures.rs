@@ -829,7 +829,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 #[inline]
                 pub fn as_surface<'a>(&'a self) -> framebuffer::SimpleFrameBuffer<'a> {{
-                    framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self)
+                    framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self).unwrap()
                 }}
             ")).unwrap();
     }

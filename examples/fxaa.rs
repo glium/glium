@@ -200,7 +200,7 @@ mod fxaa {
         let target_depth = target_depth.as_ref().unwrap();
 
         let output = draw(&mut SimpleFrameBuffer::with_depth_buffer(&system.context, target_color,
-                                                                                     target_depth));
+                                                                                     target_depth).unwrap());
 
         let uniforms = uniform! {
             tex: &*target_color,
