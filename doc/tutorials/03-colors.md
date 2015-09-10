@@ -132,7 +132,7 @@ Since the texture is a uniform, we have to pass a reference to it when drawing i
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
             [0.0, 0.0, 1.0, 0.0],
-            [ t , 0.0, 0.0, 1.0],
+            [ t , 0.0, 0.0, 1.0f32],
         ],
         tex: &texture,
     };
@@ -222,7 +222,7 @@ Here is the final code of our `src/main.rs` file:
                     [1.0, 0.0, 0.0, 0.0],
                     [0.0, 1.0, 0.0, 0.0],
                     [0.0, 0.0, 1.0, 0.0],
-                    [ t , 0.0, 0.0, 1.0],
+                    [ t , 0.0, 0.0, 1.0f32],
                 ],
                 tex: &texture,
             };
