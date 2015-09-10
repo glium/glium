@@ -144,7 +144,7 @@ We also need to pass the matrix when calling the `draw` function:
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
             [0.0, 0.0, 1.0, 0.0],
-            [ t , 0.0, 0.0, 1.0],
+            [ t , 0.0, 0.0, 1.0f32],
         ]
     };
 
@@ -158,7 +158,7 @@ You should see exactly the same thing as previously, but what we now have is muc
             [ t.cos(), t.sin(), 0.0, 0.0],
             [-t.sin(), t.cos(), 0.0, 0.0],
             [0.0, 0.0, 1.0, 0.0],
-            [0.0, 0.0, 0.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0f32],
         ]
     };
 
@@ -231,7 +231,7 @@ Here is the final code of our `src/main.rs` file:
                     [1.0, 0.0, 0.0, 0.0],
                     [0.0, 1.0, 0.0, 0.0],
                     [0.0, 0.0, 1.0, 0.0],
-                    [ t , 0.0, 0.0, 1.0],
+                    [ t , 0.0, 0.0, 1.0f32],
                 ]
             };
 
