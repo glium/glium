@@ -17,7 +17,6 @@ Its objectives:
 """
 keywords = ["opengl", "gamedev"]
 documentation = "http://tomaka.github.io/glium/glium/index.html"
-homepage = "http://tomaka.github.io/glium"
 repository = "https://github.com/tomaka/glium"
 license = "Apache-2.0"
 build = "build/main.rs"
