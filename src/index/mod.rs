@@ -102,31 +102,90 @@ impl<'a> IndicesSource<'a> {
 }
 
 /// List of available primitives.
+///
+/// See [this page for a visual representation of each primitive
+/// type](https://msdn.microsoft.com/en-us/library/windows/desktop/bb205124%28v=vs.85%29.aspx).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
-    ///
+    /// Each vertex is an invidiual point.
     Points,
-    ///
+
+    /// Vertices are grouped by chunks of two vertices. Each chunk represents a line.
     LinesList,
+
+    /// Vertices are grouped by chunks of four vertices. The second and third vertices of each
+    /// chunk represents the line.
     ///
+    /// Adjacency information doesn't do anything per-se, but is passed to the geometry shader if
+    /// there is any.
+    /// The first vertex represents the vertex adjacent to the second vertex. The fourth vertex
+    /// represents the vertex adjacent to the third vertex.
     LinesListAdjacency,
+
+    /// Each vertex (except the last one) forms a line with the next vertex.
     ///
+    /// For example vertices 0 and 1 form a line, vertices 1 and 2 form a line, vertices 2 and 3
+    /// form a line, etc.
     LineStrip,
+
+    /// Similar to `LineStrip`, but with an additional vertex at the beginning and at the end
+    /// that represent the vertices adjacent to the first and last ones.
     ///
+    /// Adjacency information doesn't do anything per-se, but is passed to the geometry shader if
+    /// there is any.
     LineStripAdjacency,
-    ///
+
+    /// Each vertex forms a line with the next vertex. The last vertex form a line with the first
+    /// one.
     LineLoop,
+
+    /// Vertices are grouped by chunks of three vertices. Each chunk represents a triangle.
     ///
+    /// The order of the vertices is important, as it determines whether the triangle will be
+    /// clockwise or counter-clockwise. See `BackfaceCulling` for more infos.
     TrianglesList,
+
+    /// Vertices are grouped by chunks of six vertices. The first, third and fifth vertices
+    /// represent a triangle.
     ///
+    /// The order of the vertices is important, as it determines whether the triangle will be
+    /// clockwise or counter-clockwise. See `BackfaceCulling` for more infos.
+    ///
+    /// Adjacency information doesn't do anything per-se, but is passed to the geometry shader if
+    /// there is any.
+    /// The second vertex represents the vertex adjacent to the first and third vertices. The
+    /// fourth vertex represents the vertex adjacent to the third and fifth vertices. The sixth
+    /// vertex represents the vertex adjacent to the first and fifth vertices.
     TrianglesListAdjacency,
+
+    /// Each vertex (except the first one and the last one) forms a triangle with the previous
+    /// and the next vertices.
     ///
+    /// For example vertices `0, 1, 2` form a triangle, `1, 2, 3` form a triangle, `2, 3, 4` form a
+    /// triangle, `3, 4, 5` form a triangle, etc.
+    ///
+    /// Each uneven triangle is reversed so that all triangles are facing the same
+    /// direction.
     TriangleStrip,
+
+    /// Each even vertex forms a triangle with vertices `n+2` and `n+4`.
     ///
+    /// Each uneven vertex is adjacent to the previous and next ones.
+    /// Adjacency information doesn't do anything per-se, but is passed to the geometry shader if
+    /// there is any.
     TriangleStripAdjacency,
+
+    /// Starting at the second vertex, each vertex forms a triangle with the next and the first
+    /// vertices.
     ///
+    /// For example vertices `0, 1, 2` form a triangle, `0, 2, 3` form a triangle, `0, 3, 4` form a
+    /// triangle, `0, 4, 5` form a triangle, etc.
     TriangleFan,
+
+    /// Vertices are grouped by chunks of `vertices_per_patch` vertices.
     ///
+    /// This primitives type can only be used in conjunction with a tessellation shader. The
+    /// tessellation shader will indicate how each patch will be divided into lines or triangles.
     Patches {
         /// Number of vertices per patch.
         vertices_per_patch: u16,
