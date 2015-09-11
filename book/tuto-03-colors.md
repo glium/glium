@@ -43,7 +43,7 @@ In the example above, the value of `my_attr` returned by the vertex shader corre
 
 And the result should look like this:
 
-![The result](03-linear.png)
+![The result](tuto-03-linear.png)
 
 # Uploading a texture
 
