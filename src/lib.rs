@@ -106,7 +106,7 @@ extern crate smallvec;
 #[cfg(feature = "glutin")]
 pub use backend::glutin_backend::glutin;
 pub use draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
-pub use draw_parameters::{DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
+pub use draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
 pub use draw_parameters::{Smooth};
 pub use index::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
@@ -1029,8 +1029,8 @@ impl Surface for Frame {
                          where I: Into<index::IndicesSource<'a>>, U: uniforms::Uniforms,
                          V: vertex::MultiVerticesSource<'b>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
-                draw_parameters.depth_write)
+        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
+                draw_parameters.depth.write)
         {
             return Err(DrawError::NoDepthBuffer);
         }

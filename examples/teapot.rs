@@ -139,8 +139,11 @@ fn main() {
 
         // draw parameters
         let params = glium::DrawParameters {
-            depth_test: glium::DepthTest::IfLess,
-            depth_write: true,
+            depth: glium::Depth {
+                test: glium::DepthTest::IfLess,
+                write: true,
+                .. Default::default()
+            },
             .. Default::default()
         };
 
