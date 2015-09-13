@@ -6,9 +6,9 @@ Let's continue with the teapot of the previous section:
 
 Obviously there is something wrong with this image: we don't see any of the cuves of the teapot
 except at its borders.
-This is not because the teapot is red, but because there is no lightning.
+This is not because the teapot is red, but because there is no lighting.
 
-Lightning is a very complex topic and there are a lot of different techniques, but to get started
+Lighting is a very complex topic and there are a lot of different techniques, but to get started
 we will use *Gouraud shading* which is very simple.
 
 ## The theory
