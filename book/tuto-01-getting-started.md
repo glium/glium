@@ -32,7 +32,7 @@ It is now time to start filling the `main` function!
 
 The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the **glutin** library shines.
 
-Initializing a window with glutin can be done by calling `glium::glutin::WindowBuilder()::new().build().unwrap()`. However we don't want to create a *glutin* window but a *glium* window. Instead of calling `build()` we going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
+Initializing a window with glutin can be done by calling `glium::glutin::WindowBuilder()::new().build().unwrap()`. However we don't just want to create a *glutin* window, but a window with an OpenGL context handled by glium. Instead of calling `build()` we going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
 
 ```rust
 fn main() {
