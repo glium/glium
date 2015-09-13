@@ -9,6 +9,7 @@
  - Glium no longer panics in case of OpenGL error. It prints a message with backtrace on stdout instead.
  - Removed the `DrawParametersBuilder` struct.
  - Add `clear_color_srgb` and derivates. The `clear` method has an additional `color_srgb: bool` parameter.
+ - Added some state changes when swapping buffers to adapt to the FRAPS software.
 
 ## Version 0.8.7 (2015-08-27)
 
