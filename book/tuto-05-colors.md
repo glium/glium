@@ -43,7 +43,7 @@ In the example above, the value of `my_attr` returned by the vertex shader corre
 
 And the result should look like this:
 
-![The result](tuto-03-linear.png)
+![The result](tuto-05-linear.png)
 
 # Uploading a texture
 
@@ -151,6 +151,6 @@ let uniforms = uniform! {
 
 And here is the result:
 
-![The result](tuto-03-texture.png)
+![The result](tuto-05-texture.png)
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-03b.rs).**
+**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-05b.rs).**

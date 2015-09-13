@@ -173,4 +173,4 @@ let uniforms = uniform! {
 };
 ```
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-02.rs).**
+**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-03.rs).**
