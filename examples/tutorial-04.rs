@@ -3,7 +3,7 @@ extern crate glium;
 
 fn main() {
     use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    let display =glium:: glutin::WindowBuilder::new().build_glium().unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -25,8 +25,10 @@ fn main() {
 
         in vec2 position;
 
+        uniform mat4 matrix;
+
         void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
+            gl_Position = matrix * vec4(position, 0.0, 1.0);
         }
     "#;
 
@@ -42,10 +44,28 @@ fn main() {
 
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
+    let mut t: f32 = -0.5;
+
     loop {
+        // we update `t`
+        t += 0.0002;
+        if t > 0.5 {
+            t = -0.5;
+        }
+
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
+
+        let uniforms = uniform! {
+            matrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [ t , 0.0, 0.0, 1.0f32],
+            ]
+        };
+
+        target.draw(&vertex_buffer, &indices, &program, &uniforms,
                     &Default::default()).unwrap();
         target.finish().unwrap();
 

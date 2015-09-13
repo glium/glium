@@ -7,7 +7,7 @@ Now that we have a triangle, we are going to try animating it. Remember that Ope
 Our first approach will be to create a variable named `t` which represents the step in the animation. We update the value of `t` at each loop, and add it to the coordinates of our triangle at each frame:
 
 ```rust
-let mut t = -0.5;
+let mut t: f32 = -0.5;
 
 loop {
     // we update `t`
@@ -61,7 +61,7 @@ let shape = vec![vertex1, vertex2, vertex3];
 
 let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
-let mut t = -0.5;
+let mut t: f32 = -0.5;
 
 loop {
     // we update `t`
@@ -111,150 +111,3 @@ target.draw(&vertex_buffer, &indices, &program, &uniform! { t: t },
 ```
 
 Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of `t` (a single float) instead of the whole shape.
-
-# Matrices
-
-We are moving our triangle from the left to the right of the screen with a simple addition. But what about other transformations like rotations, skews or rescalings?
-
-All the geometrical operations that we need can be done with some maths:
-
- - Rescaling our triangle is done with `position *= factor;`
- - Rotating our triangle is done with `new_position = vec2(pos.x * cos(angle) - pos.y * sin(angle), pos.x * sin(angle) + pos.y * cos(angle));`
- - Skewing our triangle is done with `position.x += position.y * factor;`
-
-But what if we want to do a rotation, then a translation, then a rescale? Or a skew and a rotation? Even though it's possible to do this with maths, things become very complex to handle.
-
-Instead, programers use **matrices**. A matrix is a two-dimensional table of numbers which *can represent a geometrical transformation*. In computer graphics, we use 4x4 matrices.
-
-Let's get back to our moving triangle. We are going to change the vertex shader to use a matrix. Instead of adding the value of `t` to the coordinates, we are going to apply the matrix to them by multiplying it. This applies the transformation described by our matrix to the vertex's coordinates.
-
-```rust
-let vertex_shader_src = r#"
-    #version 140
-
-    in vec2 position;
-
-    uniform mat4 matrix;
-
-    void main() {
-        gl_Position = matrix * vec4(position, 0.0, 1.0);
-    }
-"#;
-```
-
-Note that it is important to write `matrix * vertex` and not `vertex * matrix`. Matrix operations produce different result depending on the order.
-
-We also need to pass the matrix when calling the `draw` function:
-
-```rust
-let uniforms = uniform! {
-    matrix: [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [ t , 0.0, 0.0, 1.0f32],
-    ]
-};
-
-target.draw(&vertex_buffer, &indices, &program, &uniforms,
-            &Default::default()).unwrap();
-```
-
-You should see exactly the same thing as previously, but what we now have is much more flexible. For example, if instead we want to rotate the triangle we can try this matrix instead:
-
-```rust
-let uniforms = uniform! {
-    matrix: [
-        [ t.cos(), t.sin(), 0.0, 0.0],
-        [-t.sin(), t.cos(), 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0f32],
-    ]
-};
-```
-
-# Final source code
-
-Here is the final code of our `src/main.rs` file:
-
-```rust
-#[macro_use]
-extern crate glium;
-
-fn main() {
-    use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
-
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-    }
-
-    implement_vertex!(Vertex, position);
-
-    let vertex1 = Vertex { position: [-0.5, -0.5] };
-    let vertex2 = Vertex { position: [ 0.0,  0.5] };
-    let vertex3 = Vertex { position: [ 0.5, -0.25] };
-    let shape = vec![vertex1, vertex2, vertex3];
-
-    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
-    let vertex_shader_src = r#"
-        #version 140
-
-        in vec2 position;
-
-        uniform mat4 matrix;
-
-        void main() {
-            gl_Position = matrix * vec4(position, 0.0, 1.0);
-        }
-    "#;
-
-    let fragment_shader_src = r#"
-        #version 140
-
-        out vec4 color;
-
-        void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    "#;
-
-    let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
-
-    let mut t = -0.5;
-
-    loop {
-        // we update `t`
-        t += 0.0002;
-        if t > 0.5 {
-            t = -0.5;
-        }
-
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-
-        let uniforms = uniform! {
-            matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [ t , 0.0, 0.0, 1.0f32],
-            ]
-        };
-
-        target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                    &Default::default()).unwrap();
-        target.finish().unwrap();
-
-        for ev in display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return,
-                _ => ()
-            }
-        }
-    }
-}
-```
