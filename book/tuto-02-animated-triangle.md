@@ -7,7 +7,7 @@ Now that we have a triangle, we are going to try animating it. Remember that Ope
 Our first approach will be to create a variable named `t` which represents the step in the animation. We update the value of `t` at each loop, and add it to the coordinates of our triangle at each frame:
 
 ```rust
-let mut t = -0.5;
+let mut t: f32 = -0.5;
 
 loop {
     // we update `t`
@@ -61,7 +61,7 @@ let shape = vec![vertex1, vertex2, vertex3];
 
 let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
-let mut t = -0.5;
+let mut t: f32 = -0.5;
 
 loop {
     // we update `t`
@@ -224,7 +224,7 @@ fn main() {
 
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
-    let mut t = -0.5;
+    let mut t: f32 = -0.5;
 
     loop {
         // we update `t`

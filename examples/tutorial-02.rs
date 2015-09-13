@@ -44,7 +44,7 @@ fn main() {
 
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
-    let mut t = -0.5;
+    let mut t: f32 = -0.5;
 
     loop {
         // we update `t`
