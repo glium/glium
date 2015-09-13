@@ -15,8 +15,8 @@ use gl;
 
 
 pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
-             rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, depth: Option<f32>,
-             stencil: Option<i32>)
+             rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
+             depth: Option<f32>, stencil: Option<i32>)
 {
     unsafe {
         let mut ctxt = context.make_current();
@@ -37,9 +37,13 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
         if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
            ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control
         {
-            if !ctxt.state.enabled_framebuffer_srgb {
+            if !color_srgb && !ctxt.state.enabled_framebuffer_srgb {
                 ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB);
                 ctxt.state.enabled_framebuffer_srgb = true;
+
+            } else if color_srgb && ctxt.state.enabled_framebuffer_srgb {
+                ctxt.gl.Disable(gl::FRAMEBUFFER_SRGB);
+                ctxt.state.enabled_framebuffer_srgb = false;
             }
         }
 

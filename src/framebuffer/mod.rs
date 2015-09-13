@@ -216,10 +216,10 @@ impl<'a> SimpleFrameBuffer<'a> {
 
 impl<'a> Surface for SimpleFrameBuffer<'a> {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, Some(&self.attachments), rect, color, depth, stencil);
+        ops::clear(&self.context, Some(&self.attachments), rect, color, color_srgb, depth, stencil);
     }
 
     #[inline]
@@ -431,11 +431,11 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
 impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
         ops::clear(&self.context, Some(&self.example_attachments), rect,
-                   color, depth, stencil);
+                   color, color_srgb, depth, stencil);
     }
 
     #[inline]
@@ -601,10 +601,10 @@ impl<'a> EmptyFrameBuffer {
 
 impl Surface for EmptyFrameBuffer {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>,
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, Some(&self.attachments), rect, color, depth, stencil);
+        ops::clear(&self.context, Some(&self.attachments), rect, color, color_srgb, depth, stencil);
     }
 
     #[inline]

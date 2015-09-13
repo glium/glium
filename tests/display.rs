@@ -40,7 +40,7 @@ fn clear_color_rect() {
     texture.as_surface().clear_color(1.0, 0.0, 0.0, 1.0);
 
     let rect = glium::Rect { left: 512, bottom: 0, width: 512, height: 1024 };
-    texture.as_surface().clear(Some(&rect), Some((0.0, 1.0, 0.0, 1.0)), None, None);
+    texture.as_surface().clear(Some(&rect), Some((0.0, 1.0, 0.0, 1.0)), false, None, None);
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
