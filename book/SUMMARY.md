@@ -8,6 +8,7 @@
  * [Adding a texture](tuto-06-texture.md)
  * [A more complex shape](tuto-07-shape.md)
  * [Gouraud shading](tuto-08-gouraud.md)
- * Depth testing
+ * [Depth testing](tuto-09-depth.md)
  * Adjusting the perspective
  * Backface culling
+ * Drawing lots of objects with instancing

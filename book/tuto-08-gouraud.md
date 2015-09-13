@@ -112,3 +112,5 @@ And here is the result:
 
 Now that we have brightness we can see that there are more things that are wrong with
 our rendering, this will be covered in the next sections!
+
+**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-08.rs).**
