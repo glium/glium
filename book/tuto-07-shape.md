@@ -128,7 +128,8 @@ understand what is going on. Try to guess what the problem is here!
 
 The answer here is that the model is too large to fit in the screen. The coordinates of
 the model range between approximately `-100` and `+100`, but the logical coordinates of our screen
-range between `-1.0` and `1.0`. To fix this, let's adjust our matrix to rescale the model:
+range between `-1.0` and `1.0`. To fix this, let's adjust our matrix to rescale the model to
+1/100th of its size:
 
 ```rust
 let matrix = [
