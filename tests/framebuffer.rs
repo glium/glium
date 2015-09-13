@@ -16,7 +16,10 @@ fn no_depth_buffer_depth_test() {
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
 
     let parameters = glium::DrawParameters {
-        depth_test: glium::DepthTest::IfLess,
+        depth: glium::Depth {
+            test: glium::DepthTest::IfLess,
+            .. Default::default()
+        },
         .. Default::default()
     };
 
@@ -41,7 +44,10 @@ fn no_depth_buffer_depth_write() {
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
 
     let parameters = glium::DrawParameters {
-        depth_write: true,
+        depth: glium::Depth {
+            write: true,
+            .. Default::default()
+        },
         .. Default::default()
     };
 
@@ -156,7 +162,10 @@ fn depth_texture2d() {
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display,
                                                                                    &color, &depth).unwrap();
     let params = glium::DrawParameters {
-        depth_test: glium::DepthTest::IfLess,
+        depth: glium::Depth {
+            test: glium::DepthTest::IfLess,
+            .. Default::default()
+        },
         .. Default::default()
     };
 

@@ -242,8 +242,8 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
         V: ::vertex::MultiVerticesSource<'v>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
-                        draw_parameters.depth_write)
+        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
+                        draw_parameters.depth.write)
         {
             return Err(DrawError::NoDepthBuffer);
         }
@@ -458,8 +458,8 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         where I: Into<::index::IndicesSource<'i>>,
         U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
-                draw_parameters.depth_write)
+        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
+                draw_parameters.depth.write)
         {
             return Err(DrawError::NoDepthBuffer);
         }
@@ -627,8 +627,8 @@ impl Surface for EmptyFrameBuffer {
         where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
         V: ::vertex::MultiVerticesSource<'v>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth_test.requires_depth_buffer() ||
-                        draw_parameters.depth_write)
+        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
+                        draw_parameters.depth.write)
         {
             return Err(DrawError::NoDepthBuffer);
         }

@@ -62,7 +62,10 @@ fn wrong_depth_range() {
     let display = support::build_display();
 
     let params = glium::DrawParameters {
-        depth_range: (-0.1, 1.0),
+        depth: glium::Depth {
+            range: (-0.1, 1.0),
+            .. Default::default()
+        },
         .. Default::default()
     };
 
@@ -994,7 +997,10 @@ fn depth_clamp_all() {
         &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            depth_clamp: glium::draw_parameters::DepthClamp::Clamp,
+            depth: glium::Depth {
+                clamp: glium::draw_parameters::DepthClamp::Clamp,
+                .. Default::default()
+            },
             .. Default::default()
         });
 
@@ -1102,7 +1108,10 @@ fn depth_clamp_near() {
         &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            depth_clamp: glium::draw_parameters::DepthClamp::ClampNear,
+            depth: glium::Depth {
+                clamp: glium::draw_parameters::DepthClamp::ClampNear,
+                .. Default::default()
+            },
             .. Default::default()
         });
 
@@ -1218,7 +1227,10 @@ fn depth_clamp_far() {
         &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            depth_clamp: glium::draw_parameters::DepthClamp::ClampFar,
+            depth: glium::Depth {
+                clamp: glium::draw_parameters::DepthClamp::ClampFar,
+                .. Default::default()
+            },
             .. Default::default()
         });
 
