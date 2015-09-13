@@ -55,10 +55,14 @@ out vec3 v_normal;      // new
 uniform mat4 matrix;
 
 void main() {
-    v_normal = normal;      // new
+    v_normal = transpose(inverse(mat3(matrix))) * normal;       // new
     gl_Position = matrix * vec4(position, 1.0);
 }
 ```
+
+We also need to multiply the normal by the matrix, but the transformations are a bit different
+and the calculation a bit weird. Since I didn't go into details about how matrices work,
+I won't go into details about why you have to use the transpose of the inverse.
 
 If you recall the section about colors, the attributes that we pass from the vertex shader
 to the fragment shader are interpolated per fragment. This means that each fragment will get

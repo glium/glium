@@ -9,6 +9,7 @@
  * [A more complex shape](tuto-07-shape.md)
  * [Gouraud shading](tuto-08-gouraud.md)
  * [Depth testing](tuto-09-depth.md)
- * Adjusting the perspective
+ * [Adjusting the perspective](tuto-10-perspective.md)
  * Backface culling
  * Drawing lots of objects with instancing
+ 
