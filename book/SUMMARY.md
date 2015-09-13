@@ -7,3 +7,7 @@
  * [Adding colors](tuto-03-colors.md)
  * Adding a texture (TODO: extract from tutorial 3)
  * [A more complex shape](tuto-07-shape.md)
+ * Gouraud shading
+ * Depth testing
+ * Adjusting the perspective
+ * Backface culling
