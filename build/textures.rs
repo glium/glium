@@ -786,6 +786,25 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "}}")).unwrap();
     }
 
+    // writing the 'from_id' function
+    (writeln!(dest, "
+                /// Builds a new texture reference from an existing, externally created OpenGL texture.
+                /// If `owned` is true, this reference will take ownership of the texture and be responsible
+                /// for cleaning it up. Otherwise, the texture must be cleaned up externally, but only
+                /// after this reference's lifetime has ended.
+                pub unsafe fn from_id<F: Facade>(facade: &F,
+                                                 format: {format},
+                                                 id: gl::types::GLuint,
+                                                 owned: bool,
+                                                 mipmap: MipmapsOption,
+                                                 ty: Dimensions)
+                                                 -> {name} {{
+                    let format = format.to_texture_format();
+                    let format = TextureFormatRequest::Specific(format);
+                    {name}(any::from_id(facade, format, id, owned, mipmap, ty))
+                }}
+        ", format = relevant_format, name = name)).unwrap();
+
     // writing the `as_surface` function
     if (dimensions == TextureDimensions::Texture2d ||
         dimensions == TextureDimensions::Texture2dMultisample) && ty == TextureType::Regular
