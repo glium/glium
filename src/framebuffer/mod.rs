@@ -92,6 +92,7 @@ use {fbo, gl};
 
 pub use self::render_buffer::{RenderBuffer, RenderBufferAny, DepthRenderBuffer};
 pub use self::render_buffer::{StencilRenderBuffer, DepthStencilRenderBuffer};
+pub use self::render_buffer::CreationError as RenderBufferCreationError;
 pub use fbo::is_dimensions_mismatch_supported;
 pub use fbo::ValidationError;
 

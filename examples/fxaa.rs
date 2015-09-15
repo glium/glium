@@ -194,7 +194,7 @@ mod fxaa {
             let texture = glium::framebuffer::DepthRenderBuffer::new(&system.context,
                                                                       glium::texture::DepthFormat::I24,
                                                                       target_dimensions.0 as u32,
-                                                                      target_dimensions.1 as u32);
+                                                                      target_dimensions.1 as u32).unwrap();
             *target_depth = Some(texture);
         }
         let target_depth = target_depth.as_ref().unwrap();

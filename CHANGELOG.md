@@ -4,6 +4,7 @@
 
  - The blending and depth functions now use dedicated structs named `Blend` and `Depth`.
  - `SimpleFrameBuffer` and `MultiOutputFrameBuffer`'s constructors now return a `Result`.
+ - Creating a renderbuffer now returns a `Result`.
  - Add support for empty framebuffers with the `EmptyFrameBuffer` type.
  - Fix an OpenGL error when mapping a buffer with `map_read`.
  - Glium no longer panics in case of OpenGL error. It prints a message with backtrace on stdout instead.
