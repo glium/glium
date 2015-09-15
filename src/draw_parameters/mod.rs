@@ -423,11 +423,7 @@ impl<'a> Default for DrawParameters<'a> {
         DrawParameters {
             depth: Depth::default(),
             stencil: Default::default(),
-            blend: Blend {
-                color: BlendingFunction::AlwaysReplace,
-                alpha: BlendingFunction::AlwaysReplace,
-                constant_value: (1.0, 1.0, 1.0, 1.0)
-            },
+            blend: Default::default(),
             color_mask: (true, true, true, true),
             line_width: None,
             point_size: None,
