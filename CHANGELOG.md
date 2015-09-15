@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- - The blending and depth functions now use dedicated structs named `Blend` and `Depth`.
+ - The blending, depth and stencil functions now use dedicated structs named `Blend`, `Depth` and `Stencil`.
  - `SimpleFrameBuffer` and `MultiOutputFrameBuffer`'s constructors now return a `Result`.
  - Add support for empty framebuffers with the `EmptyFrameBuffer` type.
  - Fix an OpenGL error when mapping a buffer with `map_read`.
