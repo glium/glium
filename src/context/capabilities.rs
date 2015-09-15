@@ -194,7 +194,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // drivers, so we prefer using `glGetIntegerv` if possible.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_ext_framebuffer_srgb {
                 let mut value = mem::uninitialized();
-                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::BACK_LEFT,
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::FRONT_LEFT,
                                                        gl::FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
                                                        &mut value);
                 value as gl::types::GLenum == gl::SRGB
