@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.9.0 (2015-09-15)
 
  - The blending, depth and stencil functions now use dedicated structs named `Blend`, `Depth` and `Stencil`.
  - `SimpleFrameBuffer` and `MultiOutputFrameBuffer`'s constructors now return a `Result`.

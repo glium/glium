@@ -90,9 +90,6 @@ target.draw((&positions, &normals), &indices, &program,
             &uniform! { matrix: matrix, u_light: light }, &params).unwrap();
 ```
 
-**Note**: this code is valid for glium 0.9 which may not yet be uploaded on crates.io. The syntax
-has changed since glium 0.8. TODO: remove this note when glium 0.9 is published
-
 The `test` parameter indicates that pixels should be only be kept if their depth value is inferior
 to the existing depth value in the depth buffer. The `write` parameter indicates that the depth
 value of the pixels that pass the test should be written to the depth buffer. If we don't set
