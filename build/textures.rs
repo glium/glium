@@ -85,7 +85,7 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture3d);
-    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture3d);
+    //build_texture(dest, TextureType::Stencil, TextureDimensions::Texture3d);  // forbidden
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1dArray);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1dArray);

@@ -216,7 +216,7 @@ empty_texture_test!(empty_stenciltexture1d, StencilTexture1d, [64], 64, None, No
 empty_texture_test!(empty_stenciltexture1darray, StencilTexture1dArray, [64, 32], 64, None, None, Some(32));
 empty_texture_test!(empty_stenciltexture2d, StencilTexture2d, [64, 32], 64, Some(32), None, None);
 empty_texture_test!(empty_stenciltexture2darray, StencilTexture2dArray, [64, 32, 16], 64, Some(32), None, Some(16));
-empty_texture_test!(empty_stenciltexture3d, StencilTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
+//empty_texture_test!(empty_stenciltexture3d, StencilTexture3d, [64, 32, 16], 64, Some(32), Some(16), None);
 empty_texture_test!(empty_texture1d, Texture1d, [64], 64, None, None, None);
 empty_texture_test!(empty_texture1darray, Texture1dArray, [64, 32], 64, None, None, Some(32));
 empty_texture_test!(empty_texture2d, Texture2d, [64, 32], 64, Some(32), None, None);
