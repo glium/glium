@@ -155,8 +155,11 @@ impl Context {
 
         let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
         let gl_state: RefCell<GlState> = RefCell::new(Default::default());
+
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl, &version);
+        try!(check_gl_compatibility(&version, &extensions));
+
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
         let report_debug_output_errors = Cell::new(true);
 
@@ -165,27 +168,6 @@ impl Context {
         let samplers = RefCell::new(HashMap::with_capacity(16));
         let resident_texture_handles = RefCell::new(Vec::new());
         let resident_image_handles = RefCell::new(Vec::new());
-
-        // checking whether the backend supports glium
-        // TODO: do this more properly
-        {
-            let mut ctxt = CommandContext {
-                gl: &gl,
-                state: gl_state.borrow_mut(),
-                version: &version,
-                extensions: &extensions,
-                capabilities: &capabilities,
-                report_debug_output_errors: &report_debug_output_errors,
-                vertex_array_objects: &vertex_array_objects,
-                framebuffer_objects: &framebuffer_objects,
-                samplers: samplers.borrow_mut(),
-                resident_texture_handles: resident_texture_handles.borrow_mut(),
-                resident_image_handles: resident_image_handles.borrow_mut(),
-                marker: PhantomData,
-            };
-
-            try!(check_gl_compatibility(&mut ctxt));
-        }
 
         let context = Rc::new(Context {
             gl: gl,
@@ -698,32 +680,34 @@ impl<'a> CapabilitiesSource for CommandContext<'a> {
 }
 
 /// Checks whether the backend supports glium. Returns an `Err` if it doesn't.
-fn check_gl_compatibility<T>(ctxt: &mut CommandContext) -> Result<(), GliumCreationError<T>> {
+fn check_gl_compatibility<T>(version: &Version, extensions: &ExtensionsList)
+                             -> Result<(), GliumCreationError<T>>
+{
     let mut result = Vec::with_capacity(0);
 
-    if !(ctxt.version >= &Version(Api::Gl, 1, 5)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 2, 0)) &&
-        (!ctxt.extensions.gl_arb_vertex_buffer_object || !ctxt.extensions.gl_arb_map_buffer_range)
+    if !(version >= &Version(Api::Gl, 1, 5)) &&
+        !(version >= &Version(Api::GlEs, 2, 0)) &&
+        (!extensions.gl_arb_vertex_buffer_object || !extensions.gl_arb_map_buffer_range)
     {
         result.push("OpenGL implementation doesn't support buffer objects");
     }
 
-    if !(ctxt.version >= &Version(Api::Gl, 2, 0)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 2, 0)) &&
-        (!ctxt.extensions.gl_arb_shader_objects ||
-            !ctxt.extensions.gl_arb_vertex_shader || !ctxt.extensions.gl_arb_fragment_shader)
+    if !(version >= &Version(Api::Gl, 2, 0)) &&
+        !(version >= &Version(Api::GlEs, 2, 0)) &&
+        (!extensions.gl_arb_shader_objects ||
+            !extensions.gl_arb_vertex_shader || !extensions.gl_arb_fragment_shader)
     {
         result.push("OpenGL implementation doesn't support vertex/fragment shaders");
     }
 
-    if !ctxt.extensions.gl_ext_framebuffer_object && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 2, 0)) && !ctxt.extensions.gl_arb_framebuffer_object
+    if !extensions.gl_ext_framebuffer_object && !(version >= &Version(Api::Gl, 3, 0)) &&
+        !(version >= &Version(Api::GlEs, 2, 0)) && !extensions.gl_arb_framebuffer_object
     {
         result.push("OpenGL implementation doesn't support framebuffers");
     }
 
-    if !ctxt.extensions.gl_ext_framebuffer_blit && !(ctxt.version >= &Version(Api::Gl, 3, 0)) &&
-        !(ctxt.version >= &Version(Api::GlEs, 2, 0))
+    if !extensions.gl_ext_framebuffer_blit && !(version >= &Version(Api::Gl, 3, 0)) &&
+        !(version >= &Version(Api::GlEs, 2, 0))
     {
         result.push("OpenGL implementation doesn't support blitting framebuffers");
     }
