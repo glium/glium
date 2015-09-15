@@ -28,6 +28,19 @@ use ContextExt;
 use version::Version;
 use version::Api;
 
+/// Error while creating a render buffer.
+#[derive(Copy, Clone, Debug)]
+pub enum CreationError {
+    /// The requested format is not supported.
+    FormatNotSupported,
+}
+
+impl From<image_format::FormatNotSupportedError> for CreationError {
+    fn from(_: image_format::FormatNotSupportedError) -> CreationError {
+        CreationError::FormatNotSupported
+    }
+}
+
 /// A render buffer is similar to a texture, but is optimized for usage as a draw target.
 ///
 /// Contrary to a texture, you can't sample or modify the content of the `RenderBuffer`.
@@ -38,14 +51,14 @@ pub struct RenderBuffer {
 impl RenderBuffer {
     /// Builds a new render buffer.
     pub fn new<F>(facade: &F, format: UncompressedFloatFormat, width: u32, height: u32)
-                  -> RenderBuffer where F: Facade
+                  -> Result<RenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::UncompressedFloat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer).unwrap();
+        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer));
 
-        RenderBuffer {
+        Ok(RenderBuffer {
             buffer: RenderBufferAny::new(facade, format, width, height, None)
-        }
+        })
     }
 }
 
@@ -91,14 +104,14 @@ pub struct DepthRenderBuffer {
 impl DepthRenderBuffer {
     /// Builds a new render buffer.
     pub fn new<F>(facade: &F, format: DepthFormat, width: u32, height: u32)
-                  -> DepthRenderBuffer where F: Facade
+                  -> Result<DepthRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthFormat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer).unwrap();
+        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer));
 
-        DepthRenderBuffer {
+        Ok(DepthRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, width, height, None)
-        }
+        })
     }
 }
 
@@ -143,14 +156,14 @@ pub struct StencilRenderBuffer {
 impl StencilRenderBuffer {
     /// Builds a new render buffer.
     pub fn new<F>(facade: &F, format: StencilFormat, width: u32, height: u32)
-                  -> StencilRenderBuffer where F: Facade
+                  -> Result<StencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::StencilFormat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer).unwrap();
+        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer));
 
-        StencilRenderBuffer {
+        Ok(StencilRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, width, height, None)
-        }
+        })
     }
 }
 
@@ -196,14 +209,14 @@ pub struct DepthStencilRenderBuffer {
 impl DepthStencilRenderBuffer {
     /// Builds a new render buffer.
     pub fn new<F>(facade: &F, format: DepthStencilFormat, width: u32, height: u32)
-                  -> DepthStencilRenderBuffer where F: Facade
+                  -> Result<DepthStencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthStencilFormat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer).unwrap();
+        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), None, format, image_format::RequestType::Renderbuffer));
 
-        DepthStencilRenderBuffer {
+        Ok(DepthStencilRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, width, height, None)
-        }
+        })
     }
 }
 
