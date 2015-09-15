@@ -10,6 +10,7 @@
  - Removed the `DrawParametersBuilder` struct.
  - Add `clear_color_srgb` and derivates. The `clear` method has an additional `color_srgb: bool` parameter.
  - Added some state changes when swapping buffers to adapt to the FRAPS software.
+ - Removed `StencilTexture3d` are they are not supported by OpenGL.
 
 ## Version 0.8.7 (2015-08-27)
 
