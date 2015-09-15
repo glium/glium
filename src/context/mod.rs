@@ -264,13 +264,39 @@ impl Context {
 
     /// Swaps the buffers in the backend.
     pub fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
-        let mut state = self.state.borrow_mut();
-        if state.lost_context {
+        if self.state.borrow().lost_context {
             return Err(SwapBuffersError::ContextLost);
         }
 
-        let backend = self.backend.borrow();
+        // Note: This is a work-around for the FRAPS software.
+        //       The Fraps software calls `glClear` with scissoring on the current framebuffer.
+        //       Therefore we need to bind the default framebuffer, and then switch scissoring to
+        //       "unknown".
+        if self.state.borrow().draw_framebuffer != 0 {
+            let mut ctxt = self.make_current();
 
+            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+               ctxt.extensions.gl_arb_framebuffer_object
+            {
+                unsafe { ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0); }
+                ctxt.state.draw_framebuffer = 0;
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+                unsafe { ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0); }
+                ctxt.state.draw_framebuffer = 0;
+                ctxt.state.read_framebuffer = 0;
+            } else if ctxt.extensions.gl_ext_framebuffer_object {
+                unsafe { ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0); }
+                ctxt.state.draw_framebuffer = 0;
+                ctxt.state.read_framebuffer = 0;
+            } else {
+                unreachable!();
+            }
+        }
+
+        self.state.borrow_mut().scissor = None;
+
+
+        let backend = self.backend.borrow();
         if self.check_current_context {
             if !backend.is_current() {
                 unsafe { backend.make_current() };
@@ -280,7 +306,7 @@ impl Context {
         // swapping
         let err = backend.swap_buffers();
         if let Err(SwapBuffersError::ContextLost) = err {
-            state.lost_context = true;
+            self.state.borrow_mut().lost_context = true;
         }
         err
     }
