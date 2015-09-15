@@ -40,6 +40,16 @@ impl Blend {
     }
 }
 
+impl Default for Blend {
+    fn default() -> Blend {
+        Blend {
+            color: BlendingFunction::AlwaysReplace,
+            alpha: BlendingFunction::AlwaysReplace,
+            constant_value: (1.0, 1.0, 1.0, 1.0),
+        }
+    }
+}
+
 /// Function that the GPU will use for blending.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BlendingFunction {
