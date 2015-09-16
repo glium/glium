@@ -11,5 +11,6 @@
  * [Depth testing](tuto-09-depth.md)
  * [Adjusting the perspective](tuto-10-perspective.md)
  * [Backface culling](tuto-11-backface-culling.md)
+ * [The camera and summary of the vertex processing stages](tuto-12-camera.md)
  * Drawing lots of objects with instancing
  
