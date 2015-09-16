@@ -44,13 +44,7 @@ fn main() {
 
         implement_vertex!(Attr, world_position);
 
-        let data = teapots.iter().map(|_| {
-            Attr {
-                world_position: (0.0, 0.0, 0.0),
-            }
-        }).collect::<Vec<_>>();
-
-        glium::vertex::VertexBuffer::dynamic(&display, &data).unwrap()
+        glium::vertex::VertexBuffer::<Attr>::empty_dynamic(&display, teapots.len() * 3).unwrap()
     };
 
     let program = glium::Program::from_source(&display,
@@ -90,12 +84,14 @@ fn main() {
         .unwrap();
 
     let camera = support::camera::CameraState::new();
+
+    let mut part = 0;
     
     // the main loop
     support::start_loop(|| {
         // updating the teapots
         {
-            let mut mapping = per_instance.map();
+            let mut mapping = per_instance.slice_mut(part * teapots.len() .. (part + 1) * teapots.len()).unwrap().map();
             for (src, dest) in teapots.iter_mut().zip(mapping.iter_mut()) {
                 (src.0).0 += (src.1).0 * 0.001;
                 (src.0).1 += (src.1).1 * 0.001;
@@ -117,10 +113,13 @@ fn main() {
 
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
-        target.draw((&vertex_buffer, per_instance.per_instance().unwrap()),
+        target.draw((&vertex_buffer, per_instance.slice(part * teapots.len() .. (part + 1) * teapots.len()).unwrap().per_instance().unwrap()),
                     &indices, &program, &uniform! { matrix: camera.get_perspective() },
                     &params).unwrap();
         target.finish().unwrap();
+
+        part += 1;
+        part %= 3;
 
         // polling and handling the events received by the window
         for event in display.poll_events() {
