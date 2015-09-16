@@ -13,8 +13,7 @@
  * [Backface culling](tuto-11-backface-culling.md)
  * [The camera and summary of the vertex processing stages](tuto-12-camera.md)
  * [Blinn-phong shading](tuto-13-phong.md)
- * A textured wall
- * Normal mapping
+ * [Normal mapping](tuto-14-wall.md)
  * Parallax mapping
  * Deferred shading
  * Shadow mapping
