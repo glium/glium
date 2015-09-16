@@ -50,7 +50,7 @@ libc = "0.1"
 smallvec = "0.1.5"
 
 [build-dependencies]
-gl_generator = "0.0.25"
+gl_generator = "0.0.27"
 khronos_api = "0.0.8"
 
 [dev-dependencies]
