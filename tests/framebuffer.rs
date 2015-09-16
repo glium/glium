@@ -11,7 +11,7 @@ fn no_depth_buffer_depth_test() {
     let (vertex_buffer, index_buffer, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = glium::texture::Texture2d::empty_with_format(&display,
-                            glium::texture::UncompressedFloatFormat::U8U8U8U8, 
+                            glium::texture::UncompressedFloatFormat::U8U8U8U8,
                             glium::texture::MipmapsOption::NoMipmap, 128, 128).unwrap();
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture).unwrap();
 
@@ -320,7 +320,7 @@ fn multi_color_attachments_maximum() {
 
     let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} ).collect::<Vec<_>>();
 
-    let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]).unwrap();
+    glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]).unwrap();
 }
 
 #[test]
@@ -431,7 +431,7 @@ fn empty_framebuffer_samples_out_of_range() {
 
 #[test]
 fn empty_framebuffer_simple_draw() {
-    use glium::framebuffer::{EmptyFrameBuffer, ValidationError};
+    use glium::framebuffer::{EmptyFrameBuffer};
 
     let display = support::build_display();
     let (vertex_buffer, index_buffer, program) = support::build_fullscreen_red_pipeline(&display);

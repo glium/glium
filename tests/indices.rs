@@ -67,12 +67,12 @@ fn triangles_list() {
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                           &[0u16, 1, 2, 2, 1, 3]).unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish().unwrap();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms,
+                              &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     assert_eq!(data[0][0], (255, 0, 0, 255));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
@@ -93,12 +93,12 @@ fn triangle_strip() {
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
                                           &[0u16, 1, 2, 3]).unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish().unwrap();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms,
+                              &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     assert_eq!(data[0][0], (255, 0, 0, 255));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
@@ -120,12 +120,12 @@ fn triangle_fan() {
     let indices = glium::IndexBuffer::new(&display, PrimitiveType::TriangleFan,
                                           &[0u16, 1, 2, 4, 3, 1]).unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish().unwrap();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &indices, &program, &glium::uniforms::EmptyUniforms,
+                              &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     assert_eq!(data[0][0], (255, 0, 0, 255));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
@@ -201,13 +201,13 @@ fn triangles_list_noindices() {
         Vertex { position: [ 1.0, -1.0] },
     ]).unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &index::NoIndices(index::PrimitiveType::TrianglesList),
-                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish().unwrap();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &index::NoIndices(index::PrimitiveType::TrianglesList),
+                                                     &program, &glium::uniforms::EmptyUniforms,
+                                                     &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     assert_eq!(data[0][0], (255, 0, 0, 255));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
@@ -227,13 +227,13 @@ fn triangle_strip_noindices() {
         Vertex { position: [ 1.0, -1.0] },
     ]).unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &index::NoIndices(index::PrimitiveType::TriangleStrip),
-                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish().unwrap();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &index::NoIndices(index::PrimitiveType::TriangleStrip),
+                                                     &program, &glium::uniforms::EmptyUniforms,
+                                                     &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     assert_eq!(data[0][0], (255, 0, 0, 255));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
@@ -255,13 +255,13 @@ fn triangle_fan_noindices() {
         Vertex { position: [-1.0,  1.0] },
     ]).unwrap();
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vb, &index::NoIndices(index::PrimitiveType::TriangleFan),
-                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
-    target.finish().unwrap();
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &index::NoIndices(index::PrimitiveType::TriangleFan),
+                                                     &program, &glium::uniforms::EmptyUniforms,
+                                                     &Default::default()).unwrap();
 
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
     assert_eq!(data[0][0], (255, 0, 0, 255));
     assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));

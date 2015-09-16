@@ -23,7 +23,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 // framebuffer.draw(...);
 
 // example shader:
-// 
+//
 //     out vec4 output1;
 //     out vec4 output2;
 //
@@ -64,7 +64,6 @@ Not yet supported
 
 */
 use std::rc::Rc;
-use std::ops::Deref;
 use smallvec::SmallVec;
 
 use texture::Texture2d;
@@ -374,14 +373,14 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                 texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
             },
             StencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });*/       // TODO: 
+        });*/       // TODO:
 
         let depthstencil = None;/*depthstencil.map(|depthstencil| match color {
             DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::TextureLayer {
                 texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
             },
             DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });*/       // TODO: 
+        });*/       // TODO:
 
         let example_attachments = try!(fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: example_color,
@@ -655,7 +654,7 @@ impl Surface for EmptyFrameBuffer {
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
                      filter: uniforms::MagnifySamplerFilter) where S: Surface
     {
-        unimplemented!()        // TODO: 
+        unimplemented!()        // TODO:
     }
 
     #[inline]
