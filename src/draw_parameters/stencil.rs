@@ -4,7 +4,7 @@ use ToGlEnum;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Stencil {
-    /// A comparaison against the existing value in the stencil buffer.
+    /// A comparison against the existing value in the stencil buffer.
     ///
     /// Only relevant for faces that are clockwise on the target surface. Other faces, points and
     /// lines use `stencil_test_counter_clockwise` instead.
