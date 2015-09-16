@@ -59,3 +59,7 @@ let params = glium::DrawParameters {
     .. Default::default()
 };
 ```
+
+However we are not going to enable this for the teapot because the model is not closed. You can
+look through holes and not see anything inside. 3D models are usually entirely closed, but not
+our teapot.
