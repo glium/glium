@@ -75,7 +75,7 @@ impl UniformsStorage {
                     if $ctxt.extensions.gl_arb_gpu_shader_int64 {
                         $ctxt.gl.$uniform($($params),+)
                     } else {
-                        panic!("Double precision integers are not supported on this system.")
+                        panic!("64 bit integers are not supported on this system.")
                     }
                 }
             )
