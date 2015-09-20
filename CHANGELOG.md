@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Glium no longer calls `glBlendColor` if the blending algorithm doesn't use it.
+
 ## Version 0.9.0 (2015-09-15)
 
  - The blending, depth and stencil functions now use dedicated structs named `Blend`, `Depth` and `Stencil`.
