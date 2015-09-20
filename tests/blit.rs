@@ -7,12 +7,6 @@ mod support;
 
 #[test]
 fn blit_texture_to_window() {
-    // ignoring test on travis
-    // TODO: find out why they are failing
-    if ::std::env::var("TRAVIS").is_ok() {
-        return;
-    }
-
     let display = support::build_display();
 
     let src_rect = Rect {
