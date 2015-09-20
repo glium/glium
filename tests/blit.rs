@@ -31,15 +31,13 @@ fn blit_texture_to_window() {
 
     let texture = support::build_unicolor_texture2d(&display, 0.0, 1.0, 0.0);
 
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
+    let target = support::build_renderable_texture(&display);
+    target.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    texture.as_surface().blit_color(&src_rect, &target, &dest_rect,
+    texture.as_surface().blit_color(&src_rect, &target.as_surface(), &dest_rect,
                                     glium::uniforms::MagnifySamplerFilter::Nearest);
 
-    target.finish().unwrap();
-
-    let data: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = target.read();
 
     assert_eq!(data[1][1], (0, 255, 0, 255));
     assert_eq!(data[1][2], (0, 255, 0, 255));
