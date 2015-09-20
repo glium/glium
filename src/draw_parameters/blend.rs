@@ -279,25 +279,39 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
             .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
         let (alpha_factor_src, alpha_factor_dst) = blending_factors(blend.alpha)
             .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
+
+        // Updating the blending color if necessary.
+        if color_factor_src == LinearBlendingFactor::ConstantColor ||
+           color_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
+           color_factor_dst == LinearBlendingFactor::ConstantColor ||
+           color_factor_dst == LinearBlendingFactor::OneMinusConstantColor ||
+           alpha_factor_src == LinearBlendingFactor::ConstantColor ||
+           alpha_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
+           alpha_factor_dst == LinearBlendingFactor::ConstantColor ||
+           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor
+        {
+            if ctxt.state.blend_color != blend.constant_value {
+                let (r, g, b, a) = blend.constant_value;
+                unsafe { ctxt.gl.BlendColor(r, g, b, a); }
+                ctxt.state.blend_color = blend.constant_value;
+            }
+        }
+
+        // Updating the blending function if necessary.
         let color_factor_src = color_factor_src.to_glenum();
         let color_factor_dst = color_factor_dst.to_glenum();
         let alpha_factor_src = alpha_factor_src.to_glenum();
         let alpha_factor_dst = alpha_factor_dst.to_glenum();
         if ctxt.state.blend_func != (color_factor_src, color_factor_dst,
-            alpha_factor_src, alpha_factor_dst) {
+                                     alpha_factor_src, alpha_factor_dst)
+        {
             unsafe {
                 ctxt.gl.BlendFuncSeparate(color_factor_src, color_factor_dst,
-                    alpha_factor_src, alpha_factor_dst);
+                                          alpha_factor_src, alpha_factor_dst);
             }
-            ctxt.state.blend_func = (color_factor_src, color_factor_dst,
-                alpha_factor_src, alpha_factor_dst);
-        }
 
-        // Update blend color.
-        if ctxt.state.blend_color != blend.constant_value {
-            let (r, g, b, a) = blend.constant_value;
-            unsafe { ctxt.gl.BlendColor(r, g, b, a); }
-            ctxt.state.blend_color = blend.constant_value;
+            ctxt.state.blend_func = (color_factor_src, color_factor_dst,
+                                     alpha_factor_src, alpha_factor_dst);
         }
     }
 
