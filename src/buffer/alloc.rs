@@ -281,6 +281,20 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, BufferType::DrawIndirectBuffer); }
     }
 
+    /// Makes sure that the buffer is binded to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
+    /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_dispatch_indirect(&self, mut ctxt: &mut CommandContext) {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_command {
+            unsafe { ctxt.gl.MemoryBarrier(gl::COMMAND_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_command = ctxt.state.next_draw_call_id;
+        }
+
+        unsafe { bind_buffer(ctxt, self.id, BufferType::DispatchIndirectBuffer); }
+    }
+
     /// Makes sure that the buffer is binded to the indexed `GL_UNIFORM_BUFFER` point and calls
     /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
@@ -1267,6 +1281,11 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
             //       for index/multidraw.rs
             ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_multi_draw_indirect ||
             ctxt.extensions.gl_ext_multi_draw_indirect
+        },
+
+        BufferType::DispatchIndirectBuffer => {
+            ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+            ctxt.extensions.gl_arb_compute_shader
         },
 
         BufferType::TextureBuffer => {

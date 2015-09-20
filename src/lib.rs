@@ -241,6 +241,10 @@ trait BufferExt {
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_draw_indirect(&self, &mut CommandContext);
 
+    /// Makes sure that the buffer is binded to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
+    /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_dispatch_indirect(&self, &mut CommandContext);
+
     /// Makes sure that the buffer is binded to the indexed `GL_UNIFORM_BUFFER` point and calls
     /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_uniform(&self, &mut CommandContext, index: gl::types::GLuint);

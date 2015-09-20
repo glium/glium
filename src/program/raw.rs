@@ -25,9 +25,14 @@ use RawUniformValue;
 use QueryExt;
 use draw_parameters::TimeElapsedQuery;
 
+use buffer::BufferSlice;
+use BufferExt;
+use BufferSliceExt;
+
 use program::{ProgramCreationError, Binary, GetBinaryError};
 use program::uniforms_storage::UniformsStorage;
 
+use program::compute::ComputeCommand;
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
 use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
@@ -459,6 +464,49 @@ impl RawProgram {
         self.use_program(&mut ctxt);
         try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
         ctxt.gl.DispatchCompute(x, y, z);
+
+        for fence in fences {
+            fence.insert(&mut ctxt);
+        }
+
+        Ok(())
+    }
+
+    /// Assumes that the program contains a compute shader and executes it.
+    ///
+    /// # Safety
+    ///
+    /// The program *must* contain a compute shader.
+    /// TODO: check inside the program if it has a compute shader instead of being unsafe
+    pub unsafe fn dispatch_compute_indirect<U>(&self, uniforms: U,
+                                               buffer: BufferSlice<ComputeCommand>)
+                                               -> Result<(), DrawError>      // TODO: other error?
+                                               where U: Uniforms
+    {
+        let mut ctxt = self.context.make_current();
+
+        assert!(ctxt.version >= &Version(Api::Gl, 4, 3) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+                ctxt.extensions.gl_arb_compute_shader);
+
+        TimeElapsedQuery::end_conditional_render(&mut ctxt);
+
+        buffer.prepare_and_bind_for_dispatch_indirect(&mut ctxt);
+        let offset = buffer.get_offset_bytes();
+
+        // an error is generated if the error is not a multiple of 4
+        assert!(offset % 4 == 0);
+
+        if let Some(fence) = buffer.add_fence() {
+            fence.insert(&mut ctxt);
+        }
+
+        self.use_program(&mut ctxt);
+
+        let mut fences = Vec::with_capacity(0);
+        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
+
+        ctxt.gl.DispatchComputeIndirect(offset as gl::types::GLintptr);
 
         for fence in fences {
             fence.insert(&mut ctxt);

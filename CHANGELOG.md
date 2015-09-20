@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Add `ComputeShader::execute_indirect`.
  - Glium no longer calls `glBlendColor` if the blending algorithm doesn't use it.
 
 ## Version 0.9.0 (2015-09-15)
