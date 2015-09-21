@@ -34,6 +34,14 @@ pub enum UniformType {
     UnsignedIntVec2,
     UnsignedIntVec3,
     UnsignedIntVec4,
+    Int64,
+    Int64Vec2,
+    Int64Vec3,
+    Int64Vec4,
+    UnsignedInt64,
+    UnsignedInt64Vec2,
+    UnsignedInt64Vec3,
+    UnsignedInt64Vec4,
     Bool,
     BoolVec2,
     BoolVec3,
@@ -167,6 +175,14 @@ pub enum UniformValue<'a> {
     DoubleMat2([[f64;2]; 2]),
     DoubleMat3([[f64;3]; 3]),
     DoubleMat4([[f64;4]; 4]),
+    Int64(i64),
+    Int64Vec2([i64; 2]),
+    Int64Vec3([i64; 3]),
+    Int64Vec4([i64; 4]),
+    UnsignedInt64(u64),
+    UnsignedInt64Vec2([u64; 2]),
+    UnsignedInt64Vec3([u64; 3]),
+    UnsignedInt64Vec4([u64; 4]),
     Texture1d(&'a texture::Texture1d, Option<SamplerBehavior>),
     CompressedTexture1d(&'a texture::CompressedTexture1d, Option<SamplerBehavior>),
     SrgbTexture1d(&'a texture::SrgbTexture1d, Option<SamplerBehavior>),
@@ -1092,3 +1108,129 @@ impl AsUniformValue for [[f64; 4]; 4] {
 }
 
 impl_uniform_block_basic!([[f64; 4]; 4], UniformType::DoubleMat4);
+
+impl AsUniformValue for i64 {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64(*self as i64)
+    }
+}
+
+impl_uniform_block_basic!(i64, UniformType::Int);
+
+impl AsUniformValue for [i64; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64Vec2(*self)
+    }
+}
+
+impl_uniform_block_basic!([i64; 2], UniformType::Int64Vec2);
+
+impl AsUniformValue for (i64, i64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64Vec2([self.0, self.1])
+    }
+}
+
+impl_uniform_block_basic!((i64, i64), UniformType::Int64Vec2);
+
+impl AsUniformValue for [i64; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64Vec3(*self)
+    }
+}
+
+impl_uniform_block_basic!([i64; 3], UniformType::Int64Vec3);
+
+impl AsUniformValue for (i64, i64, i64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64Vec3([self.0, self.1, self.2])
+    }
+}
+
+impl_uniform_block_basic!((i64, i64, i64), UniformType::Int64Vec3);
+
+impl AsUniformValue for [i64; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64Vec4(*self)
+    }
+}
+
+impl_uniform_block_basic!([i64; 4], UniformType::Int64Vec4);
+
+impl AsUniformValue for (i64, i64, i64, i64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::Int64Vec4([self.0, self.1, self.2, self.3])
+    }
+}
+
+impl_uniform_block_basic!((i64, i64, i64, i64), UniformType::Int64Vec4);
+
+impl AsUniformValue for u64 {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64(*self as u64)
+    }
+}
+
+impl_uniform_block_basic!(u64, UniformType::UnsignedInt64);
+
+impl AsUniformValue for [u64; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64Vec2(*self)
+    }
+}
+
+impl_uniform_block_basic!([u64; 2], UniformType::UnsignedInt64Vec2);
+
+impl AsUniformValue for (u64, u64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64Vec2([self.0, self.1])
+    }
+}
+
+impl_uniform_block_basic!((u64, u64), UniformType::UnsignedInt64Vec2);
+
+impl AsUniformValue for [u64; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64Vec3(*self)
+    }
+}
+
+impl_uniform_block_basic!([u64; 3], UniformType::UnsignedInt64Vec3);
+
+impl AsUniformValue for (u64, u64, u64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64Vec3([self.0, self.1, self.2])
+    }
+}
+
+impl_uniform_block_basic!((u64, u64, u64), UniformType::UnsignedInt64Vec3);
+
+impl AsUniformValue for [u64; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64Vec4(*self)
+    }
+}
+
+impl_uniform_block_basic!([u64; 4], UniformType::UnsignedInt64Vec4);
+
+impl AsUniformValue for (u64, u64, u64, u64) {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue {
+        UniformValue::UnsignedInt64Vec4([self.0, self.1, self.2, self.3])
+    }
+}
+
+impl_uniform_block_basic!((u64, u64, u64, u64), UniformType::UnsignedInt64Vec4);

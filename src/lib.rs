@@ -406,6 +406,14 @@ enum RawUniformValue {
     DoubleVec2([gl::types::GLdouble; 2]),
     DoubleVec3([gl::types::GLdouble; 3]),
     DoubleVec4([gl::types::GLdouble; 4]),
+    Int64(gl::types::GLint64),
+    Int64Vec2([gl::types::GLint64; 2]),
+    Int64Vec3([gl::types::GLint64; 3]),
+    Int64Vec4([gl::types::GLint64; 4]),
+    UnsignedInt64(gl::types::GLuint64),
+    UnsignedInt64Vec2([gl::types::GLuint64; 2]),
+    UnsignedInt64Vec3([gl::types::GLuint64; 3]),
+    UnsignedInt64Vec4([gl::types::GLuint64; 4]),
 }
 
 /// Area of a surface in pixels.
