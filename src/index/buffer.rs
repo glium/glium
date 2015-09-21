@@ -1,4 +1,4 @@
-use buffer::{Buffer, BufferSlice, BufferAny, BufferType};
+use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType};
 use buffer::{BufferMode, BufferCreationError};
 use gl;
 use BufferExt;
@@ -192,6 +192,22 @@ impl<T> DerefMut for IndexBuffer<T> where T: Index {
     }
 }
 
+impl<'a, T> From<&'a IndexBuffer<T>> for BufferSlice<'a, [T]> where T: Index {
+    #[inline]
+    fn from(b: &'a IndexBuffer<T>) -> BufferSlice<'a, [T]> {
+        let b: &Buffer<[T]> = &*b;
+        b.as_slice()
+    }
+}
+
+impl<'a, T> From<&'a mut IndexBuffer<T>> for BufferMutSlice<'a, [T]> where T: Index {
+    #[inline]
+    fn from(b: &'a mut IndexBuffer<T>) -> BufferMutSlice<'a, [T]> {
+        let b: &mut Buffer<[T]> = &mut *b;
+        b.as_mut_slice()
+    }
+}
+
 // TODO: remove this
 impl<T> GlObject for IndexBuffer<T> where T: Index {
     type Id = gl::types::GLuint;
@@ -258,6 +274,13 @@ impl<'a, T> DerefMut for IndexBufferSlice<'a, T> where T: Index {
     #[inline]
     fn deref_mut(&mut self) -> &mut BufferSlice<'a, [T]> {
         &mut self.buffer
+    }
+}
+
+impl<'a, T> From<IndexBufferSlice<'a, T>> for BufferSlice<'a, [T]> where T: Index {
+    #[inline]
+    fn from(b: IndexBufferSlice<'a, T>) -> BufferSlice<'a, [T]> {
+        b.buffer
     }
 }
 

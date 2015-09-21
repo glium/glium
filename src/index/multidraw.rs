@@ -7,6 +7,7 @@ use std::ops::DerefMut;
 
 use backend::Facade;
 use buffer::{BufferCreationError, BufferType, BufferMode, Buffer};
+use buffer::{BufferSlice, BufferMutSlice};
 use index::{IndicesSource, PrimitiveType, IndexBuffer, Index};
 
 /// Represents an element in a list of draw commands.
@@ -130,6 +131,22 @@ impl DerefMut for DrawCommandsNoIndicesBuffer {
     }
 }
 
+impl<'a> From<&'a DrawCommandsNoIndicesBuffer> for BufferSlice<'a, [DrawCommandNoIndices]> {
+    #[inline]
+    fn from(b: &'a DrawCommandsNoIndicesBuffer) -> BufferSlice<'a, [DrawCommandNoIndices]> {
+        let b: &Buffer<[DrawCommandNoIndices]> = &*b;
+        b.as_slice()
+    }
+}
+
+impl<'a> From<&'a mut DrawCommandsNoIndicesBuffer> for BufferMutSlice<'a, [DrawCommandNoIndices]> {
+    #[inline]
+    fn from(b: &'a mut DrawCommandsNoIndicesBuffer) -> BufferMutSlice<'a, [DrawCommandNoIndices]> {
+        let b: &mut Buffer<[DrawCommandNoIndices]> = &mut *b;
+        b.as_mut_slice()
+    }
+}
+
 /// A buffer containing a list of draw commands.
 pub struct DrawCommandsIndicesBuffer {
     buffer: Buffer<[DrawCommandIndices]>,
@@ -216,5 +233,21 @@ impl DerefMut for DrawCommandsIndicesBuffer {
     #[inline]
     fn deref_mut(&mut self) -> &mut Buffer<[DrawCommandIndices]> {
         &mut self.buffer
+    }
+}
+
+impl<'a> From<&'a DrawCommandsIndicesBuffer> for BufferSlice<'a, [DrawCommandIndices]> {
+    #[inline]
+    fn from(b: &'a DrawCommandsIndicesBuffer) -> BufferSlice<'a, [DrawCommandIndices]> {
+        let b: &Buffer<[DrawCommandIndices]> = &*b;
+        b.as_slice()
+    }
+}
+
+impl<'a> From<&'a mut DrawCommandsIndicesBuffer> for BufferMutSlice<'a, [DrawCommandIndices]> {
+    #[inline]
+    fn from(b: &'a mut DrawCommandsIndicesBuffer) -> BufferMutSlice<'a, [DrawCommandIndices]> {
+        let b: &mut Buffer<[DrawCommandIndices]> = &mut *b;
+        b.as_mut_slice()
     }
 }
