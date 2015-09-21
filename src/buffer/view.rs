@@ -198,7 +198,10 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     ///
     /// Panics if `T` is unsized and the other buffer is too small.
     ///
-    pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
+    pub fn copy_to<'a, S>(&self, target: S) -> Result<(), CopyError>
+                          where S: Into<BufferSlice<'a, T>>, T: 'a
+    {
+        let target = target.into();
         let alloc = self.alloc.as_ref().unwrap();
 
         try!(alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes()));
@@ -551,7 +554,11 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     /// # Panic
     ///
     /// Panics if `T` is unsized and the other buffer is too small.
-    pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
+    pub fn copy_to<S>(&self, target: S) -> Result<(), CopyError>
+                      where S: Into<BufferSlice<'a, T>>
+    {
+        let target = target.into();
+
         try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
                                 target.get_offset_bytes()));
 
@@ -674,6 +681,33 @@ impl<'a, T: ?Sized> fmt::Debug for BufferSlice<'a, T> where T: Content {
     }
 }
 
+impl<'a, T: ?Sized> From<BufferMutSlice<'a, T>> for BufferSlice<'a, T> where T: Content + 'a {
+    #[inline]
+    fn from(s: BufferMutSlice<'a, T>) -> BufferSlice<'a, T> {
+        BufferSlice {
+            alloc: s.alloc,
+            bytes_start: s.bytes_start,
+            bytes_end: s.bytes_end,
+            fence: s.fence,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<'a, T: ?Sized> From<&'a Buffer<T>> for BufferSlice<'a, T> where T: Content + 'a {
+    #[inline]
+    fn from(b: &'a Buffer<T>) -> BufferSlice<'a, T> {
+        b.as_slice()
+    }
+}
+
+impl<'a, T: ?Sized> From<&'a mut Buffer<T>> for BufferSlice<'a, T> where T: Content + 'a {
+    #[inline]
+    fn from(b: &'a mut Buffer<T>) -> BufferSlice<'a, T> {
+        b.as_slice()
+    }
+}
+
 impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferSlice<'a, T> where T: Content {
     #[inline]
     fn add_fence(&self) -> Option<Inserter<'a>> {
@@ -776,7 +810,7 @@ pub struct BufferMutSlice<'a, T: ?Sized> where T: Content {
     marker: PhantomData<T>,
 }
 
-impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
+impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     /// Returns the size in bytes of this slice.
     #[inline]
     pub fn get_size(&self) -> usize {
@@ -881,7 +915,11 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content {
     /// # Panic
     ///
     /// Panics if `T` is unsized and the other buffer is too small.
-    pub fn copy_to(&self, target: BufferSlice<T>) -> Result<(), CopyError> {
+    pub fn copy_to<S>(&self, target: S) -> Result<(), CopyError>
+                      where S: Into<BufferSlice<'a, T>>
+    {
+        let target = target.into();
+
         try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
                                 target.get_offset_bytes()));
 
@@ -1012,6 +1050,13 @@ impl<'a, T: ?Sized> fmt::Debug for BufferMutSlice<'a, T> where T: Content {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{:?}", self.alloc)
+    }
+}
+
+impl<'a, T: ?Sized> From<&'a mut Buffer<T>> for BufferMutSlice<'a, T> where T: Content + 'a {
+    #[inline]
+    fn from(b: &'a mut Buffer<T>) -> BufferMutSlice<'a, T> {
+        b.as_mut_slice()
     }
 }
 

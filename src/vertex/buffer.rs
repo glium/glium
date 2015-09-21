@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt;
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{Buffer, BufferSlice, BufferAny, BufferType, BufferMode, BufferCreationError};
+use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -345,6 +345,22 @@ impl<T> DerefMut for VertexBuffer<T> where T: Copy {
     }
 }
 
+impl<'a, T> From<&'a VertexBuffer<T>> for BufferSlice<'a, [T]> where T: Copy {
+    #[inline]
+    fn from(b: &'a VertexBuffer<T>) -> BufferSlice<'a, [T]> {
+        let b: &Buffer<[T]> = &*b;
+        b.as_slice()
+    }
+}
+
+impl<'a, T> From<&'a mut VertexBuffer<T>> for BufferMutSlice<'a, [T]> where T: Copy {
+    #[inline]
+    fn from(b: &'a mut VertexBuffer<T>) -> BufferMutSlice<'a, [T]> {
+        let b: &mut Buffer<[T]> = &mut *b;
+        b.as_mut_slice()
+    }
+}
+
 impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Copy {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
@@ -365,6 +381,13 @@ impl<'a, T> DerefMut for VertexBufferSlice<'a, T> where T: Copy {
     #[inline]
     fn deref_mut(&mut self) -> &mut BufferSlice<'a, [T]> {
         &mut self.buffer
+    }
+}
+
+impl<'a, T> From<VertexBufferSlice<'a, T>> for BufferSlice<'a, [T]> where T: Copy {
+    #[inline]
+    fn from(b: VertexBufferSlice<'a, T>) -> BufferSlice<'a, [T]> {
+        b.buffer
     }
 }
 

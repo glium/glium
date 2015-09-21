@@ -1,4 +1,5 @@
 use buffer::{Content, Buffer, BufferAny, BufferType, BufferMode, BufferCreationError};
+use buffer::{BufferSlice, BufferMutSlice};
 use uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
 use program;
 
@@ -188,6 +189,20 @@ impl<T: ?Sized> DerefMut for UniformBuffer<T> where T: Content {
     #[inline]
     fn deref_mut(&mut self) -> &mut Buffer<T> {
         &mut self.buffer
+    }
+}
+
+impl<'a, T: ?Sized> From<&'a UniformBuffer<T>> for BufferSlice<'a, T> where T: Content {
+    #[inline]
+    fn from(b: &'a UniformBuffer<T>) -> BufferSlice<'a, T> {
+        b.buffer.as_slice()
+    }
+}
+
+impl<'a, T: ?Sized> From<&'a mut UniformBuffer<T>> for BufferMutSlice<'a, T> where T: Content {
+    #[inline]
+    fn from(b: &'a mut UniformBuffer<T>) -> BufferMutSlice<'a, T> {
+        b.buffer.as_mut_slice()
     }
 }
 
