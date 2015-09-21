@@ -74,7 +74,7 @@ impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     ///
     /// Instead of calling `surface.draw(&vertex_buffer.slice(...).unwrap(), ...)` 
     /// you can call `surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)`. 
-    /// This will draw one instance of the geometry for each element in this buffer. 
+    /// This will draw one instance of the geometry for each element in this buffer slice. 
     /// The attributes are still passed to the vertex shader, but each entry is passed 
     /// for each different instance.
     #[inline]
