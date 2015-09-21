@@ -461,6 +461,12 @@ impl<T: ?Sized> BufferExt for Buffer<T> where T: Content {
     }
 
     #[inline]
+    fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext) {
+        let alloc = self.alloc.as_ref().unwrap();
+        alloc.prepare_and_bind_for_dispatch_indirect(ctxt);
+    }
+
+    #[inline]
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         let alloc = self.alloc.as_ref().unwrap();
         alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. alloc.get_size());
@@ -738,6 +744,11 @@ impl<'a, T: ?Sized> BufferExt for BufferSlice<'a, T> where T: Content {
     #[inline]
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
         self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    #[inline]
+    fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_dispatch_indirect(ctxt);
     }
 
     #[inline]
@@ -1168,6 +1179,11 @@ impl BufferExt for BufferAny {
     }
 
     #[inline]
+    fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_dispatch_indirect(ctxt);
+    }
+
+    #[inline]
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
     }
@@ -1300,6 +1316,11 @@ impl<'a> BufferExt for BufferAnySlice<'a> {
     #[inline]
     fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
         self.alloc.prepare_and_bind_for_draw_indirect(ctxt);
+    }
+
+    #[inline]
+    fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext) {
+        self.alloc.prepare_and_bind_for_dispatch_indirect(ctxt);
     }
 
     #[inline]

@@ -1,4 +1,5 @@
 use gl;
+use libc;
 
 use context::CommandContext;
 use backend::Facade;
@@ -20,6 +21,7 @@ use program::shader::{build_shader, check_shader_type_compatibility};
 
 use program::raw::RawProgram;
 
+use buffer::BufferSlice;
 use uniforms::Uniforms;
 
 /// A combination of compute shaders linked together.
@@ -68,6 +70,16 @@ impl ComputeShader {
     #[inline]
     pub fn execute<U>(&self, uniforms: U, x: u32, y: u32, z: u32) where U: Uniforms {
         unsafe { self.raw.dispatch_compute(uniforms, x, y, z) }.unwrap();       // FIXME: return error
+    }
+
+    /// Executes the compute shader.
+    ///
+    /// This is similar to `execute`, except that the parameters are stored in a buffer.
+    #[inline]
+    pub fn execute_indirect<U>(&self, uniforms: U, buffer: BufferSlice<ComputeCommand>)
+                               where U: Uniforms
+    {
+        unsafe { self.raw.dispatch_compute_indirect(uniforms, buffer) }.unwrap();       // FIXME: return error
     }
 
     /// Returns the program's compiled binary.
@@ -190,3 +202,17 @@ impl ProgramExt for ComputeShader {
         self.raw.get_shader_storage_blocks()
     }
 }
+
+/// Represents a compute shader command waiting to be dispatched.
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ComputeCommand {
+    /// Number of X groups.
+    pub num_groups_x: libc::c_uint,
+    /// Number of Y groups.
+    pub num_groups_y: libc::c_uint,
+    /// Number of Z groups.
+    pub num_groups_z: libc::c_uint,
+}
+
+implement_uniform_block!(ComputeCommand, num_groups_x, num_groups_y, num_groups_z);
