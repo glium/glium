@@ -505,6 +505,12 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
         self.bytes_end - self.bytes_start
     }
 
+    /// Returns the context corresponding to this buffer.
+    #[inline]
+    pub fn get_context(&self) -> &Rc<Context> {
+        self.alloc.get_context()
+    }
+
     /// Uploads some data in this buffer.
     ///
     /// # Implementation
