@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt;
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError};
+use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -67,6 +67,27 @@ pub struct VertexBuffer<T> where T: Copy {
 pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
     buffer: BufferSlice<'b, [T]>,
     bindings: &'b VertexFormat,
+}
+
+impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
+    /// Creates a marker that instructs glium to use multiple instances.
+    ///
+    /// Instead of calling `surface.draw(&vertex_buffer.slice(...).unwrap(), ...)` 
+    /// you can call `surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)`. 
+    /// This will draw one instance of the geometry for each element in this buffer slice. 
+    /// The attributes are still passed to the vertex shader, but each entry is passed 
+    /// for each different instance.
+    #[inline]
+    pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
+        // TODO: don't check this here
+        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
+            !self.get_context().get_extensions().gl_arb_instanced_arrays
+        {
+            return Err(InstancingNotSupported);
+        }
+
+        Ok(PerInstance(self.buffer.as_slice_any(), &self.bindings))
+    }
 }
 
 impl<T> VertexBuffer<T> where T: Vertex {
