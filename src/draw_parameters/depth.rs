@@ -244,6 +244,12 @@ pub fn sync_depth(ctxt: &mut CommandContext, depth: &Depth) -> Result<(), DrawEr
     }
 
     // depth range
+    if depth.range.0 < 0.0 || depth.range.0 > 1.0 ||
+       depth.range.1 < 0.0 || depth.range.1 > 1.0
+    {
+        return Err(DrawError::InvalidDepthRange);
+    }
+
     if depth.range != ctxt.state.depth_range {
         // TODO: WebGL requires depth.range.1 > depth.range.0
         unsafe {
