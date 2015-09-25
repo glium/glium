@@ -447,7 +447,7 @@ impl<'a> Default for DrawParameters<'a> {
     }
 }
 
-/// Checks parameters and panics if something is wrong.
+/// DEPRECATED. Checks parameters and returns an error if something is wrong.
 pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawError> {
     if params.depth.range.0 < 0.0 || params.depth.range.0 > 1.0 ||
        params.depth.range.1 < 0.0 || params.depth.range.1 > 1.0

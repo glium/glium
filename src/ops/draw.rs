@@ -32,8 +32,6 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                       dimensions: (u32, u32)) -> Result<(), DrawError>
                       where U: Uniforms, V: MultiVerticesSource<'a>
 {
-    try!(draw_parameters::validate(context, draw_parameters));
-
     // this contains the list of fences that will need to be fulfilled after the draw command
     // has started
     let mut fences = Vec::with_capacity(0);

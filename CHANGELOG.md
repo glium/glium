@@ -6,6 +6,7 @@
  - Add support for 64bits integer uniforms.
  - `copy_to` now takes a `Into<BufferSlice>` instead of a `BufferSlice`.
  - Glium no longer calls `glBlendColor` if the blending algorithm doesn't use it.
+ - Deprecated `DrawParameters::validate`.
 
 ## Version 0.9.0 (2015-09-15)
 
