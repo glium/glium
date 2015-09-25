@@ -5,6 +5,7 @@ use version::Version;
 use context::CommandContext;
 use backend::Facade;
 use BufferExt;
+use ContextExt;
 use CapabilitiesSource;
 use TransformFeedbackSessionExt;
 use buffer::{Buffer, BufferAnySlice};
@@ -210,7 +211,10 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
 impl<'a> Drop for TransformFeedbackSession<'a> {
     #[inline]
     fn drop(&mut self) {
-        // FIXME: since the session can be mem::forget'ed, the code in buffer/alloc.rs should make
-        //        sure that the buffer isn't in use for transform feedback
+        // Since the session can be mem::forget'ed, the code in buffer/alloc.rs ensures that the
+        // buffer isn't used by transform feedback.
+        // However we end the session now anyway.
+        let mut ctxt = self.buffer.get_context().make_current();
+        Self::ensure_buffer_out_of_transform_feedback(&mut ctxt, self.buffer.get_buffer_id());
     }
 }

@@ -1288,6 +1288,12 @@ impl<'a> BufferAnySlice<'a> {
     pub fn invalidate(&self) {
         self.alloc.invalidate(self.bytes_start, self.get_size());
     }
+
+    /// Returns the context corresponding to this buffer.
+    #[inline]
+    pub fn get_context(&self) -> &Rc<Context> {
+        self.alloc.get_context()
+    }
 }
 
 impl<'a> fmt::Debug for BufferAnySlice<'a> {
