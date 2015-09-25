@@ -4,7 +4,7 @@ Our current lighting model is a bit primitive.
 We are going to modify it to use what is called *Blinn-Phong shading*.
 
 This model is still very often used in commercial games, and has only recently been
-superceded by physical-based rendering.
+superseded by physical-based rendering.
 
 ## Specular reflection
 

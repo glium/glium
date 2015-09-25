@@ -117,7 +117,7 @@ lighting.
 Normal mapping consists in adjusting the lighting calculation of our rectangle in order to do
 as if there were individual stones in there. This is done by providing a normal *per-fragment*.
 If you remember, a normal is a vector perpendicular to the surface at a location. By using
-more fine-grained normals, we can also make the user belive that the surface itself is
+more fine-grained normals, we can also make the user believe that the surface itself is
 fine-grained.
 
 Here is what a *normal map* is:

@@ -28,7 +28,7 @@
 //! };
 //! ```
 //!
-//! After drawing with these parameters, you can retreive the value inside the query:
+//! After drawing with these parameters, you can retrieve the value inside the query:
 //!
 //! ```no_run
 //! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::uninitialized() };
@@ -367,7 +367,7 @@ pub struct DrawParameters<'a> {
     /// Hint for the GPU of the bounding box of the geometry.
     ///
     /// If you're using geometry shaders or tessellation shaders, it can be extremely advantageous
-    /// for the GPU to know where on the screen the primitive is. This field specificies the
+    /// for the GPU to know where on the screen the primitive is. This field specifies the
     /// bounding box (`x`, `y`, `z`, `w`) of the primitive and serves as a hint to the GPU.
     ///
     /// The GPU is free not to draw samples outside of the bounding box. Whether the samples are

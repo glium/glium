@@ -59,7 +59,7 @@ pub struct TextureAny {
     requested_format: TextureFormatRequest,
 
     /// Cache for the actual format of the texture. The outer Option is None if the format hasn't
-    /// been checked yet. The inner Result is Err if the format has been checkek but is unknown.
+    /// been checked yet. The inner Result is Err if the format has been checked but is unknown.
     actual_format: Cell<Option<Result<InternalFormat, GetFormatError>>>,
 
     /// Type and dimensions of the texture.
@@ -800,7 +800,7 @@ impl<'a> TextureAnyMipmap<'a> {
     ///
     /// # Panic
     ///
-    /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
+    /// Panics if the offsets and dimensions are outside the boundaries of the texture. Panics
     /// if the buffer is not big enough to hold the data.
     #[inline]
     pub fn raw_upload_from_pixel_buffer<P>(&self, source: BufferSlice<[P]>, x: Range<u32>,
@@ -814,7 +814,7 @@ impl<'a> TextureAnyMipmap<'a> {
     ///
     /// # Panic
     ///
-    /// Panicks if the offsets and dimenions are outside the boundaries of the texture. Panicks
+    /// Panics if the offsets and dimensions are outside the boundaries of the texture. Panics
     /// if the buffer is not big enough to hold the data.
     #[inline]
     pub fn raw_upload_from_pixel_buffer_inverted<P>(&self, source: BufferSlice<[P]>,

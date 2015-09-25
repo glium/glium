@@ -54,12 +54,12 @@ pub struct Context {
     /// Tells whether or not the backend supports each extension.
     extensions: ExtensionsList,
 
-    /// Constants defined by the backend and retreived at initialization. For example, number
+    /// Constants defined by the backend and retrieved at initialization. For example, number
     /// of texture units, maximum size of the viewport, etc.
     capabilities: Capabilities,
 
     /// Glue between glium and the code that handles windowing. Contains functions that allows
-    /// you to swap buffers, retreive the size of the framebuffer, etc.
+    /// you to swap buffers, retrieve the size of the framebuffer, etc.
     backend: RefCell<Box<Backend>>,
 
     /// Whether or not glium must check that the OpenGL context is the current one before each

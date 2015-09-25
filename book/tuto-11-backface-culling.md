@@ -25,7 +25,7 @@ called *backface culling*. Your 3D modelling software usually ensures that this 
 applied.
 
 Most of the time this is purely an optimization. By discarding half of the triangles after the
-vertex shader step, you reduce by half the number of fragment shader invokations. This can lead
+vertex shader step, you reduce by half the number of fragment shader invocations. This can lead
 to a pretty good speedup.
 
 ## Backface culling in glium

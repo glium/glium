@@ -4,7 +4,7 @@ Let's continue with the teapot of the previous section:
 
 ![The teapot](tuto-07-correct.png)
 
-Obviously there is something wrong with this image: we don't see any of the cuves of the teapot
+Obviously there is something wrong with this image: we don't see any of the curves of the teapot
 except at its borders.
 This is not because the teapot is red, but because there is no lighting.
 
@@ -13,7 +13,7 @@ we will use *Gouraud shading* which is very simple.
 
 ## The theory
 
-The idea behind gouraud shading is that if the direction of the light is perpendical to an
+The idea behind gouraud shading is that if the direction of the light is perpendicular to an
 object's surface, then this surface should be bright. If the direction of the light is parallel
 to the surface, then the surface should be dark.
 
@@ -66,7 +66,7 @@ I won't go into details about why you have to use the transpose of the inverse.
 
 If you recall the section about colors, the attributes that we pass from the vertex shader
 to the fragment shader are interpolated per fragment. This means that each fragment will get
-a different normal from the neighbourg fragments, and thus a different color.
+a different normal from the neighbouring fragments, and thus a different color.
 
 Now let's take a look at our fragment shader:
 

@@ -38,7 +38,7 @@ use gl;
 ///   them once the session has been created. An error is generated if you draw with a different
 ///   program than the one you created the session with.
 ///
-/// - The transform feedback process doesn't necessarly fill the whole buffer. To retreive the
+/// - The transform feedback process doesn't necessarily fill the whole buffer. To retrieve the
 ///   number of vertices that are written to the buffer, use a query object (see the
 ///   `draw_parameters` module). It is however usually easy to determine in advance the number of
 ///   vertices that will be written based on the input data.

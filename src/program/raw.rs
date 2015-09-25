@@ -494,7 +494,7 @@ impl RawProgram {
         buffer.prepare_and_bind_for_dispatch_indirect(&mut ctxt);
         let offset = buffer.get_offset_bytes();
 
-        // an error is generated if the error is not a multiple of 4
+        // an error is generated if the offset is not a multiple of 4
         assert!(offset % 4 == 0);
 
         if let Some(fence) = buffer.add_fence() {

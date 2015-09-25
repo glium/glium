@@ -24,7 +24,7 @@ screen the vertex is.
 For the moment this value is simply discarded by the GPU, but now we are going to ask it to use
 this value to determine which pixel should be visible.
 
-This functionnality adds a step to the rendering pipeline. After the fragment shader has been
+This functionality adds a step to the rendering pipeline. After the fragment shader has been
 called, the GPU will then take the depth value of this fragment (interpolated from the depth of
 the surrounding vertices) and compare it with the depth of the pixel that is already on the
 screen. If the depth is inferior to the existing value, the pixel is written and the depth value
