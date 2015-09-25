@@ -168,7 +168,7 @@
 
 ## Version 0.6.0
 
- - `Frame::finish` now returns a `Result`. `Frame`'s destrutor will panic if `finish` has not been called.
+ - `Frame::finish` now returns a `Result`. `Frame`'s destructor will panic if `finish` has not been called.
  - `with_compressed_data` and `with_compressed_data_if_supported` now have an additional parameter for mipmaps.
  - All the texture constructors that used to take a boolean as parameter for mipmaps now takes an enum.
  - `empty_with_format` and `empty_with_format_if_supported` are now allowed for compressed textures.
@@ -202,7 +202,7 @@
  - Can now bind a uniform buffer as a shader storage buffer.
  - Added `Program::get_shader_storage_blocks()` to obtain the list of shader storage blocks.
  - The `Attribute` trait is now implemented on types from cgmath.
- - Now caching the actual format of a texture in case it is retreived multiple times.
+ - Now caching the actual format of a texture in case it is retrieved multiple times.
 
 ## Version 0.5.2
 
@@ -278,7 +278,7 @@
 ## Version 0.3.5 (2015-05-02)
 
  - Glium now reexports glutin. You can access glutin with `glium::glutin`.
- - Fixed trying to retreive uniform blocks on OpenGL ES 2.
+ - Fixed trying to retrieve uniform blocks on OpenGL ES 2.
 
 ## Version 0.3.4 (2015-04-28)
 
