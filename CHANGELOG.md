@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.9.1 (2015-09-30)
 
  - Add `ComputeShader::execute_indirect`.
  - Add support for 64bits integer uniforms.
