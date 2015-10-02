@@ -323,6 +323,49 @@ pub enum UncompressedFloatFormat {
 }
 
 impl UncompressedFloatFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<UncompressedFloatFormat> {
+        vec![
+            UncompressedFloatFormat::U8,
+            UncompressedFloatFormat::I8,
+            UncompressedFloatFormat::U16,
+            UncompressedFloatFormat::I16,
+            UncompressedFloatFormat::U8U8,
+            UncompressedFloatFormat::I8I8,
+            UncompressedFloatFormat::U16U16,
+            UncompressedFloatFormat::I16I16,
+            UncompressedFloatFormat::U3U3U2,
+            UncompressedFloatFormat::U4U4U4,
+            UncompressedFloatFormat::U5U5U5,
+            UncompressedFloatFormat::U8U8U8,
+            UncompressedFloatFormat::I8I8I8,
+            UncompressedFloatFormat::U10U10U10,
+            UncompressedFloatFormat::U12U12U12,
+            UncompressedFloatFormat::U16U16U16,
+            UncompressedFloatFormat::I16I16I16,
+            UncompressedFloatFormat::U2U2U2U2,
+            UncompressedFloatFormat::U4U4U4U4,
+            UncompressedFloatFormat::U5U5U5U1,
+            UncompressedFloatFormat::U8U8U8U8,
+            UncompressedFloatFormat::I8I8I8I8,
+            UncompressedFloatFormat::U10U10U10U2,
+            UncompressedFloatFormat::U12U12U12U12,
+            UncompressedFloatFormat::U16U16U16U16,
+            UncompressedFloatFormat::I16I16I16I16,
+            UncompressedFloatFormat::F16,
+            UncompressedFloatFormat::F16F16,
+            UncompressedFloatFormat::F16F16F16,
+            UncompressedFloatFormat::F16F16F16F16,
+            UncompressedFloatFormat::F32,
+            UncompressedFloatFormat::F32F32,
+            UncompressedFloatFormat::F32F32F32,
+            UncompressedFloatFormat::F32F32F32F32,
+            UncompressedFloatFormat::F11F11F10,
+            UncompressedFloatFormat::F9F9F9,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -555,6 +598,15 @@ pub enum SrgbFormat {
 }
 
 impl SrgbFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<SrgbFormat> {
+        vec![
+            SrgbFormat::U8U8U8,
+            SrgbFormat::U8U8U8U8,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -609,6 +661,25 @@ pub enum UncompressedIntFormat {
 }
 
 impl UncompressedIntFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<UncompressedIntFormat> {
+        vec![
+            UncompressedIntFormat::I8,
+            UncompressedIntFormat::I16,
+            UncompressedIntFormat::I32,
+            UncompressedIntFormat::I8I8,
+            UncompressedIntFormat::I16I16,
+            UncompressedIntFormat::I32I32,
+            UncompressedIntFormat::I8I8I8,
+            UncompressedIntFormat::I16I16I16,
+            UncompressedIntFormat::I32I32I32,
+            UncompressedIntFormat::I8I8I8I8,
+            UncompressedIntFormat::I16I16I16I16,
+            UncompressedIntFormat::I32I32I32I32,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -718,6 +789,26 @@ pub enum UncompressedUintFormat {
 }
 
 impl UncompressedUintFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<UncompressedUintFormat> {
+        vec![
+            UncompressedUintFormat::U8,
+            UncompressedUintFormat::U16,
+            UncompressedUintFormat::U32,
+            UncompressedUintFormat::U8U8,
+            UncompressedUintFormat::U16U16,
+            UncompressedUintFormat::U32U32,
+            UncompressedUintFormat::U8U8U8,
+            UncompressedUintFormat::U16U16U16,
+            UncompressedUintFormat::U32U32U32,
+            UncompressedUintFormat::U8U8U8U8,
+            UncompressedUintFormat::U16U16U16U16,
+            UncompressedUintFormat::U32U32U32U32,
+            UncompressedUintFormat::U10U10U10U2,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -839,6 +930,24 @@ pub enum CompressedFormat {
 }
 
 impl CompressedFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<CompressedFormat> {
+        vec![
+            CompressedFormat::RgtcFormatU,
+            CompressedFormat::RgtcFormatI,
+            CompressedFormat::RgtcFormatUU,
+            CompressedFormat::RgtcFormatII,
+            CompressedFormat::BptcUnorm4,
+            CompressedFormat::BptcSignedFloat3,
+            CompressedFormat::BptcUnsignedFloat3,
+            CompressedFormat::S3tcDxt1NoAlpha,
+            CompressedFormat::S3tcDxt1Alpha,
+            CompressedFormat::S3tcDxt3Alpha,
+            CompressedFormat::S3tcDxt5Alpha,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -917,6 +1026,18 @@ pub enum CompressedSrgbFormat {
 }
 
 impl CompressedSrgbFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<CompressedSrgbFormat> {
+        vec![
+            CompressedSrgbFormat::Bptc,
+            CompressedSrgbFormat::S3tcDxt1NoAlpha,
+            CompressedSrgbFormat::S3tcDxt1Alpha,
+            CompressedSrgbFormat::S3tcDxt3Alpha,
+            CompressedSrgbFormat::S3tcDxt5Alpha,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -973,6 +1094,17 @@ pub enum DepthFormat {
 }
 
 impl DepthFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<DepthFormat> {
+        vec![
+            DepthFormat::I16,
+            DepthFormat::I24,
+            DepthFormat::I32,
+            DepthFormat::F32,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -1024,6 +1156,15 @@ pub enum DepthStencilFormat {
 }
 
 impl DepthStencilFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<DepthStencilFormat> {
+        vec![
+            DepthStencilFormat::I24I8,
+            DepthStencilFormat::F32I8,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -1071,6 +1212,17 @@ pub enum StencilFormat {
 }
 
 impl StencilFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<StencilFormat> {
+        vec![
+            StencilFormat::I1,
+            StencilFormat::I4,
+            StencilFormat::I8,
+            StencilFormat::I16,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
