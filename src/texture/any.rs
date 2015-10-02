@@ -141,8 +141,8 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
     let generate_mipmaps = mipmaps.should_generate();
     let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
 
-    let teximg_internal_format = try!(image_format::format_request_to_glenum(facade.get_context(), data.as_ref().map(|&(c, _)| c), format, image_format::RequestType::TexImage));
-    let storage_internal_format = image_format::format_request_to_glenum(facade.get_context(), data.as_ref().map(|&(c, _)| c), format, image_format::RequestType::TexStorage).ok();
+    let teximg_internal_format = try!(image_format::format_request_to_glenum(facade.get_context(), format, image_format::RequestType::TexImage(data.as_ref().map(|&(c, _)| c))));
+    let storage_internal_format = image_format::format_request_to_glenum(facade.get_context(), format, image_format::RequestType::TexStorage).ok();
 
     let (client_format, client_type) = match (&data, format) {
         (&Some((client_format, _)), f) => try!(image_format::client_format_to_glenum(facade.get_context(), client_format, f, false)),
