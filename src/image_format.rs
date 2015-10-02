@@ -1299,6 +1299,56 @@ pub enum TextureFormat {
     DepthStencilFormat(DepthStencilFormat),
 }
 
+impl TextureFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<TextureFormat> {
+        // TODO: this function looks ugly
+        UncompressedFloatFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        UncompressedIntFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        UncompressedUintFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        SrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        CompressedFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        CompressedSrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        DepthFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        StencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        DepthStencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format())))))))))
+        .collect()
+    }
+
+    /// Returns true if this format is supported by the backend for textures.
+    #[inline]
+    pub fn is_supported_for_textures<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
+            &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
+            &TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
+            &TextureFormat::Srgb(format) => format.is_supported(c),
+            &TextureFormat::CompressedFormat(format) => format.is_supported(c),
+            &TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
+            &TextureFormat::DepthFormat(format) => format.is_supported(c),
+            &TextureFormat::StencilFormat(format) => format.is_supported_for_textures(c),
+            &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+        }
+    }
+
+    /// Returns true if this format is supported by the backend for renderbuffers.
+    #[inline]
+    pub fn is_supported_for_renderbuffers<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
+            &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
+            &TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
+            &TextureFormat::Srgb(format) => format.is_supported(c),
+            &TextureFormat::CompressedFormat(format) => format.is_supported(c),
+            &TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
+            &TextureFormat::DepthFormat(format) => format.is_supported(c),
+            &TextureFormat::StencilFormat(format) => format.is_supported_for_renderbuffers(c),
+            &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClientFormatAny {
     ClientFormat(ClientFormat),
