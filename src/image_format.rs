@@ -6,6 +6,7 @@ use gl;
 use context::Context;
 
 use CapabilitiesSource;
+use ToGlEnum;
 use version::{Api, Version};
 
 /// Error that is returned if the format is not supported by OpenGL.
@@ -190,7 +191,7 @@ impl ClientFormat {
 /// Some formats are marked as "guaranteed to be supported". What this means is that you are
 /// certain that the backend will use exactly these formats. If you try to use a format that
 /// is not supported by the backend, it will automatically fall back to a larger format.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
     ///
     ///
@@ -591,7 +592,7 @@ impl UncompressedFloatFormat {
 
 /// List of uncompressed pixel formats that contain floating-point data in the sRGB color space.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SrgbFormat {
     U8U8U8,
     U8U8U8U8,
@@ -641,7 +642,7 @@ impl SrgbFormat {
 
 /// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedIntFormat {
     I8,
     I16,
@@ -768,7 +769,7 @@ impl UncompressedIntFormat {
 
 /// List of uncompressed pixel formats that contain unsigned integral data.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedUintFormat {
     U8,
     U16,
@@ -901,7 +902,7 @@ impl UncompressedUintFormat {
 }
 
 /// List of compressed texture formats.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum CompressedFormat {
     /// Red/green compressed texture with one unsigned component.
     RgtcFormatU,
@@ -1015,7 +1016,7 @@ impl CompressedFormat {
 
 /// List of compressed pixel formats in the sRGB color space.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum CompressedSrgbFormat {
     /// BPTC format. sRGB with alpha. Also called `BC7` by DirectX.
     Bptc,
@@ -1084,7 +1085,7 @@ impl CompressedSrgbFormat {
 /// `I16`, `I24` and `I32` are still treated as if they were floating points.
 /// Only the internal representation is integral.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum DepthFormat {
     I16,
     I24,
@@ -1149,7 +1150,7 @@ impl DepthFormat {
 // TODO: If OpenGL 4.3 or ARB_stencil_texturing is not available, then depth/stencil
 //       textures are treated by samplers exactly like depth-only textures
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum DepthStencilFormat {
     I24I8,
     F32I8,
@@ -1203,7 +1204,7 @@ impl DepthStencilFormat {
 /// Stencil textures are a very recent OpenGL feature that may not be supported everywhere.
 /// Only `I8` is supported for textures. All the other formats can only be used with renderbuffers.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum StencilFormat {
     I1,
     I4,
@@ -1285,7 +1286,7 @@ impl StencilFormat {
 }
 
 /// Format of the internal representation of a texture.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum TextureFormat {
     UncompressedFloat(UncompressedFloatFormat),
@@ -1345,6 +1346,22 @@ impl TextureFormat {
             &TextureFormat::DepthFormat(format) => format.is_supported(c),
             &TextureFormat::StencilFormat(format) => format.is_supported_for_renderbuffers(c),
             &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+        }
+    }
+}
+
+impl ToGlEnum for TextureFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &TextureFormat::UncompressedFloat(f) => f.to_glenum(),
+            &TextureFormat::UncompressedIntegral(f) => f.to_glenum(),
+            &TextureFormat::UncompressedUnsigned(f) => f.to_glenum(),
+            &TextureFormat::Srgb(f) => f.to_glenum(),
+            &TextureFormat::CompressedFormat(f) => f.to_glenum(),
+            &TextureFormat::CompressedSrgbFormat(f) => f.to_glenum(),
+            &TextureFormat::DepthFormat(f) => f.to_glenum(),
+            &TextureFormat::StencilFormat(f) => f.to_glenum(),
+            &TextureFormat::DepthStencilFormat(f) => f.to_glenum(),
         }
     }
 }

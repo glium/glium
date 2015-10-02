@@ -1,14 +1,22 @@
 use context::ExtensionsList;
 use version::Version;
 use version::Api;
+
 use std::cmp;
 use std::ffi::CStr;
 use std::mem;
+use std::collections::HashMap;
+
 use gl;
+use ToGlEnum;
+
+use CapabilitiesSource;
+use image_format::TextureFormat;
 
 /// Represents the capabilities of the context.
 ///
 /// Contrary to the state, these values never change.
+#[derive(Debug)]
 pub struct Capabilities {
     /// List of versions of GLSL that are supported by the compiler.
     ///
@@ -35,6 +43,12 @@ pub struct Capabilities {
 
     /// Number of bits in the default framebuffer's stencil buffer
     pub stencil_bits: Option<u16>,
+
+    /// Informations about formats when used to create textures.
+    pub internal_formats_textures: HashMap<TextureFormat, FormatInfos>,
+
+    /// Informations about formats when used to create renderbuffers.
+    pub internal_formats_renderbuffers: HashMap<TextureFormat, FormatInfos>,
 
     /// Maximum number of textures that can be bound to a program.
     ///
@@ -87,6 +101,13 @@ pub struct Capabilities {
 
     /// Maximum samples of an empty framebuffer. `None` if not supported.
     pub max_framebuffer_samples: Option<gl::types::GLint>,
+}
+
+/// Information about an internal format.
+#[derive(Debug)]
+pub struct FormatInfos {
+    /// Possible values for multisampling. `None` if unknown.
+    pub multisamples: Option<Vec<gl::types::GLint>>,
 }
 
 /// Defines what happens when you change the current context.
@@ -274,6 +295,9 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                 v => Some(v as u16),
             }
         },
+
+        internal_formats_textures: get_internal_formats(gl, version, extensions, false),
+        internal_formats_renderbuffers: get_internal_formats(gl, version, extensions, true),
 
         max_combined_texture_image_units: {
             let mut val = 2;
@@ -557,4 +581,65 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
     }
 
     result
+}
+
+/// Returns all informations about all supported internal formats.
+pub fn get_internal_formats(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList,
+                            renderbuffer: bool) -> HashMap<TextureFormat, FormatInfos>
+{
+    // We create a dummy object to implement the `CapabilitiesSource` trait.
+    let dummy = {
+        struct DummyCaps<'a>(&'a Version, &'a ExtensionsList);
+        impl<'a> CapabilitiesSource for DummyCaps<'a> {
+            fn get_version(&self) -> &Version { self.0 }
+            fn get_extensions(&self) -> &ExtensionsList { self.1 }
+            fn get_capabilities(&self) -> &Capabilities { unreachable!() }
+        }
+        DummyCaps(version, extensions)
+    };
+
+    TextureFormat::get_formats_list().into_iter().filter_map(|format| {
+        if renderbuffer {
+            if !format.is_supported_for_renderbuffers(&dummy) {
+                return None;
+            }
+        } else {
+            if !format.is_supported_for_textures(&dummy) {
+                return None;
+            }
+        }
+
+        let infos = get_internal_format(gl, version, extensions, format, renderbuffer);
+        Some((format, infos))
+    }).collect()
+}
+
+/// Returns informations about a precise internal format.
+pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList,
+                           format: TextureFormat, renderbuffer: bool) -> FormatInfos
+{
+    unsafe {
+        let target = if renderbuffer { gl::RENDERBUFFER } else { gl::TEXTURE_2D_MULTISAMPLE };
+
+        let samples = if version >= &Version(Api::GlEs, 3, 0) ||
+                         version >= &Version(Api::Gl, 4, 2) ||
+                         extensions.gl_arb_internalformat_query
+        {
+            let mut num = mem::uninitialized();
+            gl.GetInternalformativ(target, format.to_glenum(), gl::NUM_SAMPLE_COUNTS, 1, &mut num);
+
+            let mut formats = Vec::with_capacity(num as usize);
+            gl.GetInternalformativ(target, format.to_glenum(), gl::SAMPLES, num, formats.as_mut_ptr());
+            formats.set_len(num as usize);
+
+            Some(formats)
+
+        } else {
+            None
+        };
+
+        FormatInfos {
+            multisamples: samples,
+        }
+    }
 }

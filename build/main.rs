@@ -124,6 +124,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
                 "GL_KHR_debug".to_string(),
                 "GL_NV_copy_buffer".to_string(),
                 "GL_NV_framebuffer_multisample".to_string(),
+                "GL_NV_internalformat_sample_query".to_string(),
                 "GL_NV_pixel_buffer_object".to_string(),
                 "GL_OES_depth_texture".to_string(),
                 "GL_OES_draw_elements_base_vertex".to_string(),
