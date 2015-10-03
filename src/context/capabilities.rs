@@ -628,11 +628,16 @@ pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &Extensio
             let mut num = mem::uninitialized();
             gl.GetInternalformativ(target, format.to_glenum(), gl::NUM_SAMPLE_COUNTS, 1, &mut num);
 
-            let mut formats = Vec::with_capacity(num as usize);
-            gl.GetInternalformativ(target, format.to_glenum(), gl::SAMPLES, num, formats.as_mut_ptr());
-            formats.set_len(num as usize);
+            if num >= 1 {
+                let mut formats = Vec::with_capacity(num as usize);
+                gl.GetInternalformativ(target, format.to_glenum(), gl::SAMPLES, num,
+                                       formats.as_mut_ptr());
+                formats.set_len(num as usize);
+                Some(formats)
 
-            Some(formats)
+            } else {
+                Some(Vec::new())
+            }
 
         } else {
             None
