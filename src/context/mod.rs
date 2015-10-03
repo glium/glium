@@ -252,8 +252,7 @@ impl Context {
 
         // Note: This is a work-around for the FRAPS software.
         //       The Fraps software calls `glClear` with scissoring on the current framebuffer.
-        //       Therefore we need to bind the default framebuffer, and then switch scissoring to
-        //       "unknown".
+        //       Therefore we need to bind the default framebuffer before swapping.
         if self.state.borrow().draw_framebuffer != 0 {
             let mut ctxt = self.make_current();
 
@@ -274,9 +273,6 @@ impl Context {
                 unreachable!();
             }
         }
-
-        self.state.borrow_mut().scissor = None;
-
 
         let backend = self.backend.borrow();
         if self.check_current_context {
