@@ -67,6 +67,9 @@ pub enum ReadError {
     /// allow reading other types of attachments.
     AttachmentTypeNotSupported,
 
+    /// Clamping the values is not supported by the implementation.
+    ClampingNotSupported,
+
     // TODO: context lost
 }
 
@@ -77,8 +80,8 @@ pub enum ReadError {
 /// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
 // TODO: differentiate between GL_* and GL_*_INTEGER
 #[inline]
-pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D)
-                         -> Result<(), ReadError>
+pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D,
+                         clamp: bool) -> Result<(), ReadError>
                          where S: Into<Source<'a>>, D: Into<Destination<'a, T>>,
                                T: PixelValue
 {
@@ -95,6 +98,24 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
         // TODO: GLES is guaranteed to support GL_RGBA and an implementation-defined format
         //       queried with GL_IMPLEMENTATION_COLOR_READ_FORMAT. We only handle GL_RGBA.
         return Err(ReadError::OutputFormatNotSupported);
+    }
+
+    // handling clamping
+    if ctxt.version >= &Version(Api::Gl, 3, 0) {
+        unsafe {
+            if clamp && ctxt.state.clamp_color != gl::TRUE as gl::types::GLenum {
+                ctxt.gl.ClampColor(gl::CLAMP_READ_COLOR, gl::TRUE as gl::types::GLenum);
+                ctxt.state.clamp_color = gl::TRUE as gl::types::GLenum;
+
+            } else if !clamp && ctxt.state.clamp_color != gl::FALSE as gl::types::GLenum {
+                ctxt.gl.ClampColor(gl::CLAMP_READ_COLOR, gl::FALSE as gl::types::GLenum);
+                ctxt.state.clamp_color = gl::FALSE as gl::types::GLenum;
+            }
+        }
+    } else {
+        if clamp {
+            return Err(ReadError::ClampingNotSupported);
+        }
     }
 
     // TODO: check dimensions?
