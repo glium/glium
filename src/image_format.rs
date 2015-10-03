@@ -6,6 +6,7 @@ use gl;
 use context::Context;
 
 use CapabilitiesSource;
+use ToGlEnum;
 use version::{Api, Version};
 
 /// Error that is returned if the format is not supported by OpenGL.
@@ -190,7 +191,7 @@ impl ClientFormat {
 /// Some formats are marked as "guaranteed to be supported". What this means is that you are
 /// certain that the backend will use exactly these formats. If you try to use a format that
 /// is not supported by the backend, it will automatically fall back to a larger format.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
     ///
     ///
@@ -323,6 +324,49 @@ pub enum UncompressedFloatFormat {
 }
 
 impl UncompressedFloatFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<UncompressedFloatFormat> {
+        vec![
+            UncompressedFloatFormat::U8,
+            UncompressedFloatFormat::I8,
+            UncompressedFloatFormat::U16,
+            UncompressedFloatFormat::I16,
+            UncompressedFloatFormat::U8U8,
+            UncompressedFloatFormat::I8I8,
+            UncompressedFloatFormat::U16U16,
+            UncompressedFloatFormat::I16I16,
+            UncompressedFloatFormat::U3U3U2,
+            UncompressedFloatFormat::U4U4U4,
+            UncompressedFloatFormat::U5U5U5,
+            UncompressedFloatFormat::U8U8U8,
+            UncompressedFloatFormat::I8I8I8,
+            UncompressedFloatFormat::U10U10U10,
+            UncompressedFloatFormat::U12U12U12,
+            UncompressedFloatFormat::U16U16U16,
+            UncompressedFloatFormat::I16I16I16,
+            UncompressedFloatFormat::U2U2U2U2,
+            UncompressedFloatFormat::U4U4U4U4,
+            UncompressedFloatFormat::U5U5U5U1,
+            UncompressedFloatFormat::U8U8U8U8,
+            UncompressedFloatFormat::I8I8I8I8,
+            UncompressedFloatFormat::U10U10U10U2,
+            UncompressedFloatFormat::U12U12U12U12,
+            UncompressedFloatFormat::U16U16U16U16,
+            UncompressedFloatFormat::I16I16I16I16,
+            UncompressedFloatFormat::F16,
+            UncompressedFloatFormat::F16F16,
+            UncompressedFloatFormat::F16F16F16,
+            UncompressedFloatFormat::F16F16F16F16,
+            UncompressedFloatFormat::F32,
+            UncompressedFloatFormat::F32F32,
+            UncompressedFloatFormat::F32F32F32,
+            UncompressedFloatFormat::F32F32F32F32,
+            UncompressedFloatFormat::F11F11F10,
+            UncompressedFloatFormat::F9F9F9,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -548,13 +592,22 @@ impl UncompressedFloatFormat {
 
 /// List of uncompressed pixel formats that contain floating-point data in the sRGB color space.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SrgbFormat {
     U8U8U8,
     U8U8U8U8,
 }
 
 impl SrgbFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<SrgbFormat> {
+        vec![
+            SrgbFormat::U8U8U8,
+            SrgbFormat::U8U8U8U8,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -589,7 +642,7 @@ impl SrgbFormat {
 
 /// List of uncompressed pixel formats that contain signed integral data.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedIntFormat {
     I8,
     I16,
@@ -609,6 +662,25 @@ pub enum UncompressedIntFormat {
 }
 
 impl UncompressedIntFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<UncompressedIntFormat> {
+        vec![
+            UncompressedIntFormat::I8,
+            UncompressedIntFormat::I16,
+            UncompressedIntFormat::I32,
+            UncompressedIntFormat::I8I8,
+            UncompressedIntFormat::I16I16,
+            UncompressedIntFormat::I32I32,
+            UncompressedIntFormat::I8I8I8,
+            UncompressedIntFormat::I16I16I16,
+            UncompressedIntFormat::I32I32I32,
+            UncompressedIntFormat::I8I8I8I8,
+            UncompressedIntFormat::I16I16I16I16,
+            UncompressedIntFormat::I32I32I32I32,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -697,7 +769,7 @@ impl UncompressedIntFormat {
 
 /// List of uncompressed pixel formats that contain unsigned integral data.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedUintFormat {
     U8,
     U16,
@@ -718,6 +790,26 @@ pub enum UncompressedUintFormat {
 }
 
 impl UncompressedUintFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<UncompressedUintFormat> {
+        vec![
+            UncompressedUintFormat::U8,
+            UncompressedUintFormat::U16,
+            UncompressedUintFormat::U32,
+            UncompressedUintFormat::U8U8,
+            UncompressedUintFormat::U16U16,
+            UncompressedUintFormat::U32U32,
+            UncompressedUintFormat::U8U8U8,
+            UncompressedUintFormat::U16U16U16,
+            UncompressedUintFormat::U32U32U32,
+            UncompressedUintFormat::U8U8U8U8,
+            UncompressedUintFormat::U16U16U16U16,
+            UncompressedUintFormat::U32U32U32U32,
+            UncompressedUintFormat::U10U10U10U2,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -810,7 +902,7 @@ impl UncompressedUintFormat {
 }
 
 /// List of compressed texture formats.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum CompressedFormat {
     /// Red/green compressed texture with one unsigned component.
     RgtcFormatU,
@@ -839,6 +931,24 @@ pub enum CompressedFormat {
 }
 
 impl CompressedFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<CompressedFormat> {
+        vec![
+            CompressedFormat::RgtcFormatU,
+            CompressedFormat::RgtcFormatI,
+            CompressedFormat::RgtcFormatUU,
+            CompressedFormat::RgtcFormatII,
+            CompressedFormat::BptcUnorm4,
+            CompressedFormat::BptcSignedFloat3,
+            CompressedFormat::BptcUnsignedFloat3,
+            CompressedFormat::S3tcDxt1NoAlpha,
+            CompressedFormat::S3tcDxt1Alpha,
+            CompressedFormat::S3tcDxt3Alpha,
+            CompressedFormat::S3tcDxt5Alpha,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -906,7 +1016,7 @@ impl CompressedFormat {
 
 /// List of compressed pixel formats in the sRGB color space.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum CompressedSrgbFormat {
     /// BPTC format. sRGB with alpha. Also called `BC7` by DirectX.
     Bptc,
@@ -917,6 +1027,18 @@ pub enum CompressedSrgbFormat {
 }
 
 impl CompressedSrgbFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<CompressedSrgbFormat> {
+        vec![
+            CompressedSrgbFormat::Bptc,
+            CompressedSrgbFormat::S3tcDxt1NoAlpha,
+            CompressedSrgbFormat::S3tcDxt1Alpha,
+            CompressedSrgbFormat::S3tcDxt3Alpha,
+            CompressedSrgbFormat::S3tcDxt5Alpha,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -963,7 +1085,7 @@ impl CompressedSrgbFormat {
 /// `I16`, `I24` and `I32` are still treated as if they were floating points.
 /// Only the internal representation is integral.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum DepthFormat {
     I16,
     I24,
@@ -973,6 +1095,17 @@ pub enum DepthFormat {
 }
 
 impl DepthFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<DepthFormat> {
+        vec![
+            DepthFormat::I16,
+            DepthFormat::I24,
+            DepthFormat::I32,
+            DepthFormat::F32,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -1017,13 +1150,22 @@ impl DepthFormat {
 // TODO: If OpenGL 4.3 or ARB_stencil_texturing is not available, then depth/stencil
 //       textures are treated by samplers exactly like depth-only textures
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum DepthStencilFormat {
     I24I8,
     F32I8,
 }
 
 impl DepthStencilFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<DepthStencilFormat> {
+        vec![
+            DepthStencilFormat::I24I8,
+            DepthStencilFormat::F32I8,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -1062,7 +1204,7 @@ impl DepthStencilFormat {
 /// Stencil textures are a very recent OpenGL feature that may not be supported everywhere.
 /// Only `I8` is supported for textures. All the other formats can only be used with renderbuffers.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum StencilFormat {
     I1,
     I4,
@@ -1071,6 +1213,17 @@ pub enum StencilFormat {
 }
 
 impl StencilFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<StencilFormat> {
+        vec![
+            StencilFormat::I1,
+            StencilFormat::I4,
+            StencilFormat::I8,
+            StencilFormat::I16,
+        ]
+    }
+
     /// Turns this format into a more generic `TextureFormat`.
     #[inline]
     pub fn to_texture_format(self) -> TextureFormat {
@@ -1133,7 +1286,7 @@ impl StencilFormat {
 }
 
 /// Format of the internal representation of a texture.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum TextureFormat {
     UncompressedFloat(UncompressedFloatFormat),
@@ -1145,6 +1298,72 @@ pub enum TextureFormat {
     DepthFormat(DepthFormat),
     StencilFormat(StencilFormat),
     DepthStencilFormat(DepthStencilFormat),
+}
+
+impl TextureFormat {
+    /// Returns a list of all the possible values of this enumeration.
+    #[inline]
+    pub fn get_formats_list() -> Vec<TextureFormat> {
+        // TODO: this function looks ugly
+        UncompressedFloatFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        UncompressedIntFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        UncompressedUintFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        SrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        CompressedFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        CompressedSrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        DepthFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        StencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
+        DepthStencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format())))))))))
+        .collect()
+    }
+
+    /// Returns true if this format is supported by the backend for textures.
+    #[inline]
+    pub fn is_supported_for_textures<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
+            &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
+            &TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
+            &TextureFormat::Srgb(format) => format.is_supported(c),
+            &TextureFormat::CompressedFormat(format) => format.is_supported(c),
+            &TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
+            &TextureFormat::DepthFormat(format) => format.is_supported(c),
+            &TextureFormat::StencilFormat(format) => format.is_supported_for_textures(c),
+            &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+        }
+    }
+
+    /// Returns true if this format is supported by the backend for renderbuffers.
+    #[inline]
+    pub fn is_supported_for_renderbuffers<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
+            &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
+            &TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
+            &TextureFormat::Srgb(format) => format.is_supported(c),
+            &TextureFormat::CompressedFormat(format) => format.is_supported(c),
+            &TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
+            &TextureFormat::DepthFormat(format) => format.is_supported(c),
+            &TextureFormat::StencilFormat(format) => format.is_supported_for_renderbuffers(c),
+            &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+        }
+    }
+}
+
+impl ToGlEnum for TextureFormat {
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match self {
+            &TextureFormat::UncompressedFloat(f) => f.to_glenum(),
+            &TextureFormat::UncompressedIntegral(f) => f.to_glenum(),
+            &TextureFormat::UncompressedUnsigned(f) => f.to_glenum(),
+            &TextureFormat::Srgb(f) => f.to_glenum(),
+            &TextureFormat::CompressedFormat(f) => f.to_glenum(),
+            &TextureFormat::CompressedSrgbFormat(f) => f.to_glenum(),
+            &TextureFormat::DepthFormat(f) => f.to_glenum(),
+            &TextureFormat::StencilFormat(f) => f.to_glenum(),
+            &TextureFormat::DepthStencilFormat(f) => f.to_glenum(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
