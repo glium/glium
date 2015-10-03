@@ -13,9 +13,12 @@ use Rect;
 use context::CommandContext;
 use gl;
 
+use version::Version;
+use version::Api;
+
 /// A source for reading pixels.
 pub enum Source<'a> {
-    // TODO: remove the second parameter
+    /// A regular framebuffer attachment.
     Attachment(&'a fbo::RegularAttachment<'a>),
     // TODO: use a Rust enum
     DefaultFramebuffer(gl::types::GLenum),
@@ -49,38 +52,54 @@ impl<'a, P> From<&'a PixelBuffer<P>> for Destination<'a, P> where P: PixelValue 
     }
 }
 
-/// Reads pixels from the source into the destination.
-///
-/// Panicks if the destination is not large enough.
-///
-/// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
-    #[inline]
-pub fn read<'a, S, D>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D)
-                      where S: Into<Source<'a>>, D: Into<Destination<'a, (u8, u8, u8, u8)>>
-{
-    match read_if_supported(ctxt, source, rect, dest) {
-        Ok(_) => (),
-        Err(_) => unreachable!(),
-    }
+/// Error that can happen while reading.
+#[derive(Debug)]
+pub enum ReadError {
+    /// The implementation doesn't support converting to the requested output format.
+    ///
+    /// OpenGL supports every possible format, but OpenGL ES only supports `(u8, u8, u8, u8)` and
+    /// an implementation-defined format.
+    OutputFormatNotSupported,
+
+    /// The implementation doesn't support reading a depth, depth-stencil or stencil attachment.
+    ///
+    /// OpenGL ES only supports reading from color buffers by default. There are extensions that
+    /// allow reading other types of attachments.
+    AttachmentTypeNotSupported,
+
+    // TODO: context lost
 }
 
 /// Reads pixels from the source into the destination.
 ///
 /// Panicks if the destination is not large enough.
-pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect,
-                                      dest: D) -> Result<(), ()>
-                                      where S: Into<Source<'a>>, D: Into<Destination<'a, T>>,
-                                            T: PixelValue
+///
+/// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
+// TODO: differentiate between GL_* and GL_*_INTEGER
+#[inline]
+pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D)
+                         -> Result<(), ReadError>
+                         where S: Into<Source<'a>>, D: Into<Destination<'a, T>>,
+                               T: PixelValue
 {
     let source = source.into();
     let dest = dest.into();
+    let output_pixel_format = <T as PixelValue>::get_format();
 
     let pixels_to_read = rect.width * rect.height;
 
-    // FIXME: check if format is supported by ReadPixels
+    // checking that the output format is supported
+    // OpenGL supported everything, while OpenGL ES only supports U8U8U8U8 plus an additional
+    // implementation-defined format
+    if ctxt.version >= &Version(Api::GlEs, 2, 0) && output_pixel_format != ClientFormat::U8U8U8U8 {
+        // TODO: GLES is guaranteed to support GL_RGBA and an implementation-defined format
+        //       queried with GL_IMPLEMENTATION_COLOR_READ_FORMAT. We only handle GL_RGBA.
+        return Err(ReadError::OutputFormatNotSupported);
+    }
 
-    let (format, gltype) = client_format_to_gl_enum(&<T as PixelValue>::get_format());
+    // TODO: check dimensions?
 
+    // binding framebuffer
     match source {
         Source::Attachment(attachment) => {
             unsafe { FramebuffersContainer::bind_framebuffer_for_reading(&mut ctxt, attachment) };
@@ -90,8 +109,57 @@ pub fn read_if_supported<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, 
         },
     };
 
+    // determining what kind of data we are reading
+    enum ReadSourceType { Color, Depth, Stencil, DepthStencil }
+    let read_src_type = match source {
+        Source::Attachment(attachment) => {
+            match attachment {
+                &fbo::RegularAttachment::Texture(ref tex) => {
+                    ReadSourceType::Color       // FIXME: wrong
+                },
+                &fbo::RegularAttachment::RenderBuffer(ref rb) => {
+                    ReadSourceType::Color       // FIXME: wrong
+                },
+            }
+        },
+        Source::DefaultFramebuffer(read_buffer) => {
+            ReadSourceType::Color       // FIXME: wrong
+        },
+    };
+
+    // OpenGL ES doesn't support reading from depth, stencil or depth-stencil attachments by default
+    if ctxt.version >= &Version(Api::GlEs, 2, 0) {
+        match read_src_type {
+            ReadSourceType::Color => (),
+            ReadSourceType::Depth => if !ctxt.extensions.gl_nv_read_depth {
+                return Err(ReadError::AttachmentTypeNotSupported);
+            },
+            ReadSourceType::DepthStencil => if !ctxt.extensions.gl_nv_read_depth_stencil {
+                return Err(ReadError::AttachmentTypeNotSupported);
+            },
+            ReadSourceType::Stencil => if !ctxt.extensions.gl_nv_read_stencil {
+                return Err(ReadError::AttachmentTypeNotSupported);
+            },
+        }
+    }
+
+    // obtaining the client format and client type to be passed to `glReadPixels`
+    let (format, gltype) = match read_src_type {
+        ReadSourceType::Color => client_format_to_gl_enum(&output_pixel_format),
+        ReadSourceType::Depth => {
+            unimplemented!()        // TODO: 
+            // TODO: NV_depth_buffer_float2
+            //(gl::DEPTH_COMPONENT, )
+        },
+        ReadSourceType::DepthStencil => unimplemented!(),        // FIXME: only 24_8 is possible and there's no client format in the enum that corresponds to 24_8
+        ReadSourceType::Stencil => {
+            unimplemented!()        // TODO: 
+            //(gl::STENCIL_INDEX, )
+        },
+    };
+
+    // reading
     unsafe {
-        // reading
         match dest {
             Destination::Memory(dest) => {
                 let mut buf = Vec::with_capacity(pixels_to_read as usize);
