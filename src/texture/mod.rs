@@ -101,6 +101,9 @@ pub mod bindless;
 pub mod buffer_texture;
 pub mod pixel_buffer;
 
+#[doc(hidden)]
+pub mod bind;
+
 mod any;
 mod get_format;
 mod pixel;
