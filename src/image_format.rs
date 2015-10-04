@@ -374,42 +374,6 @@ impl UncompressedFloatFormat {
         TextureFormat::UncompressedFloat(self)
     }
 
-    /// If this function returns true, then textures created with this format are guaranteed to
-    /// be renderable by the OpenGL specifications.
-    // TODO: not sure if we want to make this public
-    #[allow(dead_code)]
-    fn is_guaranteed_renderable_textures(&self) -> bool {
-        match self {
-            &UncompressedFloatFormat::U8 => true,
-            &UncompressedFloatFormat::I8 => true,
-            &UncompressedFloatFormat::U16 => true,
-            &UncompressedFloatFormat::I16 => true,
-            &UncompressedFloatFormat::U8U8 => true,
-            &UncompressedFloatFormat::I8I8 => true,
-            &UncompressedFloatFormat::U16U16 => true,
-            &UncompressedFloatFormat::I16I16 => true,
-            &UncompressedFloatFormat::U8U8U8 => true,
-            &UncompressedFloatFormat::I8I8I8 => true,
-            &UncompressedFloatFormat::I16I16I16 => true,
-            &UncompressedFloatFormat::U8U8U8U8 => true,
-            &UncompressedFloatFormat::I8I8I8I8 => true,
-            &UncompressedFloatFormat::U10U10U10U2 => true,
-            &UncompressedFloatFormat::U16U16U16U16 => true,
-            &UncompressedFloatFormat::I16I16I16I16 => true,
-            &UncompressedFloatFormat::F16 => true,
-            &UncompressedFloatFormat::F16F16 => true,
-            &UncompressedFloatFormat::F16F16F16 => true,
-            &UncompressedFloatFormat::F16F16F16F16 => true,
-            &UncompressedFloatFormat::F32 => true,
-            &UncompressedFloatFormat::F32F32 => true,
-            &UncompressedFloatFormat::F32F32F32 => true,
-            &UncompressedFloatFormat::F32F32F32F32 => true,
-            &UncompressedFloatFormat::F11F11F10 => true,
-            &UncompressedFloatFormat::F9F9F9 => true,
-            _ => false,
-        }
-    }
-
     /// Returns true if this format is supported by the backend.
     pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
