@@ -1293,7 +1293,7 @@ impl<'a> TextureAnyImage<'a> {
         let mut ctxt = self.texture.context.make_current();
 
         let mut data = Vec::new();
-        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, &mut data);
+        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, &mut data, false);
         T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
     }
 
@@ -1311,6 +1311,6 @@ impl<'a> TextureAnyImage<'a> {
 
         let size = rect.width as usize * rect.height as usize * 4;
         let mut ctxt = self.texture.context.make_current();
-        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest);
+        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest, false);
     }
 }

@@ -220,6 +220,9 @@ pub struct GlState {
     /// The latest value passed to `glPixelStore` with `GL_PACK_ALIGNMENT`.
     pub pixel_store_pack_alignment: gl::types::GLint,
 
+    /// The latest value passed to `glClampColor`.
+    pub clamp_color: gl::types::GLenum,
+
     /// The latest value passed to `glPatchParameter` with `GL_PATCH_VERTICES`.
     pub patch_patch_vertices: gl::types::GLint,
 
@@ -427,6 +430,7 @@ impl Default for GlState {
             provoking_vertex: gl::LAST_VERTEX_CONVENTION,
             pixel_store_unpack_alignment: 4,
             pixel_store_pack_alignment: 4,
+            clamp_color: gl::FIXED_ONLY,
             patch_patch_vertices: 3,
             active_texture: 0,
             texture_units: small_vec_one(),
