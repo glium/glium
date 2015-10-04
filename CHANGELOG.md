@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Add `is_color_renderable` to the color image formats.
+
 ## Version 0.9.1 (2015-09-30)
 
  - Add `ComputeShader::execute_indirect`.
