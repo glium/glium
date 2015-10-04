@@ -191,6 +191,7 @@ impl ClientFormat {
 /// Some formats are marked as "guaranteed to be supported". What this means is that you are
 /// certain that the backend will use exactly these formats. If you try to use a format that
 /// is not supported by the backend, it will automatically fall back to a larger format.
+// TODO: missing RGB565
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
     ///
@@ -373,42 +374,6 @@ impl UncompressedFloatFormat {
         TextureFormat::UncompressedFloat(self)
     }
 
-    /// If this function returns true, then textures created with this format are guaranteed to
-    /// be renderable by the OpenGL specifications.
-    // TODO: not sure if we want to make this public
-    #[allow(dead_code)]
-    fn is_guaranteed_renderable_textures(&self) -> bool {
-        match self {
-            &UncompressedFloatFormat::U8 => true,
-            &UncompressedFloatFormat::I8 => true,
-            &UncompressedFloatFormat::U16 => true,
-            &UncompressedFloatFormat::I16 => true,
-            &UncompressedFloatFormat::U8U8 => true,
-            &UncompressedFloatFormat::I8I8 => true,
-            &UncompressedFloatFormat::U16U16 => true,
-            &UncompressedFloatFormat::I16I16 => true,
-            &UncompressedFloatFormat::U8U8U8 => true,
-            &UncompressedFloatFormat::I8I8I8 => true,
-            &UncompressedFloatFormat::I16I16I16 => true,
-            &UncompressedFloatFormat::U8U8U8U8 => true,
-            &UncompressedFloatFormat::I8I8I8I8 => true,
-            &UncompressedFloatFormat::U10U10U10U2 => true,
-            &UncompressedFloatFormat::U16U16U16U16 => true,
-            &UncompressedFloatFormat::I16I16I16I16 => true,
-            &UncompressedFloatFormat::F16 => true,
-            &UncompressedFloatFormat::F16F16 => true,
-            &UncompressedFloatFormat::F16F16F16 => true,
-            &UncompressedFloatFormat::F16F16F16F16 => true,
-            &UncompressedFloatFormat::F32 => true,
-            &UncompressedFloatFormat::F32F32 => true,
-            &UncompressedFloatFormat::F32F32F32 => true,
-            &UncompressedFloatFormat::F32F32F32F32 => true,
-            &UncompressedFloatFormat::F11F11F10 => true,
-            &UncompressedFloatFormat::F9F9F9 => true,
-            _ => false,
-        }
-    }
-
     /// Returns true if this format is supported by the backend.
     pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
@@ -548,6 +513,58 @@ impl UncompressedFloatFormat {
         }
     }
 
+    /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
+    /// attachment.
+    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+        // this is the only format that is never renderable
+        if let &UncompressedFloatFormat::F9F9F9 = self {
+            return false;
+        }
+
+        // checking whether it's supported, so that we don't return `true` by accident
+        if !self.is_supported(context) {
+            return false;
+        }
+
+        let version = context.get_version();
+        let extensions = context.get_extensions();
+
+        // if we have OpenGL, everything here is color-renderable
+        if version >= &Version(Api::Gl, 1, 0) {
+            return true;
+        }
+
+        // if we have OpenGL ES, it depends
+        // TODO: there are maybe more formats here
+        match self {
+            &UncompressedFloatFormat::U8 => {
+                version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arb_texture_rg
+            },
+            &UncompressedFloatFormat::U8U8 => {
+                version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arb_texture_rg
+            },
+            //&UncompressedFloatFormat::U5U6U5 => true,
+            &UncompressedFloatFormat::U8U8U8 => {
+                version >= &Version(Api::GlEs, 3, 0) || extensions.gl_oes_rgb8_rgba8
+            },
+            &UncompressedFloatFormat::U4U4U4U4 => true,
+            &UncompressedFloatFormat::U5U5U5U1 => true,
+            &UncompressedFloatFormat::U8U8U8U8 => {
+                version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arm_rgba8 ||
+                extensions.gl_oes_rgb8_rgba8
+            },
+            &UncompressedFloatFormat::U10U10U10U2 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedFloatFormat::F16 => version >= &Version(Api::GlEs, 3, 2),
+            &UncompressedFloatFormat::F16F16 => version >= &Version(Api::GlEs, 3, 2),
+            &UncompressedFloatFormat::F16F16F16F16 => version >= &Version(Api::GlEs, 3, 2),
+            &UncompressedFloatFormat::F32 => version >= &Version(Api::GlEs, 3, 2),
+            &UncompressedFloatFormat::F32F32 => version >= &Version(Api::GlEs, 3, 2),
+            &UncompressedFloatFormat::F32F32F32F32 => version >= &Version(Api::GlEs, 3, 2),
+            &UncompressedFloatFormat::F11F11F10 => version >= &Version(Api::GlEs, 3, 2),
+            _ => false
+        }
+    }
+
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
             &UncompressedFloatFormat::U8 => gl::R8,
@@ -629,6 +646,24 @@ impl SrgbFormat {
                 version >= &Version(Api::Gl, 2, 1) || version >= &Version(Api::GlEs, 3, 0) ||
                    extensions.gl_ext_texture_srgb
             },
+        }
+    }
+
+    /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
+    /// attachment.
+    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+        // checking whether it's supported, so that we don't return `true` by accident
+        if !self.is_supported(context) {
+            return false;
+        }
+
+        let version = context.get_version();
+        let extensions = context.get_extensions();
+
+        match self {
+            &SrgbFormat::U8U8U8 => version >= &Version(Api::Gl, 1, 0),
+            &SrgbFormat::U8U8U8U8 => version >= &Version(Api::Gl, 1, 0) ||
+                                     version >= &Version(Api::GlEs, 3, 0),
         }
     }
 
@@ -746,6 +781,38 @@ impl UncompressedIntFormat {
             &UncompressedIntFormat::I32I32I32I32 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
+        }
+    }
+
+    /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
+    /// attachment.
+    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+        // checking whether it's supported, so that we don't return `true` by accident
+        if !self.is_supported(context) {
+            return false;
+        }
+
+        let version = context.get_version();
+
+        // if we have OpenGL, everything here is color-renderable
+        if version >= &Version(Api::Gl, 1, 0) {
+            return true;
+        }
+
+        // if we have OpenGL ES, it depends
+        match self {
+            &UncompressedIntFormat::I8 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I16 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I32 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I8I8 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I16I16 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I32I32 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I8I8I8 => false,
+            &UncompressedIntFormat::I16I16I16 => false,
+            &UncompressedIntFormat::I32I32I32 => false,
+            &UncompressedIntFormat::I8I8I8I8 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I16I16I16I16 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedIntFormat::I32I32I32I32 => version >= &Version(Api::GlEs, 3, 0),
         }
     }
             
@@ -879,6 +946,39 @@ impl UncompressedUintFormat {
             &UncompressedUintFormat::U10U10U10U2 => {
                 version >= &Version(Api::Gl, 3, 3) || extensions.gl_arb_texture_rgb10_a2ui
             },
+        }
+    }
+
+    /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
+    /// attachment.
+    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+        // checking whether it's supported, so that we don't return `true` by accident
+        if !self.is_supported(context) {
+            return false;
+        }
+
+        let version = context.get_version();
+
+        // if we have OpenGL, everything here is color-renderable
+        if version >= &Version(Api::Gl, 1, 0) {
+            return true;
+        }
+
+        // if we have OpenGL ES, it depends
+        match self {
+            &UncompressedUintFormat::U8 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U16 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U32 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U8U8 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U16U16 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U32U32 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U8U8U8 => false,
+            &UncompressedUintFormat::U16U16U16 => false,
+            &UncompressedUintFormat::U32U32U32 => false,
+            &UncompressedUintFormat::U8U8U8U8 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U16U16U16U16 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U32U32U32U32 => version >= &Version(Api::GlEs, 3, 0),
+            &UncompressedUintFormat::U10U10U10U2 => version >= &Version(Api::GlEs, 3, 0),
         }
     }
 
