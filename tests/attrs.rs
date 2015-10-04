@@ -22,27 +22,60 @@ fn attribute_types_mismatch() {
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::Points,
                                                &Vec::<u16>::new()).unwrap();
 
-    let program = glium::Program::from_source(&display,
-        // vertex shader
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            attribute vec2 field1;
+                attribute vec2 field1;
 
-            void main() {
-                gl_Position = vec4(field1, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
-            void main() {
-                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-            }
-        ",
+                void main() {
+                    gl_Position = vec4(field1, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
+                out vec4 color;
+                void main() {
+                    color = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
 
-        // geometry shader
-        None)
-        .unwrap();
+                attribute vec2 field1;
+
+                void main() {
+                    gl_Position = vec4(field1, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+                void main() {
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute mediump vec2 field1;
+
+                void main() {
+                    gl_Position = vec4(field1, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+                void main() {
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            "
+        }
+    ).unwrap();
 
     // drawing a frame
     let mut target = display.draw();
@@ -69,27 +102,60 @@ fn missing_attribute() {
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::Points,
                                                &Vec::<u16>::new()).unwrap();
 
-    let program = glium::Program::from_source(&display,
-        // vertex shader
-        "
-            #version 110
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
 
-            attribute vec2 field2;
+                attribute vec2 field2;
 
-            void main() {
-                gl_Position = vec4(field2, 0.0, 1.0);
-            }
-        ",
-        "
-            #version 110
-            void main() {
-                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-            }
-        ",
+                void main() {
+                    gl_Position = vec4(field2, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
+                out vec4 color;
+                void main() {
+                    color = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
 
-        // geometry shader
-        None)
-        .unwrap();
+                attribute vec2 field2;
+
+                void main() {
+                    gl_Position = vec4(field2, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+                void main() {
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute mediump vec2 field2;
+
+                void main() {
+                    gl_Position = vec4(field2, 0.0, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+                void main() {
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            "
+        }
+    ).unwrap();
 
     // drawing a frame
     let mut target = display.draw();
