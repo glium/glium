@@ -178,7 +178,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     }
 }
 
-impl DisplayBuild for glutin::HeadlessRendererBuilder {
+impl<'a> DisplayBuild for glutin::HeadlessRendererBuilder<'a> {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
 
