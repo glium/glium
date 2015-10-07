@@ -3,6 +3,7 @@
 ## Unreleased
 
  - Add `is_color_renderable` to the color image formats.
+ - Fixed glium erroneously using a SSBO's and a uniform buffer's binding point instead of index.
 
 ## Version 0.9.1 (2015-09-30)
 
