@@ -33,7 +33,7 @@ pub struct Uniform {
 /// Information about a uniform block (except its name).
 #[derive(Debug, Clone)]
 pub struct UniformBlock {
-    /// The binding point of the block.
+    /// Indentifier of the block.
     ///
     /// This is internal information, you probably don't need to use it.
     pub binding: i32,
@@ -372,9 +372,9 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
         };
 
         // binding point for this block
-        let mut binding: gl::types::GLint = mem::uninitialized();
+        /*let mut binding: gl::types::GLint = mem::uninitialized();
         ctxt.gl.GetActiveUniformBlockiv(program, block_id as gl::types::GLuint,
-                                        gl::UNIFORM_BLOCK_BINDING, &mut binding);
+                                        gl::UNIFORM_BLOCK_BINDING, &mut binding);*/
 
         // number of bytes
         let mut block_size: gl::types::GLint = mem::uninitialized();
@@ -439,7 +439,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
 
         // finally inserting into the blocks list
         blocks.insert(name, UniformBlock {
-            binding: binding as i32,
+            binding: block_id as i32,
             size: block_size as usize,
             layout: introspection_output_to_layout(members),
         });
