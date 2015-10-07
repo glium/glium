@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Rename `UniformBlock::binding` to `id` and add `initial_binding`.
+
 ## Version 0.9.3 (2015-10-13)
 
  - Fixed an invalid enum error during initialization.
