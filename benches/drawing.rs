@@ -12,7 +12,6 @@ use glium::glutin;
 
 use test::Bencher;
 
-use std::ffi::CStr;
 use std::mem;
 use std::ptr;
 
@@ -114,8 +113,8 @@ fn opengl_triangle(b: &mut Bencher) {
     \0";
 
     unsafe {
-        let mut window = glutin::WindowBuilder::new().build().unwrap();
-        unsafe { window.make_current().unwrap() };
+        let window = glutin::WindowBuilder::new().build().unwrap();
+        window.make_current().unwrap();
         gl::load_with(|s| window.get_proc_address(s) as *const _);
 
         let vs = gl::CreateShader(gl::VERTEX_SHADER);
@@ -162,7 +161,7 @@ fn opengl_triangle(b: &mut Bencher) {
             for _ in (0 .. 10) {
                 gl::Clear(gl::COLOR_BUFFER_BIT);
                 gl::DrawArrays(gl::TRIANGLES, 0, 3);
-                window.swap_buffers();
+                window.swap_buffers().unwrap();
             }
         });
     }
