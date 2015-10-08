@@ -24,6 +24,7 @@ exclude = ["doc", ".travis.yml", "circle.yml"]
 
 [features]
 default = ["glutin", "image", "nalgebra", "cgmath"]
+unstable = []       # only used to enable benches
 
 [dependencies.glutin]
 version = "0.3"
@@ -56,5 +57,6 @@ khronos_api = "0.0.8"
 [dev-dependencies]
 clock_ticks = "0.0.5"
 genmesh = "0.2.1"
+gl = "0.1"
 obj = "0.2.1"
 rand = "0.3"
