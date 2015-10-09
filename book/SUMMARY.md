@@ -1,5 +1,7 @@
 # Summary
 
+* Tutorial
+
  * [Opening a window](tuto-01-getting-started.md)
  * [Drawing a triangle](tuto-02-triangle.md)
  * [Uniforms](tuto-03-animated-triangle.md)
@@ -20,3 +22,7 @@
  * Antialiasing
  * Drawing lots of objects with instancing
  
+
+* [Performances](perf-intro.md)
+
+ * [Synchronization](perf-sync.md)
