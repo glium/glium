@@ -137,10 +137,10 @@ pub enum BackfaceCullingMode {
     CullingDisabled,
 
     /// Triangles whose vertices are counterclockwise won't be drawn.
-    CullCounterClockWise,
+    CullCounterClockwise,
 
     /// Triangles whose vertices are clockwise won't be drawn.
-    CullClockWise
+    CullClockwise
 }
 
 /// Defines how the device should render polygons.
@@ -536,7 +536,7 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
 {
     // back-face culling
     // note: we never change the value of `glFrontFace`, whose default is GL_CCW
-    //  that's why `CullClockWise` uses `GL_BACK` for example
+    //  that's why `CullClockwise` uses `GL_BACK` for example
     match backface_culling {
         BackfaceCullingMode::CullingDisabled => unsafe {
             if ctxt.state.enabled_cull_face {
@@ -544,7 +544,7 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
                 ctxt.state.enabled_cull_face = false;
             }
         },
-        BackfaceCullingMode::CullCounterClockWise => unsafe {
+        BackfaceCullingMode::CullCounterClockwise => unsafe {
             if !ctxt.state.enabled_cull_face {
                 ctxt.gl.Enable(gl::CULL_FACE);
                 ctxt.state.enabled_cull_face = true;
@@ -554,7 +554,7 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
                 ctxt.state.cull_face = gl::FRONT;
             }
         },
-        BackfaceCullingMode::CullClockWise => unsafe {
+        BackfaceCullingMode::CullClockwise => unsafe {
             if !ctxt.state.enabled_cull_face {
                 ctxt.gl.Enable(gl::CULL_FACE);
                 ctxt.state.enabled_cull_face = true;
