@@ -11,7 +11,6 @@ mod fxaa {
     use glium::backend::Facade;
     use glium::backend::Context;
     use glium::framebuffer::SimpleFrameBuffer;
-    use glium::Texture;
 
     use std::cell::RefCell;
     use std::rc::Rc;

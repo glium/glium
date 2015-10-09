@@ -225,21 +225,6 @@ pub enum CompressedMipmapsOption {
     EmptyMipmapsMax(u32),
 }
 
-/// Trait that describes a texture.
-pub trait Texture {
-    /// Returns the width in pixels of the texture.
-    fn get_width(&self) -> u32;
-
-    /// Returns the height in pixels of the texture, or `None` for one dimensional textures.
-    fn get_height(&self) -> Option<u32>;
-
-    /// Returns the depth in pixels of the texture, or `None` for one or two dimensional textures.
-    fn get_depth(&self) -> Option<u32>;
-
-    /// Returns the number of textures in the array, or `None` for non-arrays.
-    fn get_array_size(&self) -> Option<u32>;
-}
-
 /// Trait that describes data for a one-dimensional texture.
 pub trait Texture1dDataSource<'a> {
     /// The type of each pixel.

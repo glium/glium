@@ -2,7 +2,6 @@
 extern crate glium;
 
 use glium::Surface;
-use glium::Texture;
 
 mod support;
 
