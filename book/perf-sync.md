@@ -7,9 +7,9 @@ In order to improve performances, calling an OpenGL function does not wait for t
 to be over. Instead it just sends a command and returns immediately. In a good application, the
 CPU adds commands to a queue while the GPU reads them and processes them in parallel.
 
-**Note: If the GPU processes commands faster than the CPU sends them, we say that the application
+*Note: If the GPU processes commands faster than the CPU sends them, we say that the application
 is CPU-bound. In the other case, the application is GPU-bound. AAA video games are almost always
-GPU-bound.**
+GPU-bound.*
 
 But there's a problem: in some situations there is no other choice but to wait for the commands to
 have finished being executed. For example if you read the content of a texture which you have just

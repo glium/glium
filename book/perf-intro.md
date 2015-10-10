@@ -34,6 +34,14 @@ Here is the estimated cost of various operations:
    triangles in the same vertex buffer and submitting only one command, instead of submitting
    ten commands.
 
+ - **Swapping buffers**: very low/variable. The process of swapping buffers at the end of a frame
+   is very fast. However if you benchmark this function call you can probably see that it takes a
+   a lot of time. The reason is that the OpenGL implementation usually doesn't send commands
+   to the GPU immediately. Instead it adds commands to a local queue, then sends chunks of commands
+   at once. When you swap buffers, the implementation flushes its local queue and sends all its
+   commands to the GPU. In addition to this, also note that vsync can make swapping buffers block
+   until the screen refreshes.
+
 ## Avoiding state changes
 
 Doing multiple draw calls in a row with the same parameters (same vertices source, same program,
