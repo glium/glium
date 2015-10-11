@@ -173,12 +173,14 @@ impl Context {
         let resident_texture_handles = RefCell::new(Vec::new());
         let resident_image_handles = RefCell::new(Vec::new());
 
-        let debug_callback = match callback_behavior {
-            DebugCallbackBehavior::Ignore => None,
+        let (debug_callback, synchronous) = match callback_behavior {
+            DebugCallbackBehavior::Ignore => (None, false),
             DebugCallbackBehavior::DebugMessageOnError => {
-                Some(Box::new(default_debug_callback) as debug::DebugCallback)
+                (Some(Box::new(default_debug_callback) as debug::DebugCallback), true)
             },
-            DebugCallbackBehavior::Custom(callback) => Some(callback),
+            DebugCallbackBehavior::Custom { callback, synchronous } => {
+                (Some(callback), synchronous)
+            },
         };
 
         let context = Rc::new(Context {
@@ -199,7 +201,7 @@ impl Context {
         });
 
         if context.debug_callback.is_some() {
-            init_debug_callback(&context);
+            init_debug_callback(&context, synchronous);
         }
 
         // making sure that an error wasn't triggered during initialization
@@ -741,7 +743,12 @@ pub enum DebugCallbackBehavior {
     DebugMessageOnError,
 
     /// Use a custom callback.
-    Custom(debug::DebugCallback),
+    Custom {
+        /// The function to be called.
+        callback: debug::DebugCallback,
+        /// Whether or not it should be called immediately (true) or asynchronously (false).
+        synchronous: bool,
+    },
 }
 
 impl Default for DebugCallbackBehavior {
@@ -809,7 +816,7 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 
 /// Initializes `GL_KHR_debug`, `GL_ARB_debug`, or a similar extension so that the debug output
 /// is reported.
-fn init_debug_callback(context: &Rc<Context>) {
+fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
     // this is the C callback
     extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
                                         id: gl::types::GLuint, severity: gl::types::GLenum,
@@ -876,9 +883,11 @@ fn init_debug_callback(context: &Rc<Context>) {
         if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.version >= &Version(Api::GlEs, 3, 2) ||
            ctxt.extensions.gl_khr_debug || ctxt.extensions.gl_arb_debug_output
         {
-            if ctxt.state.enabled_debug_output_synchronous != true {
-                ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                ctxt.state.enabled_debug_output_synchronous = true;
+            if synchronous {
+                if ctxt.state.enabled_debug_output_synchronous != true {
+                    ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                    ctxt.state.enabled_debug_output_synchronous = true;
+                }
             }
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
