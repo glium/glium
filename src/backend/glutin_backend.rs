@@ -17,6 +17,7 @@ use Frame;
 use GliumCreationError;
 use SwapBuffersError;
 
+use debug;
 use context;
 use backend;
 use backend::Context;
@@ -144,9 +145,11 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
 
-    fn build_glium(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
+    fn build_glium_debug(self, debug: debug::DebugCallbackBehavior)
+                         -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>>
+    {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let context = try!(unsafe { context::Context::new(backend.clone(), true, Default::default()) });
+        let context = try!(unsafe { context::Context::new(backend.clone(), true, debug) });
 
         let display = GlutinFacade {
             context: context,
@@ -156,9 +159,11 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         Ok(display)
     }
 
-    unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
+    unsafe fn build_glium_unchecked_debug(self, debug: debug::DebugCallbackBehavior)
+                                          -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>>
+    {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let context = try!(context::Context::new(backend.clone(), false, Default::default()));
+        let context = try!(context::Context::new(backend.clone(), false, debug));
 
         let display = GlutinFacade {
             context: context,
@@ -182,7 +187,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
 
-    fn build_glium(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
+    fn build_glium_debug(self, debug: debug::DebugCallbackBehavior) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
         let context = try!(unsafe { context::Context::new(backend.clone(), true, Default::default()) });
 
@@ -194,7 +199,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
         Ok(display)
     }
 
-    unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
+    unsafe fn build_glium_unchecked_debug(self, debug: debug::DebugCallbackBehavior) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), true, Default::default()));
 
