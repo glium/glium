@@ -178,6 +178,9 @@ impl Context {
             DebugCallbackBehavior::DebugMessageOnError => {
                 (Some(Box::new(default_debug_callback) as debug::DebugCallback), true)
             },
+            DebugCallbackBehavior::PrintAll => {
+                (Some(Box::new(printall_debug_callback) as debug::DebugCallback), false)
+            },
             DebugCallbackBehavior::Custom { callback, synchronous } => {
                 (Some(callback), synchronous)
             },
@@ -742,6 +745,9 @@ pub enum DebugCallbackBehavior {
     /// shaders. This is the default behavior in debug mode.
     DebugMessageOnError,
 
+    /// Print every single output received by the driver.
+    PrintAll,
+
     /// Use a custom callback.
     Custom {
         /// The function to be called.
@@ -812,6 +818,14 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 
         println!("\n");
     }
+}
+
+/// The callback corresponding to `DebugMessageOnError`.
+fn printall_debug_callback(source: debug::Source, ty: debug::MessageType, severity: debug::Severity,
+                           id: u32, _: bool, message: &str)
+{
+    println!("Source: {src:?}\t\tSeverity: {sev:?}\t\tType: {ty:?}\t\tId: {id}\n{msg}",
+              src = source, sev = severity, ty = ty, id = id, msg = message);
 }
 
 /// Initializes `GL_KHR_debug`, `GL_ARB_debug`, or a similar extension so that the debug output
