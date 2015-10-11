@@ -146,7 +146,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 
     fn build_glium(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let context = try!(unsafe { context::Context::new(backend.clone(), true) });
+        let context = try!(unsafe { context::Context::new(backend.clone(), true, Default::default()) });
 
         let display = GlutinFacade {
             context: context,
@@ -158,7 +158,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
 
     unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
-        let context = try!(context::Context::new(backend.clone(), false));
+        let context = try!(context::Context::new(backend.clone(), false, Default::default()));
 
         let display = GlutinFacade {
             context: context,
@@ -184,7 +184,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 
     fn build_glium(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let context = try!(unsafe { context::Context::new(backend.clone(), true) });
+        let context = try!(unsafe { context::Context::new(backend.clone(), true, Default::default()) });
 
         let display = GlutinFacade {
             context: context,
@@ -196,7 +196,7 @@ impl DisplayBuild for glutin::HeadlessRendererBuilder {
 
     unsafe fn build_glium_unchecked(self) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let context = try!(context::Context::new(backend.clone(), true));
+        let context = try!(context::Context::new(backend.clone(), true, Default::default()));
 
         let display = GlutinFacade {
             context: context,
