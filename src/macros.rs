@@ -387,6 +387,8 @@ macro_rules! implement_uniform_block {
 ///
 /// This is implemented with successive calls to `is_glsl_version_supported()`.
 ///
+/// Returns a `glium::program::ProgramChooserCreationError`.
+///
 /// ## Example
 ///
 /// ```ignore       // TODO: no_run instead
@@ -451,7 +453,7 @@ macro_rules! implement_uniform_block {
 #[macro_export]
 macro_rules! program {
     ($facade:expr,) => (
-        panic!("No version found");     // TODO: handle better
+        Err($crate::program::ProgramChooserCreationError::NoVersion)
     );
 
     ($facade:expr,,$($rest:tt)*) => (
@@ -502,6 +504,7 @@ macro_rules! program {
             };
 
             $crate::program::Program::new($context, input)
+                           .map_err(|err| $crate::program::ProgramChooserCreationError::from(err))
 
         } else {
             program!($context, $($rest)*)
