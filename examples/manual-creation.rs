@@ -77,7 +77,8 @@ fn main() {
         //
         // It is recommended to pass `true`, but you can pass `false` if you are sure that no
         // other OpenGL context will be made current in this thread.
-        glium::backend::Context::new::<_, ()>(Backend { window: window.clone() }, true)
+        glium::backend::Context::new::<_, ()>(Backend { window: window.clone() },
+                                              true, Default::default())
     }.unwrap();
 
     // drawing a frame to prove that it works
