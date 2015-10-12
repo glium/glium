@@ -1448,6 +1448,23 @@ impl TextureFormat {
             &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
         }
     }
+
+    /// Returns true if the format is color-renderable, depth-renderable, depth-stencil-renderable
+    /// or stencil-renderable.
+    #[inline]
+    pub fn is_renderable<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+        match self {
+            &TextureFormat::UncompressedFloat(format) => format.is_color_renderable(c),
+            &TextureFormat::UncompressedIntegral(format) => format.is_color_renderable(c),
+            &TextureFormat::UncompressedUnsigned(format) => format.is_color_renderable(c),
+            &TextureFormat::Srgb(format) => format.is_color_renderable(c),
+            &TextureFormat::CompressedFormat(_) => false,
+            &TextureFormat::CompressedSrgbFormat(_) => false,
+            &TextureFormat::DepthFormat(_) => true,
+            &TextureFormat::StencilFormat(_) => true,
+            &TextureFormat::DepthStencilFormat(_) => true,
+        }
+    }
 }
 
 impl ToGlEnum for TextureFormat {

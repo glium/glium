@@ -618,12 +618,24 @@ pub fn get_internal_formats(gl: &gl::Gl, version: &Version, extensions: &Extensi
 pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList,
                            format: TextureFormat, renderbuffer: bool) -> FormatInfos
 {
+    // We create a dummy object to implement the `CapabilitiesSource` trait.
+    let dummy = {
+        struct DummyCaps<'a>(&'a Version, &'a ExtensionsList);
+        impl<'a> CapabilitiesSource for DummyCaps<'a> {
+            fn get_version(&self) -> &Version { self.0 }
+            fn get_extensions(&self) -> &ExtensionsList { self.1 }
+            fn get_capabilities(&self) -> &Capabilities { unreachable!() }
+        }
+        DummyCaps(version, extensions)
+    };
+
     unsafe {
         let target = if renderbuffer { gl::RENDERBUFFER } else { gl::TEXTURE_2D_MULTISAMPLE };
 
-        let samples = if version >= &Version(Api::GlEs, 3, 0) ||
-                         version >= &Version(Api::Gl, 4, 2) ||
-                         extensions.gl_arb_internalformat_query
+        let samples = if format.is_renderable(&dummy) &&
+                         (version >= &Version(Api::GlEs, 3, 0) ||
+                          version >= &Version(Api::Gl, 4, 2) ||
+                          extensions.gl_arb_internalformat_query)
         {
             let mut num = mem::uninitialized();
             gl.GetInternalformativ(target, format.to_glenum(), gl::NUM_SAMPLE_COUNTS, 1, &mut num);

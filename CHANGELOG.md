@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed an invalid enum error during initialization.
+
 ## Version 0.9.2 (2015-10-11)
 
  - Add `is_color_renderable` to the color image formats.
