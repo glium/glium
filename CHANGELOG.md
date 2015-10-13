@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.9.3 (2015-10-13)
 
  - Fixed an invalid enum error during initialization.
 
