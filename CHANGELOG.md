@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 0.10.0 (2015-10-04)
+## Version 0.10.0 (2015-10-14)
 
  - Update glutin to 0.4, cgmath to 0.3 and nalgebra to 0.3.
  - Add the possibility to set the behavior of the debug callback in `Context::new`.
