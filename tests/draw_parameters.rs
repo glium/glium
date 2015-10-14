@@ -363,7 +363,7 @@ fn cull_clockwise() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullClockWise,
+            backface_culling: glium::BackfaceCullingMode::CullClockwise,
             .. Default::default()
         }).unwrap();
 
@@ -461,7 +461,7 @@ fn cull_counterclockwise() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
+            backface_culling: glium::BackfaceCullingMode::CullCounterClockwise,
             .. Default::default()
         }).unwrap();
 
@@ -558,7 +558,7 @@ fn cull_clockwise_trianglestrip() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullClockWise,
+            backface_culling: glium::BackfaceCullingMode::CullClockwise,
             .. Default::default()
         }).unwrap();
 
@@ -655,7 +655,7 @@ fn cull_counterclockwise_trianglestrip() {
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullCounterClockWise,
+            backface_culling: glium::BackfaceCullingMode::CullCounterClockwise,
             .. Default::default()
         }).unwrap();
 
