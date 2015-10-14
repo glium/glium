@@ -116,6 +116,48 @@ impl Error for ProgramCreationError {
     }
 }
 
+/// Error type that is returned by the `program!` macro.
+#[derive(Clone, Debug)]
+pub enum ProgramChooserCreationError {
+    /// No available version has been found.
+    NoVersion,
+
+    /// A version has been found but it triggered the given error.
+    ProgramCreationError(ProgramCreationError),
+}
+
+impl fmt::Display for ProgramChooserCreationError {
+    #[inline]
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(formatter, "{}", self.description())
+    }
+}
+
+impl Error for ProgramChooserCreationError {
+    #[inline]
+    fn description(&self) -> &str {
+        match self {
+            &ProgramChooserCreationError::NoVersion => "No version of the program has been found \
+                                                        for the current OpenGL version.",
+            &ProgramChooserCreationError::ProgramCreationError(ref err) => err.description(),
+        }
+    }
+
+    #[inline]
+    fn cause(&self) -> Option<&Error> {
+        match self {
+            &ProgramChooserCreationError::NoVersion => None,
+            &ProgramChooserCreationError::ProgramCreationError(ref err) => Some(err),
+        }
+    }
+}
+
+impl From<ProgramCreationError> for ProgramChooserCreationError {
+    fn from(err: ProgramCreationError) -> ProgramChooserCreationError {
+        ProgramChooserCreationError::ProgramCreationError(err)
+    }
+}
+
 /// Error while retreiving the binary representation of a program.
 #[derive(Copy, Clone, Debug)]
 pub enum GetBinaryError {
