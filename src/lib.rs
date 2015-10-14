@@ -113,7 +113,7 @@ pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
 pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTypeNotSupported};
 pub use sync::{LinearSyncFence, SyncFence};
-pub use texture::{Texture, Texture2d};
+pub use texture::Texture2d;
 pub use version::{Api, Version, get_supported_glsl_version};
 
 use std::collections::HashMap;

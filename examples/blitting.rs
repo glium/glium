@@ -10,7 +10,7 @@ extern crate image;
 use std::io::Cursor;
 
 #[cfg(feature = "image")]
-use glium::{DisplayBuild, Texture, Surface};
+use glium::{DisplayBuild, Surface};
 
 use glium::glutin;
 
