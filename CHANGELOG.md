@@ -1,7 +1,13 @@
 # Change Log
 
-## Unreleased
+## Version 0.10.0 (2015-10-04)
 
+ - Update glutin to 0.4, cgmath to 0.3 and nalgebra to 0.3.
+ - Add the possibility to set the behavior of the debug callback in `Context::new`.
+ - Add `build_glium_debug` and `build_glium_unchecked_debug` to set the behavior of the debug callback at initialization.
+ - Rename `ClockWise` to `Clockwise`.
+ - The `program!` macro now returns a `ProgramChooserCreationError` and no longer panics if no version is found.
+ - Remove the `Texture` trait. All of its methods are already implemented on all texture types already.
  - Rename `UniformBlock::binding` to `id` and add `initial_binding`.
 
 ## Version 0.9.3 (2015-10-13)
