@@ -31,11 +31,11 @@ features = ["window"]
 optional = true
 
 [dependencies.cgmath]
-version = "0.2.0"
+version = "0.3"
 optional = true
 
 [dependencies.nalgebra]
-version = "0.2.14"
+version = "0.3"
 optional = true
 
 [dependencies.image]
