@@ -1,8 +1,14 @@
 # Change Log
 
-## Unreleased
+## Version 0.9.3 (2015-10-13)
+
+ - Fixed an invalid enum error during initialization.
+
+## Version 0.9.2 (2015-10-11)
 
  - Add `is_color_renderable` to the color image formats.
+ - Fixed glium erroneously using a SSBO's and a uniform buffer's binding point instead of index.
+ - Fixed `glInvalidateBuffer(Sub)Data` being called for persistent-mapped buffers.
 
 ## Version 0.9.1 (2015-09-30)
 

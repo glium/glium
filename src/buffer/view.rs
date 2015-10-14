@@ -116,7 +116,8 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// You should call this if you only use parts of a buffer. For example if you want to use
     /// the first half of the buffer, you invalidate the whole buffer then write the first half.
     ///
-    /// This operation is a no-op if the backend doesn't support it.
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
     ///
     /// # Implementation
     ///
@@ -534,7 +535,8 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
 
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
-    /// This operation is a no-op if the backend doesn't support it.
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
     ///
     /// # Implementation
     ///
@@ -897,7 +899,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
 
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
-    /// This operation is a no-op if the backend doesn't support it.
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
     ///
     /// # Implementation
     ///
@@ -1117,7 +1120,8 @@ impl BufferAny {
 
     /// Invalidates the content of the buffer. The data becomes undefined.
     ///
-    /// This operation is a no-op if the backend doesn't support it.
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
     #[inline]
     pub fn invalidate(&self) {
         self.alloc.invalidate(0, self.size);
@@ -1283,7 +1287,8 @@ impl<'a> BufferAnySlice<'a> {
 
     /// Invalidates the content of the slice. The data becomes undefined.
     ///
-    /// This operation is a no-op if the backend doesn't support it.
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
     #[inline]
     pub fn invalidate(&self) {
         self.alloc.invalidate(self.bytes_start, self.get_size());

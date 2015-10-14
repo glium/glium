@@ -468,7 +468,9 @@ impl Alloc {
         self.assert_unmapped(&mut ctxt);
         self.assert_not_transform_feedback(&mut ctxt);
 
-        if ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_invalidate_subdata {
+        if self.persistent_mapping.is_none() &&
+           (ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.extensions.gl_arb_invalidate_subdata)
+        {
             if is_whole_buffer {
                 unsafe { ctxt.gl.InvalidateBufferData(self.id) };
             } else {
