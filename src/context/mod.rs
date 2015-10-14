@@ -4,7 +4,6 @@ use gl;
 use libc;
 use backtrace;
 
-use std::env;
 use std::mem;
 use std::ptr;
 use std::borrow::Cow;
@@ -23,6 +22,7 @@ use version;
 use version::Api;
 use version::Version;
 
+use debug;
 use fbo;
 use ops;
 use sampler_object;
@@ -66,9 +66,12 @@ pub struct Context {
     /// call.
     check_current_context: bool,
 
+    /// The callback that is used by the debug output feature.
+    debug_callback: Option<debug::DebugCallback>,
+
     /// Whether or not errors triggered by ARB_debug_output (and similar extensions) should be
-    /// reported to the user (by panicking). This must be set to `false` in some situations,
-    /// like compiling/linking shaders.
+    /// reported to the user when `DebugCallbackBehavior::DebugMessageOnError` is used. This must
+    /// be set to `false` in some situations, like compiling/linking shaders.
     report_debug_output_errors: Cell<bool>,
 
     /// We maintain a cache of FBOs.
@@ -147,7 +150,8 @@ impl Context {
     /// The OpenGL context must be newly-created. If you make modifications to the context before
     /// passing it to this function, glium's state cache may mismatch the actual one.
     ///
-    pub unsafe fn new<B, E>(backend: B, check_current_context: bool)
+    pub unsafe fn new<B, E>(backend: B, check_current_context: bool,
+                            callback_behavior: DebugCallbackBehavior)
                             -> Result<Rc<Context>, GliumCreationError<E>>
                             where B: Backend + 'static
     {
@@ -169,12 +173,26 @@ impl Context {
         let resident_texture_handles = RefCell::new(Vec::new());
         let resident_image_handles = RefCell::new(Vec::new());
 
+        let (debug_callback, synchronous) = match callback_behavior {
+            DebugCallbackBehavior::Ignore => (None, false),
+            DebugCallbackBehavior::DebugMessageOnError => {
+                (Some(Box::new(default_debug_callback) as debug::DebugCallback), true)
+            },
+            DebugCallbackBehavior::PrintAll => {
+                (Some(Box::new(printall_debug_callback) as debug::DebugCallback), false)
+            },
+            DebugCallbackBehavior::Custom { callback, synchronous } => {
+                (Some(callback), synchronous)
+            },
+        };
+
         let context = Rc::new(Context {
             gl: gl,
             state: gl_state,
             version: version,
             extensions: extensions,
             capabilities: capabilities,
+            debug_callback: debug_callback,
             report_debug_output_errors: report_debug_output_errors,
             backend: RefCell::new(Box::new(backend)),
             check_current_context: check_current_context,
@@ -185,7 +203,9 @@ impl Context {
             resident_image_handles: resident_image_handles,
         });
 
-        init_debug_callback(&context);
+        if context.debug_callback.is_some() {
+            init_debug_callback(&context, synchronous);
+        }
 
         // making sure that an error wasn't triggered during initialization
         {
@@ -716,18 +736,101 @@ fn check_gl_compatibility<T>(version: &Version, extensions: &ExtensionsList)
     }
 }
 
+/// Describes the behavior that the debug output should have.
+pub enum DebugCallbackBehavior {
+    /// Don't do anything. This is the default behavior in release.
+    Ignore,
+
+    /// Print a message on stdout on error, except in some circumstances like when compiling
+    /// shaders. This is the default behavior in debug mode.
+    DebugMessageOnError,
+
+    /// Print every single output received by the driver.
+    PrintAll,
+
+    /// Use a custom callback.
+    Custom {
+        /// The function to be called.
+        callback: debug::DebugCallback,
+        /// Whether or not it should be called immediately (true) or asynchronously (false).
+        synchronous: bool,
+    },
+}
+
+impl Default for DebugCallbackBehavior {
+    #[inline]
+    fn default() -> DebugCallbackBehavior {
+        if cfg!(debug_assertions) {
+            DebugCallbackBehavior::DebugMessageOnError
+        } else {
+            DebugCallbackBehavior::Ignore
+        }
+    }
+}
+
+/// The callback corresponding to `DebugMessageOnError`.
+fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: debug::Severity,
+                          _: u32, report_debug_output_errors: bool, message: &str)
+{
+    match severity {
+        debug::Severity::Medium => (),
+        debug::Severity::High => (),
+        _ => return
+    };
+
+    match ty {
+        debug::MessageType::Error => (),
+        debug::MessageType::DeprecatedBehavior => (),
+        debug::MessageType::UndefinedBehavior => (),
+        debug::MessageType::Portability => (),
+        _ => return,
+    };
+
+    if report_debug_output_errors {
+        print!("Debug message with high or medium severity: `{}`.\n\
+                Please report this error: https://github.com/tomaka/glium/issues\n\
+                Backtrace:",
+                message);
+
+        let mut frame_id = 1;
+        backtrace::trace(&mut |frame| {
+            let ip = frame.ip();
+            print!("\n{:>#4} - {:p}", frame_id, ip);
+
+            backtrace::resolve(ip, &mut |symbol| {
+                let name = String::from_utf8(symbol.name()
+                                                   .unwrap_or(&b"<unknown>"[..])
+                                                   .to_owned())
+                                .unwrap_or_else(|_| "<not-utf8>".to_owned());
+                let filename = String::from_utf8(symbol.filename()
+                                                       .unwrap_or(&b"<unknown>"[..])
+                                                       .to_owned())
+                                    .unwrap_or_else(|_| "<not-utf8>".to_owned());
+                let line = symbol.lineno().map(|l| l.to_string())
+                                          .unwrap_or_else(|| "??".to_owned());
+
+                print!("\n         {} at {}:{}", name, filename, line);
+            });
+
+            frame_id += 1;
+            true
+        });
+
+        println!("\n");
+    }
+}
+
+/// The callback corresponding to `DebugMessageOnError`.
+fn printall_debug_callback(source: debug::Source, ty: debug::MessageType, severity: debug::Severity,
+                           id: u32, _: bool, message: &str)
+{
+    println!("Source: {src:?}\t\tSeverity: {sev:?}\t\tType: {ty:?}\t\tId: {id}\n{msg}",
+              src = source, sev = severity, ty = ty, id = id, msg = message);
+}
+
 /// Initializes `GL_KHR_debug`, `GL_ARB_debug`, or a similar extension so that the debug output
 /// is reported.
-fn init_debug_callback(context: &Rc<Context>) {
-    if !cfg!(debug_assertions) {
-        return;
-    }
-
-    // TODO: remove this
-    if env::var("GLIUM_DISABLE_DEBUG_OUTPUT").is_ok() {
-        return;
-    }
-
+fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
     // this is the C callback
     extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
                                         id: gl::types::GLuint, severity: gl::types::GLenum,
@@ -735,50 +838,52 @@ fn init_debug_callback(context: &Rc<Context>) {
                                         message: *const gl::types::GLchar,
                                         user_param: *mut libc::c_void)
     {
+        // note that we transmute the user param into a proper context
+        // in order to enforce safety here, the context disables debug output and flushes in its
+        // destructor
+
         let user_param = user_param as *const Context;
-        let user_param: &Context = unsafe { mem::transmute(user_param) };
+        let user_param: &mut Context = unsafe { mem::transmute(user_param) };
 
-        if (severity == gl::DEBUG_SEVERITY_HIGH || severity == gl::DEBUG_SEVERITY_MEDIUM) &&
-           (ty == gl::DEBUG_TYPE_ERROR || ty == gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR ||
-            ty == gl::DEBUG_TYPE_PORTABILITY || ty == gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR)
-        {
-            if user_param.report_debug_output_errors.get() {
-                // reporting
-                let message = unsafe {
-                    String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
-                };
+        let message = unsafe {
+            String::from_utf8(CStr::from_ptr(message).to_bytes().to_vec()).unwrap()
+        };
 
-                print!("Debug message with high or medium severity: `{}`.\n\
-                        Please report this error: https://github.com/tomaka/glium/issues\n\
-                        Backtrace:",
-                        message);
+        let severity = match severity {
+            gl::DEBUG_SEVERITY_NOTIFICATION => debug::Severity::Notification,
+            gl::DEBUG_SEVERITY_LOW => debug::Severity::Low,
+            gl::DEBUG_SEVERITY_MEDIUM => debug::Severity::Medium,
+            gl::DEBUG_SEVERITY_HIGH => debug::Severity::High,
+            _ => return,        // TODO: what to do in this situation?
+        };
 
-                let mut frame_id = 1;
-                backtrace::trace(&mut |frame| {
-                    let ip = frame.ip();
-                    print!("\n{:>#4} - {:p}", frame_id, ip);
+        let source = match source {
+            gl::DEBUG_SOURCE_API => debug::Source::Api,
+            gl::DEBUG_SOURCE_WINDOW_SYSTEM => debug::Source::WindowSystem,
+            gl::DEBUG_SOURCE_SHADER_COMPILER => debug::Source::ShaderCompiler,
+            gl::DEBUG_SOURCE_THIRD_PARTY => debug::Source::ThirdParty,
+            gl::DEBUG_SOURCE_APPLICATION => debug::Source::Application,
+            gl::DEBUG_SOURCE_OTHER => debug::Source::OtherSource,
+            _ => return,        // TODO: what to do in this situation?
+        };
 
-                    backtrace::resolve(ip, &mut |symbol| {
-                        let name = String::from_utf8(symbol.name()
-                                                           .unwrap_or(&b"<unknown>"[..])
-                                                           .to_owned())
-                                        .unwrap_or_else(|_| "<not-utf8>".to_owned());
-                        let filename = String::from_utf8(symbol.filename()
-                                                               .unwrap_or(&b"<unknown>"[..])
-                                                               .to_owned())
-                                            .unwrap_or_else(|_| "<not-utf8>".to_owned());
-                        let line = symbol.lineno().map(|l| l.to_string())
-                                                  .unwrap_or_else(|| "??".to_owned());
+        let ty = match ty {
+            gl::DEBUG_TYPE_ERROR => debug::MessageType::Error,
+            gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR => debug::MessageType::DeprecatedBehavior,
+            gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR => debug::MessageType::UndefinedBehavior,
+            gl::DEBUG_TYPE_PORTABILITY => debug::MessageType::Portability,
+            gl::DEBUG_TYPE_PERFORMANCE => debug::MessageType::Performance,
+            gl::DEBUG_TYPE_MARKER => debug::MessageType::Marker,
+            gl::DEBUG_TYPE_PUSH_GROUP => debug::MessageType::PushGroup,
+            gl::DEBUG_TYPE_POP_GROUP => debug::MessageType::PopGroup,
+            gl::DEBUG_TYPE_OTHER => debug::MessageType::Other,
+            _ => return,        // TODO: what to do in this situation?
+        };
 
-                        print!("\n         {} at {}:{}", name, filename, line);
-                    });
-
-                    frame_id += 1;
-                    true
-                });
-
-                println!("\n");
-            }
+        if let Some(callback) = user_param.debug_callback.as_mut() {
+            // FIXME: catch_panic here once it's stable
+            callback(source, ty, severity, id, user_param.report_debug_output_errors.get(),
+                     &message);
         }
     }
 
@@ -792,9 +897,11 @@ fn init_debug_callback(context: &Rc<Context>) {
         if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.version >= &Version(Api::GlEs, 3, 2) ||
            ctxt.extensions.gl_khr_debug || ctxt.extensions.gl_arb_debug_output
         {
-            if ctxt.state.enabled_debug_output_synchronous != true {
-                ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                ctxt.state.enabled_debug_output_synchronous = true;
+            if synchronous {
+                if ctxt.state.enabled_debug_output_synchronous != true {
+                    ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                    ctxt.state.enabled_debug_output_synchronous = true;
+                }
             }
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||

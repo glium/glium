@@ -1147,13 +1147,30 @@ pub trait DisplayBuild {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
-    fn build_glium(self) -> Result<Self::Facade, Self::Err>;
+    fn build_glium(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
+        self.build_glium_debug(Default::default())
+    }
+
+    /// Build a context and a facade to draw on it.
+    ///
+    /// Performs a compatibility check to make sure that all core elements of glium
+    /// are supported by the implementation.
+    fn build_glium_debug(self, debug::DebugCallbackBehavior) -> Result<Self::Facade, Self::Err>;
 
     /// Build a context and a facade to draw on it
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err>;
+    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
+        self.build_glium_unchecked_debug(Default::default())
+    }
+
+    /// Build a context and a facade to draw on it
+    ///
+    /// This function does the same as `build_glium`, except that the resulting context
+    /// will assume that the current OpenGL context will never change.
+    unsafe fn build_glium_unchecked_debug(self, debug::DebugCallbackBehavior)
+                                          -> Result<Self::Facade, Self::Err>;
 
     /// Changes the settings of an existing facade.
     fn rebuild_glium(self, &Self::Facade) -> Result<(), Self::Err>;
