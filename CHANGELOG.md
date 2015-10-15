@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Fixed `glBufferData` being called to invalidate a buffer created with `glBufferStorage`.
+
 ## Version 0.10.0 (2015-10-14)
 
  - Update glutin to 0.4, cgmath to 0.3 and nalgebra to 0.3.
