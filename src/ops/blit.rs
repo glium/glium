@@ -11,10 +11,13 @@ use gl;
 use version::Version;
 use version::Api;
 
-pub fn blit(context: &Context, source: Option<&ValidatedAttachments>,
-            target: Option<&ValidatedAttachments>, mask: gl::types::GLbitfield,
-            src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
-{
+pub fn blit(context: &Context,
+            source: Option<&ValidatedAttachments>,
+            target: Option<&ValidatedAttachments>,
+            mask: gl::types::GLbitfield,
+            src_rect: &Rect,
+            target_rect: &BlitTarget,
+            filter: gl::types::GLenum) {
     unsafe {
         let mut ctxt = context.make_current();
 

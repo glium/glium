@@ -56,12 +56,15 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty<F>(facade: &F, elements: usize)
+    pub fn empty<F>(facade: &F,
+                    elements: usize)
                     -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
-                    where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Default));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Default));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -69,12 +72,15 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, elements: usize)
+    pub fn empty_dynamic<F>(facade: &F,
+                            elements: usize)
                             -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
-                            where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Dynamic));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Dynamic));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -82,12 +88,15 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, elements: usize)
+    pub fn empty_persistent<F>(facade: &F,
+                               elements: usize)
                                -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
-                               where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Persistent));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Persistent));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -95,12 +104,15 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, elements: usize)
+    pub fn empty_immutable<F>(facade: &F,
+                              elements: usize)
                               -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
-                              where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Immutable));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Immutable));
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -157,12 +169,15 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty<F>(facade: &F, elements: usize)
+    pub fn empty<F>(facade: &F,
+                    elements: usize)
                     -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
-                    where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Default));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Default));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -170,12 +185,15 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, elements: usize)
+    pub fn empty_dynamic<F>(facade: &F,
+                            elements: usize)
                             -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
-                            where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Dynamic));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Dynamic));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -183,12 +201,15 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, elements: usize)
+    pub fn empty_persistent<F>(facade: &F,
+                               elements: usize)
                                -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
-                               where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Persistent));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Persistent));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -196,20 +217,23 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, elements: usize)
+    pub fn empty_immutable<F>(facade: &F,
+                              elements: usize)
                               -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
-                              where F: Facade
+        where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Immutable));
+        let buf = try!(Buffer::empty_array(facade,
+                                           BufferType::DrawIndirectBuffer,
+                                           elements,
+                                           BufferMode::Immutable));
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
     /// Builds an indices source from this buffer and a primitives type. This indices source can
     /// be passed to the `draw()` function.
     #[inline]
-    pub fn with_index_buffer<'a, T>(&'a self, index_buffer: &'a IndexBuffer<T>)
-                                    -> IndicesSource<'a> where T: Index
+    pub fn with_index_buffer<'a, T>(&'a self, index_buffer: &'a IndexBuffer<T>) -> IndicesSource<'a>
+        where T: Index
     {
         IndicesSource::MultidrawElement {
             commands: self.buffer.as_slice_any(),

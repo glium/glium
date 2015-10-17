@@ -129,15 +129,17 @@ pub enum ReleaseBehavior {
 /// Can panic if the version number or extensions list don't match the backend, leading to
 /// unloaded functions being called.
 ///
-pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
-                               -> Capabilities
-{
+pub unsafe fn get_capabilities(gl: &gl::Gl,
+                               version: &Version,
+                               extensions: &ExtensionsList)
+                               -> Capabilities {
     // getting the value of `GL_RENDERER`
     let renderer = {
         let s = gl.GetString(gl::RENDERER);
         assert!(!s.is_null());
-        String::from_utf8(CStr::from_ptr(s as *const i8).to_bytes().to_vec()).ok()
-                                    .expect("glGetString(GL_RENDERER) returned a non-UTF8 string")
+        String::from_utf8(CStr::from_ptr(s as *const i8).to_bytes().to_vec())
+            .ok()
+            .expect("glGetString(GL_RENDERER) returned a non-UTF8 string")
     };
 
     Capabilities {
@@ -508,9 +510,10 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 /// Can panic if the version number or extensions list don't match the backend, leading to
 /// unloaded functions being called.
 ///
-pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
-                                 -> Vec<Version>
-{
+pub unsafe fn get_supported_glsl(gl: &gl::Gl,
+                                 version: &Version,
+                                 extensions: &ExtensionsList)
+                                 -> Vec<Version> {
     // checking if the implementation has a shader compiler
     // a compiler is optional in OpenGL ES
     if version.0 == Api::GlEs {
@@ -529,20 +532,17 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
     let mut result = Vec::with_capacity(8);
 
     if version >= &Version(Api::GlEs, 2, 0) || version >= &Version(Api::Gl, 4, 1) ||
-       extensions.gl_arb_es2_compatibility
-    {
+       extensions.gl_arb_es2_compatibility {
         result.push(Version(Api::GlEs, 1, 0));
     }
 
     if version >= &Version(Api::GlEs, 3, 0) || version >= &Version(Api::Gl, 4, 3) ||
-       extensions.gl_arb_es3_compatibility
-    {
+       extensions.gl_arb_es3_compatibility {
         result.push(Version(Api::GlEs, 3, 0));
     }
 
     if version >= &Version(Api::GlEs, 3, 1) || version >= &Version(Api::Gl, 4, 5) ||
-       extensions.gl_arb_es3_1_compatibility
-    {
+       extensions.gl_arb_es3_1_compatibility {
         result.push(Version(Api::GlEs, 3, 1));
     }
 
@@ -551,14 +551,12 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
     }
 
     if version >= &Version(Api::Gl, 2, 0) && version <= &Version(Api::Gl, 3, 0) ||
-       extensions.gl_arb_compatibility
-    {
+       extensions.gl_arb_compatibility {
         result.push(Version(Api::Gl, 1, 1));
     }
 
     if version >= &Version(Api::Gl, 2, 1) && version <= &Version(Api::Gl, 3, 0) ||
-       extensions.gl_arb_compatibility
-    {
+       extensions.gl_arb_compatibility {
         result.push(Version(Api::Gl, 1, 2));
     }
 
@@ -584,65 +582,95 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
 }
 
 /// Returns all informations about all supported internal formats.
-pub fn get_internal_formats(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList,
-                            renderbuffer: bool) -> HashMap<TextureFormat, FormatInfos>
-{
+pub fn get_internal_formats(gl: &gl::Gl,
+                            version: &Version,
+                            extensions: &ExtensionsList,
+                            renderbuffer: bool)
+                            -> HashMap<TextureFormat, FormatInfos> {
     // We create a dummy object to implement the `CapabilitiesSource` trait.
     let dummy = {
         struct DummyCaps<'a>(&'a Version, &'a ExtensionsList);
         impl<'a> CapabilitiesSource for DummyCaps<'a> {
-            fn get_version(&self) -> &Version { self.0 }
-            fn get_extensions(&self) -> &ExtensionsList { self.1 }
-            fn get_capabilities(&self) -> &Capabilities { unreachable!() }
+            fn get_version(&self) -> &Version {
+                self.0
+            }
+            fn get_extensions(&self) -> &ExtensionsList {
+                self.1
+            }
+            fn get_capabilities(&self) -> &Capabilities {
+                unreachable!()
+            }
         }
         DummyCaps(version, extensions)
     };
 
-    TextureFormat::get_formats_list().into_iter().filter_map(|format| {
-        if renderbuffer {
-            if !format.is_supported_for_renderbuffers(&dummy) {
-                return None;
+    TextureFormat::get_formats_list()
+        .into_iter()
+        .filter_map(|format| {
+            if renderbuffer {
+                if !format.is_supported_for_renderbuffers(&dummy) {
+                    return None;
+                }
+            } else {
+                if !format.is_supported_for_textures(&dummy) {
+                    return None;
+                }
             }
-        } else {
-            if !format.is_supported_for_textures(&dummy) {
-                return None;
-            }
-        }
 
-        let infos = get_internal_format(gl, version, extensions, format, renderbuffer);
-        Some((format, infos))
-    }).collect()
+            let infos = get_internal_format(gl, version, extensions, format, renderbuffer);
+            Some((format, infos))
+        })
+        .collect()
 }
 
 /// Returns informations about a precise internal format.
-pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList,
-                           format: TextureFormat, renderbuffer: bool) -> FormatInfos
-{
+pub fn get_internal_format(gl: &gl::Gl,
+                           version: &Version,
+                           extensions: &ExtensionsList,
+                           format: TextureFormat,
+                           renderbuffer: bool)
+                           -> FormatInfos {
     // We create a dummy object to implement the `CapabilitiesSource` trait.
     let dummy = {
         struct DummyCaps<'a>(&'a Version, &'a ExtensionsList);
         impl<'a> CapabilitiesSource for DummyCaps<'a> {
-            fn get_version(&self) -> &Version { self.0 }
-            fn get_extensions(&self) -> &ExtensionsList { self.1 }
-            fn get_capabilities(&self) -> &Capabilities { unreachable!() }
+            fn get_version(&self) -> &Version {
+                self.0
+            }
+            fn get_extensions(&self) -> &ExtensionsList {
+                self.1
+            }
+            fn get_capabilities(&self) -> &Capabilities {
+                unreachable!()
+            }
         }
         DummyCaps(version, extensions)
     };
 
     unsafe {
-        let target = if renderbuffer { gl::RENDERBUFFER } else { gl::TEXTURE_2D_MULTISAMPLE };
+        let target = if renderbuffer {
+            gl::RENDERBUFFER
+        } else {
+            gl::TEXTURE_2D_MULTISAMPLE
+        };
 
         let samples = if format.is_renderable(&dummy) &&
                          (version >= &Version(Api::GlEs, 3, 0) ||
                           version >= &Version(Api::Gl, 4, 2) ||
-                          extensions.gl_arb_internalformat_query)
-        {
+                          extensions.gl_arb_internalformat_query) {
             let mut num = mem::uninitialized();
-            gl.GetInternalformativ(target, format.to_glenum(), gl::NUM_SAMPLE_COUNTS, 1, &mut num);
+            gl.GetInternalformativ(target,
+                                   format.to_glenum(),
+                                   gl::NUM_SAMPLE_COUNTS,
+                                   1,
+                                   &mut num);
 
             if num >= 1 {
                 let mut formats = Vec::with_capacity(num as usize);
-                gl.GetInternalformativ(target, format.to_glenum(), gl::SAMPLES, num,
+                gl.GetInternalformativ(target,
+                                       format.to_glenum(),
+                                       gl::SAMPLES,
+                                       num,
                                        formats.as_mut_ptr());
                 formats.set_len(num as usize);
                 Some(formats)
@@ -655,8 +683,6 @@ pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &Extensio
             None
         };
 
-        FormatInfos {
-            multisamples: samples,
-        }
+        FormatInfos { multisamples: samples }
     }
 }

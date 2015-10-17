@@ -191,7 +191,10 @@ pub struct EmptyVertexAttributes {
 impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: self.len, per_instance: false }
+        VerticesSource::Marker {
+            len: self.len,
+            per_instance: false,
+        }
     }
 }
 
@@ -204,7 +207,10 @@ pub struct EmptyInstanceAttributes {
 impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: self.len, per_instance: true }
+        VerticesSource::Marker {
+            len: self.len,
+            per_instance: true,
+        }
     }
 }
 
@@ -305,7 +311,9 @@ pub trait Vertex: Copy + Sized {
     fn build_bindings() -> VertexFormat;
 
     /// Returns true if the backend supports this vertex format.
-    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C>(caps: &C) -> bool
+        where C: CapabilitiesSource
+    {
         let format = Self::build_bindings();
 
         for &(_, _, ref ty) in format.iter() {
@@ -325,7 +333,9 @@ pub unsafe trait Attribute: Sized {
 
     /// Returns true if the backend supports this type of attribute.
     #[inline]
-    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C>(caps: &C) -> bool
+        where C: CapabilitiesSource
+    {
         Self::get_type().is_supported(caps)
     }
 }

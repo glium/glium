@@ -353,7 +353,10 @@ pub struct IndexedBufferState {
 /// Builds the `GlState` corresponding to a newly-created OpenGL context.
 impl Default for GlState {
     fn default() -> GlState {
-        fn small_vec_one<T>() -> SmallVec<T> where T: ::smallvec::Array, T::Item: Default {
+        fn small_vec_one<T>() -> SmallVec<T>
+            where T: ::smallvec::Array,
+                  T::Item: Default
+        {
             let mut v = SmallVec::new();
             v.push(Default::default());
             v

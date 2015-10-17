@@ -40,7 +40,7 @@ impl Drop for Shader {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                             ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.DeleteShader(id);
-                },
+                }
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
                     ctxt.gl.DeleteObjectARB(id);
@@ -51,8 +51,11 @@ impl Drop for Shader {
 }
 
 /// Builds an individual shader.
-pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: &str)
-                       -> Result<Shader, ProgramCreationError> where F: Facade
+pub fn build_shader<F>(facade: &F,
+                       shader_type: gl::types::GLenum,
+                       source_code: &str)
+                       -> Result<Shader, ProgramCreationError>
+    where F: Facade
 {
     unsafe {
         let mut ctxt = facade.get_context().make_current();
@@ -68,8 +71,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
         let source_code = ffi::CString::new(source_code.as_bytes()).unwrap();
 
         let id = if ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-        {
+                    ctxt.version >= &Version(Api::GlEs, 2, 0) {
             Handle::Id(ctxt.gl.CreateShader(shader_type))
         } else if ctxt.extensions.gl_arb_shader_objects {
             Handle::Handle(ctxt.gl.CreateShaderObjectARB(shader_type))
@@ -85,11 +87,11 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
             Handle::Id(id) => {
                 assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                         ctxt.version >= &Version(Api::GlEs, 2, 0));
-                ctxt.gl.ShaderSource(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
-            },
+                ctxt.gl.ShaderSource(id, 1, [source_code.as_ptr()].as_ptr(), ptr::null());
+            }
             Handle::Handle(id) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
-                ctxt.gl.ShaderSourceARB(id, 1, [ source_code.as_ptr() ].as_ptr(), ptr::null());
+                ctxt.gl.ShaderSourceARB(id, 1, [source_code.as_ptr()].as_ptr(), ptr::null());
             }
         }
 
@@ -99,10 +101,10 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
             match id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0)||
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                             ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.CompileShader(id);
-                },
+                }
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
                     ctxt.gl.CompileShaderARB(id);
@@ -120,10 +122,11 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                             ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut compilation_success);
-                },
+                }
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
-                    ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_COMPILE_STATUS_ARB,
+                    ctxt.gl.GetObjectParameterivARB(id,
+                                                    gl::OBJECT_COMPILE_STATUS_ARB,
                                                     &mut compilation_success);
                 }
             }
@@ -133,7 +136,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
         if compilation_success == 1 {
             Ok(Shader {
                 context: facade.get_context().clone(),
-                id: id
+                id: id,
             })
 
         } else {
@@ -145,10 +148,11 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                             ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
-                },
+                }
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
-                    ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_INFO_LOG_LENGTH_ARB,
+                    ctxt.gl.GetObjectParameterivARB(id,
+                                                    gl::OBJECT_INFO_LOG_LENGTH_ARB,
                                                     &mut error_log_size);
                 }
             }
@@ -159,12 +163,16 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                             ctxt.version >= &Version(Api::GlEs, 2, 0));
-                    ctxt.gl.GetShaderInfoLog(id, error_log_size, &mut error_log_size,
+                    ctxt.gl.GetShaderInfoLog(id,
+                                             error_log_size,
+                                             &mut error_log_size,
                                              error_log.as_mut_ptr() as *mut gl::types::GLchar);
-                },
+                }
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
-                    ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
+                    ctxt.gl.GetInfoLogARB(id,
+                                          error_log_size,
+                                          &mut error_log_size,
                                           error_log.as_mut_ptr() as *mut gl::types::GLchar);
                 }
             }
@@ -173,50 +181,46 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
 
             match String::from_utf8(error_log) {
                 Ok(msg) => Err(ProgramCreationError::CompilationError(msg)),
-                Err(_) => Err(
-                    ProgramCreationError::CompilationError("Could not convert the log \
-                                                            message to UTF-8".to_owned())
-                ),
+                Err(_) => Err(ProgramCreationError::CompilationError("Could not convert the log \
+                                                                      message to UTF-8"
+                                                                         .to_owned())),
             }
         }
     }
 }
 
-pub fn check_shader_type_compatibility<C>(ctxt: &C, shader_type: gl::types::GLenum)
-                                          -> bool where C: CapabilitiesSource
+pub fn check_shader_type_compatibility<C>(ctxt: &C, shader_type: gl::types::GLenum) -> bool
+    where C: CapabilitiesSource
 {
     match shader_type {
         gl::VERTEX_SHADER | gl::FRAGMENT_SHADER => (),
         gl::GEOMETRY_SHADER => {
-            if !(ctxt.get_version() >= &Version(Api::Gl, 3, 0))
-                && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2))
-                && !ctxt.get_extensions().gl_arb_geometry_shader4
-                && !ctxt.get_extensions().gl_ext_geometry_shader4
-                && !ctxt.get_extensions().gl_ext_geometry_shader
-                && !ctxt.get_extensions().gl_oes_geometry_shader
-            {
+            if !(ctxt.get_version() >= &Version(Api::Gl, 3, 0)) &&
+               !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2)) &&
+               !ctxt.get_extensions().gl_arb_geometry_shader4 &&
+               !ctxt.get_extensions().gl_ext_geometry_shader4 &&
+               !ctxt.get_extensions().gl_ext_geometry_shader &&
+               !ctxt.get_extensions().gl_oes_geometry_shader {
                 return false;
             }
-        },
+        }
         gl::TESS_CONTROL_SHADER | gl::TESS_EVALUATION_SHADER => {
-            if !(ctxt.get_version() >= &Version(Api::Gl, 4, 0))
-                && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2))
-                && !ctxt.get_extensions().gl_arb_tessellation_shader
-                && !ctxt.get_extensions().gl_oes_tessellation_shader
-            {
+            if !(ctxt.get_version() >= &Version(Api::Gl, 4, 0)) &&
+               !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2)) &&
+               !ctxt.get_extensions().gl_arb_tessellation_shader &&
+               !ctxt.get_extensions().gl_oes_tessellation_shader {
                 return false;
             }
-        },
+        }
         gl::COMPUTE_SHADER => {
-            if !(ctxt.get_version() >= &Version(Api::Gl, 4, 3))
-                && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 1))
-                && !ctxt.get_extensions().gl_arb_compute_shader
-            {
+            if !(ctxt.get_version() >= &Version(Api::Gl, 4, 3)) &&
+               !(ctxt.get_version() >= &Version(Api::GlEs, 3, 1)) &&
+               !ctxt.get_extensions().gl_arb_compute_shader {
                 return false;
             }
-        },
-        _ => unreachable!()
-    };
+        }
+        _ => unreachable!(),
+    }
 
     true
 }

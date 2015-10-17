@@ -101,17 +101,13 @@ impl GlutinFacade {
     /// This iterator polls for events and can be exhausted.
     #[inline]
     pub fn poll_events(&self) -> PollEventsIter {
-        PollEventsIter {
-            window: Option::as_ref(&self.backend),
-        }
+        PollEventsIter { window: Option::as_ref(&self.backend) }
     }
 
     /// Reads all events received by the window.
     #[inline]
     pub fn wait_events(&self) -> WaitEventsIter {
-        WaitEventsIter {
-            window: Option::as_ref(&self.backend),
-        }
+        WaitEventsIter { window: Option::as_ref(&self.backend) }
     }
 
     /// Returns the underlying window, or `None` if glium uses a headless context.
@@ -145,9 +141,9 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
 
-    fn build_glium_debug(self, debug: debug::DebugCallbackBehavior)
-                         -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>>
-    {
+    fn build_glium_debug(self,
+                         debug: debug::DebugCallbackBehavior)
+                         -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
         let context = try!(unsafe { context::Context::new(backend.clone(), true, debug) });
 
@@ -159,9 +155,10 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         Ok(display)
     }
 
-    unsafe fn build_glium_unchecked_debug(self, debug: debug::DebugCallbackBehavior)
-                                          -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>>
-    {
+    unsafe fn build_glium_unchecked_debug
+                                          (self,
+                                           debug: debug::DebugCallbackBehavior)
+                                           -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), false, debug));
 
@@ -173,9 +170,12 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
         Ok(display)
     }
 
-    fn rebuild_glium(self, display: &GlutinFacade) -> Result<(), GliumCreationError<glutin::CreationError>> {
+    fn rebuild_glium(self,
+                     display: &GlutinFacade)
+                     -> Result<(), GliumCreationError<glutin::CreationError>> {
         let mut existing_window = Option::as_ref(&display.backend)
-                                         .expect("can't rebuild a headless display").borrow_mut();
+                                      .expect("can't rebuild a headless display")
+                                      .borrow_mut();
         let new_backend = Rc::new(try!(existing_window.rebuild(self)));
         try!(unsafe { display.context.rebuild(new_backend.clone()) });
         *existing_window = new_backend;
@@ -187,9 +187,13 @@ impl<'a> DisplayBuild for glutin::HeadlessRendererBuilder<'a> {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
 
-    fn build_glium_debug(self, debug: debug::DebugCallbackBehavior) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
+    fn build_glium_debug(self,
+                         debug: debug::DebugCallbackBehavior)
+                         -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
-        let context = try!(unsafe { context::Context::new(backend.clone(), true, Default::default()) });
+        let context = try!(unsafe {
+            context::Context::new(backend.clone(), true, Default::default())
+        });
 
         let display = GlutinFacade {
             context: context,
@@ -199,7 +203,10 @@ impl<'a> DisplayBuild for glutin::HeadlessRendererBuilder<'a> {
         Ok(display)
     }
 
-    unsafe fn build_glium_unchecked_debug(self, debug: debug::DebugCallbackBehavior) -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
+    unsafe fn build_glium_unchecked_debug
+                                          (self,
+                                           debug: debug::DebugCallbackBehavior)
+                                           -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>> {
         let backend = Rc::new(try!(backend::glutin_backend::GlutinHeadlessBackend::new(self)));
         let context = try!(context::Context::new(backend.clone(), true, Default::default()));
 
@@ -211,7 +218,9 @@ impl<'a> DisplayBuild for glutin::HeadlessRendererBuilder<'a> {
         Ok(display)
     }
 
-    fn rebuild_glium(self, _: &GlutinFacade) -> Result<(), GliumCreationError<glutin::CreationError>> {
+    fn rebuild_glium(self,
+                     _: &GlutinFacade)
+                     -> Result<(), GliumCreationError<glutin::CreationError>> {
         unimplemented!()
     }
 }
@@ -226,7 +235,8 @@ unsafe impl Backend for GlutinWindowBackend {
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         match self.window.swap_buffers() {
             Ok(()) => Ok(()),
-            Err(glutin::ContextError::IoError(e)) => panic!("Error while swapping buffers: {:?}", e),
+            Err(glutin::ContextError::IoError(e)) =>
+                panic!("Error while swapping buffers: {:?}", e),
             Err(glutin::ContextError::ContextLost) => Err(SwapBuffersError::ContextLost),
         }
     }
@@ -240,7 +250,8 @@ unsafe impl Backend for GlutinWindowBackend {
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         let (width, height) = self.window.get_inner_size().unwrap_or((800, 600));      // TODO: 800x600 ?
         let scale = self.window.hidpi_factor();
-        ((width as f32 * scale) as u32, (height as f32 * scale) as u32)
+        ((width as f32 * scale) as u32,
+         (height as f32 * scale) as u32)
     }
 
     #[inline]
@@ -258,13 +269,10 @@ unsafe impl Backend for GlutinWindowBackend {
 impl GlutinWindowBackend {
     /// Builds a new backend from the builder.
     pub fn new(builder: glutin::WindowBuilder)
-               -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>>
-    {
+               -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>> {
         let window = try!(builder.build());
 
-        Ok(GlutinWindowBackend {
-            window: window,
-        })
+        Ok(GlutinWindowBackend { window: window })
     }
 
     #[inline]
@@ -282,14 +290,12 @@ impl GlutinWindowBackend {
         self.window.wait_events()
     }
 
-    pub fn rebuild(&self, builder: glutin::WindowBuilder)
-                   -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>>
-    {
+    pub fn rebuild(&self,
+                   builder: glutin::WindowBuilder)
+                   -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>> {
         let window = try!(builder.with_shared_lists(&self.window).build());
 
-        Ok(GlutinWindowBackend {
-            window: window,
-        })
+        Ok(GlutinWindowBackend { window: window })
     }
 }
 
@@ -328,12 +334,9 @@ unsafe impl Backend for GlutinHeadlessBackend {
 impl GlutinHeadlessBackend {
     /// Builds a new backend from the builder.
     pub fn new(builder: glutin::HeadlessRendererBuilder)
-               -> Result<GlutinHeadlessBackend, GliumCreationError<glutin::CreationError>>
-    {
+               -> Result<GlutinHeadlessBackend, GliumCreationError<glutin::CreationError>> {
         let context = try!(builder.build());
 
-        Ok(GlutinHeadlessBackend {
-            context: context,
-        })
+        Ok(GlutinHeadlessBackend { context: context })
     }
 }

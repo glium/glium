@@ -194,24 +194,32 @@ pub enum PrimitiveType {
 
 impl PrimitiveType {
     /// Returns true if the backend supports this type of primitives.
-    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C>(&self, caps: &C) -> bool
+        where C: CapabilitiesSource
+    {
         match self {
-            &PrimitiveType::Points | &PrimitiveType::LinesList | &PrimitiveType::LineStrip |
-            &PrimitiveType::LineLoop | &PrimitiveType::TrianglesList |
-            &PrimitiveType::TriangleStrip | &PrimitiveType::TriangleFan => true,
+            &PrimitiveType::Points |
+            &PrimitiveType::LinesList |
+            &PrimitiveType::LineStrip |
+            &PrimitiveType::LineLoop |
+            &PrimitiveType::TrianglesList |
+            &PrimitiveType::TriangleStrip |
+            &PrimitiveType::TriangleFan => true,
 
-            &PrimitiveType::LinesListAdjacency | &PrimitiveType::LineStripAdjacency |
-            &PrimitiveType::TrianglesListAdjacency | &PrimitiveType::TriangleStripAdjacency => {
+            &PrimitiveType::LinesListAdjacency |
+            &PrimitiveType::LineStripAdjacency |
+            &PrimitiveType::TrianglesListAdjacency |
+            &PrimitiveType::TriangleStripAdjacency => {
                 caps.get_version() >= &Version(Api::Gl, 3, 0) ||
                 caps.get_extensions().gl_arb_geometry_shader4 ||
                 caps.get_extensions().gl_ext_geometry_shader4 ||
                 caps.get_extensions().gl_ext_geometry_shader
-            },
+            }
 
             &PrimitiveType::Patches { .. } => {
                 caps.get_version() >= &Version(Api::Gl, 4, 0) ||
                 caps.get_extensions().gl_arb_tessellation_shader
-            },
+            }
         }
     }
 }
@@ -246,18 +254,14 @@ pub struct NoIndices(pub PrimitiveType);
 impl<'a> From<NoIndices> for IndicesSource<'a> {
     #[inline]
     fn from(marker: NoIndices) -> IndicesSource<'a> {
-        IndicesSource::NoIndices {
-            primitives: marker.0
-        }
+        IndicesSource::NoIndices { primitives: marker.0 }
     }
 }
 
 impl<'a, 'b> From<&'b NoIndices> for IndicesSource<'a> {
     #[inline]
     fn from(marker: &'b NoIndices) -> IndicesSource<'a> {
-        IndicesSource::NoIndices {
-            primitives: marker.0
-        }
+        IndicesSource::NoIndices { primitives: marker.0 }
     }
 }
 
@@ -286,7 +290,9 @@ impl IndexType {
 
     /// Returns true if the backend supports this type of index.
     #[inline]
-    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C>(&self, caps: &C) -> bool
+        where C: CapabilitiesSource
+    {
         match self {
             &IndexType::U8 => true,
             &IndexType::U16 => true,
@@ -294,7 +300,7 @@ impl IndexType {
                 caps.get_version() >= &Version(Api::Gl, 1, 0) ||
                 caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
                 caps.get_extensions().gl_oes_element_index_uint
-            },
+            }
         }
     }
 }
@@ -312,7 +318,9 @@ pub unsafe trait Index: Copy + Send + 'static {
     fn get_type() -> IndexType;
 
     /// Returns true if this type of index is supported by the backend.
-    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C>(caps: &C) -> bool
+        where C: CapabilitiesSource
+    {
         Self::get_type().is_supported(caps)
     }
 }

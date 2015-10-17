@@ -317,7 +317,7 @@ macro_rules! implement_uniform_block {
                             };
 
                             let dummy: &$struct_name = unsafe { mem::uninitialized() };
-                            
+
                             match matches_from_ty(&dummy.$field_name, reflected_ty, input_offset) {
                                 Ok(_) => (),
                                 Err(e) => return Err(LayoutMismatchError::MemberMismatch {
@@ -579,7 +579,8 @@ mod tests {
     fn assert_no_error_macro() {
         struct Dummy;
         impl Dummy {
-            fn assert_no_error(&self, _: Option<&str>) { }
+            fn assert_no_error(&self, _: Option<&str>) {
+            }
         }
 
         assert_no_gl_error!(Dummy);

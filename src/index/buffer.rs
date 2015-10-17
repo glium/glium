@@ -35,7 +35,9 @@ impl From<BufferCreationError> for CreationError {
 
 /// A list of indices loaded in the graphics card's memory.
 #[derive(Debug)]
-pub struct IndexBuffer<T> where T: Index {
+pub struct IndexBuffer<T>
+    where T: Index
+{
     buffer: Buffer<[T]>,
     primitives: PrimitiveType,
 }
@@ -43,44 +45,55 @@ pub struct IndexBuffer<T> where T: Index {
 impl<T> IndexBuffer<T> where T: Index {
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn new<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn new<F>(facade: &F,
+                  prim: PrimitiveType,
+                  data: &[T])
                   -> Result<IndexBuffer<T>, CreationError>
-                  where F: Facade
+        where F: Facade
     {
         IndexBuffer::new_impl(facade, prim, data, BufferMode::Default)
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn dynamic<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn dynamic<F>(facade: &F,
+                      prim: PrimitiveType,
+                      data: &[T])
                       -> Result<IndexBuffer<T>, CreationError>
-                      where F: Facade
+        where F: Facade
     {
         IndexBuffer::new_impl(facade, prim, data, BufferMode::Dynamic)
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn persistent<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn persistent<F>(facade: &F,
+                         prim: PrimitiveType,
+                         data: &[T])
                          -> Result<IndexBuffer<T>, CreationError>
-                         where F: Facade
+        where F: Facade
     {
         IndexBuffer::new_impl(facade, prim, data, BufferMode::Persistent)
     }
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn immutable<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn immutable<F>(facade: &F,
+                        prim: PrimitiveType,
+                        data: &[T])
                         -> Result<IndexBuffer<T>, CreationError>
-                        where F: Facade
+        where F: Facade
     {
         IndexBuffer::new_impl(facade, prim, data, BufferMode::Immutable)
     }
 
     #[inline]
-    fn new_impl<F>(facade: &F, prim: PrimitiveType, data: &[T], mode: BufferMode)
+    fn new_impl<F>(facade: &F,
+                   prim: PrimitiveType,
+                   data: &[T],
+                   mode: BufferMode)
                    -> Result<IndexBuffer<T>, CreationError>
-                   where F: Facade
+        where F: Facade
     {
         if !prim.is_supported(facade) {
             return Err(CreationError::PrimitiveTypeNotSupported);
@@ -98,44 +111,55 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty<F>(facade: &F,
+                    prim: PrimitiveType,
+                    len: usize)
                     -> Result<IndexBuffer<T>, CreationError>
-                    where F: Facade
+        where F: Facade
     {
         IndexBuffer::empty_impl(facade, prim, len, BufferMode::Default)
     }
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty_dynamic<F>(facade: &F,
+                            prim: PrimitiveType,
+                            len: usize)
                             -> Result<IndexBuffer<T>, CreationError>
-                            where F: Facade
+        where F: Facade
     {
         IndexBuffer::empty_impl(facade, prim, len, BufferMode::Dynamic)
     }
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty_persistent<F>(facade: &F,
+                               prim: PrimitiveType,
+                               len: usize)
                                -> Result<IndexBuffer<T>, CreationError>
-                               where F: Facade
+        where F: Facade
     {
         IndexBuffer::empty_impl(facade, prim, len, BufferMode::Persistent)
     }
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty_immutable<F>(facade: &F,
+                              prim: PrimitiveType,
+                              len: usize)
                               -> Result<IndexBuffer<T>, CreationError>
-                              where F: Facade
+        where F: Facade
     {
         IndexBuffer::empty_impl(facade, prim, len, BufferMode::Immutable)
     }
 
     #[inline]
-    fn empty_impl<F>(facade: &F, prim: PrimitiveType, len: usize, mode: BufferMode)
+    fn empty_impl<F>(facade: &F,
+                     prim: PrimitiveType,
+                     len: usize,
+                     mode: BufferMode)
                      -> Result<IndexBuffer<T>, CreationError>
-                     where F: Facade
+        where F: Facade
     {
         if !prim.is_supported(facade) {
             return Err(CreationError::PrimitiveTypeNotSupported);
@@ -146,8 +170,8 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(Buffer::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 mode)).into(),
+            buffer: try!(Buffer::empty_array(facade, BufferType::ElementArrayBuffer, len, mode))
+                        .into(),
             primitives: prim,
         })
     }
@@ -231,7 +255,9 @@ impl<'a, T> From<&'a IndexBuffer<T>> for IndicesSource<'a> where T: Index {
 
 /// Slice of an `IndexBuffer`.
 #[derive(Debug)]
-pub struct IndexBufferSlice<'a, T: 'a> where T: Index {
+pub struct IndexBufferSlice<'a, T: 'a>
+    where T: Index
+{
     buffer: BufferSlice<'a, [T]>,
     primitives: PrimitiveType,
 }

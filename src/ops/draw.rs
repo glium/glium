@@ -26,11 +26,17 @@ use version::Version;
 use version::Api;
 
 /// Draws everything.
-pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments>,
-                      vertex_buffers: V, indices: IndicesSource,
-                      program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
-                      dimensions: (u32, u32)) -> Result<(), DrawError>
-                      where U: Uniforms, V: MultiVerticesSource<'a>
+pub fn draw<'a, U, V>(context: &Context,
+                      framebuffer: Option<&ValidatedAttachments>,
+                      vertex_buffers: V,
+                      indices: IndicesSource,
+                      program: &Program,
+                      uniforms: &U,
+                      draw_parameters: &DrawParameters,
+                      dimensions: (u32, u32))
+                      -> Result<(), DrawError>
+    where U: Uniforms,
+          V: MultiVerticesSource<'a>
 {
     // this contains the list of fences that will need to be fulfilled after the draw command
     // has started
@@ -54,7 +60,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             }*/
 
             Some(vertices_per_patch)
-        },
+        }
         _ => {
             // TODO: programs created from binaries have the wrong value
             // for `has_tessellation_shaders`
@@ -63,7 +69,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             }*/
 
             None
-        },
+        }
     };
 
     // starting the state changes
@@ -86,11 +92,13 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
             _ => ctxt.version >= &Version(Api::Gl, 3, 2) ||
                  ctxt.version >= &Version(Api::GlEs, 3, 2) ||
                  ctxt.extensions.gl_arb_draw_elements_base_vertex ||
-                 ctxt.extensions.gl_oes_draw_elements_base_vertex
+                 ctxt.extensions.gl_oes_draw_elements_base_vertex,
         };
 
         // object that is used to build the bindings
-        let mut binder = VertexAttributesSystem::start(&mut ctxt, program, index_buffer,
+        let mut binder = VertexAttributesSystem::start(&mut ctxt,
+                                                       program,
+                                                       index_buffer,
                                                        use_base_vertex);
         // number of vertices in the vertices sources, or `None` if there is a mismatch
         let mut vertices_count: Option<usize> = None;
@@ -106,8 +114,14 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         fences.push(fence);
                     }
 
-                    binder = binder.add(&buffer, format, if per_instance { Some(1) } else { None });
-                },
+                    binder = binder.add(&buffer,
+                                        format,
+                                        if per_instance {
+                                            Some(1)
+                                        } else {
+                                            None
+                                        });
+                }
                 _ => {}
             }
 
@@ -121,7 +135,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                     } else {
                         vertices_count = Some(buffer.get_elements_count());
                     }
-                },
+                }
                 VerticesSource::VertexBuffer(ref buffer, _, true) => {
                     if let Some(curr) = instances_count {
                         if curr != buffer.get_elements_count() {
@@ -130,7 +144,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                     } else {
                         instances_count = Some(buffer.get_elements_count());
                     }
-                },
+                }
                 VerticesSource::Marker { len, per_instance } if !per_instance => {
                     if let Some(curr) = vertices_count {
                         if curr != len {
@@ -140,7 +154,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                     } else {
                         vertices_count = Some(len);
                     }
-                },
+                }
                 VerticesSource::Marker { len, per_instance } if per_instance => {
                     if let Some(curr) = instances_count {
                         if curr != len {
@@ -149,8 +163,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                     } else {
                         instances_count = Some(len);
                     }
-                },
-                _ => ()
+                }
+                _ => (),
             }
         }
 
@@ -159,9 +173,10 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // binding the FBO to draw upon
     {
-        let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, framebuffer);
-        unsafe { fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false) };
-    };
+        let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt,
+                                                                             framebuffer);
+        unsafe { fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false) }
+    }
 
     // binding the program and uniforms
     program.use_program(&mut ctxt);
@@ -169,7 +184,10 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // sync-ing draw_parameters
     unsafe {
-        try!(draw_parameters::sync(&mut ctxt, draw_parameters, dimensions, indices.get_primitives_type()));
+        try!(draw_parameters::sync(&mut ctxt,
+                                   draw_parameters,
+                                   dimensions,
+                                   indices.get_primitives_type()));
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
 
         // TODO: make sure that the program is the right one
@@ -198,8 +216,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         if base_vertex != 0 {
                             if ctxt.version >= &Version(Api::Gl, 3, 2) ||
                                ctxt.version >= &Version(Api::GlEs, 3, 2) ||
-                               ctxt.extensions.gl_arb_draw_elements_base_vertex
-                            {
+                               ctxt.extensions.gl_arb_draw_elements_base_vertex {
                                 ctxt.gl.DrawElementsInstancedBaseVertex(primitives.to_glenum(),
                                                                      buffer.get_elements_count() as
                                                                         gl::types::GLsizei,
@@ -235,8 +252,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         if base_vertex != 0 {
                             if ctxt.version >= &Version(Api::Gl, 3, 2) ||
                                ctxt.version >= &Version(Api::GlEs, 3, 2) ||
-                               ctxt.extensions.gl_arb_draw_elements_base_vertex
-                            {
+                               ctxt.extensions.gl_arb_draw_elements_base_vertex {
                                 ctxt.gl.DrawElementsBaseVertex(primitives.to_glenum(),
                                                                buffer.get_elements_count() as
                                                                gl::types::GLsizei,
@@ -263,7 +279,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         }
                     }
                 }
-            },
+            }
 
             &IndicesSource::MultidrawArray { ref buffer, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
@@ -277,11 +293,13 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
                 unsafe {
                     buffer.prepare_and_bind_for_draw_indirect(&mut ctxt);
-                    ctxt.gl.MultiDrawArraysIndirect(primitives.to_glenum(), ptr as *const _,
-                                                    buffer.get_elements_count() as gl::types::GLsizei,
-                                                    0);
+                    ctxt.gl
+                        .MultiDrawArraysIndirect(primitives.to_glenum(),
+                                                 ptr as *const _,
+                                                 buffer.get_elements_count() as gl::types::GLsizei,
+                                                 0);
                 }
-            },
+            }
 
             &IndicesSource::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
                 let cmd_ptr: *const u8 = ptr::null_mut();
@@ -303,27 +321,29 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                       commands.get_elements_count() as gl::types::GLsizei,
                                                       0);
                 }
-            },
+            }
 
             &IndicesSource::NoIndices { primitives } => {
                 let vertices_count = match vertices_count {
                     Some(c) => c,
-                    None => return Err(DrawError::VerticesSourcesLengthMismatch)
+                    None => return Err(DrawError::VerticesSourcesLengthMismatch),
                 };
 
                 unsafe {
                     if let Some(instances_count) = instances_count {
-                        ctxt.gl.DrawArraysInstanced(primitives.to_glenum(), base_vertex,
+                        ctxt.gl.DrawArraysInstanced(primitives.to_glenum(),
+                                                    base_vertex,
                                                     vertices_count as gl::types::GLsizei,
                                                     instances_count as gl::types::GLsizei);
                     } else {
-                        ctxt.gl.DrawArrays(primitives.to_glenum(), base_vertex,
+                        ctxt.gl.DrawArrays(primitives.to_glenum(),
+                                           base_vertex,
                                            vertices_count as gl::types::GLsizei);
                     }
                 }
-            },
-        };
-    };
+            }
+        }
+    }
 
     ctxt.state.next_draw_call_id += 1;
 
@@ -335,7 +355,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     Ok(())
 }
 
-unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext, vertices_per_patch: Option<u16>) {
+unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext,
+                                  vertices_per_patch: Option<u16>) {
     if let Some(vertices_per_patch) = vertices_per_patch {
         let vertices_per_patch = vertices_per_patch as gl::types::GLint;
         if ctxt.state.patch_patch_vertices != vertices_per_patch {

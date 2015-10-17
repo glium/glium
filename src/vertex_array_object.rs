@@ -38,9 +38,7 @@ impl VertexAttributesSystem {
     /// Builds a new `VertexAttributesSystem`.
     #[inline]
     pub fn new() -> VertexAttributesSystem {
-        VertexAttributesSystem {
-            vaos: RefCell::new(HashMap::new()),
-        }
+        VertexAttributesSystem { vaos: RefCell::new(HashMap::new()) }
     }
 
     /// Starts the process of binding vertex attributes.
@@ -48,10 +46,11 @@ impl VertexAttributesSystem {
     /// `base_vertex` should be set to true if the backend supports the `glDraw*BaseVertex`
     /// functions. If `base_vertex` is true, then `bind` will return the base vertex to use.
     #[inline]
-    pub fn start<'a, 'b, 'c: 'b>(ctxt: &'b mut CommandContext<'c>, program: &'a Program,
-                                 indices: Option<BufferAnySlice<'a>>, base_vertex: bool)
-                                 -> Binder<'a, 'b, 'c>
-    {
+    pub fn start<'a, 'b, 'c: 'b>(ctxt: &'b mut CommandContext<'c>,
+                                 program: &'a Program,
+                                 indices: Option<BufferAnySlice<'a>>,
+                                 base_vertex: bool)
+                                 -> Binder<'a, 'b, 'c> {
         if let Some(indices) = indices {
             indices.prepare_for_element_array(ctxt);
         }
@@ -116,7 +115,7 @@ impl VertexAttributesSystem {
 
     /// Purges VAOs that match a certain condition.
     fn purge_if<F>(ctxt: &mut CommandContext, mut condition: F)
-                   where F: FnMut(&(Vec<(gl::types::GLuint, usize)>, Handle)) -> bool
+        where F: FnMut(&(Vec<(gl::types::GLuint, usize)>, Handle)) -> bool
     {
         let mut vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
 
@@ -142,14 +141,17 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
     #[inline]
-    pub fn add(mut self, buffer: &BufferAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
-               -> Binder<'a, 'b, 'c>
-    {
+    pub fn add(mut self,
+               buffer: &BufferAnySlice,
+               bindings: &VertexFormat,
+               divisor: Option<u32>)
+               -> Binder<'a, 'b, 'c> {
         let offset = buffer.get_offset_bytes();
 
         buffer.prepare_for_vertex_attrib_array(self.context);
 
-        let (buffer, format, stride) = (buffer.get_buffer_id(), bindings.clone(),
+        let (buffer, format, stride) = (buffer.get_buffer_id(),
+                                        bindings.clone(),
                                         buffer.get_elements_size());
 
         self.vertex_buffers.push((buffer, format, offset, stride, divisor));
@@ -163,17 +165,19 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
         let ctxt = self.context;
 
         if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-           ctxt.extensions.gl_arb_vertex_array_object || ctxt.extensions.gl_oes_vertex_array_object
-           || ctxt.extensions.gl_apple_vertex_array_object
-        {
+           ctxt.extensions.gl_arb_vertex_array_object ||
+           ctxt.extensions.gl_oes_vertex_array_object ||
+           ctxt.extensions.gl_apple_vertex_array_object {
             // VAOs are supported
 
             // finding the base vertex
             let base_vertex = if self.base_vertex {
-                Some(self.vertex_buffers.iter()
-                                        .filter(|&&(_, _, _, _, div)| div.is_none())
-                                        .map(|&(_, _, off, stride, _)| off / stride)
-                                        .min().unwrap_or(0))
+                Some(self.vertex_buffers
+                         .iter()
+                         .filter(|&&(_, _, _, _, div)| div.is_none())
+                         .map(|&(_, _, off, stride, _)| off / stride)
+                         .min()
+                         .unwrap_or(0))
             } else {
                 None
             };
@@ -185,26 +189,31 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                 }
             }
 
-            let mut buffers_list: Vec<_> = self.vertex_buffers.iter()
-                                                              .map(|&(v, _, o, s, _)| (v, o))
-                                                              .collect();
-            buffers_list.push((self.element_array_buffer.map(|b| b.get_buffer_id()).unwrap_or(0), 0));
+            let mut buffers_list: Vec<_> = self.vertex_buffers
+                                               .iter()
+                                               .map(|&(v, _, o, s, _)| (v, o))
+                                               .collect();
+            buffers_list.push((self.element_array_buffer.map(|b| b.get_buffer_id()).unwrap_or(0),
+                               0));
             buffers_list.sort();
 
             let program_id = self.program.get_id();
 
             // trying to find an existing VAO in the cache
-            if let Some(value) = ctxt.vertex_array_objects.vaos.borrow_mut()
-                                     .get(&(buffers_list.clone(), program_id))
-            {
+            if let Some(value) = ctxt.vertex_array_objects
+                                     .vaos
+                                     .borrow_mut()
+                                     .get(&(buffers_list.clone(), program_id)) {
                 value.bind(ctxt);
                 return base_vertex.map(|v| v as gl::types::GLint);
             }
 
             // if not found, building a new one
             let new_vao = unsafe {
-                VertexArrayObject::new(ctxt, &self.vertex_buffers,
-                                       self.element_array_buffer, self.program)
+                VertexArrayObject::new(ctxt,
+                                       &self.vertex_buffers,
+                                       self.element_array_buffer,
+                                       self.program)
             };
 
             new_vao.bind(ctxt);
@@ -222,9 +231,15 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                 element_array_buffer.bind_to_element_array(ctxt);
             }
 
-            for (vertex_buffer, bindings, offset, stride, divisor) in self.vertex_buffers.into_iter() {
+            for (vertex_buffer, bindings, offset, stride, divisor) in self.vertex_buffers
+                                                                          .into_iter() {
                 unsafe {
-                    bind_attribute(ctxt, self.program, vertex_buffer, &bindings, offset, stride,
+                    bind_attribute(ctxt,
+                                   self.program,
+                                   vertex_buffer,
+                                   &bindings,
+                                   offset,
+                                   stride,
                                    divisor);
                 }
             }
@@ -255,21 +270,24 @@ impl VertexArrayObject {
     /// VAO, and the VB & program attributes must not change.
     unsafe fn new(mut ctxt: &mut CommandContext,
                   vertex_buffers: &[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)],
-                  index_buffer: Option<BufferAnySlice>, program: &Program) -> VertexArrayObject
-    {
+                  index_buffer: Option<BufferAnySlice>,
+                  program: &Program)
+                  -> VertexArrayObject {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {
             for &(ref name, _, ty) in bindings.iter() {
                 let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
                     Some(a) => a,
-                    None => continue
+                    None => continue,
                 };
 
                 if ty.get_num_components() != attribute.ty.get_num_components() ||
-                    attribute.size != 1
-                {
-                    panic!("The program attribute `{}` does not match the vertex format. \
-                            Program expected {:?}, got {:?}.", name, attribute.ty, ty);
+                   attribute.size != 1 {
+                    panic!("The program attribute `{}` does not match the vertex format. Program \
+                            expected {:?}, got {:?}.",
+                           name,
+                           attribute.ty,
+                           ty);
                 }
             }
         }
@@ -284,9 +302,10 @@ impl VertexArrayObject {
                 }
             }
             if !found {
-                panic!("The program attribute `{}` is missing in the vertex bindings", name);
+                panic!("The program attribute `{}` is missing in the vertex bindings",
+                       name);
             }
-        };
+        }
 
         // TODO: check for collisions between the vertices sources
 
@@ -294,9 +313,8 @@ impl VertexArrayObject {
         let id = {
             let mut id = mem::uninitialized();
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-                ctxt.extensions.gl_arb_vertex_array_object
-            {
+               ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+               ctxt.extensions.gl_arb_vertex_array_object {
                 ctxt.gl.GenVertexArrays(1, &mut id);
             } else if ctxt.extensions.gl_oes_vertex_array_object {
                 ctxt.gl.GenVertexArraysOES(1, &mut id);
@@ -304,7 +322,7 @@ impl VertexArrayObject {
                 ctxt.gl.GenVertexArraysAPPLE(1, &mut id);
             } else {
                 unreachable!();
-            };
+            }
             id
         };
 
@@ -318,7 +336,13 @@ impl VertexArrayObject {
         }
 
         for &(vertex_buffer, ref bindings, offset, stride, divisor) in vertex_buffers {
-            bind_attribute(ctxt, program, vertex_buffer, bindings, offset, stride, divisor);
+            bind_attribute(ctxt,
+                           program,
+                           vertex_buffer,
+                           bindings,
+                           offset,
+                           stride,
+                           divisor);
         }
 
         VertexArrayObject {
@@ -337,8 +361,7 @@ impl VertexArrayObject {
             if self.element_array_buffer_hijacked.get() {
                 // TODO: use a proper function
                 if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
+                   ctxt.version >= &Version(Api::GlEs, 2, 0) {
                     ctxt.gl.BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.element_array_buffer);
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
                     ctxt.gl.BindBufferARB(gl::ELEMENT_ARRAY_BUFFER_ARB, self.element_array_buffer);
@@ -362,15 +385,13 @@ impl VertexArrayObject {
         }
 
         // deleting
-        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-            ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-            ctxt.extensions.gl_arb_vertex_array_object
-        {
-            unsafe { ctxt.gl.DeleteVertexArrays(1, [ self.id ].as_ptr()) };
+        if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+           ctxt.extensions.gl_arb_vertex_array_object {
+            unsafe { ctxt.gl.DeleteVertexArrays(1, [self.id].as_ptr()) }
         } else if ctxt.extensions.gl_oes_vertex_array_object {
-            unsafe { ctxt.gl.DeleteVertexArraysOES(1, [ self.id ].as_ptr()) };
+            unsafe { ctxt.gl.DeleteVertexArraysOES(1, [self.id].as_ptr()) }
         } else if ctxt.extensions.gl_apple_vertex_array_object {
-            unsafe { ctxt.gl.DeleteVertexArraysAPPLE(1, [ self.id ].as_ptr()) };
+            unsafe { ctxt.gl.DeleteVertexArraysAPPLE(1, [self.id].as_ptr()) }
         } else {
             unreachable!();
         }
@@ -393,7 +414,8 @@ impl GlObject for VertexArrayObject {
     }
 }
 
-fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types::GLint, gl::types::GLint) {
+fn vertex_binding_type_to_gl(ty: AttributeType)
+                             -> (gl::types::GLenum, gl::types::GLint, gl::types::GLint) {
     match ty {
         AttributeType::I8 => (gl::BYTE, 1, 1),
         AttributeType::I8I8 => (gl::BYTE, 2, 1),
@@ -482,15 +504,13 @@ fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types
 /// Panics if the backend doesn't support vertex array objects.
 fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
     if ctxt.state.vertex_array != vao_id {
-        if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-            ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-            ctxt.extensions.gl_arb_vertex_array_object
-        {
-            unsafe { ctxt.gl.BindVertexArray(vao_id) };
+        if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+           ctxt.extensions.gl_arb_vertex_array_object {
+            unsafe { ctxt.gl.BindVertexArray(vao_id) }
         } else if ctxt.extensions.gl_oes_vertex_array_object {
-            unsafe { ctxt.gl.BindVertexArrayOES(vao_id) };
+            unsafe { ctxt.gl.BindVertexArrayOES(vao_id) }
         } else if ctxt.extensions.gl_apple_vertex_array_object {
-            unsafe { ctxt.gl.BindVertexArrayAPPLE(vao_id) };
+            unsafe { ctxt.gl.BindVertexArrayAPPLE(vao_id) }
         } else {
             unreachable!();
         }
@@ -500,16 +520,17 @@ fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
 }
 
 /// Binds an individual attribute to the current VAO.
-unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
-                         vertex_buffer: gl::types::GLuint, bindings: &VertexFormat,
-                         buffer_offset: usize, stride: usize, divisor: Option<u32>)
-{
+unsafe fn bind_attribute(ctxt: &mut CommandContext,
+                         program: &Program,
+                         vertex_buffer: gl::types::GLuint,
+                         bindings: &VertexFormat,
+                         buffer_offset: usize,
+                         stride: usize,
+                         divisor: Option<u32>) {
     // glVertexAttribPointer uses the current array buffer
     // TODO: use a proper function
     if ctxt.state.array_buffer_binding != vertex_buffer {
-        if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-            ctxt.version >= &Version(Api::GlEs, 2, 0)
-        {
+        if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 2, 0) {
             ctxt.gl.BindBuffer(gl::ARRAY_BUFFER, vertex_buffer);
         } else if ctxt.extensions.gl_arb_vertex_buffer_object {
             ctxt.gl.BindBufferARB(gl::ARRAY_BUFFER_ARB, vertex_buffer);
@@ -525,16 +546,21 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
 
         let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
             Some(a) => a,
-            None => continue
+            None => continue,
         };
 
         if attribute.location != -1 {
             let (attribute_ty, _, _) = vertex_binding_type_to_gl(attribute.ty);
             match attribute_ty {
-                gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
-                gl::INT | gl::UNSIGNED_INT =>
+                gl::BYTE |
+                gl::UNSIGNED_BYTE |
+                gl::SHORT |
+                gl::UNSIGNED_SHORT |
+                gl::INT |
+                gl::UNSIGNED_INT =>
                     ctxt.gl.VertexAttribIPointer(attribute.location as u32,
-                                                 elements_count as gl::types::GLint, data_type,
+                                                 elements_count as gl::types::GLint,
+                                                 data_type,
                                                  stride as i32,
                                                  (buffer_offset + offset) as *const libc::c_void),
 
@@ -545,7 +571,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
                                                     stride as i32,
                                                     (buffer_offset + offset + (i * elements_count * 4) as usize) as *const libc::c_void)
                     }
-                },
+                }
 
                 gl::DOUBLE | gl::INT64_NV | gl::UNSIGNED_INT64_NV => {
                     for i in 0..instances_count {
@@ -554,9 +580,9 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
                                                      stride as i32,
                                                      (buffer_offset + offset + (i * elements_count * 8) as usize) as *const libc::c_void)
                     }
-                },
+                }
 
-                _ => unreachable!()
+                _ => unreachable!(),
             }
 
             for i in 0..instances_count {

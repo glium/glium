@@ -31,7 +31,9 @@ use buffer::alloc::ReadError;
 use buffer::alloc::CopyError;
 
 /// Represents a view of a buffer.
-pub struct Buffer<T: ?Sized> where T: Content {
+pub struct Buffer<T: ?Sized>
+    where T: Content
+{
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     alloc: Option<Alloc>,
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
@@ -42,34 +44,39 @@ pub struct Buffer<T: ?Sized> where T: Content {
 impl<T: ?Sized> Buffer<T> where T: Content {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
-    pub fn new<F>(facade: &F, data: &T, ty: BufferType, mode: BufferMode)
+    pub fn new<F>(facade: &F,
+                  data: &T,
+                  ty: BufferType,
+                  mode: BufferMode)
                   -> Result<Buffer<T>, BufferCreationError>
-                  where F: Facade
+        where F: Facade
     {
-        Alloc::new(facade, data, ty, mode)
-            .map(|buffer| {
-                Buffer {
-                    alloc: Some(buffer),
-                    fence: Some(Fences::new()),
-                    marker: PhantomData,
-                }
-            })
+        Alloc::new(facade, data, ty, mode).map(|buffer| {
+            Buffer {
+                alloc: Some(buffer),
+                fence: Some(Fences::new()),
+                marker: PhantomData,
+            }
+        })
     }
 
     /// Builds a new buffer of the given size.
-    pub fn empty_unsized<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
-                            -> Result<Buffer<T>, BufferCreationError> where F: Facade
+    pub fn empty_unsized<F>(facade: &F,
+                            ty: BufferType,
+                            size: usize,
+                            mode: BufferMode)
+                            -> Result<Buffer<T>, BufferCreationError>
+        where F: Facade
     {
         assert!(<T as Content>::is_size_suitable(size));
 
-        Alloc::empty(facade, ty, size, mode)
-            .map(|buffer| {
-                Buffer {
-                    alloc: Some(buffer),
-                    fence: Some(Fences::new()),
-                    marker: PhantomData,
-                }
-            })
+        Alloc::empty(facade, ty, size, mode).map(|buffer| {
+            Buffer {
+                alloc: Some(buffer),
+                fence: Some(Fences::new()),
+                marker: PhantomData,
+            }
+        })
     }
 
     /// Returns the context corresponding to this buffer.
@@ -106,9 +113,14 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     pub fn write(&self, data: &T) {
         assert!(mem::size_of_val(data) == self.get_size());
 
-        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                          0 .. self.get_size());
-        unsafe { self.alloc.as_ref().unwrap().upload(0, data); }
+        self.fence
+            .as_ref()
+            .unwrap()
+            .wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
+                  0..self.get_size());
+        unsafe {
+            self.alloc.as_ref().unwrap().upload(0, data);
+        }
     }
 
     /// Invalidates the content of the buffer. The data becomes undefined.
@@ -132,12 +144,13 @@ impl<T: ?Sized> Buffer<T> where T: Content {
 
     /// Reads the content of the buffer.
     pub fn read(&self) -> Result<T::Owned, ReadError> {
-        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                          0 .. self.get_size());
+        self.fence
+            .as_ref()
+            .unwrap()
+            .wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
+                  0..self.get_size());
 
-        unsafe {
-            self.alloc.as_ref().unwrap().read::<T>(0 .. self.get_size())
-        }
+        unsafe { self.alloc.as_ref().unwrap().read::<T>(0..self.get_size()) }
     }
 
     /// Maps the buffer in memory for both reading and writing.
@@ -152,10 +165,13 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
     ///
     pub fn map(&mut self) -> Mapping<T> {
-        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                          0 .. self.get_size());
+        self.fence
+            .as_ref()
+            .unwrap()
+            .wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
+                  0..self.get_size());
         let size = self.get_size();
-        unsafe { self.alloc.as_mut().unwrap().map(0 .. size) }
+        unsafe { self.alloc.as_mut().unwrap().map(0..size) }
     }
 
     /// Maps the buffer in memory for reading.
@@ -169,10 +185,13 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
     ///
     pub fn map_read(&mut self) -> ReadMapping<T> {
-        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                          0 .. self.get_size());
+        self.fence
+            .as_ref()
+            .unwrap()
+            .wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
+                  0..self.get_size());
         let size = self.get_size();
-        unsafe { self.alloc.as_mut().unwrap().map_read(0 .. size) }
+        unsafe { self.alloc.as_mut().unwrap().map_read(0..size) }
     }
 
     /// Maps the buffer in memory for writing only.
@@ -187,10 +206,13 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
     ///
     pub fn map_write(&mut self) -> WriteMapping<T> {
-        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                          0 .. self.get_size());
+        self.fence
+            .as_ref()
+            .unwrap()
+            .wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
+                  0..self.get_size());
         let size = self.get_size();
-        unsafe { self.alloc.as_mut().unwrap().map_write(0 .. size) }
+        unsafe { self.alloc.as_mut().unwrap().map_write(0..size) }
     }
 
     /// Copies the content of the buffer to another buffer.
@@ -200,12 +222,13 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// Panics if `T` is unsized and the other buffer is too small.
     ///
     pub fn copy_to<'a, S>(&self, target: S) -> Result<(), CopyError>
-                          where S: Into<BufferSlice<'a, T>>, T: 'a
+        where S: Into<BufferSlice<'a, T>>,
+              T: 'a
     {
         let target = target.into();
         let alloc = self.alloc.as_ref().unwrap();
 
-        try!(alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes()));
+        try!(alloc.copy_to(0..self.get_size(), &target.alloc, target.get_offset_bytes()));
 
         if let Some(inserter) = self.as_slice().add_fence() {
             let mut ctxt = alloc.get_context().make_current();
@@ -247,8 +270,8 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// panic.
     #[inline]
     pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferSlice<R>
-                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                    R: Content
+        where F: for<'r> FnOnce(&'r T) -> &'r R,
+              R: Content
     {
         self.as_slice().slice_custom(f)
     }
@@ -259,8 +282,8 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// OpenGL is performed.
     #[inline]
     pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> BufferMutSlice<R>
-                                                 where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                        R: Content
+        where F: for<'r> FnOnce(&'r T) -> &'r R,
+              R: Content
     {
         self.as_mut_slice().slice_custom(f)
     }
@@ -316,33 +339,38 @@ impl<T: ?Sized> Buffer<T> where T: Content {
 
 impl<T> Buffer<T> where T: Content + Copy {
     /// Builds a new buffer of the given size.
-    pub fn empty<F>(facade: &F, ty: BufferType, mode: BufferMode)
-                    -> Result<Buffer<T>, BufferCreationError> where F: Facade
+    pub fn empty<F>(facade: &F,
+                    ty: BufferType,
+                    mode: BufferMode)
+                    -> Result<Buffer<T>, BufferCreationError>
+        where F: Facade
     {
-        Alloc::empty(facade, ty, mem::size_of::<T>(), mode)
-            .map(|buffer| {
-                Buffer {
-                    alloc: Some(buffer),
-                    fence: Some(Fences::new()),
-                    marker: PhantomData,
-                }
-            })
+        Alloc::empty(facade, ty, mem::size_of::<T>(), mode).map(|buffer| {
+            Buffer {
+                alloc: Some(buffer),
+                fence: Some(Fences::new()),
+                marker: PhantomData,
+            }
+        })
     }
 }
 
 impl<T> Buffer<[T]> where [T]: Content, T: Copy {
     /// Builds a new buffer of the given size.
-    pub fn empty_array<F>(facade: &F, ty: BufferType, len: usize, mode: BufferMode)
-                          -> Result<Buffer<[T]>, BufferCreationError> where F: Facade
+    pub fn empty_array<F>(facade: &F,
+                          ty: BufferType,
+                          len: usize,
+                          mode: BufferMode)
+                          -> Result<Buffer<[T]>, BufferCreationError>
+        where F: Facade
     {
-        Alloc::empty(facade, ty, len * mem::size_of::<T>(), mode)
-            .map(|buffer| {
-                Buffer {
-                    alloc: Some(buffer),
-                    fence: Some(Fences::new()),
-                    marker: PhantomData,
-                }
-            })
+        Alloc::empty(facade, ty, len * mem::size_of::<T>(), mode).map(|buffer| {
+            Buffer {
+                alloc: Some(buffer),
+                fence: Some(Fences::new()),
+                marker: PhantomData,
+            }
+        })
     }
 
     /// Returns the number of elements in this buffer.
@@ -373,7 +401,9 @@ impl<T> Buffer<[T]> where [T]: Content, T: Copy {
 impl<T> Buffer<[T]> where T: PixelValue {
     /// Reads the content of the buffer.
     #[inline]
-    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError>
+        where S: Texture1dDataSink<T>
+    {
         let data = try!(self.read());
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
@@ -473,25 +503,29 @@ impl<T: ?Sized> BufferExt for Buffer<T> where T: Content {
     #[inline]
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. alloc.get_size());
+        alloc.prepare_and_bind_for_uniform(ctxt, index, 0..alloc.get_size());
     }
 
     #[inline]
-    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
+    fn prepare_and_bind_for_shared_storage(&self,
+                                           ctxt: &mut CommandContext,
+                                           index: gl::types::GLuint) {
         let alloc = self.alloc.as_ref().unwrap();
-        alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. alloc.get_size());
+        alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0..alloc.get_size());
     }
 
     #[inline]
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
         let alloc = self.alloc.as_ref().unwrap();
-        alloc.bind_to_transform_feedback(ctxt, index, 0 .. alloc.get_size());
+        alloc.bind_to_transform_feedback(ctxt, index, 0..alloc.get_size());
     }
 }
 
 /// Represents a sub-part of a buffer.
 #[derive(Copy, Clone)]
-pub struct BufferSlice<'a, T: ?Sized> where T: Content + 'a {
+pub struct BufferSlice<'a, T: ?Sized>
+    where T: Content + 'a
+{
     alloc: &'a Alloc,
     bytes_start: usize,
     bytes_end: usize,
@@ -529,8 +563,10 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
         assert_eq!(mem::size_of_val(data), self.get_size());
 
         self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
-        unsafe { self.alloc.upload(self.bytes_start, data); }
+                        self.bytes_start..self.bytes_end);
+        unsafe {
+            self.alloc.upload(self.bytes_start, data);
+        }
     }
 
     /// Invalidates the content of the slice. The data becomes undefined.
@@ -550,11 +586,9 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     /// Reads the content of the buffer.
     pub fn read(&self) -> Result<T::Owned, ReadError> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
+                        self.bytes_start..self.bytes_end);
 
-        unsafe {
-            self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
-        }
+        unsafe { self.alloc.read::<T>(self.bytes_start..self.bytes_end) }
     }
 
     /// Copies the content of this slice to another slice.
@@ -563,11 +597,12 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     ///
     /// Panics if `T` is unsized and the other buffer is too small.
     pub fn copy_to<S>(&self, target: S) -> Result<(), CopyError>
-                      where S: Into<BufferSlice<'a, T>>
+        where S: Into<BufferSlice<'a, T>>
     {
         let target = target.into();
 
-        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+        try!(self.alloc.copy_to(self.bytes_start..self.bytes_end,
+                                &target.alloc,
                                 target.get_offset_bytes()));
 
         if let Some(inserter) = self.add_fence() {
@@ -610,8 +645,8 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     /// panic.
     #[inline]
     pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferSlice<'a, R>
-                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                   R: Content
+        where F: for<'r> FnOnce(&'r T) -> &'r R,
+              R: Content
     {
         let data: &T = mem::zeroed();
         let result = f(data);
@@ -676,7 +711,9 @@ impl<'a, T> BufferSlice<'a, [T]> where [T]: Content + 'a {
 impl<'a, T> BufferSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
-    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError>
+        where S: Texture1dDataSink<T>
+    {
         let data = try!(self.read());
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
@@ -723,7 +760,7 @@ impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferSlice<'a, T> where T: Content {
             return None;
         }
 
-        Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
+        Some(self.fence.inserter(self.bytes_start..self.bytes_end))
     }
 }
 
@@ -795,22 +832,26 @@ impl<'a, T: ?Sized> BufferExt for BufferSlice<'a, T> where T: Content {
 
     #[inline]
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0..self.alloc.get_size());
     }
 
     #[inline]
-    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
+    fn prepare_and_bind_for_shared_storage(&self,
+                                           ctxt: &mut CommandContext,
+                                           index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0..self.alloc.get_size());
     }
 
     #[inline]
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0..self.alloc.get_size());
     }
 }
 
 /// Represents a sub-part of a buffer.
-pub struct BufferMutSlice<'a, T: ?Sized> where T: Content {
+pub struct BufferMutSlice<'a, T: ?Sized>
+    where T: Content
+{
     alloc: &'a mut Alloc,
     bytes_start: usize,
     bytes_end: usize,
@@ -839,8 +880,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     #[inline]
     pub fn map(self) -> Mapping<'a, T> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
-        unsafe { self.alloc.map(self.bytes_start .. self.bytes_end) }
+                        self.bytes_start..self.bytes_end);
+        unsafe { self.alloc.map(self.bytes_start..self.bytes_end) }
     }
 
     /// Maps the buffer in memory for reading.
@@ -856,8 +897,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     #[inline]
     pub fn map_read(self) -> ReadMapping<'a, T> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
-        unsafe { self.alloc.map_read(self.bytes_start .. self.bytes_end) }
+                        self.bytes_start..self.bytes_end);
+        unsafe { self.alloc.map_read(self.bytes_start..self.bytes_end) }
     }
 
     /// Maps the buffer in memory for writing only.
@@ -873,8 +914,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     #[inline]
     pub fn map_write(self) -> WriteMapping<'a, T> {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
-        unsafe { self.alloc.map_write(self.bytes_start .. self.bytes_end) }
+                        self.bytes_start..self.bytes_end);
+        unsafe { self.alloc.map_write(self.bytes_start..self.bytes_end) }
     }
 
     /// Uploads some data in this buffer.
@@ -893,8 +934,10 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     #[inline]
     pub fn write(&self, data: &T) {
         self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
-        unsafe { self.alloc.upload(self.bytes_start, data); }
+                        self.bytes_start..self.bytes_end);
+        unsafe {
+            self.alloc.upload(self.bytes_start, data);
+        }
     }
 
     /// Invalidates the content of the slice. The data becomes undefined.
@@ -914,9 +957,7 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read(&self) -> Result<T::Owned, ReadError> {
-        unsafe {
-            self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
-        }
+        unsafe { self.alloc.read::<T>(self.bytes_start..self.bytes_end) }
     }
 
     /// Copies the content of this slice to another slice.
@@ -925,11 +966,12 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     ///
     /// Panics if `T` is unsized and the other buffer is too small.
     pub fn copy_to<S>(&self, target: S) -> Result<(), CopyError>
-                      where S: Into<BufferSlice<'a, T>>
+        where S: Into<BufferSlice<'a, T>>
     {
         let target = target.into();
 
-        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+        try!(self.alloc.copy_to(self.bytes_start..self.bytes_end,
+                                &target.alloc,
                                 target.get_offset_bytes()));
 
         if let Some(inserter) = self.add_fence() {
@@ -972,8 +1014,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     /// panic.
     #[inline]
     pub unsafe fn slice_custom<F, R: ?Sized>(self, f: F) -> BufferMutSlice<'a, R>
-                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                   R: Content
+        where F: for<'r> FnOnce(&'r T) -> &'r R,
+              R: Content
     {
         let data: &T = mem::zeroed();
         let result = f(data);
@@ -1038,7 +1080,9 @@ impl<'a, T> BufferMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
 impl<'a, T> BufferMutSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
-    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError>
+        where S: Texture1dDataSink<T>
+    {
         let data = try!(self.read());
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
@@ -1051,7 +1095,7 @@ impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferMutSlice<'a, T> where T: Conten
             return None;
         }
 
-        Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
+        Some(self.fence.inserter(self.bytes_start..self.bytes_end))
     }
 }
 
@@ -1105,7 +1149,7 @@ impl BufferAny {
     pub fn get_elements_count(&self) -> usize {
         self.size / self.elements_size
     }
-    
+
     /// Returns the context corresponding to this buffer.
     #[inline]
     pub fn get_context(&self) -> &Rc<Context> {
@@ -1137,10 +1181,13 @@ impl BufferAny {
     /// For example, trying to read some `(u8, u8, u8, u8)`s from a buffer of 7 bytes will panic.
     ///
     #[inline]
-    pub unsafe fn read<T>(&self) -> Result<T::Owned, ReadError> where T: Content {
+    pub unsafe fn read<T>(&self) -> Result<T::Owned, ReadError>
+        where T: Content
+    {
         // TODO: add check
-        self.fence.wait(&mut self.alloc.get_context().make_current(), 0 .. self.get_size());
-        self.alloc.read::<T>(0 .. self.get_size())
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        0..self.get_size());
+        self.alloc.read::<T>(0..self.get_size())
     }
 }
 
@@ -1240,17 +1287,19 @@ impl BufferExt for BufferAny {
 
     #[inline]
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0..self.alloc.get_size());
     }
 
     #[inline]
-    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
+    fn prepare_and_bind_for_shared_storage(&self,
+                                           ctxt: &mut CommandContext,
+                                           index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0..self.alloc.get_size());
     }
 
     #[inline]
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0..self.alloc.get_size());
     }
 }
 
@@ -1315,7 +1364,7 @@ impl<'a> BufferSliceExt<'a> for BufferAnySlice<'a> {
             return None;
         }
 
-        Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
+        Some(self.fence.inserter(self.bytes_start..self.bytes_end))
     }
 }
 
@@ -1387,16 +1436,18 @@ impl<'a> BufferExt for BufferAnySlice<'a> {
 
     #[inline]
     fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0 .. self.alloc.get_size());
+        self.alloc.prepare_and_bind_for_uniform(ctxt, index, 0..self.alloc.get_size());
     }
 
     #[inline]
-    fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0 .. self.alloc.get_size());
+    fn prepare_and_bind_for_shared_storage(&self,
+                                           ctxt: &mut CommandContext,
+                                           index: gl::types::GLuint) {
+        self.alloc.prepare_and_bind_for_shared_storage(ctxt, index, 0..self.alloc.get_size());
     }
 
     #[inline]
     fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint) {
-        self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
+        self.alloc.bind_to_transform_feedback(ctxt, index, 0..self.alloc.get_size());
     }
 }

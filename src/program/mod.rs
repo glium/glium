@@ -10,7 +10,8 @@ use version::Version;
 pub use self::compute::{ComputeShader, ComputeCommand};
 pub use self::program::Program;
 pub use self::reflection::{Uniform, UniformBlock, BlockLayout, OutputPrimitives};
-pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
+pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer,
+                           TransformFeedbackMode};
 
 mod compute;
 mod program;
@@ -21,21 +22,28 @@ mod uniforms_storage;
 
 /// Returns true if the backend supports geometry shaders.
 #[inline]
-pub fn is_geometry_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_geometry_shader_supported<C>(ctxt: &C) -> bool
+    where C: CapabilitiesSource
+{
     shader::check_shader_type_compatibility(ctxt, gl::GEOMETRY_SHADER)
 }
 
 /// Returns true if the backend supports tessellation shaders.
 #[inline]
-pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool
+    where C: CapabilitiesSource
+{
     shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
 }
 
 /// Returns true if the backend supports creating and retreiving binary format.
 #[inline]
-pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
-    ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
-        || ctxt.get_extensions().gl_arb_get_programy_binary
+pub fn is_binary_supported<C>(ctxt: &C) -> bool
+    where C: CapabilitiesSource
+{
+    ctxt.get_version() >= &Version(Api::Gl, 4, 1) ||
+    ctxt.get_version() >= &Version(Api::GlEs, 2, 0) ||
+    ctxt.get_extensions().gl_arb_get_programy_binary
 }
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
@@ -79,16 +87,16 @@ impl fmt::Display for ProgramCreationError {
             &ProgramCreationError::LinkingError(ref s) =>
                 formatter.write_fmt(format_args!("Error while linking shaders together: {}", s)),
             &ProgramCreationError::ShaderTypeNotSupported =>
-                formatter.write_str("One of the request shader type is \
-                                    not supported by the backend"),
+                formatter.write_str("One of the request shader type is not supported by the \
+                                     backend"),
             &ProgramCreationError::CompilationNotSupported =>
                 formatter.write_str("The backend doesn't support shaders compilation"),
-            &ProgramCreationError::TransformFeedbackNotSupported => 
+            &ProgramCreationError::TransformFeedbackNotSupported =>
                 formatter.write_str("You requested transform feedback, but this feature is not \
                                      supported by the backend"),
             &ProgramCreationError::PointSizeNotSupported =>
-                formatter.write_str("You requested point size setting, but it's not \
-                                     supported by the backend"),
+                formatter.write_str("You requested point size setting, but it's not supported by \
+                                     the backend"),
         }
     }
 }
@@ -96,17 +104,16 @@ impl fmt::Display for ProgramCreationError {
 impl Error for ProgramCreationError {
     fn description(&self) -> &str {
         match self {
-            &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
-                                                           shaders",
+            &ProgramCreationError::CompilationError(_) => "Compilation error in one of the shaders",
             &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
-            &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
-                                                              not supported by the backend",
-            &ProgramCreationError::CompilationNotSupported => "The backend doesn't support \
-                                                               shaders compilation",
-            &ProgramCreationError::TransformFeedbackNotSupported => "Transform feedback is not \
-                                                                     supported by the backend.",
-            &ProgramCreationError::PointSizeNotSupported => "Point size is not supported by \
-                                                             the backend.",
+            &ProgramCreationError::ShaderTypeNotSupported =>
+                "One of the request shader type is not supported by the backend",
+            &ProgramCreationError::CompilationNotSupported =>
+                "The backend doesn't support shaders compilation",
+            &ProgramCreationError::TransformFeedbackNotSupported =>
+                "Transform feedback is not supported by the backend.",
+            &ProgramCreationError::PointSizeNotSupported =>
+                "Point size is not supported by the backend.",
         }
     }
 
@@ -137,8 +144,8 @@ impl Error for ProgramChooserCreationError {
     #[inline]
     fn description(&self) -> &str {
         match self {
-            &ProgramChooserCreationError::NoVersion => "No version of the program has been found \
-                                                        for the current OpenGL version.",
+            &ProgramChooserCreationError::NoVersion =>
+                "No version of the program has been found for the current OpenGL version.",
             &ProgramChooserCreationError::ProgramCreationError(ref err) => err.description(),
         }
     }
@@ -211,7 +218,7 @@ pub enum ProgramCreationInput<'a> {
 
         /// Whether the shader uses point size.
         uses_point_size: bool,
-    }
+    },
 }
 
 /// Represents the source code of a program.

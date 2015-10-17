@@ -33,9 +33,9 @@ impl Blend {
             },
             alpha: BlendingFunction::Addition {
                 source: LinearBlendingFactor::SourceAlpha,
-                destination: LinearBlendingFactor::OneMinusSourceAlpha
+                destination: LinearBlendingFactor::OneMinusSourceAlpha,
             },
-            constant_value: (0.0, 0.0, 0.0, 0.0)
+            constant_value: (0.0, 0.0, 0.0, 0.0),
         }
     }
 }
@@ -204,9 +204,9 @@ impl LinearBlendingFactor {
 
 pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), DrawError> {
     #[inline(always)]
-    fn blend_eq(ctxt: &mut CommandContext, blending_function: BlendingFunction)
-                -> Result<gl::types::GLenum, DrawError>
-    {
+    fn blend_eq(ctxt: &mut CommandContext,
+                blending_function: BlendingFunction)
+                -> Result<gl::types::GLenum, DrawError> {
         match blending_function {
             BlendingFunction::AlwaysReplace |
             BlendingFunction::Addition { .. } => Ok(gl::FUNC_ADD),
@@ -215,70 +215,72 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
 
             BlendingFunction::Min => {
                 if ctxt.version <= &Version(Api::GlEs, 2, 0) &&
-                   !ctxt.extensions.gl_ext_blend_minmax
-                {
+                   !ctxt.extensions.gl_ext_blend_minmax {
                     Err(DrawError::BlendingParameterNotSupported)
                 } else {
                     Ok(gl::MIN)
                 }
-            },
+            }
 
             BlendingFunction::Max => {
                 if ctxt.version <= &Version(Api::GlEs, 2, 0) &&
-                   !ctxt.extensions.gl_ext_blend_minmax
-                {
+                   !ctxt.extensions.gl_ext_blend_minmax {
                     Err(DrawError::BlendingParameterNotSupported)
                 } else {
                     Ok(gl::MAX)
                 }
-            },
+            }
         }
     }
 
     #[inline(always)]
     fn blending_factors(blending_function: BlendingFunction)
-                        -> Option<(LinearBlendingFactor, LinearBlendingFactor)>
-    {
+                        -> Option<(LinearBlendingFactor, LinearBlendingFactor)> {
         match blending_function {
             BlendingFunction::AlwaysReplace |
             BlendingFunction::Min |
             BlendingFunction::Max => None,
-            BlendingFunction::Addition { source, destination } =>
-                Some((source, destination)),
-            BlendingFunction::Subtraction { source, destination } =>
-                Some((source, destination)),
+            BlendingFunction::Addition { source, destination } => Some((source, destination)),
+            BlendingFunction::Subtraction { source, destination } => Some((source, destination)),
             BlendingFunction::ReverseSubtraction { source, destination } =>
                 Some((source, destination)),
         }
     }
 
-    if let (BlendingFunction::AlwaysReplace, BlendingFunction::AlwaysReplace) =
-           (blend.color, blend.alpha)
-    {
+    if let (BlendingFunction::AlwaysReplace, BlendingFunction::AlwaysReplace) = (blend.color,
+                                                                                 blend.alpha) {
         // Both color and alpha always replace. This equals no blending.
         if ctxt.state.enabled_blend {
-            unsafe { ctxt.gl.Disable(gl::BLEND); }
+            unsafe {
+                ctxt.gl.Disable(gl::BLEND);
+            }
             ctxt.state.enabled_blend = false;
         }
 
     } else {
         if !ctxt.state.enabled_blend {
-            unsafe { ctxt.gl.Enable(gl::BLEND); }
+            unsafe {
+                ctxt.gl.Enable(gl::BLEND);
+            }
             ctxt.state.enabled_blend = true;
         }
 
         let (color_eq, alpha_eq) = (try!(blend_eq(ctxt, blend.color)),
                                     try!(blend_eq(ctxt, blend.alpha)));
         if ctxt.state.blend_equation != (color_eq, alpha_eq) {
-            unsafe { ctxt.gl.BlendEquationSeparate(color_eq, alpha_eq); }
+            unsafe {
+                ctxt.gl.BlendEquationSeparate(color_eq, alpha_eq);
+            }
             ctxt.state.blend_equation = (color_eq, alpha_eq);
         }
 
         // Map to dummy factors if the blending equation does not use the factors.
         let (color_factor_src, color_factor_dst) = blending_factors(blend.color)
-            .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
+                                                       .unwrap_or((LinearBlendingFactor::One,
+                                                                   LinearBlendingFactor::Zero));
         let (alpha_factor_src, alpha_factor_dst) = blending_factors(blend.alpha)
-            .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
+                                                       .unwrap_or((LinearBlendingFactor::One,
+                                                                   LinearBlendingFactor::Zero));
 
         // Updating the blending color if necessary.
         if color_factor_src == LinearBlendingFactor::ConstantColor ||
@@ -288,11 +290,12 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
            alpha_factor_src == LinearBlendingFactor::ConstantColor ||
            alpha_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
            alpha_factor_dst == LinearBlendingFactor::ConstantColor ||
-           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor
-        {
+           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor {
             if ctxt.state.blend_color != blend.constant_value {
                 let (r, g, b, a) = blend.constant_value;
-                unsafe { ctxt.gl.BlendColor(r, g, b, a); }
+                unsafe {
+                    ctxt.gl.BlendColor(r, g, b, a);
+                }
                 ctxt.state.blend_color = blend.constant_value;
             }
         }
@@ -302,16 +305,22 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
         let color_factor_dst = color_factor_dst.to_glenum();
         let alpha_factor_src = alpha_factor_src.to_glenum();
         let alpha_factor_dst = alpha_factor_dst.to_glenum();
-        if ctxt.state.blend_func != (color_factor_src, color_factor_dst,
-                                     alpha_factor_src, alpha_factor_dst)
-        {
+        if ctxt.state.blend_func !=
+           (color_factor_src,
+            color_factor_dst,
+            alpha_factor_src,
+            alpha_factor_dst) {
             unsafe {
-                ctxt.gl.BlendFuncSeparate(color_factor_src, color_factor_dst,
-                                          alpha_factor_src, alpha_factor_dst);
+                ctxt.gl.BlendFuncSeparate(color_factor_src,
+                                          color_factor_dst,
+                                          alpha_factor_src,
+                                          alpha_factor_dst);
             }
 
-            ctxt.state.blend_func = (color_factor_src, color_factor_dst,
-                                     alpha_factor_src, alpha_factor_dst);
+            ctxt.state.blend_func = (color_factor_src,
+                                     color_factor_dst,
+                                     alpha_factor_src,
+                                     alpha_factor_dst);
         }
     }
 

@@ -108,7 +108,8 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// nor stencil buffer.
     #[inline]
     pub fn new<F, C>(facade: &F, color: C) -> Result<SimpleFrameBuffer<'a>, ValidationError>
-                     where C: ToColorAttachment<'a>, F: Facade
+        where C: ToColorAttachment<'a>,
+              F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None, None)
     }
@@ -116,93 +117,133 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth
     /// buffer, but no stencil buffer.
     #[inline]
-    pub fn with_depth_buffer<F, C, D>(facade: &F, color: C, depth: D)
+    pub fn with_depth_buffer<F, C, D>(facade: &F,
+                                      color: C,
+                                      depth: D)
                                       -> Result<SimpleFrameBuffer<'a>, ValidationError>
-                                      where C: ToColorAttachment<'a>,
-                                            D: ToDepthAttachment<'a>, F: Facade
+        where C: ToColorAttachment<'a>,
+              D: ToDepthAttachment<'a>,
+              F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
-                                    Some(depth.to_depth_attachment()), None, None)
+        SimpleFrameBuffer::new_impl(facade,
+                                    color.to_color_attachment(),
+                                    Some(depth.to_depth_attachment()),
+                                    None,
+                                    None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment, a depth
     /// buffer, and a stencil buffer.
     #[inline]
-    pub fn with_depth_and_stencil_buffer<F, C, D, S>(facade: &F, color: C, depth: D,
-                                                     stencil: S)
-                                                     -> Result<SimpleFrameBuffer<'a>,
-                                                               ValidationError>
-                                                     where C: ToColorAttachment<'a>,
-                                                           D: ToDepthAttachment<'a>,
-                                                           S: ToStencilAttachment<'a>, F: Facade
+    pub fn with_depth_and_stencil_buffer<F, C, D, S>
+                                                     (facade: &F,
+                                                      color: C,
+                                                      depth: D,
+                                                      stencil: S)
+                                                      -> Result<SimpleFrameBuffer<'a>, ValidationError>
+        where C: ToColorAttachment<'a>,
+              D: ToDepthAttachment<'a>,
+              S: ToStencilAttachment<'a>,
+              F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
+        SimpleFrameBuffer::new_impl(facade,
+                                    color.to_color_attachment(),
                                     Some(depth.to_depth_attachment()),
-                                    Some(stencil.to_stencil_attachment()), None)
+                                    Some(stencil.to_stencil_attachment()),
+                                    None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
     /// buffer, but no depth buffer.
     #[inline]
-    pub fn with_stencil_buffer<F, C, S>(facade: &F, color: C, stencil: S)
+    pub fn with_stencil_buffer<F, C, S>(facade: &F,
+                                        color: C,
+                                        stencil: S)
                                         -> Result<SimpleFrameBuffer<'a>, ValidationError>
-                                        where C: ToColorAttachment<'a>, S: ToStencilAttachment<'a>,
-                                              F: Facade
+        where C: ToColorAttachment<'a>,
+              S: ToStencilAttachment<'a>,
+              F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None,
-                                    Some(stencil.to_stencil_attachment()), None)
+        SimpleFrameBuffer::new_impl(facade,
+                                    color.to_color_attachment(),
+                                    None,
+                                    Some(stencil.to_stencil_attachment()),
+                                    None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
     #[inline]
-    pub fn with_depth_stencil_buffer<F, C, D>(facade: &F, color: C, depthstencil: D)
+    pub fn with_depth_stencil_buffer<F, C, D>(facade: &F,
+                                              color: C,
+                                              depthstencil: D)
                                               -> Result<SimpleFrameBuffer<'a>, ValidationError>
-                                              where C: ToColorAttachment<'a>,
-                                                    D: ToDepthStencilAttachment<'a>, F: Facade
+        where C: ToColorAttachment<'a>,
+              D: ToDepthStencilAttachment<'a>,
+              F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None,
+        SimpleFrameBuffer::new_impl(facade,
+                                    color.to_color_attachment(),
+                                    None,
+                                    None,
                                     Some(depthstencil.to_depth_stencil_attachment()))
     }
 
 
-    fn new_impl<F>(facade: &F, color: ColorAttachment<'a>, depth: Option<DepthAttachment<'a>>,
+    fn new_impl<F>(facade: &F,
+                   color: ColorAttachment<'a>,
+                   depth: Option<DepthAttachment<'a>>,
                    stencil: Option<StencilAttachment<'a>>,
                    depthstencil: Option<DepthStencilAttachment<'a>>)
-                   -> Result<SimpleFrameBuffer<'a>, ValidationError> where F: Facade
+                   -> Result<SimpleFrameBuffer<'a>, ValidationError>
+        where F: Facade
     {
         let color = match color {
             ColorAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
             ColorAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         };
 
-        let depth = depth.map(|depth| match depth {
-            DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
-            DepthAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });
-
-        let stencil = stencil.map(|stencil|  match stencil {
-            StencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
-            StencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });
-
-        let depthstencil = depthstencil.map(|depthstencil| match depthstencil {
-            DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
-            DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });
-
-        let attachments = fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
-            colors: { let mut v = SmallVec::new(); v.push((0, color)); v },
-            depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
-                fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
-            } else if let Some(depth) = depth {
-                fbo::DepthStencilAttachments::DepthAttachment(depth)
-            } else if let Some(stencil) = stencil {
-                fbo::DepthStencilAttachments::StencilAttachment(stencil)
-            } else if let Some(depthstencil) = depthstencil {
-                fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
-            } else {
-                fbo::DepthStencilAttachments::None
+        let depth = depth.map(|depth| {
+            match depth {
+                DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+                DepthAttachment::RenderBuffer(buffer) =>
+                    fbo::RegularAttachment::RenderBuffer(buffer),
             }
+        });
+
+        let stencil = stencil.map(|stencil| {
+            match stencil {
+                StencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+                StencilAttachment::RenderBuffer(buffer) =>
+                    fbo::RegularAttachment::RenderBuffer(buffer),
+            }
+        });
+
+        let depthstencil = depthstencil.map(|depthstencil| {
+            match depthstencil {
+                DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+                DepthStencilAttachment::RenderBuffer(buffer) =>
+                    fbo::RegularAttachment::RenderBuffer(buffer),
+            }
+        });
+
+        let attachments =
+            fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
+            colors: {
+                    let mut v = SmallVec::new();
+                    v.push((0, color));
+                    v
+                },
+            depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
+                    fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
+                } else if let Some(depth) = depth {
+                    fbo::DepthStencilAttachments::DepthAttachment(depth)
+                } else if let Some(stencil) = stencil {
+                    fbo::DepthStencilAttachments::StencilAttachment(stencil)
+                } else if let Some(depthstencil) = depthstencil {
+                    fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
+                } else {
+                    fbo::DepthStencilAttachments::None
+                },
         });
 
         let attachments = try!(attachments.validate(facade));
@@ -216,10 +257,19 @@ impl<'a> SimpleFrameBuffer<'a> {
 
 impl<'a> Surface for SimpleFrameBuffer<'a> {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>)
-    {
-        ops::clear(&self.context, Some(&self.attachments), rect, color, color_srgb, depth, stencil);
+    fn clear(&mut self,
+             rect: Option<&Rect>,
+             color: Option<(f32, f32, f32, f32)>,
+             color_srgb: bool,
+             depth: Option<f32>,
+             stencil: Option<i32>) {
+        ops::clear(&self.context,
+                   Some(&self.attachments),
+                   rect,
+                   color,
+                   color_srgb,
+                   depth,
+                   stencil);
     }
 
     #[inline]
@@ -237,65 +287,94 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         self.attachments.get_stencil_buffer_bits()
     }
 
-    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
-        V: ::vertex::MultiVerticesSource<'v>
+    fn draw<'b, 'v, V, I, U>(&mut self,
+                             vb: V,
+                             ib: I,
+                             program: &::Program,
+                             uniforms: &U,
+                             draw_parameters: &::DrawParameters)
+                             -> Result<(), DrawError>
+        where I: Into<::index::IndicesSource<'b>>,
+              U: ::uniforms::Uniforms,
+              V: ::vertex::MultiVerticesSource<'v>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
-                        draw_parameters.depth.write)
-        {
+        if !self.has_depth_buffer() &&
+           (draw_parameters.depth.test.requires_depth_buffer() || draw_parameters.depth.write) {
             return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.context.capabilities().max_viewport_dims.0
-                    as u32
-            {
+            if viewport.width > self.context.capabilities().max_viewport_dims.0 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.context.capabilities().max_viewport_dims.1
-                    as u32
-            {
+            if viewport.height > self.context.capabilities().max_viewport_dims.1 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.context, Some(&self.attachments), vb,
-                  ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
+        ops::draw(&self.context,
+                  Some(&self.attachments),
+                  vb,
+                  ib.into(),
+                  program,
+                  uniforms,
+                  draw_parameters,
+                  self.get_dimensions())
     }
 
     #[inline]
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    fn blit_color<S>(&self,
+                     source_rect: &Rect,
+                     target: &S,
+                     target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter)
+        where S: Surface
     {
         target.blit_from_simple_framebuffer(self, source_rect, target_rect, filter)
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_frame(&self,
+                       source_rect: &Rect,
+                       target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  None,
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_simple_framebuffer(&self,
+                                    source: &SimpleFrameBuffer,
+                                    source_rect: &Rect,
+                                    target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_multioutput_framebuffer(&self,
+                                         source: &MultiOutputFrameBuffer,
+                                         source_rect: &Rect,
+                                         target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 }
 
@@ -322,10 +401,13 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn new<F>(facade: &F, color_attachments: &[(&str, &'a Texture2d)])
-                  -> Result<MultiOutputFrameBuffer<'a>, ValidationError> where F: Facade
+    pub fn new<F>(facade: &F,
+                  color_attachments: &[(&str, &'a Texture2d)])
+                  -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where F: Facade
     {
-        MultiOutputFrameBuffer::new_impl(facade, color_attachments,
+        MultiOutputFrameBuffer::new_impl(facade,
+                                         color_attachments,
                                          None::<&DepthRenderBuffer>,
                                          None::<&StencilRenderBuffer>)
     }
@@ -336,36 +418,53 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn with_depth_buffer<F, D>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
-                                   depth: D) -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
-                                   where D: ToDepthAttachment<'a>, F: Facade
+    pub fn with_depth_buffer<F, D>(facade: &F,
+                                   color_attachments: &[(&str, &'a Texture2d)],
+                                   depth: D)
+                                   -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where D: ToDepthAttachment<'a>,
+              F: Facade
     {
-        MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
+        MultiOutputFrameBuffer::new_impl(facade,
+                                         color_attachments,
+                                         Some(depth),
                                          None::<&StencilRenderBuffer>)
     }
 
-    fn new_impl<F, D, S>(facade: &F, color: &[(&str, &'a Texture2d)],
-                         depth: Option<D>, stencil: Option<S>)
+    fn new_impl<F, D, S>(facade: &F,
+                         color: &[(&str, &'a Texture2d)],
+                         depth: Option<D>,
+                         stencil: Option<S>)
                          -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
-                         where D: ToDepthAttachment<'a>, F: Facade
+        where D: ToDepthAttachment<'a>,
+              F: Facade
     {
-        let color = color.iter().map(|&(name, tex)| {
-            let atch = tex.to_color_attachment();
-            let atch = if let ColorAttachment::Texture(t) = atch { t } else { panic!() };
-            (name.to_owned(), fbo::RegularAttachment::Texture(atch))
-        }).collect::<Vec<_>>();
+        let color = color.iter()
+                         .map(|&(name, tex)| {
+                             let atch = tex.to_color_attachment();
+                             let atch = if let ColorAttachment::Texture(t) = atch {
+                                 t
+                             } else {
+                                 panic!()
+                             };
+                             (name.to_owned(), fbo::RegularAttachment::Texture(atch))
+                         })
+                         .collect::<Vec<_>>();
 
         let example_color = {
             let mut v = SmallVec::new();
-            for e in color.iter().enumerate().map(|(index, &(_, tex))| { (index as u32, tex) }) {
+            for e in color.iter().enumerate().map(|(index, &(_, tex))| (index as u32, tex)) {
                 v.push(e);
             }
             v
         };
 
-        let depth = depth.map(|depth| match depth.to_depth_attachment() {
-            DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
-            DepthAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
+        let depth = depth.map(|depth| {
+            match depth.to_depth_attachment() {
+                DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
+                DepthAttachment::RenderBuffer(buffer) =>
+                    fbo::RegularAttachment::RenderBuffer(buffer),
+            }
         });
 
         let stencil = None;/*stencil.map(|stencil|  match color {
@@ -382,20 +481,22 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });*/       // TODO:
 
-        let example_attachments = try!(fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
+        let example_attachments =
+            try!(fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: example_color,
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
-                fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
-            } else if let Some(depth) = depth {
-                fbo::DepthStencilAttachments::DepthAttachment(depth)
-            } else if let Some(stencil) = stencil {
-                fbo::DepthStencilAttachments::StencilAttachment(stencil)
-            } else if let Some(depthstencil) = depthstencil {
-                fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
-            } else {
-                fbo::DepthStencilAttachments::None
-            }
-        }).validate(facade));
+                    fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
+                } else if let Some(depth) = depth {
+                    fbo::DepthStencilAttachments::DepthAttachment(depth)
+                } else if let Some(stencil) = stencil {
+                    fbo::DepthStencilAttachments::StencilAttachment(stencil)
+                } else if let Some(depthstencil) = depthstencil {
+                    fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
+                } else {
+                    fbo::DepthStencilAttachments::None
+                },
+        })
+                     .validate(facade));
 
         Ok(MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
@@ -412,7 +513,8 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         for &(ref name, attachment) in self.color_attachments.iter() {
             let location = match program.get_frag_data_location(&name) {
                 Some(l) => l,
-                None => panic!("The fragment output `{}` was not found in the program", name)
+                None => panic!("The fragment output `{}` was not found in the program",
+                               name),
             };
 
             colors.push((location, attachment));
@@ -425,17 +527,27 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             } else {        // FIXME: other cases
                 fbo::DepthStencilAttachments::None
             },
-        }).validate(&self.context).unwrap()
+        })
+            .validate(&self.context)
+            .unwrap()
     }
 }
 
 impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>)
-    {
-        ops::clear(&self.context, Some(&self.example_attachments), rect,
-                   color, color_srgb, depth, stencil);
+    fn clear(&mut self,
+             rect: Option<&Rect>,
+             color: Option<(f32, f32, f32, f32)>,
+             color_srgb: bool,
+             depth: Option<f32>,
+             stencil: Option<i32>) {
+        ops::clear(&self.context,
+                   Some(&self.example_attachments),
+                   rect,
+                   color,
+                   color_srgb,
+                   depth,
+                   stencil);
     }
 
     #[inline]
@@ -453,65 +565,94 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         self.example_attachments.get_stencil_buffer_bits()
     }
 
-    fn draw<'i, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
+    fn draw<'i, 'v, V, I, U>(&mut self,
+                             vb: V,
+                             ib: I,
+                             program: &::Program,
+                             uniforms: &U,
+                             draw_parameters: &::DrawParameters)
+                             -> Result<(), DrawError>
         where I: Into<::index::IndicesSource<'i>>,
-        U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
+              U: ::uniforms::Uniforms,
+              V: ::vertex::MultiVerticesSource<'v>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
-                draw_parameters.depth.write)
-        {
+        if !self.has_depth_buffer() &&
+           (draw_parameters.depth.test.requires_depth_buffer() || draw_parameters.depth.write) {
             return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.context.capabilities().max_viewport_dims.0
-                    as u32
-            {
+            if viewport.width > self.context.capabilities().max_viewport_dims.0 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.context.capabilities().max_viewport_dims.1
-                    as u32
-            {
+            if viewport.height > self.context.capabilities().max_viewport_dims.1 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.context, Some(&self.build_attachments(program)), vb,
-                  ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
+        ops::draw(&self.context,
+                  Some(&self.build_attachments(program)),
+                  vb,
+                  ib.into(),
+                  program,
+                  uniforms,
+                  draw_parameters,
+                  self.get_dimensions())
     }
 
     #[inline]
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    fn blit_color<S>(&self,
+                     source_rect: &Rect,
+                     target: &S,
+                     target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter)
+        where S: Surface
     {
         target.blit_from_multioutput_framebuffer(self, source_rect, target_rect, filter)
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_frame(&self,
+                       source_rect: &Rect,
+                       target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  None,
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_simple_framebuffer(&self,
+                                    source: &SimpleFrameBuffer,
+                                    source_rect: &Rect,
+                                    target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_multioutput_framebuffer(&self,
+                                         source: &MultiOutputFrameBuffer,
+                                         source_rect: &Rect,
+                                         target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 }
 
@@ -532,14 +673,18 @@ pub struct EmptyFrameBuffer {
 
 impl<'a> EmptyFrameBuffer {
     /// Returns true if empty framebuffers are supported by the backend.
-    pub fn is_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C>(context: &C) -> bool
+        where C: CapabilitiesSource
+    {
         context.get_version() >= &Version(Api::Gl, 4, 3) ||
         context.get_version() >= &Version(Api::GlEs, 3, 1) ||
         context.get_extensions().gl_arb_framebuffer_no_attachments
     }
 
     /// Returns true if layered empty framebuffers are supported by the backend.
-    pub fn is_layered_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_layered_supported<C>(context: &C) -> bool
+        where C: CapabilitiesSource
+    {
         context.get_version() >= &Version(Api::Gl, 4, 3) ||
         context.get_version() >= &Version(Api::GlEs, 3, 2) ||
         context.get_extensions().gl_arb_framebuffer_no_attachments
@@ -547,25 +692,33 @@ impl<'a> EmptyFrameBuffer {
 
     /// Returns the maximum width of empty framebuffers that the backend supports, or `None` if
     /// empty framebuffers are not supported.
-    pub fn get_max_supported_width<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_width<C>(context: &C) -> Option<u32>
+        where C: CapabilitiesSource
+    {
         context.get_capabilities().max_framebuffer_width.map(|v| v as u32)
     }
 
     /// Returns the maximum height of empty framebuffers that the backend supports, or `None` if
     /// empty framebuffers are not supported.
-    pub fn get_max_supported_height<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_height<C>(context: &C) -> Option<u32>
+        where C: CapabilitiesSource
+    {
         context.get_capabilities().max_framebuffer_height.map(|v| v as u32)
     }
 
     /// Returns the maximum number of samples of empty framebuffers that the backend supports,
     /// or `None` if empty framebuffers are not supported.
-    pub fn get_max_supported_samples<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_samples<C>(context: &C) -> Option<u32>
+        where C: CapabilitiesSource
+    {
         context.get_capabilities().max_framebuffer_samples.map(|v| v as u32)
     }
 
     /// Returns the maximum number of layers of empty framebuffers that the backend supports,
     /// or `None` if layered empty framebuffers are not supported.
-    pub fn get_max_supported_layers<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_layers<C>(context: &C) -> Option<u32>
+        where C: CapabilitiesSource
+    {
         context.get_capabilities().max_framebuffer_layers.map(|v| v as u32)
     }
 
@@ -576,9 +729,14 @@ impl<'a> EmptyFrameBuffer {
     /// Panicks if `layers` or `samples` is equal to `Some(0)`.
     ///
     #[inline]
-    pub fn new<F>(facade: &F, width: u32, height: u32, layers: Option<u32>,
-                  samples: Option<u32>, fixed_samples: bool)
-                  -> Result<EmptyFrameBuffer, ValidationError> where F: Facade
+    pub fn new<F>(facade: &F,
+                  width: u32,
+                  height: u32,
+                  layers: Option<u32>,
+                  samples: Option<u32>,
+                  fixed_samples: bool)
+                  -> Result<EmptyFrameBuffer, ValidationError>
+        where F: Facade
     {
         let context = facade.get_context();
 
@@ -601,10 +759,19 @@ impl<'a> EmptyFrameBuffer {
 
 impl Surface for EmptyFrameBuffer {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>)
-    {
-        ops::clear(&self.context, Some(&self.attachments), rect, color, color_srgb, depth, stencil);
+    fn clear(&mut self,
+             rect: Option<&Rect>,
+             color: Option<(f32, f32, f32, f32)>,
+             color_srgb: bool,
+             depth: Option<f32>,
+             stencil: Option<i32>) {
+        ops::clear(&self.context,
+                   Some(&self.attachments),
+                   rect,
+                   color,
+                   color_srgb,
+                   depth,
+                   stencil);
     }
 
     #[inline]
@@ -622,65 +789,94 @@ impl Surface for EmptyFrameBuffer {
         None
     }
 
-    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
-        V: ::vertex::MultiVerticesSource<'v>
+    fn draw<'b, 'v, V, I, U>(&mut self,
+                             vb: V,
+                             ib: I,
+                             program: &::Program,
+                             uniforms: &U,
+                             draw_parameters: &::DrawParameters)
+                             -> Result<(), DrawError>
+        where I: Into<::index::IndicesSource<'b>>,
+              U: ::uniforms::Uniforms,
+              V: ::vertex::MultiVerticesSource<'v>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
-                        draw_parameters.depth.write)
-        {
+        if !self.has_depth_buffer() &&
+           (draw_parameters.depth.test.requires_depth_buffer() || draw_parameters.depth.write) {
             return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.context.capabilities().max_viewport_dims.0
-                    as u32
-            {
+            if viewport.width > self.context.capabilities().max_viewport_dims.0 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.context.capabilities().max_viewport_dims.1
-                    as u32
-            {
+            if viewport.height > self.context.capabilities().max_viewport_dims.1 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.context, Some(&self.attachments), vb,
-                  ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
+        ops::draw(&self.context,
+                  Some(&self.attachments),
+                  vb,
+                  ib.into(),
+                  program,
+                  uniforms,
+                  draw_parameters,
+                  self.get_dimensions())
     }
 
     #[inline]
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    fn blit_color<S>(&self,
+                     source_rect: &Rect,
+                     target: &S,
+                     target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter)
+        where S: Surface
     {
         unimplemented!()        // TODO:
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_frame(&self,
+                       source_rect: &Rect,
+                       target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  None,
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_simple_framebuffer(&self,
+                                    source: &SimpleFrameBuffer,
+                                    source_rect: &Rect,
+                                    target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_multioutput_framebuffer(&self,
+                                         source: &MultiOutputFrameBuffer,
+                                         source_rect: &Rect,
+                                         target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 }
 

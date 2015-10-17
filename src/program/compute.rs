@@ -32,34 +32,34 @@ pub struct ComputeShader {
 impl ComputeShader {
     /// Returns true if the backend supports compute shaders.
     #[inline]
-    pub fn is_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C>(ctxt: &C) -> bool
+        where C: CapabilitiesSource
+    {
         check_shader_type_compatibility(ctxt, gl::COMPUTE_SHADER)
     }
 
     /// Builds a new compute shader from some source code.
     #[inline]
     pub fn from_source<F>(facade: &F, src: &str) -> Result<ComputeShader, ProgramCreationError>
-                          where F: Facade
+        where F: Facade
     {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
         let shader = try!(build_shader(facade, gl::COMPUTE_SHADER, src));
 
         Ok(ComputeShader {
-            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, None))
+            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, None)),
         })
     }
 
     /// Builds a new compute shader from some binary.
     #[inline]
     pub fn from_binary<F>(facade: &F, data: Binary) -> Result<ComputeShader, ProgramCreationError>
-                          where F: Facade
+        where F: Facade
     {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-        Ok(ComputeShader {
-            raw: try!(RawProgram::from_binary(facade, data))
-        })
+        Ok(ComputeShader { raw: try!(RawProgram::from_binary(facade, data)) })
     }
 
     /// Executes the compute shader.
@@ -68,7 +68,9 @@ impl ComputeShader {
     /// `gl_WorkGroupID`. Inside each work group, additional local work groups can be started
     /// depending on the attributes of the compute shader itself.
     #[inline]
-    pub fn execute<U>(&self, uniforms: U, x: u32, y: u32, z: u32) where U: Uniforms {
+    pub fn execute<U>(&self, uniforms: U, x: u32, y: u32, z: u32)
+        where U: Uniforms
+    {
         unsafe { self.raw.dispatch_compute(uniforms, x, y, z) }.unwrap();       // FIXME: return error
     }
 
@@ -77,7 +79,7 @@ impl ComputeShader {
     /// This is similar to `execute`, except that the parameters are stored in a buffer.
     #[inline]
     pub fn execute_indirect<U>(&self, uniforms: U, buffer: BufferSlice<ComputeCommand>)
-                               where U: Uniforms
+        where U: Uniforms
     {
         unsafe { self.raw.dispatch_compute_indirect(uniforms, buffer) }.unwrap();       // FIXME: return error
     }
@@ -96,7 +98,7 @@ impl ComputeShader {
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
-    
+
     /// Returns an iterator to the list of uniforms.
     ///
     /// ## Example
@@ -111,7 +113,7 @@ impl ComputeShader {
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.raw.uniforms()
     }
-    
+
     /// Returns a list of uniform blocks.
     ///
     /// ## Example
@@ -166,24 +168,26 @@ impl ProgramExt for ComputeShader {
     }
 
     #[inline]
-    fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
-                   value: &RawUniformValue)
-    {
+    fn set_uniform(&self,
+                   ctxt: &mut CommandContext,
+                   uniform_location: gl::types::GLint,
+                   value: &RawUniformValue) {
         self.raw.set_uniform(ctxt, uniform_location, value)
     }
 
     #[inline]
-    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
-                                 value: gl::types::GLuint)
-    {
+    fn set_uniform_block_binding(&self,
+                                 ctxt: &mut CommandContext,
+                                 block_location: gl::types::GLuint,
+                                 value: gl::types::GLuint) {
         self.raw.set_uniform_block_binding(ctxt, block_location, value)
     }
 
     #[inline]
-    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
+    fn set_shader_storage_block_binding(&self,
+                                        ctxt: &mut CommandContext,
                                         block_location: gl::types::GLuint,
-                                        value: gl::types::GLuint)
-    {
+                                        value: gl::types::GLuint) {
         self.raw.set_shader_storage_block_binding(ctxt, block_location, value)
     }
 
