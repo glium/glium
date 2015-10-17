@@ -21,7 +21,9 @@ use texture::Texture2dDataSink;
 /// Buffer that stores the content of a texture.
 ///
 /// The generic type represents the type of pixels that the buffer contains.
-pub struct PixelBuffer<T> where T: PixelValue {
+pub struct PixelBuffer<T>
+    where T: PixelValue
+{
     buffer: Buffer<[T]>,
     dimensions: Cell<Option<(u32, u32)>>,
 }
@@ -29,17 +31,24 @@ pub struct PixelBuffer<T> where T: PixelValue {
 impl<T> PixelBuffer<T> where T: PixelValue {
     /// Builds a new buffer with an uninitialized content.
     #[inline]
-    pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
+    pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T>
+        where F: Facade
+    {
         PixelBuffer {
-            buffer: Buffer::empty_array(facade, BufferType::PixelPackBuffer, capacity,
-                                            BufferMode::Default).unwrap(),
+            buffer: Buffer::empty_array(facade,
+                                        BufferType::PixelPackBuffer,
+                                        capacity,
+                                        BufferMode::Default)
+                        .unwrap(),
             dimensions: Cell::new(None),
         }
     }
 
     /// Reads the content of the pixel buffer.
     #[inline]
-    pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError> where S: Texture2dDataSink<T> {
+    pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError>
+        where S: Texture2dDataSink<T>
+    {
         let dimensions = self.dimensions.get().expect("The pixel buffer is empty");
         let data = try!(self.read());
         Ok(S::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
@@ -75,6 +84,8 @@ impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
 // TODO: remove this hack
 #[doc(hidden)]
 #[inline]
-pub fn store_infos<T>(b: &PixelBuffer<T>, dimensions: (u32, u32)) where T: PixelValue {
+pub fn store_infos<T>(b: &PixelBuffer<T>, dimensions: (u32, u32))
+    where T: PixelValue
+{
     b.dimensions.set(Some(dimensions));
 }

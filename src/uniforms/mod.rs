@@ -171,8 +171,8 @@ impl<'a, T: ?Sized> AsUniformValue for &'a Buffer<T> where T: UniformBlock + Buf
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         #[inline]
-        fn f<T: ?Sized>(block: &program::UniformBlock)
-                        -> Result<(), LayoutMismatchError> where T: UniformBlock + BufferContent
+        fn f<T: ?Sized>(block: &program::UniformBlock) -> Result<(), LayoutMismatchError>
+            where T: UniformBlock + BufferContent
         {
             // TODO: more checks?
             T::matches(&block.layout, 0)
@@ -193,26 +193,22 @@ pub trait UniformBlock {        // TODO: `: Copy`, but unsized structs don't imp
 }
 
 impl<T> UniformBlock for [T] where T: UniformBlock {
-    fn matches(layout: &BlockLayout, base_offset: usize)
-               -> Result<(), LayoutMismatchError>
-    {
+    fn matches(layout: &BlockLayout, base_offset: usize) -> Result<(), LayoutMismatchError> {
         if let &BlockLayout::DynamicSizedArray { ref content } = layout {
-            <T as UniformBlock>::matches(content, base_offset)
-                .map_err(|err| {
-                    LayoutMismatchError::MemberMismatch {
-                        member: "<dynamic array content>".to_owned(),
-                        err: Box::new(err),
-                    }
-                })
+            <T as UniformBlock>::matches(content, base_offset).map_err(|err| {
+                LayoutMismatchError::MemberMismatch {
+                    member: "<dynamic array content>".to_owned(),
+                    err: Box::new(err),
+                }
+            })
 
         } else if let &BlockLayout::Array { ref content, .. } = layout {
-            <T as UniformBlock>::matches(content, base_offset)
-                .map_err(|err| {
-                    LayoutMismatchError::MemberMismatch {
-                        member: "<dynamic array content>".to_owned(),
-                        err: Box::new(err),
-                    }
-                })
+            <T as UniformBlock>::matches(content, base_offset).map_err(|err| {
+                LayoutMismatchError::MemberMismatch {
+                    member: "<dynamic array content>".to_owned(),
+                    err: Box::new(err),
+                }
+            })
 
         } else {
             Err(LayoutMismatchError::LayoutMismatch {

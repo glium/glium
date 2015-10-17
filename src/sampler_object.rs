@@ -19,8 +19,7 @@ impl SamplerObject {
     /// Builds a new sampler object.
     pub fn new(ctxt: &mut CommandContext, behavior: &SamplerBehavior) -> SamplerObject {
         // making sure that the backend supports samplers
-        assert!(ctxt.version >= &Version(Api::Gl, 3, 2) ||
-                ctxt.extensions.gl_arb_sampler_objects);
+        assert!(ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_sampler_objects);
 
         let sampler = unsafe {
             use std::mem;
@@ -30,15 +29,20 @@ impl SamplerObject {
         };
 
         unsafe {
-            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_S,
+            ctxt.gl.SamplerParameteri(sampler,
+                                      gl::TEXTURE_WRAP_S,
                                       behavior.wrap_function.0.to_glenum() as gl::types::GLint);
-            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_T,
+            ctxt.gl.SamplerParameteri(sampler,
+                                      gl::TEXTURE_WRAP_T,
                                       behavior.wrap_function.1.to_glenum() as gl::types::GLint);
-            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_WRAP_R,
+            ctxt.gl.SamplerParameteri(sampler,
+                                      gl::TEXTURE_WRAP_R,
                                       behavior.wrap_function.2.to_glenum() as gl::types::GLint);
-            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MIN_FILTER,
+            ctxt.gl.SamplerParameteri(sampler,
+                                      gl::TEXTURE_MIN_FILTER,
                                       behavior.minify_filter.to_glenum() as gl::types::GLint);
-            ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MAG_FILTER,
+            ctxt.gl.SamplerParameteri(sampler,
+                                      gl::TEXTURE_MAG_FILTER,
                                       behavior.magnify_filter.to_glenum() as gl::types::GLint);
 
             if let Some(max_value) = ctxt.capabilities.max_texture_max_anisotropy {
@@ -87,9 +91,9 @@ impl Drop for SamplerObject {
 
 /// Returns the sampler corresponding to the given behavior, or a draw error if
 /// samplers are not supported.
-pub fn get_sampler(ctxt: &mut CommandContext, behavior: &SamplerBehavior)
-                   -> Result<gl::types::GLuint, DrawError>
-{
+pub fn get_sampler(ctxt: &mut CommandContext,
+                   behavior: &SamplerBehavior)
+                   -> Result<gl::types::GLuint, DrawError> {
     // checking for compatibility
     if ctxt.version < &Version(Api::Gl, 3, 2) && !ctxt.extensions.gl_arb_sampler_objects {
         return Err(DrawError::SamplersNotSupported);
@@ -98,8 +102,8 @@ pub fn get_sampler(ctxt: &mut CommandContext, behavior: &SamplerBehavior)
     // looking for an existing sampler
     match ctxt.samplers.get(behavior) {
         Some(obj) => return Ok(obj.get_id()),
-        None => ()
-    };
+        None => (),
+    }
 
     // builds a new sampler
     let sampler = SamplerObject::new(ctxt, behavior);

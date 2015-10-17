@@ -47,7 +47,7 @@
 pub use self::view::{Buffer, BufferAny, BufferMutSlice};
 pub use self::view::{BufferSlice, BufferAnySlice};
 pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
-pub use self::alloc::{is_buffer_read_supported};
+pub use self::alloc::is_buffer_read_supported;
 pub use self::fences::Inserter;
 
 /// DEPRECATED. Only here for backward compatibility.
@@ -77,8 +77,7 @@ pub unsafe trait Content {
     type Owned;
 
     /// Prepares an output buffer, then turns this buffer into an `Owned`.
-    fn read<F, E>(size: usize, F) -> Result<Self::Owned, E>
-                  where F: FnOnce(&mut Self) -> Result<(), E>;
+    fn read<F, E>(size: usize, F) -> Result<Self::Owned, E> where F: FnOnce(&mut Self) -> Result<(), E>;
 
     /// Returns the size of each element.
     fn get_elements_size() -> usize;
@@ -97,7 +96,9 @@ unsafe impl<T> Content for T where T: Copy {
     type Owned = T;
 
     #[inline]
-    fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
+    fn read<F, E>(size: usize, f: F) -> Result<T, E>
+        where F: FnOnce(&mut T) -> Result<(), E>
+    {
         assert!(size == mem::size_of::<T>());
         let mut value = unsafe { mem::uninitialized() };
         try!(f(&mut value));
@@ -134,12 +135,12 @@ unsafe impl<T> Content for [T] where T: Copy {
 
     #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<Vec<T>, E>
-                  where F: FnOnce(&mut [T]) -> Result<(), E>
+        where F: FnOnce(&mut [T]) -> Result<(), E>
     {
         assert!(size % mem::size_of::<T>() == 0);
         let len = size / mem::size_of::<T>();
         let mut value = Vec::with_capacity(len);
-        unsafe { value.set_len(len) };
+        unsafe { value.set_len(len) }
         try!(f(&mut value));
         Ok(value)
     }

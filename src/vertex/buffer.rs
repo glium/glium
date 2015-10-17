@@ -2,7 +2,8 @@ use std::error::Error;
 use std::fmt;
 use std::ops::{Range, Deref, DerefMut};
 
-use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
+use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode,
+             BufferCreationError, Content};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
@@ -32,8 +33,8 @@ impl From<BufferCreationError> for CreationError {
 impl fmt::Display for CreationError {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &CreationError::FormatNotSupported => "The vertex format is not supported by the \
-                                                   backend".fmt(formatter),
+            &CreationError::FormatNotSupported =>
+                "The vertex format is not supported by the backend".fmt(formatter),
             &CreationError::BufferCreationError(error) => error.fmt(formatter),
         }
     }
@@ -42,8 +43,8 @@ impl fmt::Display for CreationError {
 impl Error for CreationError {
     fn description(&self) -> &str {
         match self {
-            &CreationError::FormatNotSupported => "The vertex format is not supported by the \
-                                                   backend",
+            &CreationError::FormatNotSupported =>
+                "The vertex format is not supported by the backend",
             &CreationError::BufferCreationError(..) => "Error while creating the vertex buffer",
         }
     }
@@ -58,13 +59,17 @@ impl Error for CreationError {
 
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
-pub struct VertexBuffer<T> where T: Copy {
+pub struct VertexBuffer<T>
+    where T: Copy
+{
     buffer: Buffer<[T]>,
     bindings: VertexFormat,
 }
 
 /// Represents a slice of a `VertexBuffer`.
-pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
+pub struct VertexBufferSlice<'b, T: 'b>
+    where T: Copy
+{
     buffer: BufferSlice<'b, [T]>,
     bindings: &'b VertexFormat,
 }
@@ -81,8 +86,7 @@ impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
-            !self.get_context().get_extensions().gl_arb_instanced_arrays
-        {
+           !self.get_context().get_extensions().gl_arb_instanced_arrays {
             return Err(InstancingNotSupported);
         }
 
@@ -121,7 +125,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     ///
     #[inline]
     pub fn new<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
-                  where F: Facade
+        where F: Facade
     {
         VertexBuffer::new_impl(facade, data, BufferMode::Default)
     }
@@ -131,7 +135,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// This function will create a buffer that is intended to be modified frequently.
     #[inline]
     pub fn dynamic<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
-                      where F: Facade
+        where F: Facade
     {
         VertexBuffer::new_impl(facade, data, BufferMode::Dynamic)
     }
@@ -139,7 +143,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// Builds a new vertex buffer.
     #[inline]
     pub fn persistent<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
-                         where F: Facade
+        where F: Facade
     {
         VertexBuffer::new_impl(facade, data, BufferMode::Persistent)
     }
@@ -147,15 +151,17 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// Builds a new vertex buffer.
     #[inline]
     pub fn immutable<F>(facade: &F, data: &[T]) -> Result<VertexBuffer<T>, CreationError>
-                        where F: Facade
+        where F: Facade
     {
         VertexBuffer::new_impl(facade, data, BufferMode::Immutable)
     }
 
     #[inline]
-    fn new_impl<F>(facade: &F, data: &[T], mode: BufferMode)
+    fn new_impl<F>(facade: &F,
+                   data: &[T],
+                   mode: BufferMode)
                    -> Result<VertexBuffer<T>, CreationError>
-                   where F: Facade
+        where F: Facade
     {
         if !T::is_supported(facade) {
             return Err(CreationError::FormatNotSupported);
@@ -170,7 +176,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// The parameter indicates the number of elements.
     #[inline]
     pub fn empty<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
-                    where F: Facade
+        where F: Facade
     {
         VertexBuffer::empty_impl(facade, elements, BufferMode::Default)
     }
@@ -180,7 +186,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// The parameter indicates the number of elements.
     #[inline]
     pub fn empty_dynamic<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
-                            where F: Facade
+        where F: Facade
     {
         VertexBuffer::empty_impl(facade, elements, BufferMode::Dynamic)
     }
@@ -189,9 +195,10 @@ impl<T> VertexBuffer<T> where T: Vertex {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, elements: usize)
+    pub fn empty_persistent<F>(facade: &F,
+                               elements: usize)
                                -> Result<VertexBuffer<T>, CreationError>
-                               where F: Facade
+        where F: Facade
     {
         VertexBuffer::empty_impl(facade, elements, BufferMode::Persistent)
     }
@@ -201,15 +208,17 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// The parameter indicates the number of elements.
     #[inline]
     pub fn empty_immutable<F>(facade: &F, elements: usize) -> Result<VertexBuffer<T>, CreationError>
-                              where F: Facade
+        where F: Facade
     {
         VertexBuffer::empty_impl(facade, elements, BufferMode::Immutable)
     }
 
     #[inline]
-    fn empty_impl<F>(facade: &F, elements: usize, mode: BufferMode)
+    fn empty_impl<F>(facade: &F,
+                     elements: usize,
+                     mode: BufferMode)
                      -> Result<VertexBuffer<T>, CreationError>
-                     where F: Facade
+        where F: Facade
     {
         if !T::is_supported(facade) {
             return Err(CreationError::FormatNotSupported);
@@ -253,32 +262,34 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// ```
     ///
     #[inline]
-    pub unsafe fn new_raw<F>(facade: &F, data: &[T],
-                             bindings: VertexFormat, elements_size: usize)
+    pub unsafe fn new_raw<F>(facade: &F,
+                             data: &[T],
+                             bindings: VertexFormat,
+                             elements_size: usize)
                              -> Result<VertexBuffer<T>, CreationError>
-                             where F: Facade
+        where F: Facade
     {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Default)),
+            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer, BufferMode::Default)),
             bindings: bindings,
         })
     }
 
     /// Dynamic version of `new_raw`.
     #[inline]
-    pub unsafe fn new_raw_dynamic<F>(facade: &F, data: &[T],
-                                     bindings: VertexFormat, elements_size: usize)
+    pub unsafe fn new_raw_dynamic<F>(facade: &F,
+                                     data: &[T],
+                                     bindings: VertexFormat,
+                                     elements_size: usize)
                                      -> Result<VertexBuffer<T>, CreationError>
-                                     where F: Facade
+        where F: Facade
     {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Dynamic)),
+            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer, BufferMode::Dynamic)),
             bindings: bindings,
         })
     }
@@ -290,7 +301,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     pub fn slice(&self, range: Range<usize>) -> Option<VertexBufferSlice<T>> {
         let slice = match self.buffer.slice(range) {
             None => return None,
-            Some(s) => s
+            Some(s) => s,
         };
 
         Some(VertexBufferSlice {
@@ -315,8 +326,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
-            !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
-        {
+           !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays {
             return Err(InstancingNotSupported);
         }
 
@@ -467,8 +477,7 @@ impl VertexBufferAny {
     pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
-            !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
-        {
+           !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays {
             return Err(InstancingNotSupported);
         }
 

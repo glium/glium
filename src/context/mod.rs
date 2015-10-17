@@ -132,8 +132,6 @@ pub struct CommandContext<'a> {
     pub resident_image_handles: RefMut<'a, Vec<(gl::types::GLuint64, gl::types::GLenum)>>,
 
     /// This marker is here to prevent `CommandContext` from implementing `Send`
-    // TODO: use this when possible
-    //impl<'a, 'b> !Send for CommandContext<'a, 'b> {}
     marker: PhantomData<*mut u8>,
 }
 
@@ -150,10 +148,11 @@ impl Context {
     /// The OpenGL context must be newly-created. If you make modifications to the context before
     /// passing it to this function, glium's state cache may mismatch the actual one.
     ///
-    pub unsafe fn new<B, E>(backend: B, check_current_context: bool,
+    pub unsafe fn new<B, E>(backend: B,
+                            check_current_context: bool,
                             callback_behavior: DebugCallbackBehavior)
                             -> Result<Rc<Context>, GliumCreationError<E>>
-                            where B: Backend + 'static
+        where B: Backend + 'static
     {
         backend.make_current();
 
@@ -176,14 +175,16 @@ impl Context {
         let (debug_callback, synchronous) = match callback_behavior {
             DebugCallbackBehavior::Ignore => (None, false),
             DebugCallbackBehavior::DebugMessageOnError => {
-                (Some(Box::new(default_debug_callback) as debug::DebugCallback), true)
-            },
+                (Some(Box::new(default_debug_callback) as debug::DebugCallback),
+                 true)
+            }
             DebugCallbackBehavior::PrintAll => {
-                (Some(Box::new(printall_debug_callback) as debug::DebugCallback), false)
-            },
+                (Some(Box::new(printall_debug_callback) as debug::DebugCallback),
+                 false)
+            }
             DebugCallbackBehavior::Custom { callback, synchronous } => {
                 (Some(callback), synchronous)
-            },
+            }
         };
 
         let context = Rc::new(Context {
@@ -211,8 +212,8 @@ impl Context {
         {
             let mut ctxt = context.make_current();
             if ::get_gl_error(&mut ctxt).is_some() {
-                println!("glium has triggered an OpenGL error during initialization. Please report \
-                          this error: https://github.com/tomaka/glium/issues");
+                println!("glium has triggered an OpenGL error during initialization. Please \
+                          report this error: https://github.com/tomaka/glium/issues");
             }
             /*assert!(::get_gl_error(&mut ctxt).is_none(),
                     "glium has triggered an OpenGL error during initialization. Please report \
@@ -231,9 +232,8 @@ impl Context {
     /// Changes the OpenGL context associated with this context.
     ///
     /// The new context **must** have lists shared with the old one.
-    pub unsafe fn rebuild<B, E>(&self, new_backend: B)
-                                -> Result<(), GliumCreationError<E>>
-                                where B: Backend + 'static
+    pub unsafe fn rebuild<B, E>(&self, new_backend: B) -> Result<(), GliumCreationError<E>>
+        where B: Backend + 'static
     {
         // framebuffer objects and vertex array objects aren't shared,
         // so we have to destroy them
@@ -277,16 +277,21 @@ impl Context {
             let mut ctxt = self.make_current();
 
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-               ctxt.extensions.gl_arb_framebuffer_object
-            {
-                unsafe { ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0); }
+               ctxt.extensions.gl_arb_framebuffer_object {
+                unsafe {
+                    ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+                }
                 ctxt.state.draw_framebuffer = 0;
             } else if ctxt.version >= &Version(Api::GlEs, 2, 0) {
-                unsafe { ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0); }
+                unsafe {
+                    ctxt.gl.BindFramebuffer(gl::FRAMEBUFFER, 0);
+                }
                 ctxt.state.draw_framebuffer = 0;
                 ctxt.state.read_framebuffer = 0;
             } else if ctxt.extensions.gl_ext_framebuffer_object {
-                unsafe { ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0); }
+                unsafe {
+                    ctxt.gl.BindFramebufferEXT(gl::FRAMEBUFFER_EXT, 0);
+                }
                 ctxt.state.draw_framebuffer = 0;
                 ctxt.state.read_framebuffer = 0;
             } else {
@@ -297,7 +302,7 @@ impl Context {
         let backend = self.backend.borrow();
         if self.check_current_context {
             if !backend.is_current() {
-                unsafe { backend.make_current() };
+                unsafe { backend.make_current() }
             }
         }
 
@@ -364,8 +369,7 @@ impl Context {
 
         let lost = if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                       ctxt.version >= &Version(Api::GlEs, 3, 2) ||
-                      ctxt.extensions.gl_khr_robustness
-        {
+                      ctxt.extensions.gl_khr_robustness {
             unsafe { ctxt.gl.GetGraphicsResetStatus() != gl::NO_ERROR }
         } else if ctxt.extensions.gl_ext_robustness {
             unsafe { ctxt.gl.GetGraphicsResetStatusEXT() != gl::NO_ERROR }
@@ -375,7 +379,9 @@ impl Context {
             false
         };
 
-        if lost { ctxt.state.lost_context = true; }
+        if lost {
+            ctxt.state.lost_context = true;
+        }
         lost
     }
 
@@ -412,8 +418,7 @@ impl Context {
             let ctxt = self.make_current();
 
             if ctxt.version >= &Version(Api::GlEs, 2, 0) ||
-                ctxt.version >= &Version(Api::Gl, 4, 1)
-            {
+               ctxt.version >= &Version(Api::Gl, 4, 1) {
                 if !ctxt.capabilities.supported_glsl_versions.is_empty() {
                     ctxt.gl.ReleaseShaderCompiler();
                 }
@@ -432,7 +437,7 @@ impl Context {
 
             if ctxt.extensions.gl_nvx_gpu_memory_info {
                 ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
-                               &mut value[0]);
+                                    &mut value[0]);
                 Some(value[0] as usize * 1024)
 
             } else if ctxt.extensions.gl_ati_meminfo {
@@ -462,14 +467,22 @@ impl Context {
     /// # }
     /// ```
     pub fn read_front_buffer<T>(&self) -> T
-                                where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
+        where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
     {
         let mut ctxt = self.make_current();
         let dimensions = self.get_framebuffer_dimensions();
-        let rect = ::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
+        let rect = ::Rect {
+            left: 0,
+            bottom: 0,
+            width: dimensions.0,
+            height: dimensions.1,
+        };
 
         let mut data = Vec::with_capacity(0);
-        ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect, &mut data,
+        ops::read(&mut ctxt,
+                  ops::Source::DefaultFramebuffer(gl::FRONT_LEFT),
+                  &rect,
+                  &mut data,
                   false);
         T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
     }
@@ -481,8 +494,8 @@ impl Context {
     /// completes.**
     #[inline]
     pub unsafe fn exec_in_context<'a, T, F>(&self, action: F) -> T
-                                            where T: Send + 'static,
-                                            F: FnOnce() -> T + 'a
+        where T: Send + 'static,
+              F: FnOnce() -> T + 'a
     {
         let _ctxt = self.make_current();
         action()
@@ -497,8 +510,8 @@ impl Context {
         match (::get_gl_error(&mut ctxt), user_msg) {
             (Some(msg), None) => panic!("{}", msg),
             (Some(msg), Some(user_msg)) => panic!("{} : {}", user_msg, msg),
-            (None, _) => ()
-        };
+            (None, _) => (),
+        }
     }
 
     /// DEPRECATED. Renamed `finish`.
@@ -518,7 +531,9 @@ impl Context {
     #[inline]
     pub fn finish(&self) {
         let ctxt = self.make_current();
-        unsafe { ctxt.gl.Finish(); }
+        unsafe {
+            ctxt.gl.Finish();
+        }
     }
 
     /// Calls `glFlush()`. This starts executing the commands that you have issued if it is not
@@ -533,7 +548,9 @@ impl Context {
     #[inline]
     pub fn flush(&self) {
         let ctxt = self.make_current();
-        unsafe { ctxt.gl.Flush(); }
+        unsafe {
+            ctxt.gl.Flush();
+        }
     }
 
     /// Inserts a debugging string in the commands queue. If you use an OpenGL debugger, you will
@@ -548,14 +565,18 @@ impl Context {
 
         if ctxt.extensions.gl_gremedy_string_marker {
             let marker = marker.as_bytes();
-            unsafe { ctxt.gl.StringMarkerGREMEDY(marker.len() as gl::types::GLsizei,
-                                                 marker.as_ptr() as *const _) };
+            unsafe {
+                ctxt.gl.StringMarkerGREMEDY(marker.len() as gl::types::GLsizei,
+                                            marker.as_ptr() as *const _)
+            }
             Ok(())
 
         } else if ctxt.extensions.gl_ext_debug_marker {
             let marker = marker.as_bytes();
-            unsafe { ctxt.gl.InsertEventMarkerEXT(marker.len() as gl::types::GLsizei,
-                                                  marker.as_ptr() as *const _) };
+            unsafe {
+                ctxt.gl.InsertEventMarkerEXT(marker.len() as gl::types::GLsizei,
+                                             marker.as_ptr() as *const _)
+            }
             Ok(())
 
         } else {
@@ -585,7 +606,7 @@ impl ContextExt for Context {
         if self.check_current_context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
-                unsafe { backend.make_current() };
+                unsafe { backend.make_current() }
                 debug_assert!(backend.is_current());
             }
         }
@@ -665,11 +686,10 @@ impl Drop for Context {
 
             // disabling callback
             if ctxt.state.enabled_debug_output != Some(false) {
-                if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
+                if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_khr_debug {
                     ctxt.gl.Disable(gl::DEBUG_OUTPUT);
                 } else if ctxt.extensions.gl_arb_debug_output {
-                    ctxt.gl.DebugMessageCallbackARB(mem::transmute(0usize),
-                                                    ptr::null());
+                    ctxt.gl.DebugMessageCallbackARB(mem::transmute(0usize), ptr::null());
                 }
 
                 ctxt.state.enabled_debug_output = Some(false);
@@ -697,35 +717,29 @@ impl<'a> CapabilitiesSource for CommandContext<'a> {
 }
 
 /// Checks whether the backend supports glium. Returns an `Err` if it doesn't.
-fn check_gl_compatibility<T>(version: &Version, extensions: &ExtensionsList)
-                             -> Result<(), GliumCreationError<T>>
-{
+fn check_gl_compatibility<T>(version: &Version,
+                             extensions: &ExtensionsList)
+                             -> Result<(), GliumCreationError<T>> {
     let mut result = Vec::with_capacity(0);
 
-    if !(version >= &Version(Api::Gl, 1, 5)) &&
-        !(version >= &Version(Api::GlEs, 2, 0)) &&
-        (!extensions.gl_arb_vertex_buffer_object || !extensions.gl_arb_map_buffer_range)
-    {
+    if !(version >= &Version(Api::Gl, 1, 5)) && !(version >= &Version(Api::GlEs, 2, 0)) &&
+       (!extensions.gl_arb_vertex_buffer_object || !extensions.gl_arb_map_buffer_range) {
         result.push("OpenGL implementation doesn't support buffer objects");
     }
 
-    if !(version >= &Version(Api::Gl, 2, 0)) &&
-        !(version >= &Version(Api::GlEs, 2, 0)) &&
-        (!extensions.gl_arb_shader_objects ||
-            !extensions.gl_arb_vertex_shader || !extensions.gl_arb_fragment_shader)
-    {
+    if !(version >= &Version(Api::Gl, 2, 0)) && !(version >= &Version(Api::GlEs, 2, 0)) &&
+       (!extensions.gl_arb_shader_objects || !extensions.gl_arb_vertex_shader ||
+        !extensions.gl_arb_fragment_shader) {
         result.push("OpenGL implementation doesn't support vertex/fragment shaders");
     }
 
     if !extensions.gl_ext_framebuffer_object && !(version >= &Version(Api::Gl, 3, 0)) &&
-        !(version >= &Version(Api::GlEs, 2, 0)) && !extensions.gl_arb_framebuffer_object
-    {
+       !(version >= &Version(Api::GlEs, 2, 0)) && !extensions.gl_arb_framebuffer_object {
         result.push("OpenGL implementation doesn't support framebuffers");
     }
 
     if !extensions.gl_ext_framebuffer_blit && !(version >= &Version(Api::Gl, 3, 0)) &&
-        !(version >= &Version(Api::GlEs, 2, 0))
-    {
+       !(version >= &Version(Api::GlEs, 2, 0)) {
         result.push("OpenGL implementation doesn't support blitting framebuffers");
     }
 
@@ -769,14 +783,17 @@ impl Default for DebugCallbackBehavior {
 }
 
 /// The callback corresponding to `DebugMessageOnError`.
-fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: debug::Severity,
-                          _: u32, report_debug_output_errors: bool, message: &str)
-{
+fn default_debug_callback(_: debug::Source,
+                          ty: debug::MessageType,
+                          severity: debug::Severity,
+                          _: u32,
+                          report_debug_output_errors: bool,
+                          message: &str) {
     match severity {
         debug::Severity::Medium => (),
         debug::Severity::High => (),
-        _ => return
-    };
+        _ => return,
+    }
 
     match ty {
         debug::MessageType::Error => (),
@@ -784,33 +801,36 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
         debug::MessageType::UndefinedBehavior => (),
         debug::MessageType::Portability => (),
         _ => return,
-    };
+    }
 
     if report_debug_output_errors {
-        print!("Debug message with high or medium severity: `{}`.\n\
-                Please report this error: https://github.com/tomaka/glium/issues\n\
-                Backtrace:",
-                message);
+        print!("Debug message with high or medium severity: `{}`.\nPlease report this error: \
+                https://github.com/tomaka/glium/issues\nBacktrace:",
+               message);
 
         let mut frame_id = 1;
         backtrace::trace(&mut |frame| {
             let ip = frame.ip();
             print!("\n{:>#4} - {:p}", frame_id, ip);
 
-            backtrace::resolve(ip, &mut |symbol| {
-                let name = String::from_utf8(symbol.name()
-                                                   .unwrap_or(&b"<unknown>"[..])
-                                                   .to_owned())
-                                .unwrap_or_else(|_| "<not-utf8>".to_owned());
-                let filename = String::from_utf8(symbol.filename()
-                                                       .unwrap_or(&b"<unknown>"[..])
-                                                       .to_owned())
-                                    .unwrap_or_else(|_| "<not-utf8>".to_owned());
-                let line = symbol.lineno().map(|l| l.to_string())
-                                          .unwrap_or_else(|| "??".to_owned());
+            backtrace::resolve(ip,
+                               &mut |symbol| {
+                                   let name =
+                                       String::from_utf8(symbol.name()
+                                                               .unwrap_or(&b"<unknown>"[..])
+                                                               .to_owned())
+                                           .unwrap_or_else(|_| "<not-utf8>".to_owned());
+                                   let filename =
+                                       String::from_utf8(symbol.filename()
+                                                               .unwrap_or(&b"<unknown>"[..])
+                                                               .to_owned())
+                                           .unwrap_or_else(|_| "<not-utf8>".to_owned());
+                                   let line = symbol.lineno()
+                                                    .map(|l| l.to_string())
+                                                    .unwrap_or_else(|| "??".to_owned());
 
-                print!("\n         {} at {}:{}", name, filename, line);
-            });
+                                   print!("\n         {} at {}:{}", name, filename, line);
+                               });
 
             frame_id += 1;
             true
@@ -821,23 +841,31 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 }
 
 /// The callback corresponding to `DebugMessageOnError`.
-fn printall_debug_callback(source: debug::Source, ty: debug::MessageType, severity: debug::Severity,
-                           id: u32, _: bool, message: &str)
-{
+fn printall_debug_callback(source: debug::Source,
+                           ty: debug::MessageType,
+                           severity: debug::Severity,
+                           id: u32,
+                           _: bool,
+                           message: &str) {
     println!("Source: {src:?}\t\tSeverity: {sev:?}\t\tType: {ty:?}\t\tId: {id}\n{msg}",
-              src = source, sev = severity, ty = ty, id = id, msg = message);
+             src = source,
+             sev = severity,
+             ty = ty,
+             id = id,
+             msg = message);
 }
 
 /// Initializes `GL_KHR_debug`, `GL_ARB_debug`, or a similar extension so that the debug output
 /// is reported.
 fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
     // this is the C callback
-    extern "system" fn callback_wrapper(source: gl::types::GLenum, ty: gl::types::GLenum,
-                                        id: gl::types::GLuint, severity: gl::types::GLenum,
+    extern "system" fn callback_wrapper(source: gl::types::GLenum,
+                                        ty: gl::types::GLenum,
+                                        id: gl::types::GLuint,
+                                        severity: gl::types::GLenum,
                                         _length: gl::types::GLsizei,
                                         message: *const gl::types::GLchar,
-                                        user_param: *mut libc::c_void)
-    {
+                                        user_param: *mut libc::c_void) {
         // note that we transmute the user param into a proper context
         // in order to enforce safety here, the context disables debug output and flushes in its
         // destructor
@@ -882,7 +910,11 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
 
         if let Some(callback) = user_param.debug_callback.as_mut() {
             // FIXME: catch_panic here once it's stable
-            callback(source, ty, severity, id, user_param.report_debug_output_errors.get(),
+            callback(source,
+                     ty,
+                     severity,
+                     id,
+                     user_param.report_debug_output_errors.get(),
                      &message);
         }
     }
@@ -894,9 +926,9 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
     unsafe {
         let mut ctxt = context.make_current();
 
-        if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.version >= &Version(Api::GlEs, 3, 2) ||
-           ctxt.extensions.gl_khr_debug || ctxt.extensions.gl_arb_debug_output
-        {
+        if ctxt.version >= &Version(Api::Gl, 4, 5) ||
+           ctxt.version >= &Version(Api::GlEs, 3, 2) || ctxt.extensions.gl_khr_debug ||
+           ctxt.extensions.gl_arb_debug_output {
             if synchronous {
                 if ctxt.state.enabled_debug_output_synchronous != true {
                     ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
@@ -906,25 +938,30 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                ctxt.version >= &Version(Api::GlEs, 3, 2) ||
-               (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
-            {
-                ctxt.gl.DebugMessageCallback(callback_wrapper, context_raw_ptr.0
-                                                                 as *const libc::c_void);
-                ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
-                                            ptr::null(), gl::TRUE);
+               (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug) {
+                ctxt.gl.DebugMessageCallback(callback_wrapper,
+                                             context_raw_ptr.0 as *const libc::c_void);
+                ctxt.gl.DebugMessageControl(gl::DONT_CARE,
+                                            gl::DONT_CARE,
+                                            gl::DONT_CARE,
+                                            0,
+                                            ptr::null(),
+                                            gl::TRUE);
 
                 if ctxt.state.enabled_debug_output != Some(true) {
                     ctxt.gl.Enable(gl::DEBUG_OUTPUT);
                     ctxt.state.enabled_debug_output = Some(true);
                 }
 
-            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) &&
-                      ctxt.extensions.gl_khr_debug
-            {
-                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, context_raw_ptr.0
-                                                                 as *const libc::c_void);
-                ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
-                                               ptr::null(), gl::TRUE);
+            } else if ctxt.version >= &Version(Api::GlEs, 2, 0) && ctxt.extensions.gl_khr_debug {
+                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper,
+                                                context_raw_ptr.0 as *const libc::c_void);
+                ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE,
+                                               gl::DONT_CARE,
+                                               gl::DONT_CARE,
+                                               0,
+                                               ptr::null(),
+                                               gl::TRUE);
 
                 if ctxt.state.enabled_debug_output != Some(true) {
                     ctxt.gl.Enable(gl::DEBUG_OUTPUT);
@@ -932,10 +969,14 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                 }
 
             } else {
-                ctxt.gl.DebugMessageCallbackARB(callback_wrapper, context_raw_ptr.0
-                                                                    as *const libc::c_void);
-                ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
-                                               0, ptr::null(), gl::TRUE);
+                ctxt.gl.DebugMessageCallbackARB(callback_wrapper,
+                                                context_raw_ptr.0 as *const libc::c_void);
+                ctxt.gl.DebugMessageControlARB(gl::DONT_CARE,
+                                               gl::DONT_CARE,
+                                               gl::DONT_CARE,
+                                               0,
+                                               ptr::null(),
+                                               gl::TRUE);
 
                 ctxt.state.enabled_debug_output = Some(true);
             }

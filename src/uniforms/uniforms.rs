@@ -11,7 +11,10 @@ impl Uniforms for EmptyUniforms {
 }
 
 /// Stores uniforms.
-pub struct UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
+pub struct UniformsStorage<'n, T, R>
+    where T: AsUniformValue,
+          R: Uniforms
+{
     name: &'n str,
     value: T,
     rest: R,
@@ -20,9 +23,7 @@ pub struct UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
 impl<'n, T> UniformsStorage<'n, T, EmptyUniforms> where T: AsUniformValue {
     /// Builds a new storage with a value.
     #[inline]
-    pub fn new(name: &'n str, value: T)
-               -> UniformsStorage<'n, T, EmptyUniforms>
-    {
+    pub fn new(name: &'n str, value: T) -> UniformsStorage<'n, T, EmptyUniforms> {
         UniformsStorage {
             name: name,
             value: value,
@@ -34,9 +35,11 @@ impl<'n, T> UniformsStorage<'n, T, EmptyUniforms> where T: AsUniformValue {
 impl<'n, T, R> UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
     /// Adds a value to the storage.
     #[inline]
-    pub fn add<U>(self, name: &'n str, value: U)
+    pub fn add<U>(self,
+                  name: &'n str,
+                  value: U)
                   -> UniformsStorage<'n, U, UniformsStorage<'n, T, R>>
-                  where U: AsUniformValue
+        where U: AsUniformValue
     {
         UniformsStorage {
             name: name,

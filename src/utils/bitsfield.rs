@@ -8,9 +8,7 @@ pub struct Bitsfield {
 impl Bitsfield {
     #[inline]
     pub fn new() -> Bitsfield {
-        Bitsfield {
-            data: [0xffffffff; NUM_DWORDS],
-        }
+        Bitsfield { data: [0xffffffff; NUM_DWORDS] }
     }
 
     #[inline]
@@ -107,7 +105,7 @@ mod tests {
     #[test]
     fn get_unused2() {
         let mut bitsfield = Bitsfield::new();
-        for i in (0 .. 34) {
+        for i in (0..34) {
             bitsfield.set_used(i);
         }
         assert_eq!(bitsfield.get_unused(), Some(34))

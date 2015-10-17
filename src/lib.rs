@@ -106,8 +106,9 @@ extern crate smallvec;
 #[cfg(feature = "glutin")]
 pub use backend::glutin_backend::glutin;
 pub use draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
-pub use draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
-pub use draw_parameters::{Smooth};
+pub use draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest,
+                          StencilOperation};
+pub use draw_parameters::Smooth;
 pub use index::IndexBuffer;
 pub use vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use program::{Program, ProgramCreationError};
@@ -285,15 +286,20 @@ trait ProgramExt {
     fn use_program(&self, ctxt: &mut context::CommandContext);
 
     /// Changes the value of a uniform of the program.
-    fn set_uniform(&self, ctxt: &mut context::CommandContext, uniform_location: gl::types::GLint,
+    fn set_uniform(&self,
+                   ctxt: &mut context::CommandContext,
+                   uniform_location: gl::types::GLint,
                    value: &RawUniformValue);
 
     /// Changes the uniform block binding of the program.
-    fn set_uniform_block_binding(&self, ctxt: &mut context::CommandContext,
-                                 block_location: gl::types::GLuint, value: gl::types::GLuint);
+    fn set_uniform_block_binding(&self,
+                                 ctxt: &mut context::CommandContext,
+                                 block_location: gl::types::GLuint,
+                                 value: gl::types::GLuint);
 
     /// Changes the shader storage block binding of the program.
-    fn set_shader_storage_block_binding(&self, ctxt: &mut context::CommandContext,
+    fn set_shader_storage_block_binding(&self,
+                                        ctxt: &mut context::CommandContext,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint);
 
@@ -343,12 +349,16 @@ trait TextureExt {
 /// Internal trait for textures.
 trait TextureMipmapExt {
     /// Changes some parts of the texture.
-    fn upload_texture<'a, P>(&self, x_offset: u32, y_offset: u32, z_offset: u32,
-                             (image_format::ClientFormatAny, std::borrow::Cow<'a, [P]>), width: u32,
-                             height: Option<u32>, depth: Option<u32>,
+    fn upload_texture<'a, P>(&self,
+                             x_offset: u32,
+                             y_offset: u32,
+                             z_offset: u32,
+                             (image_format::ClientFormatAny, std::borrow::Cow<'a, [P]>),
+                             width: u32,
+                             height: Option<u32>,
+                             depth: Option<u32>,
                              regen_mipmaps: bool)
-                             -> Result<(), ()>   // TODO return a better Result!?
-                             where P: Send + Copy + Clone + 'a;
+                             -> Result<(), ()> where P: Send + Copy + Clone + 'a;
 
     fn download_compressed_data(&self) -> Option<(image_format::ClientFormatAny, Vec<u8>)>;
 }
@@ -372,7 +382,10 @@ trait UniformsExt {
     /// Binds the uniforms to a given program.
     ///
     /// Will replace texture and buffer bind points.
-    fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P, &mut Vec<buffer::Inserter<'a>>)
+    fn bind_uniforms<'a, P>(&'a self,
+                            &mut CommandContext,
+                            &P,
+                            &mut Vec<buffer::Inserter<'a>>)
                             -> Result<(), DrawError> where P: ProgramExt;
 }
 
@@ -665,8 +678,12 @@ pub struct BlitTarget {
 ///
 pub trait Surface {
     /// Clears some attachments of the target.
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>);
+    fn clear(&mut self,
+             rect: Option<&Rect>,
+             color: Option<(f32, f32, f32, f32)>,
+             color_srgb: bool,
+             depth: Option<f32>,
+             stencil: Option<i32>);
 
     /// Clears the color attachment of the target.
     fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
@@ -753,23 +770,35 @@ pub trait Surface {
     ///
     /// See above for what happens exactly on the GPU when you draw.
     ///
-    fn draw<'a, 'b, V, I, U>(&mut self, V, I, program: &Program, uniforms: &U,
-        draw_parameters: &DrawParameters) -> Result<(), DrawError> where
-        V: vertex::MultiVerticesSource<'b>, I: Into<index::IndicesSource<'a>>,
-        U: uniforms::Uniforms;
+    fn draw<'a, 'b, V, I, U>(&mut self,
+                             V,
+                             I,
+                             program: &Program,
+                             uniforms: &U,
+                             draw_parameters: &DrawParameters)
+                             -> Result<(), DrawError>
+        where V: vertex::MultiVerticesSource<'b>,
+              I: Into<index::IndicesSource<'a>>,
+              U: uniforms::Uniforms;
 
     /// Blits from the default framebuffer.
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+    fn blit_from_frame(&self,
+                       source_rect: &Rect,
+                       target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter);
 
     /// Blits from a simple framebuffer.
-    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
+    fn blit_from_simple_framebuffer(&self,
+                                    source: &framebuffer::SimpleFrameBuffer,
+                                    source_rect: &Rect,
+                                    target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter);
 
     /// Blits from a multi-output framebuffer.
-    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
+    fn blit_from_multioutput_framebuffer(&self,
+                                         source: &framebuffer::MultiOutputFrameBuffer,
+                                         source_rect: &Rect,
+                                         target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter);
 
     /// Copies a rectangle of pixels from this surface to another surface.
@@ -784,26 +813,49 @@ pub trait Surface {
     ///
     /// Note that there is no alpha blending, depth/stencil checking, etc. This function just
     /// copies pixels.
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
+    fn blit_color<S>(&self,
+                     source_rect: &Rect,
+                     target: &S,
+                     target_rect: &BlitTarget,
                      filter: uniforms::MagnifySamplerFilter) where S: Surface;
 
     /// Copies the entire surface to a target surface. See `blit_color`.
     #[inline]
-    fn blit_whole_color_to<S>(&self, target: &S, target_rect: &BlitTarget,
-        filter: uniforms::MagnifySamplerFilter) where S: Surface
+    fn blit_whole_color_to<S>(&self,
+                              target: &S,
+                              target_rect: &BlitTarget,
+                              filter: uniforms::MagnifySamplerFilter)
+        where S: Surface
     {
         let src_dim = self.get_dimensions();
-        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
+        let src_rect = Rect {
+            left: 0,
+            bottom: 0,
+            width: src_dim.0 as u32,
+            height: src_dim.1 as u32,
+        };
         self.blit_color(&src_rect, target, target_rect, filter)
     }
 
     /// Copies the entire surface to the entire target. See `blit_color`.
     #[inline]
-    fn fill<S>(&self, target: &S, filter: uniforms::MagnifySamplerFilter) where S: Surface {
+    fn fill<S>(&self, target: &S, filter: uniforms::MagnifySamplerFilter)
+        where S: Surface
+    {
         let src_dim = self.get_dimensions();
-        let src_rect = Rect { left: 0, bottom: 0, width: src_dim.0 as u32, height: src_dim.1 as u32 };
+        let src_rect = Rect {
+            left: 0,
+            bottom: 0,
+            width: src_dim.0 as u32,
+            height: src_dim.1 as u32,
+        };
         let target_dim = target.get_dimensions();
-        let target_rect = BlitTarget { left: 0, bottom: 0, width: target_dim.0 as i32, height: target_dim.1 as i32 };
+        let target_rect = BlitTarget {
+            left: 0,
+            bottom: 0,
+            width: target_dim.0 as i32,
+            height: target_dim.1 as i32,
+        };
         self.blit_color(&src_rect, target, &target_rect, filter)
     }
 }
@@ -907,64 +959,79 @@ pub enum DrawError {
 impl std::fmt::Display for DrawError {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         match self {
-            &DrawError::NoDepthBuffer => write!(fmt, "A depth function has been requested but no \
-                                                      depth buffer is available."),
-            &DrawError::AttributeTypeMismatch => write!(fmt, "The type of a vertex attribute in \
-                                                              the vertices source doesn't match \
-                                                              what the program requires."),
-            &DrawError::AttributeMissing => write!(fmt, "One of the attributes required by the \
-                                                         program is missing from the vertex \
-                                                         format."),
-            &DrawError::ViewportTooLarge => write!(fmt, "The viewport's dimensions are not \
-                                                         supported by the backend."),
-            &DrawError::InvalidDepthRange => write!(fmt, "The depth range is outside of the \
-                                                          `(0, 1)` range."),
+            &DrawError::NoDepthBuffer =>
+                write!(fmt,
+                       "A depth function has been requested but no depth buffer is available."),
+            &DrawError::AttributeTypeMismatch =>
+                write!(fmt,
+                       "The type of a vertex attribute in the vertices source doesn't match what \
+                        the program requires."),
+            &DrawError::AttributeMissing => write!(fmt,
+                                                   "One of the attributes required by the \
+                                                    program is missing from the vertex format."),
+            &DrawError::ViewportTooLarge =>
+                write!(fmt,
+                       "The viewport's dimensions are not supported by the backend."),
+            &DrawError::InvalidDepthRange =>
+                write!(fmt, "The depth range is outside of the `(0, 1)` range."),
             &DrawError::UniformTypeMismatch { ref name, ref expected } => {
-                write!(fmt, "The type of a uniform doesn't match what the program requires.")
-            },
-            &DrawError::UniformBufferToValue { ref name } => write!(fmt, "Tried to bind a uniform \
-                                                                          buffer to a single \
-                                                                          uniform value."),
+                write!(fmt,
+                       "The type of a uniform doesn't match what the program requires.")
+            }
+            &DrawError::UniformBufferToValue { ref name } =>
+                write!(fmt,
+                       "Tried to bind a uniform buffer to a single uniform value."),
             &DrawError::UniformValueToBlock { ref name } => {
-                write!(fmt, "Tried to bind a single uniform value to a uniform block.")
-            },
+                write!(fmt,
+                       "Tried to bind a single uniform value to a uniform block.")
+            }
             &DrawError::UniformBlockLayoutMismatch { ref name, .. } => {
-                write!(fmt, "The layout of the content of the uniform buffer does not match \
-                             the layout of the block.")
-            },
-            &DrawError::UnsupportedVerticesPerPatch => write!(fmt, "The number of vertices per \
-                                                                    patch that has been requested \
-                                                                    is not supported."),
-            &DrawError::TessellationNotSupported => write!(fmt, "Trying to use tessellation, but \
-                                                                 this is not supported by the \
-                                                                 underlying hardware."),
-            &DrawError::TessellationWithoutPatches => write!(fmt, "Using a program which contains \
-                                                                   tessellation shaders, but \
-                                                                   without submitting patches."),
-            &DrawError::SamplersNotSupported => write!(fmt, "Trying to use a sampler, but they are \
-                                                             not supported by the backend."),
-            &DrawError::InstancesCountMismatch => write!(fmt, "When you use instancing, all \
-                                                               vertices sources must have the \
-                                                               same size"),
-            &DrawError::VerticesSourcesLengthMismatch => write!(fmt, "If you don't use indices, \
-                                                                      then all vertices sources \
-                                                                      must have the same size."),
-            &DrawError::TransformFeedbackNotSupported => write!(fmt, "Requested not to draw \
-                                                                      primitves, but this is not \
-                                                                      supported by the backend."),
+                write!(fmt,
+                       "The layout of the content of the uniform buffer does not match the layout \
+                        of the block.")
+            }
+            &DrawError::UnsupportedVerticesPerPatch =>
+                write!(fmt,
+                       "The number of vertices per patch that has been requested is not supported."),
+            &DrawError::TessellationNotSupported =>
+                write!(fmt,
+                       "Trying to use tessellation, but this is not supported by the underlying \
+                        hardware."),
+            &DrawError::TessellationWithoutPatches =>
+                write!(fmt,
+                       "Using a program which contains tessellation shaders, but without \
+                        submitting patches."),
+            &DrawError::SamplersNotSupported =>
+                write!(fmt,
+                       "Trying to use a sampler, but they are not supported by the backend."),
+            &DrawError::InstancesCountMismatch =>
+                write!(fmt,
+                       "When you use instancing, all vertices sources must have the same size"),
+            &DrawError::VerticesSourcesLengthMismatch =>
+                write!(fmt,
+                       "If you don't use indices, then all vertices sources must have the same \
+                        size."),
+            &DrawError::TransformFeedbackNotSupported =>
+                write!(fmt,
+                       "Requested not to draw primitves, but this is not supported by the backend."),
             &DrawError::WrongQueryOperation => write!(fmt, "Wrong query operation."),
-            &DrawError::SmoothingNotSupported => write!(fmt, "Trying to use smoothing, but this is \
-                                                              not supported by the backend."),
-            &DrawError::ProvokingVertexNotSupported => write!(fmt, "Trying to set the provoking \
-                                                                    vertex, but this is not \
-                                                                    supported by the backend."),
-            &DrawError::RasterizerDiscardNotSupported => write!(fmt, "Discarding rasterizer \
-                                                                      output is not supported by
-                                                                      the backend."),
-            &DrawError::DepthClampNotSupported => write!(fmt, "The depth clamp mode is not \
-                                                               supported by the backend."),
-            &DrawError::BlendingParameterNotSupported => write!(fmt, "One the blending parameters is not \
-                                                                      supported by the backend."),
+            &DrawError::SmoothingNotSupported =>
+                write!(fmt,
+                       "Trying to use smoothing, but this is not supported by the backend."),
+            &DrawError::ProvokingVertexNotSupported =>
+                write!(fmt,
+                       "Trying to set the provoking vertex, but this is not supported by the \
+                        backend."),
+            &DrawError::RasterizerDiscardNotSupported =>
+                write!(fmt,
+                       "Discarding rasterizer output is not supported by
+                                                                      \
+                        the backend."),
+            &DrawError::DepthClampNotSupported =>
+                write!(fmt, "The depth clamp mode is not supported by the backend."),
+            &DrawError::BlendingParameterNotSupported =>
+                write!(fmt,
+                       "One the blending parameters is not supported by the backend."),
         }
     }
 }
@@ -998,7 +1065,7 @@ pub enum SwapBuffersError {
 pub struct Frame {
     context: Rc<Context>,
     dimensions: (u32, u32),
-    destroyed: bool,        // TODO: use a linear type instead.
+    destroyed: bool, // TODO: use a linear type instead.
 }
 
 impl Frame {
@@ -1037,9 +1104,12 @@ impl Frame {
 
 impl Surface for Frame {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>)
-    {
+    fn clear(&mut self,
+             rect: Option<&Rect>,
+             color: Option<(f32, f32, f32, f32)>,
+             color_srgb: bool,
+             depth: Option<f32>,
+             stencil: Option<i32>) {
         ops::clear(&self.context, None, None, color, color_srgb, depth, stencil);
     }
 
@@ -1055,66 +1125,94 @@ impl Surface for Frame {
         self.context.capabilities().stencil_bits
     }
 
-    fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
-                         index_buffer: I, program: &Program, uniforms: &U,
-                         draw_parameters: &DrawParameters) -> Result<(), DrawError>
-                         where I: Into<index::IndicesSource<'a>>, U: uniforms::Uniforms,
-                         V: vertex::MultiVerticesSource<'b>
+    fn draw<'a, 'b, V, I, U>(&mut self,
+                             vertex_buffer: V,
+                             index_buffer: I,
+                             program: &Program,
+                             uniforms: &U,
+                             draw_parameters: &DrawParameters)
+                             -> Result<(), DrawError>
+        where I: Into<index::IndicesSource<'a>>,
+              U: uniforms::Uniforms,
+              V: vertex::MultiVerticesSource<'b>
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
-                draw_parameters.depth.write)
-        {
+        if !self.has_depth_buffer() &&
+           (draw_parameters.depth.test.requires_depth_buffer() || draw_parameters.depth.write) {
             return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.context.capabilities().max_viewport_dims.0
-                    as u32
-            {
+            if viewport.width > self.context.capabilities().max_viewport_dims.0 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.context.capabilities().max_viewport_dims.1
-                    as u32
-            {
+            if viewport.height > self.context.capabilities().max_viewport_dims.1 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
-        ops::draw(&self.context, None, vertex_buffer, index_buffer.into(), program,
-                  uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
+        ops::draw(&self.context,
+                  None,
+                  vertex_buffer,
+                  index_buffer.into(),
+                  program,
+                  uniforms,
+                  draw_parameters,
+                  (self.dimensions.0 as u32, self.dimensions.1 as u32))
     }
 
     #[inline]
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    fn blit_color<S>(&self,
+                     source_rect: &Rect,
+                     target: &S,
+                     target_rect: &BlitTarget,
+                     filter: uniforms::MagnifySamplerFilter)
+        where S: Surface
     {
         target.blit_from_frame(source_rect, target_rect, filter)
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_frame(&self,
+                       source_rect: &Rect,
+                       target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  None,
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_simple_framebuffer(&self,
+                                    source: &framebuffer::SimpleFrameBuffer,
+                                    source_rect: &Rect,
+                                    target_rect: &BlitTarget,
+                                    filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_multioutput_framebuffer(&self,
+                                         source: &framebuffer::MultiOutputFrameBuffer,
+                                         source_rect: &Rect,
+                                         target_rect: &BlitTarget,
+                                         filter: uniforms::MagnifySamplerFilter) {
+        ops::blit(&self.context,
+                  source.get_attachments(),
+                  self.get_attachments(),
+                  gl::COLOR_BUFFER_BIT,
+                  source_rect,
+                  target_rect,
+                  filter.to_glenum())
     }
 }
 
@@ -1129,8 +1227,8 @@ impl Drop for Frame {
     #[inline]
     fn drop(&mut self) {
         if !thread::panicking() {
-            assert!(self.destroyed, "The `Frame` object must be explicitly destroyed \
-                                     by calling `.finish()`");
+            assert!(self.destroyed,
+                    "The `Frame` object must be explicitly destroyed by calling `.finish()`");
         }
     }
 }
@@ -1147,7 +1245,9 @@ pub trait DisplayBuild {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium
     /// are supported by the implementation.
-    fn build_glium(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
+    fn build_glium(self) -> Result<Self::Facade, Self::Err>
+        where Self: Sized
+    {
         self.build_glium_debug(Default::default())
     }
 
@@ -1161,7 +1261,9 @@ pub trait DisplayBuild {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
+    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err>
+        where Self: Sized
+    {
         self.build_glium_unchecked_debug(Default::default())
     }
 
@@ -1169,7 +1271,8 @@ pub trait DisplayBuild {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked_debug(self, debug::DebugCallbackBehavior)
+    unsafe fn build_glium_unchecked_debug(self,
+                                          debug::DebugCallbackBehavior)
                                           -> Result<Self::Facade, Self::Err>;
 
     /// Changes the settings of an existing facade.
@@ -1198,7 +1301,8 @@ impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
     fn description(&self) -> &str {
         match self {
             &GliumCreationError::BackendCreationError(_) => "Error while creating the backend",
-            &GliumCreationError::IncompatibleOpenGl(_) => "The OpenGL implementation is too old to work with glium",
+            &GliumCreationError::IncompatibleOpenGl(_) =>
+                "The OpenGL implementation is too old to work with glium",
         }
     }
 
@@ -1231,6 +1335,6 @@ fn get_gl_error(ctxt: &mut context::CommandContext) -> Option<&'static str> {
         gl::STACK_UNDERFLOW => Some("GL_STACK_UNDERFLOW"),
         gl::STACK_OVERFLOW => Some("GL_STACK_OVERFLOW"),
         gl::CONTEXT_LOST => Some("GL_CONTEXT_LOST"),
-        _ => Some("Unknown glGetError return value")
+        _ => Some("Unknown glGetError return value"),
     }
 }

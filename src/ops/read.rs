@@ -32,10 +32,11 @@ impl<'a> From<&'a fbo::RegularAttachment<'a>> for Source<'a> {
 }
 
 /// A destination for reading pixels.
-pub enum Destination<'a, P> where P: PixelValue {
+pub enum Destination<'a, P>
+    where P: PixelValue
+{
     Memory(&'a mut Vec<P>),
-    PixelBuffer(&'a PixelBuffer<P>),
-    // TODO: texture with glCopyTexSubImage2D
+    PixelBuffer(&'a PixelBuffer<P>), // TODO: texture with glCopyTexSubImage2D
 }
 
 impl<'a, P> From<&'a mut Vec<P>> for Destination<'a, P> where P: PixelValue {
@@ -68,9 +69,7 @@ pub enum ReadError {
     AttachmentTypeNotSupported,
 
     /// Clamping the values is not supported by the implementation.
-    ClampingNotSupported,
-
-    // TODO: context lost
+    ClampingNotSupported, // TODO: context lost
 }
 
 /// Reads pixels from the source into the destination.
@@ -80,10 +79,15 @@ pub enum ReadError {
 /// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
 // TODO: differentiate between GL_* and GL_*_INTEGER
 #[inline]
-pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D,
-                         clamp: bool) -> Result<(), ReadError>
-                         where S: Into<Source<'a>>, D: Into<Destination<'a, T>>,
-                               T: PixelValue
+pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext,
+                         source: S,
+                         rect: &Rect,
+                         dest: D,
+                         clamp: bool)
+                         -> Result<(), ReadError>
+    where S: Into<Source<'a>>,
+          D: Into<Destination<'a, T>>,
+          T: PixelValue
 {
     let source = source.into();
     let dest = dest.into();
@@ -123,29 +127,34 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
     // binding framebuffer
     match source {
         Source::Attachment(attachment) => {
-            unsafe { FramebuffersContainer::bind_framebuffer_for_reading(&mut ctxt, attachment) };
-        },
+            unsafe { FramebuffersContainer::bind_framebuffer_for_reading(&mut ctxt, attachment) }
+        }
         Source::DefaultFramebuffer(read_buffer) => {
             FramebuffersContainer::bind_default_framebuffer_for_reading(&mut ctxt, read_buffer);
-        },
-    };
+        }
+    }
 
     // determining what kind of data we are reading
-    enum ReadSourceType { Color, Depth, Stencil, DepthStencil }
+    enum ReadSourceType {
+        Color,
+        Depth,
+        Stencil,
+        DepthStencil,
+    }
     let read_src_type = match source {
         Source::Attachment(attachment) => {
             match attachment {
                 &fbo::RegularAttachment::Texture(ref tex) => {
                     ReadSourceType::Color       // FIXME: wrong
-                },
+                }
                 &fbo::RegularAttachment::RenderBuffer(ref rb) => {
                     ReadSourceType::Color       // FIXME: wrong
-                },
+                }
             }
-        },
+        }
         Source::DefaultFramebuffer(read_buffer) => {
             ReadSourceType::Color       // FIXME: wrong
-        },
+        }
     };
 
     // OpenGL ES doesn't support reading from depth, stencil or depth-stencil attachments by default
@@ -168,15 +177,15 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
     let (format, gltype) = match read_src_type {
         ReadSourceType::Color => client_format_to_gl_enum(&output_pixel_format),
         ReadSourceType::Depth => {
-            unimplemented!()        // TODO: 
+            unimplemented!()        // TODO:
             // TODO: NV_depth_buffer_float2
             //(gl::DEPTH_COMPONENT, )
-        },
+        }
         ReadSourceType::DepthStencil => unimplemented!(),        // FIXME: only 24_8 is possible and there's no client format in the enum that corresponds to 24_8
         ReadSourceType::Stencil => {
-            unimplemented!()        // TODO: 
+            unimplemented!()        // TODO:
             //(gl::STENCIL_INDEX, )
-        },
+        }
     };
 
     // reading
@@ -202,28 +211,34 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
                     ctxt.gl.PixelStorei(gl::PACK_ALIGNMENT, 1);
                 }
 
-                ctxt.gl.ReadPixels(rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
+                ctxt.gl.ReadPixels(rect.left as gl::types::GLint,
+                                   rect.bottom as gl::types::GLint,
                                    rect.width as gl::types::GLsizei,
-                                   rect.height as gl::types::GLsizei, format, gltype,
+                                   rect.height as gl::types::GLsizei,
+                                   format,
+                                   gltype,
                                    buf.as_mut_ptr() as *mut _);
                 buf.set_len(pixels_to_read as usize);
 
                 *dest = buf;
-            },
+            }
 
             Destination::PixelBuffer(pixel_buffer) => {
                 assert!(pixel_buffer.len() >= pixels_to_read as usize);
 
                 pixel_buffer.prepare_and_bind_for_pixel_pack(&mut ctxt);
-                ctxt.gl.ReadPixels(rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
+                ctxt.gl.ReadPixels(rect.left as gl::types::GLint,
+                                   rect.bottom as gl::types::GLint,
                                    rect.width as gl::types::GLsizei,
-                                   rect.height as gl::types::GLsizei, format, gltype,
+                                   rect.height as gl::types::GLsizei,
+                                   format,
+                                   gltype,
                                    ptr::null_mut());
 
                 ::pixel_buffer::store_infos(pixel_buffer, (rect.width, rect.height));
             }
         }
-    };
+    }
 
     Ok(())
 }

@@ -36,7 +36,9 @@ pub struct SyncFence {
 impl SyncFence {
     /// Builds a new `SyncFence` that is injected in the server.
     #[inline]
-    pub fn new<F>(facade: &F) -> Result<SyncFence, SyncNotSupportedError> where F: Facade {
+    pub fn new<F>(facade: &F) -> Result<SyncFence, SyncNotSupportedError>
+        where F: Facade
+    {
         let mut ctxt = facade.get_context().make_current();
         unsafe { new_linear_sync_fence(&mut ctxt) }.map(|f| f.into_sync_fence(facade))
     }
@@ -47,12 +49,12 @@ impl SyncFence {
 
         let mut ctxt = self.context.make_current();
         let result = unsafe { client_wait(&mut ctxt, sync) };
-        unsafe { delete_fence(&mut ctxt, sync) };
+        unsafe { delete_fence(&mut ctxt, sync) }
 
         match result {
             gl::ALREADY_SIGNALED | gl::CONDITION_SATISFIED => (),
-            _ => panic!("Could not wait for the fence")
-        };
+            _ => panic!("Could not wait for the fence"),
+        }
     }
 }
 
@@ -61,11 +63,11 @@ impl Drop for SyncFence {
     fn drop(&mut self) {
         let sync = match self.id {
             None => return,     // fence has already been deleted
-            Some(s) => s
+            Some(s) => s,
         };
 
         let mut ctxt = self.context.make_current();
-        unsafe { delete_fence(&mut ctxt, sync) };
+        unsafe { delete_fence(&mut ctxt, sync) }
     }
 }
 
@@ -83,10 +85,12 @@ unsafe impl Send for LinearSyncFence {}
 impl LinearSyncFence {
     /// Turns the prototype into a real fence.
     #[inline]
-    pub fn into_sync_fence<F>(mut self, facade: &F) -> SyncFence where F: Facade {
+    pub fn into_sync_fence<F>(mut self, facade: &F) -> SyncFence
+        where F: Facade
+    {
         SyncFence {
             context: facade.get_context().clone(),
-            id: self.id.take()
+            id: self.id.take(),
         }
     }
 }
@@ -101,14 +105,10 @@ impl Drop for LinearSyncFence {
 }
 
 pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext)
-                                    -> Result<LinearSyncFence, SyncNotSupportedError>
-{
-    if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
-    {
-        Ok(LinearSyncFence {
-            id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
-        })
+                                    -> Result<LinearSyncFence, SyncNotSupportedError> {
+    if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+       ctxt.extensions.gl_arb_sync {
+        Ok(LinearSyncFence { id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)) })
 
     } else if ctxt.extensions.gl_apple_sync {
         Ok(LinearSyncFence {
@@ -123,8 +123,7 @@ pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext)
 /// Waits for this fence and destroys it, from within the commands context.
 #[inline]
 pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
-                                              ctxt: &mut CommandContext)
-{
+                                              ctxt: &mut CommandContext) {
     let fence = fence.id.take().unwrap();
     client_wait(ctxt, fence);
     delete_fence(ctxt, fence);
@@ -148,8 +147,8 @@ pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext, mut fence: Li
 unsafe fn client_wait(ctxt: &mut CommandContext, fence: gl::types::GLsync) -> gl::types::GLenum {
     // trying without flushing first
     let result = if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-                    ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
-    {
+                    ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+                    ctxt.extensions.gl_arb_sync {
         ctxt.gl.ClientWaitSync(fence, 0, 0)
     } else if ctxt.extensions.gl_apple_sync {
         ctxt.gl.ClientWaitSyncAPPLE(fence, 0, 0)
@@ -161,19 +160,20 @@ unsafe fn client_wait(ctxt: &mut CommandContext, fence: gl::types::GLsync) -> gl
         val @ gl::ALREADY_SIGNALED | val @ gl::CONDITION_SATISFIED => return val,
         gl::TIMEOUT_EXPIRED => (),
         gl::WAIT_FAILED => (),
-        _ => unreachable!()
-    };
+        _ => unreachable!(),
+    }
 
     // waiting with a deadline of one year
     // the reason why the deadline is so long is because if you attach a GL debugger,
     // the wait can be blocked during a breaking point of the debugger
-    if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
-    {
-        ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
+    if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+       ctxt.extensions.gl_arb_sync {
+        ctxt.gl.ClientWaitSync(fence,
+                               gl::SYNC_FLUSH_COMMANDS_BIT,
                                365 * 24 * 3600 * 1000 * 1000 * 1000)
     } else if ctxt.extensions.gl_apple_sync {
-        ctxt.gl.ClientWaitSyncAPPLE(fence, gl::SYNC_FLUSH_COMMANDS_BIT_APPLE,
+        ctxt.gl.ClientWaitSyncAPPLE(fence,
+                                    gl::SYNC_FLUSH_COMMANDS_BIT_APPLE,
                                     365 * 24 * 3600 * 1000 * 1000 * 1000)
     } else {
         unreachable!();
@@ -188,13 +188,12 @@ unsafe fn client_wait(ctxt: &mut CommandContext, fence: gl::types::GLsync) -> gl
 ///
 #[inline]
 unsafe fn delete_fence(ctxt: &mut CommandContext, fence: gl::types::GLsync) {
-    if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
-    {
+    if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+       ctxt.extensions.gl_arb_sync {
         ctxt.gl.DeleteSync(fence);
     } else if ctxt.extensions.gl_apple_sync {
         ctxt.gl.DeleteSyncAPPLE(fence);
     } else {
         unreachable!();
-    };
+    }
 }

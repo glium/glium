@@ -94,7 +94,7 @@ impl ResidentTexture {
             }
 
             let handle = unsafe { ctxt.gl.GetTextureHandleARB(texture.get_id()) };
-            unsafe { ctxt.gl.MakeTextureHandleResidentARB(handle) };
+            unsafe { ctxt.gl.MakeTextureHandleResidentARB(handle) }
             ctxt.resident_texture_handles.push(handle);
             handle
         };
@@ -118,7 +118,7 @@ impl ResidentTexture {
 
         {
             let mut ctxt = texture.get_context().make_current();
-            unsafe { ctxt.gl.MakeTextureHandleNonResidentARB(self.handle) };
+            unsafe { ctxt.gl.MakeTextureHandleNonResidentARB(self.handle) }
             ctxt.resident_texture_handles.retain(|&t| t != self.handle);
         }
 
@@ -184,9 +184,7 @@ impl<'a> AsUniformValue for TextureHandle<'a> {
 }
 
 impl<'a> UniformBlock for TextureHandle<'a> {
-    fn matches(layout: &BlockLayout, base_offset: usize)
-               -> Result<(), LayoutMismatchError>
-    {
+    fn matches(layout: &BlockLayout, base_offset: usize) -> Result<(), LayoutMismatchError> {
         if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
             // TODO: unfortunately we have no idea what the exact type of this handle is
             //       strong typing should be considered
@@ -237,8 +235,8 @@ impl<'a> UniformBlock for TextureHandle<'a> {
 
                 _ => return Err(LayoutMismatchError::TypeMismatch {
                     expected: ty,
-                    obtained: UniformType::Sampler2d,       // TODO: wrong
-                })
+                    obtained: UniformType::Sampler2d, /* TODO: wrong */
+                }),
             }
 
             if offset_in_buffer != base_offset {
@@ -258,9 +256,9 @@ impl<'a> UniformBlock for TextureHandle<'a> {
                 Err(LayoutMismatchError::LayoutMismatch {
                     expected: layout.clone(),
                     obtained: BlockLayout::BasicType {
-                        ty: UniformType::Sampler2d,       // TODO: wrong
+                        ty: UniformType::Sampler2d, // TODO: wrong
                         offset_in_buffer: base_offset,
-                    }
+                    },
                 })
             }
 
@@ -268,9 +266,9 @@ impl<'a> UniformBlock for TextureHandle<'a> {
             Err(LayoutMismatchError::LayoutMismatch {
                 expected: layout.clone(),
                 obtained: BlockLayout::BasicType {
-                    ty: UniformType::Sampler2d,       // TODO: wrong
+                    ty: UniformType::Sampler2d, // TODO: wrong
                     offset_in_buffer: base_offset,
-                }
+                },
             })
         }
     }
@@ -278,7 +276,7 @@ impl<'a> UniformBlock for TextureHandle<'a> {
     #[inline]
     fn build_layout(base_offset: usize) -> BlockLayout {
         BlockLayout::BasicType {
-            ty: UniformType::Sampler2d,       // TODO: wrong
+            ty: UniformType::Sampler2d, // TODO: wrong
             offset_in_buffer: base_offset,
         }
     }

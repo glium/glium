@@ -16,7 +16,7 @@ pub enum SamplerWrapFunction {
     Clamp,
 
     /// Same as Mirror, but only for one repetition,
-    MirrorClamp
+    MirrorClamp,
 }
 
 impl ToGlEnum for SamplerWrapFunction {
@@ -155,11 +155,9 @@ impl Default for SamplerBehavior {
     #[inline]
     fn default() -> SamplerBehavior {
         SamplerBehavior {
-            wrap_function: (
-                SamplerWrapFunction::Mirror,
-                SamplerWrapFunction::Mirror,
-                SamplerWrapFunction::Mirror
-            ),
+            wrap_function: (SamplerWrapFunction::Mirror,
+                            SamplerWrapFunction::Mirror,
+                            SamplerWrapFunction::Mirror),
             minify_filter: MinifySamplerFilter::LinearMipmapLinear,
             magnify_filter: MagnifySamplerFilter::Linear,
             max_anisotropy: 1,

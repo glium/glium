@@ -89,7 +89,7 @@ impl InternalFormat {
             &InternalFormat::TwoComponents { bits1, bits2, .. } => bits1 + bits2,
             &InternalFormat::ThreeComponents { bits1, bits2, bits3, .. } => bits1 + bits2 + bits3,
             &InternalFormat::FourComponents { bits1, bits2, bits3, bits4, .. } =>
-                                                                    bits1 + bits2 + bits3 + bits4,
+                bits1 + bits2 + bits3 + bits4,
         }
     }
 }
@@ -128,9 +128,9 @@ impl InternalFormatType {
 /// Determines the format of a texture.
 ///
 /// A `TextureAny` is guaranteed to have the same format for each mipmap.
-pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
-                  -> Result<InternalFormat, GetFormatError>
-{
+pub fn get_format(ctxt: &mut CommandContext,
+                  texture: &TextureAny)
+                  -> Result<InternalFormat, GetFormatError> {
     if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
         let (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
              alpha_sz, alpha_ty, depth_sz, depth_ty) = unsafe
@@ -213,9 +213,16 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
              depth_sz as gl::types::GLenum, depth_ty as gl::types::GLenum)
         };
 
-        Ok(match (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
-               alpha_sz, alpha_ty, depth_sz, depth_ty)
-        {
+        Ok(match (red_sz,
+                  red_ty,
+                  green_sz,
+                  green_ty,
+                  blue_sz,
+                  blue_ty,
+                  alpha_sz,
+                  alpha_ty,
+                  depth_sz,
+                  depth_ty) {
             (_, gl::NONE, _, _, _, _, _, _, sz1, ty1) => InternalFormat::OneComponent {
                 ty1: InternalFormatType::from_glenum(ty1),
                 bits1: sz1 as usize,
@@ -238,7 +245,8 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
                 ty3: InternalFormatType::from_glenum(ty3),
                 bits3: sz3 as usize,
             },
-            (sz1, ty1, sz2, ty2, sz3, ty3, sz4, ty4, _, gl::NONE) => InternalFormat::FourComponents {
+            (sz1, ty1, sz2, ty2, sz3, ty3, sz4, ty4, _, gl::NONE) =>
+                InternalFormat::FourComponents {
                 ty1: InternalFormatType::from_glenum(ty1),
                 bits1: sz1 as usize,
                 ty2: InternalFormatType::from_glenum(ty2),
@@ -248,11 +256,11 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
                 ty4: InternalFormatType::from_glenum(ty4),
                 bits4: sz4 as usize,
             },
-            _ => unreachable!()
+            _ => unreachable!(),
         })
 
     } else {
-        // FIXME: GL2 
+        // FIXME: GL2
         Err(GetFormatError::NotSupported)
     }
 }

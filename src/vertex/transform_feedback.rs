@@ -99,14 +99,16 @@ pub struct TransformFeedbackSession<'a> {
 pub enum TransformFeedbackSessionCreationError {
     /// Transform feedback is not supported by the OpenGL implementation.
     NotSupported,
-    
+
     /// The format of the output doesn't match what the program is expected to output.
     WrongVertexFormat,
 }
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
 #[inline]
-pub fn is_transform_feedback_supported<F>(facade: &F) -> bool where F: Facade {
+pub fn is_transform_feedback_supported<F>(facade: &F) -> bool
+    where F: Facade
+{
     let context = facade.get_context();
 
     context.get_version() >= &Version(Api::Gl, 3, 0) ||
@@ -119,18 +121,21 @@ impl<'a> TransformFeedbackSession<'a> {
     ///
     /// TODO: this constructor should ultimately support passing multiple buffers of different
     ///       types
-    pub fn new<F, V>(facade: &F, program: &'a Program, buffer: &'a mut Buffer<[V]>)
-                     -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
-                     where F: Facade, V: Vertex + Copy + Send + 'static
+    pub fn new<F, V>
+                     (facade: &F,
+                      program: &'a Program,
+                      buffer: &'a mut Buffer<[V]>)
+                      -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
+        where F: Facade,
+              V: Vertex + Copy + Send + 'static
     {
         if !is_transform_feedback_supported(facade) {
             return Err(TransformFeedbackSessionCreationError::NotSupported);
         }
 
-        if !program.transform_feedback_matches(&<V as Vertex>::build_bindings(), 
-                                               mem::size_of::<V>())
-        {
-            return Err(TransformFeedbackSessionCreationError::WrongVertexFormat); 
+        if !program.transform_feedback_matches(&<V as Vertex>::build_bindings(),
+                                               mem::size_of::<V>()) {
+            return Err(TransformFeedbackSessionCreationError::WrongVertexFormat);
         }
 
         Ok(TransformFeedbackSession {
@@ -189,7 +194,8 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
         }
     }
 
-    fn ensure_buffer_out_of_transform_feedback(mut ctxt: &mut CommandContext, buffer: gl::types::GLuint) {
+    fn ensure_buffer_out_of_transform_feedback(mut ctxt: &mut CommandContext,
+                                               buffer: gl::types::GLuint) {
         if ctxt.state.transform_feedback_enabled.is_none() {
             return;
         }

@@ -14,14 +14,18 @@ use version::Version;
 use gl;
 
 
-pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
-             rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>)
-{
+pub fn clear(context: &Context,
+             framebuffer: Option<&ValidatedAttachments>,
+             rect: Option<&Rect>,
+             color: Option<(f32, f32, f32, f32)>,
+             color_srgb: bool,
+             depth: Option<f32>,
+             stencil: Option<i32>) {
     unsafe {
         let mut ctxt = context.make_current();
 
-        let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt, framebuffer);
+        let fbo_id = fbo::FramebuffersContainer::get_framebuffer_for_drawing(&mut ctxt,
+                                                                             framebuffer);
         fbo::bind_framebuffer(&mut ctxt, fbo_id, true, false);
 
         if ctxt.state.enabled_rasterizer_discard {
@@ -33,10 +37,10 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
             ctxt.state.color_mask = (1, 1, 1, 1);
             ctxt.gl.ColorMask(1, 1, 1, 1);
         }
-    
+
         if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
-           ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control
-        {
+           ctxt.extensions.gl_ext_framebuffer_srgb ||
+           ctxt.extensions.gl_ext_srgb_write_control {
             if !color_srgb && !ctxt.state.enabled_framebuffer_srgb {
                 ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB);
                 ctxt.state.enabled_framebuffer_srgb = true;
@@ -50,8 +54,10 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
         TimeElapsedQuery::end_conditional_render(&mut ctxt);
 
         if let Some(rect) = rect {
-            let rect = (rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
-                        rect.width as gl::types::GLsizei, rect.height as gl::types::GLsizei);
+            let rect = (rect.left as gl::types::GLint,
+                        rect.bottom as gl::types::GLint,
+                        rect.width as gl::types::GLsizei,
+                        rect.height as gl::types::GLsizei);
 
             if ctxt.state.scissor != Some(rect) {
                 ctxt.gl.Scissor(rect.0, rect.1, rect.2, rect.3);
@@ -73,8 +79,10 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
         let mut flags = 0;
 
         if let Some(color) = color {
-            let color = (color.0 as gl::types::GLclampf, color.1 as gl::types::GLclampf,
-                         color.2 as gl::types::GLclampf, color.3 as gl::types::GLclampf);
+            let color = (color.0 as gl::types::GLclampf,
+                         color.1 as gl::types::GLclampf,
+                         color.2 as gl::types::GLclampf,
+                         color.3 as gl::types::GLclampf);
 
             flags |= gl::COLOR_BUFFER_BIT;
 
