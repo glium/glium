@@ -24,6 +24,7 @@ exclude = ["doc", ".travis.yml", "circle.yml"]
 
 [features]
 default = ["glutin", "image", "nalgebra", "cgmath"]
+unstable = []       # used for benchmarks
 
 [dependencies.glutin]
 version = "0.4"
