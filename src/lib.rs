@@ -325,7 +325,8 @@ trait QueryExt {
 }
 
 /// Internal trait for textures.
-trait TextureExt {
+#[doc(hidden)]      // TODO: insanely stupid visibility rules force this trait to be pub
+pub trait TextureExt {
     /// Returns the ID of the texture.
     fn get_texture_id(&self) -> gl::types::GLuint;
 

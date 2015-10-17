@@ -20,6 +20,7 @@ impl SamplerObject {
     pub fn new(ctxt: &mut CommandContext, behavior: &SamplerBehavior) -> SamplerObject {
         // making sure that the backend supports samplers
         assert!(ctxt.version >= &Version(Api::Gl, 3, 2) ||
+                ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                 ctxt.extensions.gl_arb_sampler_objects);
 
         let sampler = unsafe {
