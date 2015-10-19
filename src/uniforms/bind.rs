@@ -555,7 +555,7 @@ fn bind_texture_uniform<P, T>(mut ctxt: &mut context::CommandContext,
 
     // updating the state of the texture unit
     if ctxt.state.texture_units.len() <= texture_unit as usize {
-        for _ in (ctxt.state.texture_units.len() .. texture_unit as usize + 1) {
+        for _ in ctxt.state.texture_units.len() .. texture_unit as usize + 1 {
             ctxt.state.texture_units.push(Default::default());
         }
     }

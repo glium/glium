@@ -211,7 +211,7 @@ fn block_wrong_type() {
             if name == &"MyBlock" => (),
         a => panic!("{:?}", a)
     }
-    
+
     target.finish().unwrap();
 
     display.assert_no_error(None);
@@ -289,7 +289,7 @@ fn persistent_block_race_condition() {
     let texture = support::build_renderable_texture(&display);
     let mut target = texture.as_surface();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    for _ in (0 .. 1000) {
+    for _ in 0 .. 1000 {
         {
             let mut mapping = buffer.map();
             mapping.color.0 = rand::random();

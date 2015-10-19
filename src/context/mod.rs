@@ -470,7 +470,7 @@ impl Context {
 
         let mut data = Vec::with_capacity(0);
         ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect, &mut data,
-                  false);
+                  false).unwrap();
         T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
     }
 

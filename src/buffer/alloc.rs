@@ -1436,7 +1436,7 @@ unsafe fn indexed_bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLui
                 }
 
                 if ctxt.state.$state_var.len() <= $input_index as usize {
-                    for _ in (0 .. 1 + ctxt.state.$state_var.len() - $input_index as usize) {
+                    for _ in 0 .. 1 + ctxt.state.$state_var.len() - $input_index as usize {
                         ctxt.state.$state_var.push(Default::default());
                     }
                 }

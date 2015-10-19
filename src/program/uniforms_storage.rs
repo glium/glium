@@ -318,7 +318,7 @@ impl UniformsStorage {
         let mut blocks = self.uniform_blocks.borrow_mut();
 
         if blocks.len() <= location as usize {
-            for _ in (blocks.len() .. location as usize + 1) {
+            for _ in blocks.len() .. location as usize + 1 {
                 blocks.push(None);
             }
         }
@@ -349,7 +349,7 @@ impl UniformsStorage {
         let mut blocks = self.shader_storage_blocks.borrow_mut();
 
         if blocks.len() <= location as usize {
-            for _ in (blocks.len() .. location as usize + 1) {
+            for _ in blocks.len() .. location as usize + 1 {
                 blocks.push(None);
             }
         }
