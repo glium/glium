@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn get_unused2() {
         let mut bitsfield = Bitsfield::new();
-        for i in (0 .. 34) {
+        for i in 0 .. 34 {
             bitsfield.set_used(i);
         }
         assert_eq!(bitsfield.get_unused(), Some(34))

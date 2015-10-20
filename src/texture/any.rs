@@ -252,7 +252,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
 
             } else {
                 if is_client_compressed && !data_raw.is_null() {
-                    ctxt.gl.CompressedTexImage3D(bind_point, 0, teximg_internal_format as u32, 
+                    ctxt.gl.CompressedTexImage3D(bind_point, 0, teximg_internal_format as u32,
                                        width, height, depth, 0, data_bufsize as i32, data_raw);
                 } else {
                     ctxt.gl.TexImage3D(bind_point, 0, teximg_internal_format as i32, width,
@@ -294,7 +294,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
 
             } else {
                 if is_client_compressed && !data_raw.is_null() {
-                    ctxt.gl.CompressedTexImage2D(bind_point, 0, teximg_internal_format as u32, 
+                    ctxt.gl.CompressedTexImage2D(bind_point, 0, teximg_internal_format as u32,
                                        width, height, 0, data_bufsize as i32, data_raw);
                 } else {
                     ctxt.gl.TexImage2D(bind_point, 0, teximg_internal_format as i32, width,
@@ -388,7 +388,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
 
             } else {
                 if is_client_compressed && !data_raw.is_null() {
-                    ctxt.gl.CompressedTexImage1D(bind_point, 0, teximg_internal_format as u32, 
+                    ctxt.gl.CompressedTexImage1D(bind_point, 0, teximg_internal_format as u32,
                                        width, 0, data_bufsize as i32, data_raw);
                 } else {
                     ctxt.gl.TexImage1D(bind_point, 0, teximg_internal_format as i32, width,
@@ -613,7 +613,7 @@ impl TextureExt for TextureAny {
 
 impl GlObject for TextureAny {
     type Id = gl::types::GLuint;
-    
+
     #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
@@ -1101,14 +1101,14 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED_IMAGE_SIZE, &mut buffer_size);
                 let mut internal_format = mem::uninitialized();
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
-                
+
                 match ClientFormatAny::from_internal_compressed_format(internal_format as gl::types::GLenum) {
                     Some(known_format) => {
                         let mut buf = Vec::with_capacity(buffer_size as usize);
                         buf.set_len(buffer_size as usize);
 
                         BufferAny::unbind_pixel_pack(&mut ctxt);
-                        
+
                         // adjusting data alignement
                         let ptr = buf.as_ptr() as *const u8;
                         let ptr = ptr as usize;

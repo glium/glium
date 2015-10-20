@@ -196,7 +196,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
     // the result of this function
     let mut uniforms = HashMap::with_capacity(active_uniforms as usize);
 
-    for uniform_id in (0 .. active_uniforms) {
+    for uniform_id in 0 .. active_uniforms {
         let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
         let mut uniform_name_tmp_len = 63;
 
@@ -275,7 +275,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
     // the result of this function
     let mut attributes = HashMap::with_capacity(active_attributes as usize);
 
-    for attribute_id in (0 .. active_attributes) {
+    for attribute_id in 0 .. active_attributes {
         let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
         let mut attr_name_tmp_len = 63;
 
@@ -362,7 +362,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
 
     let mut blocks = HashMap::with_capacity(active_blocks as usize);
 
-    for block_id in (0 .. active_blocks) {
+    for block_id in 0 .. active_blocks {
         // getting the name of the block
         let name = {
             let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + active_blocks_max_name_len
@@ -517,7 +517,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
 
     let mut result = Vec::with_capacity(num_varyings as usize);
 
-    for index in (0 .. num_varyings as gl::types::GLuint) {
+    for index in 0 .. num_varyings as gl::types::GLuint {
         let mut name_tmp: Vec<u8> = Vec::with_capacity(max_buffer_len as usize);
         let mut name_tmp_len = max_buffer_len;
 
@@ -656,7 +656,7 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
         // not supported
         return HashMap::with_capacity(0);
     }
-    
+
     let program = match program {
         Handle::Id(program) => program,
         Handle::Handle(program) => return HashMap::with_capacity(0)
@@ -673,7 +673,7 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
     // the result of this function
     let mut blocks = HashMap::with_capacity(active_blocks as usize);
 
-    for block_id in (0 .. active_blocks) {
+    for block_id in 0 .. active_blocks {
         // getting basic infos
         let (name_len, num_variables, binding, total_size) = {
             let mut output: [gl::types::GLint; 4] = mem::uninitialized();

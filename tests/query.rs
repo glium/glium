@@ -19,7 +19,7 @@ fn query_sequence() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    for _ in (0 .. 3) {
+    for _ in 0 .. 3 {
         let params = glium::DrawParameters {
             samples_passed_query: Some((&query).into()),
             .. Default::default()
