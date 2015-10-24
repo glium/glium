@@ -56,7 +56,10 @@ Some restrictions apply when you use framebuffers:
 
 # Empty framebuffers
 
-Not yet supported
+Modern OpenGL implementations support empty framebuffers. This is handled by glium with the
+`EmptyFrameBuffer` struct.
+
+You can check whether they are supported by calling `EmptyFrameBuffer::is_supported(&display)`.
 
 # Layered framebuffers
 
