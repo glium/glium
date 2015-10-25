@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Improved performance of stencil-related state changes.
  - Fixed `glBufferData` being called to invalidate a buffer created with `glBufferStorage`.
 
 ## Version 0.10.0 (2015-10-14)
