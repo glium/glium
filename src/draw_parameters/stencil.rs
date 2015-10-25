@@ -181,50 +181,42 @@ pub enum StencilTest {
 
 /// Specificies which operation the GPU will do depending on the result of the stencil test.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u32)]    // GLenum
 pub enum StencilOperation {
     /// Keeps the value currently in the stencil buffer.
-    Keep,
+    Keep = gl::KEEP,
 
     /// Writes zero in the stencil buffer.
-    Zero,
+    Zero = gl::ZERO,
 
     /// Writes the reference value (`stencil_reference_value_clockwise` or
     /// `stencil_reference_value_counter_clockwise`) in the stencil buffer.
-    Replace,
+    Replace = gl::REPLACE,
 
     /// Increments the value currently in the stencil buffer. If the value is the
     /// maximum, don't do anything.
-    Increment,
+    Increment = gl::INCR,
 
     /// Increments the value currently in the stencil buffer. If the value is the
     /// maximum, wrap to `0`.
-    IncrementWrap,
+    IncrementWrap = gl::INCR_WRAP,
 
     /// Decrements the value currently in the stencil buffer. If the value is `0`,
     /// don't do anything.
-    Decrement,
+    Decrement = gl::DECR,
 
     /// Decrements the value currently in the stencil buffer. If the value is `0`,
     /// wrap to `-1`.
-    DecrementWrap,
+    DecrementWrap = gl::DECR_WRAP,
 
     /// Inverts each bit of the value.
-    Invert,
+    Invert = gl::INVERT,
 }
 
 impl ToGlEnum for StencilOperation {
     #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
-        match *self {
-            StencilOperation::Keep => gl::KEEP,
-            StencilOperation::Zero => gl::ZERO,
-            StencilOperation::Replace => gl::REPLACE,
-            StencilOperation::Increment => gl::INCR,
-            StencilOperation::IncrementWrap => gl::INCR_WRAP,
-            StencilOperation::Decrement => gl::DECR,
-            StencilOperation::DecrementWrap => gl::DECR_WRAP,
-            StencilOperation::Invert => gl::INVERT,
-        }
+        *self as gl::types::GLenum
     }
 }
 
