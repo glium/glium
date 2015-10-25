@@ -1,7 +1,7 @@
 use std::fmt;
 use std::mem;
 use std::borrow::Cow;
-use buffer::RangeArgument;
+use utils::range::RangeArgument;
 use std::marker::PhantomData;
 
 use texture::{PixelValue, Texture1dDataSink};
@@ -659,15 +659,14 @@ impl<'a, T> BufferSlice<'a, [T]> where [T]: Content + 'a {
     /// OpenGL is performed.
     #[inline]
     pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<BufferSlice<'a, [T]>> {
-		let clos = |val: &usize| { *val };
-        if range.start().map_or(0, &clos) > self.len() || range.end().map_or(0, &clos) > self.len() {
+        if range.start().map_or(0, |e| *e) > self.len() || range.end().map_or(0, |e| *e) > self.len() {
             return None;
         }
 
         Some(BufferSlice {
             alloc: self.alloc,
-            bytes_start: self.bytes_start + range.start().map_or(0, &clos) * mem::size_of::<T>(),
-            bytes_end: self.bytes_start + range.end().map_or(self.len(), &clos) * mem::size_of::<T>(),
+            bytes_start: self.bytes_start + range.start().map_or(0, |e| *e) * mem::size_of::<T>(),
+            bytes_end: self.bytes_start + range.end().map_or(self.len(), |e| *e) * mem::size_of::<T>(),
             fence: self.fence,
             marker: PhantomData,
         })
@@ -1022,16 +1021,15 @@ impl<'a, T> BufferMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
     /// OpenGL is performed.
     #[inline]
     pub fn slice<R: RangeArgument<usize>>(self, range: R) -> Option<BufferMutSlice<'a, [T]>> {
-		let clos = |val: &usize| { *val };
-        if range.start().map_or(0, &clos) > self.len() || range.end().map_or(0, &clos) > self.len() {
+        if range.start().map_or(0, |e| *e) > self.len() || range.end().map_or(0, |e| *e) > self.len() {
             return None;
         }
 
 		let len = self.len();
         Some(BufferMutSlice {
             alloc: self.alloc,
-            bytes_start: self.bytes_start + range.start().map_or(0, &clos) * mem::size_of::<T>(),
-            bytes_end: self.bytes_start + range.end().map_or(len, &clos) * mem::size_of::<T>(),
+            bytes_start: self.bytes_start + range.start().map_or(0, |e| *e) * mem::size_of::<T>(),
+            bytes_end: self.bytes_start + range.end().map_or(len, |e| *e) * mem::size_of::<T>(),
             fence: self.fence,
             marker: PhantomData,
         })
@@ -1403,4 +1401,3 @@ impl<'a> BufferExt for BufferAnySlice<'a> {
         self.alloc.bind_to_transform_feedback(ctxt, index, 0 .. self.alloc.get_size());
     }
 }
-

@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
-use buffer::RangeArgument;
+use utils::range::RangeArgument;
 
 use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};

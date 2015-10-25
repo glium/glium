@@ -12,7 +12,7 @@ use index::IndexType;
 use index::PrimitiveType;
 
 use std::ops::{Deref, DerefMut};
-use ::buffer::RangeArgument;
+use utils::range::RangeArgument;
 
 /// Error that can happen while creating an index buffer.
 #[derive(Debug, Copy, Clone)]
