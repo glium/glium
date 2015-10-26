@@ -737,9 +737,23 @@ fn unsized_array() {
 
     assert_eq!(my_block.layout, glium::program::BlockLayout::Struct {
         members: vec![
-            ("position".to_string(), glium::program::BlockLayout::BasicType {
-                ty: glium::uniforms::UniformType::FloatVec3,
-                offset_in_buffer: 0,
+            ("bar".to_string(), glium::program::BlockLayout::DynamicSizedArray {
+                content: Box::new(glium::program::BlockLayout::Struct {
+                    members: vec![
+                        ("a".to_string(), glium::program::BlockLayout::Array {
+                            content: Box::new(glium::program::BlockLayout::BasicType {
+                                ty: glium::uniforms::UniformType::IntVec3,
+                                offset_in_buffer: 80,
+                            }),
+                            length: 3,
+                        }),
+
+                        ("b".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::Int,
+                            offset_in_buffer: 128,
+                        }),
+                    ],
+                })
             }),
 
             ("foo".to_string(), glium::program::BlockLayout::Array {
@@ -762,23 +776,9 @@ fn unsized_array() {
                 length: 1,
             }),
 
-            ("bar".to_string(), glium::program::BlockLayout::DynamicSizedArray {
-                content: Box::new(glium::program::BlockLayout::Struct {
-                    members: vec![
-                        ("a".to_string(), glium::program::BlockLayout::Array {
-                            content: Box::new(glium::program::BlockLayout::BasicType {
-                                ty: glium::uniforms::UniformType::IntVec3,
-                                offset_in_buffer: 80,
-                            }),
-                            length: 3,
-                        }),
-
-                        ("b".to_string(), glium::program::BlockLayout::BasicType {
-                            ty: glium::uniforms::UniformType::Int,
-                            offset_in_buffer: 128,
-                        }),
-                    ],
-                })
+            ("position".to_string(), glium::program::BlockLayout::BasicType {
+                ty: glium::uniforms::UniformType::FloatVec3,
+                offset_in_buffer: 0,
             }),
         ]
     });
@@ -836,14 +836,14 @@ fn array_layout_offsets() {
             ("data".to_string(), glium::program::BlockLayout::Array {
                 content: Box::new(glium::program::BlockLayout::Struct {
                     members: vec![
-                        ("pos".to_string(), glium::program::BlockLayout::BasicType {
-                            ty: glium::uniforms::UniformType::FloatVec2,
-                            offset_in_buffer: 0,
-                        }),
-
                         ("dir".to_string(), glium::program::BlockLayout::BasicType {
                             ty: glium::uniforms::UniformType::FloatVec2,
                             offset_in_buffer: 8,
+                        }),
+
+                        ("pos".to_string(), glium::program::BlockLayout::BasicType {
+                            ty: glium::uniforms::UniformType::FloatVec2,
+                            offset_in_buffer: 0,
                         }),
 
                         ("speed".to_string(), glium::program::BlockLayout::BasicType {
