@@ -1025,7 +1025,7 @@ impl<'a, T> BufferMutSlice<'a, [T]> where [T]: Content, T: Copy + 'a {
             return None;
         }
 
-		let len = self.len();
+        let len = self.len();
         Some(BufferMutSlice {
             alloc: self.alloc,
             bytes_start: self.bytes_start + range.start().map_or(0, |e| *e) * mem::size_of::<T>(),
