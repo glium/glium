@@ -92,6 +92,7 @@ impl ToGlEnum for MinifySamplerFilter {
 }
 
 /// A sampler.
+#[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
 
 impl<'t, T: 't> Sampler<'t, T> {
@@ -122,6 +123,14 @@ impl<'t, T: 't> Sampler<'t, T> {
     pub fn anisotropy(mut self, level: u16) -> Sampler<'t, T> {
         self.1.max_anisotropy = level;
         self
+    }
+}
+
+impl<'t, T: 't> Copy for Sampler<'t, T> {}
+
+impl<'t, T: 't> Clone for Sampler<'t, T> {
+    fn clone(&self) -> Self {
+        *self
     }
 }
 
