@@ -32,7 +32,7 @@ features = []
 optional = true
 
 [dependencies.cgmath]
-version = "0.3"
+version = "0.4"
 optional = true
 
 [dependencies.nalgebra]
@@ -40,7 +40,7 @@ version = "0.3"
 optional = true
 
 [dependencies.image]
-version = "0.3.9"
+version = "0.4"
 optional = true
 
 [dependencies]

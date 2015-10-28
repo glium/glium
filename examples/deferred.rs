@@ -10,7 +10,6 @@ use glium::index::PrimitiveType;
 use glium::Surface;
 use glium::DisplayBuild;
 #[cfg(feature = "cgmath")]
-use cgmath::FixedArray;
 use std::io::Cursor;
 
 mod support;
@@ -279,17 +278,13 @@ fn main() {
     let mut light_buffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, &light_texture, &depthtexture).unwrap();
 
     let ortho_matrix: cgmath::Matrix4<f32> = cgmath::ortho(0.0, 800.0, 0.0, 500.0, -1.0, 1.0);
-    let fixed_ortho_matrix = ortho_matrix.as_fixed();
 
     let perspective_matrix: cgmath::Matrix4<f32> = cgmath::perspective(cgmath::deg(45.0), 1.333, 0.0001, 100.0);
-    let fixed_perspective_matrix = perspective_matrix.as_fixed();
     let view_eye: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 2.0, -2.0);
     let view_center: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 0.0, 0.0);
     let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
     let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at(&view_eye, &view_center, &view_up);
-    let fixed_view_matrix = view_matrix.as_fixed();
-    let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::identity();
-    let fixed_model_matrix = model_matrix.as_fixed();
+    let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix::one();
 
     let lights = [
         Light {
@@ -322,9 +317,9 @@ fn main() {
     support::start_loop(|| {
         // prepass
         let uniforms = uniform! {
-            perspective_matrix: *fixed_perspective_matrix,
-            view_matrix: *fixed_view_matrix,
-            model_matrix: *fixed_model_matrix,
+            perspective_matrix: perspective_matrix,
+            view_matrix: view_matrix,
+            model_matrix: model_matrix,
             tex: &opengl_texture
         };
         framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -349,7 +344,7 @@ fn main() {
         light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);
         for light in lights.iter() {
             let uniforms = uniform! {
-                matrix: *fixed_ortho_matrix,
+                matrix: ortho_matrix,
                 position_texture: &texture1,
                 normal_texture: &texture2,
                 light_position: light.position,
@@ -362,7 +357,7 @@ fn main() {
 
         // composition
         let uniforms = uniform! {
-            matrix: *fixed_ortho_matrix,
+            matrix: ortho_matrix,
             decal_texture: &texture3,
             lighting_texture: &light_texture
         };
