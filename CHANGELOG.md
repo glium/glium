@@ -2,7 +2,9 @@
 
 ## Unreleased
 
+ - Improved performance of stencil-related state changes.
  - Fixed `glBufferData` being called to invalidate a buffer created with `glBufferStorage`.
+ - Changed use of `Range` in buffer slice to `RangeArgument`.
 
 ## Version 0.10.0 (2015-10-14)
 

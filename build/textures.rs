@@ -823,7 +823,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
-       (ty == TextureType::Regular || is_compressed)
+       (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
     {
         (write!(dest, r#"
                 /// Reads the content of the texture to RAM.
@@ -879,7 +879,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     // writing the `write` function
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
-            (ty == TextureType::Regular || is_compressed)
+            (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
     {
         let compressed_restrictions = if is_compressed {
             r#" ///
@@ -1074,7 +1074,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // writing the `write` function for mipmaps.
         // TODO: implement for other types too
         if dimensions == TextureDimensions::Texture2d &&
-                (ty == TextureType::Regular || is_compressed)
+                (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
         {
             let compressed_restrictions = if is_compressed {
                 r#" ///

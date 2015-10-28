@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fmt;
-use std::ops::{Range, Deref, DerefMut};
+use std::ops::{Deref, DerefMut};
+use utils::range::RangeArgument;
 
 use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
@@ -287,7 +288,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     ///
     /// Returns `None` if the slice is out of range.
     #[inline]
-    pub fn slice(&self, range: Range<usize>) -> Option<VertexBufferSlice<T>> {
+    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<VertexBufferSlice<T>> {
         let slice = match self.buffer.slice(range) {
             None => return None,
             Some(s) => s

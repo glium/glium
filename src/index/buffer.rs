@@ -11,7 +11,8 @@ use index::Index;
 use index::IndexType;
 use index::PrimitiveType;
 
-use std::ops::{Deref, DerefMut, Range};
+use std::ops::{Deref, DerefMut};
+use utils::range::RangeArgument;
 
 /// Error that can happen while creating an index buffer.
 #[derive(Debug, Copy, Clone)]
@@ -166,7 +167,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Returns `None` if out of range.
     #[inline]
-    pub fn slice(&self, range: Range<usize>) -> Option<IndexBufferSlice<T>> {
+    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<IndexBufferSlice<T>> {
         self.buffer.slice(range).map(|b| {
             IndexBufferSlice {
                 buffer: b,
@@ -251,7 +252,7 @@ impl<'a, T: 'a> IndexBufferSlice<'a, T> where T: Index {
 
     /// Returns `None` if out of range.
     #[inline]
-    pub fn slice(&self, range: Range<usize>) -> Option<IndexBufferSlice<'a, T>> {
+    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<IndexBufferSlice<'a, T>> {
         self.buffer.slice(range).map(|b| {
             IndexBufferSlice {
                 buffer: b,
