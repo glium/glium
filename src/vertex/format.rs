@@ -2099,13 +2099,16 @@ unsafe impl Attribute for nalgebra::Mat4<f64> {
 mod tests {
     use std::mem;
 
-    macro_rules! test_layout {
-        ($from_fixed_ref:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
-            // from_fixed_ref is used instead of from_fixed because the later is not yet
-            // implemented due to rust-lang/rust#16418
-            let vaa = $literal.clone();
-            let val = $from_fixed_ref(&vaa);
-            let arr: &[$ety; $ncomps] = unsafe { mem::transmute(val) };
+    macro_rules! test_layout_val {
+        ($from_val:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
+            let arr: [$ety; $ncomps] = unsafe { mem::transmute($from_val($literal)) };
+            assert_eq!(arr, $literal);
+        }}
+    }
+
+    macro_rules! test_layout_ref {
+        ($from_ref:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
+            let arr: &[$ety; $ncomps] = unsafe { mem::transmute($from_ref(&$literal)) };
             assert_eq!(*arr, $literal);
         }}
     }
@@ -2113,71 +2116,71 @@ mod tests {
     #[cfg(feature="cgmath")]
     #[test]
     fn test_cgmath_layout() {
-        use cgmath::{self, FixedArray};
+        use cgmath;
 
-        test_layout!(cgmath::Vector2::from_fixed_ref, u8, 2, [0u8, 1]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, u8, 3, [0u8, 1, 2]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, u8, 4, [0u8, 1, 2, 3]);
-        test_layout!(cgmath::Vector2::from_fixed_ref, i8, 2, [0i8, 1]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, i8, 3, [0i8, 1, 2]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, i8, 4, [0i8, 1, 2, 3]);
-        test_layout!(cgmath::Point2::from_fixed_ref, u8, 2, [0u8, 1]);
-        test_layout!(cgmath::Point3::from_fixed_ref, u8, 3, [0u8, 1, 2]);
-        test_layout!(cgmath::Point2::from_fixed_ref, i8, 2, [0i8, 1]);
-        test_layout!(cgmath::Point3::from_fixed_ref, i8, 3, [0i8, 1, 2]);
+        test_layout_val!(cgmath::Vector2::from, u8, 2, [0u8, 1]);
+        test_layout_val!(cgmath::Vector3::from, u8, 3, [0u8, 1, 2]);
+        test_layout_val!(cgmath::Vector4::from, u8, 4, [0u8, 1, 2, 3]);
+        test_layout_val!(cgmath::Vector2::from, i8, 2, [0i8, 1]);
+        test_layout_val!(cgmath::Vector3::from, i8, 3, [0i8, 1, 2]);
+        test_layout_val!(cgmath::Vector4::from, i8, 4, [0i8, 1, 2, 3]);
+        test_layout_val!(cgmath::Point2::from, u8, 2, [0u8, 1]);
+        test_layout_val!(cgmath::Point3::from, u8, 3, [0u8, 1, 2]);
+        test_layout_val!(cgmath::Point2::from, i8, 2, [0i8, 1]);
+        test_layout_val!(cgmath::Point3::from, i8, 3, [0i8, 1, 2]);
 
-        test_layout!(cgmath::Vector2::from_fixed_ref, u16, 2, [0u16, 1]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, u16, 3, [0u16, 1, 2]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, u16, 4, [0u16, 1, 2, 3]);
-        test_layout!(cgmath::Vector2::from_fixed_ref, i16, 2, [0i16, 1]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, i16, 3, [0i16, 1, 2]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, i16, 4, [0i16, 1, 2, 3]);
-        test_layout!(cgmath::Point2::from_fixed_ref, u16, 2, [0u16, 1]);
-        test_layout!(cgmath::Point3::from_fixed_ref, u16, 3, [0u16, 1, 2]);
-        test_layout!(cgmath::Point2::from_fixed_ref, i16, 2, [0i16, 1]);
-        test_layout!(cgmath::Point3::from_fixed_ref, i16, 3, [0i16, 1, 2]);
+        test_layout_val!(cgmath::Vector2::from, u16, 2, [0u16, 1]);
+        test_layout_val!(cgmath::Vector3::from, u16, 3, [0u16, 1, 2]);
+        test_layout_val!(cgmath::Vector4::from, u16, 4, [0u16, 1, 2, 3]);
+        test_layout_val!(cgmath::Vector2::from, i16, 2, [0i16, 1]);
+        test_layout_val!(cgmath::Vector3::from, i16, 3, [0i16, 1, 2]);
+        test_layout_val!(cgmath::Vector4::from, i16, 4, [0i16, 1, 2, 3]);
+        test_layout_val!(cgmath::Point2::from, u16, 2, [0u16, 1]);
+        test_layout_val!(cgmath::Point3::from, u16, 3, [0u16, 1, 2]);
+        test_layout_val!(cgmath::Point2::from, i16, 2, [0i16, 1]);
+        test_layout_val!(cgmath::Point3::from, i16, 3, [0i16, 1, 2]);
 
-        test_layout!(cgmath::Vector2::from_fixed_ref, u32, 2, [0u32, 1]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, u32, 3, [0u32, 1, 2]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, u32, 4, [0u32, 1, 2, 3]);
-        test_layout!(cgmath::Vector2::from_fixed_ref, i32, 2, [0i32, 1]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, i32, 3, [0i32, 1, 2]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, i32, 4, [0i32, 1, 2, 3]);
-        test_layout!(cgmath::Point2::from_fixed_ref, u32, 2, [0u32, 1]);
-        test_layout!(cgmath::Point3::from_fixed_ref, u32, 3, [0u32, 1, 2]);
-        test_layout!(cgmath::Point2::from_fixed_ref, i32, 2, [0i32, 1]);
-        test_layout!(cgmath::Point3::from_fixed_ref, i32, 3, [0i32, 1, 2]);
+        test_layout_val!(cgmath::Vector2::from, u32, 2, [0u32, 1]);
+        test_layout_val!(cgmath::Vector3::from, u32, 3, [0u32, 1, 2]);
+        test_layout_val!(cgmath::Vector4::from, u32, 4, [0u32, 1, 2, 3]);
+        test_layout_val!(cgmath::Vector2::from, i32, 2, [0i32, 1]);
+        test_layout_val!(cgmath::Vector3::from, i32, 3, [0i32, 1, 2]);
+        test_layout_val!(cgmath::Vector4::from, i32, 4, [0i32, 1, 2, 3]);
+        test_layout_val!(cgmath::Point2::from, u32, 2, [0u32, 1]);
+        test_layout_val!(cgmath::Point3::from, u32, 3, [0u32, 1, 2]);
+        test_layout_val!(cgmath::Point2::from, i32, 2, [0i32, 1]);
+        test_layout_val!(cgmath::Point3::from, i32, 3, [0i32, 1, 2]);
 
-        test_layout!(cgmath::Vector2::from_fixed_ref, f32, 2, [0.0f32, 1.0]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
-        test_layout!(cgmath::Vector2::from_fixed_ref, f64, 2, [0.0f64, 1.0]);
-        test_layout!(cgmath::Vector3::from_fixed_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_layout!(cgmath::Vector4::from_fixed_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
-        test_layout!(cgmath::Point2::from_fixed_ref, f32, 2, [0.0f32, 1.0]);
-        test_layout!(cgmath::Point3::from_fixed_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_layout!(cgmath::Point2::from_fixed_ref, f64, 2, [0.0f64, 1.0]);
-        test_layout!(cgmath::Point3::from_fixed_ref, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout_val!(cgmath::Vector2::from, f32, 2, [0.0f32, 1.0]);
+        test_layout_val!(cgmath::Vector3::from, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout_val!(cgmath::Vector4::from, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout_val!(cgmath::Vector2::from, f64, 2, [0.0f64, 1.0]);
+        test_layout_val!(cgmath::Vector3::from, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout_val!(cgmath::Vector4::from, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout_val!(cgmath::Point2::from, f32, 2, [0.0f32, 1.0]);
+        test_layout_val!(cgmath::Point3::from, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout_val!(cgmath::Point2::from, f64, 2, [0.0f64, 1.0]);
+        test_layout_val!(cgmath::Point3::from, f64, 3, [0.0f64, 1.0, 2.0]);
 
-        test_layout!(cgmath::Matrix2::from_fixed_ref, [f32; 2], 2, [[0.0f32, 1.0],
-                                                                    [2.0f32, 3.0]]);
-        test_layout!(cgmath::Matrix3::from_fixed_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
-                                                                    [3.0f32, 4.0, 5.0],
-                                                                    [6.0f32, 7.0, 8.0]]);
-        test_layout!(cgmath::Matrix4::from_fixed_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
-                                                                    [4.0f32, 5.0, 6.0, 7.0],
-                                                                    [8.0f32, 9.0, 10.0, 11.0],
-                                                                    [12.0f32, 13.0, 14.0, 15.0]]);
+        test_layout_val!(cgmath::Matrix2::from, [f32; 2], 2, [[0.0f32, 1.0],
+                                                              [2.0f32, 3.0]]);
+        test_layout_val!(cgmath::Matrix3::from, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
+                                                              [3.0f32, 4.0, 5.0],
+                                                              [6.0f32, 7.0, 8.0]]);
+        test_layout_val!(cgmath::Matrix4::from, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
+                                                              [4.0f32, 5.0, 6.0, 7.0],
+                                                              [8.0f32, 9.0, 10.0, 11.0],
+                                                              [12.0f32, 13.0, 14.0, 15.0]]);
 
-        test_layout!(cgmath::Matrix2::from_fixed_ref, [f64; 2], 2, [[0.0f64, 1.0],
-                                                                    [2.0f64, 3.0]]);
-        test_layout!(cgmath::Matrix3::from_fixed_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
-                                                                    [3.0f64, 4.0, 5.0],
-                                                                    [6.0f64, 7.0, 8.0]]);
-        test_layout!(cgmath::Matrix4::from_fixed_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
-                                                                    [4.0f64, 5.0, 6.0, 7.0],
-                                                                    [8.0f64, 9.0, 10.0, 11.0],
-                                                                    [12.0f64, 13.0, 14.0, 15.0]]);
+        test_layout_val!(cgmath::Matrix2::from, [f64; 2], 2, [[0.0f64, 1.0],
+                                                              [2.0f64, 3.0]]);
+        test_layout_val!(cgmath::Matrix3::from, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
+                                                              [3.0f64, 4.0, 5.0],
+                                                              [6.0f64, 7.0, 8.0]]);
+        test_layout_val!(cgmath::Matrix4::from, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
+                                                              [4.0f64, 5.0, 6.0, 7.0],
+                                                              [8.0f64, 9.0, 10.0, 11.0],
+                                                              [12.0f64, 13.0, 14.0, 15.0]]);
     }
 
     #[cfg(feature = "nalgebra")]
@@ -2185,94 +2188,94 @@ mod tests {
     fn test_nalgebra_layout() {
         use nalgebra;
 
-        test_layout!(nalgebra::Vec1::from_array_ref, u8, 1, [0u8]);
-        test_layout!(nalgebra::Vec2::from_array_ref, u8, 2, [0u8, 1]);
-        test_layout!(nalgebra::Vec3::from_array_ref, u8, 3, [0u8, 1, 2]);
-        test_layout!(nalgebra::Vec4::from_array_ref, u8, 4, [0u8, 1, 2, 3]);
-        test_layout!(nalgebra::Vec1::from_array_ref, i8, 1, [0i8]);
-        test_layout!(nalgebra::Vec2::from_array_ref, i8, 2, [0i8, 1]);
-        test_layout!(nalgebra::Vec3::from_array_ref, i8, 3, [0i8, 1, 2]);
-        test_layout!(nalgebra::Vec4::from_array_ref, i8, 4, [0i8, 1, 2, 3]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, u8, 1, [0u8]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, u8, 2, [0u8, 1]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, u8, 3, [0u8, 1, 2]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, u8, 4, [0u8, 1, 2, 3]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, i8, 1, [0i8]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, i8, 2, [0i8, 1]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, i8, 3, [0i8, 1, 2]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, i8, 4, [0i8, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, u8, 1, [0u8]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, u8, 2, [0u8, 1]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, u8, 3, [0u8, 1, 2]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, u8, 4, [0u8, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, i8, 1, [0i8]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, i8, 2, [0i8, 1]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, i8, 3, [0i8, 1, 2]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, i8, 4, [0i8, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, u8, 1, [0u8]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, u8, 2, [0u8, 1]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, u8, 3, [0u8, 1, 2]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, u8, 4, [0u8, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, i8, 1, [0i8]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, i8, 2, [0i8, 1]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, i8, 3, [0i8, 1, 2]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, i8, 4, [0i8, 1, 2, 3]);
 
-        test_layout!(nalgebra::Vec1::from_array_ref, u16, 1, [0u16]);
-        test_layout!(nalgebra::Vec2::from_array_ref, u16, 2, [0u16, 1]);
-        test_layout!(nalgebra::Vec3::from_array_ref, u16, 3, [0u16, 1, 2]);
-        test_layout!(nalgebra::Vec4::from_array_ref, u16, 4, [0u16, 1, 2, 3]);
-        test_layout!(nalgebra::Vec1::from_array_ref, i16, 1, [0i16]);
-        test_layout!(nalgebra::Vec2::from_array_ref, i16, 2, [0i16, 1]);
-        test_layout!(nalgebra::Vec3::from_array_ref, i16, 3, [0i16, 1, 2]);
-        test_layout!(nalgebra::Vec4::from_array_ref, i16, 4, [0i16, 1, 2, 3]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, u16, 1, [0u16]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, u16, 2, [0u16, 1]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, u16, 3, [0u16, 1, 2]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, u16, 4, [0u16, 1, 2, 3]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, i16, 1, [0i16]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, i16, 2, [0i16, 1]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, i16, 3, [0i16, 1, 2]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, i16, 4, [0i16, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, u16, 1, [0u16]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, u16, 2, [0u16, 1]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, u16, 3, [0u16, 1, 2]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, u16, 4, [0u16, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, i16, 1, [0i16]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, i16, 2, [0i16, 1]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, i16, 3, [0i16, 1, 2]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, i16, 4, [0i16, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, u16, 1, [0u16]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, u16, 2, [0u16, 1]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, u16, 3, [0u16, 1, 2]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, u16, 4, [0u16, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, i16, 1, [0i16]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, i16, 2, [0i16, 1]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, i16, 3, [0i16, 1, 2]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, i16, 4, [0i16, 1, 2, 3]);
 
-        test_layout!(nalgebra::Vec1::from_array_ref, u32, 1, [0u32]);
-        test_layout!(nalgebra::Vec2::from_array_ref, u32, 2, [0u32, 1]);
-        test_layout!(nalgebra::Vec3::from_array_ref, u32, 3, [0u32, 1, 2]);
-        test_layout!(nalgebra::Vec4::from_array_ref, u32, 4, [0u32, 1, 2, 3]);
-        test_layout!(nalgebra::Vec1::from_array_ref, i32, 1, [0i32]);
-        test_layout!(nalgebra::Vec2::from_array_ref, i32, 2, [0i32, 1]);
-        test_layout!(nalgebra::Vec3::from_array_ref, i32, 3, [0i32, 1, 2]);
-        test_layout!(nalgebra::Vec4::from_array_ref, i32, 4, [0i32, 1, 2, 3]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, u32, 1, [0u32]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, u32, 2, [0u32, 1]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, u32, 3, [0u32, 1, 2]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, u32, 4, [0u32, 1, 2, 3]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, i32, 1, [0i32]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, i32, 2, [0i32, 1]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, i32, 3, [0i32, 1, 2]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, i32, 4, [0i32, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, u32, 1, [0u32]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, u32, 2, [0u32, 1]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, u32, 3, [0u32, 1, 2]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, u32, 4, [0u32, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, i32, 1, [0i32]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, i32, 2, [0i32, 1]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, i32, 3, [0i32, 1, 2]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, i32, 4, [0i32, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, u32, 1, [0u32]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, u32, 2, [0u32, 1]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, u32, 3, [0u32, 1, 2]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, u32, 4, [0u32, 1, 2, 3]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, i32, 1, [0i32]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, i32, 2, [0i32, 1]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, i32, 3, [0i32, 1, 2]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, i32, 4, [0i32, 1, 2, 3]);
 
-        test_layout!(nalgebra::Vec1::from_array_ref, f32, 1, [0.0f32]);
-        test_layout!(nalgebra::Vec2::from_array_ref, f32, 2, [0.0f32, 1.0]);
-        test_layout!(nalgebra::Vec3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_layout!(nalgebra::Vec4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
-        test_layout!(nalgebra::Vec1::from_array_ref, f64, 1, [0.0f64]);
-        test_layout!(nalgebra::Vec2::from_array_ref, f64, 2, [0.0f64, 1.0]);
-        test_layout!(nalgebra::Vec3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_layout!(nalgebra::Vec4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, f32, 1, [0.0f32]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, f32, 2, [0.0f32, 1.0]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
-        test_layout!(nalgebra::Pnt1::from_array_ref, f64, 1, [0.0f64]);
-        test_layout!(nalgebra::Pnt2::from_array_ref, f64, 2, [0.0f64, 1.0]);
-        test_layout!(nalgebra::Pnt3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_layout!(nalgebra::Pnt4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, f32, 1, [0.0f32]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, f32, 2, [0.0f32, 1.0]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout_ref!(nalgebra::Vec1::from_array_ref, f64, 1, [0.0f64]);
+        test_layout_ref!(nalgebra::Vec2::from_array_ref, f64, 2, [0.0f64, 1.0]);
+        test_layout_ref!(nalgebra::Vec3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout_ref!(nalgebra::Vec4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, f32, 1, [0.0f32]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, f32, 2, [0.0f32, 1.0]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout_ref!(nalgebra::Pnt1::from_array_ref, f64, 1, [0.0f64]);
+        test_layout_ref!(nalgebra::Pnt2::from_array_ref, f64, 2, [0.0f64, 1.0]);
+        test_layout_ref!(nalgebra::Pnt3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
+        test_layout_ref!(nalgebra::Pnt4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
 
-        test_layout!(nalgebra::Mat1::from_array_ref, [f32; 1], 1, [[0.0f32]]);
-        test_layout!(nalgebra::Mat2::from_array_ref, [f32; 2], 2, [[0.0f32, 1.0],
-                                                                   [2.0f32, 3.0]]);
-        test_layout!(nalgebra::Mat3::from_array_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
-                                                                   [3.0f32, 4.0, 5.0],
-                                                                   [6.0f32, 7.0, 8.0]]);
-        test_layout!(nalgebra::Mat4::from_array_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
-                                                                   [4.0f32, 5.0, 6.0, 7.0],
-                                                                   [8.0f32, 9.0, 10.0, 11.0],
-                                                                   [12.0f32, 13.0, 14.0, 15.0]]);
+        test_layout_ref!(nalgebra::Mat1::from_array_ref, [f32; 1], 1, [[0.0f32]]);
+        test_layout_ref!(nalgebra::Mat2::from_array_ref, [f32; 2], 2, [[0.0f32, 1.0],
+                                                                       [2.0f32, 3.0]]);
+        test_layout_ref!(nalgebra::Mat3::from_array_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
+                                                                       [3.0f32, 4.0, 5.0],
+                                                                       [6.0f32, 7.0, 8.0]]);
+        test_layout_ref!(nalgebra::Mat4::from_array_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
+                                                                       [4.0f32, 5.0, 6.0, 7.0],
+                                                                       [8.0f32, 9.0, 10.0, 11.0],
+                                                                       [12.0f32, 13.0, 14.0, 15.0]]);
 
-        test_layout!(nalgebra::Mat1::from_array_ref, [f64; 1], 1, [[0.0f64]]);
-        test_layout!(nalgebra::Mat2::from_array_ref, [f64; 2], 2, [[0.0f64, 1.0],
-                                                                   [2.0f64, 3.0]]);
-        test_layout!(nalgebra::Mat3::from_array_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
-                                                                   [3.0f64, 4.0, 5.0],
-                                                                   [6.0f64, 7.0, 8.0]]);
-        test_layout!(nalgebra::Mat4::from_array_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
-                                                                   [4.0f64, 5.0, 6.0, 7.0],
-                                                                   [8.0f64, 9.0, 10.0, 11.0],
-                                                                   [12.0f64, 13.0, 14.0, 15.0]]);
+        test_layout_ref!(nalgebra::Mat1::from_array_ref, [f64; 1], 1, [[0.0f64]]);
+        test_layout_ref!(nalgebra::Mat2::from_array_ref, [f64; 2], 2, [[0.0f64, 1.0],
+                                                                       [2.0f64, 3.0]]);
+        test_layout_ref!(nalgebra::Mat3::from_array_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
+                                                                       [3.0f64, 4.0, 5.0],
+                                                                       [6.0f64, 7.0, 8.0]]);
+        test_layout_ref!(nalgebra::Mat4::from_array_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
+                                                                       [4.0f64, 5.0, 6.0, 7.0],
+                                                                       [8.0f64, 9.0, 10.0, 11.0],
+                                                                       [12.0f64, 13.0, 14.0, 15.0]]);
     }
 }

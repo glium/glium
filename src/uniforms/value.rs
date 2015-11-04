@@ -917,9 +917,7 @@ impl_uniform_block_basic!(nalgebra::Vec4<f32>, UniformType::FloatVec4);
 impl AsUniformValue for cgmath::Matrix2<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Mat2(my_value)
+        UniformValue::Mat2(self.clone().into())
     }
 }
 
@@ -930,9 +928,7 @@ impl_uniform_block_basic!(cgmath::Matrix2<f32>, UniformType::FloatMat2);
 impl AsUniformValue for cgmath::Matrix3<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Mat3(my_value)
+        UniformValue::Mat3(self.clone().into())
     }
 }
 
@@ -943,9 +939,7 @@ impl_uniform_block_basic!(cgmath::Matrix3<f32>, UniformType::FloatMat3);
 impl AsUniformValue for cgmath::Matrix4<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Mat4(my_value)
+        UniformValue::Mat4(self.clone().into())
     }
 }
 
@@ -956,9 +950,7 @@ impl_uniform_block_basic!(cgmath::Matrix4<f32>, UniformType::FloatMat4);
 impl AsUniformValue for cgmath::Vector2<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Vec2(my_value)
+        UniformValue::Vec2(self.clone().into())
     }
 }
 
@@ -969,9 +961,7 @@ impl_uniform_block_basic!(cgmath::Vector2<f32>, UniformType::FloatVec2);
 impl AsUniformValue for cgmath::Vector3<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Vec3(my_value)
+        UniformValue::Vec3(self.clone().into())
     }
 }
 
@@ -982,9 +972,7 @@ impl_uniform_block_basic!(cgmath::Vector3<f32>, UniformType::FloatVec3);
 impl AsUniformValue for cgmath::Vector4<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Vec4(my_value)
+        UniformValue::Vec4(self.clone().into())
     }
 }
 
@@ -995,9 +983,7 @@ impl_uniform_block_basic!(cgmath::Vector4<f32>, UniformType::FloatVec4);
 impl AsUniformValue for cgmath::Point2<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Vec2(my_value)
+        UniformValue::Vec2(self.clone().into())
     }
 }
 
@@ -1008,9 +994,7 @@ impl_uniform_block_basic!(cgmath::Point2<f32>, UniformType::FloatVec2);
 impl AsUniformValue for cgmath::Point3<f32> {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
-        use cgmath::FixedArray;
-        let my_value = self.into_fixed();
-        UniformValue::Vec3(my_value)
+        UniformValue::Vec3(self.clone().into())
     }
 }
 
