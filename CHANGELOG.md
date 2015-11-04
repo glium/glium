@@ -1,7 +1,8 @@
 # Change Log
 
-## Unreleased
+## Version 0.11.0 (2015-11-04)
 
+ - Updated the versions of glutin, image and cgmath.
  - Improved performance of stencil-related state changes.
  - Fixed `glBufferData` being called to invalidate a buffer created with `glBufferStorage`.
  - Changed use of `Range` in buffer slice to `RangeArgument`.
