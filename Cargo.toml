@@ -56,6 +56,6 @@ khronos_api = "0.0.8"
 
 [dev-dependencies]
 clock_ticks = "0.0.6"
-genmesh = "0.2.1"
-obj = "0.2.1"
+genmesh = "0.3"
+obj = "0.3"
 rand = "0.3"
