@@ -233,7 +233,7 @@ unsafe impl Backend for GlutinWindowBackend {
 
     #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
-        self.window.get_proc_address(symbol)
+        self.window.get_proc_address(symbol) as *const _
     }
 
     #[inline]
@@ -306,7 +306,7 @@ unsafe impl Backend for GlutinHeadlessBackend {
 
     #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
-        self.context.get_proc_address(symbol)
+        self.context.get_proc_address(symbol) as *const _
     }
 
     #[inline]

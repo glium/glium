@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.11.0"
+version = "0.11.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
@@ -46,16 +46,15 @@ optional = true
 [dependencies]
 backtrace = "0.1.5"
 lazy_static = "0.1"
-gl_common = "0.1.0"
 libc = "0.1"
 smallvec = "0.1.5"
 
 [build-dependencies]
-gl_generator = "0.1.0"
+gl_generator = "0.2.0"
 khronos_api = "0.0.8"
 
 [dev-dependencies]
-clock_ticks = "0.0.6"
+clock_ticks = "0.1.0"
 genmesh = "0.2.1"
 obj = "0.2.1"
 rand = "0.3"
