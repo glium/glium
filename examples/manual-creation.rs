@@ -46,7 +46,7 @@ fn main() {
 
         // this function is called only after the OpenGL context has been made current
         unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
-            self.window.get_proc_address(symbol)
+            self.window.get_proc_address(symbol) as *const _
         }
 
         // this function is used to adjust the viewport when the user wants to draw or blit on

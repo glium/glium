@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.11.1 (2015-11-10)
+
+ - Fix broken compilation after libc 0.2.
+
 ## Version 0.11.0 (2015-11-04)
 
  - Updated the versions of glutin, image and cgmath.
