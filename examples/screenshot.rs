@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate glium;
-
-#[cfg(feature = "image")]
 extern crate image;
 
 use glium::Surface;
@@ -9,12 +7,6 @@ use glium::glutin;
 use glium::index::PrimitiveType;
 use std::path::Path;
 
-#[cfg(not(feature = "image"))]
-fn main() {
-    println!("You need to compile glium with the `image` feature in order to run this example");
-}
-
-#[cfg(feature = "image")]
 fn main() {
     use glium::DisplayBuild;
 
@@ -124,7 +116,9 @@ fn main() {
     target.finish().unwrap();
 
     // reading the front buffer into an image
-    let image: image::DynamicImage = display.read_front_buffer();
+    let image: glium::texture::RawImage2d<u8> = display.read_front_buffer();
+    let image = image::ImageBuffer::from_raw(image.width, image.height, image.data.into_owned()).unwrap();
+    let image = image::DynamicImage::ImageRgba8(image);
     let mut output = std::fs::File::create(&Path::new("glium-example-screenshot.png")).unwrap();
     image.save(&mut output, image::ImageFormat::PNG).unwrap();
 }

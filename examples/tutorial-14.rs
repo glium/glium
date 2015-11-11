@@ -1,13 +1,9 @@
 #[macro_use]
 extern crate glium;
-#[cfg(feature = "image")]
 extern crate image;
 
 use std::io::Cursor;
 
-#[cfg(not(feature = "image"))]
-fn main() { println!("This example requires the `image` feature to be enabled"); }
-#[cfg(feature = "image")]
 fn main() {
     use glium::{DisplayBuild, Surface};
     let display = glium::glutin::WindowBuilder::new()
@@ -33,11 +29,15 @@ fn main() {
 
 
     let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")[..]),
-                            image::JPEG).unwrap();
+                            image::JPEG).unwrap().to_rgba();
+    let image_dimensions = image.dimensions();
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
     let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-normal.png")[..]),
-                            image::PNG).unwrap();
+                            image::PNG).unwrap().to_rgba();
+    let image_dimensions = image.dimensions();
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
     let normal_map = glium::texture::Texture2d::new(&display, image).unwrap();
 
 

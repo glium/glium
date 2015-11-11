@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Removed the "image" feature and native support for the `image`. You now have to perform conversions yourself.
+
 ## Version 0.11.1 (2015-11-10)
 
  - Fix broken compilation after libc 0.2.

@@ -1,23 +1,19 @@
-#[cfg(feature = "image")]
 extern crate image;
-
 #[macro_use]
 extern crate glium;
 
 use glium::glutin;
-#[cfg(feature = "image")]
 use std::io::Cursor;
-#[cfg(feature = "image")]
 use glium::Surface;
 
 mod support;
 
-#[cfg(not(all(feature = "image", feature = "nalgebra")))]
+#[cfg(not(feature = "nalgebra"))]
 fn main() {
-    println!("This example requires the `image` feature to be enabled");
+    println!("This example requires the `nalgebra` feature to be enabled");
 }
 
-#[cfg(all(feature = "image", feature = "nalgebra"))]
+#[cfg(feature = "nalgebra")]
 fn main() {
     use glium::DisplayBuild;
 
@@ -27,7 +23,9 @@ fn main() {
         .unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-        image::PNG).unwrap();
+                            image::PNG).unwrap().to_rgba();
+    let image_dimensions = image.dimensions();
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw

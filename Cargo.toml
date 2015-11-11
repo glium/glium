@@ -23,7 +23,7 @@ build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
 
 [features]
-default = ["glutin", "image", "nalgebra", "cgmath"]
+default = ["glutin", "nalgebra", "cgmath"]
 unstable = []       # used for benchmarks
 
 [dependencies.glutin]
@@ -39,10 +39,6 @@ optional = true
 version = "0.3"
 optional = true
 
-[dependencies.image]
-version = "0.4.0"
-optional = true
-
 [dependencies]
 backtrace = "0.1.5"
 lazy_static = "0.1"
@@ -56,5 +52,6 @@ khronos_api = "0.0.8"
 [dev-dependencies]
 clock_ticks = "0.1.0"
 genmesh = "0.2.1"
+image = "0.4.0"
 obj = "0.2.1"
 rand = "0.3"
