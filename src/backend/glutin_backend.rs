@@ -10,8 +10,6 @@ Only available if the 'glutin' feature is enabled.
 */
 extern crate glutin;
 
-use libc;
-
 use DisplayBuild;
 use Frame;
 use GliumCreationError;
@@ -232,7 +230,7 @@ unsafe impl Backend for GlutinWindowBackend {
     }
 
     #[inline]
-    unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
         self.window.get_proc_address(symbol) as *const _
     }
 
@@ -305,7 +303,7 @@ unsafe impl Backend for GlutinHeadlessBackend {
     }
 
     #[inline]
-    unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
         self.context.get_proc_address(symbol) as *const _
     }
 

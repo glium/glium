@@ -16,7 +16,6 @@ There are three concepts in play:
    means that you can direct pass the context.
 
 */
-extern crate libc;
 extern crate glium;
 
 use glium::Surface;
@@ -45,7 +44,7 @@ fn main() {
         }
 
         // this function is called only after the OpenGL context has been made current
-        unsafe fn get_proc_address(&self, symbol: &str) -> *const libc::c_void {
+        unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
             self.window.get_proc_address(symbol) as *const _
         }
 
