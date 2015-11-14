@@ -229,7 +229,7 @@ fn multioutput() {
 
     // building the framebuffer
     let mut framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display,
-                                             &[("color1", &color1), ("color2", &color2)]).unwrap();
+                               [("color1", &color1), ("color2", &color2)].iter().cloned()).unwrap();
 
     framebuffer.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
                      &Default::default()).unwrap();
@@ -318,9 +318,8 @@ fn multi_color_attachments_maximum() {
         })
         .collect::<Vec<_>>();
 
-    let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} ).collect::<Vec<_>>();
-
-    glium::framebuffer::MultiOutputFrameBuffer::new(&display, &colors[..]).unwrap();
+    let colors = (0 .. color_textures.len()).map(|i| {("attachment", &color_textures[i])} );
+    glium::framebuffer::MultiOutputFrameBuffer::new(&display, colors).unwrap();
 }
 
 #[test]
