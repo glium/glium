@@ -59,7 +59,7 @@ let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList
 
 ## Program
 
-When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lightning direction, fog distance, etc. But these parameters quickly became too limitating for game creators, and when OpenGL 2 was released a more flexible system was added with what are called *shaders*. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.
+When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lightning direction, fog distance, etc. But these parameters quickly became too limiting for game creators, and when OpenGL 2 was released a more flexible system was added with what are called *shaders*. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.
 
 In order to draw a triangle, you will need some basic understanding about how the drawing processus (also called the *pipeline*) works.
 
