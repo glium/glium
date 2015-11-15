@@ -387,6 +387,59 @@ macro_rules! impl_uniform_block_basic {
                 }
             }
         }
+    );
+
+    ([$base_ty:expr; $num:expr], $simd_ty:expr) => (
+        impl UniformBlock for [$base_ty:expr; $num:expr] {
+            fn matches(layout: &program::BlockLayout, base_offset: usize)
+                       -> Result<(), LayoutMismatchError>
+            {
+                if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
+                    if ty != $simd_ty {
+                        return Err(LayoutMismatchError::TypeMismatch {
+                            expected: ty,
+                            obtained: $simd_ty,
+                        });
+                    }
+
+                    if offset_in_buffer != base_offset {
+                        return Err(LayoutMismatchError::OffsetMismatch {
+                            expected: offset_in_buffer,
+                            obtained: base_offset,
+                        });
+                    }
+
+                    Ok(())
+
+                } else if let &BlockLayout::Array { ref content, length } = layout {
+                    if length != $num || <$base_ty as UniformBlock>::matches(content).is_err() {
+                        return Err(LayoutMismatchError::LayoutMismatch {
+                            expected: layout.clone(),
+                            obtained: BlockLayout::Array {
+                                content: Box::new(<$base_ty as UniformBlock>::build_layout(base_offset)),
+                                length: $num,
+                            },
+                        });
+                    }
+
+                    Ok(())
+
+                } else {
+                    Err(LayoutMismatchError::LayoutMismatch {
+                        expected: layout.clone(),
+                        obtained: self.build_layout(base_offset),
+                    })
+                }
+            }
+
+            #[inline]
+            fn build_layout(base_offset: usize) -> program::BlockLayout {
+                BlockLayout::BasicType {
+                    ty: $simd_ty,
+                    offset_in_buffer: base_offset,
+                }
+            }
+        }
     )
 }
 
