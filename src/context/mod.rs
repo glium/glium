@@ -732,7 +732,7 @@ fn check_gl_compatibility<T>(version: &Version, extensions: &ExtensionsList)
     if result.len() == 0 {
         Ok(())
     } else {
-        Err(GliumCreationError::IncompatibleOpenGl(result.connect("\n")))
+        Err(GliumCreationError::IncompatibleOpenGl(result.join("\n")))
     }
 }
 
