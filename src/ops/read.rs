@@ -3,6 +3,7 @@ use std::ptr;
 use pixel_buffer::PixelBuffer;
 use texture::ClientFormat;
 use texture::PixelValue;
+use image_format::{TextureFormatRequest, TextureFormat};
 
 use fbo;
 use fbo::FramebuffersContainer;
@@ -132,19 +133,27 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
 
     // determining what kind of data we are reading
     enum ReadSourceType { Color, Depth, Stencil, DepthStencil }
-    let read_src_type = match source {
+    let (integer, read_src_type) = match source {
         Source::Attachment(attachment) => {
             match attachment {
                 &fbo::RegularAttachment::Texture(ref tex) => {
-                    ReadSourceType::Color       // FIXME: wrong
+                    let integer = match tex.get_texture().get_requested_format() {
+                        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) => true,
+                        TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) => true,
+                        TextureFormatRequest::AnyIntegral => true,
+                        TextureFormatRequest::AnyUnsigned => true,
+                        _ => false,
+                    };
+
+                    (integer, ReadSourceType::Color)       // FIXME: wrong
                 },
                 &fbo::RegularAttachment::RenderBuffer(ref rb) => {
-                    ReadSourceType::Color       // FIXME: wrong
+                    (false, ReadSourceType::Color)       // FIXME: wrong
                 },
             }
         },
         Source::DefaultFramebuffer(read_buffer) => {
-            ReadSourceType::Color       // FIXME: wrong
+            (false, ReadSourceType::Color)       // FIXME: wrong
         },
     };
 
@@ -166,7 +175,9 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
 
     // obtaining the client format and client type to be passed to `glReadPixels`
     let (format, gltype) = match read_src_type {
-        ReadSourceType::Color => client_format_to_gl_enum(&output_pixel_format),
+        ReadSourceType::Color => {
+            client_format_to_gl_enum(&output_pixel_format, integer)
+        },
         ReadSourceType::Depth => {
             unimplemented!()        // TODO: 
             // TODO: NV_depth_buffer_float2
@@ -228,8 +239,10 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
     Ok(())
 }
 
-fn client_format_to_gl_enum(format: &ClientFormat) -> (gl::types::GLenum, gl::types::GLenum) {
-    match *format {
+fn client_format_to_gl_enum(format: &ClientFormat, integer: bool)
+                            -> (gl::types::GLenum, gl::types::GLenum)
+{
+    let (format, ty) = match *format {
         ClientFormat::U8 => (gl::RED, gl::UNSIGNED_BYTE),
         ClientFormat::U8U8 => (gl::RG, gl::UNSIGNED_BYTE),
         ClientFormat::U8U8U8 => (gl::RGB, gl::UNSIGNED_BYTE),
@@ -267,5 +280,19 @@ fn client_format_to_gl_enum(format: &ClientFormat) -> (gl::types::GLenum, gl::ty
         ClientFormat::F32F32 => (gl::RG, gl::FLOAT),
         ClientFormat::F32F32F32 => (gl::RGB, gl::FLOAT),
         ClientFormat::F32F32F32F32 => (gl::RGBA, gl::FLOAT),
-    }
+    };
+
+    let format = if integer {
+        match format {
+            gl::RED => gl::RED_INTEGER,
+            gl::RG => gl::RG_INTEGER,
+            gl::RGB => gl::RGB_INTEGER,
+            gl::RGBA => gl::RGBA_INTEGER,
+            _ => unreachable!()
+        }
+    } else {
+        format
+    };
+
+    (format, ty)
 }
