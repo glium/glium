@@ -18,8 +18,8 @@ a `MultiOutputFrameBuffer`.
 # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
 # let texture1: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
 # let texture2: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
-let output = &[ ("output1", &texture1), ("output2", &texture2) ];
-let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output);
+let output = [ ("output1", &texture1), ("output2", &texture2) ];
+let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output.iter().cloned());
 // framebuffer.draw(...);
 
 // example shader:
@@ -327,8 +327,11 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn new<F>(facade: &F, color_attachments: &[(&str, &'a Texture2d)])
-                  -> Result<MultiOutputFrameBuffer<'a>, ValidationError> where F: Facade
+    pub fn new<F, I, A>(facade: &F, color_attachments: I)
+                        -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where F: Facade,
+              I: IntoIterator<Item = (&'a str, A)>,
+              A: ToColorAttachment<'a>,
     {
         MultiOutputFrameBuffer::new_impl(facade, color_attachments,
                                          None::<&DepthRenderBuffer>,
@@ -341,20 +344,26 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn with_depth_buffer<F, D>(facade: &F, color_attachments: &[(&str, &'a Texture2d)],
-                                   depth: D) -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
-                                   where D: ToDepthAttachment<'a>, F: Facade
+    pub fn with_depth_buffer<F, D, I, A>(facade: &F, color_attachments: I, depth: D)
+                                         -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where F: Facade,
+              D: ToDepthAttachment<'a>, 
+              I: IntoIterator<Item = (&'a str, A)>,
+              A: ToColorAttachment<'a>,
     {
         MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
                                          None::<&StencilRenderBuffer>)
     }
 
-    fn new_impl<F, D, S>(facade: &F, color: &[(&str, &'a Texture2d)],
-                         depth: Option<D>, stencil: Option<S>)
-                         -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
-                         where D: ToDepthAttachment<'a>, F: Facade
+    fn new_impl<F, D, S, I, A>(facade: &F, color: I,
+                               depth: Option<D>, stencil: Option<S>)
+                               -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where F: Facade,
+              D: ToDepthAttachment<'a>, 
+              I: IntoIterator<Item = (&'a str, A)>,
+              A: ToColorAttachment<'a>,
     {
-        let color = color.iter().map(|&(name, tex)| {
+        let color = color.into_iter().map(|(name, tex)| {
             let atch = tex.to_color_attachment();
             let atch = if let ColorAttachment::Texture(t) = atch { t } else { panic!() };
             (name.to_owned(), fbo::RegularAttachment::Texture(atch))
