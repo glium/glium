@@ -1,8 +1,13 @@
 # Change Log
 
-## Unreleased
+## Version 0.12.0 (2015-11-21)
 
  - Removed the "image" feature and native support for the `image`. You now have to perform conversions yourself.
+ - The `Backend::get_proc_address` function now takes a `*const ()` instead of a `*const libc::c_void`.
+ - Creating a `MultiOutputFrameBuffer` now requires passing an iterator instead of a `Vec`.
+ - When checking a uniform block's layout, `[f32; 4]` now matches both `vec4` and `float[4]` instead of just `vec4` before. Same for all other arrays between 1 and 4 elements.
+ - `UniformBlock` is now implemented for `[T; N]` where N is between 5 and 32, plus 64, 128, 256, 512, 1024 and 2048.
+ - When checking a uniform block's layout, arrays (sized and unsized) now match structs with a single member that is an array.
 
 ## Version 0.11.1 (2015-11-10)
 
