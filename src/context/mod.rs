@@ -157,7 +157,7 @@ impl Context {
     {
         backend.make_current();
 
-        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol));
+        let gl = gl::Gl::load_with(|symbol| backend.get_proc_address(symbol) as *const _);
         let gl_state: RefCell<GlState> = RefCell::new(Default::default());
 
         let version = version::get_gl_version(&gl);
