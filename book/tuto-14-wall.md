@@ -51,7 +51,9 @@ Loading the texture is done like we have already done before:
 
 ```rust
 let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")[..]),
-                        image::JPEG).unwrap();
+                        image::JPEG).unwrap().to_rgba();
+let image_dimensions = image.dimensions();
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
 let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
 ```
 

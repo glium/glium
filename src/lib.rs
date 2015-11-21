@@ -95,8 +95,6 @@ extern crate lazy_static;
 
 #[cfg(feature = "cgmath")]
 extern crate cgmath;
-#[cfg(feature = "image")]
-extern crate image;
 extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;

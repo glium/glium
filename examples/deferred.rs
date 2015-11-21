@@ -2,7 +2,6 @@
 extern crate glium;
 #[cfg(feature = "cgmath")]
 extern crate cgmath;
-#[cfg(feature = "image")]
 extern crate image;
 
 use glium::glutin;
@@ -14,12 +13,12 @@ use std::io::Cursor;
 
 mod support;
 
-#[cfg(not(all(feature = "cgmath", feature = "image")))]
+#[cfg(not(feature = "cgmath"))]
 fn main() {
     println!("This example requires the `cgmath` and `image` features to be enabled");
 }
 
-#[cfg(all(feature = "cgmath", feature = "image"))]
+#[cfg(feature = "cgmath")]
 fn main() {
     use glium::DisplayBuild;
 
@@ -30,7 +29,9 @@ fn main() {
         .build_glium()
         .unwrap();
 
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap();
+    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap().to_rgba();
+    let image_dimensions = image.dimensions();
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
     let floor_vertex_buffer = {

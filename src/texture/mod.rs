@@ -77,9 +77,6 @@ You can use thousands of textures if you want.
 
 use std::borrow::Cow;
 
-#[cfg(feature = "image")]
-use image;
-
 use image_format::FormatNotSupportedError;
 
 pub use image_format::{ClientFormat, TextureFormat};
@@ -348,6 +345,26 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
 }
 
 impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
+    pub fn from_raw_rgba(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+        RawImage2d {
+            data: Cow::Owned(data),
+            width: dimensions.0,
+            height: dimensions.1,
+            format: ClientFormat::U8U8U8U8,
+        }
+    }
+
+    pub fn from_raw_rgba_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+        let data = data
+            .chunks(dimensions.0 as usize * 4)
+            .rev()
+            .flat_map(|row| row.iter())
+            .map(|p| p.clone())
+            .collect();
+
+        RawImage2d::from_raw_rgba(data, dimensions)
+    }
+
     ///Transforms a Vec<RawImage1d> into a RawImage2d
     pub fn from_vec_raw1d(arr: &Vec<RawImage1d<'a, T>>) -> RawImage2d<'a, T> {
         let width   = arr[0].width;
@@ -407,70 +424,18 @@ impl<P> Texture2dDataSink<P> for Vec<Vec<P>> where P: Copy + Clone {
     }
 }
 
-#[cfg(feature = "image")]
-impl<'a, T, P> Texture2dDataSource<'a> for image::ImageBuffer<P, Vec<T>>
-                                       where T: image::Primitive + Send + 'static,
-                                             P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
-{
-    type Data = T;
-
-    fn into_raw(self) -> RawImage2d<'a, T> {
-        use image::GenericImage;
-
-        let (width, height) = self.dimensions();
-
-        // the image library gives us rows from top to bottom, so we need to flip them
-        let data = self.into_raw()
-            .chunks(width as usize * <P as image::Pixel>::channel_count() as usize)
-            .rev()
-            .flat_map(|row| row.iter())
-            .map(|p| p.clone())
-            .collect();
-
+// TODO: hacky
+impl<'a> Texture2dDataSink<(u8, u8, u8, u8)> for RawImage2d<'a, u8> {
+    fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, width: u32, height: u32) -> Self {
         RawImage2d {
-            data: data,
+            data: Cow::Owned(data.into_owned().into_iter().flat_map(|(a, b, c, d)| {
+                // ultra shitty handling of fixed sized arrays means that we need to create a Vec
+                (vec![a, b, c, d]).into_iter()
+            }).collect()),
             width: width,
             height: height,
-            format: <P as PixelValue>::get_format(),
+            format: ClientFormat::U8U8U8U8,
         }
-    }
-}
-
-#[cfg(feature = "image")]
-impl<T, P> Texture2dDataSink<P> for image::ImageBuffer<P, Vec<T>>
-                                    where T: image::Primitive + Send + 'static,
-                                          P: PixelValue + image::Pixel<Subpixel = T> + Clone + Copy
-{
-    fn from_raw(data: Cow<[P]>, width: u32, height: u32) -> Self {
-        // opengl gives us rows from bottom to top, so we need to flip them
-        let data = data
-            .chunks(width as usize)
-            .rev()
-            .flat_map(|row| row.iter())
-            .flat_map(|pixel| pixel.channels().iter())
-            .cloned()
-            .collect();
-
-        image::ImageBuffer::from_raw(width, height, data).unwrap()
-    }
-}
-
-#[cfg(feature = "image")]
-impl<'a> Texture2dDataSource<'a> for image::DynamicImage {
-    type Data = u8;
-
-    #[inline]
-    fn into_raw(self) -> RawImage2d<'a, u8> {
-        Texture2dDataSource::into_raw(self.to_rgba())
-    }
-}
-
-#[cfg(feature = "image")]
-impl Texture2dDataSink<(u8, u8, u8, u8)> for image::DynamicImage {
-    #[inline]
-    fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, w: u32, h: u32) -> image::DynamicImage {
-        let data = unsafe { ::std::mem::transmute(data) };     // FIXME: <-
-        image::DynamicImage::ImageRgba8(Texture2dDataSink::from_raw(data, w, h))
     }
 }
 

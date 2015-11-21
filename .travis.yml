@@ -18,7 +18,7 @@ env:
   matrix:
     - FEATURES='' TEST=0 COVERAGE=0
     - FEATURES='glutin' TEST=1 COVERAGE=0
-    - FEATURES='glutin image cgmath nalgebra' TEST=1 COVERAGE=1
+    - FEATURES='glutin cgmath nalgebra' TEST=1 COVERAGE=1
 
 addons:
   apt:
@@ -41,7 +41,7 @@ after_success:
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
         [ $TRAVIS_RUST_VERSION = nightly ] &&
-        cargo doc -j 1 --features "glutin image cgmath nalgebra" &&
+        cargo doc -j 1 --features "glutin cgmath nalgebra" &&
         npm install gitbook-cli -g &&
         gitbook build ./book &&
         mv ./book/_book ./target/doc/book &&

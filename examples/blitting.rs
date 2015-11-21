@@ -2,26 +2,15 @@ extern crate rand;
 
 #[macro_use]
 extern crate glium;
-
-#[cfg(feature = "image")]
 extern crate image;
 
-#[cfg(feature = "image")]
 use std::io::Cursor;
-
-#[cfg(feature = "image")]
 use glium::{DisplayBuild, Surface};
 
 use glium::glutin;
 
 mod support;
 
-#[cfg(not(feature = "image"))]
-fn main() {
-    println!("This example requires the `image` feature to be enabled");
-}
-
-#[cfg(feature = "image")]
 fn main() {
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()
@@ -31,7 +20,9 @@ fn main() {
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-        image::PNG).unwrap();
+                            image::PNG).unwrap().to_rgba();
+    let image_dimensions = image.dimensions();
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
     let opengl_texture = glium::Texture2d::new(&display, image).unwrap();
 
     // building a 1024x1024 empty texture
