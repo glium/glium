@@ -42,7 +42,7 @@ optional = true
 [dependencies]
 backtrace = "0.1.5"
 lazy_static = "0.1"
-libc = "0.1"
+libc = "0.2.2"
 smallvec = "0.1.5"
 
 [build-dependencies]
