@@ -720,6 +720,13 @@ pub trait ToColorAttachment<'a> {
     fn to_color_attachment(self) -> ColorAttachment<'a>;
 }
 
+impl<'a> ToColorAttachment<'a> for ColorAttachment<'a> {
+    #[inline]
+    fn to_color_attachment(self) -> ColorAttachment<'a> {
+        self
+    }
+}
+
 /// Describes an attachment for a depth buffer.
 #[derive(Copy, Clone)]
 pub enum DepthAttachment<'a> {
@@ -733,6 +740,13 @@ pub enum DepthAttachment<'a> {
 pub trait ToDepthAttachment<'a> {
     /// Builds the `DepthAttachment`.
     fn to_depth_attachment(self) -> DepthAttachment<'a>;
+}
+
+impl<'a> ToDepthAttachment<'a> for DepthAttachment<'a> {
+    #[inline]
+    fn to_depth_attachment(self) -> DepthAttachment<'a> {
+        self
+    }
 }
 
 /// Describes an attachment for a stencil buffer.
@@ -750,6 +764,13 @@ pub trait ToStencilAttachment<'a> {
     fn to_stencil_attachment(self) -> StencilAttachment<'a>;
 }
 
+impl<'a> ToStencilAttachment<'a> for StencilAttachment<'a> {
+    #[inline]
+    fn to_stencil_attachment(self) -> StencilAttachment<'a> {
+        self
+    }
+}
+
 /// Describes an attachment for a depth and stencil buffer.
 #[derive(Copy, Clone)]
 pub enum DepthStencilAttachment<'a> {
@@ -763,4 +784,11 @@ pub enum DepthStencilAttachment<'a> {
 pub trait ToDepthStencilAttachment<'a> {
     /// Builds the `DepthStencilAttachment`.
     fn to_depth_stencil_attachment(self) -> DepthStencilAttachment<'a>;
+}
+
+impl<'a> ToDepthStencilAttachment<'a> for DepthStencilAttachment<'a> {
+    #[inline]
+    fn to_depth_stencil_attachment(self) -> DepthStencilAttachment<'a> {
+        self
+    }
 }
