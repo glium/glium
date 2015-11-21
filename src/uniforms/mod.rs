@@ -196,6 +196,12 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
     fn matches(layout: &BlockLayout, base_offset: usize)
                -> Result<(), LayoutMismatchError>
     {
+        if let &BlockLayout::Struct { ref members } = layout {
+            if members.len() == 1 {
+                return Self::matches(&members[0].1, base_offset);
+            }
+        }
+
         if let &BlockLayout::DynamicSizedArray { ref content } = layout {
             <T as UniformBlock>::matches(content, base_offset)
                 .map_err(|err| {
@@ -229,3 +235,86 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
         }
     }
 }
+
+macro_rules! impl_uniform_block_array {
+    ($len:expr) => (
+        impl<T> UniformBlock for [T; $len] where T: UniformBlock {
+            fn matches(layout: &program::BlockLayout, base_offset: usize)
+                       -> Result<(), LayoutMismatchError>
+            {
+                if let &BlockLayout::Struct { ref members } = layout {
+                    if members.len() == 1 {
+                        return Self::matches(&members[0].1, base_offset);
+                    }
+                }
+
+                if let &BlockLayout::Array { ref content, length } = layout {
+                    if let Err(_) = T::matches(content, base_offset) {
+                        return Err(LayoutMismatchError::LayoutMismatch {
+                            expected: (**content).clone(),
+                            obtained: T::build_layout(base_offset),
+                        });
+                    }
+
+                    if length != $len {
+                        return Err(LayoutMismatchError::LayoutMismatch {
+                            expected: (**content).clone(),
+                            obtained: T::build_layout(base_offset),
+                        });
+                    }
+
+                    Ok(())
+
+                } else {
+                    Err(LayoutMismatchError::LayoutMismatch {
+                        expected: layout.clone(),
+                        obtained: Self::build_layout(base_offset),
+                    })
+                }
+            }
+
+            #[inline]
+            fn build_layout(base_offset: usize) -> program::BlockLayout {
+                BlockLayout::Array {
+                    content: Box::new(T::build_layout(base_offset)),
+                    length: $len,
+                }
+            }
+        }
+    );
+}
+
+impl_uniform_block_array!(5);
+impl_uniform_block_array!(6);
+impl_uniform_block_array!(7);
+impl_uniform_block_array!(8);
+impl_uniform_block_array!(9);
+impl_uniform_block_array!(10);
+impl_uniform_block_array!(11);
+impl_uniform_block_array!(12);
+impl_uniform_block_array!(13);
+impl_uniform_block_array!(14);
+impl_uniform_block_array!(15);
+impl_uniform_block_array!(16);
+impl_uniform_block_array!(17);
+impl_uniform_block_array!(18);
+impl_uniform_block_array!(19);
+impl_uniform_block_array!(20);
+impl_uniform_block_array!(21);
+impl_uniform_block_array!(22);
+impl_uniform_block_array!(23);
+impl_uniform_block_array!(24);
+impl_uniform_block_array!(25);
+impl_uniform_block_array!(26);
+impl_uniform_block_array!(27);
+impl_uniform_block_array!(28);
+impl_uniform_block_array!(29);
+impl_uniform_block_array!(30);
+impl_uniform_block_array!(31);
+impl_uniform_block_array!(32);
+impl_uniform_block_array!(64);
+impl_uniform_block_array!(128);
+impl_uniform_block_array!(256);
+impl_uniform_block_array!(512);
+impl_uniform_block_array!(1024);
+impl_uniform_block_array!(2048);
