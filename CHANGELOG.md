@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Implement the `ToXAttachment` traits for the `XAttachment` types.
+
 ## Version 0.12.0 (2015-11-21)
 
  - Removed the "image" feature and native support for the `image`. You now have to perform conversions yourself.
