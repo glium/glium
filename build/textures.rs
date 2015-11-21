@@ -462,17 +462,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
        dimensions == TextureDimensions::Texture1d
     {
         match ty {
-            TextureType::Regular => {
-                (writeln!(dest, "
-                        impl<'t> ::framebuffer::ToColorAttachment<'t> for &'t {name} {{
-                            #[inline]
-                            fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                ::framebuffer::ColorAttachment::Texture(self.0.main_level().first_layer().into_image(None).unwrap())
-                            }}
-                        }}
-                    ", name = name)).unwrap();
-            },
-            TextureType::Srgb => {
+            TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
                 (writeln!(dest, "
                         impl<'t> ::framebuffer::ToColorAttachment<'t> for &'t {name} {{
                             #[inline]
@@ -1209,17 +1199,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
            dimensions == TextureDimensions::Texture1d
         {
             match ty {
-                TextureType::Regular => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
-                                #[inline]
-                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::Srgb => {
+                TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
                     (writeln!(dest, "
                             impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
                                 #[inline]
@@ -1291,17 +1271,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // attachment traits
         if dimensions != TextureDimensions::Texture3d && !dimensions.is_cube() {
             match ty {
-                TextureType::Regular => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
-                                #[inline]
-                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::Srgb => {
+                TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
                     (writeln!(dest, "
                             impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
                                 #[inline]
@@ -1363,17 +1333,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         // attachment traits
         match ty {
-            TextureType::Regular => {
-                (writeln!(dest, "
-                        impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Image<'t> {{
-                            #[inline]
-                            fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                ::framebuffer::ColorAttachment::Texture(self.0)
-                            }}
-                        }}
-                    ", name = name)).unwrap();
-            },
-            TextureType::Srgb => {
+            TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
                 (writeln!(dest, "
                         impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Image<'t> {{
                             #[inline]
