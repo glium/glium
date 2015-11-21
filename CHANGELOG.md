@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Implement the `ToColorAttachment` trait for unsigned and integral textures.
  - Implement the `ToXAttachment` traits for the `XAttachment` types.
 
 ## Version 0.12.0 (2015-11-21)
