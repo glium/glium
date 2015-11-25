@@ -469,6 +469,13 @@ impl TextureAny {
         }
     }
 
+    /// Returns the initial requested format.
+    #[inline]
+    #[doc(hidden)]
+    pub fn get_requested_format(&self) -> TextureFormatRequest {
+        self.requested_format
+    }
+
     /// Returns the array size of the texture.
     #[inline]
     pub fn get_array_size(&self) -> Option<u32> {
@@ -1286,7 +1293,7 @@ impl<'a> TextureAnyImage<'a> {
     ///
     /// Panicks if the rect is out of range.
     ///
-    pub fn raw_read<T>(&self, rect: &Rect) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {
+    pub fn raw_read<T, P>(&self, rect: &Rect) -> T where T: Texture2dDataSink<P>, P: PixelValue {
         assert!(rect.left + rect.width <= self.width);
         assert!(rect.bottom + rect.height <= self.height.unwrap_or(1));
 
