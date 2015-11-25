@@ -316,8 +316,7 @@ pub struct MultiOutputFrameBuffer<'a> {
     context: Rc<Context>,
     example_attachments: fbo::ValidatedAttachments<'a>,
     color_attachments: Vec<(String, fbo::RegularAttachment<'a>)>,
-    depth_attachment: Option<fbo::RegularAttachment<'a>>,
-    stencil_attachment: Option<fbo::RegularAttachment<'a>>,
+    depth_stencil_attachments: fbo::DepthStencilAttachments<fbo::RegularAttachment<'a>>,
 }
 
 impl<'a> MultiOutputFrameBuffer<'a> {
@@ -333,9 +332,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
               I: IntoIterator<Item = (&'a str, A)>,
               A: ToColorAttachment<'a>,
     {
-        MultiOutputFrameBuffer::new_impl(facade, color_attachments,
-                                         None::<&DepthRenderBuffer>,
-                                         None::<&StencilRenderBuffer>)
+        MultiOutputFrameBuffer::new_impl(facade, color_attachments, None, None, None)
     }
 
     /// Creates a `MultiOutputFrameBuffer` with a depth buffer.
@@ -351,15 +348,68 @@ impl<'a> MultiOutputFrameBuffer<'a> {
               I: IntoIterator<Item = (&'a str, A)>,
               A: ToColorAttachment<'a>,
     {
-        MultiOutputFrameBuffer::new_impl(facade, color_attachments, Some(depth),
-                                         None::<&StencilRenderBuffer>)
+        MultiOutputFrameBuffer::new_impl(facade, color_attachments,
+                                         Some(depth.to_depth_attachment()), None, None)
     }
 
-    fn new_impl<F, D, S, I, A>(facade: &F, color: I,
-                               depth: Option<D>, stencil: Option<S>)
-                               -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+    /// Creates a `MultiOutputFrameBuffer` with a depth buffer, and a stencil buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if all attachments don't have the same dimensions.
+    #[inline]
+    pub fn with_depth_and_stencil_buffer<A, F, I, D, S>(facade: &F, color: I, depth: D, stencil: S)
+                                                        -> Result<MultiOutputFrameBuffer<'a>,
+                                                                  ValidationError>
+        where D: ToDepthAttachment<'a>,
+              I: IntoIterator<Item = (&'a str, A)>,
+              S: ToStencilAttachment<'a>,
+              A: ToColorAttachment<'a>,
+              F: Facade
+    {
+        MultiOutputFrameBuffer::new_impl(facade, color,
+                                         Some(depth.to_depth_attachment()),
+                                         Some(stencil.to_stencil_attachment()), None)
+    }
+
+    /// Creates a `MultiOutputFrameBuffer` with a stencil buffer, but no depth buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if all attachments don't have the same dimensions.
+    #[inline]
+    pub fn with_stencil_buffer<A, F, I, S>(facade: &F, color: I, stencil: S)
+                                           -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where S: ToStencilAttachment<'a>,
+              F: Facade,
+              I: IntoIterator<Item = (&'a str, A)>,
+              A: ToColorAttachment<'a>,
+    {
+        MultiOutputFrameBuffer::new_impl(facade, color, None,
+                                         Some(stencil.to_stencil_attachment()), None)
+    }
+
+    /// Creates a `MultiOutputFrameBuffer` with a depth-stencil buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if all attachments don't have the same dimensions.
+    #[inline]
+    pub fn with_depth_stencil_buffer<A, F, I, D>(facade: &F, color: I, depthstencil: D)
+                                                 -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
+        where D: ToDepthStencilAttachment<'a>, F: Facade,
+              I: IntoIterator<Item = (&'a str, A)>,
+              A: ToColorAttachment<'a>,
+    {
+        MultiOutputFrameBuffer::new_impl(facade, color, None, None,
+                                    Some(depthstencil.to_depth_stencil_attachment()))
+    }
+
+    fn new_impl<F, I, A>(facade: &F, color: I, depth: Option<DepthAttachment<'a>>,
+                         stencil: Option<StencilAttachment<'a>>,
+                         depthstencil: Option<DepthStencilAttachment<'a>>)
+                         -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
         where F: Facade,
-              D: ToDepthAttachment<'a>, 
               I: IntoIterator<Item = (&'a str, A)>,
               A: ToColorAttachment<'a>,
     {
@@ -377,46 +427,43 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             v
         };
 
-        let depth = depth.map(|depth| match depth.to_depth_attachment() {
+        let depth = depth.map(|depth| match depth {
             DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
             DepthAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
         });
 
-        let stencil = None;/*stencil.map(|stencil|  match color {
-            StencilAttachment::Texture(tex) => fbo::RegularAttachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
-            },
+        let stencil = stencil.map(|stencil|  match stencil {
+            StencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
             StencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });*/       // TODO:
+        });
 
-        let depthstencil = None;/*depthstencil.map(|depthstencil| match color {
-            DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::TextureLayer {
-                texture: tex.get_texture(), layer: tex.get_layer(), level: tex.get_level()
-            },
+        let depthstencil = depthstencil.map(|depthstencil| match depthstencil {
+            DepthStencilAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
             DepthStencilAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        });*/       // TODO:
+        });
+
+        let depth_stencil_attachments = if let (Some(depth), Some(stencil)) = (depth, stencil) {
+            fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
+        } else if let Some(depth) = depth {
+            fbo::DepthStencilAttachments::DepthAttachment(depth)
+        } else if let Some(stencil) = stencil {
+            fbo::DepthStencilAttachments::StencilAttachment(stencil)
+        } else if let Some(depthstencil) = depthstencil {
+            fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
+        } else {
+            fbo::DepthStencilAttachments::None
+        };
 
         let example_attachments = try!(fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: example_color,
-            depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
-                fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
-            } else if let Some(depth) = depth {
-                fbo::DepthStencilAttachments::DepthAttachment(depth)
-            } else if let Some(stencil) = stencil {
-                fbo::DepthStencilAttachments::StencilAttachment(stencil)
-            } else if let Some(depthstencil) = depthstencil {
-                fbo::DepthStencilAttachments::DepthStencilAttachment(depthstencil)
-            } else {
-                fbo::DepthStencilAttachments::None
-            }
+            depth_stencil: depth_stencil_attachments,
         }).validate(facade));
 
         Ok(MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
             example_attachments: example_attachments,
             color_attachments: color,
-            depth_attachment: depth,
-            stencil_attachment: stencil,
+            depth_stencil_attachments: depth_stencil_attachments,
         })
     }
 
@@ -434,11 +481,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: colors,
-            depth_stencil: if let Some(depth) = self.depth_attachment {
-                fbo::DepthStencilAttachments::DepthAttachment(depth)
-            } else {        // FIXME: other cases
-                fbo::DepthStencilAttachments::None
-            },
+            depth_stencil: self.depth_stencil_attachments,
         }).validate(&self.context).unwrap()
     }
 }
