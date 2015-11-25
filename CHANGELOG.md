@@ -1,9 +1,11 @@
 # Change Log
 
-## Unreleased
+## Version 0.12.1 (2015-11-25)
 
- - Implement the `ToColorAttachment` trait for unsigned and integral textures.
- - Implement the `ToXAttachment` traits for the `XAttachment` types.
+ - Added `MultiOutputFrameBuffer::with_stencil`, `with_depth_stencil` and `with_depth_and_stencil`.
+ - Implemented the `ToColorAttachment` trait for unsigned and integral textures.
+ - Implemented the `ToXAttachment` traits for the `XAttachment` types.
+ - It is now possible to use another format than `(u8, u8, u8, u8)` with `raw_read` on a texture.
 
 ## Version 0.12.0 (2015-11-21)
 
