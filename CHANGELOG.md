@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.12.2 (2015-11-25)
+
+ - Fixed a bug when matching frag output locations with framebuffer attachments.
+
 ## Version 0.12.1 (2015-11-25)
 
  - Added `MultiOutputFrameBuffer::with_stencil`, `with_depth_stencil` and `with_depth_and_stencil`.
