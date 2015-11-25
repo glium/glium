@@ -583,6 +583,7 @@ pub enum ValidationError {
 /// These attachments are guaranteed to be valid.
 #[derive(Hash, Clone, Eq, PartialEq)]
 struct RawAttachments {
+    // for each frag output the location, the attachment to use
     color: Vec<(u32, RawAttachment)>,
     depth: Option<RawAttachment>,
     stencil: Option<RawAttachment>,
@@ -916,13 +917,15 @@ impl FrameBufferObject {
 
         // attaching the attachments, and building the list of enums to pass to `glDrawBuffers`
         let mut raw_attachments = Vec::with_capacity(attachments.color.len());
-        for &(slot, atchmnt) in attachments.color.iter() {
-            if slot >= ctxt.capabilities.max_color_attachments as u32 {
+        for (attachment_pos, &(pos_in_drawbuffers, atchmnt)) in attachments.color.iter().enumerate() {
+            if attachment_pos >= ctxt.capabilities.max_color_attachments as usize {
                 panic!("Trying to attach a color buffer to slot {}, but the hardware only supports {} bind points",
-                    slot, ctxt.capabilities.max_color_attachments);
+                    attachment_pos, ctxt.capabilities.max_color_attachments);
             }
-            unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + slot as u32, id, atchmnt) };
-            raw_attachments.push(gl::COLOR_ATTACHMENT0 + slot as gl::types::GLenum);
+            unsafe { attach(&mut ctxt, gl::COLOR_ATTACHMENT0 + attachment_pos as u32, id, atchmnt) };
+
+            while raw_attachments.len() <= pos_in_drawbuffers as usize { raw_attachments.push(gl::NONE); }
+            raw_attachments[pos_in_drawbuffers as usize] = gl::COLOR_ATTACHMENT0 + attachment_pos as u32;
         }
         if let Some(depth) = attachments.depth {
             unsafe { attach(&mut ctxt, gl::DEPTH_ATTACHMENT, id, depth) };
