@@ -5,7 +5,7 @@ use version::Version;
 use CapabilitiesSource;
 use ContextExt;
 use gl;
-use libc;
+use std::os::raw;
 use std::{fmt, mem, ptr};
 use std::cell::Cell;
 use std::rc::Rc;
@@ -50,7 +50,7 @@ pub struct Alloc {
     size: usize,
 
     /// A pointer to the persistent mapping of this buffer in memory, if there is one.
-    persistent_mapping: Option<*mut libc::c_void>,
+    persistent_mapping: Option<*mut raw::c_void>,
 
     /// If true, then this buffer can only be modified by calls to `glCopyBufferSubData` or through
     /// the persistent mapping.
@@ -429,12 +429,12 @@ impl Alloc {
             if ctxt.version >= &Version(Api::Gl, 4, 5) {
                 ctxt.gl.NamedBufferSubData(self.id, offset_bytes as gl::types::GLintptr,
                                            mem::size_of_val(data) as gl::types::GLsizeiptr,
-                                           data.to_void_ptr() as *const libc::c_void)
+                                           data.to_void_ptr() as *const _)
 
             } else if ctxt.extensions.gl_ext_direct_state_access {
                 ctxt.gl.NamedBufferSubDataEXT(self.id, offset_bytes as gl::types::GLintptr,
                                               mem::size_of_val(data) as gl::types::GLsizeiptr,
-                                              data.to_void_ptr() as *const libc::c_void)
+                                              data.to_void_ptr() as *const _)
 
             } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
                 ctxt.version >= &Version(Api::GlEs, 2, 0)
@@ -442,13 +442,13 @@ impl Alloc {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                 ctxt.gl.BufferSubData(bind, offset_bytes as gl::types::GLintptr,
                                       mem::size_of_val(data) as gl::types::GLsizeiptr,
-                                      data.to_void_ptr() as *const libc::c_void);
+                                      data.to_void_ptr() as *const _);
 
             } else if ctxt.extensions.gl_arb_vertex_buffer_object {
                 let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                 ctxt.gl.BufferSubDataARB(bind, offset_bytes as gl::types::GLintptr,
                                          mem::size_of_val(data) as gl::types::GLsizeiptr,
-                                         data.to_void_ptr() as *const libc::c_void);
+                                         data.to_void_ptr() as *const _);
 
             } else {
                 unreachable!();
@@ -766,19 +766,19 @@ impl Alloc {
                 if ctxt.version >= &Version(Api::Gl, 4, 5) {
                     ctxt.gl.GetNamedBufferSubData(self.id, range.start as gl::types::GLintptr,
                                                   size_to_read as gl::types::GLsizeiptr,
-                                                  output as *mut _ as *mut libc::c_void);
+                                                  output as *mut _ as *mut _);
 
                 } else if ctxt.version >= &Version(Api::Gl, 1, 5) {
                     let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                     ctxt.gl.GetBufferSubData(bind, range.start as gl::types::GLintptr,
                                              size_to_read as gl::types::GLsizeiptr,
-                                             output as *mut _ as *mut libc::c_void);
+                                             output as *mut _ as *mut _);
 
                 } else if ctxt.extensions.gl_arb_vertex_buffer_object {
                     let bind = bind_buffer(&mut ctxt, self.id, self.ty);
                     ctxt.gl.GetBufferSubDataARB(bind, range.start as gl::types::GLintptr,
                                                 size_to_read as gl::types::GLsizeiptr,
-                                                output as *mut _ as *mut libc::c_void);
+                                                output as *mut _ as *mut _);
 
                 } else if ctxt.version >= &Version(Api::GlEs, 1, 0) {
                     return Err(ReadError::NotSupported);
@@ -1078,7 +1078,7 @@ pub fn is_buffer_read_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource
 /// Panics if `mem::size_of_val(&data) != size`.
 unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, data: Option<&D>,
                                    ty: BufferType, mode: BufferMode)
-                                   -> Result<(gl::types::GLuint, bool, bool, Option<*mut libc::c_void>),
+                                   -> Result<(gl::types::GLuint, bool, bool, Option<*mut raw::c_void>),
                                              BufferCreationError>
                                    where D: Content
 {
@@ -1158,7 +1158,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
 
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
         ctxt.gl.NamedBufferStorage(id, size as gl::types::GLsizeiptr,
-                                   data_ptr as *const libc::c_void,
+                                   data_ptr as *const _,
                                    immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameteriv(id, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = could_be_immutable;
@@ -1168,7 +1168,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
               ctxt.extensions.gl_ext_direct_state_access
     {
         ctxt.gl.NamedBufferStorageEXT(id, size as gl::types::GLsizeiptr,
-                                      data_ptr as *const libc::c_void,
+                                      data_ptr as *const _,
                                       immutable_storage_flags);
         ctxt.gl.GetNamedBufferParameterivEXT(id, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = could_be_immutable;
@@ -1179,7 +1179,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
         ctxt.gl.BufferStorage(bind, size as gl::types::GLsizeiptr,
-                              data_ptr as *const libc::c_void,
+                              data_ptr as *const _,
                               immutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = could_be_immutable;
@@ -1188,7 +1188,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     } else if ctxt.extensions.gl_ext_buffer_storage {
         let bind = bind_buffer(&mut ctxt, id, ty);
         ctxt.gl.BufferStorageEXT(bind, size as gl::types::GLsizeiptr,
-                                 data_ptr as *const libc::c_void,
+                                 data_ptr as *const _,
                                  immutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = could_be_immutable;
@@ -1199,7 +1199,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     {
         let bind = bind_buffer(&mut ctxt, id, ty);
         ctxt.gl.BufferData(bind, size as gl::types::GLsizeiptr,
-                           data_ptr as *const libc::c_void, mutable_storage_flags);
+                           data_ptr as *const _, mutable_storage_flags);
         ctxt.gl.GetBufferParameteriv(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = false;
         created_with_buffer_storage = false;
@@ -1207,7 +1207,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     } else if ctxt.extensions.gl_arb_vertex_buffer_object {
         let bind = bind_buffer(&mut ctxt, id, ty);
         ctxt.gl.BufferDataARB(bind, size as gl::types::GLsizeiptr,
-                              data_ptr as *const libc::c_void, mutable_storage_flags);
+                              data_ptr as *const _, mutable_storage_flags);
         ctxt.gl.GetBufferParameterivARB(bind, gl::BUFFER_SIZE, &mut obtained_size);
         immutable = false;
         created_with_buffer_storage = false;

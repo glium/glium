@@ -42,11 +42,10 @@ optional = true
 [dependencies]
 backtrace = "0.1.5"
 lazy_static = "0.1"
-libc = "0.2.2"
 smallvec = "0.1.5"
 
 [build-dependencies]
-gl_generator = "0.2.0"
+gl_generator = "0.3.0"
 khronos_api = "0.0.8"
 
 [dev-dependencies]

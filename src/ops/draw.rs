@@ -20,7 +20,6 @@ use vertex_array_object::VertexAttributesSystem;
 
 use draw_parameters::DrawParameters;
 
-use libc;
 use {gl, context, draw_parameters};
 use version::Version;
 use version::Api;
@@ -204,7 +203,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                                      buffer.get_elements_count() as
                                                                         gl::types::GLsizei,
                                                                         data_type.to_glenum(),
-                                                                        ptr as *const libc::c_void,
+                                                                        ptr as *const _,
                                                                         instances_count as
                                                                         gl::types::GLsizei,
                                                                         base_vertex);
@@ -214,7 +213,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                                      buffer.get_elements_count() as
                                                                            gl::types::GLsizei,
                                                                            data_type.to_glenum(),
-                                                                        ptr as *const libc::c_void,
+                                                                        ptr as *const _,
                                                                            instances_count as
                                                                            gl::types::GLsizei,
                                                                            base_vertex);
@@ -227,7 +226,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                           buffer.get_elements_count() as
                                                           gl::types::GLsizei,
                                                           data_type.to_glenum(),
-                                                          ptr as *const libc::c_void,
+                                                          ptr as *const _,
                                                           instances_count as gl::types::GLsizei);
                         }
 
@@ -241,7 +240,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                                buffer.get_elements_count() as
                                                                gl::types::GLsizei,
                                                                data_type.to_glenum(),
-                                                               ptr as *const libc::c_void,
+                                                               ptr as *const _,
                                                                base_vertex);
 
                             } else if ctxt.extensions.gl_oes_draw_elements_base_vertex {
@@ -249,7 +248,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                                   buffer.get_elements_count() as
                                                                   gl::types::GLsizei,
                                                                   data_type.to_glenum(),
-                                                                  ptr as *const libc::c_void,
+                                                                  ptr as *const _,
                                                                   base_vertex);
                             } else {
                                 unreachable!();
@@ -259,7 +258,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                             ctxt.gl.DrawElements(primitives.to_glenum(),
                                                  buffer.get_elements_count() as gl::types::GLsizei,
                                                  data_type.to_glenum(),
-                                                 ptr as *const libc::c_void);
+                                                 ptr as *const _);
                         }
                     }
                 }

@@ -95,7 +95,6 @@ extern crate lazy_static;
 
 #[cfg(feature = "cgmath")]
 extern crate cgmath;
-extern crate libc;
 #[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 extern crate backtrace;

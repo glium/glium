@@ -1,9 +1,8 @@
 //! Allows one to draw multiple geometry located in the same buffer.
 //!
-use libc;
-
 use std::ops::Deref;
 use std::ops::DerefMut;
+use std::os::raw;
 
 use backend::Facade;
 use buffer::{BufferCreationError, BufferType, BufferMode, Buffer};
@@ -15,13 +14,13 @@ use index::{IndicesSource, PrimitiveType, IndexBuffer, Index};
 #[derive(Debug, Copy, Clone)]
 pub struct DrawCommandNoIndices {
     /// Number of vertices to draw.
-    pub count: libc::c_uint,
+    pub count: raw::c_uint,
     /// Number of instances to draw. If it's `0`, nothing will be drawn.
-    pub instance_count: libc::c_uint,
+    pub instance_count: raw::c_uint,
     /// First vertex to draw in the vertices source.
-    pub first_index: libc::c_uint,
+    pub first_index: raw::c_uint,
     /// Numero of the first instance to draw.
-    pub base_instance: libc::c_uint,
+    pub base_instance: raw::c_uint,
 }
 
 implement_uniform_block!(DrawCommandNoIndices, count, instance_count,
@@ -32,15 +31,15 @@ implement_uniform_block!(DrawCommandNoIndices, count, instance_count,
 #[derive(Debug, Copy, Clone)]
 pub struct DrawCommandIndices {
     /// Number of indices to use in the index buffer.
-    pub count: libc::c_uint,
+    pub count: raw::c_uint,
     /// Number of instances to draw. If it's `0`, nothing will be drawn.
-    pub instance_count: libc::c_uint,
+    pub instance_count: raw::c_uint,
     /// First index to draw in the index buffer.
-    pub first_index: libc::c_uint,
+    pub first_index: raw::c_uint,
     /// Value to add to each index.
-    pub base_vertex: libc::c_uint,
+    pub base_vertex: raw::c_uint,
     /// Numero of the first instance to draw.
-    pub base_instance: libc::c_uint,
+    pub base_instance: raw::c_uint,
 }
 
 implement_uniform_block!(DrawCommandIndices, count, instance_count, first_index,

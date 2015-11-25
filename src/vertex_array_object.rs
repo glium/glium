@@ -13,7 +13,7 @@ use vertex::VertexFormat;
 use GlObject;
 use BufferExt;
 
-use {libc, gl};
+use gl;
 use context::CommandContext;
 use version::Api;
 use version::Version;
@@ -536,14 +536,14 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
                     ctxt.gl.VertexAttribIPointer(attribute.location as u32,
                                                  elements_count as gl::types::GLint, data_type,
                                                  stride as i32,
-                                                 (buffer_offset + offset) as *const libc::c_void),
+                                                 (buffer_offset + offset) as *const _),
 
                 gl::FLOAT => {
                     for i in 0..instances_count {
                         ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
                                                     elements_count as gl::types::GLint, data_type, 0,
                                                     stride as i32,
-                                                    (buffer_offset + offset + (i * elements_count * 4) as usize) as *const libc::c_void)
+                                                    (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
                     }
                 },
 
@@ -552,7 +552,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
                         ctxt.gl.VertexAttribLPointer((attribute.location + i) as u32,
                                                      elements_count as gl::types::GLint, data_type,
                                                      stride as i32,
-                                                     (buffer_offset + offset + (i * elements_count * 8) as usize) as *const libc::c_void)
+                                                     (buffer_offset + offset + (i * elements_count * 8) as usize) as *const _)
                     }
                 },
 
