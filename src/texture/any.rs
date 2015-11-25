@@ -24,7 +24,6 @@ use buffer::BufferAny;
 use BufferExt;
 use BufferSliceExt;
 
-use libc;
 use std::cmp;
 use std::fmt;
 use std::mem;
@@ -33,6 +32,7 @@ use std::borrow::Cow;
 use std::cell::Cell;
 use std::rc::Rc;
 use std::ops::Range;
+use std::os::raw;
 
 use ops;
 use fbo;
@@ -159,7 +159,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         let has_mipmaps = texture_levels > 1;
         let data = data;
         let data_raw = if let Some((_, ref data)) = data {
-            data.as_ptr() as *const libc::c_void
+            data.as_ptr() as *const _
         } else {
             ptr::null()
         };
@@ -1060,7 +1060,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
                                                     height.unwrap_or(1) as gl::types::GLsizei,
                                                     client_format,
                                                     data_bufsize  as gl::types::GLsizei,
-                                                    data.as_ptr() as *const libc::c_void);
+                                                    data.as_ptr() as *const _);
                 } else {
                     ctxt.gl.TexSubImage2D(bind_point, level as gl::types::GLint,
                                           x_offset as gl::types::GLint,
@@ -1068,7 +1068,7 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
                                           width as gl::types::GLsizei,
                                           height.unwrap_or(1) as gl::types::GLsizei,
                                           client_format, client_type,
-                                          data.as_ptr() as *const libc::c_void);
+                                          data.as_ptr() as *const _);
                 }
 
             } else {

@@ -1,10 +1,10 @@
 use gl;
-use libc;
 
 use std::ffi;
 use std::mem;
 use std::ptr;
 use std::collections::HashMap;
+use std::os::raw;
 
 use context::CommandContext;
 use version::Version;
@@ -231,13 +231,13 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
                         ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetUniformLocation(program,
                                            ffi::CString::new(uniform_name.as_bytes()).unwrap()
-                                             .as_bytes_with_nul().as_ptr() as *const libc::c_char)
+                                             .as_bytes_with_nul().as_ptr() as *const raw::c_char)
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
                 ctxt.gl.GetUniformLocationARB(program,
                                               ffi::CString::new(uniform_name.as_bytes()).unwrap()
-                                                .as_bytes_with_nul().as_ptr() as *const libc::c_char)
+                                                .as_bytes_with_nul().as_ptr() as *const raw::c_char)
             }
         };
 
@@ -313,13 +313,13 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
                         ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetAttribLocation(program,
                                           ffi::CString::new(attr_name.as_bytes()).unwrap()
-                                            .as_bytes_with_nul().as_ptr() as *const libc::c_char)
+                                            .as_bytes_with_nul().as_ptr() as *const raw::c_char)
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_vertex_shader);
                 ctxt.gl.GetAttribLocationARB(program,
                                              ffi::CString::new(attr_name.as_bytes()).unwrap()
-                                               .as_bytes_with_nul().as_ptr() as *const libc::c_char)
+                                               .as_bytes_with_nul().as_ptr() as *const raw::c_char)
             }
         };
 

@@ -1,5 +1,4 @@
 use gl;
-use libc;
 
 use context::CommandContext;
 use backend::Facade;
@@ -7,6 +6,7 @@ use backend::Facade;
 use std::fmt;
 use std::error::Error;
 use std::collections::hash_map::{self, HashMap};
+use std::os::raw;
 
 use CapabilitiesSource;
 use GlObject;
@@ -208,11 +208,11 @@ impl ProgramExt for ComputeShader {
 #[derive(Debug, Copy, Clone)]
 pub struct ComputeCommand {
     /// Number of X groups.
-    pub num_groups_x: libc::c_uint,
+    pub num_groups_x: raw::c_uint,
     /// Number of Y groups.
-    pub num_groups_y: libc::c_uint,
+    pub num_groups_y: raw::c_uint,
     /// Number of Z groups.
-    pub num_groups_z: libc::c_uint,
+    pub num_groups_z: raw::c_uint,
 }
 
 implement_uniform_block!(ComputeCommand, num_groups_x, num_groups_y, num_groups_z);

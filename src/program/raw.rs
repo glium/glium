@@ -1,5 +1,4 @@
 use gl;
-use libc;
 
 use context::CommandContext;
 use version::Version;
@@ -15,6 +14,7 @@ use std::error::Error;
 use std::collections::hash_map::{self, HashMap};
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::os::raw;
 
 use DrawError;
 use GlObject;
@@ -255,7 +255,7 @@ impl RawProgram {
                 let mut format = mem::uninitialized();
                 let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
                 ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
-                                         storage.as_mut_ptr() as *mut libc::c_void);
+                                         storage.as_mut_ptr() as *mut _);
                 storage.set_len(buf_len as usize);
 
                 Ok(Binary {
@@ -296,7 +296,7 @@ impl RawProgram {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                     ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
-                                                as *const libc::c_char)
+                                                as *const raw::c_char)
                 },
                 Handle::Handle(id) => {
                     // not supported

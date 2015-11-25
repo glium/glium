@@ -1,7 +1,6 @@
 //! Contains everything related to the interface between glium and the OpenGL implementation.
 
 use gl;
-use libc;
 use backtrace;
 
 use std::mem;
@@ -12,6 +11,7 @@ use std::cell::{Cell, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::ffi::CStr;
 use std::rc::Rc;
+use std::os::raw;
 
 use GliumCreationError;
 use SwapBuffersError;
@@ -836,7 +836,7 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                                         id: gl::types::GLuint, severity: gl::types::GLenum,
                                         _length: gl::types::GLsizei,
                                         message: *const gl::types::GLchar,
-                                        user_param: *mut libc::c_void)
+                                        user_param: *mut raw::c_void)
     {
         // note that we transmute the user param into a proper context
         // in order to enforce safety here, the context disables debug output and flushes in its
@@ -909,7 +909,7 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
             {
                 ctxt.gl.DebugMessageCallback(callback_wrapper, context_raw_ptr.0
-                                                                 as *const libc::c_void);
+                                                                 as *const _);
                 ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                             ptr::null(), gl::TRUE);
 
@@ -922,7 +922,7 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                       ctxt.extensions.gl_khr_debug
             {
                 ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, context_raw_ptr.0
-                                                                 as *const libc::c_void);
+                                                                 as *const _);
                 ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                                ptr::null(), gl::TRUE);
 
@@ -933,7 +933,7 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
 
             } else {
                 ctxt.gl.DebugMessageCallbackARB(callback_wrapper, context_raw_ptr.0
-                                                                    as *const libc::c_void);
+                                                                    as *const _);
                 ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
                                                0, ptr::null(), gl::TRUE);
 
