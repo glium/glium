@@ -21,6 +21,7 @@ fn main() {
 #[cfg(feature = "cgmath")]
 fn main() {
     use glium::DisplayBuild;
+    use cgmath::SquareMatrix;
 
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()
@@ -284,8 +285,8 @@ fn main() {
     let view_eye: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 2.0, -2.0);
     let view_center: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 0.0, 0.0);
     let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
-    let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at(&view_eye, &view_center, &view_up);
-    let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix::one();
+    let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at(view_eye, view_center, view_up);
+    let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::one();
 
     let lights = [
         Light {
