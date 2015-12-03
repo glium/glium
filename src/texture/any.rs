@@ -72,6 +72,53 @@ pub struct TextureAny {
     levels: u32,
     /// Is automatic mipmap generation allowed for this texture?
     generate_mipmaps: bool,
+
+    /// Is this texture owned by us? If not, we won't clean it up on drop.
+    owned: bool
+}
+
+fn extract_dimensions(ty: Dimensions)
+                      -> (u32, Option<u32>, Option<u32>, Option<u32>, Option<u32>)
+{
+    match ty {
+        Dimensions::Texture1d { width } => (width, None, None, None, None),
+        Dimensions::Texture1dArray { width, array_size } => (width, None, None, Some(array_size), None),
+        Dimensions::Texture2d { width, height } => (width, Some(height), None, None, None),
+        Dimensions::Texture2dArray { width, height, array_size } => (width, Some(height), None, Some(array_size), None),
+        Dimensions::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
+        Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
+        Dimensions::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
+        Dimensions::Cubemap { dimension } => (dimension, Some(dimension), None, None, None),
+        Dimensions::CubemapArray { dimension, array_size } => (dimension, Some(dimension), None, Some(array_size * 6), None),
+    }
+}
+
+#[inline]
+fn get_bind_point(ty: Dimensions) -> gl::types::GLenum {
+    match ty {
+        Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
+        Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
+        Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
+        Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
+        Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
+        Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
+        Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
+        Dimensions::Cubemap { .. } => gl::TEXTURE_CUBE_MAP,
+        Dimensions::CubemapArray { .. } => gl::TEXTURE_CUBE_MAP_ARRAY,
+    }
+}
+
+unsafe fn generate_mipmaps(ctxt: &CommandContext,
+                           bind_point: gl::types::GLenum) {
+    if ctxt.version >= &Version(Api::Gl, 3, 0) ||
+       ctxt.version >= &Version(Api::GlEs, 2, 0)
+    {
+        ctxt.gl.GenerateMipmap(bind_point);
+    } else if ctxt.extensions.gl_ext_framebuffer_object {
+        ctxt.gl.GenerateMipmapEXT(bind_point);
+    } else {
+        unreachable!();
+    }
 }
 
 /// Builds a new texture.
@@ -86,18 +133,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
                              where P: Send + Clone + 'a, F: Facade
 {
     // getting the width, height, depth, array_size, samples from the type
-    let (width, height, depth, array_size, samples) = match ty {
-        Dimensions::Texture1d { width } => (width, None, None, None, None),
-        Dimensions::Texture1dArray { width, array_size } => (width, None, None, Some(array_size), None),
-        Dimensions::Texture2d { width, height } => (width, Some(height), None, None, None),
-        Dimensions::Texture2dArray { width, height, array_size } => (width, Some(height), None, Some(array_size), None),
-        Dimensions::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
-        Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
-        Dimensions::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
-        Dimensions::Cubemap { dimension } => (dimension, Some(dimension), None, None, None),
-        Dimensions::CubemapArray { dimension, array_size } => (dimension, Some(dimension), None, Some(array_size * 6), None),
-    };
-
+    let (width, height, depth, array_size, samples) = extract_dimensions(ty);
     let (is_client_compressed, data_bufsize) = match data {
         Some((client_format, _)) => {
             (client_format.is_compressed(),
@@ -114,18 +150,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
     }
 
     // getting the `GLenum` corresponding to this texture type
-    let bind_point = match ty {
-        Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
-        Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
-        Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
-        Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
-        Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
-        Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-        Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
-        Dimensions::Cubemap { .. } => gl::TEXTURE_CUBE_MAP,
-        Dimensions::CubemapArray { .. } => gl::TEXTURE_CUBE_MAP_ARRAY,
-    };
-
+    let bind_point = get_bind_point(ty);
     if bind_point == gl::TEXTURE_CUBE_MAP || bind_point == gl::TEXTURE_CUBE_MAP_ARRAY {
         assert!(data.is_none());        // TODO: not supported
     }
@@ -141,7 +166,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         }
     }
 
-    let generate_mipmaps = mipmaps.should_generate();
+    let should_generate_mipmaps = mipmaps.should_generate();
     let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
 
     let teximg_internal_format = try!(image_format::format_request_to_glenum(facade.get_context(), format, image_format::RequestType::TexImage(data.as_ref().map(|&(c, _)| c))));
@@ -404,16 +429,8 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         }
 
         // only generate mipmaps for color textures
-        if generate_mipmaps {
-            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-               ctxt.version >= &Version(Api::GlEs, 2, 0)
-            {
-                ctxt.gl.GenerateMipmap(bind_point);
-            } else if ctxt.extensions.gl_ext_framebuffer_object {
-                ctxt.gl.GenerateMipmapEXT(bind_point);
-            } else {
-                unreachable!();
-            }
+        if should_generate_mipmaps {
+            generate_mipmaps(&ctxt, bind_point);
         }
 
         id
@@ -426,8 +443,39 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         actual_format: Cell::new(None),
         ty: ty,
         levels: texture_levels as u32,
-        generate_mipmaps: generate_mipmaps,
+        generate_mipmaps: should_generate_mipmaps,
+        owned: true
     })
+}
+
+/// Builds a new texture reference from an existing, externally created OpenGL texture.
+/// If `owned` is true, this reference will take ownership of the texture and be responsible
+/// for cleaning it up. Otherwise, the texture must be cleaned up externally, but only
+/// after this reference's lifetime has ended.
+pub unsafe fn from_id<F: Facade>(facade: &F,
+                                 format: TextureFormatRequest,
+                                 id: gl::types::GLuint,
+                                 owned: bool,
+                                 mipmaps: MipmapsOption,
+                                 ty: Dimensions)
+                                 -> TextureAny {
+    let (width, height, depth, array_size, samples) = extract_dimensions(ty);
+    let mipmap_levels = mipmaps.num_levels(width, height, depth);
+    let should_generate_mipmaps = mipmaps.should_generate();
+    if should_generate_mipmaps {
+        let ctxt = facade.get_context().make_current();
+        unsafe { generate_mipmaps(&ctxt, get_bind_point(ty)); }
+    }
+    TextureAny {
+        context: facade.get_context().clone(),
+        id: id,
+        requested_format: format,
+        actual_format: Cell::new(None),
+        ty: ty,
+        levels: mipmap_levels,
+        generate_mipmaps: should_generate_mipmaps,
+        owned: owned
+    }
 }
 
 impl TextureAny {
@@ -620,17 +668,7 @@ impl TextureExt for TextureAny {
 
     #[inline]
     fn get_bind_point(&self) -> gl::types::GLenum {
-        match self.ty {
-            Dimensions::Texture1d { .. } => gl::TEXTURE_1D,
-            Dimensions::Texture1dArray { .. } => gl::TEXTURE_1D_ARRAY,
-            Dimensions::Texture2d { .. } => gl::TEXTURE_2D,
-            Dimensions::Texture2dArray { .. } => gl::TEXTURE_2D_ARRAY,
-            Dimensions::Texture2dMultisample { .. } => gl::TEXTURE_2D_MULTISAMPLE,
-            Dimensions::Texture2dMultisampleArray { .. } => gl::TEXTURE_2D_MULTISAMPLE_ARRAY,
-            Dimensions::Texture3d { .. } => gl::TEXTURE_3D,
-            Dimensions::Cubemap { .. } => gl::TEXTURE_CUBE_MAP,
-            Dimensions::CubemapArray { .. } => gl::TEXTURE_CUBE_MAP_ARRAY,
-        }
+        return get_bind_point(self.ty);
     }
 
     fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
@@ -678,7 +716,9 @@ impl Drop for TextureAny {
             }
         }
 
-        unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
+        if self.owned {
+            unsafe { ctxt.gl.DeleteTextures(1, [ self.id ].as_ptr()); }
+        }
     }
 }
 
