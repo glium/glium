@@ -1,7 +1,33 @@
 /*!
 A texture is an image loaded in video memory, which can be sampled in your shaders.
 
-# Textures
+# Texture kinds
+
+One thing that is important to understand when it comes to textures is that the way a texture is
+accessed (in other words, its "public API") is disconnected from the internal representation
+of the data.
+
+When it comes to accessing a texture, there are six kinds of textures:
+
+ - Floating-point textures.
+ - Integral textures (that contain signed integers).
+ - Unsigned textures (that contain unsigned integers).
+ - Depth textures (that contain depth information).
+ - Stencil textures (that contain stencil information).
+ - Depth-stencil textures (that contain at the same time depth and stencil information).
+
+Textures have a different API depending on their kind. For example a integral texture can only
+be sampled in GLSL through a sampler type which is prefixed with `i`.
+
+The internal format can only be chosen when the texture is created, and then can never be touched
+again. Integral and unsigned textures can only contain signed integers and unsigned integers.
+
+Floating-point textures can contain either floating-points or integers. If integers are used,
+then the maximum value corresponds to the floating-point value `1.0` and the minimal value to `0.0`.
+For example if a texture contains `u8`s and internally contains the value `128`, reading from the
+texture will yield the value `0.5`.
+
+# Dimensions
 
 Textures come in nine different dimensions:
 
@@ -16,7 +42,18 @@ Textures come in nine different dimensions:
  - Arrays of two-dimensional textures with multisampling enabled.
  - Arrays of cube textures.
 
-In addition to this, there are nine kinds of texture formats:
+The difference between a 3D texture and a 2D textures array (and between a 2D texture and a 1D
+textures array) is that texture arrays can only be accessed by individual layers. That is, you can
+only access layer 0, or layer 1, or layer 2, and so on. Whereas if you use 3D textures you can
+access layer `0.5` for example.
+
+All textures except depth, stencil and depth-stencil textures have **mipmaps**. A mipmap is a
+smaller version of the texture whose purpose is to be used during rendering when the texture will
+be small on the screen.
+
+# Texture types in glium
+
+In addition to the nine different dimensions types, there are nine kinds of texture formats:
 
  - The texture contains floating-point data,
    with either the `Compressed` prefix or no prefix at all.
@@ -28,8 +65,8 @@ In addition to this, there are nine kinds of texture formats:
  - The texture contains stencil information, with the `Stencil` prefix.
  - The texture contains depth and stencil information, with the `DepthStencil` prefix.
 
-Each combination of dimensions and format corresponds to a sampler type in GLSL. For example,
-an `IntegralTexture3d` can only be bound to an `isampler3D` uniform in GLSL.
+Each combination of dimensions and format corresponds to a sampler type in GLSL and in glium.
+For example, an `IntegralTexture3d` can only be bound to an `isampler3D` uniform in GLSL.
 
 The difference between compressed textures and uncompressed textures is that you can't do
 render-to-texture on the former.
