@@ -1230,53 +1230,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // closing `impl Mipmap` block
         (writeln!(dest, "}}")).unwrap();
 
-        // `ToXXXAttachment` trait impl
-        if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample ||
-           dimensions == TextureDimensions::Texture1d
-        {
-            match ty {
-                TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Mipmap<'t> {{
-                                #[inline]
-                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
+        if !dimensions.is_array() && !dimensions.is_cube() {
+            // into raw image
+            (writeln!(dest, "impl<'t> Into<TextureAnyImage<'t>> for {name}Mipmap<'t> {{
+                                fn into(self) -> TextureAnyImage<'t> {{
+                                    self.0.first_layer().into_image(None).unwrap()
                                 }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::Depth => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}Mipmap<'t> {{
-                                #[inline]
-                                fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
-                                    ::framebuffer::DepthAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::Stencil => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}Mipmap<'t> {{
-                                #[inline]
-                                fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
-                                    ::framebuffer::StencilAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::DepthStencil => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}Mipmap<'t> {{
-                                #[inline]
-                                fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
-                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.first_layer().into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                _ => ()
-            }
+                             }}", name = name)).unwrap();
         }
     }
 
@@ -1305,50 +1265,13 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "}}")).unwrap();
 
         // attachment traits
-        if dimensions != TextureDimensions::Texture3d && !dimensions.is_cube() {
-            match ty {
-                TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}LayerMipmap<'t> {{
-                                #[inline]
-                                fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                    ::framebuffer::ColorAttachment::Texture(self.0.into_image(None).unwrap())
+        if !dimensions.is_cube() {
+            // into raw image
+            (writeln!(dest, "impl<'t> Into<TextureAnyImage<'t>> for {name}LayerMipmap<'t> {{
+                                fn into(self) -> TextureAnyImage<'t> {{
+                                    self.0.into_image(None).unwrap()
                                 }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::Depth => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}LayerMipmap<'t> {{
-                                #[inline]
-                                fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
-                                    ::framebuffer::DepthAttachment::Texture(self.0.into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::Stencil => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}LayerMipmap<'t> {{
-                                #[inline]
-                                fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
-                                    ::framebuffer::StencilAttachment::Texture(self.0.into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                TextureType::DepthStencil => {
-                    (writeln!(dest, "
-                            impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}LayerMipmap<'t> {{
-                                #[inline]
-                                fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
-                                    ::framebuffer::DepthStencilAttachment::Texture(self.0.into_image(None).unwrap())
-                                }}
-                            }}
-                        ", name = name)).unwrap();
-                },
-                _ => ()
-            }
+                             }}", name = name)).unwrap();
         }
     }
 
@@ -1367,47 +1290,64 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // closing `impl Image` block
         (writeln!(dest, "}}")).unwrap();
 
-        // attachment traits
+        // into raw image
+        (writeln!(dest, "impl<'t> Into<TextureAnyImage<'t>> for {name}Image<'t> {{
+                            fn into(self) -> TextureAnyImage<'t> {{
+                                self.0
+                            }}
+                         }}", name = name)).unwrap();
+    }
+
+    // implement the attachments traits
+    {
+        let attachment_type = if dimensions.is_cube() {
+            format!("{}Image", name)
+        } else if dimensions.is_array() {
+            format!("{}LayerMipmap", name)
+        } else {
+            format!("{}Mipmap", name)
+        };
+
         match ty {
             TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
                 (writeln!(dest, "
-                        impl<'t> ::framebuffer::ToColorAttachment<'t> for {name}Image<'t> {{
+                        impl<'t> ::framebuffer::ToColorAttachment<'t> for {ty}<'t> {{
                             #[inline]
                             fn to_color_attachment(self) -> ::framebuffer::ColorAttachment<'t> {{
-                                ::framebuffer::ColorAttachment::Texture(self.0)
+                                ::framebuffer::ColorAttachment::Texture(self.into())
                             }}
                         }}
-                    ", name = name)).unwrap();
+                    ", ty = attachment_type)).unwrap();
             },
             TextureType::Depth => {
                 (writeln!(dest, "
-                        impl<'t> ::framebuffer::ToDepthAttachment<'t> for {name}Image<'t> {{
+                        impl<'t> ::framebuffer::ToDepthAttachment<'t> for {ty}<'t> {{
                             #[inline]
                             fn to_depth_attachment(self) -> ::framebuffer::DepthAttachment<'t> {{
-                                ::framebuffer::DepthAttachment::Texture(self.0)
+                                ::framebuffer::DepthAttachment::Texture(self.into())
                             }}
                         }}
-                    ", name = name)).unwrap();
+                    ", ty = attachment_type)).unwrap();
             },
             TextureType::Stencil => {
                 (writeln!(dest, "
-                        impl<'t> ::framebuffer::ToStencilAttachment<'t> for {name}Image<'t> {{
+                        impl<'t> ::framebuffer::ToStencilAttachment<'t> for {ty}<'t> {{
                             #[inline]
                             fn to_stencil_attachment(self) -> ::framebuffer::StencilAttachment<'t> {{
-                                ::framebuffer::StencilAttachment::Texture(self.0)
+                                ::framebuffer::StencilAttachment::Texture(self.into())
                             }}
                         }}
-                    ", name = name)).unwrap();
+                    ", ty = attachment_type)).unwrap();
             },
             TextureType::DepthStencil => {
                 (writeln!(dest, "
-                        impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {name}Image<'t> {{
+                        impl<'t> ::framebuffer::ToDepthStencilAttachment<'t> for {ty}<'t> {{
                             #[inline]
                             fn to_depth_stencil_attachment(self) -> ::framebuffer::DepthStencilAttachment<'t> {{
-                                ::framebuffer::DepthStencilAttachment::Texture(self.0)
+                                ::framebuffer::DepthStencilAttachment::Texture(self.into())
                             }}
                         }}
-                    ", name = name)).unwrap();
+                    ", ty = attachment_type)).unwrap();
             },
             _ => ()
         }

@@ -292,7 +292,7 @@ fn cubemap_layer() {
     };
 
     let mut framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display,
-                    texture.main_level().first_layer().image(glium::texture::CubeLayer::PositiveY)).unwrap();
+                    texture.main_level().image(glium::texture::CubeLayer::PositiveY)).unwrap();
     assert_eq!(framebuffer.get_dimensions(), (128, 128));
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
