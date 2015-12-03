@@ -65,6 +65,7 @@ use TextureExt;
 use texture::CubeLayer;
 use texture::TextureAnyImage;
 use texture::TextureAnyMipmap;
+use texture::TextureKind;
 use framebuffer::RenderBufferAny;
 
 use gl;
@@ -109,6 +110,17 @@ pub enum RegularAttachment<'a> {
     Texture(TextureAnyImage<'a>),
     /// A renderbuffer.
     RenderBuffer(&'a RenderBufferAny),
+}
+
+impl<'a> RegularAttachment<'a> {
+    /// Returns the kind of attachment (float, integral, unsigned, depth, stencil, depthstencil).
+    #[inline]
+    pub fn kind(&self) -> TextureKind {
+        match self {
+            &RegularAttachment::Texture(t) => t.get_texture().kind(),
+            &RegularAttachment::RenderBuffer(rb) => rb.kind(),
+        }
+    }
 }
 
 /// Describes a single layered framebuffer attachment.
@@ -619,6 +631,44 @@ enum RawAttachment {
     RenderBuffer(gl::types::GLuint),
 }
 
+/// Data to pass to the `clear_buffer` function.
+#[derive(Debug, Copy, Clone)]
+pub enum ClearBufferData {
+    /// Suitable for float attachments.
+    Float([f32; 4]),
+    /// Suitable for integral textures.
+    Integral([i32; 4]),
+    /// Suitable for unsigned textures.
+    Unsigned([u32; 4]),
+    /// Suitable for depth attachments.
+    Depth(f32),
+    /// Suitable for stencil attachments.
+    Stencil(i32),
+    /// Suitable for depth-stencil attachments.
+    DepthStencil(f32, i32),
+}
+
+impl From<[f32; 4]> for ClearBufferData {
+    #[inline]
+    fn from(data: [f32; 4]) -> ClearBufferData {
+        ClearBufferData::Float(data)
+    }
+}
+
+impl From<[i32; 4]> for ClearBufferData {
+    #[inline]
+    fn from(data: [i32; 4]) -> ClearBufferData {
+        ClearBufferData::Integral(data)
+    }
+}
+
+impl From<[u32; 4]> for ClearBufferData {
+    #[inline]
+    fn from(data: [u32; 4]) -> ClearBufferData {
+        ClearBufferData::Unsigned(data)
+    }
+}
+
 /// Manages all the framebuffer objects.
 ///
 /// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
@@ -768,6 +818,60 @@ impl FramebuffersContainer {
         let framebuffer = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&attachments));
         bind_framebuffer(ctxt, framebuffer, false, true);
         ctxt.gl.ReadBuffer(gl::COLOR_ATTACHMENT0);     // TODO: cache
+    }
+
+    /// Calls `glClearBuffer` on a framebuffer that contains the attachment.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if `data` is incompatible with the kind of attachment.
+    ///
+    /// # Unsafety
+    ///
+    /// After calling this function, you **must** make sure to call `purge_texture`
+    /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
+    pub unsafe fn clear_buffer<D>(ctxt: &mut CommandContext, attachment: &RegularAttachment,
+                                  data: D)
+        where D: Into<ClearBufferData>
+    {
+        // TODO: look for an existing framebuffer with this attachment
+
+        let data = data.into();
+
+        let fb = FramebufferAttachments::Regular(FramebufferSpecificAttachments {
+            colors: { let mut v = SmallVec::new(); v.push((0, attachment.clone())); v },
+            depth_stencil: DepthStencilAttachments::None,
+        }).validate(ctxt).unwrap();
+        let fb = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&fb));
+
+        // TODO: use DSA if supported
+        // TODO: what if glClearBuffer is not supported?
+
+        bind_framebuffer(ctxt, fb, true, false);
+
+        match (attachment.kind(), data) {
+            (TextureKind::Float, ClearBufferData::Float(data)) => {
+                ctxt.gl.ClearBufferfv(gl::COLOR, 0, data.as_ptr());
+            },
+            (TextureKind::Integral, ClearBufferData::Integral(data)) => {
+                ctxt.gl.ClearBufferiv(gl::COLOR, 0, data.as_ptr());
+            },
+            (TextureKind::Unsigned, ClearBufferData::Unsigned(data)) => {
+                ctxt.gl.ClearBufferuiv(gl::COLOR, 0, data.as_ptr());
+            },
+            (TextureKind::Depth, _) => {
+                unimplemented!()        // TODO: can't work with the code above ^
+            },
+            (TextureKind::Stencil, _) => {
+                unimplemented!()        // TODO: can't work with the code above ^
+            },
+            (TextureKind::DepthStencil, _) => {
+                unimplemented!()        // TODO: can't work with the code above ^
+            },
+            _ => {
+                panic!("The data passed to `clear_buffer` does not match the kind of attachment");
+            }
+        }
     }
 
     ///
