@@ -14,10 +14,13 @@ use Rect;
 
 use image_format::{self, TextureFormatRequest, ClientFormatAny};
 use texture::Texture2dDataSink;
+use texture::TextureKind;
 use texture::{MipmapsOption, TextureFormat, TextureCreationError, CubeLayer};
 use texture::{get_format, InternalFormat, GetFormatError};
 use texture::pixel::PixelValue;
 use texture::pixel_buffer::PixelBuffer;
+
+use fbo::ClearBufferData;
 
 use buffer::BufferSlice;
 use buffer::BufferAny;
@@ -474,6 +477,31 @@ impl TextureAny {
     #[doc(hidden)]
     pub fn get_requested_format(&self) -> TextureFormatRequest {
         self.requested_format
+    }
+
+    /// Returns the kind of texture.
+    #[inline]
+    pub fn kind(&self) -> TextureKind {
+        match self.requested_format {
+            TextureFormatRequest::Specific(TextureFormat::UncompressedFloat(_)) => TextureKind::Float,
+            TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) => TextureKind::Integral,
+            TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) => TextureKind::Unsigned,
+            TextureFormatRequest::Specific(TextureFormat::Srgb(_)) => TextureKind::Float,
+            TextureFormatRequest::Specific(TextureFormat::CompressedFormat(_)) => TextureKind::Float,
+            TextureFormatRequest::Specific(TextureFormat::CompressedSrgbFormat(_)) => TextureKind::Float,
+            TextureFormatRequest::Specific(TextureFormat::DepthFormat(_)) => TextureKind::Depth,
+            TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) => TextureKind::Stencil,
+            TextureFormatRequest::Specific(TextureFormat::DepthStencilFormat(_)) => TextureKind::DepthStencil,
+            TextureFormatRequest::AnyFloatingPoint => TextureKind::Float,
+            TextureFormatRequest::AnyCompressed => TextureKind::Float,
+            TextureFormatRequest::AnySrgb => TextureKind::Float,
+            TextureFormatRequest::AnyCompressedSrgb => TextureKind::Float,
+            TextureFormatRequest::AnyIntegral => TextureKind::Integral,
+            TextureFormatRequest::AnyUnsigned => TextureKind::Unsigned,
+            TextureFormatRequest::AnyDepth => TextureKind::Depth,
+            TextureFormatRequest::AnyStencil => TextureKind::Stencil,
+            TextureFormatRequest::AnyDepthStencil => TextureKind::DepthStencil,
+        }
     }
 
     /// Returns the array size of the texture.
@@ -1319,5 +1347,22 @@ impl<'a> TextureAnyImage<'a> {
         let size = rect.width as usize * rect.height as usize * 4;
         let mut ctxt = self.texture.context.make_current();
         ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest, false);
+    }
+
+    /// Clears the content of the texture to a specific value.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if `data` does not match the kind of texture. For example passing a `[i32; 4]` when
+    /// using a regular (float) texture.
+    ///
+    pub fn raw_clear_buffer<D>(&self, data: D)
+        where D: Into<ClearBufferData>
+    {
+        unsafe {
+            let mut ctxt = self.texture.context.make_current();
+            let attachment = fbo::RegularAttachment::Texture(*self);
+            fbo::FramebuffersContainer::clear_buffer(&mut ctxt, &attachment, data);
+        }
     }
 }

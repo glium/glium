@@ -15,7 +15,7 @@ use framebuffer::{ColorAttachment, ToColorAttachment};
 use framebuffer::{DepthAttachment, ToDepthAttachment};
 use framebuffer::{StencilAttachment, ToStencilAttachment};
 use framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
-use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat};
+use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat, TextureKind};
 
 use image_format;
 
@@ -57,7 +57,7 @@ impl RenderBuffer {
         let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
 
         Ok(RenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::Float, width, height, None)
         })
     }
 }
@@ -110,7 +110,7 @@ impl DepthRenderBuffer {
         let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
 
         Ok(DepthRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::Depth, width, height, None)
         })
     }
 }
@@ -162,7 +162,7 @@ impl StencilRenderBuffer {
         let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
 
         Ok(StencilRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::Stencil, width, height, None)
         })
     }
 }
@@ -215,7 +215,7 @@ impl DepthStencilRenderBuffer {
         let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
 
         Ok(DepthStencilRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::DepthStencil, width, height, None)
         })
     }
 }
@@ -259,12 +259,14 @@ pub struct RenderBufferAny {
     width: u32,
     height: u32,
     samples: Option<u32>,
+    kind: TextureKind,
 }
 
 impl RenderBufferAny {
     /// Builds a new render buffer.
-    fn new<F>(facade: &F, format: gl::types::GLenum, width: u32, height: u32, samples: Option<u32>)
-              -> RenderBufferAny where F: Facade
+    fn new<F>(facade: &F, format: gl::types::GLenum, kind: TextureKind, width: u32, height: u32,
+              samples: Option<u32>) -> RenderBufferAny
+        where F: Facade
     {
         unsafe {
             // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
@@ -381,6 +383,7 @@ impl RenderBufferAny {
                 width: width,
                 height: height,
                 samples: samples,
+                kind: kind,
             }
         }
     }
@@ -402,6 +405,12 @@ impl RenderBufferAny {
     #[inline]
     pub fn get_context(&self) -> &Rc<Context> {
         &self.context
+    }
+
+    /// Returns the kind of renderbuffer.
+    #[inline]
+    pub fn kind(&self) -> TextureKind {
+        self.kind
     }
 }
 

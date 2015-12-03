@@ -135,6 +135,18 @@ impl CubeLayer {
     }
 }
 
+/// Represents a kind of texture.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[allow(missing_docs)]      // TODO:
+pub enum TextureKind {
+    Float,
+    Integral,
+    Unsigned,
+    Depth,
+    Stencil,
+    DepthStencil,
+}
+
 /// Describes what to do about mipmaps during texture creation.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum MipmapsOption {

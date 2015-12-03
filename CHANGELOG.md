@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added `raw_clear_buffer` to `TextureAnyImage`, which allows you to clear the content of any texture.
+
 ## Version 0.12.2 (2015-11-25)
 
  - Fixed a bug when matching frag output locations with framebuffer attachments.
