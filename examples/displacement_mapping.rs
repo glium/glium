@@ -8,12 +8,6 @@ use glium::Surface;
 
 mod support;
 
-#[cfg(not(feature = "nalgebra"))]
-fn main() {
-    println!("This example requires the `nalgebra` feature to be enabled");
-}
-
-#[cfg(feature = "nalgebra")]
 fn main() {
     use glium::DisplayBuild;
 
