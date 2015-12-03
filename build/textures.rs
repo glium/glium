@@ -31,6 +31,8 @@ impl TextureDimensions {
         match self {
             &TextureDimensions::Texture1dArray => true,
             &TextureDimensions::Texture2dArray => true,
+            &TextureDimensions::Texture2dMultisampleArray => true,
+            &TextureDimensions::CubemapArray => true,
             _ => false
         }
     }
@@ -968,19 +970,23 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         "#)).unwrap();
 
     // writing the layer & mipmap access functions
+    if dimensions.is_array() {
+        (write!(dest, r#"
+                /// Access the first layer of this texture.
+                #[inline]
+                pub fn first_layer(&self) -> {name}Layer {{
+                    self.layer(0).unwrap()
+                }}
+
+                /// Access a single layer of this texture.
+                #[inline]
+                pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
+                    self.0.layer(layer).map(|l| {name}Layer(l, self))
+                }}
+            "#, name = name)).unwrap();
+    }
+
     (write!(dest, r#"
-            /// Access the first layer of this texture.
-            #[inline]
-            pub fn first_layer(&self) -> {name}Layer {{
-                self.layer(0).unwrap()
-            }}
-
-            /// Access a single layer of this texture.
-            #[inline]
-            pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
-                self.0.layer(layer).map(|l| {name}Layer(l, self))
-            }}
-
             /// Access a single mipmap level of this texture.
             #[inline]
             pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
@@ -998,7 +1004,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     (writeln!(dest, "}}")).unwrap();
 
     // the `Layer` struct
-    {
+    if dimensions.is_array() {
         // writing the struct
         (write!(dest, r#"
                 /// Represents a single layer of a `{name}`.
@@ -1161,7 +1167,6 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 "#, format = relevant_format, client_format_any = client_format_any_ty)).unwrap();
         }
 
-
         // writing the `read_compressed_data` function for mipmaps
         if is_compressed && !dimensions.is_array() {
             (write!(dest, r#"
@@ -1196,19 +1201,31 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 pub fn get_level(&self) -> u32 {{
                     self.0.get_level()
                 }}
+        ", name = name)).unwrap();
 
-                /// Access the first layer of this texture.
-                #[inline]
-                pub fn first_layer(&self) -> {name}LayerMipmap<'t> {{
-                    self.layer(0).unwrap()
-                }}
+        if dimensions.is_array() {
+            (write!(dest, "
+                    /// Access the first layer of this texture.
+                    #[inline]
+                    pub fn first_layer(&self) -> {name}LayerMipmap<'t> {{
+                        self.layer(0).unwrap()
+                    }}
 
-                /// Access a single layer of this texture.
-                #[inline]
-                pub fn layer(&self, layer: u32) -> Option<{name}LayerMipmap<'t>> {{
-                    self.0.layer(layer).map(|l| {name}LayerMipmap(l, self.1))
-                }}
-            ", name = name)).unwrap();
+                    /// Access a single layer of this texture.
+                    #[inline]
+                    pub fn layer(&self, layer: u32) -> Option<{name}LayerMipmap<'t>> {{
+                        self.0.layer(layer).map(|l| {name}LayerMipmap(l, self.1))
+                    }}
+                ", name = name)).unwrap();
+        }
+
+        if !dimensions.is_array() && dimensions.is_cube() {
+            writeln!(dest,
+                "/// Provides an object representing a single layer of this cubemap.
+                pub fn image(&self, layer: CubeLayer) -> {name}Image<'t> {{
+                    {name}Image(self.0.first_layer().into_image(Some(layer)).unwrap(), self.1)
+                }}", name = name).unwrap();
+        }
 
         // closing `impl Mipmap` block
         (writeln!(dest, "}}")).unwrap();
@@ -1264,7 +1281,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     }
 
     // the `LayerMipmap` struct
-    {
+    if dimensions.is_array() {
         // writing the struct
         (write!(dest, r#"
                 /// Represents a single layer of a mipmap level of a `{name}`.
