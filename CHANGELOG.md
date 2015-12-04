@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.12.3 (2015-12-04)
 
  - Added `raw_clear_buffer` to `TextureAnyImage`, which allows you to clear the content of any texture.
  - Added `TextureAny::from_id` to manipulate an unowned texture.
