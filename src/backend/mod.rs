@@ -14,6 +14,7 @@ There are three concepts in play:
 */
 use std::rc::Rc;
 use std::ops::Deref;
+use std::os::raw::c_void;
 
 use CapabilitiesSource;
 use SwapBuffersError;
@@ -39,7 +40,7 @@ pub unsafe trait Backend {
     /// Returns the address of an OpenGL function.
     ///
     /// Supposes that the context has been made current before this function is called.
-    unsafe fn get_proc_address(&self, symbol: &str) -> *const ();
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void;
 
     /// Returns the dimensions of the window, or screen, etc.
     fn get_framebuffer_dimensions(&self) -> (u32, u32);
@@ -56,7 +57,7 @@ unsafe impl<T> Backend for Rc<T> where T: Backend {
         self.deref().swap_buffers()
     }
 
-    unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
         self.deref().get_proc_address(symbol)
     }
 
