@@ -15,6 +15,7 @@ fn main() {
     let dest = Path::new(&dest);
 
     textures::build_texture_file(&mut File::create(&dest.join("textures.rs")).unwrap());
+    println!("cargo:rerun-if-changed=build/main.rs");
 
 
     // There is a `#[derive(Clone)]` line in the bindings that triggers a stack overflow
