@@ -93,10 +93,6 @@ result to the user.
 #[macro_use]
 extern crate lazy_static;
 
-#[cfg(feature = "cgmath")]
-extern crate cgmath;
-#[cfg(feature = "nalgebra")]
-extern crate nalgebra;
 extern crate backtrace;
 extern crate smallvec;
 

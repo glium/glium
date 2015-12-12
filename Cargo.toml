@@ -24,20 +24,12 @@ build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
 
 [features]
-default = ["glutin", "nalgebra", "cgmath"]
+default = ["glutin"]
 unstable = []       # used for benchmarks
 
 [dependencies.glutin]
 version = "0.4"
 features = []
-optional = true
-
-[dependencies.cgmath]
-version = "0.4"
-optional = true
-
-[dependencies.nalgebra]
-version = "0.3"
 optional = true
 
 [dependencies]
@@ -51,6 +43,7 @@ khronos_api = "0.0.8"
 
 [dev-dependencies]
 clock_ticks = "0.1.0"
+cgmath = "0.4"
 genmesh = "0.2.1"
 image = "0.4.0"
 obj = "0.2.1"

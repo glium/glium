@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate glium;
-#[cfg(feature = "cgmath")]
 extern crate cgmath;
 extern crate image;
 
@@ -8,17 +7,10 @@ use glium::glutin;
 use glium::index::PrimitiveType;
 use glium::Surface;
 use glium::DisplayBuild;
-#[cfg(feature = "cgmath")]
 use std::io::Cursor;
 
 mod support;
 
-#[cfg(not(feature = "cgmath"))]
-fn main() {
-    println!("This example requires the `cgmath` and `image` features to be enabled");
-}
-
-#[cfg(feature = "cgmath")]
 fn main() {
     use glium::DisplayBuild;
 
@@ -318,9 +310,9 @@ fn main() {
     support::start_loop(|| {
         // prepass
         let uniforms = uniform! {
-            perspective_matrix: perspective_matrix,
-            view_matrix: view_matrix,
-            model_matrix: model_matrix,
+            perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective_matrix),
+            view_matrix: Into::<[[f32; 4]; 4]>::into(view_matrix),
+            model_matrix: Into::<[[f32; 4]; 4]>::into(model_matrix),
             tex: &opengl_texture
         };
         framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
@@ -345,7 +337,7 @@ fn main() {
         light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);
         for light in lights.iter() {
             let uniforms = uniform! {
-                matrix: ortho_matrix,
+                matrix: Into::<[[f32; 4]; 4]>::into(ortho_matrix),
                 position_texture: &texture1,
                 normal_texture: &texture2,
                 light_position: light.position,
@@ -358,7 +350,7 @@ fn main() {
 
         // composition
         let uniforms = uniform! {
-            matrix: ortho_matrix,
+            matrix: Into::<[[f32; 4]; 4]>::into(ortho_matrix),
             decal_texture: &texture3,
             lighting_texture: &light_texture
         };
