@@ -24,6 +24,7 @@ use backend::Backend;
 use std::cell::{RefCell, Ref};
 use std::rc::Rc;
 use std::ops::Deref;
+use std::os::raw::c_void;
 
 /// Facade implementation for glutin. Wraps both glium and glutin.
 #[derive(Clone)]
@@ -230,7 +231,7 @@ unsafe impl Backend for GlutinWindowBackend {
     }
 
     #[inline]
-    unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
         self.window.get_proc_address(symbol) as *const _
     }
 
@@ -303,7 +304,7 @@ unsafe impl Backend for GlutinHeadlessBackend {
     }
 
     #[inline]
-    unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
+    unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
         self.context.get_proc_address(symbol) as *const _
     }
 

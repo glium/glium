@@ -20,7 +20,9 @@ extern crate glium;
 
 use glium::Surface;
 use glium::glutin;
+
 use std::rc::Rc;
+use std::os::raw::c_void;
 
 fn main() {
     // building the glutin window
@@ -44,7 +46,7 @@ fn main() {
         }
 
         // this function is called only after the OpenGL context has been made current
-        unsafe fn get_proc_address(&self, symbol: &str) -> *const () {
+        unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
             self.window.get_proc_address(symbol) as *const _
         }
 
