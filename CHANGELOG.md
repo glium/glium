@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 0.12.4 (2015-12-12)
+
+ - Added small hack to make glium work with WebGL.
+ - Fixed blend color state not being always updated.
+
 ## Version 0.12.3 (2015-12-04)
 
  - Added `raw_clear_buffer` to `TextureAnyImage`, which allows you to clear the content of any texture.
