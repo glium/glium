@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `EmptyFrameBuffer` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, EmptyFrameBuffer">
+
+    <title>glium::framebuffer::EmptyFrameBuffer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a></p><script>window.sidebarCurrent = {name: 'EmptyFrameBuffer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a>::<wbr><a class='struct' href=''>EmptyFrameBuffer</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3742' class='srclink' href='../../src/glium/framebuffer/mod.rs.html#585-588' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct EmptyFrameBuffer {
+    // some fields omitted
+}</pre><div class='docblock'><p>A framebuffer with no attachment at all.</p>
+
+<p>Note that this is only supported on recent hardware.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='struct' href='../../glium/framebuffer/struct.EmptyFrameBuffer.html' title='glium::framebuffer::EmptyFrameBuffer'>EmptyFrameBuffer</a></code></h3><div class='impl-items'><h4 id='method.is_supported' class='method'><code>fn <a href='#method.is_supported' class='fnname'>is_supported</a>&lt;C&gt;(context: &amp;C) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns true if empty framebuffers are supported by the backend.</p>
+</div><h4 id='method.is_layered_supported' class='method'><code>fn <a href='#method.is_layered_supported' class='fnname'>is_layered_supported</a>&lt;C&gt;(context: &amp;C) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns true if layered empty framebuffers are supported by the backend.</p>
+</div><h4 id='method.get_max_supported_width' class='method'><code>fn <a href='#method.get_max_supported_width' class='fnname'>get_max_supported_width</a>&lt;C&gt;(context: &amp;C) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt; <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns the maximum width of empty framebuffers that the backend supports, or <code>None</code> if
+empty framebuffers are not supported.</p>
+</div><h4 id='method.get_max_supported_height' class='method'><code>fn <a href='#method.get_max_supported_height' class='fnname'>get_max_supported_height</a>&lt;C&gt;(context: &amp;C) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt; <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns the maximum height of empty framebuffers that the backend supports, or <code>None</code> if
+empty framebuffers are not supported.</p>
+</div><h4 id='method.get_max_supported_samples' class='method'><code>fn <a href='#method.get_max_supported_samples' class='fnname'>get_max_supported_samples</a>&lt;C&gt;(context: &amp;C) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt; <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns the maximum number of samples of empty framebuffers that the backend supports,
+or <code>None</code> if empty framebuffers are not supported.</p>
+</div><h4 id='method.get_max_supported_layers' class='method'><code>fn <a href='#method.get_max_supported_layers' class='fnname'>get_max_supported_layers</a>&lt;C&gt;(context: &amp;C) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt; <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns the maximum number of layers of empty framebuffers that the backend supports,
+or <code>None</code> if layered empty framebuffers are not supported.</p>
+</div><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;F&gt;(facade: &amp;F, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, layers: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;, samples: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;, fixed_samples: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../glium/framebuffer/struct.EmptyFrameBuffer.html' title='glium::framebuffer::EmptyFrameBuffer'>EmptyFrameBuffer</a>, <a class='enum' href='../../glium/framebuffer/enum.ValidationError.html' title='glium::framebuffer::ValidationError'>ValidationError</a>&gt; <span class='where'>where F: <a class='trait' href='../../glium/backend/trait.Facade.html' title='glium::backend::Facade'>Facade</a></span></code></h4>
+<div class='docblock'><p>Creates a <code>EmptyFrameBuffer</code>.</p>
+
+<h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
+<p>Panicks if <code>layers</code> or <code>samples</code> is equal to <code>Some(0)</code>.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../../glium/trait.Surface.html' title='glium::Surface'>Surface</a> for <a class='struct' href='../../glium/framebuffer/struct.EmptyFrameBuffer.html' title='glium::framebuffer::EmptyFrameBuffer'>EmptyFrameBuffer</a></code></h3><div class='impl-items'><h4 id='method.clear' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear' class='fnname'>clear</a>(&amp;mut self, rect: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>&gt;, color: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>&gt;, color_srgb: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, depth: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, stencil: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;)</code></h4>
+<h4 id='method.get_dimensions' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.get_dimensions' class='fnname'>get_dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a></code></h4>
+<h4 id='method.get_depth_buffer_bits' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.get_depth_buffer_bits' class='fnname'>get_depth_buffer_bits</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt;</code></h4>
+<h4 id='method.get_stencil_buffer_bits' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.get_stencil_buffer_bits' class='fnname'>get_stencil_buffer_bits</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt;</code></h4>
+<h4 id='method.draw' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.draw' class='fnname'>draw</a>&lt;'b, 'v, V, I, U&gt;(&amp;mut self, vb: V, ib: I, program: &amp;<a class='struct' href='../../glium/struct.Program.html' title='glium::Program'>Program</a>, uniforms: &amp;U, draw_parameters: &amp;<a class='struct' href='../../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a>&gt; <span class='where'>where I: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='../../glium/index/enum.IndicesSource.html' title='glium::index::IndicesSource'>IndicesSource</a>&lt;'b&gt;&gt;, U: <a class='trait' href='../../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a>, V: <a class='trait' href='../../glium/vertex/trait.MultiVerticesSource.html' title='glium::vertex::MultiVerticesSource'>MultiVerticesSource</a>&lt;'v&gt;</span></code></h4>
+<h4 id='method.blit_color' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.blit_color' class='fnname'>blit_color</a>&lt;S&gt;(&amp;self, source_rect: &amp;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target: &amp;S, target_rect: &amp;<a class='struct' href='../../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span></code></h4>
+<h4 id='method.blit_from_frame' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.blit_from_frame' class='fnname'>blit_from_frame</a>(&amp;self, source_rect: &amp;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>)</code></h4>
+<h4 id='method.blit_from_simple_framebuffer' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.blit_from_simple_framebuffer' class='fnname'>blit_from_simple_framebuffer</a>(&amp;self, source: &amp;<a class='struct' href='../../glium/framebuffer/struct.SimpleFrameBuffer.html' title='glium::framebuffer::SimpleFrameBuffer'>SimpleFrameBuffer</a>, source_rect: &amp;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>)</code></h4>
+<h4 id='method.blit_from_multioutput_framebuffer' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.blit_from_multioutput_framebuffer' class='fnname'>blit_from_multioutput_framebuffer</a>(&amp;self, source: &amp;<a class='struct' href='../../glium/framebuffer/struct.MultiOutputFrameBuffer.html' title='glium::framebuffer::MultiOutputFrameBuffer'>MultiOutputFrameBuffer</a>, source_rect: &amp;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>)</code></h4>
+<h4 id='method.clear_color' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_color' class='fnname'>clear_color</a>(&amp;mut self, red: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, green: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, blue: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, alpha: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<h4 id='method.clear_color_srgb' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_color_srgb' class='fnname'>clear_color_srgb</a>(&amp;mut self, red: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, green: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, blue: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, alpha: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<h4 id='method.clear_depth' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_depth' class='fnname'>clear_depth</a>(&amp;mut self, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<h4 id='method.clear_stencil' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_stencil' class='fnname'>clear_stencil</a>(&amp;mut self, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.clear_color_and_depth' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_color_and_depth' class='fnname'>clear_color_and_depth</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<h4 id='method.clear_color_srgb_and_depth' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_color_srgb_and_depth' class='fnname'>clear_color_srgb_and_depth</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<h4 id='method.clear_color_and_stencil' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_color_and_stencil' class='fnname'>clear_color_and_stencil</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.clear_color_srgb_and_stencil' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_color_srgb_and_stencil' class='fnname'>clear_color_srgb_and_stencil</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.clear_depth_and_stencil' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_depth_and_stencil' class='fnname'>clear_depth_and_stencil</a>(&amp;mut self, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.clear_all' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_all' class='fnname'>clear_all</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.clear_all_srgb' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.clear_all_srgb' class='fnname'>clear_all_srgb</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.has_depth_buffer' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.has_depth_buffer' class='fnname'>has_depth_buffer</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.has_stencil_buffer' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.has_stencil_buffer' class='fnname'>has_stencil_buffer</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.blit_whole_color_to' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.blit_whole_color_to' class='fnname'>blit_whole_color_to</a>&lt;S&gt;(&amp;self, target: &amp;S, target_rect: &amp;<a class='struct' href='../../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span></code></h4>
+<h4 id='method.fill' class='method'><code>fn <a href='../../glium/trait.Surface.html#method.fill' class='fnname'>fill</a>&lt;S&gt;(&amp;self, target: &amp;S, filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

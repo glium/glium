@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DepthClamp","Specifies whether the depth value of samples should be clamped to `0.0` or `1.0`."],["DepthTest","The function that the GPU will use to determine whether to write over an existing pixel on the target."]],"struct":[["Depth","Represents the depth parameters of a draw command."]]});

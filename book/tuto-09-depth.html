@@ -1,0 +1,537 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Depth testing | Introduction</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.6.5">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="./tuto-10-perspective.html" />
+    
+    
+    <link rel="prev" href="./tuto-08-gouraud.html" />
+    
+
+        
+    </head>
+    <body>
+        
+        
+    <div class="book"
+        data-level="1.9"
+        data-chapter-title="Depth testing"
+        data-filepath="tuto-09-depth.md"
+        data-basepath="."
+        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-innerlanguage="">
+    
+
+<div class="book-summary">
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="./index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" >
+            
+            <span><b>1.</b> Tutorial</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="tuto-01-getting-started.html">
+            
+                
+                    <a href="./tuto-01-getting-started.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Opening a window
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="tuto-02-triangle.html">
+            
+                
+                    <a href="./tuto-02-triangle.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        Drawing a triangle
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="tuto-03-animated-triangle.html">
+            
+                
+                    <a href="./tuto-03-animated-triangle.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        Uniforms
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="tuto-04-matrices.html">
+            
+                
+                    <a href="./tuto-04-matrices.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        Matrices
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="tuto-05-colors.html">
+            
+                
+                    <a href="./tuto-05-colors.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        Adding colors
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="tuto-06-texture.html">
+            
+                
+                    <a href="./tuto-06-texture.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.6.</b>
+                        
+                        Adding a texture
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="tuto-07-shape.html">
+            
+                
+                    <a href="./tuto-07-shape.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.7.</b>
+                        
+                        A more complex shape
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="tuto-08-gouraud.html">
+            
+                
+                    <a href="./tuto-08-gouraud.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.8.</b>
+                        
+                        Gouraud shading
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.9" data-path="tuto-09-depth.html">
+            
+                
+                    <a href="./tuto-09-depth.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.9.</b>
+                        
+                        Depth testing
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="tuto-10-perspective.html">
+            
+                
+                    <a href="./tuto-10-perspective.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.10.</b>
+                        
+                        Adjusting the perspective
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="tuto-11-backface-culling.html">
+            
+                
+                    <a href="./tuto-11-backface-culling.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.11.</b>
+                        
+                        Backface culling
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.12" data-path="tuto-12-camera.html">
+            
+                
+                    <a href="./tuto-12-camera.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.12.</b>
+                        
+                        The camera and summary of the vertex processing stages
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13" data-path="tuto-13-phong.html">
+            
+                
+                    <a href="./tuto-13-phong.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.13.</b>
+                        
+                        Blinn-phong shading
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.14" data-path="tuto-14-wall.html">
+            
+                
+                    <a href="./tuto-14-wall.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.14.</b>
+                        
+                        Normal mapping
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.15" >
+            
+            <span><b>1.15.</b> Parallax mapping</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.16" >
+            
+            <span><b>1.16.</b> Deferred shading</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.17" >
+            
+            <span><b>1.17.</b> Shadow mapping</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.18" >
+            
+            <span><b>1.18.</b> Antialiasing</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.19" >
+            
+            <span><b>1.19.</b> Drawing lots of objects with instancing</span>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="perf-intro.html">
+            
+                
+                    <a href="./perf-intro.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Performances
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="perf-sync.html">
+            
+                
+                    <a href="./perf-sync.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        Synchronization
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="./" >Introduction</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <h1 id="depth-testing">Depth testing</h1>
+<p>What&apos;s wrong with the teapot of the previous section?</p>
+<p><img src="tuto-08-result.png" alt="The teapot"></p>
+<p>The problem is that faces that are in the back of the model are displayed <em>above</em> faces that are
+in the back of the model.</p>
+<p><img src="tuto-09-problem.png" alt="The problem"></p>
+<p>This may seem like a stupid problem, but GPUs are nothing more than computers and computers only
+do what you tell them to do.</p>
+<p>More precisely, what happens is that triangles are drawn one over another in the order in which
+they are specified. The last vertices of the list will thus always be in the front.</p>
+<h2 id="using-the-depth-value">Using the depth value</h2>
+<p>Two sections ago, we saw what the value of <code>gl_Position</code> means. The third value of this variable
+contains the depth of the vertex on the screen. The larger the value, the further away from the
+screen the vertex is.</p>
+<p>For the moment this value is simply discarded by the GPU, but now we are going to ask it to use
+this value to determine which pixel should be visible.</p>
+<p>This functionality adds a step to the rendering pipeline. After the fragment shader has been
+called, the GPU will then take the depth value of this fragment (interpolated from the depth of
+the surrounding vertices) and compare it with the depth of the pixel that is already on the
+screen. If the depth is inferior to the existing value, the pixel is written and the depth value
+updated. If this is not the case, the pixel is discarded.</p>
+<p>Thanks to this method, when multiple pixels overlap only the pixel whose depth value is the
+smallest will remain. This also means that you can draw multiple objects (multiple teapots
+for example) without having to care about the order in which you draw them.</p>
+<h2 id="the-code">The code</h2>
+<p>We need to change three things:</p>
+<ul>
+<li>At initialization, we need to ask glutin to create a depth buffer that will contain
+the depth value of each pixel.</li>
+<li>Before each frame, we have to reset the content of the depth buffer to <code>1.0</code> (which is
+the maximal value). This is similar to when we reset the color to blue.</li>
+<li>We have to pass additional parameters when drawing to ask the GPU to do this depth test.</li>
+</ul>
+<p>The first step consists in changing the window building code:</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> display = glium::glutin::WindowBuilder::new()
+                    .with_depth_buffer(<span class="hljs-number">24</span>)
+                    .build_glium().unwrap();
+</code></pre>
+<p>We ask for the system to allocate a 24 bits depth buffer. 24 bits is a very common value that
+is used very frequently. Depth testing is a critical feature of any rendering system, so depth
+buffers should be supported everywhere.</p>
+<p>For the second step, we need to change this line:</p>
+<pre><code class="lang-rust">target.clear_color(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>);
+</code></pre>
+<p>Into this one:</p>
+<pre><code class="lang-rust">target.clear_color_and_depth((<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>), <span class="hljs-number">1.0</span>);
+</code></pre>
+<p>This asks the backend to fill the depth buffer will the value <code>1.0</code>. Note that this is a <em>logical</em>
+value, and only the range from <code>0.0</code> to <code>1.0</code> is valid. The actual content of the buffer is the
+maximal representable number. For a 24 bits depth buffer, this is <code>16777215</code>.</p>
+<p>The third step consists in passing an additional parameter when drawing. The depth test and depth
+buffer handling is done directly by the hardware and not by our shader. Therefore we need to
+tell the backend what it should do amongst a list of possible operations.</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> params = glium::DrawParameters {
+    depth: glium::Depth {
+        test: glium::draw_parameters::DepthTest::IfLess,
+        write: <span class="hljs-keyword">true</span>,
+        .. Default::default()
+    },
+    .. Default::default()
+};
+
+target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program,
+            &amp;uniform! { matrix: matrix, u_light: light }, &amp;params).unwrap();
+</code></pre>
+<p>The <code>test</code> parameter indicates that pixels should be only be kept if their depth value is inferior
+to the existing depth value in the depth buffer. The <code>write</code> parameter indicates that the depth
+value of the pixels that pass the test should be written to the depth buffer. If we don&apos;t set
+<code>write</code> to true, the content of the depth buffer will always stay at <code>1.0</code>.</p>
+<p>The <code>Depth</code> structure has two other members which we are not going to cover here. Similarly the
+<code>DrawParameters</code> structure has a lot of members that describe various parts of the rendering
+process. This structure will be used a lot in the future.</p>
+<p>And here is the result:</p>
+<p><img src="tuto-09-result.png" alt="Result"></p>
+<p>If you use an OpenGL debugger, you can see the content of the depth buffer where values are
+represented as shades of gray. Here is our depth buffer after drawing the teapot:</p>
+<p><img src="tuto-09-depth.png" alt="Depth buffer"></p>
+<p><strong><a href="https://github.com/tomaka/glium/blob/master/examples/tutorial-09.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
+
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="./tuto-08-gouraud.html" class="navigation navigation-prev " aria-label="Previous page: Gouraud shading"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="./tuto-10-perspective.html" class="navigation navigation-next " aria-label="Next page: Adjusting the perspective"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="gitbook/app.js"></script>
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>

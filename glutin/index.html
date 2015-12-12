@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `glutin` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, glutin">
+
+    <title>glutin - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'glutin', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>glutin</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/glutin/lib.rs.html#1-657' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>The purpose of this library is to provide an OpenGL context on as many
+ platforms as possible.</p>
+
+<h1 id='building-a-window' class='section-header'><a href='#building-a-window'>Building a window</a></h1>
+<p>There are two ways to create a window:</p>
+
+<ul>
+<li>Calling <code>Window::new()</code>.</li>
+<li>Calling <code>let builder = WindowBuilder::new()</code> then <code>builder.build()</code>.</li>
+</ul>
+
+<p>The first way is the simpliest way and will give you default values.</p>
+
+<p>The second way allows you to customize the way your window and GL context
+ will look and behave.</p>
+
+<h1 id='features' class='section-header'><a href='#features'>Features</a></h1>
+<p>This crate has two Cargo features: <code>window</code> and <code>headless</code>.</p>
+
+<ul>
+<li><code>window</code> allows you to create regular windows and enables the <code>WindowBuilder</code> object.</li>
+<li><code>headless</code> allows you to do headless rendering, and enables
+the <code>HeadlessRendererBuilder</code> object.</li>
+</ul>
+
+<p>By default only <code>window</code> is enabled.</p>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='os/index.html'
+                               title='glutin::os'>os</a></td>
+                        <td class='docblock short'>
+                             <p>Contains traits with platform-specific methods in them.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.AvailableMonitorsIter.html'
+                               title='glutin::AvailableMonitorsIter'>AvailableMonitorsIter</a></td>
+                        <td class='docblock short'>
+                             <p>An iterator for the list of available monitors.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.GlAttributes.html'
+                               title='glutin::GlAttributes'>GlAttributes</a></td>
+                        <td class='docblock short'>
+                             <p>Attributes to use when creating an OpenGL context.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.HeadlessContext.html'
+                               title='glutin::HeadlessContext'>HeadlessContext</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a headless OpenGL context.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.HeadlessRendererBuilder.html'
+                               title='glutin::HeadlessRendererBuilder'>HeadlessRendererBuilder</a></td>
+                        <td class='docblock short'>
+                             <p>Object that allows you to build headless contexts.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.MonitorId.html'
+                               title='glutin::MonitorId'>MonitorId</a></td>
+                        <td class='docblock short'>
+                             <p>Identifier for a monitor.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.PixelFormat.html'
+                               title='glutin::PixelFormat'>PixelFormat</a></td>
+                        <td class='docblock short'>
+                             <p>Describes a possible format. Unused.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.PixelFormatRequirements.html'
+                               title='glutin::PixelFormatRequirements'>PixelFormatRequirements</a></td>
+                        <td class='docblock short'>
+                             <p>VERY UNSTABLE! Describes how the backend should choose a pixel format.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.PollEventsIterator.html'
+                               title='glutin::PollEventsIterator'>PollEventsIterator</a></td>
+                        <td class='docblock short'>
+                             <p>An iterator for the <code>poll_events</code> function.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Touch.html'
+                               title='glutin::Touch'>Touch</a></td>
+                        <td class='docblock short'>
+                             <p>Represents touch event</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.WaitEventsIterator.html'
+                               title='glutin::WaitEventsIterator'>WaitEventsIterator</a></td>
+                        <td class='docblock short'>
+                             <p>An iterator for the <code>wait_events</code> function.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Window.html'
+                               title='glutin::Window'>Window</a></td>
+                        <td class='docblock short'>
+                             <p>Represents an OpenGL context and the Window or environment around it.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.WindowAttributes.html'
+                               title='glutin::WindowAttributes'>WindowAttributes</a></td>
+                        <td class='docblock short'>
+                             <p>Attributes to use when creating a window.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.WindowBuilder.html'
+                               title='glutin::WindowBuilder'>WindowBuilder</a></td>
+                        <td class='docblock short'>
+                             <p>Object that allows you to build windows.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.WindowProxy.html'
+                               title='glutin::WindowProxy'>WindowProxy</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a thread safe subset of operations that can be called
+on a window. This structure can be safely cloned and sent between
+threads.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Api.html'
+                               title='glutin::Api'>Api</a></td>
+                        <td class='docblock short'>
+                             <p>All APIs related to OpenGL that you can possibly get while using glutin.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.ContextError.html'
+                               title='glutin::ContextError'>ContextError</a></td>
+                        <td class='docblock short'>
+                             <p>Error that can happen when manipulating an OpenGL context.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CreationError.html'
+                               title='glutin::CreationError'>CreationError</a></td>
+                        <td class='docblock short'>
+                             <p>Error that can happen while creating a window or a headless renderer.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CursorState.html'
+                               title='glutin::CursorState'>CursorState</a></td>
+                        <td class='docblock short'>
+                             <p>Describes how glutin handles the cursor.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.ElementState.html'
+                               title='glutin::ElementState'>ElementState</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Event.html'
+                               title='glutin::Event'>Event</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.GlProfile.html'
+                               title='glutin::GlProfile'>GlProfile</a></td>
+                        <td class='docblock short'>
+                             <p>Describes the requested OpenGL context profiles.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.GlRequest.html'
+                               title='glutin::GlRequest'>GlRequest</a></td>
+                        <td class='docblock short'>
+                             <p>Describes the OpenGL API and version that are being requested when a context is created.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.MouseButton.html'
+                               title='glutin::MouseButton'>MouseButton</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.MouseCursor.html'
+                               title='glutin::MouseCursor'>MouseCursor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.MouseScrollDelta.html'
+                               title='glutin::MouseScrollDelta'>MouseScrollDelta</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.NativeMonitorId.html'
+                               title='glutin::NativeMonitorId'>NativeMonitorId</a></td>
+                        <td class='docblock short'>
+                             <p>Native platform identifier for a monitor. Different platforms use fundamentally different types
+to represent a monitor ID.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Robustness.html'
+                               title='glutin::Robustness'>Robustness</a></td>
+                        <td class='docblock short'>
+                             <p>Specifies the tolerance of the OpenGL context to faults. If you accept raw OpenGL commands
+and/or raw shader code from an untrusted source, you should definitely care about this.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.TouchPhase.html'
+                               title='glutin::TouchPhase'>TouchPhase</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.VirtualKeyCode.html'
+                               title='glutin::VirtualKeyCode'>VirtualKeyCode</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='statics' class='section-header'><a href="#statics">Statics</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='static' href='static.GL_CORE.html'
+                               title='glutin::GL_CORE'>GL_CORE</a></td>
+                        <td class='docblock short'>
+                             <p>The minimum core profile GL context. Useful for getting the minimum
+required GL version while still running on OSX, which often forbids
+the compatibility profile features.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.GlContext.html'
+                               title='glutin::GlContext'>GlContext</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes objects that have access to an OpenGL context.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.get_available_monitors.html'
+                               title='glutin::get_available_monitors'>get_available_monitors</a></td>
+                        <td class='docblock short'>
+                             <p>Returns the list of all available monitors.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.get_primary_monitor.html'
+                               title='glutin::get_primary_monitor'>get_primary_monitor</a></td>
+                        <td class='docblock short'>
+                             <p>Returns the primary monitor of the system.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.ScanCode.html'
+                               title='glutin::ScanCode'>ScanCode</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

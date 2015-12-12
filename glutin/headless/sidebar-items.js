@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["HeadlessContext","Represents a headless OpenGL context."],["HeadlessRendererBuilder","Object that allows you to build headless contexts."]]});

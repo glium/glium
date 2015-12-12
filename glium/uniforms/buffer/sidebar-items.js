@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["UniformBuffer","Buffer that contains a uniform block."]]});

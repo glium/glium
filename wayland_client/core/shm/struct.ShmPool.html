@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ShmPool` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ShmPool">
+
+    <title>wayland_client::core::shm::ShmPool - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>shm</a></p><script>window.sidebarCurrent = {name: 'ShmPool', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>shm</a>::<wbr><a class='struct' href=''>ShmPool</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3495' class='srclink' href='../../../src/wayland_client/core/shm/shm_pool.rs.html#16-19' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct ShmPool {
+    // some fields omitted
+}</pre><div class='docblock'><p>A shared memory pool.</p>
+
+<p>It represents a chunk of memory shared between your program and the
+wayland client. You can write to it using the means you used to create
+it (for example by writing to the file if you used a temporary file).</p>
+
+<p>This pool can the be split into buffers, which are &quot;views&quot; into the pool
+that the server will use to draw on the surfaces.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../../wayland_client/core/shm/struct.ShmPool.html' title='wayland_client::core::shm::ShmPool'>ShmPool</a></code></h3><div class='impl-items'><h4 id='method.create_buffer' class='method'><code>fn <a href='#method.create_buffer' class='fnname'>create_buffer</a>&lt;'b&gt;(&amp;self, offset: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, stride: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, format: <a class='enum' href='../../../wayland_client/core/shm/enum.ShmFormat.html' title='wayland_client::core::shm::ShmFormat'>ShmFormat</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../../wayland_client/core/shm/struct.Buffer.html' title='wayland_client::core::shm::Buffer'>Buffer</a>&gt;</code></h4>
+<div class='docblock'><p>Creates a new buffer from this memory pool.</p>
+
+<ul>
+<li><code>offset</code> is the number of bytes to skip from the beginning of the pool.</li>
+<li><code>width</code> and <code>height</code> are the dimensions of the image the server will read.</li>
+<li><code>stride</code>  is the number of bytes separating the begining of each line (
+for example, on a ARGB888 format, each pixel is 4 bytes long, so on a
+classic data layout we would have <code>stride = 4*width</code>).</li>
+<li><code>format</code> is the format of the data contained in the buffer.</li>
+</ul>
+</div><h4 id='method.resize' class='method'><code>fn <a href='#method.resize' class='fnname'>resize</a>(&amp;self, size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>Resizes the memory pool to a new size.</p>
+
+<p>Can only be used to make the pool bigger</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../../wayland_client/core/shm/struct.ShmPool.html' title='wayland_client::core::shm::ShmPool'>ShmPool</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../../wayland_client/core/shm/struct.ShmPool.html' title='wayland_client::core::shm::ShmPool'>ShmPool</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../../wayland_client/core/shm/struct.ShmPool.html' title='wayland_client::core::shm::ShmPool'>ShmPool</a></code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#method.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../../../wayland_client/internals/trait.FFI.html' title='wayland_client::internals::FFI'>FFI</a> for <a class='struct' href='../../../wayland_client/core/shm/struct.ShmPool.html' title='wayland_client::core::shm::ShmPool'>ShmPool</a></code></h3><div class='impl-items'><h4 id='assoc_type.Ptr' class='type'><code>type Ptr = wl_shm_pool</code></h4>
+<h4 id='method.ptr' class='method'><code>fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const wl_shm_pool</a></code></h4>
+<h4 id='method.ptr_mut' class='method'><code>unsafe fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr_mut' class='fnname'>ptr_mut</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_shm_pool</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

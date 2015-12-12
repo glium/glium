@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Surface` trait in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Surface">
+
+    <title>glium::Surface - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'Surface', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>glium</a>::<wbr><a class='trait' href=''>Surface</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-49121' class='srclink' href='../src/glium/lib.rs.html#663-806' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Surface {
+    fn <a href='#tymethod.clear' class='fnname'>clear</a>(&amp;mut self, rect: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>&gt;, color: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>&gt;, color_srgb: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, depth: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, stencil: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;);
+    fn <a href='#tymethod.get_dimensions' class='fnname'>get_dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>;
+    fn <a href='#tymethod.get_depth_buffer_bits' class='fnname'>get_depth_buffer_bits</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt;;
+    fn <a href='#tymethod.get_stencil_buffer_bits' class='fnname'>get_stencil_buffer_bits</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt;;
+    fn <a href='#tymethod.draw' class='fnname'>draw</a>&lt;'a, 'b, V, I, U&gt;(&amp;mut self, V, I, program: &amp;<a class='struct' href='../glium/struct.Program.html' title='glium::Program'>Program</a>, uniforms: &amp;U, draw_parameters: &amp;<a class='struct' href='../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a>&gt; <span class='where'>where V: <a class='trait' href='../glium/vertex/trait.MultiVerticesSource.html' title='glium::vertex::MultiVerticesSource'>MultiVerticesSource</a>&lt;'b&gt;, I: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='../glium/index/enum.IndicesSource.html' title='glium::index::IndicesSource'>IndicesSource</a>&lt;'a&gt;&gt;, U: <a class='trait' href='../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a></span>;
+    fn <a href='#tymethod.blit_from_frame' class='fnname'>blit_from_frame</a>(&amp;self, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>);
+    fn <a href='#tymethod.blit_from_simple_framebuffer' class='fnname'>blit_from_simple_framebuffer</a>(&amp;self, source: &amp;<a class='struct' href='../glium/framebuffer/struct.SimpleFrameBuffer.html' title='glium::framebuffer::SimpleFrameBuffer'>SimpleFrameBuffer</a>, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>);
+    fn <a href='#tymethod.blit_from_multioutput_framebuffer' class='fnname'>blit_from_multioutput_framebuffer</a>(&amp;self, source: &amp;<a class='struct' href='../glium/framebuffer/struct.MultiOutputFrameBuffer.html' title='glium::framebuffer::MultiOutputFrameBuffer'>MultiOutputFrameBuffer</a>, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>);
+    fn <a href='#tymethod.blit_color' class='fnname'>blit_color</a>&lt;S&gt;(&amp;self, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target: &amp;S, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span>;
+
+    fn <a href='#method.clear_color' class='fnname'>clear_color</a>(&amp;mut self, red: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, green: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, blue: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, alpha: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) { ... }
+    fn <a href='#method.clear_color_srgb' class='fnname'>clear_color_srgb</a>(&amp;mut self, red: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, green: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, blue: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, alpha: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) { ... }
+    fn <a href='#method.clear_depth' class='fnname'>clear_depth</a>(&amp;mut self, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) { ... }
+    fn <a href='#method.clear_stencil' class='fnname'>clear_stencil</a>(&amp;mut self, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) { ... }
+    fn <a href='#method.clear_color_and_depth' class='fnname'>clear_color_and_depth</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) { ... }
+    fn <a href='#method.clear_color_srgb_and_depth' class='fnname'>clear_color_srgb_and_depth</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) { ... }
+    fn <a href='#method.clear_color_and_stencil' class='fnname'>clear_color_and_stencil</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) { ... }
+    fn <a href='#method.clear_color_srgb_and_stencil' class='fnname'>clear_color_srgb_and_stencil</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) { ... }
+    fn <a href='#method.clear_depth_and_stencil' class='fnname'>clear_depth_and_stencil</a>(&amp;mut self, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) { ... }
+    fn <a href='#method.clear_all' class='fnname'>clear_all</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) { ... }
+    fn <a href='#method.clear_all_srgb' class='fnname'>clear_all_srgb</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) { ... }
+    fn <a href='#method.has_depth_buffer' class='fnname'>has_depth_buffer</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.has_stencil_buffer' class='fnname'>has_stencil_buffer</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.blit_whole_color_to' class='fnname'>blit_whole_color_to</a>&lt;S&gt;(&amp;self, target: &amp;S, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span> { ... }
+    fn <a href='#method.fill' class='fnname'>fill</a>&lt;S&gt;(&amp;self, target: &amp;S, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span> { ... }
+}</pre><div class='docblock'><p>Object that can be drawn upon.</p>
+
+<h1 id='what-does-the-gpu-do-when-you-draw' class='section-header'><a href='#what-does-the-gpu-do-when-you-draw'>What does the GPU do when you draw?</a></h1>
+<p>This is a summary of everything that happens when you call the <code>draw</code> function. Note that
+this is not necessarly <em>exactly</em> what happens. Backends are free to do whatever they want
+as long as it always matches the expected outcome.</p>
+
+<h2 id='step-1-vertex-shader' class='section-header'><a href='#step-1-vertex-shader'>Step 1: Vertex shader</a></h2>
+<p>For each vertex in the vertices source, the GPU invokes the vertex shader that is part
+of the program, and passes the corresponding vertex&#39;s attributes to it.</p>
+
+<p>The vertex shader <em>must</em> write the special <code>gl_Position</code> variable in order to indicate
+the four-dimensions coordinates of the vertex. In order to understand what these coordinates
+mean, see the &quot;vertex post-processing&quot; step below.</p>
+
+<p>In addition to the position of the vertex, the vertex shader can also specify the values of
+various vertex attributes.</p>
+
+<h2 id='step-2-tessellation-optional' class='section-header'><a href='#step-2-tessellation-optional'>Step 2: Tessellation (optional)</a></h2>
+<h2 id='step-3-geometry-shader-optional' class='section-header'><a href='#step-3-geometry-shader-optional'>Step 3: Geometry shader (optional)</a></h2>
+<p>If you specify a geometry shader, then the GPU will invoke it once for each primitive.</p>
+
+<p>The geometry shader can output multiple primitives.</p>
+
+<h2 id='step-4-transform-feedback-optional' class='section-header'><a href='#step-4-transform-feedback-optional'>Step 4: Transform feedback (optional)</a></h2>
+<p>TODO:
+TODO: talk about <code>transform_feedback_primitives_written_query</code> as well</p>
+
+<h2 id='step-5-vertex-post-processing' class='section-header'><a href='#step-5-vertex-post-processing'>Step 5: Vertex post-processing</a></h2>
+<p>The vertex shader step told the GPU what the coordinates of each vertex are, but these
+coordinates have four dimensions, named <code>x</code>, <code>y</code>, <code>z</code> and <code>w</code>.</p>
+
+<p>The GPU then computes the position of the vertex on the 2D surface you are drawing on, and
+the depth of this vertex:</p>
+
+<pre><code class="language-notrust">window_x = viewport_left + viewport_width * ((x / w) + 1.0) / 2.0
+window_y = viewport_bottom + viewport_height * ((y / w) + 1.0) / 2.0
+depth = depth_near + (depth_far - depth_near) * ((z / w) + 1.0) / 2.0
+</code></pre>
+
+<p><em><code>viewport_left</code>, <code>viewport_width</code>, <code>viewport_bottom</code> and <code>viewport_height</code> correspond to
+the <code>viewport</code> member of the draw parameters, and <code>depth_near</code> and <code>depth_far</code> correspond
+to the <code>depth_range</code> member</em>.</p>
+
+<p>This means that if <code>x / w</code>, <code>y / w</code> or <code>z / w</code> are equal to <code>-1.0</code>, then the result will be
+<code>viewport_left</code>, <code>viewport_bottom</code> or <code>depth_near</code>. If they are equal to <code>1.0</code>, the result
+will be <code>viewport_left + viewport_width</code> (the right of the viewport),
+<code>viewport_bottom + viewport_height</code> (the top of the viewport) or <code>depth_far</code>.</p>
+
+<p>For example if you want to draw a rectangle that covers the whole screen, it should be made
+of four vertices whose coordinates are <code>(-1.0, -1.0, 0.0, 1.0)</code> (bottom-left corner),
+<code>(-1.0, 1.0, 0.0, 1.0)</code> (top-left corner), <code>(1.0, 1.0, 0.0, 1.0)</code> (top-right corner) and
+<code>(1.0, -1.0, 0.0, 1.0)</code> (bottom-right corner).</p>
+
+<h2 id='step-6-primitive-assembly' class='section-header'><a href='#step-6-primitive-assembly'>Step 6: Primitive assembly</a></h2>
+<p>The next step consists in building the primitives. Triangle strips, triangle fans and line
+strips are turned into individual triangles or lines.</p>
+
+<p>Triangle strips obey certain rules for the order of indices. For example the triangle strip
+<code>0, 1, 2, 3, 4, 5</code> does <em>not</em> correspond to <code>0, 1, 2</code>, <code>1, 2, 3</code>, <code>2, 3, 4</code>, <code>3, 4, 5</code> as you
+would expect, but to <code>0, 1, 2</code>, <code>1, 3, 2</code>, <code>2, 3, 4</code>, <code>3, 5, 4</code> (some indices are reversed).
+This is important with regards to the face culling step below.</p>
+
+<p>Then, if you did specify <code>PrimitiveMode</code>, it is used. If you specified <code>Line</code>, triangles are
+turned into lines. If specified <code>Point</code>, triangles and lines are turned into points.</p>
+
+<p>The GPU then looks at the screen coordinates of each primitive, and discards primitives that
+are entirely outside of the window.</p>
+
+<p>Note that points whose centers are outside of the viewport are discarded, even if the point
+width would be big enough for the point to be visible. However this standard behavior is not
+respected by nVidia drivers, which show the points anyway.</p>
+
+<p>If a query has been specified through <code>primitives_generated_query</code>, then its value is updated.</p>
+
+<h2 id='step-7-face-culling-triangles-only' class='section-header'><a href='#step-7-face-culling-triangles-only'>Step 7: Face culling (triangles only)</a></h2>
+<p>This step is purely an optimization step and only concerns triangles.</p>
+
+<p>If you specify a value for <code>backface_culling</code> other than <code>CullingDisabled</code>, the GPU will
+discard triangles depending on the way that the vertices are arranged on the window. You can
+either discard triangles whose vertices are clockwise or counterclockwise.</p>
+
+<p>For more information, see the <code>BackfaceCullingMode</code> documentation.</p>
+
+<h2 id='step-8-rasterization' class='section-header'><a href='#step-8-rasterization'>Step 8: Rasterization</a></h2>
+<p>Now that the GPU knows where on the window the various triangles, points or lines are, it will
+determine which pixels of the surface are part of each primitive.</p>
+
+<p>For points and lines, this step depends on the points width and line width that you specified
+in the draw parameters. If you specify the <code>smooth</code> parameter, then the borders of the
+primitives will see their alpha value adjusted.</p>
+
+<p><img alt="" src="data:image/png;base64,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" /></p>
+
+<p>The attributes of each vertex that are marked as <code>smooth</code> (which is the default value) are
+being interpolated, and the GPU assigns a value for each attribute for each pixel.</p>
+
+<h2 id='step-9-fragment-shader' class='section-header'><a href='#step-9-fragment-shader'>Step 9: Fragment shader</a></h2>
+<p>The GPU now executes the fragment shader once for each pixel of each primitive.
+The vertex attributes that were interpolated at the previous step are passed to the fragment
+shader.</p>
+
+<p>The fragment shader must return the color to write by setting the value of <code>gl_FragColor</code>.</p>
+
+<p>If the target framebuffer has multisampling enabled, then each pixel of the target image is
+in turn split into four subpixels. The output of the fragment shader is copied and written into
+each subpixel. If <code>multisampling</code> in the draw parameters is <code>true</code> (its default value), only
+subpixels that belong to the triangle are written.</p>
+
+<p>If a query has been specified through <code>samples_passed_query</code>, then its value is updated.</p>
+
+<h2 id='step-10-pixel-ownership' class='section-header'><a href='#step-10-pixel-ownership'>Step 10: Pixel ownership</a></h2>
+<p>This step is mostly an implementation detail. If the window you are drawing on is not on the
+foreground, or if it is partially obstructed, then the pixels that are not on the
+foreground will be discarded.</p>
+
+<p>This is only relevant if you draw to the default framebuffer.</p>
+
+<p>This step has to be taken into account in some situations. For example if you query the number
+of samples that have been written, the ones that don&#39;t pass the pixel ownership test won&#39;t
+count.</p>
+
+<h2 id='step-11-scissor-test' class='section-header'><a href='#step-11-scissor-test'>Step 11: Scissor test</a></h2>
+<p>If <code>scissor</code> has been specified, then all the pixels that are outside of this rect
+are discarded.</p>
+
+<h2 id='step-12-depth-test' class='section-header'><a href='#step-12-depth-test'>Step 12: Depth test</a></h2>
+<p>In addition to the colors, surfaces can also have a depth buffer attached to it. In this
+situation, just like each pixel has a color, each pixel of the surface also has an associated
+depth value.</p>
+
+<p>If a depth buffer is present, the GPU will compare the depth value of the pixel currently
+being processed, with the existing depth value. Depending on the value of <code>depth_test</code>
+in the draw parameters, the depth test will either pass, in which case the pipeline
+continues, or fail, in which case the pixel is discarded. If the value of <code>depth_write</code>
+is true and the test passed, it will then also write the depth value of the pixel on the
+depth buffer.</p>
+
+<p>The purpose of this test is to avoid drawing elements that are in the background of the
+scene over elements that are in the foreground.</p>
+
+<p>See the documentation of <code>DepthTest</code> for more informations.</p>
+
+<h2 id='step-13-stencil-test' class='section-header'><a href='#step-13-stencil-test'>Step 13: Stencil test</a></h2>
+<p>Similar to the depth buffer, surfaces can also have a stencil buffer.</p>
+
+<p>The <code>stencil_test_clockwise</code> and <code>stencil_test_counter_clockwise</code> draw parameters specify
+the operation to use to check whether or not each pixel passes the stencil test. Pixels that
+fail the stencil test won&#39;t be drawn on the screen.</p>
+
+<p>The <code>*_clockwise</code> members are relevant for polygons that are displayed clockwise, and the
+<code>*_counter_clockwise</code> members are relevant for polygons that are displayed counterclockwise.
+See also the <code>face culling</code> step for more infos. Lines and points always use the <code>*_clockwise</code>
+members.</p>
+
+<p>There are three possibilities for each pixel: either it fails the stencil test, or it passes
+the stencil test but failed the depth test, or it passes both the stencil test and depth test.
+You can specify for each of these three situations what to do with the value in the stencil
+buffer with the draw parameters.</p>
+
+<h2 id='step-14-blending' class='section-header'><a href='#step-14-blending'>Step 14: Blending</a></h2>
+<p>For each pixel to write, the GPU takes the RGBA color that the fragment shader has returned
+and the existing RGBA color already written on the surface, and merges the two.</p>
+
+<p>The way they are merged depends on the value of <code>blending_function</code>. This allows you to choose
+how alpha colors are merged together.</p>
+
+<p>See the documentation of <code>BlendingFunction</code> fore more informations.</p>
+
+<h2 id='step-15-dithering-optional' class='section-header'><a href='#step-15-dithering-optional'>Step 15: Dithering (optional)</a></h2>
+<p>If <code>dithering</code> is <code>true</code> in the draw parameters, then a dithering algorithm is applied.</p>
+
+<p>When you draw a gradient of colors, the boundary between each individual color value is
+visible. Thanks to an optical illusion, a dithering algorithm will change the color values
+of some pixels and hide the boundaries.</p>
+
+<h2 id='step-16-conversion-to-srgb' class='section-header'><a href='#step-16-conversion-to-srgb'>Step 16: Conversion to sRGB</a></h2>
+<p>If the target has sRGB enabled, then the output of the fragment will get some gamma correction.</p>
+
+<p>Monitors don&#39;t show colors linearly. For example a value of <code>0.5</code> isn&#39;t shown half as bright
+as a value of <code>1.0</code>. Instead the monitor will show colors as darker than they should be.
+In order to fix this problem, each pixel is modified to be made slightly brighter with the same
+factor as the monitor makes them darker.</p>
+
+<h2 id='step-17-end' class='section-header'><a href='#step-17-end'>Step 17: End</a></h2>
+<p>This is finally the step where colors are being written. The <code>color_mask</code> parameter allow you
+to specify whether each color component (red, green, blue and alpha) is written to the color
+buffer.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.clear' class='method stab '><code>fn <a href='#tymethod.clear' class='fnname'>clear</a>(&amp;mut self, rect: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>&gt;, color: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>&gt;, color_srgb: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, depth: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, stencil: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;)</code></h3><div class='docblock'><p>Clears some attachments of the target.</p>
+</div><h3 id='tymethod.get_dimensions' class='method stab '><code>fn <a href='#tymethod.get_dimensions' class='fnname'>get_dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a></code></h3><div class='docblock'><p>Returns the dimensions in pixels of the target.</p>
+</div><h3 id='tymethod.get_depth_buffer_bits' class='method stab '><code>fn <a href='#tymethod.get_depth_buffer_bits' class='fnname'>get_depth_buffer_bits</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt;</code></h3><div class='docblock'><p>Returns the number of bits of each pixel of the depth buffer.</p>
+
+<p>Returns <code>None</code> if there is no depth buffer.</p>
+</div><h3 id='tymethod.get_stencil_buffer_bits' class='method stab '><code>fn <a href='#tymethod.get_stencil_buffer_bits' class='fnname'>get_stencil_buffer_bits</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt;</code></h3><div class='docblock'><p>Returns the number of bits of each pixel of the stencil buffer.</p>
+
+<p>Returns <code>None</code> if there is no stencil buffer.</p>
+</div><h3 id='tymethod.draw' class='method stab '><code>fn <a href='#tymethod.draw' class='fnname'>draw</a>&lt;'a, 'b, V, I, U&gt;(&amp;mut self, V, I, program: &amp;<a class='struct' href='../glium/struct.Program.html' title='glium::Program'>Program</a>, uniforms: &amp;U, draw_parameters: &amp;<a class='struct' href='../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a>&gt; <span class='where'>where V: <a class='trait' href='../glium/vertex/trait.MultiVerticesSource.html' title='glium::vertex::MultiVerticesSource'>MultiVerticesSource</a>&lt;'b&gt;, I: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='../glium/index/enum.IndicesSource.html' title='glium::index::IndicesSource'>IndicesSource</a>&lt;'a&gt;&gt;, U: <a class='trait' href='../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a></span></code></h3><div class='docblock'><p>Draws.</p>
+
+<p>This is probably the most complex function of glium. Check out the rest of the
+documentation for example how to use it.</p>
+
+<p>See above for what happens exactly on the GPU when you draw.</p>
+</div><h3 id='tymethod.blit_from_frame' class='method stab '><code>fn <a href='#tymethod.blit_from_frame' class='fnname'>blit_from_frame</a>(&amp;self, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>)</code></h3><div class='docblock'><p>Blits from the default framebuffer.</p>
+</div><h3 id='tymethod.blit_from_simple_framebuffer' class='method stab '><code>fn <a href='#tymethod.blit_from_simple_framebuffer' class='fnname'>blit_from_simple_framebuffer</a>(&amp;self, source: &amp;<a class='struct' href='../glium/framebuffer/struct.SimpleFrameBuffer.html' title='glium::framebuffer::SimpleFrameBuffer'>SimpleFrameBuffer</a>, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>)</code></h3><div class='docblock'><p>Blits from a simple framebuffer.</p>
+</div><h3 id='tymethod.blit_from_multioutput_framebuffer' class='method stab '><code>fn <a href='#tymethod.blit_from_multioutput_framebuffer' class='fnname'>blit_from_multioutput_framebuffer</a>(&amp;self, source: &amp;<a class='struct' href='../glium/framebuffer/struct.MultiOutputFrameBuffer.html' title='glium::framebuffer::MultiOutputFrameBuffer'>MultiOutputFrameBuffer</a>, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>)</code></h3><div class='docblock'><p>Blits from a multi-output framebuffer.</p>
+</div><h3 id='tymethod.blit_color' class='method stab '><code>fn <a href='#tymethod.blit_color' class='fnname'>blit_color</a>&lt;S&gt;(&amp;self, source_rect: &amp;<a class='struct' href='../glium/struct.Rect.html' title='glium::Rect'>Rect</a>, target: &amp;S, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span></code></h3><div class='docblock'><p>Copies a rectangle of pixels from this surface to another surface.</p>
+
+<p>The <code>source_rect</code> defines the area of the source (<code>self</code>) that will be copied, and the
+<code>target_rect</code> defines the area where the copied image will be pasted. If the source and
+target areas don&#39;t have the same dimensions, the image will be resized to match.
+The <code>filter</code> parameter is relevant only in this situation.</p>
+
+<p>It is possible for the source and the target to be the same surface. However if the
+rectangles overlap, then the behavior is undefined.</p>
+
+<p>Note that there is no alpha blending, depth/stencil checking, etc. This function just
+copies pixels.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.clear_color' class='method stab '><code>fn <a href='#method.clear_color' class='fnname'>clear_color</a>(&amp;mut self, red: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, green: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, blue: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, alpha: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h3><div class='docblock'><p>Clears the color attachment of the target.</p>
+</div><h3 id='method.clear_color_srgb' class='method stab '><code>fn <a href='#method.clear_color_srgb' class='fnname'>clear_color_srgb</a>(&amp;mut self, red: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, green: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, blue: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, alpha: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h3><div class='docblock'><p>Clears the color attachment of the target. The color is in sRGB format.</p>
+</div><h3 id='method.clear_depth' class='method stab '><code>fn <a href='#method.clear_depth' class='fnname'>clear_depth</a>(&amp;mut self, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h3><div class='docblock'><p>Clears the depth attachment of the target.</p>
+</div><h3 id='method.clear_stencil' class='method stab '><code>fn <a href='#method.clear_stencil' class='fnname'>clear_stencil</a>(&amp;mut self, value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h3><div class='docblock'><p>Clears the stencil attachment of the target.</p>
+</div><h3 id='method.clear_color_and_depth' class='method stab '><code>fn <a href='#method.clear_color_and_depth' class='fnname'>clear_color_and_depth</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h3><div class='docblock'><p>Clears the color and depth attachments of the target.</p>
+</div><h3 id='method.clear_color_srgb_and_depth' class='method stab '><code>fn <a href='#method.clear_color_srgb_and_depth' class='fnname'>clear_color_srgb_and_depth</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h3><div class='docblock'><p>Clears the color and depth attachments of the target. The color is in sRGB format.</p>
+</div><h3 id='method.clear_color_and_stencil' class='method stab '><code>fn <a href='#method.clear_color_and_stencil' class='fnname'>clear_color_and_stencil</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h3><div class='docblock'><p>Clears the color and stencil attachments of the target.</p>
+</div><h3 id='method.clear_color_srgb_and_stencil' class='method stab '><code>fn <a href='#method.clear_color_srgb_and_stencil' class='fnname'>clear_color_srgb_and_stencil</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h3><div class='docblock'><p>Clears the color and stencil attachments of the target. The color is in sRGB format.</p>
+</div><h3 id='method.clear_depth_and_stencil' class='method stab '><code>fn <a href='#method.clear_depth_and_stencil' class='fnname'>clear_depth_and_stencil</a>(&amp;mut self, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h3><div class='docblock'><p>Clears the depth and stencil attachments of the target.</p>
+</div><h3 id='method.clear_all' class='method stab '><code>fn <a href='#method.clear_all' class='fnname'>clear_all</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h3><div class='docblock'><p>Clears the color, depth and stencil attachments of the target.</p>
+</div><h3 id='method.clear_all_srgb' class='method stab '><code>fn <a href='#method.clear_all_srgb' class='fnname'>clear_all_srgb</a>(&amp;mut self, color: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>, depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, stencil: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h3><div class='docblock'><p>Clears the color, depth and stencil attachments of the target. The color is in sRGB format.</p>
+</div><h3 id='method.has_depth_buffer' class='method stab '><code>fn <a href='#method.has_depth_buffer' class='fnname'>has_depth_buffer</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns true if the surface has a depth buffer available.</p>
+</div><h3 id='method.has_stencil_buffer' class='method stab '><code>fn <a href='#method.has_stencil_buffer' class='fnname'>has_stencil_buffer</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns true if the surface has a stencil buffer available.</p>
+</div><h3 id='method.blit_whole_color_to' class='method stab '><code>fn <a href='#method.blit_whole_color_to' class='fnname'>blit_whole_color_to</a>&lt;S&gt;(&amp;self, target: &amp;S, target_rect: &amp;<a class='struct' href='../glium/struct.BlitTarget.html' title='glium::BlitTarget'>BlitTarget</a>, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span></code></h3><div class='docblock'><p>Copies the entire surface to a target surface. See <code>blit_color</code>.</p>
+</div><h3 id='method.fill' class='method stab '><code>fn <a href='#method.fill' class='fnname'>fill</a>&lt;S&gt;(&amp;self, target: &amp;S, filter: <a class='enum' href='../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>) <span class='where'>where S: <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a></span></code></h3><div class='docblock'><p>Copies the entire surface to the entire target. See <code>blit_color</code>.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a> for <a class='struct' href='../glium/framebuffer/struct.DefaultFramebuffer.html' title='glium::framebuffer::DefaultFramebuffer'>DefaultFramebuffer</a></code></li>
+<li><code>impl&lt;'a&gt; <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a> for <a class='struct' href='../glium/framebuffer/struct.SimpleFrameBuffer.html' title='glium::framebuffer::SimpleFrameBuffer'>SimpleFrameBuffer</a>&lt;'a&gt;</code></li>
+<li><code>impl&lt;'a&gt; <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a> for <a class='struct' href='../glium/framebuffer/struct.MultiOutputFrameBuffer.html' title='glium::framebuffer::MultiOutputFrameBuffer'>MultiOutputFrameBuffer</a>&lt;'a&gt;</code></li>
+<li><code>impl <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a> for <a class='struct' href='../glium/framebuffer/struct.EmptyFrameBuffer.html' title='glium::framebuffer::EmptyFrameBuffer'>EmptyFrameBuffer</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.Surface.html' title='glium::Surface'>Surface</a> for <a class='struct' href='../glium/struct.Frame.html' title='glium::Frame'>Frame</a></code></li>
+</ul><script type="text/javascript" async
+                              src="../implementors/glium/trait.Surface.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["IntegralCubemap","A cube texture  containing signed integral data."],["IntegralCubemapImage","Represents a single image of a mipmap level of a layer of `IntegralCubemap`."],["IntegralCubemapMipmap","Represents a single mipmap level of a `IntegralCubemap`."]]});

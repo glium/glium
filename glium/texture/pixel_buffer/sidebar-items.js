@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PixelBuffer","Buffer that stores the content of a texture."]]});

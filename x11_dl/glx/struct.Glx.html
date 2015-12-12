@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Glx` struct in crate `x11_dl`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Glx">
+
+    <title>x11_dl::glx::Glx - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>glx</a></p><script>window.sidebarCurrent = {name: 'Glx', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>glx</a>::<wbr><a class='struct' href=''>Glx</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-111' class='srclink' href='../../src/x11_dl/link.rs.html#28-34' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Glx {
+    pub glXChooseFBConfig: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a></a>,
+    pub glXChooseVisual: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.XVisualInfo.html' title='x11_dl::xlib::XVisualInfo'>XVisualInfo</a></a>,
+    pub glXCopyContext: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXCreateContext: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.XVisualInfo.html' title='x11_dl::xlib::XVisualInfo'>XVisualInfo</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>) -&gt; <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>,
+    pub glXCreateGLXPixmap: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.XVisualInfo.html' title='x11_dl::xlib::XVisualInfo'>XVisualInfo</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
+    pub glXCreateNewContext: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>) -&gt; <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>,
+    pub glXCreatePbuffer: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
+    pub glXCreatePixmap: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
+    pub glXCreateWindow: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
+    pub glXDestroyContext: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>),
+    pub glXDestroyGLXPixmap: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXDestroyPbuffer: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXDestroyPixmap: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXDestroyWindow: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXGetClientString: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_char.html' title='libc::types::os::arch::c95::c_char'>c_char</a></a>,
+    pub glXGetConfig: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.XVisualInfo.html' title='x11_dl::xlib::XVisualInfo'>XVisualInfo</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXGetCurrentContext: unsafe  extern "C" fn() -&gt; <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>,
+    pub glXGetCurrentDisplay: unsafe  extern "C" fn() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>,
+    pub glXGetCurrentDrawable: unsafe  extern "C" fn() -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
+    pub glXGetCurrentReadDrawable: unsafe  extern "C" fn() -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
+    pub glXGetFBConfigAttrib: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXGetFBConfigs: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a></a>,
+    pub glXGetProcAddress: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_uchar.html' title='libc::types::os::arch::c95::c_uchar'>c_uchar</a></a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;unsafe  extern "C" fn()&gt;,
+    pub glXGetSelectedEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a></a>),
+    pub glXGetVisualFromFBConfig: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXFBConfig.html' title='x11_dl::glx::GLXFBConfig'>GLXFBConfig</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.XVisualInfo.html' title='x11_dl::xlib::XVisualInfo'>XVisualInfo</a></a>,
+    pub glXIsDirect: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXMakeContextCurrent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXMakeCurrent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXQueryContext: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../x11_dl/glx/type.GLXContext.html' title='x11_dl::glx::GLXContext'>GLXContext</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXQueryDrawable: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_uint.html' title='libc::types::os::arch::c95::c_uint'>c_uint</a></a>),
+    pub glXQueryExtension: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXQueryExtensionsString: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_char.html' title='libc::types::os::arch::c95::c_char'>c_char</a></a>,
+    pub glXQueryServerString: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../../libc/types/os/arch/c95/type.c_char.html' title='libc::types::os::arch::c95::c_char'>c_char</a></a>,
+    pub glXQueryVersion: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub glXSelectEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXSwapBuffers: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub glXUseXFont: unsafe  extern "C" fn(<a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>),
+    pub glXWaitGL: unsafe  extern "C" fn(),
+    pub glXWaitX: unsafe  extern "C" fn(),
+    // some fields omitted
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.glXChooseFBConfig'><code>glXChooseFBConfig</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXChooseVisual'><code>glXChooseVisual</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCopyContext'><code>glXCopyContext</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCreateContext'><code>glXCreateContext</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCreateGLXPixmap'><code>glXCreateGLXPixmap</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCreateNewContext'><code>glXCreateNewContext</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCreatePbuffer'><code>glXCreatePbuffer</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCreatePixmap'><code>glXCreatePixmap</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXCreateWindow'><code>glXCreateWindow</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXDestroyContext'><code>glXDestroyContext</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXDestroyGLXPixmap'><code>glXDestroyGLXPixmap</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXDestroyPbuffer'><code>glXDestroyPbuffer</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXDestroyPixmap'><code>glXDestroyPixmap</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXDestroyWindow'><code>glXDestroyWindow</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetClientString'><code>glXGetClientString</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetConfig'><code>glXGetConfig</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetCurrentContext'><code>glXGetCurrentContext</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetCurrentDisplay'><code>glXGetCurrentDisplay</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetCurrentDrawable'><code>glXGetCurrentDrawable</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetCurrentReadDrawable'><code>glXGetCurrentReadDrawable</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetFBConfigAttrib'><code>glXGetFBConfigAttrib</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetFBConfigs'><code>glXGetFBConfigs</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetProcAddress'><code>glXGetProcAddress</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetSelectedEvent'><code>glXGetSelectedEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXGetVisualFromFBConfig'><code>glXGetVisualFromFBConfig</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXIsDirect'><code>glXIsDirect</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXMakeContextCurrent'><code>glXMakeContextCurrent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXMakeCurrent'><code>glXMakeCurrent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXQueryContext'><code>glXQueryContext</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXQueryDrawable'><code>glXQueryDrawable</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXQueryExtension'><code>glXQueryExtension</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXQueryExtensionsString'><code>glXQueryExtensionsString</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXQueryServerString'><code>glXQueryServerString</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXQueryVersion'><code>glXQueryVersion</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXSelectEvent'><code>glXSelectEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXSwapBuffers'><code>glXSwapBuffers</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXUseXFont'><code>glXUseXFont</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXWaitGL'><code>glXWaitGL</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.glXWaitX'><code>glXWaitX</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../x11_dl/glx/struct.Glx.html' title='x11_dl::glx::Glx'>Glx</a></code></h3><div class='impl-items'><h4 id='method.open' class='method'><code>fn <a href='#method.open' class='fnname'>open</a>() -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../x11_dl/glx/struct.Glx.html' title='x11_dl::glx::Glx'>Glx</a>, <a class='struct' href='../../x11_dl/error/struct.OpenError.html' title='x11_dl::error::OpenError'>OpenError</a>&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "x11_dl";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

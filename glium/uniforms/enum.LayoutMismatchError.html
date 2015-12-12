@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `LayoutMismatchError` enum in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, LayoutMismatchError">
+
+    <title>glium::uniforms::LayoutMismatchError - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'LayoutMismatchError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class='enum' href=''>LayoutMismatchError</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-8431' class='srclink' href='../../src/glium/uniforms/mod.rs.html#119-159' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum LayoutMismatchError {
+    TypeMismatch {
+        expected: <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>,
+        obtained: <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>,
+    },
+    LayoutMismatch {
+        expected: <a class='enum' href='../../glium/program/enum.BlockLayout.html' title='glium::program::BlockLayout'>BlockLayout</a>,
+        obtained: <a class='enum' href='../../glium/program/enum.BlockLayout.html' title='glium::program::BlockLayout'>BlockLayout</a>,
+    },
+    OffsetMismatch {
+        expected: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+        obtained: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+    },
+    MemberMismatch {
+        member: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+        err: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a>&gt;,
+    },
+    MissingField {
+        name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    },
+}</pre><div class='docblock'><p>Error about a block layout mismatch.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.TypeMismatch'><code>TypeMismatch</code></td><td><div class='docblock'><p>There is a mismatch in the type of one element.</p>
+</div><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.TypeMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>Type expected by the shader.</p>
+</div></td></tr><tr><td id='variant.TypeMismatch.field.obtained'><code>obtained</code></td><td><div class='docblock'><p>Type that you gave.</p>
+</div></td></tr></table></td></tr><tr><td id='variant.LayoutMismatch'><code>LayoutMismatch</code></td><td><div class='docblock'><p>The expected layout is totally different from what we have.</p>
+</div><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.LayoutMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>Layout expected by the shader.</p>
+</div></td></tr><tr><td id='variant.LayoutMismatch.field.obtained'><code>obtained</code></td><td><div class='docblock'><p>Layout of the input.</p>
+</div></td></tr></table></td></tr><tr><td id='variant.OffsetMismatch'><code>OffsetMismatch</code></td><td><div class='docblock'><p>The type of data is good, but there is a misalignment.</p>
+</div><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.OffsetMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>Expected offset of a member.</p>
+</div></td></tr><tr><td id='variant.OffsetMismatch.field.obtained'><code>obtained</code></td><td><div class='docblock'><p>Offset of the same member in the input.</p>
+</div></td></tr></table></td></tr><tr><td id='variant.MemberMismatch'><code>MemberMismatch</code></td><td><div class='docblock'><p>There is a mismatch in a submember of this layout.</p>
+
+<p>This is kind of a hierarchy inside the <code>LayoutMismatchError</code>s.</p>
+</div><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.MemberMismatch.field.member'><code>member</code></td><td><div class='docblock'><p>Name of the field.</p>
+</div></td></tr><tr><td id='variant.MemberMismatch.field.err'><code>err</code></td><td><div class='docblock'><p>The sub-error.</p>
+</div></td></tr></table></td></tr><tr><td id='variant.MissingField'><code>MissingField</code></td><td><div class='docblock'><p>A field is missing in either the expected of the input data layout.</p>
+</div><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.MissingField.field.name'><code>name</code></td><td><div class='docblock'><p>Name of the field.</p>
+</div></td></tr></table></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

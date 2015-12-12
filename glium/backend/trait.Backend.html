@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Backend` trait in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Backend">
+
+    <title>glium::backend::Backend - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>backend</a></p><script>window.sidebarCurrent = {name: 'Backend', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>backend</a>::<wbr><a class='trait' href=''>Backend</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-226' class='srclink' href='../../src/glium/backend/mod.rs.html#36-53' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub unsafe trait Backend {
+    fn <a href='#tymethod.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../glium/enum.SwapBuffersError.html' title='glium::SwapBuffersError'>SwapBuffersError</a>&gt;;
+    unsafe fn <a href='#tymethod.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, symbol: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='enum' href='../../std/os/raw/enum.c_void.html' title='std::os::raw::c_void'>c_void</a></a>;
+    fn <a href='#tymethod.get_framebuffer_dimensions' class='fnname'>get_framebuffer_dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>;
+    fn <a href='#tymethod.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    unsafe fn <a href='#tymethod.make_current' class='fnname'>make_current</a>(&amp;self);
+}</pre><div class='docblock'><p>Trait for types that can be used as a backend for a glium context.</p>
+
+<p>This trait is unsafe, as you can get undefined behaviors or crashes if you don&#39;t implement
+the methods correctly.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.swap_buffers' class='method stab '><code>fn <a href='#tymethod.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../glium/enum.SwapBuffersError.html' title='glium::SwapBuffersError'>SwapBuffersError</a>&gt;</code></h3><div class='docblock'><p>Swaps buffers at the end of a frame.</p>
+</div><h3 id='tymethod.get_proc_address' class='method stab '><code>unsafe fn <a href='#tymethod.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, symbol: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='enum' href='../../std/os/raw/enum.c_void.html' title='std::os::raw::c_void'>c_void</a></a></code></h3><div class='docblock'><p>Returns the address of an OpenGL function.</p>
+
+<p>Supposes that the context has been made current before this function is called.</p>
+</div><h3 id='tymethod.get_framebuffer_dimensions' class='method stab '><code>fn <a href='#tymethod.get_framebuffer_dimensions' class='fnname'>get_framebuffer_dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a></code></h3><div class='docblock'><p>Returns the dimensions of the window, or screen, etc.</p>
+</div><h3 id='tymethod.is_current' class='method stab '><code>fn <a href='#tymethod.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns true if the OpenGL context is the current one in the thread.</p>
+</div><h3 id='tymethod.make_current' class='method stab '><code>unsafe fn <a href='#tymethod.make_current' class='fnname'>make_current</a>(&amp;self)</code></h3><div class='docblock'><p>Makes the OpenGL context the current context in the current thread.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl <a class='trait' href='../../glium/backend/trait.Backend.html' title='glium::backend::Backend'>Backend</a> for <a class='struct' href='../../glium/backend/glutin_backend/struct.GlutinWindowBackend.html' title='glium::backend::glutin_backend::GlutinWindowBackend'>GlutinWindowBackend</a></code></li>
+<li><code>impl <a class='trait' href='../../glium/backend/trait.Backend.html' title='glium::backend::Backend'>Backend</a> for <a class='struct' href='../../glium/backend/glutin_backend/struct.GlutinHeadlessBackend.html' title='glium::backend::glutin_backend::GlutinHeadlessBackend'>GlutinHeadlessBackend</a></code></li>
+<li><code>impl&lt;T&gt; <a class='trait' href='../../glium/backend/trait.Backend.html' title='glium::backend::Backend'>Backend</a> for <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='../../glium/backend/trait.Backend.html' title='glium::backend::Backend'>Backend</a></span></code></li>
+</ul><script type="text/javascript" async
+                              src="../../implementors/glium/backend/trait.Backend.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

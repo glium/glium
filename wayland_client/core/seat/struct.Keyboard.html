@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Keyboard` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Keyboard">
+
+    <title>wayland_client::core::seat::Keyboard - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>seat</a></p><script>window.sidebarCurrent = {name: 'Keyboard', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>seat</a>::<wbr><a class='struct' href=''>Keyboard</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2643' class='srclink' href='../../../src/wayland_client/core/seat/keyboard.rs.html#85-89' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Keyboard {
+    // some fields omitted
+}</pre><div class='docblock'><p>A keyboard interface.</p>
+
+<p>This struct is a handle to the keyboard interface of a given <code>Seat</code>.It allows
+you to change the keyboard display and handle all keyboard-related events.</p>
+
+<p>The events are handled in a callback way. Each callback are provided
+a <code>KeyboardId</code> identifying the keyboard. This is to allow specific situation where
+you need the keyboard to not be borrowed (to change its surface for example) and
+have more than one cursor.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../../wayland_client/core/seat/struct.Keyboard.html' title='wayland_client::core::seat::Keyboard'>Keyboard</a></code></h3><div class='impl-items'><h4 id='method.get_id' class='method'><code>fn <a href='#method.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; <a class='struct' href='../../../wayland_client/core/seat/struct.KeyboardId.html' title='wayland_client::core::seat::KeyboardId'>KeyboardId</a></code></h4>
+<div class='docblock'><p>Returns the unique <code>KeyboardId</code> associated to this keyboard.</p>
+
+<p>This struct can be tested for equality, and will be provided in event callbacks
+as a mean to identify the keyboard associated with the events.</p>
+</div><h4 id='method.get_seat' class='method'><code>fn <a href='#method.get_seat' class='fnname'>get_seat</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../../wayland_client/core/seat/struct.Seat.html' title='wayland_client::core::seat::Seat'>Seat</a></code></h4>
+<div class='docblock'><p>Get access to the seat associated with this keyboard</p>
+</div><h4 id='method.keymap_fd' class='method'><code>fn <a href='#method.keymap_fd' class='fnname'>keymap_fd</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Provides the file descriptor giving access to the keymap definition
+currently used by the compositor for this keyboard.</p>
+
+<p>Provided data is <code>(fd, size)</code>. <code>size</code> being the number of bytes to read from <code>fd</code>.</p>
+
+<p>It gives away ownership of the Fd, and thus other calls of this methos will
+return <code>None</code>.</p>
+
+<p>Will also return <code>None</code> if the event providing this information has not been received
+yet. In such case you&#39;ll need to wait for more events to be processed. Using
+<code>Display::dispatch_pending()</code> for example.</p>
+</div><h4 id='method.repeat_info' class='method'><code>fn <a href='#method.repeat_info' class='fnname'>repeat_info</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Provides the repeat information of this keayboard.</p>
+
+<p>Provided data is <code>(rate, delay)</code>. <code>rate</code> is the rate of repeating keys, in characters
+per second, and <code>delay</code> is the delay in miliseconds between the moment the key is
+pressed and the moment it starts repeating.</p>
+
+<p>Will return <code>None</code> if the event providing this information has not been received
+yet. In such case you&#39;ll need to wait for more events to be processed. Using
+<code>Display::dispatch_pending()</code> for example.</p>
+</div><h4 id='method.release' class='method'><code>fn <a href='#method.release' class='fnname'>release</a>(self)</code></h4>
+<h4 id='method.set_enter_action' class='method'><code>fn <a href='#method.set_enter_action' class='fnname'>set_enter_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.KeyboardId.html' title='wayland_client::core::seat::KeyboardId'>KeyboardId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='struct' href='../../../wayland_client/core/compositor/struct.SurfaceId.html' title='wayland_client::core::compositor::SurfaceId'>SurfaceId</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when a surface gains keyboard focus.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the keyboard</li>
+<li>Id of the surface</li>
+<li>a slice of the keycodes of the currenlty pressed keys</li>
+</ul>
+</div><h4 id='method.set_leave_action' class='method'><code>fn <a href='#method.set_leave_action' class='fnname'>set_leave_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.KeyboardId.html' title='wayland_client::core::seat::KeyboardId'>KeyboardId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='struct' href='../../../wayland_client/core/compositor/struct.SurfaceId.html' title='wayland_client::core::compositor::SurfaceId'>SurfaceId</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when a surface loses keyboard focus.</p>
+
+<p>This event is generated <em>before</em> the <code>enter</code> event is generated for the new
+surface the focus goes to.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the keyboard</li>
+<li>Id of the surface</li>
+</ul>
+</div><h4 id='method.set_key_action' class='method'><code>fn <a href='#method.set_key_action' class='fnname'>set_key_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.KeyboardId.html' title='wayland_client::core::seat::KeyboardId'>KeyboardId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='enum' href='../../../wayland_client/core/seat/enum.KeyState.html' title='wayland_client::core::seat::KeyState'>KeyState</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when a keystroke is done.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the Keyboard</li>
+<li>time of event (timestamp with milisecond granularity)</li>
+<li>raw keycode of the key</li>
+<li>new key status</li>
+</ul>
+</div><h4 id='method.set_modifiers_action' class='method'><code>fn <a href='#method.set_modifiers_action' class='fnname'>set_modifiers_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.KeyboardId.html' title='wayland_client::core::seat::KeyboardId'>KeyboardId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when a modifier is changed.</p>
+
+<p>This event providesthe new state of the modifiers.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the Keyboard</li>
+<li>mods_depressed</li>
+<li>mods_latched</li>
+<li>mods_locked</li>
+<li>group</li>
+</ul>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Keyboard.html' title='wayland_client::core::seat::Keyboard'>Keyboard</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Keyboard.html' title='wayland_client::core::seat::Keyboard'>Keyboard</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Keyboard.html' title='wayland_client::core::seat::Keyboard'>Keyboard</a></code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#method.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../../../wayland_client/internals/trait.FFI.html' title='wayland_client::internals::FFI'>FFI</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Keyboard.html' title='wayland_client::core::seat::Keyboard'>Keyboard</a></code></h3><div class='impl-items'><h4 id='assoc_type.Ptr' class='type'><code>type Ptr = wl_keyboard</code></h4>
+<h4 id='method.ptr' class='method'><code>fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const wl_keyboard</a></code></h4>
+<h4 id='method.ptr_mut' class='method'><code>unsafe fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr_mut' class='fnname'>ptr_mut</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_keyboard</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `VertexBufferSlice` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, VertexBufferSlice">
+
+    <title>glium::vertex::VertexBufferSlice - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>vertex</a></p><script>window.sidebarCurrent = {name: 'VertexBufferSlice', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>vertex</a>::<wbr><a class='struct' href=''>VertexBufferSlice</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-8912' class='srclink' href='../../src/glium/vertex/buffer.rs.html#68-71' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct VertexBufferSlice&lt;'b, T: 'b&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span> {
+    // some fields omitted
+}</pre><div class='docblock'><p>Represents a slice of a <code>VertexBuffer</code>.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'b, T: 'b&gt; <a class='struct' href='../../glium/vertex/struct.VertexBufferSlice.html' title='glium::vertex::VertexBufferSlice'>VertexBufferSlice</a>&lt;'b, T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a></span></code></h3><div class='impl-items'><h4 id='method.per_instance' class='method'><code>fn <a href='#method.per_instance' class='fnname'>per_instance</a>(&amp;'b self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../glium/vertex/struct.PerInstance.html' title='glium::vertex::PerInstance'>PerInstance</a>, InstancingNotSupported&gt;</code></h4>
+<div class='docblock'><p>Creates a marker that instructs glium to use multiple instances.</p>
+
+<p>Instead of calling <code>surface.draw(&amp;vertex_buffer.slice(...).unwrap(), ...)</code> 
+you can call <code>surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)</code>. 
+This will draw one instance of the geometry for each element in this buffer slice. 
+The attributes are still passed to the vertex shader, but each entry is passed 
+for each different instance.</p>
+</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a>&gt;&gt;</h2><div class='impl-items'><h4 id='method.get_size' class='method'><code>fn <a href='#method.get_size' class='fnname'>get_size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<div class='docblock'><p>Returns the size in bytes of this slice.</p>
+</div><h4 id='method.get_context' class='method'><code>fn <a href='#method.get_context' class='fnname'>get_context</a>(&amp;self) -&gt; &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../../glium/backend/struct.Context.html' title='glium::backend::Context'>Context</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the context corresponding to this buffer.</p>
+</div><h4 id='method.write' class='method'><code>fn <a href='#method.write' class='fnname'>write</a>(&amp;self, data: &amp;T)</code></h4>
+<div class='docblock'><p>Uploads some data in this buffer.</p>
+
+<h1 id='implementation' class='section-header'><a href='#implementation'>Implementation</a></h1>
+<ul>
+<li>For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+memcpies the data to the mapping.</li>
+<li>For immutable buffers, creates a temporary buffer that contains the data then calls
+<code>glCopyBufferSubData</code> to copy from the temporary buffer to the real one.</li>
+<li>For other types, calls <code>glBufferSubData</code>.</li>
+</ul>
+
+<h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
+<p>Panics if the length of <code>data</code> is different from the length of this buffer.</p>
+</div><h4 id='method.invalidate' class='method'><code>fn <a href='#method.invalidate' class='fnname'>invalidate</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Invalidates the content of the slice. The data becomes undefined.</p>
+
+<p>This operation is a no-op if the backend doesn&#39;t support it and for persistent-mapped
+buffers.</p>
+
+<h1 id='implementation-1' class='section-header'><a href='#implementation-1'>Implementation</a></h1>
+<p>Calls <code>glInvalidateBufferSubData</code> if supported.</p>
+</div><h4 id='method.read' class='method'><code>fn <a href='#method.read' class='fnname'>read</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;T::Owned, <a class='enum' href='../../glium/buffer/enum.ReadError.html' title='glium::buffer::ReadError'>ReadError</a>&gt;</code></h4>
+<div class='docblock'><p>Reads the content of the buffer.</p>
+</div><h4 id='method.copy_to' class='method'><code>fn <a href='#method.copy_to' class='fnname'>copy_to</a>&lt;S&gt;(&amp;self, target: S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../glium/buffer/enum.CopyError.html' title='glium::buffer::CopyError'>CopyError</a>&gt; <span class='where'>where S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, T&gt;&gt;</span></code></h4>
+<div class='docblock'><p>Copies the content of this slice to another slice.</p>
+
+<h1 id='panic-1' class='section-header'><a href='#panic-1'>Panic</a></h1>
+<p>Panics if <code>T</code> is unsized and the other buffer is too small.</p>
+</div><h4 id='method.slice_custom' class='method'><code>unsafe fn <a href='#method.slice_custom' class='fnname'>slice_custom</a>&lt;F, R: ?<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a>&gt;(&amp;self, f: F) -&gt; <a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, R&gt; <span class='where'>where F: for&lt;'r&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnOnce.html' title='core::ops::FnOnce'>FnOnce</a>(&amp;'r T) -&gt; &amp;'r R, R: <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a></span></code></h4>
+<div class='docblock'><p>Builds a slice that contains an element from inside the buffer.</p>
+
+<p>This method builds an object that represents a slice of the buffer. No actual operation
+OpenGL is performed.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1><pre class='rust rust-example-rendered'>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
+<span class='kw'>struct</span> <span class='ident'>BufferContent</span> {
+    <span class='ident'>value1</span>: <span class='ident'>u16</span>,
+    <span class='ident'>value2</span>: <span class='ident'>u16</span>,
+}
+<span class='kw'>let</span> <span class='ident'>slice</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>buffer</span>.<span class='ident'>slice_custom</span>(<span class='op'>|</span><span class='ident'>content</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>content</span>.<span class='ident'>value2</span>) };</pre>
+
+<h1 id='safety' class='section-header'><a href='#safety'>Safety</a></h1>
+<p>The object whose reference is passed to the closure is uninitialized. Therefore you
+<strong>must not</strong> access the content of the object.</p>
+
+<p>You <strong>must</strong> return a reference to an element from the parameter. The closure <strong>must not</strong>
+panic.</p>
+</div><h4 id='method.as_slice_any' class='method'><code>fn <a href='#method.as_slice_any' class='fnname'>as_slice_any</a>(&amp;self) -&gt; <a class='struct' href='../../glium/buffer/struct.BufferAnySlice.html' title='glium::buffer::BufferAnySlice'>BufferAnySlice</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Builds a slice-any containing the whole subbuffer.</p>
+
+<p>This method builds an object that represents a slice of the buffer. No actual operation
+OpenGL is performed.</p>
+</div></div><div class='impl-items'><h4 id='method.len' class='method'><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<div class='docblock'><p>Returns the number of elements in this slice.</p>
+</div><h4 id='method.slice' class='method'><code>fn <a href='#method.slice' class='fnname'>slice</a>&lt;R: RangeArgument&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt;&gt;(&amp;self, range: R) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Builds a subslice of this slice. Returns <code>None</code> if out of range.</p>
+
+<p>This method builds an object that represents a slice of the buffer. No actual operation
+OpenGL is performed.</p>
+</div></div><div class='impl-items'><h4 id='method.read_as_texture_1d' class='method'><code>fn <a href='#method.read_as_texture_1d' class='fnname'>read_as_texture_1d</a>&lt;S&gt;(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;S, <a class='enum' href='../../glium/buffer/enum.ReadError.html' title='glium::buffer::ReadError'>ReadError</a>&gt; <span class='where'>where S: <a class='trait' href='../../glium/texture/trait.Texture1dDataSink.html' title='glium::texture::Texture1dDataSink'>Texture1dDataSink</a>&lt;T&gt;</span></code></h4>
+<div class='docblock'><p>Reads the content of the buffer.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, T&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../../glium/vertex/struct.VertexBufferSlice.html' title='glium::vertex::VertexBufferSlice'>VertexBufferSlice</a>&lt;'a, T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></h3><div class='impl-items'><h4 id='assoc_type.Target' class='type'><code>type Target = <a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a>&gt;</code></h4>
+<h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#method.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, T&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html' title='core::ops::DerefMut'>DerefMut</a> for <a class='struct' href='../../glium/vertex/struct.VertexBufferSlice.html' title='glium::vertex::VertexBufferSlice'>VertexBufferSlice</a>&lt;'a, T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></h3><div class='impl-items'><h4 id='method.deref_mut' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html#method.deref_mut' class='fnname'>deref_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, T&gt; <a class='trait' href='../../glium/vertex/trait.IntoVerticesSource.html' title='glium::vertex::IntoVerticesSource'>IntoVerticesSource</a>&lt;'a&gt; for <a class='struct' href='../../glium/vertex/struct.VertexBufferSlice.html' title='glium::vertex::VertexBufferSlice'>VertexBufferSlice</a>&lt;'a, T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></h3><div class='impl-items'><h4 id='method.into_vertices_source' class='method'><code>fn <a href='../../glium/vertex/trait.IntoVerticesSource.html#method.into_vertices_source' class='fnname'>into_vertices_source</a>(self) -&gt; <a class='enum' href='../../glium/vertex/enum.VerticesSource.html' title='glium::vertex::VerticesSource'>VerticesSource</a>&lt;'a&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

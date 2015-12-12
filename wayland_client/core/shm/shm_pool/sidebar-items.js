@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ShmPool","A shared memory pool."]]});

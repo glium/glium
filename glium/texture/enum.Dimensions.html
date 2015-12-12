@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Dimensions` enum in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Dimensions">
+
+    <title>glium::texture::Dimensions - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'Dimensions', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class='enum' href=''>Dimensions</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-10501' class='srclink' href='../../src/glium/texture/any.rs.html#46-56' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum Dimensions {
+    Texture1d {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Texture1dArray {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        array_size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Texture2d {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Texture2dArray {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        array_size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Texture2dMultisample {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        samples: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Texture2dMultisampleArray {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        array_size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        samples: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Texture3d {
+        width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    Cubemap {
+        dimension: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+    CubemapArray {
+        dimension: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+        array_size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    },
+}</pre><div class='docblock'><p>Type of a texture.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.Texture1d'><code>Texture1d</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture1d.field.width'><code>width</code></td><td></td></tr></table></td></tr><tr><td id='variant.Texture1dArray'><code>Texture1dArray</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture1dArray.field.width'><code>width</code></td><td></td></tr><tr><td id='variant.Texture1dArray.field.array_size'><code>array_size</code></td><td></td></tr></table></td></tr><tr><td id='variant.Texture2d'><code>Texture2d</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture2d.field.width'><code>width</code></td><td></td></tr><tr><td id='variant.Texture2d.field.height'><code>height</code></td><td></td></tr></table></td></tr><tr><td id='variant.Texture2dArray'><code>Texture2dArray</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture2dArray.field.width'><code>width</code></td><td></td></tr><tr><td id='variant.Texture2dArray.field.height'><code>height</code></td><td></td></tr><tr><td id='variant.Texture2dArray.field.array_size'><code>array_size</code></td><td></td></tr></table></td></tr><tr><td id='variant.Texture2dMultisample'><code>Texture2dMultisample</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture2dMultisample.field.width'><code>width</code></td><td></td></tr><tr><td id='variant.Texture2dMultisample.field.height'><code>height</code></td><td></td></tr><tr><td id='variant.Texture2dMultisample.field.samples'><code>samples</code></td><td></td></tr></table></td></tr><tr><td id='variant.Texture2dMultisampleArray'><code>Texture2dMultisampleArray</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture2dMultisampleArray.field.width'><code>width</code></td><td></td></tr><tr><td id='variant.Texture2dMultisampleArray.field.height'><code>height</code></td><td></td></tr><tr><td id='variant.Texture2dMultisampleArray.field.array_size'><code>array_size</code></td><td></td></tr><tr><td id='variant.Texture2dMultisampleArray.field.samples'><code>samples</code></td><td></td></tr></table></td></tr><tr><td id='variant.Texture3d'><code>Texture3d</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Texture3d.field.width'><code>width</code></td><td></td></tr><tr><td id='variant.Texture3d.field.height'><code>height</code></td><td></td></tr><tr><td id='variant.Texture3d.field.depth'><code>depth</code></td><td></td></tr></table></td></tr><tr><td id='variant.Cubemap'><code>Cubemap</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Cubemap.field.dimension'><code>dimension</code></td><td></td></tr></table></td></tr><tr><td id='variant.CubemapArray'><code>CubemapArray</code></td><td><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.CubemapArray.field.dimension'><code>dimension</code></td><td></td></tr><tr><td id='variant.CubemapArray.field.array_size'><code>array_size</code></td><td></td></tr></table></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../glium/texture/enum.Dimensions.html' title='glium::texture::Dimensions'>Dimensions</a></code></h3><div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["KeyState","The state of a keyboard key."],["KeymapFormat","Possible keymap formats"]],"struct":[["Keyboard","A keyboard interface."],["KeyboardId","An opaque unique identifier to a keyboard, can be tested for equality."]]});

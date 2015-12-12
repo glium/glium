@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Buffer","A view into a memory pool."]]});

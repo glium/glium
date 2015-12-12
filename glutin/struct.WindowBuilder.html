@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WindowBuilder` struct in crate `glutin`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WindowBuilder">
+
+    <title>glutin::WindowBuilder - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'WindowBuilder', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glutin</a>::<wbr><a class='struct' href=''>WindowBuilder</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-5020' class='srclink' href='../src/glutin/window.rs.html#25-34' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WindowBuilder&lt;'a&gt; {
+    pub window: <a class='struct' href='../glutin/struct.WindowAttributes.html' title='glutin::WindowAttributes'>WindowAttributes</a>,
+    pub opengl: <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;&amp;'a Window&gt;,
+    // some fields omitted
+}</pre><div class='docblock'><p>Object that allows you to build windows.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.window'><code>window</code></td><td><div class='docblock'><p>The attributes to use to create the window.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.opengl'><code>opengl</code></td><td><div class='docblock'><p>The attributes to use to create the context.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Initializes a new <code>WindowBuilder</code> with default values.</p>
+</div><h4 id='method.with_dimensions' class='method'><code>fn <a href='#method.with_dimensions' class='fnname'>with_dimensions</a>(self, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Requests the window to be of specific dimensions.</p>
+
+<p>Width and height are in pixels.</p>
+</div><h4 id='method.with_title' class='method'><code>fn <a href='#method.with_title' class='fnname'>with_title</a>(self, title: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Requests a specific title for the window.</p>
+</div><h4 id='method.with_fullscreen' class='method'><code>fn <a href='#method.with_fullscreen' class='fnname'>with_fullscreen</a>(self, monitor: <a class='struct' href='../glutin/struct.MonitorId.html' title='glutin::MonitorId'>MonitorId</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Requests fullscreen mode.</p>
+
+<p>If you don&#39;t specify dimensions for the window, it will match the monitor&#39;s.</p>
+</div><h4 id='method.with_shared_lists' class='method'><code>fn <a href='#method.with_shared_lists' class='fnname'>with_shared_lists</a>(self, other: &amp;'a <a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>The created window will share all its OpenGL objects with the window in the parameter.</p>
+
+<p>There are some exceptions, like FBOs or VAOs. See the OpenGL documentation.</p>
+</div><h4 id='method.with_gl' class='method'><code>fn <a href='#method.with_gl' class='fnname'>with_gl</a>(self, request: <a class='enum' href='../glutin/enum.GlRequest.html' title='glutin::GlRequest'>GlRequest</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets how the backend should choose the OpenGL API and version.</p>
+</div><h4 id='method.with_gl_profile' class='method'><code>fn <a href='#method.with_gl_profile' class='fnname'>with_gl_profile</a>(self, profile: <a class='enum' href='../glutin/enum.GlProfile.html' title='glutin::GlProfile'>GlProfile</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the desired OpenGL context profile.</p>
+</div><h4 id='method.with_gl_debug_flag' class='method'><code>fn <a href='#method.with_gl_debug_flag' class='fnname'>with_gl_debug_flag</a>(self, flag: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the <em>debug</em> flag for the OpenGL context.</p>
+
+<p>The default value for this flag is <code>cfg!(debug_assertions)</code>, which means that it&#39;s enabled
+when you run <code>cargo build</code> and disabled when you run <code>cargo build --release</code>.</p>
+</div><h4 id='method.with_gl_robustness' class='method'><code>fn <a href='#method.with_gl_robustness' class='fnname'>with_gl_robustness</a>(self, robustness: <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the robustness of the OpenGL context. See the docs of <code>Robustness</code>.</p>
+</div><h4 id='method.with_vsync' class='method'><code>fn <a href='#method.with_vsync' class='fnname'>with_vsync</a>(self) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Requests that the window has vsync enabled.</p>
+</div><h4 id='method.with_visibility' class='method'><code>fn <a href='#method.with_visibility' class='fnname'>with_visibility</a>(self, visible: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets whether the window will be initially hidden or visible.</p>
+</div><h4 id='method.with_multisampling' class='method'><code>fn <a href='#method.with_multisampling' class='fnname'>with_multisampling</a>(self, samples: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the multisampling level to request.</p>
+
+<h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
+<p>Will panic if <code>samples</code> is not a power of two.</p>
+</div><h4 id='method.with_depth_buffer' class='method'><code>fn <a href='#method.with_depth_buffer' class='fnname'>with_depth_buffer</a>(self, bits: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the number of bits in the depth buffer.</p>
+</div><h4 id='method.with_stencil_buffer' class='method'><code>fn <a href='#method.with_stencil_buffer' class='fnname'>with_stencil_buffer</a>(self, bits: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the number of bits in the stencil buffer.</p>
+</div><h4 id='method.with_pixel_format' class='method'><code>fn <a href='#method.with_pixel_format' class='fnname'>with_pixel_format</a>(self, color_bits: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, alpha_bits: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets the number of bits in the color buffer.</p>
+</div><h4 id='method.with_stereoscopy' class='method'><code>fn <a href='#method.with_stereoscopy' class='fnname'>with_stereoscopy</a>(self) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Request the backend to be stereoscopic.</p>
+</div><h4 id='method.with_srgb' class='method'><code>fn <a href='#method.with_srgb' class='fnname'>with_srgb</a>(self, srgb_enabled: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets whether sRGB should be enabled on the window. <code>None</code> means &quot;I don&#39;t care&quot;.</p>
+</div><h4 id='method.with_transparency' class='method'><code>fn <a href='#method.with_transparency' class='fnname'>with_transparency</a>(self, transparent: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets whether the background of the window should be transparent.</p>
+</div><h4 id='method.with_decorations' class='method'><code>fn <a href='#method.with_decorations' class='fnname'>with_decorations</a>(self, decorations: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Sets whether the window should have a border, a title bar, etc.</p>
+</div><h4 id='method.with_multitouch' class='method'><code>fn <a href='#method.with_multitouch' class='fnname'>with_multitouch</a>(self) -&gt; <a class='struct' href='../glutin/struct.WindowBuilder.html' title='glutin::WindowBuilder'>WindowBuilder</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Enables multitouch</p>
+</div><h4 id='method.build' class='method'><code>fn <a href='#method.build' class='fnname'>build</a>(self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a>, <a class='enum' href='../glutin/enum.CreationError.html' title='glutin::CreationError'>CreationError</a>&gt;</code></h4>
+<div class='docblock'><p>Builds the window.</p>
+
+<p>Error should be very rare and only occur in case of permission denied, incompatible system,
+out of memory, etc.</p>
+</div><h4 id='method.build_strict' class='method'><code>fn <a href='#method.build_strict' class='fnname'>build_strict</a>(self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a>, <a class='enum' href='../glutin/enum.CreationError.html' title='glutin::CreationError'>CreationError</a>&gt;</code></h4>
+<div class='docblock'><p>Builds the window.</p>
+
+<p>The context is build in a <em>strict</em> way. That means that if the backend couldn&#39;t give
+you what you requested, an <code>Err</code> will be returned.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

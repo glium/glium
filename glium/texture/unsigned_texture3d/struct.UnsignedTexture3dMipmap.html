@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `UnsignedTexture3dMipmap` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, UnsignedTexture3dMipmap">
+
+    <title>glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>unsigned_texture3d</a></p><script>window.sidebarCurrent = {name: 'UnsignedTexture3dMipmap', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>unsigned_texture3d</a>::<wbr><a class='struct' href=''>UnsignedTexture3dMipmap</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-16946' class='srclink' href='../../../src/glium///home/travis/build/tomaka/glium/target/debug/build/glium-eb7899fe2df59b8f/out/textures.rs.html#9017' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct UnsignedTexture3dMipmap&lt;'t&gt;(_, _);</pre><div class='docblock'><p>Represents a single mipmap level of a <code>UnsignedTexture3d</code>.</p>
+
+<p>Can be obtained by calling <code>UnsignedTexture3d::mipmap()</code>, <code>UnsignedTexture3d::main_level()</code>,
+<code>UnsignedTexture3dLayer::mipmap()</code> or <code>UnsignedTexture3dLayer::main_level()</code>.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'t&gt; <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></h3><div class='impl-items'><h4 id='method.get_texture' class='method'><code>fn <a href='#method.get_texture' class='fnname'>get_texture</a>(&amp;self) -&gt; &amp;'t <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3d.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3d'>UnsignedTexture3d</a></code></h4>
+<div class='docblock'><p>Returns the corresponding texture.</p>
+</div><h4 id='method.get_level' class='method'><code>fn <a href='#method.get_level' class='fnname'>get_level</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>Returns the texture level.</p>
+</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../../../glium/texture/struct.TextureAnyMipmap.html' title='glium::texture::TextureAnyMipmap'>TextureAnyMipmap</a>&lt;'a&gt;&gt;</h2><div class='impl-items'><h4 id='method.get_width' class='method'><code>fn <a href='#method.get_width' class='fnname'>get_width</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>Returns the width of the mipmap.</p>
+</div><h4 id='method.get_height' class='method'><code>fn <a href='#method.get_height' class='fnname'>get_height</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the height of the mipmap.</p>
+</div><h4 id='method.get_depth' class='method'><code>fn <a href='#method.get_depth' class='fnname'>get_depth</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the depth of the mipmap.</p>
+</div><h4 id='method.get_samples' class='method'><code>fn <a href='#method.get_samples' class='fnname'>get_samples</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the number of samples of the texture.</p>
+</div><h4 id='method.get_texture-1' class='method'><code>fn <a href='#method.get_texture' class='fnname'>get_texture</a>(&amp;self) -&gt; &amp;'a <a class='struct' href='../../../glium/texture/struct.TextureAny.html' title='glium::texture::TextureAny'>TextureAny</a></code></h4>
+<div class='docblock'><p>Returns the texture.</p>
+</div><h4 id='method.get_level-1' class='method'><code>fn <a href='#method.get_level' class='fnname'>get_level</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>Returns the level of the texture.</p>
+</div><h4 id='method.first_layer' class='method'><code>fn <a href='#method.first_layer' class='fnname'>first_layer</a>(&amp;self) -&gt; <a class='struct' href='../../../glium/texture/struct.TextureAnyLayerMipmap.html' title='glium::texture::TextureAnyLayerMipmap'>TextureAnyLayerMipmap</a>&lt;'a&gt;</code></h4>
+<div class='docblock'><p>Returns a structure that represents the first layer of this mipmap of the texture. All
+textures have a first layer.</p>
+</div><h4 id='method.layer' class='method'><code>fn <a href='#method.layer' class='fnname'>layer</a>(&amp;self, layer: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../../glium/texture/struct.TextureAnyLayerMipmap.html' title='glium::texture::TextureAnyLayerMipmap'>TextureAnyLayerMipmap</a>&lt;'a&gt;&gt;</code></h4>
+<div class='docblock'><p>Returns a structure that represents a specific layer of this mipmap of the texture.</p>
+
+<p>Non-array textures have only one layer. The number of layers can be queried with
+<code>get_array_size</code>.</p>
+
+<p>Returns <code>None</code> if out of range.</p>
+</div><h4 id='method.raw_upload_from_pixel_buffer' class='method'><code>fn <a href='#method.raw_upload_from_pixel_buffer' class='fnname'>raw_upload_from_pixel_buffer</a>&lt;P&gt;(&amp;self, source: <a class='struct' href='../../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[P]</a>&gt;, x: <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;, y: <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;, z: <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;) <span class='where'>where P: <a class='trait' href='../../../glium/texture/trait.PixelValue.html' title='glium::texture::PixelValue'>PixelValue</a></span></code></h4>
+<div class='docblock'><p>Uploads data to the texture from a buffer.</p>
+
+<h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
+<p>Panics if the offsets and dimensions are outside the boundaries of the texture. Panics
+if the buffer is not big enough to hold the data.</p>
+</div><h4 id='method.raw_upload_from_pixel_buffer_inverted' class='method'><code>fn <a href='#method.raw_upload_from_pixel_buffer_inverted' class='fnname'>raw_upload_from_pixel_buffer_inverted</a>&lt;P&gt;(&amp;self, source: <a class='struct' href='../../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[P]</a>&gt;, x: <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;, y: <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;, z: <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;) <span class='where'>where P: <a class='trait' href='../../../glium/texture/trait.PixelValue.html' title='glium::texture::PixelValue'>PixelValue</a></span></code></h4>
+<div class='docblock'><p>Uploads data to the texture from a buffer. The R, G and B components are flipped.</p>
+
+<h1 id='panic-1' class='section-header'><a href='#panic-1'>Panic</a></h1>
+<p>Panics if the offsets and dimensions are outside the boundaries of the texture. Panics
+if the buffer is not big enough to hold the data.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Target' class='type'><code>type Target = <a class='struct' href='../../../glium/texture/struct.TextureAnyMipmap.html' title='glium::texture::TextureAnyMipmap'>TextureAnyMipmap</a>&lt;'a&gt;</code></h4>
+<h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#method.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../../glium/texture/struct.TextureAnyMipmap.html' title='glium::texture::TextureAnyMipmap'>TextureAnyMipmap</a>&lt;'a&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'t&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../../../glium/texture/struct.TextureAnyImage.html' title='glium::texture::TextureAnyImage'>TextureAnyImage</a>&lt;'t&gt;&gt; for <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></h3><div class='impl-items'><h4 id='method.into' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#method.into' class='fnname'>into</a>(self) -&gt; <a class='struct' href='../../../glium/texture/struct.TextureAnyImage.html' title='glium::texture::TextureAnyImage'>TextureAnyImage</a>&lt;'t&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'t&gt; <a class='trait' href='../../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></h3><div class='impl-items'><h4 id='method.to_color_attachment' class='method'><code>fn <a href='../../../glium/framebuffer/trait.ToColorAttachment.html#method.to_color_attachment' class='fnname'>to_color_attachment</a>(self) -&gt; <a class='enum' href='../../../glium/framebuffer/enum.ColorAttachment.html' title='glium::framebuffer::ColorAttachment'>ColorAttachment</a>&lt;'t&gt;</code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;'t&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl&lt;'t&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></h3><div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

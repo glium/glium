@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["NamedTempFile","A named temporary file."]]});

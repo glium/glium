@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ButtonState","State of a button of a pointer."],["ScrollAxis","Axis associated to a scroll event."]],"struct":[["Pointer","A pointer interface."],["PointerId","An opaque unique identifier to a pointer, can be tested for equality."]]});

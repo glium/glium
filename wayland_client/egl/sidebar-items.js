@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["is_egl_available","Returns whether the library `libwayland-egl.so` has been found and could be loaded."]],"struct":[["EGLSurface",""],["wl_egl_window","An opaque struct representing a native window for EGL."]]});

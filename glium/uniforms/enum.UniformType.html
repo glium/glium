@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `UniformType` enum in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, UniformType">
+
+    <title>glium::uniforms::UniformType - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'UniformType', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class='enum' href=''>UniformType</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-6980' class='srclink' href='../../src/glium/uniforms/value.rs.html#20-138' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum UniformType {
+    Float,
+    FloatVec2,
+    FloatVec3,
+    FloatVec4,
+    Double,
+    DoubleVec2,
+    DoubleVec3,
+    DoubleVec4,
+    Int,
+    IntVec2,
+    IntVec3,
+    IntVec4,
+    UnsignedInt,
+    UnsignedIntVec2,
+    UnsignedIntVec3,
+    UnsignedIntVec4,
+    Int64,
+    Int64Vec2,
+    Int64Vec3,
+    Int64Vec4,
+    UnsignedInt64,
+    UnsignedInt64Vec2,
+    UnsignedInt64Vec3,
+    UnsignedInt64Vec4,
+    Bool,
+    BoolVec2,
+    BoolVec3,
+    BoolVec4,
+    FloatMat2,
+    FloatMat3,
+    FloatMat4,
+    FloatMat2x3,
+    FloatMat2x4,
+    FloatMat3x2,
+    FloatMat3x4,
+    FloatMat4x2,
+    FloatMat4x3,
+    DoubleMat2,
+    DoubleMat3,
+    DoubleMat4,
+    DoubleMat2x3,
+    DoubleMat2x4,
+    DoubleMat3x2,
+    DoubleMat3x4,
+    DoubleMat4x2,
+    DoubleMat4x3,
+    Sampler1d,
+    ISampler1d,
+    USampler1d,
+    Sampler2d,
+    ISampler2d,
+    USampler2d,
+    Sampler3d,
+    ISampler3d,
+    USampler3d,
+    Sampler1dArray,
+    ISampler1dArray,
+    USampler1dArray,
+    Sampler2dArray,
+    ISampler2dArray,
+    USampler2dArray,
+    SamplerCube,
+    ISamplerCube,
+    USamplerCube,
+    Sampler2dRect,
+    ISampler2dRect,
+    USampler2dRect,
+    Sampler2dRectShadow,
+    SamplerCubeArray,
+    ISamplerCubeArray,
+    USamplerCubeArray,
+    SamplerBuffer,
+    ISamplerBuffer,
+    USamplerBuffer,
+    Sampler2dMultisample,
+    ISampler2dMultisample,
+    USampler2dMultisample,
+    Sampler2dMultisampleArray,
+    ISampler2dMultisampleArray,
+    USampler2dMultisampleArray,
+    Sampler1dShadow,
+    Sampler2dShadow,
+    SamplerCubeShadow,
+    Sampler1dArrayShadow,
+    Sampler2dArrayShadow,
+    SamplerCubeArrayShadow,
+    Image1d,
+    IImage1d,
+    UImage1d,
+    Image2d,
+    IImage2d,
+    UImage2d,
+    Image3d,
+    IImage3d,
+    UImage3d,
+    Image2dRect,
+    IImage2dRect,
+    UImage2dRect,
+    ImageCube,
+    IImageCube,
+    UImageCube,
+    ImageBuffer,
+    IImageBuffer,
+    UImageBuffer,
+    Image1dArray,
+    IImage1dArray,
+    UImage1dArray,
+    Image2dArray,
+    IImage2dArray,
+    UImage2dArray,
+    Image2dMultisample,
+    IImage2dMultisample,
+    UImage2dMultisample,
+    Image2dMultisampleArray,
+    IImage2dMultisampleArray,
+    UImage2dMultisampleArray,
+    AtomicCounterUint,
+}</pre><div class='docblock'><p>Type of a uniform in a program.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.Float'><code>Float</code></td><td></td></tr><tr><td id='variant.FloatVec2'><code>FloatVec2</code></td><td></td></tr><tr><td id='variant.FloatVec3'><code>FloatVec3</code></td><td></td></tr><tr><td id='variant.FloatVec4'><code>FloatVec4</code></td><td></td></tr><tr><td id='variant.Double'><code>Double</code></td><td></td></tr><tr><td id='variant.DoubleVec2'><code>DoubleVec2</code></td><td></td></tr><tr><td id='variant.DoubleVec3'><code>DoubleVec3</code></td><td></td></tr><tr><td id='variant.DoubleVec4'><code>DoubleVec4</code></td><td></td></tr><tr><td id='variant.Int'><code>Int</code></td><td></td></tr><tr><td id='variant.IntVec2'><code>IntVec2</code></td><td></td></tr><tr><td id='variant.IntVec3'><code>IntVec3</code></td><td></td></tr><tr><td id='variant.IntVec4'><code>IntVec4</code></td><td></td></tr><tr><td id='variant.UnsignedInt'><code>UnsignedInt</code></td><td></td></tr><tr><td id='variant.UnsignedIntVec2'><code>UnsignedIntVec2</code></td><td></td></tr><tr><td id='variant.UnsignedIntVec3'><code>UnsignedIntVec3</code></td><td></td></tr><tr><td id='variant.UnsignedIntVec4'><code>UnsignedIntVec4</code></td><td></td></tr><tr><td id='variant.Int64'><code>Int64</code></td><td></td></tr><tr><td id='variant.Int64Vec2'><code>Int64Vec2</code></td><td></td></tr><tr><td id='variant.Int64Vec3'><code>Int64Vec3</code></td><td></td></tr><tr><td id='variant.Int64Vec4'><code>Int64Vec4</code></td><td></td></tr><tr><td id='variant.UnsignedInt64'><code>UnsignedInt64</code></td><td></td></tr><tr><td id='variant.UnsignedInt64Vec2'><code>UnsignedInt64Vec2</code></td><td></td></tr><tr><td id='variant.UnsignedInt64Vec3'><code>UnsignedInt64Vec3</code></td><td></td></tr><tr><td id='variant.UnsignedInt64Vec4'><code>UnsignedInt64Vec4</code></td><td></td></tr><tr><td id='variant.Bool'><code>Bool</code></td><td></td></tr><tr><td id='variant.BoolVec2'><code>BoolVec2</code></td><td></td></tr><tr><td id='variant.BoolVec3'><code>BoolVec3</code></td><td></td></tr><tr><td id='variant.BoolVec4'><code>BoolVec4</code></td><td></td></tr><tr><td id='variant.FloatMat2'><code>FloatMat2</code></td><td></td></tr><tr><td id='variant.FloatMat3'><code>FloatMat3</code></td><td></td></tr><tr><td id='variant.FloatMat4'><code>FloatMat4</code></td><td></td></tr><tr><td id='variant.FloatMat2x3'><code>FloatMat2x3</code></td><td></td></tr><tr><td id='variant.FloatMat2x4'><code>FloatMat2x4</code></td><td></td></tr><tr><td id='variant.FloatMat3x2'><code>FloatMat3x2</code></td><td></td></tr><tr><td id='variant.FloatMat3x4'><code>FloatMat3x4</code></td><td></td></tr><tr><td id='variant.FloatMat4x2'><code>FloatMat4x2</code></td><td></td></tr><tr><td id='variant.FloatMat4x3'><code>FloatMat4x3</code></td><td></td></tr><tr><td id='variant.DoubleMat2'><code>DoubleMat2</code></td><td></td></tr><tr><td id='variant.DoubleMat3'><code>DoubleMat3</code></td><td></td></tr><tr><td id='variant.DoubleMat4'><code>DoubleMat4</code></td><td></td></tr><tr><td id='variant.DoubleMat2x3'><code>DoubleMat2x3</code></td><td></td></tr><tr><td id='variant.DoubleMat2x4'><code>DoubleMat2x4</code></td><td></td></tr><tr><td id='variant.DoubleMat3x2'><code>DoubleMat3x2</code></td><td></td></tr><tr><td id='variant.DoubleMat3x4'><code>DoubleMat3x4</code></td><td></td></tr><tr><td id='variant.DoubleMat4x2'><code>DoubleMat4x2</code></td><td></td></tr><tr><td id='variant.DoubleMat4x3'><code>DoubleMat4x3</code></td><td></td></tr><tr><td id='variant.Sampler1d'><code>Sampler1d</code></td><td></td></tr><tr><td id='variant.ISampler1d'><code>ISampler1d</code></td><td></td></tr><tr><td id='variant.USampler1d'><code>USampler1d</code></td><td></td></tr><tr><td id='variant.Sampler2d'><code>Sampler2d</code></td><td></td></tr><tr><td id='variant.ISampler2d'><code>ISampler2d</code></td><td></td></tr><tr><td id='variant.USampler2d'><code>USampler2d</code></td><td></td></tr><tr><td id='variant.Sampler3d'><code>Sampler3d</code></td><td></td></tr><tr><td id='variant.ISampler3d'><code>ISampler3d</code></td><td></td></tr><tr><td id='variant.USampler3d'><code>USampler3d</code></td><td></td></tr><tr><td id='variant.Sampler1dArray'><code>Sampler1dArray</code></td><td></td></tr><tr><td id='variant.ISampler1dArray'><code>ISampler1dArray</code></td><td></td></tr><tr><td id='variant.USampler1dArray'><code>USampler1dArray</code></td><td></td></tr><tr><td id='variant.Sampler2dArray'><code>Sampler2dArray</code></td><td></td></tr><tr><td id='variant.ISampler2dArray'><code>ISampler2dArray</code></td><td></td></tr><tr><td id='variant.USampler2dArray'><code>USampler2dArray</code></td><td></td></tr><tr><td id='variant.SamplerCube'><code>SamplerCube</code></td><td></td></tr><tr><td id='variant.ISamplerCube'><code>ISamplerCube</code></td><td></td></tr><tr><td id='variant.USamplerCube'><code>USamplerCube</code></td><td></td></tr><tr><td id='variant.Sampler2dRect'><code>Sampler2dRect</code></td><td></td></tr><tr><td id='variant.ISampler2dRect'><code>ISampler2dRect</code></td><td></td></tr><tr><td id='variant.USampler2dRect'><code>USampler2dRect</code></td><td></td></tr><tr><td id='variant.Sampler2dRectShadow'><code>Sampler2dRectShadow</code></td><td></td></tr><tr><td id='variant.SamplerCubeArray'><code>SamplerCubeArray</code></td><td></td></tr><tr><td id='variant.ISamplerCubeArray'><code>ISamplerCubeArray</code></td><td></td></tr><tr><td id='variant.USamplerCubeArray'><code>USamplerCubeArray</code></td><td></td></tr><tr><td id='variant.SamplerBuffer'><code>SamplerBuffer</code></td><td></td></tr><tr><td id='variant.ISamplerBuffer'><code>ISamplerBuffer</code></td><td></td></tr><tr><td id='variant.USamplerBuffer'><code>USamplerBuffer</code></td><td></td></tr><tr><td id='variant.Sampler2dMultisample'><code>Sampler2dMultisample</code></td><td></td></tr><tr><td id='variant.ISampler2dMultisample'><code>ISampler2dMultisample</code></td><td></td></tr><tr><td id='variant.USampler2dMultisample'><code>USampler2dMultisample</code></td><td></td></tr><tr><td id='variant.Sampler2dMultisampleArray'><code>Sampler2dMultisampleArray</code></td><td></td></tr><tr><td id='variant.ISampler2dMultisampleArray'><code>ISampler2dMultisampleArray</code></td><td></td></tr><tr><td id='variant.USampler2dMultisampleArray'><code>USampler2dMultisampleArray</code></td><td></td></tr><tr><td id='variant.Sampler1dShadow'><code>Sampler1dShadow</code></td><td></td></tr><tr><td id='variant.Sampler2dShadow'><code>Sampler2dShadow</code></td><td></td></tr><tr><td id='variant.SamplerCubeShadow'><code>SamplerCubeShadow</code></td><td></td></tr><tr><td id='variant.Sampler1dArrayShadow'><code>Sampler1dArrayShadow</code></td><td></td></tr><tr><td id='variant.Sampler2dArrayShadow'><code>Sampler2dArrayShadow</code></td><td></td></tr><tr><td id='variant.SamplerCubeArrayShadow'><code>SamplerCubeArrayShadow</code></td><td></td></tr><tr><td id='variant.Image1d'><code>Image1d</code></td><td></td></tr><tr><td id='variant.IImage1d'><code>IImage1d</code></td><td></td></tr><tr><td id='variant.UImage1d'><code>UImage1d</code></td><td></td></tr><tr><td id='variant.Image2d'><code>Image2d</code></td><td></td></tr><tr><td id='variant.IImage2d'><code>IImage2d</code></td><td></td></tr><tr><td id='variant.UImage2d'><code>UImage2d</code></td><td></td></tr><tr><td id='variant.Image3d'><code>Image3d</code></td><td></td></tr><tr><td id='variant.IImage3d'><code>IImage3d</code></td><td></td></tr><tr><td id='variant.UImage3d'><code>UImage3d</code></td><td></td></tr><tr><td id='variant.Image2dRect'><code>Image2dRect</code></td><td></td></tr><tr><td id='variant.IImage2dRect'><code>IImage2dRect</code></td><td></td></tr><tr><td id='variant.UImage2dRect'><code>UImage2dRect</code></td><td></td></tr><tr><td id='variant.ImageCube'><code>ImageCube</code></td><td></td></tr><tr><td id='variant.IImageCube'><code>IImageCube</code></td><td></td></tr><tr><td id='variant.UImageCube'><code>UImageCube</code></td><td></td></tr><tr><td id='variant.ImageBuffer'><code>ImageBuffer</code></td><td></td></tr><tr><td id='variant.IImageBuffer'><code>IImageBuffer</code></td><td></td></tr><tr><td id='variant.UImageBuffer'><code>UImageBuffer</code></td><td></td></tr><tr><td id='variant.Image1dArray'><code>Image1dArray</code></td><td></td></tr><tr><td id='variant.IImage1dArray'><code>IImage1dArray</code></td><td></td></tr><tr><td id='variant.UImage1dArray'><code>UImage1dArray</code></td><td></td></tr><tr><td id='variant.Image2dArray'><code>Image2dArray</code></td><td></td></tr><tr><td id='variant.IImage2dArray'><code>IImage2dArray</code></td><td></td></tr><tr><td id='variant.UImage2dArray'><code>UImage2dArray</code></td><td></td></tr><tr><td id='variant.Image2dMultisample'><code>Image2dMultisample</code></td><td></td></tr><tr><td id='variant.IImage2dMultisample'><code>IImage2dMultisample</code></td><td></td></tr><tr><td id='variant.UImage2dMultisample'><code>UImage2dMultisample</code></td><td></td></tr><tr><td id='variant.Image2dMultisampleArray'><code>Image2dMultisampleArray</code></td><td></td></tr><tr><td id='variant.IImage2dMultisampleArray'><code>IImage2dMultisampleArray</code></td><td></td></tr><tr><td id='variant.UImage2dMultisampleArray'><code>UImage2dMultisampleArray</code></td><td></td></tr><tr><td id='variant.AtomicCounterUint'><code>AtomicCounterUint</code></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a></code></h3><div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `GlObject` trait in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, GlObject">
+
+    <title>glium::GlObject - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'GlObject', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>glium</a>::<wbr><a class='trait' href=''>GlObject</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-48647' class='srclink' href='../src/glium/lib.rs.html#173-179' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait GlObject {
+    type Id;
+    fn <a href='#tymethod.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; Self::<a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>Id</a>;
+}</pre><div class='docblock'><p>Trait for objects that are OpenGL objects.</p>
+</div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.Id' class='method stab '><code>type Id</code></h3><div class='docblock'><p>The type of identifier for this object.</p>
+</div></div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.get_id' class='method stab '><code>fn <a href='#tymethod.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; Self::<a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>Id</a></code></h3><div class='docblock'><p>Returns the id of the object.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/draw_parameters/struct.SamplesPassedQuery.html' title='glium::draw_parameters::SamplesPassedQuery'>SamplesPassedQuery</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/draw_parameters/struct.TimeElapsedQuery.html' title='glium::draw_parameters::TimeElapsedQuery'>TimeElapsedQuery</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/draw_parameters/struct.AnySamplesPassedQuery.html' title='glium::draw_parameters::AnySamplesPassedQuery'>AnySamplesPassedQuery</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/draw_parameters/struct.PrimitivesGeneratedQuery.html' title='glium::draw_parameters::PrimitivesGeneratedQuery'>PrimitivesGeneratedQuery</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/draw_parameters/struct.TransformFeedbackPrimitivesWrittenQuery.html' title='glium::draw_parameters::TransformFeedbackPrimitivesWrittenQuery'>TransformFeedbackPrimitivesWrittenQuery</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/framebuffer/struct.RenderBuffer.html' title='glium::framebuffer::RenderBuffer'>RenderBuffer</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/framebuffer/struct.DepthRenderBuffer.html' title='glium::framebuffer::DepthRenderBuffer'>DepthRenderBuffer</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/framebuffer/struct.StencilRenderBuffer.html' title='glium::framebuffer::StencilRenderBuffer'>StencilRenderBuffer</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/framebuffer/struct.RenderBufferAny.html' title='glium::framebuffer::RenderBufferAny'>RenderBufferAny</a></code></li>
+<li><code>impl&lt;T&gt; <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/struct.IndexBuffer.html' title='glium::IndexBuffer'>IndexBuffer</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='../glium/index/trait.Index.html' title='glium::index::Index'>Index</a></span></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/program/struct.ComputeShader.html' title='glium::program::ComputeShader'>ComputeShader</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/struct.Program.html' title='glium::Program'>Program</a></code></li>
+<li><code>impl&lt;T&gt; <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/pixel_buffer/struct.PixelBuffer.html' title='glium::texture::pixel_buffer::PixelBuffer'>PixelBuffer</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='../glium/texture/trait.PixelValue.html' title='glium::texture::PixelValue'>PixelValue</a></span></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/struct.TextureAny.html' title='glium::texture::TextureAny'>TextureAny</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture1d/struct.Texture1d.html' title='glium::texture::texture1d::Texture1d'>Texture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_texture1d/struct.CompressedTexture1d.html' title='glium::texture::compressed_texture1d::CompressedTexture1d'>CompressedTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture1d/struct.SrgbTexture1d.html' title='glium::texture::srgb_texture1d::SrgbTexture1d'>SrgbTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_texture1d/struct.CompressedSrgbTexture1d.html' title='glium::texture::compressed_srgb_texture1d::CompressedSrgbTexture1d'>CompressedSrgbTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture1d/struct.IntegralTexture1d.html' title='glium::texture::integral_texture1d::IntegralTexture1d'>IntegralTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture1d/struct.UnsignedTexture1d.html' title='glium::texture::unsigned_texture1d::UnsignedTexture1d'>UnsignedTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture1d/struct.DepthTexture1d.html' title='glium::texture::depth_texture1d::DepthTexture1d'>DepthTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_texture1d/struct.StencilTexture1d.html' title='glium::texture::stencil_texture1d::StencilTexture1d'>StencilTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture1d/struct.DepthStencilTexture1d.html' title='glium::texture::depth_stencil_texture1d::DepthStencilTexture1d'>DepthStencilTexture1d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture2d/struct.Texture2d.html' title='glium::texture::texture2d::Texture2d'>Texture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_texture2d/struct.CompressedTexture2d.html' title='glium::texture::compressed_texture2d::CompressedTexture2d'>CompressedTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture2d/struct.SrgbTexture2d.html' title='glium::texture::srgb_texture2d::SrgbTexture2d'>SrgbTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_texture2d/struct.CompressedSrgbTexture2d.html' title='glium::texture::compressed_srgb_texture2d::CompressedSrgbTexture2d'>CompressedSrgbTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture2d/struct.IntegralTexture2d.html' title='glium::texture::integral_texture2d::IntegralTexture2d'>IntegralTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture2d/struct.UnsignedTexture2d.html' title='glium::texture::unsigned_texture2d::UnsignedTexture2d'>UnsignedTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture2d/struct.DepthTexture2d.html' title='glium::texture::depth_texture2d::DepthTexture2d'>DepthTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_texture2d/struct.StencilTexture2d.html' title='glium::texture::stencil_texture2d::StencilTexture2d'>StencilTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture2d/struct.DepthStencilTexture2d.html' title='glium::texture::depth_stencil_texture2d::DepthStencilTexture2d'>DepthStencilTexture2d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture2d_multisample/struct.Texture2dMultisample.html' title='glium::texture::texture2d_multisample::Texture2dMultisample'>Texture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture2d_multisample/struct.IntegralTexture2dMultisample.html' title='glium::texture::integral_texture2d_multisample::IntegralTexture2dMultisample'>IntegralTexture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture2d_multisample/struct.SrgbTexture2dMultisample.html' title='glium::texture::srgb_texture2d_multisample::SrgbTexture2dMultisample'>SrgbTexture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture2d_multisample/struct.UnsignedTexture2dMultisample.html' title='glium::texture::unsigned_texture2d_multisample::UnsignedTexture2dMultisample'>UnsignedTexture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture2d_multisample/struct.DepthTexture2dMultisample.html' title='glium::texture::depth_texture2d_multisample::DepthTexture2dMultisample'>DepthTexture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_texture2d_multisample/struct.StencilTexture2dMultisample.html' title='glium::texture::stencil_texture2d_multisample::StencilTexture2dMultisample'>StencilTexture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture2d_multisample/struct.DepthStencilTexture2dMultisample.html' title='glium::texture::depth_stencil_texture2d_multisample::DepthStencilTexture2dMultisample'>DepthStencilTexture2dMultisample</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture3d/struct.Texture3d.html' title='glium::texture::texture3d::Texture3d'>Texture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_texture3d/struct.CompressedTexture3d.html' title='glium::texture::compressed_texture3d::CompressedTexture3d'>CompressedTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture3d/struct.SrgbTexture3d.html' title='glium::texture::srgb_texture3d::SrgbTexture3d'>SrgbTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_texture3d/struct.CompressedSrgbTexture3d.html' title='glium::texture::compressed_srgb_texture3d::CompressedSrgbTexture3d'>CompressedSrgbTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture3d/struct.IntegralTexture3d.html' title='glium::texture::integral_texture3d::IntegralTexture3d'>IntegralTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture3d/struct.UnsignedTexture3d.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3d'>UnsignedTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture3d/struct.DepthTexture3d.html' title='glium::texture::depth_texture3d::DepthTexture3d'>DepthTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture3d/struct.DepthStencilTexture3d.html' title='glium::texture::depth_stencil_texture3d::DepthStencilTexture3d'>DepthStencilTexture3d</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture1d_array/struct.Texture1dArray.html' title='glium::texture::texture1d_array::Texture1dArray'>Texture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_texture1d_array/struct.CompressedTexture1dArray.html' title='glium::texture::compressed_texture1d_array::CompressedTexture1dArray'>CompressedTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture1d_array/struct.SrgbTexture1dArray.html' title='glium::texture::srgb_texture1d_array::SrgbTexture1dArray'>SrgbTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_texture1d_array/struct.CompressedSrgbTexture1dArray.html' title='glium::texture::compressed_srgb_texture1d_array::CompressedSrgbTexture1dArray'>CompressedSrgbTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture1d_array/struct.IntegralTexture1dArray.html' title='glium::texture::integral_texture1d_array::IntegralTexture1dArray'>IntegralTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture1d_array/struct.UnsignedTexture1dArray.html' title='glium::texture::unsigned_texture1d_array::UnsignedTexture1dArray'>UnsignedTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture1d_array/struct.DepthTexture1dArray.html' title='glium::texture::depth_texture1d_array::DepthTexture1dArray'>DepthTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_texture1d_array/struct.StencilTexture1dArray.html' title='glium::texture::stencil_texture1d_array::StencilTexture1dArray'>StencilTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture1d_array/struct.DepthStencilTexture1dArray.html' title='glium::texture::depth_stencil_texture1d_array::DepthStencilTexture1dArray'>DepthStencilTexture1dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture2d_array/struct.Texture2dArray.html' title='glium::texture::texture2d_array::Texture2dArray'>Texture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_texture2d_array/struct.CompressedTexture2dArray.html' title='glium::texture::compressed_texture2d_array::CompressedTexture2dArray'>CompressedTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture2d_array/struct.SrgbTexture2dArray.html' title='glium::texture::srgb_texture2d_array::SrgbTexture2dArray'>SrgbTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_texture2d_array/struct.CompressedSrgbTexture2dArray.html' title='glium::texture::compressed_srgb_texture2d_array::CompressedSrgbTexture2dArray'>CompressedSrgbTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture2d_array/struct.IntegralTexture2dArray.html' title='glium::texture::integral_texture2d_array::IntegralTexture2dArray'>IntegralTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture2d_array/struct.UnsignedTexture2dArray.html' title='glium::texture::unsigned_texture2d_array::UnsignedTexture2dArray'>UnsignedTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture2d_array/struct.DepthTexture2dArray.html' title='glium::texture::depth_texture2d_array::DepthTexture2dArray'>DepthTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_texture2d_array/struct.StencilTexture2dArray.html' title='glium::texture::stencil_texture2d_array::StencilTexture2dArray'>StencilTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture2d_array/struct.DepthStencilTexture2dArray.html' title='glium::texture::depth_stencil_texture2d_array::DepthStencilTexture2dArray'>DepthStencilTexture2dArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/texture2d_multisample_array/struct.Texture2dMultisampleArray.html' title='glium::texture::texture2d_multisample_array::Texture2dMultisampleArray'>Texture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_texture2d_multisample_array/struct.SrgbTexture2dMultisampleArray.html' title='glium::texture::srgb_texture2d_multisample_array::SrgbTexture2dMultisampleArray'>SrgbTexture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_texture2d_multisample_array/struct.IntegralTexture2dMultisampleArray.html' title='glium::texture::integral_texture2d_multisample_array::IntegralTexture2dMultisampleArray'>IntegralTexture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_texture2d_multisample_array/struct.UnsignedTexture2dMultisampleArray.html' title='glium::texture::unsigned_texture2d_multisample_array::UnsignedTexture2dMultisampleArray'>UnsignedTexture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_texture2d_multisample_array/struct.DepthTexture2dMultisampleArray.html' title='glium::texture::depth_texture2d_multisample_array::DepthTexture2dMultisampleArray'>DepthTexture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_texture2d_multisample_array/struct.StencilTexture2dMultisampleArray.html' title='glium::texture::stencil_texture2d_multisample_array::StencilTexture2dMultisampleArray'>StencilTexture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_texture2d_multisample_array/struct.DepthStencilTexture2dMultisampleArray.html' title='glium::texture::depth_stencil_texture2d_multisample_array::DepthStencilTexture2dMultisampleArray'>DepthStencilTexture2dMultisampleArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/cubemap/struct.Cubemap.html' title='glium::texture::cubemap::Cubemap'>Cubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_cubemap/struct.CompressedCubemap.html' title='glium::texture::compressed_cubemap::CompressedCubemap'>CompressedCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_cubemap/struct.SrgbCubemap.html' title='glium::texture::srgb_cubemap::SrgbCubemap'>SrgbCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_cubemap/struct.CompressedSrgbCubemap.html' title='glium::texture::compressed_srgb_cubemap::CompressedSrgbCubemap'>CompressedSrgbCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_cubemap/struct.IntegralCubemap.html' title='glium::texture::integral_cubemap::IntegralCubemap'>IntegralCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_cubemap/struct.UnsignedCubemap.html' title='glium::texture::unsigned_cubemap::UnsignedCubemap'>UnsignedCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_cubemap/struct.DepthCubemap.html' title='glium::texture::depth_cubemap::DepthCubemap'>DepthCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_cubemap/struct.StencilCubemap.html' title='glium::texture::stencil_cubemap::StencilCubemap'>StencilCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_cubemap/struct.DepthStencilCubemap.html' title='glium::texture::depth_stencil_cubemap::DepthStencilCubemap'>DepthStencilCubemap</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/cubemap_array/struct.CubemapArray.html' title='glium::texture::cubemap_array::CubemapArray'>CubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_cubemap_array/struct.CompressedCubemapArray.html' title='glium::texture::compressed_cubemap_array::CompressedCubemapArray'>CompressedCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/srgb_cubemap_array/struct.SrgbCubemapArray.html' title='glium::texture::srgb_cubemap_array::SrgbCubemapArray'>SrgbCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/compressed_srgb_cubemap_array/struct.CompressedSrgbCubemapArray.html' title='glium::texture::compressed_srgb_cubemap_array::CompressedSrgbCubemapArray'>CompressedSrgbCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/integral_cubemap_array/struct.IntegralCubemapArray.html' title='glium::texture::integral_cubemap_array::IntegralCubemapArray'>IntegralCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/unsigned_cubemap_array/struct.UnsignedCubemapArray.html' title='glium::texture::unsigned_cubemap_array::UnsignedCubemapArray'>UnsignedCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_cubemap_array/struct.DepthCubemapArray.html' title='glium::texture::depth_cubemap_array::DepthCubemapArray'>DepthCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/stencil_cubemap_array/struct.StencilCubemapArray.html' title='glium::texture::stencil_cubemap_array::StencilCubemapArray'>StencilCubemapArray</a></code></li>
+<li><code>impl <a class='trait' href='../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../glium/texture/depth_stencil_cubemap_array/struct.DepthStencilCubemapArray.html' title='glium::texture::depth_stencil_cubemap_array::DepthStencilCubemapArray'>DepthStencilCubemapArray</a></code></li>
+</ul><script type="text/javascript" async
+                              src="../implementors/glium/trait.GlObject.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

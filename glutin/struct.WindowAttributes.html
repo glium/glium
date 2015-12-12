@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WindowAttributes` struct in crate `glutin`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WindowAttributes">
+
+    <title>glutin::WindowAttributes - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'WindowAttributes', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glutin</a>::<wbr><a class='struct' href=''>WindowAttributes</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-5634' class='srclink' href='../src/glutin/lib.rs.html#523-559' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WindowAttributes {
+    pub dimensions: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;,
+    pub monitor: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;MonitorId&gt;,
+    pub title: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    pub visible: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    pub transparent: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    pub decorations: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    pub multitouch: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+}</pre><div class='docblock'><p>Attributes to use when creating a window.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.dimensions'><code>dimensions</code></td><td><div class='docblock'><p>The dimensions of the window. If this is <code>None</code>, some platform-specific dimensions will be
+used.</p>
+
+<p>The default is <code>None</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.monitor'><code>monitor</code></td><td><div class='docblock'><p>If <code>Some</code>, the window will be in fullscreen mode with the given monitor.</p>
+
+<p>The default is <code>None</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.title'><code>title</code></td><td><div class='docblock'><p>The title of the window in the title bar.</p>
+
+<p>The default is <code>&quot;glutin window&quot;</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.visible'><code>visible</code></td><td><div class='docblock'><p>Whether the window should be immediately visible upon creation.</p>
+
+<p>The default is <code>true</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.transparent'><code>transparent</code></td><td><div class='docblock'><p>Whether the the window should be transparent. If this is true, writing colors
+with alpha values different than <code>1.0</code> will produce a transparent window.</p>
+
+<p>The default is <code>false</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.decorations'><code>decorations</code></td><td><div class='docblock'><p>Whether the window should have borders and bars.</p>
+
+<p>The default is <code>true</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.multitouch'><code>multitouch</code></td><td><div class='docblock'><p>[iOS only] Enable multitouch, see <a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/#//apple_ref/occ/instp/UIView/multipleTouchEnabled">UIView#multipleTouchEnabled</a></p>
+</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../glutin/struct.WindowAttributes.html' title='glutin::WindowAttributes'>WindowAttributes</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../glutin/struct.WindowAttributes.html' title='glutin::WindowAttributes'>WindowAttributes</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../glutin/struct.WindowAttributes.html' title='glutin::WindowAttributes'>WindowAttributes</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.WindowAttributes.html' title='glutin::WindowAttributes'>WindowAttributes</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CompressedSrgbTexture3d","A compressed three-dimensional texture  containing sRGB floating-point data."],["CompressedSrgbTexture3dMipmap","Represents a single mipmap level of a `CompressedSrgbTexture3d`."]]});

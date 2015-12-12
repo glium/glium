@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Window` struct in crate `glutin`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Window">
+
+    <title>glutin::Window - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'Window', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glutin</a>::<wbr><a class='struct' href=''>Window</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-5256' class='srclink' href='../src/glutin/lib.rs.html#101-103' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Window {
+    // some fields omitted
+}</pre><div class='docblock'><p>Represents an OpenGL context and the Window or environment around it.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1><pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>window</span> <span class='op'>=</span> <span class='ident'>Window</span>::<span class='ident'>new</span>().<span class='ident'>unwrap</span>();
+
+<span class='kw'>unsafe</span> { <span class='ident'>window</span>.<span class='ident'>make_current</span>() };
+
+<span class='kw'>loop</span> {
+    <span class='kw'>for</span> <span class='ident'>event</span> <span class='kw'>in</span> <span class='ident'>window</span>.<span class='ident'>poll_events</span>() {
+        <span class='kw'>match</span>(<span class='ident'>event</span>) {
+            <span class='comment'>// process events here</span>
+            _ <span class='op'>=&gt;</span> ()
+        }
+    }
+
+    <span class='comment'>// draw everything here</span>
+
+    <span class='ident'>window</span>.<span class='ident'>swap_buffers</span>();
+    <span class='ident'>std</span>::<span class='ident'>old_io</span>::<span class='ident'>timer</span>::<span class='ident'>sleep</span>(<span class='number'>17</span>);
+}</pre>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a>, <a class='enum' href='../glutin/enum.CreationError.html' title='glutin::CreationError'>CreationError</a>&gt;</code></h4>
+<div class='docblock'><p>Creates a new OpenGL context, and a Window for platforms where this is appropriate.</p>
+
+<p>This function is equivalent to <code>WindowBuilder::new().build()</code>.</p>
+
+<p>Error should be very rare and only occur in case of permission denied, incompatible system,
+ out of memory, etc.</p>
+</div><h4 id='method.set_title' class='method'><code>fn <a href='#method.set_title' class='fnname'>set_title</a>(&amp;self, title: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>)</code></h4>
+<div class='docblock'><p>Modifies the title of the window.</p>
+
+<p>This is a no-op if the window has already been closed.</p>
+</div><h4 id='method.show' class='method'><code>fn <a href='#method.show' class='fnname'>show</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Shows the window if it was hidden.</p>
+
+<h2 id='platform-specific' class='section-header'><a href='#platform-specific'>Platform-specific</a></h2>
+<ul>
+<li>Has no effect on Android</li>
+</ul>
+</div><h4 id='method.hide' class='method'><code>fn <a href='#method.hide' class='fnname'>hide</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Hides the window if it was visible.</p>
+
+<h2 id='platform-specific-1' class='section-header'><a href='#platform-specific-1'>Platform-specific</a></h2>
+<ul>
+<li>Has no effect on Android</li>
+</ul>
+</div><h4 id='method.get_position' class='method'><code>fn <a href='#method.get_position' class='fnname'>get_position</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the position of the top-left hand corner of the window relative to the
+ top-left hand corner of the desktop.</p>
+
+<p>Note that the top-left hand corner of the desktop is not necessarily the same as
+ the screen. If the user uses a desktop with multiple monitors, the top-left hand corner
+ of the desktop is the top-left hand corner of the monitor at the top-left of the desktop.</p>
+
+<p>The coordinates can be negative if the top-left hand corner of the window is outside
+ of the visible screen region.</p>
+
+<p>Returns <code>None</code> if the window no longer exists.</p>
+</div><h4 id='method.set_position' class='method'><code>fn <a href='#method.set_position' class='fnname'>set_position</a>(&amp;self, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>Modifies the position of the window.</p>
+
+<p>See <code>get_position</code> for more informations about the coordinates.</p>
+
+<p>This is a no-op if the window has already been closed.</p>
+</div><h4 id='method.get_inner_size' class='method'><code>fn <a href='#method.get_inner_size' class='fnname'>get_inner_size</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the size in points of the client area of the window.</p>
+
+<p>The client area is the content of the window, excluding the title bar and borders.
+To get the dimensions of the frame buffer when calling <code>glViewport</code>, multiply with hidpi factor.</p>
+
+<p>Returns <code>None</code> if the window no longer exists.</p>
+
+<p>DEPRECATED</p>
+</div><h4 id='method.get_inner_size_points' class='method'><code>fn <a href='#method.get_inner_size_points' class='fnname'>get_inner_size_points</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the size in points of the client area of the window.</p>
+
+<p>The client area is the content of the window, excluding the title bar and borders.
+To get the dimensions of the frame buffer when calling <code>glViewport</code>, multiply with hidpi factor.</p>
+
+<p>Returns <code>None</code> if the window no longer exists.</p>
+</div><h4 id='method.get_inner_size_pixels' class='method'><code>fn <a href='#method.get_inner_size_pixels' class='fnname'>get_inner_size_pixels</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the size in pixels of the client area of the window.</p>
+
+<p>The client area is the content of the window, excluding the title bar and borders.
+These are the dimensions of the frame buffer, and the dimensions that you should use
+ when you call <code>glViewport</code>.</p>
+
+<p>Returns <code>None</code> if the window no longer exists.</p>
+</div><h4 id='method.get_outer_size' class='method'><code>fn <a href='#method.get_outer_size' class='fnname'>get_outer_size</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the size in pixels of the window.</p>
+
+<p>These dimensions include title bar and borders. If you don&#39;t want these, you should use
+ use <code>get_inner_size</code> instead.</p>
+
+<p>Returns <code>None</code> if the window no longer exists.</p>
+</div><h4 id='method.set_inner_size' class='method'><code>fn <a href='#method.set_inner_size' class='fnname'>set_inner_size</a>(&amp;self, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</code></h4>
+<div class='docblock'><p>Modifies the inner size of the window.</p>
+
+<p>See <code>get_inner_size</code> for more informations about the values.</p>
+
+<p>This is a no-op if the window has already been closed.</p>
+</div><h4 id='method.poll_events' class='method'><code>fn <a href='#method.poll_events' class='fnname'>poll_events</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.PollEventsIterator.html' title='glutin::PollEventsIterator'>PollEventsIterator</a></code></h4>
+<div class='docblock'><p>Returns an iterator that poll for the next event in the window&#39;s events queue.
+Returns <code>None</code> if there is no event in the queue.</p>
+
+<p>Contrary to <code>wait_events</code>, this function never blocks.</p>
+</div><h4 id='method.wait_events' class='method'><code>fn <a href='#method.wait_events' class='fnname'>wait_events</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.WaitEventsIterator.html' title='glutin::WaitEventsIterator'>WaitEventsIterator</a></code></h4>
+<div class='docblock'><p>Returns an iterator that returns events one by one, blocking if necessary until one is
+available.</p>
+
+<p>The iterator never returns <code>None</code>.</p>
+</div><h4 id='method.make_current' class='method'><code>unsafe fn <a href='#method.make_current' class='fnname'>make_current</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
+<div class='docblock'><p>Sets the context as the current context.</p>
+</div><h4 id='method.is_current' class='method'><code>fn <a href='#method.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Returns true if this context is the current one in this thread.</p>
+</div><h4 id='method.get_proc_address' class='method'><code>fn <a href='#method.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, addr: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a></code></h4>
+<div class='docblock'><p>Returns the address of an OpenGL function.</p>
+
+<p>Contrary to <code>wglGetProcAddress</code>, all available OpenGL functions return an address.</p>
+</div><h4 id='method.swap_buffers' class='method'><code>fn <a href='#method.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
+<div class='docblock'><p>Swaps the buffers in case of double or triple buffering.</p>
+
+<p>You should call this function every time you have finished rendering, or the image
+ may not be displayed on the screen.</p>
+
+<p><strong>Warning</strong>: if you enabled vsync, this function will block until the next time the screen
+is refreshed. However drivers can choose to override your vsync settings, which means that
+you can&#39;t know in advance whether <code>swap_buffers</code> will block or not.</p>
+</div><h4 id='method.platform_display' class='method'><code>unsafe fn <a href='#method.platform_display' class='fnname'>platform_display</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a></code></h4>
+<div class='docblock'><p>DEPRECATED. Gets the native platform specific display for this window.
+This is typically only required when integrating with
+other libraries that need this information.</p>
+</div><h4 id='method.platform_window' class='method'><code>unsafe fn <a href='#method.platform_window' class='fnname'>platform_window</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a></code></h4>
+<div class='docblock'><p>DEPRECATED. Gets the native platform specific window handle. This is
+typically only required when integrating with other libraries
+that need this information.</p>
+</div><h4 id='method.get_api' class='method'><code>fn <a href='#method.get_api' class='fnname'>get_api</a>(&amp;self) -&gt; <a class='enum' href='../glutin/enum.Api.html' title='glutin::Api'>Api</a></code></h4>
+<div class='docblock'><p>Returns the API that is currently provided by this window.</p>
+
+<ul>
+<li>On Windows and OS/X, this always returns <code>OpenGl</code>.</li>
+<li>On Android, this always returns <code>OpenGlEs</code>.</li>
+<li>On Linux, it must be checked at runtime.</li>
+</ul>
+</div><h4 id='method.get_pixel_format' class='method'><code>fn <a href='#method.get_pixel_format' class='fnname'>get_pixel_format</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.PixelFormat.html' title='glutin::PixelFormat'>PixelFormat</a></code></h4>
+<div class='docblock'><p>Returns the pixel format of this window.</p>
+</div><h4 id='method.create_window_proxy' class='method'><code>fn <a href='#method.create_window_proxy' class='fnname'>create_window_proxy</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.WindowProxy.html' title='glutin::WindowProxy'>WindowProxy</a></code></h4>
+<div class='docblock'><p>Create a window proxy for this window, that can be freely
+passed to different threads.</p>
+</div><h4 id='method.set_window_resize_callback' class='method'><code>fn <a href='#method.set_window_resize_callback' class='fnname'>set_window_resize_callback</a>(&amp;mut self, callback: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)&gt;)</code></h4>
+<div class='docblock'><p>Sets a resize callback that is called by Mac (and potentially other
+operating systems) during resize operations. This can be used to repaint
+during window resizing.</p>
+</div><h4 id='method.set_cursor' class='method'><code>fn <a href='#method.set_cursor' class='fnname'>set_cursor</a>(&amp;self, cursor: <a class='enum' href='../glutin/enum.MouseCursor.html' title='glutin::MouseCursor'>MouseCursor</a>)</code></h4>
+<div class='docblock'><p>Modifies the mouse cursor of the window.
+Has no effect on Android.</p>
+</div><h4 id='method.hidpi_factor' class='method'><code>fn <a href='#method.hidpi_factor' class='fnname'>hidpi_factor</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></h4>
+<div class='docblock'><p>Returns the ratio between the backing framebuffer resolution and the
+window size in screen pixels. This is typically one for a normal display
+and two for a retina display.</p>
+</div><h4 id='method.set_cursor_position' class='method'><code>fn <a href='#method.set_cursor_position' class='fnname'>set_cursor_position</a>(&amp;self, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<div class='docblock'><p>Changes the position of the cursor in window coordinates.</p>
+</div><h4 id='method.set_cursor_state' class='method'><code>fn <a href='#method.set_cursor_state' class='fnname'>set_cursor_state</a>(&amp;self, state: <a class='enum' href='../glutin/enum.CursorState.html' title='glutin::CursorState'>CursorState</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
+<div class='docblock'><p>Sets how glutin handles the cursor. See the documentation of <code>CursorState</code> for details.</p>
+
+<p>Has no effect on Android.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../glutin/trait.GlContext.html' title='glutin::GlContext'>GlContext</a> for <a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a></code></h3><div class='impl-items'><h4 id='method.make_current-1' class='method'><code>unsafe fn <a href='../glutin/trait.GlContext.html#method.make_current' class='fnname'>make_current</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
+<h4 id='method.is_current-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.get_proc_address-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, addr: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a></code></h4>
+<h4 id='method.swap_buffers-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
+<h4 id='method.get_api-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.get_api' class='fnname'>get_api</a>(&amp;self) -&gt; <a class='enum' href='../glutin/enum.Api.html' title='glutin::Api'>Api</a></code></h4>
+<h4 id='method.get_pixel_format-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.get_pixel_format' class='fnname'>get_pixel_format</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.PixelFormat.html' title='glutin::PixelFormat'>PixelFormat</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../glutin/os/unix/trait.WindowExt.html' title='glutin::os::unix::WindowExt'>WindowExt</a> for <a class='struct' href='../glutin/struct.Window.html' title='glutin::Window'>Window</a></code></h3><div class='impl-items'><h4 id='method.get_xlib_window' class='method'><code>fn <a href='../glutin/os/unix/trait.WindowExt.html#method.get_xlib_window' class='fnname'>get_xlib_window</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>&gt;</code></h4>
+<h4 id='method.get_xlib_display' class='method'><code>fn <a href='../glutin/os/unix/trait.WindowExt.html#method.get_xlib_display' class='fnname'>get_xlib_display</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

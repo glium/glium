@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `GlAttributes` struct in crate `glutin`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, GlAttributes">
+
+    <title>glutin::GlAttributes - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'GlAttributes', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glutin</a>::<wbr><a class='struct' href=''>GlAttributes</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-5654' class='srclink' href='../src/glutin/lib.rs.html#578-612' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct GlAttributes&lt;S&gt; {
+    pub sharing: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;S&gt;,
+    pub version: <a class='enum' href='../glutin/enum.GlRequest.html' title='glutin::GlRequest'>GlRequest</a>,
+    pub profile: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../glutin/enum.GlProfile.html' title='glutin::GlProfile'>GlProfile</a>&gt;,
+    pub debug: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    pub robustness: <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a>,
+    pub vsync: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+}</pre><div class='docblock'><p>Attributes to use when creating an OpenGL context.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.sharing'><code>sharing</code></td><td><div class='docblock'><p>An existing context to share the new the context with.</p>
+
+<p>The default is <code>None</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.version'><code>version</code></td><td><div class='docblock'><p>Version to try create. See <code>GlRequest</code> for more infos.</p>
+
+<p>The default is <code>Latest</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.profile'><code>profile</code></td><td><div class='docblock'><p>OpenGL profile to use.</p>
+
+<p>The default is <code>None</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.debug'><code>debug</code></td><td><div class='docblock'><p>Whether to enable the <code>debug</code> flag of the context.</p>
+
+<p>Debug contexts are usually slower but give better error reporting.</p>
+
+<p>The default is <code>true</code> in debug mode and <code>false</code> in release mode.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.robustness'><code>robustness</code></td><td><div class='docblock'><p>How the OpenGL context should detect errors.</p>
+
+<p>The default is <code>NotRobust</code> because this is what is typically expected when you create an
+OpenGL context. However for safety you should consider <code>TryRobustLoseContextOnReset</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.vsync'><code>vsync</code></td><td><div class='docblock'><p>Whether to use vsync. If vsync is enabled, calling <code>swap_buffers</code> will block until the
+screen refreshes. This is typically used to prevent screen tearing.</p>
+
+<p>The default is <code>false</code>.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;S&gt; <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.map_sharing' class='method'><code>fn <a href='#method.map_sharing' class='fnname'>map_sharing</a>&lt;F, T&gt;(self, f: F) -&gt; <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;T&gt; <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnOnce.html' title='core::ops::FnOnce'>FnOnce</a>(S) -&gt; T</span></code></h4>
+<div class='docblock'><p>Turns the <code>sharing</code> parameter into another type by calling a closure.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;S&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;S&gt;</code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.GlAttributes.html' title='glutin::GlAttributes'>GlAttributes</a>&lt;S&gt;</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["resolve","Resolve an address to a symbol, passing the symbol to the specified closure."]],"trait":[["Symbol","A trait representing the resolution of a symbol in a file."]]});

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Robustness` enum in crate `glutin`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Robustness">
+
+    <title>glutin::Robustness - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'Robustness', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>glutin</a>::<wbr><a class='enum' href=''>Robustness</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-5419' class='srclink' href='../src/glutin/lib.rs.html#272-301' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum Robustness {
+    NotRobust,
+    NoError,
+    RobustNoResetNotification,
+    TryRobustNoResetNotification,
+    RobustLoseContextOnReset,
+    TryRobustLoseContextOnReset,
+}</pre><div class='docblock'><p>Specifies the tolerance of the OpenGL context to faults. If you accept raw OpenGL commands
+and/or raw shader code from an untrusted source, you should definitely care about this.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.NotRobust'><code>NotRobust</code></td><td><div class='docblock'><p>Not everything is checked. Your application can crash if you do something wrong with your
+shaders.</p>
+</div></td></tr><tr><td id='variant.NoError'><code>NoError</code></td><td><div class='docblock'><p>The driver doesn&#39;t check anything. This option is very dangerous. Please know what you&#39;re
+doing before using it. See the <code>GL_KHR_no_error</code> extension.</p>
+
+<p>Since this option is purely an optimisation, no error will be returned if the backend
+doesn&#39;t support it. Instead it will automatically fall back to <code>NotRobust</code>.</p>
+</div></td></tr><tr><td id='variant.RobustNoResetNotification'><code>RobustNoResetNotification</code></td><td><div class='docblock'><p>Everything is checked to avoid any crash. The driver will attempt to avoid any problem,
+but if a problem occurs the behavior is implementation-defined. You are just guaranteed not
+to get a crash.</p>
+</div></td></tr><tr><td id='variant.TryRobustNoResetNotification'><code>TryRobustNoResetNotification</code></td><td><div class='docblock'><p>Same as <code>RobustNoResetNotification</code> but the context creation doesn&#39;t fail if it&#39;s not
+supported.</p>
+</div></td></tr><tr><td id='variant.RobustLoseContextOnReset'><code>RobustLoseContextOnReset</code></td><td><div class='docblock'><p>Everything is checked to avoid any crash. If a problem occurs, the context will enter a
+&quot;context lost&quot; state. It must then be recreated. For the moment, glutin doesn&#39;t provide a
+way to recreate a context with the same window :-/</p>
+</div></td></tr><tr><td id='variant.TryRobustLoseContextOnReset'><code>TryRobustLoseContextOnReset</code></td><td><div class='docblock'><p>Same as <code>RobustLoseContextOnReset</code> but the context creation doesn&#39;t fail if it&#39;s not
+supported.</p>
+</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../glutin/enum.Robustness.html' title='glutin::Robustness'>Robustness</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

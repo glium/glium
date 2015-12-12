@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Point` trait in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Point">
+
+    <title>cgmath::Point - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cgmath</a></p><script>window.sidebarCurrent = {name: 'Point', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>cgmath</a>::<wbr><a class='trait' href=''>Point</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3776' class='srclink' href='../src/cgmath/point.rs.html#71-123' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Point&lt;S: <a class='trait' href='../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>, V: <a class='trait' href='../cgmath/trait.Vector.html' title='cgmath::Vector'>Vector</a>&lt;S&gt;&gt;: <a class='trait' href='../cgmath/trait.Array1.html' title='cgmath::Array1'>Array1</a>&lt;S&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> {
+    fn <a href='#tymethod.origin' class='fnname'>origin</a>() -&gt; Self;
+    fn <a href='#tymethod.from_vec' class='fnname'>from_vec</a>(v: &amp;V) -&gt; Self;
+    fn <a href='#tymethod.to_vec' class='fnname'>to_vec</a>(&amp;self) -&gt; V;
+    fn <a href='#tymethod.mul_s' class='fnname'>mul_s</a>(&amp;self, s: S) -&gt; Self;
+    fn <a href='#tymethod.div_s' class='fnname'>div_s</a>(&amp;self, s: S) -&gt; Self;
+    fn <a href='#tymethod.rem_s' class='fnname'>rem_s</a>(&amp;self, s: S) -&gt; Self;
+    fn <a href='#tymethod.add_v' class='fnname'>add_v</a>(&amp;self, v: &amp;V) -&gt; Self;
+    fn <a href='#tymethod.sub_p' class='fnname'>sub_p</a>(&amp;self, p: &amp;Self) -&gt; V;
+    fn <a href='#tymethod.mul_self_s' class='fnname'>mul_self_s</a>(&amp;mut self, s: S);
+    fn <a href='#tymethod.div_self_s' class='fnname'>div_self_s</a>(&amp;mut self, s: S);
+    fn <a href='#tymethod.rem_self_s' class='fnname'>rem_self_s</a>(&amp;mut self, s: S);
+    fn <a href='#tymethod.add_self_v' class='fnname'>add_self_v</a>(&amp;mut self, v: &amp;V);
+    fn <a href='#tymethod.dot' class='fnname'>dot</a>(&amp;self, v: &amp;V) -&gt; S;
+    fn <a href='#tymethod.min' class='fnname'>min</a>(&amp;self, p: &amp;Self) -&gt; Self;
+    fn <a href='#tymethod.max' class='fnname'>max</a>(&amp;self, p: &amp;Self) -&gt; Self;
+}</pre><div class='docblock'><p>Specifies the numeric operations for point types.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.origin' class='method stab '><code>fn <a href='#tymethod.origin' class='fnname'>origin</a>() -&gt; Self</code></h3><div class='docblock'><p>Create a point at the origin.</p>
+</div><h3 id='tymethod.from_vec' class='method stab '><code>fn <a href='#tymethod.from_vec' class='fnname'>from_vec</a>(v: &amp;V) -&gt; Self</code></h3><div class='docblock'><p>Create a point from a vector.</p>
+</div><h3 id='tymethod.to_vec' class='method stab '><code>fn <a href='#tymethod.to_vec' class='fnname'>to_vec</a>(&amp;self) -&gt; V</code></h3><div class='docblock'><p>Convert a point to a vector.</p>
+</div><h3 id='tymethod.mul_s' class='method stab '><code>fn <a href='#tymethod.mul_s' class='fnname'>mul_s</a>(&amp;self, s: S) -&gt; Self</code></h3><div class='docblock'><p>Multiply each component by a scalar, returning the new point.</p>
+</div><h3 id='tymethod.div_s' class='method stab '><code>fn <a href='#tymethod.div_s' class='fnname'>div_s</a>(&amp;self, s: S) -&gt; Self</code></h3><div class='docblock'><p>Divide each component by a scalar, returning the new point.</p>
+</div><h3 id='tymethod.rem_s' class='method stab '><code>fn <a href='#tymethod.rem_s' class='fnname'>rem_s</a>(&amp;self, s: S) -&gt; Self</code></h3><div class='docblock'><p>Subtract a scalar from each component, returning the new point.</p>
+</div><h3 id='tymethod.add_v' class='method stab '><code>fn <a href='#tymethod.add_v' class='fnname'>add_v</a>(&amp;self, v: &amp;V) -&gt; Self</code></h3><div class='docblock'><p>Add a vector to this point, returning the new point.</p>
+</div><h3 id='tymethod.sub_p' class='method stab '><code>fn <a href='#tymethod.sub_p' class='fnname'>sub_p</a>(&amp;self, p: &amp;Self) -&gt; V</code></h3><div class='docblock'><p>Subtract another point from this one, returning a new vector.</p>
+</div><h3 id='tymethod.mul_self_s' class='method stab '><code>fn <a href='#tymethod.mul_self_s' class='fnname'>mul_self_s</a>(&amp;mut self, s: S)</code></h3><div class='docblock'><p>Multiply each component by a scalar, in-place.</p>
+</div><h3 id='tymethod.div_self_s' class='method stab '><code>fn <a href='#tymethod.div_self_s' class='fnname'>div_self_s</a>(&amp;mut self, s: S)</code></h3><div class='docblock'><p>Divide each component by a scalar, in-place.</p>
+</div><h3 id='tymethod.rem_self_s' class='method stab '><code>fn <a href='#tymethod.rem_self_s' class='fnname'>rem_self_s</a>(&amp;mut self, s: S)</code></h3><div class='docblock'><p>Take the remainder of each component by a scalar, in-place.</p>
+</div><h3 id='tymethod.add_self_v' class='method stab '><code>fn <a href='#tymethod.add_self_v' class='fnname'>add_self_v</a>(&amp;mut self, v: &amp;V)</code></h3><div class='docblock'><p>Add a vector to this point, in-place.</p>
+</div><h3 id='tymethod.dot' class='method stab '><code>fn <a href='#tymethod.dot' class='fnname'>dot</a>(&amp;self, v: &amp;V) -&gt; S</code></h3><div class='docblock'><p>This is a weird one, but its useful for plane calculations.</p>
+</div><h3 id='tymethod.min' class='method stab '><code>fn <a href='#tymethod.min' class='fnname'>min</a>(&amp;self, p: &amp;Self) -&gt; Self</code></h3><h3 id='tymethod.max' class='method stab '><code>fn <a href='#tymethod.max' class='fnname'>max</a>(&amp;self, p: &amp;Self) -&gt; Self</code></h3></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../cgmath/trait.Point.html' title='cgmath::Point'>Point</a>&lt;S, <a class='struct' href='../cgmath/struct.Vector2.html' title='cgmath::Vector2'>Vector2</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Point2.html' title='cgmath::Point2'>Point2</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../cgmath/trait.Point.html' title='cgmath::Point'>Point</a>&lt;S, <a class='struct' href='../cgmath/struct.Vector3.html' title='cgmath::Vector3'>Vector3</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Point3.html' title='cgmath::Point3'>Point3</a>&lt;S&gt;</code></li>
+</ul><script type="text/javascript" async
+                              src="../implementors/cgmath/trait.Point.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

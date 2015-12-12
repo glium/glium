@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Texture2dArray","An array of two-dimensional textures  containing floating-point data."],["Texture2dArrayLayer","Represents a single layer of a `Texture2dArray`."],["Texture2dArrayLayerMipmap","Represents a single layer of a mipmap level of a `Texture2dArray`."],["Texture2dArrayMipmap","Represents a single mipmap level of a `Texture2dArray`."]]});

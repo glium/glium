@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Seat","A global wayland Seat."]]});

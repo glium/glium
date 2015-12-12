@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `RawImage2d` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, RawImage2d">
+
+    <title>glium::texture::RawImage2d - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'RawImage2d', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class='struct' href=''>RawImage2d</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-26279' class='srclink' href='../../src/glium/texture/mod.rs.html#377-394' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct RawImage2d&lt;'a, T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + 'a&gt; {
+    pub data: <a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a>&gt;,
+    pub width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub format: <a class='enum' href='../../glium/texture/enum.ClientFormat.html' title='glium::texture::ClientFormat'>ClientFormat</a>,
+}</pre><div class='docblock'><p>Represents raw data for a two-dimensional image.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.data'><code>data</code></td><td><div class='docblock'><p>A contiguous array of pixel data.</p>
+
+<p>The data must start by the bottom-left hand corner pixel and progress left-to-right and
+bottom-to-top.</p>
+
+<p><code>data.len()</code> must be equal to <code>width * height * format.get_size() / mem::size_of::&lt;T&gt;()</code>.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.width'><code>width</code></td><td><div class='docblock'><p>Number of pixels per column.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.height'><code>height</code></td><td><div class='docblock'><p>Number of pixels per row.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.format'><code>format</code></td><td><div class='docblock'><p>Formats of the pixels.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + 'a&gt; <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, T&gt;</code></h3><div class='impl-items'><h4 id='method.from_raw_rgba' class='method'><code>fn <a href='#method.from_raw_rgba' class='fnname'>from_raw_rgba</a>(data: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;T&gt;, dimensions: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>) -&gt; <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, T&gt;</code></h4>
+<h4 id='method.from_raw_rgba_reversed' class='method'><code>fn <a href='#method.from_raw_rgba_reversed' class='fnname'>from_raw_rgba_reversed</a>(data: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;T&gt;, dimensions: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>) -&gt; <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, T&gt;</code></h4>
+<h4 id='method.from_vec_raw1d' class='method'><code>fn <a href='#method.from_vec_raw1d' class='fnname'>from_vec_raw1d</a>(arr: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../glium/texture/struct.RawImage1d.html' title='glium::texture::RawImage1d'>RawImage1d</a>&lt;'a, T&gt;&gt;) -&gt; <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, T&gt;</code></h4>
+<div class='docblock'><p>Transforms a Vec<RawImage1d> into a RawImage2d</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, P: <a class='trait' href='../../glium/texture/trait.PixelValue.html' title='glium::texture::PixelValue'>PixelValue</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='../../glium/texture/trait.Texture2dDataSource.html' title='glium::texture::Texture2dDataSource'>Texture2dDataSource</a>&lt;'a&gt; for <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, P&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Data' class='type'><code>type Data = P</code></h4>
+<h4 id='method.into_raw' class='method'><code>fn <a href='../../glium/texture/trait.Texture2dDataSource.html#method.into_raw' class='fnname'>into_raw</a>(self) -&gt; <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, P&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='../../glium/texture/trait.Texture2dDataSink.html' title='glium::texture::Texture2dDataSink'>Texture2dDataSink</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>)</a>&gt; for <a class='struct' href='../../glium/texture/struct.RawImage2d.html' title='glium::texture::RawImage2d'>RawImage2d</a>&lt;'a, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt;</code></h3><div class='impl-items'><h4 id='method.from_raw' class='method'><code>fn <a href='../../glium/texture/trait.Texture2dDataSink.html#method.from_raw' class='fnname'>from_raw</a>(data: <a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>)</a>]</a>&gt;, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; Self</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

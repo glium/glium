@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Serial","An opaque identifier to the serial number associated to an event."],["SurfaceId","An opaque unique identifier to a surface, can be tested for equality."]]});

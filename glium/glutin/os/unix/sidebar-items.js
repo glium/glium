@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["WindowExt","Additional methods on `Window` that are specific to unix."]]});

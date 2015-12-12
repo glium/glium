@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Array1","An array containing elements of type `Element`"],["Array2","A column-major array"]]});

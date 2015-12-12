@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CompressedCubemap","A compressed cube texture  containing floating-point data."],["CompressedCubemapImage","Represents a single image of a mipmap level of a layer of `CompressedCubemap`."],["CompressedCubemapMipmap","Represents a single mipmap level of a `CompressedCubemap`."]]});

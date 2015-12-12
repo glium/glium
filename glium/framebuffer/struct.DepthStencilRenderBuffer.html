@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `DepthStencilRenderBuffer` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, DepthStencilRenderBuffer">
+
+    <title>glium::framebuffer::DepthStencilRenderBuffer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a></p><script>window.sidebarCurrent = {name: 'DepthStencilRenderBuffer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a>::<wbr><a class='struct' href=''>DepthStencilRenderBuffer</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3374' class='srclink' href='../../src/glium/framebuffer/render_buffer.rs.html#205-207' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct DepthStencilRenderBuffer {
+    // some fields omitted
+}</pre><div class='docblock'><p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
+
+<p>Contrary to a texture, you can&#39;t sample or modify the content of the <code>DepthStencilRenderBuffer</code> directly.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;F&gt;(facade: &amp;F, format: <a class='enum' href='../../glium/texture/enum.DepthStencilFormat.html' title='glium::texture::DepthStencilFormat'>DepthStencilFormat</a>, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a>, <a class='enum' href='../../glium/framebuffer/enum.RenderBufferCreationError.html' title='glium::framebuffer::RenderBufferCreationError'>CreationError</a>&gt; <span class='where'>where F: <a class='trait' href='../../glium/backend/trait.Facade.html' title='glium::backend::Facade'>Facade</a></span></code></h4>
+<div class='docblock'><p>Builds a new render buffer.</p>
+</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../../glium/framebuffer/struct.RenderBufferAny.html' title='glium::framebuffer::RenderBufferAny'>RenderBufferAny</a>&gt;</h2><div class='impl-items'><h4 id='method.get_dimensions' class='method'><code>fn <a href='#method.get_dimensions' class='fnname'>get_dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a></code></h4>
+<div class='docblock'><p>Returns the dimensions of the render buffer.</p>
+</div><h4 id='method.get_samples' class='method'><code>fn <a href='#method.get_samples' class='fnname'>get_samples</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the number of samples of the render buffer, or <code>None</code> if multisampling isn&#39;t
+enabled.</p>
+</div><h4 id='method.get_context' class='method'><code>fn <a href='#method.get_context' class='fnname'>get_context</a>(&amp;self) -&gt; &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../../glium/backend/struct.Context.html' title='glium::backend::Context'>Context</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the context used to create this renderbuffer.</p>
+</div><h4 id='method.kind' class='method'><code>fn <a href='#method.kind' class='fnname'>kind</a>(&amp;self) -&gt; <a class='enum' href='../../glium/texture/enum.TextureKind.html' title='glium::texture::TextureKind'>TextureKind</a></code></h4>
+<div class='docblock'><p>Returns the kind of renderbuffer.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthStencilAttachment.html' title='glium::framebuffer::ToDepthStencilAttachment'>ToDepthStencilAttachment</a>&lt;'a&gt; for &amp;'a <a class='struct' href='../../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></code></h3><div class='impl-items'><h4 id='method.to_depth_stencil_attachment' class='method'><code>fn <a href='../../glium/framebuffer/trait.ToDepthStencilAttachment.html#method.to_depth_stencil_attachment' class='fnname'>to_depth_stencil_attachment</a>(self) -&gt; <a class='enum' href='../../glium/framebuffer/enum.DepthStencilAttachment.html' title='glium::framebuffer::DepthStencilAttachment'>DepthStencilAttachment</a>&lt;'a&gt;</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></code></h3><div class='impl-items'><h4 id='assoc_type.Target' class='type'><code>type Target = <a class='struct' href='../../glium/framebuffer/struct.RenderBufferAny.html' title='glium::framebuffer::RenderBufferAny'>RenderBufferAny</a></code></h4>
+<h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#method.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../glium/framebuffer/struct.RenderBufferAny.html' title='glium::framebuffer::RenderBufferAny'>RenderBufferAny</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html' title='core::ops::DerefMut'>DerefMut</a> for <a class='struct' href='../../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></code></h3><div class='impl-items'><h4 id='method.deref_mut' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html#method.deref_mut' class='fnname'>deref_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='struct' href='../../glium/framebuffer/struct.RenderBufferAny.html' title='glium::framebuffer::RenderBufferAny'>RenderBufferAny</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../../glium/framebuffer/struct.DepthStencilRenderBuffer.html' title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></code></h3><div class='impl-items'><h4 id='assoc_type.Id' class='type'><code>type Id = GLuint</code></h4>
+<h4 id='method.get_id' class='method'><code>fn <a href='../../glium/trait.GlObject.html#method.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; GLuint</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

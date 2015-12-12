@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Deg` struct in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Deg">
+
+    <title>cgmath::Deg - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cgmath</a></p><script>window.sidebarCurrent = {name: 'Deg', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>cgmath</a>::<wbr><a class='struct' href=''>Deg</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3113' class='srclink' href='../src/cgmath/angle.rs.html#36' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Deg&lt;S&gt; {
+    pub s: S,
+}</pre><div class='docblock'><p>An angle, in degrees</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.s'><code>s</code></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;S&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html' title='core::convert::From'>From</a>&lt;<a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt; <span class='where'>where S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a></span></code></h3><div class='impl-items'><h4 id='method.from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#method.from' class='fnname'>from</a>(r: <a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;R: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;&gt;, S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;R&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Output' class='type'><code>type Output = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.add' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#method.add' class='fnname'>add</a>(self, other: R) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;R: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;&gt;, S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;R&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Output-1' class='type'><code>type Output = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.sub' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#method.sub' class='fnname'>sub</a>(self, other: R) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Output-2' class='type'><code>type Output = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.neg' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html#method.neg' class='fnname'>neg</a>(self) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.Zero.html' title='cgmath::Zero'>Zero</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.zero' class='method'><code>fn <a href='../cgmath/trait.Zero.html#method.zero' class='fnname'>zero</a>() -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.is_zero' class='method'><code>fn <a href='../cgmath/trait.Zero.html#method.is_zero' class='fnname'>is_zero</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;R: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;&gt;, S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;R&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Output-3' class='type'><code>type Output = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.mul' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#method.mul' class='fnname'>mul</a>(self, other: R) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.One.html' title='cgmath::One'>One</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.one' class='method'><code>fn <a href='../cgmath/trait.One.html#method.one' class='fnname'>one</a>() -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.Angle.html' title='cgmath::Angle'>Angle</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.from-1' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.from' class='fnname'>from</a>&lt;A: <a class='trait' href='../cgmath/trait.Angle.html' title='cgmath::Angle'>Angle</a>&lt;S&gt;&gt;(theta: A) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.full_turn' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.full_turn' class='fnname'>full_turn</a>() -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.neg_self' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.neg_self' class='fnname'>neg_self</a>(&amp;mut self)</code></h4>
+<h4 id='method.add_a' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.add_a' class='fnname'>add_a</a>(&amp;self, other: Self) -&gt; Self</code></h4>
+<h4 id='method.sub_a' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.sub_a' class='fnname'>sub_a</a>(&amp;self, other: Self) -&gt; Self</code></h4>
+<h4 id='method.div_a' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.div_a' class='fnname'>div_a</a>(&amp;self, other: Self) -&gt; S</code></h4>
+<h4 id='method.rem_a' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.rem_a' class='fnname'>rem_a</a>(&amp;self, other: Self) -&gt; S</code></h4>
+<h4 id='method.mul_s' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.mul_s' class='fnname'>mul_s</a>(&amp;self, s: S) -&gt; Self</code></h4>
+<h4 id='method.div_s' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.div_s' class='fnname'>div_s</a>(&amp;self, s: S) -&gt; Self</code></h4>
+<h4 id='method.rem_s' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.rem_s' class='fnname'>rem_s</a>(&amp;self, s: S) -&gt; Self</code></h4>
+<h4 id='method.add_self_a' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.add_self_a' class='fnname'>add_self_a</a>(&amp;mut self, other: Self)</code></h4>
+<h4 id='method.sub_self_a' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.sub_self_a' class='fnname'>sub_self_a</a>(&amp;mut self, other: Self)</code></h4>
+<h4 id='method.mul_self_s' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.mul_self_s' class='fnname'>mul_self_s</a>(&amp;mut self, s: S)</code></h4>
+<h4 id='method.div_self_s' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.div_self_s' class='fnname'>div_self_s</a>(&amp;mut self, s: S)</code></h4>
+<h4 id='method.rem_self_s' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.rem_self_s' class='fnname'>rem_self_s</a>(&amp;mut self, s: S)</code></h4>
+<h4 id='method.normalize' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.normalize' class='fnname'>normalize</a>(&amp;self) -&gt; Self</code></h4>
+<h4 id='method.normalize_self' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.normalize_self' class='fnname'>normalize_self</a>(&amp;mut self)</code></h4>
+<h4 id='method.opposite' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.opposite' class='fnname'>opposite</a>(&amp;self) -&gt; Self</code></h4>
+<h4 id='method.bisect' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.bisect' class='fnname'>bisect</a>(&amp;self, other: Self) -&gt; Self</code></h4>
+<h4 id='method.turn_div_2' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.turn_div_2' class='fnname'>turn_div_2</a>() -&gt; Self</code></h4>
+<h4 id='method.turn_div_3' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.turn_div_3' class='fnname'>turn_div_3</a>() -&gt; Self</code></h4>
+<h4 id='method.turn_div_4' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.turn_div_4' class='fnname'>turn_div_4</a>() -&gt; Self</code></h4>
+<h4 id='method.turn_div_6' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.turn_div_6' class='fnname'>turn_div_6</a>() -&gt; Self</code></h4>
+<h4 id='method.equiv' class='method'><code>fn <a href='../cgmath/trait.Angle.html#method.equiv' class='fnname'>equiv</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.ApproxEq.html' title='cgmath::ApproxEq'>ApproxEq</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.approx_eq_eps' class='method'><code>fn <a href='../cgmath/trait.ApproxEq.html#method.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;, epsilon: &amp;S) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.approx_epsilon' class='method'><code>fn <a href='../cgmath/trait.ApproxEq.html#method.approx_epsilon' class='fnname'>approx_epsilon</a>(_hack: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; T</code></h4>
+<h4 id='method.approx_eq' class='method'><code>fn <a href='../cgmath/trait.ApproxEq.html#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a> + <a class='trait' href='../rand/distributions/range/trait.SampleRange.html' title='rand::distributions::range::SampleRange'>SampleRange</a> + <a class='trait' href='../rand/trait.Rand.html' title='rand::Rand'>Rand</a>&gt; <a class='trait' href='../rand/trait.Rand.html' title='rand::Rand'>Rand</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.rand' class='method'><code>fn <a href='../rand/trait.Rand.html#method.rand' class='fnname'>rand</a>&lt;R: <a class='trait' href='../rand/trait.Rng.html' title='rand::Rng'>Rng</a>&gt;(rng: &amp;mut R) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a>&gt; <a class='trait' href='../rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.decode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Decodable.html#method.decode' class='fnname'>decode</a>&lt;__D: <a class='trait' href='../rustc_serialize/serialize/trait.Decoder.html' title='rustc_serialize::serialize::Decoder'>Decoder</a>&gt;(__arg_0: &amp;mut __D) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;, __D::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a>&gt; <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.hash' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash' class='fnname'>hash</a>&lt;__H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a>&gt;(&amp;self, __arg_0: &amp;mut __H)</code></h4>
+<h4 id='method.hash_slice' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[Self]</a>, state: &amp;mut H) <span class='where'>where H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a></span></code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.partial_cmp' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.partial_cmp' class='fnname'>partial_cmp</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html' title='core::cmp::Ordering'>Ordering</a>&gt;</code></h4>
+<h4 id='method.lt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt' class='fnname'>lt</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.le' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le' class='fnname'>le</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.gt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt' class='fnname'>gt</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ge' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge' class='fnname'>ge</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h3><div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

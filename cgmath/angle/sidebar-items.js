@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["acos",""],["asin",""],["atan",""],["atan2",""],["bisect",""],["cos",""],["cot",""],["csc",""],["deg","Create a new angle, in degrees"],["rad","Create a new angle, in radians"],["sec",""],["sin",""],["sin_cos",""],["tan",""]],"struct":[["Deg","An angle, in degrees"],["Rad","An angle, in radians"]],"trait":[["Angle","Operations on angles."]]});

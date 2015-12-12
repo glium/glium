@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ToColorAttachment` trait in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ToColorAttachment">
+
+    <title>glium::framebuffer::ToColorAttachment - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a></p><script>window.sidebarCurrent = {name: 'ToColorAttachment', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a>::<wbr><a class='trait' href=''>ToColorAttachment</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-3855' class='srclink' href='../../src/glium/framebuffer/mod.rs.html#761-764' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait ToColorAttachment&lt;'a&gt; {
+    fn <a href='#tymethod.to_color_attachment' class='fnname'>to_color_attachment</a>(self) -&gt; <a class='enum' href='../../glium/framebuffer/enum.ColorAttachment.html' title='glium::framebuffer::ColorAttachment'>ColorAttachment</a>&lt;'a&gt;;
+}</pre><div class='docblock'><p>Trait for objects that can be used as color attachments.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.to_color_attachment' class='method stab '><code>fn <a href='#tymethod.to_color_attachment' class='fnname'>to_color_attachment</a>(self) -&gt; <a class='enum' href='../../glium/framebuffer/enum.ColorAttachment.html' title='glium::framebuffer::ColorAttachment'>ColorAttachment</a>&lt;'a&gt;</code></h3><div class='docblock'><p>Builds the <code>ColorAttachment</code>.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;'a&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'a&gt; for &amp;'a <a class='struct' href='../../glium/framebuffer/struct.RenderBuffer.html' title='glium::framebuffer::RenderBuffer'>RenderBuffer</a></code></li>
+<li><code>impl&lt;'a&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'a&gt; for <a class='enum' href='../../glium/framebuffer/enum.ColorAttachment.html' title='glium::framebuffer::ColorAttachment'>ColorAttachment</a>&lt;'a&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/texture1d/struct.Texture1d.html' title='glium::texture::texture1d::Texture1d'>Texture1d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture1d/struct.Texture1dMipmap.html' title='glium::texture::texture1d::Texture1dMipmap'>Texture1dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/srgb_texture1d/struct.SrgbTexture1d.html' title='glium::texture::srgb_texture1d::SrgbTexture1d'>SrgbTexture1d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture1d/struct.SrgbTexture1dMipmap.html' title='glium::texture::srgb_texture1d::SrgbTexture1dMipmap'>SrgbTexture1dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/integral_texture1d/struct.IntegralTexture1d.html' title='glium::texture::integral_texture1d::IntegralTexture1d'>IntegralTexture1d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture1d/struct.IntegralTexture1dMipmap.html' title='glium::texture::integral_texture1d::IntegralTexture1dMipmap'>IntegralTexture1dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/unsigned_texture1d/struct.UnsignedTexture1d.html' title='glium::texture::unsigned_texture1d::UnsignedTexture1d'>UnsignedTexture1d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture1d/struct.UnsignedTexture1dMipmap.html' title='glium::texture::unsigned_texture1d::UnsignedTexture1dMipmap'>UnsignedTexture1dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/texture2d/struct.Texture2d.html' title='glium::texture::texture2d::Texture2d'>Texture2d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture2d/struct.Texture2dMipmap.html' title='glium::texture::texture2d::Texture2dMipmap'>Texture2dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/srgb_texture2d/struct.SrgbTexture2d.html' title='glium::texture::srgb_texture2d::SrgbTexture2d'>SrgbTexture2d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture2d/struct.SrgbTexture2dMipmap.html' title='glium::texture::srgb_texture2d::SrgbTexture2dMipmap'>SrgbTexture2dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/integral_texture2d/struct.IntegralTexture2d.html' title='glium::texture::integral_texture2d::IntegralTexture2d'>IntegralTexture2d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture2d/struct.IntegralTexture2dMipmap.html' title='glium::texture::integral_texture2d::IntegralTexture2dMipmap'>IntegralTexture2dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/unsigned_texture2d/struct.UnsignedTexture2d.html' title='glium::texture::unsigned_texture2d::UnsignedTexture2d'>UnsignedTexture2d</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture2d/struct.UnsignedTexture2dMipmap.html' title='glium::texture::unsigned_texture2d::UnsignedTexture2dMipmap'>UnsignedTexture2dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/texture2d_multisample/struct.Texture2dMultisample.html' title='glium::texture::texture2d_multisample::Texture2dMultisample'>Texture2dMultisample</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture2d_multisample/struct.Texture2dMultisampleMipmap.html' title='glium::texture::texture2d_multisample::Texture2dMultisampleMipmap'>Texture2dMultisampleMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/integral_texture2d_multisample/struct.IntegralTexture2dMultisample.html' title='glium::texture::integral_texture2d_multisample::IntegralTexture2dMultisample'>IntegralTexture2dMultisample</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture2d_multisample/struct.IntegralTexture2dMultisampleMipmap.html' title='glium::texture::integral_texture2d_multisample::IntegralTexture2dMultisampleMipmap'>IntegralTexture2dMultisampleMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/srgb_texture2d_multisample/struct.SrgbTexture2dMultisample.html' title='glium::texture::srgb_texture2d_multisample::SrgbTexture2dMultisample'>SrgbTexture2dMultisample</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture2d_multisample/struct.SrgbTexture2dMultisampleMipmap.html' title='glium::texture::srgb_texture2d_multisample::SrgbTexture2dMultisampleMipmap'>SrgbTexture2dMultisampleMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/unsigned_texture2d_multisample/struct.UnsignedTexture2dMultisample.html' title='glium::texture::unsigned_texture2d_multisample::UnsignedTexture2dMultisample'>UnsignedTexture2dMultisample</a></code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture2d_multisample/struct.UnsignedTexture2dMultisampleMipmap.html' title='glium::texture::unsigned_texture2d_multisample::UnsignedTexture2dMultisampleMipmap'>UnsignedTexture2dMultisampleMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture3d/struct.Texture3dMipmap.html' title='glium::texture::texture3d::Texture3dMipmap'>Texture3dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture3d/struct.SrgbTexture3dMipmap.html' title='glium::texture::srgb_texture3d::SrgbTexture3dMipmap'>SrgbTexture3dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture3d/struct.IntegralTexture3dMipmap.html' title='glium::texture::integral_texture3d::IntegralTexture3dMipmap'>IntegralTexture3dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3dMipmap.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3dMipmap'>UnsignedTexture3dMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture1d_array/struct.Texture1dArrayLayerMipmap.html' title='glium::texture::texture1d_array::Texture1dArrayLayerMipmap'>Texture1dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture1d_array/struct.SrgbTexture1dArrayLayerMipmap.html' title='glium::texture::srgb_texture1d_array::SrgbTexture1dArrayLayerMipmap'>SrgbTexture1dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture1d_array/struct.IntegralTexture1dArrayLayerMipmap.html' title='glium::texture::integral_texture1d_array::IntegralTexture1dArrayLayerMipmap'>IntegralTexture1dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture1d_array/struct.UnsignedTexture1dArrayLayerMipmap.html' title='glium::texture::unsigned_texture1d_array::UnsignedTexture1dArrayLayerMipmap'>UnsignedTexture1dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture2d_array/struct.Texture2dArrayLayerMipmap.html' title='glium::texture::texture2d_array::Texture2dArrayLayerMipmap'>Texture2dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture2d_array/struct.SrgbTexture2dArrayLayerMipmap.html' title='glium::texture::srgb_texture2d_array::SrgbTexture2dArrayLayerMipmap'>SrgbTexture2dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture2d_array/struct.IntegralTexture2dArrayLayerMipmap.html' title='glium::texture::integral_texture2d_array::IntegralTexture2dArrayLayerMipmap'>IntegralTexture2dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture2d_array/struct.UnsignedTexture2dArrayLayerMipmap.html' title='glium::texture::unsigned_texture2d_array::UnsignedTexture2dArrayLayerMipmap'>UnsignedTexture2dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/texture2d_multisample_array/struct.Texture2dMultisampleArrayLayerMipmap.html' title='glium::texture::texture2d_multisample_array::Texture2dMultisampleArrayLayerMipmap'>Texture2dMultisampleArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_texture2d_multisample_array/struct.SrgbTexture2dMultisampleArrayLayerMipmap.html' title='glium::texture::srgb_texture2d_multisample_array::SrgbTexture2dMultisampleArrayLayerMipmap'>SrgbTexture2dMultisampleArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_texture2d_multisample_array/struct.IntegralTexture2dMultisampleArrayLayerMipmap.html' title='glium::texture::integral_texture2d_multisample_array::IntegralTexture2dMultisampleArrayLayerMipmap'>IntegralTexture2dMultisampleArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_texture2d_multisample_array/struct.UnsignedTexture2dMultisampleArrayLayerMipmap.html' title='glium::texture::unsigned_texture2d_multisample_array::UnsignedTexture2dMultisampleArrayLayerMipmap'>UnsignedTexture2dMultisampleArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/cubemap/struct.CubemapImage.html' title='glium::texture::cubemap::CubemapImage'>CubemapImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_cubemap/struct.SrgbCubemapImage.html' title='glium::texture::srgb_cubemap::SrgbCubemapImage'>SrgbCubemapImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_cubemap/struct.IntegralCubemapImage.html' title='glium::texture::integral_cubemap::IntegralCubemapImage'>IntegralCubemapImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_cubemap/struct.UnsignedCubemapImage.html' title='glium::texture::unsigned_cubemap::UnsignedCubemapImage'>UnsignedCubemapImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/cubemap_array/struct.CubemapArrayImage.html' title='glium::texture::cubemap_array::CubemapArrayImage'>CubemapArrayImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/srgb_cubemap_array/struct.SrgbCubemapArrayImage.html' title='glium::texture::srgb_cubemap_array::SrgbCubemapArrayImage'>SrgbCubemapArrayImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/integral_cubemap_array/struct.IntegralCubemapArrayImage.html' title='glium::texture::integral_cubemap_array::IntegralCubemapArrayImage'>IntegralCubemapArrayImage</a>&lt;'t&gt;</code></li>
+<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToColorAttachment.html' title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/unsigned_cubemap_array/struct.UnsignedCubemapArrayImage.html' title='glium::texture::unsigned_cubemap_array::UnsignedCubemapArrayImage'>UnsignedCubemapArrayImage</a>&lt;'t&gt;</code></li>
+</ul><script type="text/javascript" async
+                              src="../../implementors/glium/framebuffer/trait.ToColorAttachment.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

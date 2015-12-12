@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Display` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Display">
+
+    <title>wayland_client::core::Display - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Display', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='struct' href=''>Display</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-1981' class='srclink' href='../../src/wayland_client/core/display.rs.html#34-36' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Display {
+    // some fields omitted
+}</pre><div class='docblock'><p>A wayland Display.</p>
+
+<p>This is the connexion to the wayland server, it can be cloned, and the
+connexion is closed once all clones are destroyed.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../wayland_client/core/struct.Display.html' title='wayland_client::core::Display'>Display</a></code></h3><div class='impl-items'><h4 id='method.get_registry' class='method'><code>fn <a href='#method.get_registry' class='fnname'>get_registry</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a></code></h4>
+<div class='docblock'><p>Creates a Registry associated to this Display and returns it.</p>
+
+<p>The registry holds a clone of the Display, and thus will maintain the
+connexion alive.</p>
+
+<p>The <code>Registry</code> object is cloneable, and cloning it should be preffered
+to calling this method several times (the wayland protocol is not really
+designed to have several registries active on the same connexion, and the
+destruction of a registry before the end of a connexion is not defined).</p>
+</div><h4 id='method.sync_roundtrip' class='method'><code>fn <a href='#method.sync_roundtrip' class='fnname'>sync_roundtrip</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Performs a blocking synchronisation of the events of the server.</p>
+
+<p>This call will block until the wayland server has processed all
+the queries from this Display instance.</p>
+</div><h4 id='method.dispatch_pending' class='method'><code>fn <a href='#method.dispatch_pending' class='fnname'>dispatch_pending</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Dispatches all pending events to their appropriate callbacks.</p>
+
+<p>Does not block if no events are available.</p>
+</div><h4 id='method.dispatch' class='method'><code>fn <a href='#method.dispatch' class='fnname'>dispatch</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Dispatches all pending events to their appropriate callbacks.</p>
+
+<p>If no events are available, blocks until one is received.</p>
+</div><h4 id='method.flush' class='method'><code>fn <a href='#method.flush' class='fnname'>flush</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html' title='std::io::error::Error'>IoError</a>&gt;</code></h4>
+<div class='docblock'><p>Send as much requests to the server as possible.</p>
+
+<p>Never blocks, but may not send everything. In which case returns
+a <code>WouldBlock</code> error.</p>
+</div><h4 id='method.sync' class='method'><code>fn <a href='#method.sync' class='fnname'>sync</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Send a <code>sync</code> message to the server.</p>
+
+<p>It will then anwser with a <code>done</code>message. Once the <code>done</code> message is received,
+the callback provided to <code>set_sync_callback</code> will be called.</p>
+
+<p>As the server processes event sequentially, the callback is thus called once
+all pending events have been processed.</p>
+</div><h4 id='method.set_sync_callback' class='method'><code>fn <a href='#method.set_sync_callback' class='fnname'>set_sync_callback</a>&lt;F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>() + 'static&gt;(&amp;self, f: F)</code></h4>
+<div class='docblock'><p>Sets the callback of a <code>done</code> event.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../../wayland_client/internals/trait.FFI.html' title='wayland_client::internals::FFI'>FFI</a> for <a class='struct' href='../../wayland_client/core/struct.Display.html' title='wayland_client::core::Display'>Display</a></code></h3><div class='impl-items'><h4 id='assoc_type.Ptr' class='type'><code>type Ptr = wl_display</code></h4>
+<h4 id='method.ptr' class='method'><code>fn <a href='../../wayland_client/internals/trait.FFI.html#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const wl_display</a></code></h4>
+<h4 id='method.ptr_mut' class='method'><code>unsafe fn <a href='../../wayland_client/internals/trait.FFI.html#method.ptr_mut' class='fnname'>ptr_mut</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_display</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../wayland_client/core/struct.Display.html' title='wayland_client::core::Display'>Display</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/core/struct.Display.html' title='wayland_client::core::Display'>Display</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

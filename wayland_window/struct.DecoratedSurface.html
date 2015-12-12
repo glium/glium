@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `DecoratedSurface` struct in crate `wayland_window`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, DecoratedSurface">
+
+    <title>wayland_window::DecoratedSurface - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>wayland_window</a></p><script>window.sidebarCurrent = {name: 'DecoratedSurface', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>wayland_window</a>::<wbr><a class='struct' href=''>DecoratedSurface</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-53' class='srclink' href='../src/wayland_window/decorated_surface.rs.html#81-92' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct DecoratedSurface&lt;S: <a class='trait' href='../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a>&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>A wrapper for a decorated surface.</p>
+
+<p>This is the main object of this crate. It wraps a user provided
+wayland surface into a <code>ShellSurface</code> and gives you acces to it
+via the <code>.get_shell()</code> method.</p>
+
+<p>It also handles the drawing of minimalistic borders allowing the
+resizing and moving of the window. See the root documentation of
+this crate for explanations about how to use it.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + 'static&gt; <a class='struct' href='../wayland_window/struct.DecoratedSurface.html' title='wayland_window::DecoratedSurface'>DecoratedSurface</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.resize' class='method'><code>fn <a href='#method.resize' class='fnname'>resize</a>(&amp;mut self, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>Resizes the borders to given width and height.</p>
+
+<p>These values should be the dimentions of the internal surface of the
+window (the decorated window will thus be a little larger).</p>
+</div><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(user_surface: S, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, registry: &amp;<a class='struct' href='../wayland_client/core/registry/struct.Registry.html' title='wayland_client::core::registry::Registry'>Registry</a>, seat: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../wayland_client/core/seat/seat/struct.Seat.html' title='wayland_client::core::seat::seat::Seat'>Seat</a>&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../wayland_window/struct.DecoratedSurface.html' title='wayland_window::DecoratedSurface'>DecoratedSurface</a>&lt;S&gt;, S&gt;</code></h4>
+<div class='docblock'><p>Creates a new decorated window around given surface.</p>
+
+<p>If the creation failed (likely if the registry was not ready), hands back the surface.</p>
+</div><h4 id='method.get_shell' class='method'><code>fn <a href='#method.get_shell' class='fnname'>get_shell</a>(&amp;self) -&gt; <a class='struct' href='../wayland_window/struct.SurfaceGuard.html' title='wayland_window::SurfaceGuard'>SurfaceGuard</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Creates a guard giving you access to the shell surface wrapped
+in this object.</p>
+
+<p>Calling for a processing of the events from the wayland server
+(via <code>Display::dispatch()</code> for example) while this guard is in
+scope may result in a deadlock.</p>
+</div><h4 id='method.destroy' class='method'><code>fn <a href='#method.destroy' class='fnname'>destroy</a>(self) -&gt; S</code></h4>
+<div class='docblock'><p>Destroys the DecoratedSurface and returns the wrapped surface</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_window";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

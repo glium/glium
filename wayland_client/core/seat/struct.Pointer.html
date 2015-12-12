@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Pointer` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Pointer">
+
+    <title>wayland_client::core::seat::Pointer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>seat</a></p><script>window.sidebarCurrent = {name: 'Pointer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>seat</a>::<wbr><a class='struct' href=''>Pointer</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2869' class='srclink' href='../../../src/wayland_client/core/seat/pointer.rs.html#171-176' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Pointer&lt;S: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a>&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>A pointer interface.</p>
+
+<p>This struct is a handle to the pointer interface of a given <code>Seat</code>.It allows
+you to change the pointer display and handle all pointer-related events.</p>
+
+<p>The events are handled in a callback way. Each callback are provided
+a <code>PointerId</code> identifying the pointer. This is to allow specific situation where
+you need the pointer to not be borrowed (to change its surface for example) and
+have more than one cursor.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a>&gt; <a class='struct' href='../../../wayland_client/core/seat/struct.Pointer.html' title='wayland_client::core::seat::Pointer'>Pointer</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.get_id' class='method'><code>fn <a href='#method.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; <a class='struct' href='../../../wayland_client/core/seat/struct.PointerId.html' title='wayland_client::core::seat::PointerId'>PointerId</a></code></h4>
+<div class='docblock'><p>Returns the unique <code>PointerId</code> associated to this pointer.</p>
+
+<p>This struct can be tested for equality, and will be provided in event callbacks
+as a mean to identify the pointer associated with the events.</p>
+</div><h4 id='method.get_seat' class='method'><code>fn <a href='#method.get_seat' class='fnname'>get_seat</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../../wayland_client/core/seat/struct.Seat.html' title='wayland_client::core::seat::Seat'>Seat</a></code></h4>
+<div class='docblock'><p>Get access to the seat associated with this keyboard</p>
+</div><h4 id='method.set_cursor' class='method'><code>fn <a href='#method.set_cursor' class='fnname'>set_cursor</a>&lt;NS: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a>&gt;(self, surface: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;NS&gt;, hotspot: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='struct' href='../../../wayland_client/core/seat/struct.Pointer.html' title='wayland_client::core::seat::Pointer'>Pointer</a>&lt;NS&gt;, <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;S&gt;)</a></code></h4>
+<div class='docblock'><p>Change the surface for drawing the cursor.</p>
+
+<p>This cursor will be changed to this new surface every time it enters
+a window of application. You can control this per-surface by changing
+the cursor surface in the <code>enter</code> event, which is processed before the
+surface is transmitted to the wayland server.</p>
+
+<p>This method consumes the <code>Pointer</code> object to create a new one and releasing 
+the previous surface.</p>
+
+<p>If surface is <code>None</code>, the cursor display won&#39;t be changed when it enters a
+surface of this application.</p>
+
+<p>This will unhide the pointer if it was hidden.</p>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock. However, changing the buffer associated
+with the cursor&#39;s surface is not a problem.</p>
+</div><h4 id='method.set_cursor_hidden' class='method'><code>fn <a href='#method.set_cursor_hidden' class='fnname'>set_cursor_hidden</a>(&amp;mut self, hidden: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>)</code></h4>
+<div class='docblock'><p>Hides or unhides the cursor image.</p>
+
+<p><strong>Warning:</strong> doing this from inside one of the event callabacks <strong>will</strong> result in
+a deadlock.</p>
+</div><h4 id='method.add_handled_surface' class='method'><code>fn <a href='#method.add_handled_surface' class='fnname'>add_handled_surface</a>(&amp;mut self, surface: <a class='struct' href='../../../wayland_client/core/compositor/struct.SurfaceId.html' title='wayland_client::core::compositor::SurfaceId'>SurfaceId</a>)</code></h4>
+<div class='docblock'><p>Adds a surface to the set of surfaces this pointer handler
+will change cursor and dispatch events.</p>
+
+<p>Does nothing if the surface is already handled by this pointer.</p>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div><h4 id='method.remove_handled_surface' class='method'><code>fn <a href='#method.remove_handled_surface' class='fnname'>remove_handled_surface</a>(&amp;mut self, surface: <a class='struct' href='../../../wayland_client/core/compositor/struct.SurfaceId.html' title='wayland_client::core::compositor::SurfaceId'>SurfaceId</a>)</code></h4>
+<div class='docblock'><p>Adds a surface to the set of surfaces this pointer handler
+will change cursor and dispatch events.</p>
+
+<p>Does nothing if the surface is already handled by this pointer.</p>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div><h4 id='method.release' class='method'><code>fn <a href='#method.release' class='fnname'>release</a>(self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;S&gt;</code></h4>
+<h4 id='method.get_surface' class='method'><code>fn <a href='#method.get_surface' class='fnname'>get_surface</a>&lt;'c&gt;(&amp;'c self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'c S&gt;</code></h4>
+<div class='docblock'><p>Provides a reference to the current cursor surface.</p>
+
+<p>If no surface is set (and thus the default cursor is used), returns
+<code>None</code>.</p>
+</div><h4 id='method.set_enter_action' class='method'><code>fn <a href='#method.set_enter_action' class='fnname'>set_enter_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.PointerId.html' title='wayland_client::core::seat::PointerId'>PointerId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='struct' href='../../../wayland_client/core/compositor/struct.SurfaceId.html' title='wayland_client::core::compositor::SurfaceId'>SurfaceId</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when the cursor enters a surface.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the pointer</li>
+<li>Id of the surface</li>
+<li>x and y, coordinates of the surface where the cursor entered.</li>
+</ul>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div><h4 id='method.set_leave_action' class='method'><code>fn <a href='#method.set_leave_action' class='fnname'>set_leave_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.PointerId.html' title='wayland_client::core::seat::PointerId'>PointerId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='struct' href='../../../wayland_client/core/compositor/struct.SurfaceId.html' title='wayland_client::core::compositor::SurfaceId'>SurfaceId</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when the cursor leaves a surface.</p>
+
+<p>This event is generated <em>before</em> the <code>enter</code> event is generated for the new
+surface the cursor goes to.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the pointer</li>
+<li>Id of the surface</li>
+</ul>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div><h4 id='method.set_motion_action' class='method'><code>fn <a href='#method.set_motion_action' class='fnname'>set_motion_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.PointerId.html' title='wayland_client::core::seat::PointerId'>PointerId</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when the cursor moves</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the pointer</li>
+<li>time of the event</li>
+<li>x and y, new coordinates of the cursor relative to the current surface</li>
+</ul>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div><h4 id='method.set_button_action' class='method'><code>fn <a href='#method.set_button_action' class='fnname'>set_button_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.PointerId.html' title='wayland_client::core::seat::PointerId'>PointerId</a>, <a class='struct' href='../../../wayland_client/core/struct.Serial.html' title='wayland_client::core::Serial'>Serial</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='enum' href='../../../wayland_client/core/seat/enum.ButtonState.html' title='wayland_client::core::seat::ButtonState'>ButtonState</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when a button is clicked or released</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the pointer</li>
+<li>time of the event</li>
+<li>button of the event,</li>
+<li>new state of the button</li>
+</ul>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div><h4 id='method.set_axis_action' class='method'><code>fn <a href='#method.set_axis_action' class='fnname'>set_axis_action</a>&lt;F&gt;(&amp;mut self, f: F) <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html' title='core::ops::Fn'>Fn</a>(<a class='struct' href='../../../wayland_client/core/seat/struct.PointerId.html' title='wayland_client::core::seat::PointerId'>PointerId</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='enum' href='../../../wayland_client/core/seat/enum.ScrollAxis.html' title='wayland_client::core::seat::ScrollAxis'>ScrollAxis</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a></span></code></h4>
+<div class='docblock'><p>Defines the action to be executed when a scrolling is done</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>Id of the pointer</li>
+<li>time of the event</li>
+<li>the axis that is scrolled</li>
+<li>the amplitude of the scrolling</li>
+</ul>
+
+<p><strong>Warning:</strong> doing this from inside one of this pointer&#39;s event callabacks
+<strong>will</strong> result in a deadlock.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Pointer.html' title='wayland_client::core::seat::Pointer'>Pointer</a>&lt;S&gt;</code></h3><div class='impl-items'></div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Pointer.html' title='wayland_client::core::seat::Pointer'>Pointer</a>&lt;S&gt;</code></h3><div class='impl-items'></div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Pointer.html' title='wayland_client::core::seat::Pointer'>Pointer</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#method.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div><h3 class='impl'><code>impl&lt;S: <a class='trait' href='../../../wayland_client/core/trait.Surface.html' title='wayland_client::core::Surface'>Surface</a>&gt; <a class='trait' href='../../../wayland_client/internals/trait.FFI.html' title='wayland_client::internals::FFI'>FFI</a> for <a class='struct' href='../../../wayland_client/core/seat/struct.Pointer.html' title='wayland_client::core::seat::Pointer'>Pointer</a>&lt;S&gt;</code></h3><div class='impl-items'><h4 id='assoc_type.Ptr' class='type'><code>type Ptr = wl_pointer</code></h4>
+<h4 id='method.ptr' class='method'><code>fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const wl_pointer</a></code></h4>
+<h4 id='method.ptr_mut' class='method'><code>unsafe fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr_mut' class='fnname'>ptr_mut</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_pointer</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

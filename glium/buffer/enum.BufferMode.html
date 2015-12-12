@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `BufferMode` enum in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, BufferMode">
+
+    <title>glium::buffer::BufferMode - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a></p><script>window.sidebarCurrent = {name: 'BufferMode', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a>::<wbr><a class='enum' href=''>BufferMode</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-1607' class='srclink' href='../../src/glium/buffer/mod.rs.html#201-271' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum BufferMode {
+    Default,
+    Dynamic,
+    Persistent,
+    Immutable,
+}</pre><div class='docblock'><p>How the buffer is created.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.Default'><code>Default</code></td><td><div class='docblock'><p>This is the default mode suitable for any usage. Will never be slow, will never be fast
+either.</p>
+
+<p>Other modes should always be preferred, but you can use this one if you don&#39;t know what
+will happen to the buffer.</p>
+
+<h1 id='implementation' class='section-header'><a href='#implementation'>Implementation</a></h1>
+<p>Tries to use <code>glBufferStorage</code> with the <code>GL_DYNAMIC_STORAGE_BIT</code> flag.</p>
+
+<p>If this function is not available, falls back to <code>glBufferData</code> with <code>GL_STATIC_DRAW</code>.</p>
+</div></td></tr><tr><td id='variant.Dynamic'><code>Dynamic</code></td><td><div class='docblock'><p>The mode to use when you modify a buffer multiple times per frame. Simiar to <code>Default</code> in
+that it is suitable for most usages.</p>
+
+<p>Use this if you do a quick succession of modify the buffer, draw, modify, draw, etc. This
+is something that you shouldn&#39;t do by the way.</p>
+
+<p>With this mode, the OpenGL driver automatically manages the buffer for us. It will try to
+find the most appropriate storage depending on how we use it. It is guaranteed to never be
+too slow, but it won&#39;t be too fast either.</p>
+
+<h1 id='implementation-1' class='section-header'><a href='#implementation-1'>Implementation</a></h1>
+<p>Tries to use <code>glBufferStorage</code> with the <code>GL_DYNAMIC_STORAGE_BIT</code> and
+<code>GL_CLIENT_STORAGE_BIT</code> flags.</p>
+
+<p>If this function is not available, falls back to <code>glBufferData</code> with <code>GL_DYNAMIC_DRAW</code>.</p>
+</div></td></tr><tr><td id='variant.Persistent'><code>Persistent</code></td><td><div class='docblock'><p>Optimized for when you modify a buffer exactly once per frame. You can modify it more than
+once per frame, but if you modify it too often things will slow down.</p>
+
+<p>With this mode, glium automatically handles synchronization to prevent the buffer from
+being access by both the GPU and the CPU simultaneously. If you try to modify the buffer,
+the execution will block until the GPU has finished using it. For this reason, a quick
+succession of modifying and drawing using the same buffer will be very slow.</p>
+
+<p>When using persistent mapping, it is recommended to use triple buffering. This is done by
+creating a buffer that has three times the capacity that it would normally have. You modify
+and draw the first third, then modify and draw the second third, then the last part, then
+go back to the first third, etc.</p>
+
+<h1 id='implementation-2' class='section-header'><a href='#implementation-2'>Implementation</a></h1>
+<p>Tries to use <code>glBufferStorage</code> with <code>GL_MAP_PERSISTENT_BIT</code>. Sync fences are automatically
+managed by glium.</p>
+
+<p>If this function is not available, falls back to <code>glBufferData</code> with <code>GL_DYNAMIC_DRAW</code>.</p>
+</div></td></tr><tr><td id='variant.Immutable'><code>Immutable</code></td><td><div class='docblock'><p>Optimized when you will never touch the content of the buffer.</p>
+
+<p>Immutable buffers should be created once and never touched again. Modifying their content
+is permitted, but is very slow.</p>
+
+<h1 id='implementation-3' class='section-header'><a href='#implementation-3'>Implementation</a></h1>
+<p>Tries to use <code>glBufferStorage</code> without any flag. Modifications are done by creating
+temporary buffers and making the GPU copy the data from the temporary buffer to the real
+one.</p>
+
+<p>If this function is not available, falls back to <code>glBufferData</code> with <code>GL_STATIC_DRAW</code>.</p>
+</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/buffer/enum.BufferMode.html' title='glium::buffer::BufferMode'>BufferMode</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

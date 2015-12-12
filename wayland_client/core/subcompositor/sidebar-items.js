@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Stacking",""]],"struct":[["SubCompositor","A wayland subcompositor."],["SubSurface","A wayland subsurface."]]});

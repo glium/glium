@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `texture` mod in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, texture">
+
+    <title>glium::texture - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'texture', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class='mod' href=''>texture</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-9993' class='srclink' href='../../src/glium/texture/mod.rs.html#1-616' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>A texture is an image loaded in video memory, which can be sampled in your shaders.</p>
+
+<h1 id='texture-kinds' class='section-header'><a href='#texture-kinds'>Texture kinds</a></h1>
+<p>One thing that is important to understand when it comes to textures is that the way a texture is
+accessed (in other words, its &quot;public API&quot;) is disconnected from the internal representation
+of the data.</p>
+
+<p>When it comes to accessing a texture, there are six kinds of textures:</p>
+
+<ul>
+<li>Floating-point textures.</li>
+<li>Integral textures (that contain signed integers).</li>
+<li>Unsigned textures (that contain unsigned integers).</li>
+<li>Depth textures (that contain depth information).</li>
+<li>Stencil textures (that contain stencil information).</li>
+<li>Depth-stencil textures (that contain at the same time depth and stencil information).</li>
+</ul>
+
+<p>Textures have a different API depending on their kind. For example a integral texture can only
+be sampled in GLSL through a sampler type which is prefixed with <code>i</code>.</p>
+
+<p>The internal format can only be chosen when the texture is created, and then can never be touched
+again. Integral and unsigned textures can only contain signed integers and unsigned integers.</p>
+
+<p>Floating-point textures can contain either floating-points or integers. If integers are used,
+then the maximum value corresponds to the floating-point value <code>1.0</code> and the minimal value to <code>0.0</code>.
+For example if a texture contains <code>u8</code>s and internally contains the value <code>128</code>, reading from the
+texture will yield the value <code>0.5</code>.</p>
+
+<h1 id='dimensions' class='section-header'><a href='#dimensions'>Dimensions</a></h1>
+<p>Textures come in nine different dimensions:</p>
+
+<ul>
+<li>Textures with one dimension.</li>
+<li>Textures with two dimensions.</li>
+<li>Textures with two dimensions and multisampling enabled.</li>
+<li>Textures with three dimensions.</li>
+<li>Cube textures, which are arrays of six two-dimensional textures
+corresponding to the six faces of a cube.</li>
+<li>Arrays of one-dimensional textures.</li>
+<li>Arrays of two-dimensional textures.</li>
+<li>Arrays of two-dimensional textures with multisampling enabled.</li>
+<li>Arrays of cube textures.</li>
+</ul>
+
+<p>The difference between a 3D texture and a 2D textures array (and between a 2D texture and a 1D
+textures array) is that texture arrays can only be accessed by individual layers. That is, you can
+only access layer 0, or layer 1, or layer 2, and so on. Whereas if you use 3D textures you can
+access layer <code>0.5</code> for example.</p>
+
+<p>All textures except depth, stencil and depth-stencil textures have <strong>mipmaps</strong>. A mipmap is a
+smaller version of the texture whose purpose is to be used during rendering when the texture will
+be small on the screen.</p>
+
+<h1 id='texture-types-in-glium' class='section-header'><a href='#texture-types-in-glium'>Texture types in glium</a></h1>
+<p>In addition to the nine different dimensions types, there are nine kinds of texture formats:</p>
+
+<ul>
+<li>The texture contains floating-point data,
+with either the <code>Compressed</code> prefix or no prefix at all.</li>
+<li>The texture contains floating-point data in the sRGB color space, with either the <code>Compressed</code>
+prefix or not.</li>
+<li>The texture contains signed integers, with the <code>Integral</code> prefix.</li>
+<li>The texture contains unsigned integers, with the <code>Unsigned</code> prefix.</li>
+<li>The texture contains depth information, with the <code>Depth</code> prefix.</li>
+<li>The texture contains stencil information, with the <code>Stencil</code> prefix.</li>
+<li>The texture contains depth and stencil information, with the <code>DepthStencil</code> prefix.</li>
+</ul>
+
+<p>Each combination of dimensions and format corresponds to a sampler type in GLSL and in glium.
+For example, an <code>IntegralTexture3d</code> can only be bound to an <code>isampler3D</code> uniform in GLSL.</p>
+
+<p>The difference between compressed textures and uncompressed textures is that you can&#39;t do
+render-to-texture on the former.</p>
+
+<p>The most common types of textures are <code>CompressedSrgbTexture2d</code>, <code>SrgbTexture2d</code> and <code>Texture2d</code>
+(the two dimensions being the width and height). These are what you will use most of the time.</p>
+
+<h1 id='buffer-textures' class='section-header'><a href='#buffer-textures'>Buffer textures</a></h1>
+<p>A <code>BufferTexture</code> is a special kind of one-dimensional texture that gets its data from a buffer.
+Buffer textures have very limited capabilities (you can&#39;t draw to them for example). They are an
+alternative to uniform buffers and SSBOs.</p>
+
+<p>See the <code>buffer_textures</code> module for more infos.</p>
+
+<h1 id='about-srgb' class='section-header'><a href='#about-srgb'>About sRGB</a></h1>
+<p>For historical reasons, the color data contained in almost all image files are not in RGB but
+in sRGB. sRGB colors are slightly brighter than linear RGB in order to compensate for the fact
+that screens darken some values that they receive.</p>
+
+<p>When you load image files, you are encouraged to create sRGB textures (with <code>SrgbTexture2d</code> instead
+of <code>Texture2d</code> for example).</p>
+
+<p>By default, glium enables the <code>GL_FRAMEBUFFER_SRGB</code> trigger, which expects the output of your
+fragment shader to be in linear RGB and then turns it into sRGB before writing in the framebuffer.
+Sampling from an sRGB texture will convert the texture colors from sRGB to RGB. If you create a
+regular RGB texture and put sRGB data in it, then the result will be too bright.</p>
+
+<h1 id='bindless-textures' class='section-header'><a href='#bindless-textures'>Bindless textures</a></h1>
+<p><em>Bindless textures are a very recent feature that is supported only by recent hardware and
+drivers.</em></p>
+
+<p>Without bindless textures, using a texture in a shader requires binding the texture to a specific
+bind point before drawing. This not only slows down rendering, but may also prevent you from
+grouping multiple draw calls into one because of the limitation to the number of available
+texture units.</p>
+
+<p>Instead, bindless textures allow you to manually manipulate pointers to textures in video memory.
+You can use thousands of textures if you want.</p>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+<table><tr><td><code>pub use self::bindless::{<a class='struct' href='../../glium/texture/bindless/struct.ResidentTexture.html' title='glium::texture::bindless::ResidentTexture'>ResidentTexture</a>, <a class='struct' href='../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>, <a class='struct' href='../../glium/texture/bindless/struct.BindlessTexturesNotSupportedError.html' title='glium::texture::bindless::BindlessTexturesNotSupportedError'>BindlessTexturesNotSupportedError</a>};</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture1d/index.html'>texture1d</a>::<a class='struct' href='../../glium/texture/texture1d/struct.Texture1d.html' title='glium::texture::texture1d::Texture1d'>Texture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_texture1d/index.html'>compressed_texture1d</a>::<a class='struct' href='../../glium/texture/compressed_texture1d/struct.CompressedTexture1d.html' title='glium::texture::compressed_texture1d::CompressedTexture1d'>CompressedTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture1d/index.html'>srgb_texture1d</a>::<a class='struct' href='../../glium/texture/srgb_texture1d/struct.SrgbTexture1d.html' title='glium::texture::srgb_texture1d::SrgbTexture1d'>SrgbTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_texture1d/index.html'>compressed_srgb_texture1d</a>::<a class='struct' href='../../glium/texture/compressed_srgb_texture1d/struct.CompressedSrgbTexture1d.html' title='glium::texture::compressed_srgb_texture1d::CompressedSrgbTexture1d'>CompressedSrgbTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture1d/index.html'>integral_texture1d</a>::<a class='struct' href='../../glium/texture/integral_texture1d/struct.IntegralTexture1d.html' title='glium::texture::integral_texture1d::IntegralTexture1d'>IntegralTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture1d/index.html'>unsigned_texture1d</a>::<a class='struct' href='../../glium/texture/unsigned_texture1d/struct.UnsignedTexture1d.html' title='glium::texture::unsigned_texture1d::UnsignedTexture1d'>UnsignedTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture1d/index.html'>depth_texture1d</a>::<a class='struct' href='../../glium/texture/depth_texture1d/struct.DepthTexture1d.html' title='glium::texture::depth_texture1d::DepthTexture1d'>DepthTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_texture1d/index.html'>stencil_texture1d</a>::<a class='struct' href='../../glium/texture/stencil_texture1d/struct.StencilTexture1d.html' title='glium::texture::stencil_texture1d::StencilTexture1d'>StencilTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture1d/index.html'>depth_stencil_texture1d</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture1d/struct.DepthStencilTexture1d.html' title='glium::texture::depth_stencil_texture1d::DepthStencilTexture1d'>DepthStencilTexture1d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture2d/index.html'>texture2d</a>::<a class='struct' href='../../glium/texture/texture2d/struct.Texture2d.html' title='glium::texture::texture2d::Texture2d'>Texture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_texture2d/index.html'>compressed_texture2d</a>::<a class='struct' href='../../glium/texture/compressed_texture2d/struct.CompressedTexture2d.html' title='glium::texture::compressed_texture2d::CompressedTexture2d'>CompressedTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture2d/index.html'>srgb_texture2d</a>::<a class='struct' href='../../glium/texture/srgb_texture2d/struct.SrgbTexture2d.html' title='glium::texture::srgb_texture2d::SrgbTexture2d'>SrgbTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_texture2d/index.html'>compressed_srgb_texture2d</a>::<a class='struct' href='../../glium/texture/compressed_srgb_texture2d/struct.CompressedSrgbTexture2d.html' title='glium::texture::compressed_srgb_texture2d::CompressedSrgbTexture2d'>CompressedSrgbTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture2d/index.html'>integral_texture2d</a>::<a class='struct' href='../../glium/texture/integral_texture2d/struct.IntegralTexture2d.html' title='glium::texture::integral_texture2d::IntegralTexture2d'>IntegralTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture2d/index.html'>unsigned_texture2d</a>::<a class='struct' href='../../glium/texture/unsigned_texture2d/struct.UnsignedTexture2d.html' title='glium::texture::unsigned_texture2d::UnsignedTexture2d'>UnsignedTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture2d/index.html'>depth_texture2d</a>::<a class='struct' href='../../glium/texture/depth_texture2d/struct.DepthTexture2d.html' title='glium::texture::depth_texture2d::DepthTexture2d'>DepthTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_texture2d/index.html'>stencil_texture2d</a>::<a class='struct' href='../../glium/texture/stencil_texture2d/struct.StencilTexture2d.html' title='glium::texture::stencil_texture2d::StencilTexture2d'>StencilTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture2d/index.html'>depth_stencil_texture2d</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture2d/struct.DepthStencilTexture2d.html' title='glium::texture::depth_stencil_texture2d::DepthStencilTexture2d'>DepthStencilTexture2d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture2d_multisample/index.html'>texture2d_multisample</a>::<a class='struct' href='../../glium/texture/texture2d_multisample/struct.Texture2dMultisample.html' title='glium::texture::texture2d_multisample::Texture2dMultisample'>Texture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture2d_multisample/index.html'>integral_texture2d_multisample</a>::<a class='struct' href='../../glium/texture/integral_texture2d_multisample/struct.IntegralTexture2dMultisample.html' title='glium::texture::integral_texture2d_multisample::IntegralTexture2dMultisample'>IntegralTexture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture2d_multisample/index.html'>srgb_texture2d_multisample</a>::<a class='struct' href='../../glium/texture/srgb_texture2d_multisample/struct.SrgbTexture2dMultisample.html' title='glium::texture::srgb_texture2d_multisample::SrgbTexture2dMultisample'>SrgbTexture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture2d_multisample/index.html'>unsigned_texture2d_multisample</a>::<a class='struct' href='../../glium/texture/unsigned_texture2d_multisample/struct.UnsignedTexture2dMultisample.html' title='glium::texture::unsigned_texture2d_multisample::UnsignedTexture2dMultisample'>UnsignedTexture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture2d_multisample/index.html'>depth_texture2d_multisample</a>::<a class='struct' href='../../glium/texture/depth_texture2d_multisample/struct.DepthTexture2dMultisample.html' title='glium::texture::depth_texture2d_multisample::DepthTexture2dMultisample'>DepthTexture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_texture2d_multisample/index.html'>stencil_texture2d_multisample</a>::<a class='struct' href='../../glium/texture/stencil_texture2d_multisample/struct.StencilTexture2dMultisample.html' title='glium::texture::stencil_texture2d_multisample::StencilTexture2dMultisample'>StencilTexture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture2d_multisample/index.html'>depth_stencil_texture2d_multisample</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture2d_multisample/struct.DepthStencilTexture2dMultisample.html' title='glium::texture::depth_stencil_texture2d_multisample::DepthStencilTexture2dMultisample'>DepthStencilTexture2dMultisample</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture3d/index.html'>texture3d</a>::<a class='struct' href='../../glium/texture/texture3d/struct.Texture3d.html' title='glium::texture::texture3d::Texture3d'>Texture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_texture3d/index.html'>compressed_texture3d</a>::<a class='struct' href='../../glium/texture/compressed_texture3d/struct.CompressedTexture3d.html' title='glium::texture::compressed_texture3d::CompressedTexture3d'>CompressedTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture3d/index.html'>srgb_texture3d</a>::<a class='struct' href='../../glium/texture/srgb_texture3d/struct.SrgbTexture3d.html' title='glium::texture::srgb_texture3d::SrgbTexture3d'>SrgbTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_texture3d/index.html'>compressed_srgb_texture3d</a>::<a class='struct' href='../../glium/texture/compressed_srgb_texture3d/struct.CompressedSrgbTexture3d.html' title='glium::texture::compressed_srgb_texture3d::CompressedSrgbTexture3d'>CompressedSrgbTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture3d/index.html'>integral_texture3d</a>::<a class='struct' href='../../glium/texture/integral_texture3d/struct.IntegralTexture3d.html' title='glium::texture::integral_texture3d::IntegralTexture3d'>IntegralTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture3d/index.html'>unsigned_texture3d</a>::<a class='struct' href='../../glium/texture/unsigned_texture3d/struct.UnsignedTexture3d.html' title='glium::texture::unsigned_texture3d::UnsignedTexture3d'>UnsignedTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture3d/index.html'>depth_texture3d</a>::<a class='struct' href='../../glium/texture/depth_texture3d/struct.DepthTexture3d.html' title='glium::texture::depth_texture3d::DepthTexture3d'>DepthTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture3d/index.html'>depth_stencil_texture3d</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture3d/struct.DepthStencilTexture3d.html' title='glium::texture::depth_stencil_texture3d::DepthStencilTexture3d'>DepthStencilTexture3d</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture1d_array/index.html'>texture1d_array</a>::<a class='struct' href='../../glium/texture/texture1d_array/struct.Texture1dArray.html' title='glium::texture::texture1d_array::Texture1dArray'>Texture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_texture1d_array/index.html'>compressed_texture1d_array</a>::<a class='struct' href='../../glium/texture/compressed_texture1d_array/struct.CompressedTexture1dArray.html' title='glium::texture::compressed_texture1d_array::CompressedTexture1dArray'>CompressedTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture1d_array/index.html'>srgb_texture1d_array</a>::<a class='struct' href='../../glium/texture/srgb_texture1d_array/struct.SrgbTexture1dArray.html' title='glium::texture::srgb_texture1d_array::SrgbTexture1dArray'>SrgbTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_texture1d_array/index.html'>compressed_srgb_texture1d_array</a>::<a class='struct' href='../../glium/texture/compressed_srgb_texture1d_array/struct.CompressedSrgbTexture1dArray.html' title='glium::texture::compressed_srgb_texture1d_array::CompressedSrgbTexture1dArray'>CompressedSrgbTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture1d_array/index.html'>integral_texture1d_array</a>::<a class='struct' href='../../glium/texture/integral_texture1d_array/struct.IntegralTexture1dArray.html' title='glium::texture::integral_texture1d_array::IntegralTexture1dArray'>IntegralTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture1d_array/index.html'>unsigned_texture1d_array</a>::<a class='struct' href='../../glium/texture/unsigned_texture1d_array/struct.UnsignedTexture1dArray.html' title='glium::texture::unsigned_texture1d_array::UnsignedTexture1dArray'>UnsignedTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture1d_array/index.html'>depth_texture1d_array</a>::<a class='struct' href='../../glium/texture/depth_texture1d_array/struct.DepthTexture1dArray.html' title='glium::texture::depth_texture1d_array::DepthTexture1dArray'>DepthTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_texture1d_array/index.html'>stencil_texture1d_array</a>::<a class='struct' href='../../glium/texture/stencil_texture1d_array/struct.StencilTexture1dArray.html' title='glium::texture::stencil_texture1d_array::StencilTexture1dArray'>StencilTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture1d_array/index.html'>depth_stencil_texture1d_array</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture1d_array/struct.DepthStencilTexture1dArray.html' title='glium::texture::depth_stencil_texture1d_array::DepthStencilTexture1dArray'>DepthStencilTexture1dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture2d_array/index.html'>texture2d_array</a>::<a class='struct' href='../../glium/texture/texture2d_array/struct.Texture2dArray.html' title='glium::texture::texture2d_array::Texture2dArray'>Texture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_texture2d_array/index.html'>compressed_texture2d_array</a>::<a class='struct' href='../../glium/texture/compressed_texture2d_array/struct.CompressedTexture2dArray.html' title='glium::texture::compressed_texture2d_array::CompressedTexture2dArray'>CompressedTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture2d_array/index.html'>srgb_texture2d_array</a>::<a class='struct' href='../../glium/texture/srgb_texture2d_array/struct.SrgbTexture2dArray.html' title='glium::texture::srgb_texture2d_array::SrgbTexture2dArray'>SrgbTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_texture2d_array/index.html'>compressed_srgb_texture2d_array</a>::<a class='struct' href='../../glium/texture/compressed_srgb_texture2d_array/struct.CompressedSrgbTexture2dArray.html' title='glium::texture::compressed_srgb_texture2d_array::CompressedSrgbTexture2dArray'>CompressedSrgbTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture2d_array/index.html'>integral_texture2d_array</a>::<a class='struct' href='../../glium/texture/integral_texture2d_array/struct.IntegralTexture2dArray.html' title='glium::texture::integral_texture2d_array::IntegralTexture2dArray'>IntegralTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture2d_array/index.html'>unsigned_texture2d_array</a>::<a class='struct' href='../../glium/texture/unsigned_texture2d_array/struct.UnsignedTexture2dArray.html' title='glium::texture::unsigned_texture2d_array::UnsignedTexture2dArray'>UnsignedTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture2d_array/index.html'>depth_texture2d_array</a>::<a class='struct' href='../../glium/texture/depth_texture2d_array/struct.DepthTexture2dArray.html' title='glium::texture::depth_texture2d_array::DepthTexture2dArray'>DepthTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_texture2d_array/index.html'>stencil_texture2d_array</a>::<a class='struct' href='../../glium/texture/stencil_texture2d_array/struct.StencilTexture2dArray.html' title='glium::texture::stencil_texture2d_array::StencilTexture2dArray'>StencilTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture2d_array/index.html'>depth_stencil_texture2d_array</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture2d_array/struct.DepthStencilTexture2dArray.html' title='glium::texture::depth_stencil_texture2d_array::DepthStencilTexture2dArray'>DepthStencilTexture2dArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./texture2d_multisample_array/index.html'>texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/texture2d_multisample_array/struct.Texture2dMultisampleArray.html' title='glium::texture::texture2d_multisample_array::Texture2dMultisampleArray'>Texture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_texture2d_multisample_array/index.html'>srgb_texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/srgb_texture2d_multisample_array/struct.SrgbTexture2dMultisampleArray.html' title='glium::texture::srgb_texture2d_multisample_array::SrgbTexture2dMultisampleArray'>SrgbTexture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_texture2d_multisample_array/index.html'>integral_texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/integral_texture2d_multisample_array/struct.IntegralTexture2dMultisampleArray.html' title='glium::texture::integral_texture2d_multisample_array::IntegralTexture2dMultisampleArray'>IntegralTexture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_texture2d_multisample_array/index.html'>unsigned_texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/unsigned_texture2d_multisample_array/struct.UnsignedTexture2dMultisampleArray.html' title='glium::texture::unsigned_texture2d_multisample_array::UnsignedTexture2dMultisampleArray'>UnsignedTexture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_texture2d_multisample_array/index.html'>depth_texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/depth_texture2d_multisample_array/struct.DepthTexture2dMultisampleArray.html' title='glium::texture::depth_texture2d_multisample_array::DepthTexture2dMultisampleArray'>DepthTexture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_texture2d_multisample_array/index.html'>stencil_texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/stencil_texture2d_multisample_array/struct.StencilTexture2dMultisampleArray.html' title='glium::texture::stencil_texture2d_multisample_array::StencilTexture2dMultisampleArray'>StencilTexture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_texture2d_multisample_array/index.html'>depth_stencil_texture2d_multisample_array</a>::<a class='struct' href='../../glium/texture/depth_stencil_texture2d_multisample_array/struct.DepthStencilTexture2dMultisampleArray.html' title='glium::texture::depth_stencil_texture2d_multisample_array::DepthStencilTexture2dMultisampleArray'>DepthStencilTexture2dMultisampleArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./cubemap/index.html'>cubemap</a>::<a class='struct' href='../../glium/texture/cubemap/struct.Cubemap.html' title='glium::texture::cubemap::Cubemap'>Cubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_cubemap/index.html'>compressed_cubemap</a>::<a class='struct' href='../../glium/texture/compressed_cubemap/struct.CompressedCubemap.html' title='glium::texture::compressed_cubemap::CompressedCubemap'>CompressedCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_cubemap/index.html'>srgb_cubemap</a>::<a class='struct' href='../../glium/texture/srgb_cubemap/struct.SrgbCubemap.html' title='glium::texture::srgb_cubemap::SrgbCubemap'>SrgbCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_cubemap/index.html'>compressed_srgb_cubemap</a>::<a class='struct' href='../../glium/texture/compressed_srgb_cubemap/struct.CompressedSrgbCubemap.html' title='glium::texture::compressed_srgb_cubemap::CompressedSrgbCubemap'>CompressedSrgbCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_cubemap/index.html'>integral_cubemap</a>::<a class='struct' href='../../glium/texture/integral_cubemap/struct.IntegralCubemap.html' title='glium::texture::integral_cubemap::IntegralCubemap'>IntegralCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_cubemap/index.html'>unsigned_cubemap</a>::<a class='struct' href='../../glium/texture/unsigned_cubemap/struct.UnsignedCubemap.html' title='glium::texture::unsigned_cubemap::UnsignedCubemap'>UnsignedCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_cubemap/index.html'>depth_cubemap</a>::<a class='struct' href='../../glium/texture/depth_cubemap/struct.DepthCubemap.html' title='glium::texture::depth_cubemap::DepthCubemap'>DepthCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_cubemap/index.html'>stencil_cubemap</a>::<a class='struct' href='../../glium/texture/stencil_cubemap/struct.StencilCubemap.html' title='glium::texture::stencil_cubemap::StencilCubemap'>StencilCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_cubemap/index.html'>depth_stencil_cubemap</a>::<a class='struct' href='../../glium/texture/depth_stencil_cubemap/struct.DepthStencilCubemap.html' title='glium::texture::depth_stencil_cubemap::DepthStencilCubemap'>DepthStencilCubemap</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./cubemap_array/index.html'>cubemap_array</a>::<a class='struct' href='../../glium/texture/cubemap_array/struct.CubemapArray.html' title='glium::texture::cubemap_array::CubemapArray'>CubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_cubemap_array/index.html'>compressed_cubemap_array</a>::<a class='struct' href='../../glium/texture/compressed_cubemap_array/struct.CompressedCubemapArray.html' title='glium::texture::compressed_cubemap_array::CompressedCubemapArray'>CompressedCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./srgb_cubemap_array/index.html'>srgb_cubemap_array</a>::<a class='struct' href='../../glium/texture/srgb_cubemap_array/struct.SrgbCubemapArray.html' title='glium::texture::srgb_cubemap_array::SrgbCubemapArray'>SrgbCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./compressed_srgb_cubemap_array/index.html'>compressed_srgb_cubemap_array</a>::<a class='struct' href='../../glium/texture/compressed_srgb_cubemap_array/struct.CompressedSrgbCubemapArray.html' title='glium::texture::compressed_srgb_cubemap_array::CompressedSrgbCubemapArray'>CompressedSrgbCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./integral_cubemap_array/index.html'>integral_cubemap_array</a>::<a class='struct' href='../../glium/texture/integral_cubemap_array/struct.IntegralCubemapArray.html' title='glium::texture::integral_cubemap_array::IntegralCubemapArray'>IntegralCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./unsigned_cubemap_array/index.html'>unsigned_cubemap_array</a>::<a class='struct' href='../../glium/texture/unsigned_cubemap_array/struct.UnsignedCubemapArray.html' title='glium::texture::unsigned_cubemap_array::UnsignedCubemapArray'>UnsignedCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_cubemap_array/index.html'>depth_cubemap_array</a>::<a class='struct' href='../../glium/texture/depth_cubemap_array/struct.DepthCubemapArray.html' title='glium::texture::depth_cubemap_array::DepthCubemapArray'>DepthCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./stencil_cubemap_array/index.html'>stencil_cubemap_array</a>::<a class='struct' href='../../glium/texture/stencil_cubemap_array/struct.StencilCubemapArray.html' title='glium::texture::stencil_cubemap_array::StencilCubemapArray'>StencilCubemapArray</a>;</code></td></tr><tr><td><code>pub use self::<a class='mod'
+                                            href='./depth_stencil_cubemap_array/index.html'>depth_stencil_cubemap_array</a>::<a class='struct' href='../../glium/texture/depth_stencil_cubemap_array/struct.DepthStencilCubemapArray.html' title='glium::texture::depth_stencil_cubemap_array::DepthStencilCubemapArray'>DepthStencilCubemapArray</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='bindless/index.html'
+                               title='glium::texture::bindless'>bindless</a></td>
+                        <td class='docblock short'>
+                             <p>Without bindless textures, using a texture in a shader requires binding the texture to a specific
+bind point before drawing. This not only slows down rendering, but may also prevent you from
+grouping multiple draw calls into one because of the limitation to the number of available
+texture units.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='buffer_texture/index.html'
+                               title='glium::texture::buffer_texture'>buffer_texture</a></td>
+                        <td class='docblock short'>
+                             <p>A <code>BufferTexture</code> is a special kind of one-dimensional texture that gets its data from a buffer.
+Buffer textures have very limited capabilities compared to other texture types.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_cubemap/index.html'
+                               title='glium::texture::compressed_cubemap'>compressed_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_cubemap_array/index.html'
+                               title='glium::texture::compressed_cubemap_array'>compressed_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_cubemap/index.html'
+                               title='glium::texture::compressed_srgb_cubemap'>compressed_srgb_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_cubemap_array/index.html'
+                               title='glium::texture::compressed_srgb_cubemap_array'>compressed_srgb_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_texture1d/index.html'
+                               title='glium::texture::compressed_srgb_texture1d'>compressed_srgb_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_texture1d_array/index.html'
+                               title='glium::texture::compressed_srgb_texture1d_array'>compressed_srgb_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_texture2d/index.html'
+                               title='glium::texture::compressed_srgb_texture2d'>compressed_srgb_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_texture2d_array/index.html'
+                               title='glium::texture::compressed_srgb_texture2d_array'>compressed_srgb_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_srgb_texture3d/index.html'
+                               title='glium::texture::compressed_srgb_texture3d'>compressed_srgb_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedSrgbTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_texture1d/index.html'
+                               title='glium::texture::compressed_texture1d'>compressed_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_texture1d_array/index.html'
+                               title='glium::texture::compressed_texture1d_array'>compressed_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_texture2d/index.html'
+                               title='glium::texture::compressed_texture2d'>compressed_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_texture2d_array/index.html'
+                               title='glium::texture::compressed_texture2d_array'>compressed_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='compressed_texture3d/index.html'
+                               title='glium::texture::compressed_texture3d'>compressed_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CompressedTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='cubemap/index.html'
+                               title='glium::texture::cubemap'>cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Cubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='cubemap_array/index.html'
+                               title='glium::texture::cubemap_array'>cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>CubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_cubemap/index.html'
+                               title='glium::texture::depth_cubemap'>depth_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_cubemap_array/index.html'
+                               title='glium::texture::depth_cubemap_array'>depth_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_cubemap/index.html'
+                               title='glium::texture::depth_stencil_cubemap'>depth_stencil_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_cubemap_array/index.html'
+                               title='glium::texture::depth_stencil_cubemap_array'>depth_stencil_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture1d/index.html'
+                               title='glium::texture::depth_stencil_texture1d'>depth_stencil_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture1d_array/index.html'
+                               title='glium::texture::depth_stencil_texture1d_array'>depth_stencil_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture2d/index.html'
+                               title='glium::texture::depth_stencil_texture2d'>depth_stencil_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture2d_array/index.html'
+                               title='glium::texture::depth_stencil_texture2d_array'>depth_stencil_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture2d_multisample/index.html'
+                               title='glium::texture::depth_stencil_texture2d_multisample'>depth_stencil_texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture2d_multisample_array/index.html'
+                               title='glium::texture::depth_stencil_texture2d_multisample_array'>depth_stencil_texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_stencil_texture3d/index.html'
+                               title='glium::texture::depth_stencil_texture3d'>depth_stencil_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthStencilTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture1d/index.html'
+                               title='glium::texture::depth_texture1d'>depth_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture1d_array/index.html'
+                               title='glium::texture::depth_texture1d_array'>depth_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture2d/index.html'
+                               title='glium::texture::depth_texture2d'>depth_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture2d_array/index.html'
+                               title='glium::texture::depth_texture2d_array'>depth_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture2d_multisample/index.html'
+                               title='glium::texture::depth_texture2d_multisample'>depth_texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture2d_multisample_array/index.html'
+                               title='glium::texture::depth_texture2d_multisample_array'>depth_texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='depth_texture3d/index.html'
+                               title='glium::texture::depth_texture3d'>depth_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>DepthTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_cubemap/index.html'
+                               title='glium::texture::integral_cubemap'>integral_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_cubemap_array/index.html'
+                               title='glium::texture::integral_cubemap_array'>integral_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture1d/index.html'
+                               title='glium::texture::integral_texture1d'>integral_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture1d_array/index.html'
+                               title='glium::texture::integral_texture1d_array'>integral_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture2d/index.html'
+                               title='glium::texture::integral_texture2d'>integral_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture2d_array/index.html'
+                               title='glium::texture::integral_texture2d_array'>integral_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture2d_multisample/index.html'
+                               title='glium::texture::integral_texture2d_multisample'>integral_texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture2d_multisample_array/index.html'
+                               title='glium::texture::integral_texture2d_multisample_array'>integral_texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='integral_texture3d/index.html'
+                               title='glium::texture::integral_texture3d'>integral_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>IntegralTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='pixel_buffer/index.html'
+                               title='glium::texture::pixel_buffer'>pixel_buffer</a></td>
+                        <td class='docblock short'>
+                             <p>Pixel buffers are buffers that contain two-dimensional texture data.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_cubemap/index.html'
+                               title='glium::texture::srgb_cubemap'>srgb_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_cubemap_array/index.html'
+                               title='glium::texture::srgb_cubemap_array'>srgb_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture1d/index.html'
+                               title='glium::texture::srgb_texture1d'>srgb_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture1d_array/index.html'
+                               title='glium::texture::srgb_texture1d_array'>srgb_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture2d/index.html'
+                               title='glium::texture::srgb_texture2d'>srgb_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture2d_array/index.html'
+                               title='glium::texture::srgb_texture2d_array'>srgb_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture2d_multisample/index.html'
+                               title='glium::texture::srgb_texture2d_multisample'>srgb_texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture2d_multisample_array/index.html'
+                               title='glium::texture::srgb_texture2d_multisample_array'>srgb_texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='srgb_texture3d/index.html'
+                               title='glium::texture::srgb_texture3d'>srgb_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>SrgbTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_cubemap/index.html'
+                               title='glium::texture::stencil_cubemap'>stencil_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_cubemap_array/index.html'
+                               title='glium::texture::stencil_cubemap_array'>stencil_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_texture1d/index.html'
+                               title='glium::texture::stencil_texture1d'>stencil_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_texture1d_array/index.html'
+                               title='glium::texture::stencil_texture1d_array'>stencil_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_texture2d/index.html'
+                               title='glium::texture::stencil_texture2d'>stencil_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_texture2d_array/index.html'
+                               title='glium::texture::stencil_texture2d_array'>stencil_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_texture2d_multisample/index.html'
+                               title='glium::texture::stencil_texture2d_multisample'>stencil_texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilTexture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='stencil_texture2d_multisample_array/index.html'
+                               title='glium::texture::stencil_texture2d_multisample_array'>stencil_texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>StencilTexture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture1d/index.html'
+                               title='glium::texture::texture1d'>texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture1d_array/index.html'
+                               title='glium::texture::texture1d_array'>texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture2d/index.html'
+                               title='glium::texture::texture2d'>texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture2d_array/index.html'
+                               title='glium::texture::texture2d_array'>texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture2d_multisample/index.html'
+                               title='glium::texture::texture2d_multisample'>texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture2d_multisample_array/index.html'
+                               title='glium::texture::texture2d_multisample_array'>texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='texture3d/index.html'
+                               title='glium::texture::texture3d'>texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>Texture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_cubemap/index.html'
+                               title='glium::texture::unsigned_cubemap'>unsigned_cubemap</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedCubemap</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_cubemap_array/index.html'
+                               title='glium::texture::unsigned_cubemap_array'>unsigned_cubemap_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedCubemapArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture1d/index.html'
+                               title='glium::texture::unsigned_texture1d'>unsigned_texture1d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture1d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture1d_array/index.html'
+                               title='glium::texture::unsigned_texture1d_array'>unsigned_texture1d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture1dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture2d/index.html'
+                               title='glium::texture::unsigned_texture2d'>unsigned_texture2d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture2d</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture2d_array/index.html'
+                               title='glium::texture::unsigned_texture2d_array'>unsigned_texture2d_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture2dArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture2d_multisample/index.html'
+                               title='glium::texture::unsigned_texture2d_multisample'>unsigned_texture2d_multisample</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture2dMultisample</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture2d_multisample_array/index.html'
+                               title='glium::texture::unsigned_texture2d_multisample_array'>unsigned_texture2d_multisample_array</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture2dMultisampleArray</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='unsigned_texture3d/index.html'
+                               title='glium::texture::unsigned_texture3d'>unsigned_texture3d</a></td>
+                        <td class='docblock short'>
+                             <p>Contains the implementation of <code>UnsignedTexture3d</code>.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.RawImage1d.html'
+                               title='glium::texture::RawImage1d'>RawImage1d</a></td>
+                        <td class='docblock short'>
+                             <p>Represents raw data for a two-dimensional image.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.RawImage2d.html'
+                               title='glium::texture::RawImage2d'>RawImage2d</a></td>
+                        <td class='docblock short'>
+                             <p>Represents raw data for a two-dimensional image.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.RawImage3d.html'
+                               title='glium::texture::RawImage3d'>RawImage3d</a></td>
+                        <td class='docblock short'>
+                             <p>Represents raw data for a two-dimensional image.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.TextureAny.html'
+                               title='glium::texture::TextureAny'>TextureAny</a></td>
+                        <td class='docblock short'>
+                             <p>A texture whose type isn&#39;t fixed at compile-time.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.TextureAnyImage.html'
+                               title='glium::texture::TextureAnyImage'>TextureAnyImage</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a specific 2D image of a texture. 1D textures are considered as having a height of 1.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.TextureAnyLayer.html'
+                               title='glium::texture::TextureAnyLayer'>TextureAnyLayer</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a specific layer of an array texture and 3D textures.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.TextureAnyLayerMipmap.html'
+                               title='glium::texture::TextureAnyLayerMipmap'>TextureAnyLayerMipmap</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a specific layer of a specific mipmap. This is the same as <code>TextureAnyImage</code>, except
+for 3D textures, cubemaps and cubemap arrays.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.TextureAnyMipmap.html'
+                               title='glium::texture::TextureAnyMipmap'>TextureAnyMipmap</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a specific mipmap of a texture.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.ClientFormat.html'
+                               title='glium::texture::ClientFormat'>ClientFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of client-side pixel formats.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CompressedFormat.html'
+                               title='glium::texture::CompressedFormat'>CompressedFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of compressed texture formats.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CompressedMipmapsOption.html'
+                               title='glium::texture::CompressedMipmapsOption'>CompressedMipmapsOption</a></td>
+                        <td class='docblock short'>
+                             <p>Describes what to do about mipmaps during compressed texture creation.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CompressedSrgbFormat.html'
+                               title='glium::texture::CompressedSrgbFormat'>CompressedSrgbFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of compressed pixel formats in the sRGB color space.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CubeLayer.html'
+                               title='glium::texture::CubeLayer'>CubeLayer</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a layer of a cubemap.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.DepthFormat.html'
+                               title='glium::texture::DepthFormat'>DepthFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of formats available for depth textures.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.DepthStencilFormat.html'
+                               title='glium::texture::DepthStencilFormat'>DepthStencilFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of formats available for depth-stencil textures.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Dimensions.html'
+                               title='glium::texture::Dimensions'>Dimensions</a></td>
+                        <td class='docblock short'>
+                             <p>Type of a texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.GetFormatError.html'
+                               title='glium::texture::GetFormatError'>GetFormatError</a></td>
+                        <td class='docblock short'>
+                             <p>Error that can happen when retrieving the internal format of a texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.InternalFormat.html'
+                               title='glium::texture::InternalFormat'>InternalFormat</a></td>
+                        <td class='docblock short'>
+                             <p>Internal format of a texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.InternalFormatType.html'
+                               title='glium::texture::InternalFormatType'>InternalFormatType</a></td>
+                        <td class='docblock short'>
+                             <p>Format of a component of an internal format.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.MipmapsOption.html'
+                               title='glium::texture::MipmapsOption'>MipmapsOption</a></td>
+                        <td class='docblock short'>
+                             <p>Describes what to do about mipmaps during texture creation.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.SrgbFormat.html'
+                               title='glium::texture::SrgbFormat'>SrgbFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of uncompressed pixel formats that contain floating-point data in the sRGB color space.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.StencilFormat.html'
+                               title='glium::texture::StencilFormat'>StencilFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of formats available for stencil textures.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.TextureCreationError.html'
+                               title='glium::texture::TextureCreationError'>TextureCreationError</a></td>
+                        <td class='docblock short'>
+                             <p>Error that can happen when creating a texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.TextureFormat.html'
+                               title='glium::texture::TextureFormat'>TextureFormat</a></td>
+                        <td class='docblock short'>
+                             <p>Format of the internal representation of a texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.TextureKind.html'
+                               title='glium::texture::TextureKind'>TextureKind</a></td>
+                        <td class='docblock short'>
+                             <p>Represents a kind of texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.UncompressedFloatFormat.html'
+                               title='glium::texture::UncompressedFloatFormat'>UncompressedFloatFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of uncompressed pixel formats that contain floating-point-like data.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.UncompressedIntFormat.html'
+                               title='glium::texture::UncompressedIntFormat'>UncompressedIntFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of uncompressed pixel formats that contain signed integral data.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.UncompressedUintFormat.html'
+                               title='glium::texture::UncompressedUintFormat'>UncompressedUintFormat</a></td>
+                        <td class='docblock short'>
+                             <p>List of uncompressed pixel formats that contain unsigned integral data.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.PixelValue.html'
+                               title='glium::texture::PixelValue'>PixelValue</a></td>
+                        <td class='docblock short'>
+                             <p>A trait that must be implemented for any type that can represent the value of a pixel.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Texture1dDataSink.html'
+                               title='glium::texture::Texture1dDataSink'>Texture1dDataSink</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes types that can be built from one-dimensional texture data.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Texture1dDataSource.html'
+                               title='glium::texture::Texture1dDataSource'>Texture1dDataSource</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes data for a one-dimensional texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Texture2dDataSink.html'
+                               title='glium::texture::Texture2dDataSink'>Texture2dDataSink</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes types that can be built from two-dimensional texture data.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Texture2dDataSource.html'
+                               title='glium::texture::Texture2dDataSource'>Texture2dDataSource</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes data for a two-dimensional texture.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Texture3dDataSink.html'
+                               title='glium::texture::Texture3dDataSink'>Texture3dDataSink</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes types that can be built from one-dimensional texture data.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Texture3dDataSource.html'
+                               title='glium::texture::Texture3dDataSource'>Texture3dDataSource</a></td>
+                        <td class='docblock short'>
+                             <p>Trait that describes data for a two-dimensional texture.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_cubemap_arrays_supported.html'
+                               title='glium::texture::is_cubemap_arrays_supported'>is_cubemap_arrays_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is cubemap arrays are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_cubemaps_supported.html'
+                               title='glium::texture::is_cubemaps_supported'>is_cubemaps_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is cubemaps are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_1d_array_supported.html'
+                               title='glium::texture::is_texture_1d_array_supported'>is_texture_1d_array_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is one-dimensional texture arrays are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_1d_supported.html'
+                               title='glium::texture::is_texture_1d_supported'>is_texture_1d_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is one-dimensional textures are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_2d_array_supported.html'
+                               title='glium::texture::is_texture_2d_array_supported'>is_texture_2d_array_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is two-dimensional texture arrays are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_2d_multisample_array_supported.html'
+                               title='glium::texture::is_texture_2d_multisample_array_supported'>is_texture_2d_multisample_array_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is two-dimensional multisample texture arrays are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_2d_multisample_supported.html'
+                               title='glium::texture::is_texture_2d_multisample_supported'>is_texture_2d_multisample_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is two-dimensional multisample textures are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_2d_supported.html'
+                               title='glium::texture::is_texture_2d_supported'>is_texture_2d_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is two-dimensional textures are supported.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_texture_3d_supported.html'
+                               title='glium::texture::is_texture_3d_supported'>is_texture_3d_supported</a></td>
+                        <td class='docblock short'>
+                             <p>Returns true is three-dimensional textures are supported.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

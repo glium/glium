@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ComputeShader` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ComputeShader">
+
+    <title>glium::program::ComputeShader - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>program</a></p><script>window.sidebarCurrent = {name: 'ComputeShader', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>program</a>::<wbr><a class='struct' href=''>ComputeShader</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-4708' class='srclink' href='../../src/glium/program/compute.rs.html#28-30' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct ComputeShader {
+    // some fields omitted
+}</pre><div class='docblock'><p>A combination of compute shaders linked together.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../glium/program/struct.ComputeShader.html' title='glium::program::ComputeShader'>ComputeShader</a></code></h3><div class='impl-items'><h4 id='method.is_supported' class='method'><code>fn <a href='#method.is_supported' class='fnname'>is_supported</a>&lt;C&gt;(ctxt: &amp;C) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns true if the backend supports compute shaders.</p>
+</div><h4 id='method.from_source' class='method'><code>fn <a href='#method.from_source' class='fnname'>from_source</a>&lt;F&gt;(facade: &amp;F, src: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../glium/program/struct.ComputeShader.html' title='glium::program::ComputeShader'>ComputeShader</a>, <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a>&gt; <span class='where'>where F: <a class='trait' href='../../glium/backend/trait.Facade.html' title='glium::backend::Facade'>Facade</a></span></code></h4>
+<div class='docblock'><p>Builds a new compute shader from some source code.</p>
+</div><h4 id='method.from_binary' class='method'><code>fn <a href='#method.from_binary' class='fnname'>from_binary</a>&lt;F&gt;(facade: &amp;F, data: <a class='struct' href='../../glium/program/struct.Binary.html' title='glium::program::Binary'>Binary</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../glium/program/struct.ComputeShader.html' title='glium::program::ComputeShader'>ComputeShader</a>, <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a>&gt; <span class='where'>where F: <a class='trait' href='../../glium/backend/trait.Facade.html' title='glium::backend::Facade'>Facade</a></span></code></h4>
+<div class='docblock'><p>Builds a new compute shader from some binary.</p>
+</div><h4 id='method.execute' class='method'><code>fn <a href='#method.execute' class='fnname'>execute</a>&lt;U&gt;(&amp;self, uniforms: U, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, z: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) <span class='where'>where U: <a class='trait' href='../../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a></span></code></h4>
+<div class='docblock'><p>Executes the compute shader.</p>
+
+<p><code>x * y * z</code> work groups will be started. The current work group can be retreived with
+<code>gl_WorkGroupID</code>. Inside each work group, additional local work groups can be started
+depending on the attributes of the compute shader itself.</p>
+</div><h4 id='method.execute_indirect' class='method'><code>fn <a href='#method.execute_indirect' class='fnname'>execute_indirect</a>&lt;U&gt;(&amp;self, uniforms: U, buffer: <a class='struct' href='../../glium/buffer/struct.BufferSlice.html' title='glium::buffer::BufferSlice'>BufferSlice</a>&lt;<a class='struct' href='../../glium/program/struct.ComputeCommand.html' title='glium::program::ComputeCommand'>ComputeCommand</a>&gt;) <span class='where'>where U: <a class='trait' href='../../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a></span></code></h4>
+<div class='docblock'><p>Executes the compute shader.</p>
+
+<p>This is similar to <code>execute</code>, except that the parameters are stored in a buffer.</p>
+</div><h4 id='method.get_binary' class='method'><code>fn <a href='#method.get_binary' class='fnname'>get_binary</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../glium/program/struct.Binary.html' title='glium::program::Binary'>Binary</a>, <a class='enum' href='../../glium/program/enum.GetBinaryError.html' title='glium::program::GetBinaryError'>GetBinaryError</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the program&#39;s compiled binary.</p>
+
+<p>You can store the result in a file, then reload it later. This avoids having to compile
+the source code every time.</p>
+</div><h4 id='method.get_uniform' class='method'><code>fn <a href='#method.get_uniform' class='fnname'>get_uniform</a>(&amp;self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../../glium/program/struct.Uniform.html' title='glium::program::Uniform'>Uniform</a>&gt;</code></h4>
+<div class='docblock'><p>Returns informations about a uniform variable, if it exists.</p>
+</div><h4 id='method.uniforms' class='method'><code>fn <a href='#method.uniforms' class='fnname'>uniforms</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.Iter.html' title='std::collections::hash::map::Iter'>Iter</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, <a class='struct' href='../../glium/program/struct.Uniform.html' title='glium::program::Uniform'>Uniform</a>&gt;</code></h4>
+<div class='docblock'><p>Returns an iterator to the list of uniforms.</p>
+
+<h2 id='example' class='section-header'><a href='#example'>Example</a></h2><pre class='rust rust-example-rendered'>
+<span class='kw'>for</span> (<span class='ident'>name</span>, <span class='ident'>uniform</span>) <span class='kw'>in</span> <span class='ident'>program</span>.<span class='ident'>uniforms</span>() {
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Name: {} - Type: {:?}&quot;</span>, <span class='ident'>name</span>, <span class='ident'>uniform</span>.<span class='ident'>ty</span>);
+}</pre>
+</div><h4 id='method.get_uniform_blocks' class='method'><code>fn <a href='#method.get_uniform_blocks' class='fnname'>get_uniform_blocks</a>(&amp;self) -&gt; &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, <a class='struct' href='../../glium/program/struct.UniformBlock.html' title='glium::program::UniformBlock'>UniformBlock</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a list of uniform blocks.</p>
+
+<h2 id='example-1' class='section-header'><a href='#example-1'>Example</a></h2><pre class='rust rust-example-rendered'>
+<span class='kw'>for</span> (<span class='ident'>name</span>, <span class='ident'>uniform</span>) <span class='kw'>in</span> <span class='ident'>program</span>.<span class='ident'>get_uniform_blocks</span>() {
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Name: {}&quot;</span>, <span class='ident'>name</span>);
+}</pre>
+</div><h4 id='method.get_shader_storage_blocks' class='method'><code>fn <a href='#method.get_shader_storage_blocks' class='fnname'>get_shader_storage_blocks</a>(&amp;self) -&gt; &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, <a class='struct' href='../../glium/program/struct.UniformBlock.html' title='glium::program::UniformBlock'>UniformBlock</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the list of shader storage blocks.</p>
+
+<h2 id='example-2' class='section-header'><a href='#example-2'>Example</a></h2><pre class='rust rust-example-rendered'>
+<span class='kw'>for</span> (<span class='ident'>name</span>, <span class='ident'>uniform</span>) <span class='kw'>in</span> <span class='ident'>program</span>.<span class='ident'>get_shader_storage_blocks</span>() {
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Name: {}&quot;</span>, <span class='ident'>name</span>);
+}</pre>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../glium/program/struct.ComputeShader.html' title='glium::program::ComputeShader'>ComputeShader</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, formatter: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../../glium/trait.GlObject.html' title='glium::GlObject'>GlObject</a> for <a class='struct' href='../../glium/program/struct.ComputeShader.html' title='glium::program::ComputeShader'>ComputeShader</a></code></h3><div class='impl-items'><h4 id='assoc_type.Id' class='type'><code>type Id = <a class='enum' href='../../glium/enum.Handle.html' title='glium::Handle'>Handle</a></code></h4>
+<h4 id='method.get_id' class='method'><code>fn <a href='../../glium/trait.GlObject.html#method.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; <a class='enum' href='../../glium/enum.Handle.html' title='glium::Handle'>Handle</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `cgmath` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, cgmath">
+
+    <title>cgmath - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'cgmath', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>cgmath</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/cgmath/lib.rs.html#16-94' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Computer graphics-centric math.</p>
+
+<p>This crate provides useful mathematical primitives and operations on them.
+It is organized into one module per primitive. The core structures are
+vectors and matrices. A strongly-typed interface is provided, to prevent
+mixing units or violating mathematical invariants.</p>
+
+<p>Transformations are not usually done directly on matrices, but go through
+transformation objects that can be converted to matrices. Rotations go
+through the <code>Basis</code> types, which are guaranteed to be orthogonal matrices.
+Despite this, one can directly create a limited rotation matrix using the
+<code>look_at</code>, <code>from_angle</code>, <code>from_euler</code>, and <code>from_axis_angle</code> methods.
+These are provided for convenience.</p>
+</div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.assert_approx_eq!.html'
+                               title='cgmath::assert_approx_eq!'>assert_approx_eq!</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.assert_approx_eq_eps!.html'
+                               title='cgmath::assert_approx_eq_eps!'>assert_approx_eq_eps!</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Aabb2.html'
+                               title='cgmath::Aabb2'>Aabb2</a></td>
+                        <td class='docblock short'>
+                             <p>A two-dimensional AABB, aka a rectangle.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Aabb3.html'
+                               title='cgmath::Aabb3'>Aabb3</a></td>
+                        <td class='docblock short'>
+                             <p>A three-dimensional AABB, aka a rectangular prism.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.AffineMatrix3.html'
+                               title='cgmath::AffineMatrix3'>AffineMatrix3</a></td>
+                        <td class='docblock short'>
+                             <p>A homogeneous transformation matrix.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Basis2.html'
+                               title='cgmath::Basis2'>Basis2</a></td>
+                        <td class='docblock short'>
+                             <p>A two-dimensional rotation matrix.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Basis3.html'
+                               title='cgmath::Basis3'>Basis3</a></td>
+                        <td class='docblock short'>
+                             <p>A three-dimensional rotation matrix.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Cylinder.html'
+                               title='cgmath::Cylinder'>Cylinder</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Decomposed.html'
+                               title='cgmath::Decomposed'>Decomposed</a></td>
+                        <td class='docblock short'>
+                             <p>A generic transformation consisting of a rotation,
+displacement vector and scale amount.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Deg.html'
+                               title='cgmath::Deg'>Deg</a></td>
+                        <td class='docblock short'>
+                             <p>An angle, in degrees</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Frustum.html'
+                               title='cgmath::Frustum'>Frustum</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.FrustumPoints.html'
+                               title='cgmath::FrustumPoints'>FrustumPoints</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Line.html'
+                               title='cgmath::Line'>Line</a></td>
+                        <td class='docblock short'>
+                             <p>A generic directed line segment from <code>origin</code> to <code>dest</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Matrix2.html'
+                               title='cgmath::Matrix2'>Matrix2</a></td>
+                        <td class='docblock short'>
+                             <p>A 2 x 2, column major matrix</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Matrix3.html'
+                               title='cgmath::Matrix3'>Matrix3</a></td>
+                        <td class='docblock short'>
+                             <p>A 3 x 3, column major matrix</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Matrix4.html'
+                               title='cgmath::Matrix4'>Matrix4</a></td>
+                        <td class='docblock short'>
+                             <p>A 4 x 4, column major matrix</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Obb2.html'
+                               title='cgmath::Obb2'>Obb2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Obb3.html'
+                               title='cgmath::Obb3'>Obb3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Ortho.html'
+                               title='cgmath::Ortho'>Ortho</a></td>
+                        <td class='docblock short'>
+                             <p>An orthographic projection with arbitrary left/right/bottom/top distances</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Perspective.html'
+                               title='cgmath::Perspective'>Perspective</a></td>
+                        <td class='docblock short'>
+                             <p>A perspective projection with arbitrary left/right/bottom/top distances</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.PerspectiveFov.html'
+                               title='cgmath::PerspectiveFov'>PerspectiveFov</a></td>
+                        <td class='docblock short'>
+                             <p>A perspective projection based on a vertical field-of-view angle.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Plane.html'
+                               title='cgmath::Plane'>Plane</a></td>
+                        <td class='docblock short'>
+                             <p>A 3-dimensional plane formed from the equation: <code>A*x + B*y + C*z - D = 0</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Point2.html'
+                               title='cgmath::Point2'>Point2</a></td>
+                        <td class='docblock short'>
+                             <p>A point in 2-dimensional space.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Point3.html'
+                               title='cgmath::Point3'>Point3</a></td>
+                        <td class='docblock short'>
+                             <p>A point in 3-dimensional space.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Quaternion.html'
+                               title='cgmath::Quaternion'>Quaternion</a></td>
+                        <td class='docblock short'>
+                             <p>A <a href="https://en.wikipedia.org/wiki/Quaternion">quaternion</a> in scalar/vector
+form.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Rad.html'
+                               title='cgmath::Rad'>Rad</a></td>
+                        <td class='docblock short'>
+                             <p>An angle, in radians</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Ray.html'
+                               title='cgmath::Ray'>Ray</a></td>
+                        <td class='docblock short'>
+                             <p>A generic ray starting at <code>origin</code> and extending infinitely in
+<code>direction</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Sphere.html'
+                               title='cgmath::Sphere'>Sphere</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Vector2.html'
+                               title='cgmath::Vector2'>Vector2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Vector3.html'
+                               title='cgmath::Vector3'>Vector3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Vector4.html'
+                               title='cgmath::Vector4'>Vector4</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Relation.html'
+                               title='cgmath::Relation'>Relation</a></td>
+                        <td class='docblock short'>
+                             <p>Spatial relation between two objects.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Aabb.html'
+                               title='cgmath::Aabb'>Aabb</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Angle.html'
+                               title='cgmath::Angle'>Angle</a></td>
+                        <td class='docblock short'>
+                             <p>Operations on angles.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ApproxEq.html'
+                               title='cgmath::ApproxEq'>ApproxEq</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Array1.html'
+                               title='cgmath::Array1'>Array1</a></td>
+                        <td class='docblock short'>
+                             <p>An array containing elements of type <code>Element</code></p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Array2.html'
+                               title='cgmath::Array2'>Array2</a></td>
+                        <td class='docblock short'>
+                             <p>A column-major array</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.BaseFloat.html'
+                               title='cgmath::BaseFloat'>BaseFloat</a></td>
+                        <td class='docblock short'>
+                             <p>Base floating point types</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.BaseInt.html'
+                               title='cgmath::BaseInt'>BaseInt</a></td>
+                        <td class='docblock short'>
+                             <p>Base integer types</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.BaseNum.html'
+                               title='cgmath::BaseNum'>BaseNum</a></td>
+                        <td class='docblock short'>
+                             <p>Base numeric types with partial ordering</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Bound.html'
+                               title='cgmath::Bound'>Bound</a></td>
+                        <td class='docblock short'>
+                             <p>Generic bound.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.CompositeTransform.html'
+                               title='cgmath::CompositeTransform'>CompositeTransform</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.CompositeTransform2.html'
+                               title='cgmath::CompositeTransform2'>CompositeTransform2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.CompositeTransform3.html'
+                               title='cgmath::CompositeTransform3'>CompositeTransform3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.EuclideanVector.html'
+                               title='cgmath::EuclideanVector'>EuclideanVector</a></td>
+                        <td class='docblock short'>
+                             <p>Specifies geometric operations for vectors. This is only implemented for
+2-dimensional and 3-dimensional vectors.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Intersect.html'
+                               title='cgmath::Intersect'>Intersect</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Matrix.html'
+                               title='cgmath::Matrix'>Matrix</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.One.html'
+                               title='cgmath::One'>One</a></td>
+                        <td class='docblock short'>
+                             <p>Defines a multiplicative identity element for <code>Self</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.PartialOrd.html'
+                               title='cgmath::PartialOrd'>PartialOrd</a></td>
+                        <td class='docblock short'>
+                             <p>A trait providing a <a href="http://mathworld.wolfram.com/PartialOrder.html">partial ordering</a>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Point.html'
+                               title='cgmath::Point'>Point</a></td>
+                        <td class='docblock short'>
+                             <p>Specifies the numeric operations for point types.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Projection.html'
+                               title='cgmath::Projection'>Projection</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Rotation.html'
+                               title='cgmath::Rotation'>Rotation</a></td>
+                        <td class='docblock short'>
+                             <p>A trait for a generic rotation. A rotation is a transformation that
+creates a circular motion, and preserves at least one point in the space.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Rotation2.html'
+                               title='cgmath::Rotation2'>Rotation2</a></td>
+                        <td class='docblock short'>
+                             <p>A two-dimensional rotation.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Rotation3.html'
+                               title='cgmath::Rotation3'>Rotation3</a></td>
+                        <td class='docblock short'>
+                             <p>A three-dimensional rotation.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ToComponents.html'
+                               title='cgmath::ToComponents'>ToComponents</a></td>
+                        <td class='docblock short'>
+                             <p>A trait that allows extracting components (rotation, translation, scale)
+from an arbitrary transformations</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ToComponents2.html'
+                               title='cgmath::ToComponents2'>ToComponents2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ToComponents3.html'
+                               title='cgmath::ToComponents3'>ToComponents3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Transform.html'
+                               title='cgmath::Transform'>Transform</a></td>
+                        <td class='docblock short'>
+                             <p>A trait representing an <a href="https://en.wikipedia.org/wiki/Affine_transformation">affine
+transformation</a> that
+can be applied to points or vectors. An affine transformation is one which</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Transform2.html'
+                               title='cgmath::Transform2'>Transform2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Transform3.html'
+                               title='cgmath::Transform3'>Transform3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Vector.html'
+                               title='cgmath::Vector'>Vector</a></td>
+                        <td class='docblock short'>
+                             <p>A trait that specifies a range of numeric operations for vectors. Not all
+of these make sense from a linear algebra point of view, but are included
+for pragmatic reasons.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.Zero.html'
+                               title='cgmath::Zero'>Zero</a></td>
+                        <td class='docblock short'>
+                             <p>Defines an additive identity element for <code>Self</code>.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.acos.html'
+                               title='cgmath::acos'>acos</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.asin.html'
+                               title='cgmath::asin'>asin</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.atan.html'
+                               title='cgmath::atan'>atan</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.atan2.html'
+                               title='cgmath::atan2'>atan2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.bisect.html'
+                               title='cgmath::bisect'>bisect</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.cos.html'
+                               title='cgmath::cos'>cos</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.cot.html'
+                               title='cgmath::cot'>cot</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.csc.html'
+                               title='cgmath::csc'>csc</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.deg.html'
+                               title='cgmath::deg'>deg</a></td>
+                        <td class='docblock short'>
+                             <p>Create a new angle, in degrees</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.dot.html'
+                               title='cgmath::dot'>dot</a></td>
+                        <td class='docblock short'>
+                             <p>Dot product of two vectors.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.frustum.html'
+                               title='cgmath::frustum'>frustum</a></td>
+                        <td class='docblock short'>
+                             <p>Create a perspective matrix from a view frustrum.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.one.html'
+                               title='cgmath::one'>one</a></td>
+                        <td class='docblock short'>
+                             <p>Returns the multiplicative identity, <code>1</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.ortho.html'
+                               title='cgmath::ortho'>ortho</a></td>
+                        <td class='docblock short'>
+                             <p>Create an orthographic projection matrix.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.perspective.html'
+                               title='cgmath::perspective'>perspective</a></td>
+                        <td class='docblock short'>
+                             <p>Create a perspective projection matrix.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.rad.html'
+                               title='cgmath::rad'>rad</a></td>
+                        <td class='docblock short'>
+                             <p>Create a new angle, in radians</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.sec.html'
+                               title='cgmath::sec'>sec</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.sin.html'
+                               title='cgmath::sin'>sin</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.sin_cos.html'
+                               title='cgmath::sin_cos'>sin_cos</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.tan.html'
+                               title='cgmath::tan'>tan</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.vec2.html'
+                               title='cgmath::vec2'>vec2</a></td>
+                        <td class='docblock short'>
+                             <p>The short constructor.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.vec3.html'
+                               title='cgmath::vec3'>vec3</a></td>
+                        <td class='docblock short'>
+                             <p>The short constructor.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.vec4.html'
+                               title='cgmath::vec4'>vec4</a></td>
+                        <td class='docblock short'>
+                             <p>The short constructor.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.zero.html'
+                               title='cgmath::zero'>zero</a></td>
+                        <td class='docblock short'>
+                             <p>Returns the additive identity, <code>0</code>.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Line2.html'
+                               title='cgmath::Line2'>Line2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Line3.html'
+                               title='cgmath::Line3'>Line3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Ray2.html'
+                               title='cgmath::Ray2'>Ray2</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Ray3.html'
+                               title='cgmath::Ray3'>Ray3</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

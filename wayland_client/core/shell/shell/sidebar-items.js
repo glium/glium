@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Shell","A handle to a wayland `wl_shell`."]]});

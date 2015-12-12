@@ -1,0 +1,544 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Drawing a triangle | Introduction</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.6.5">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="./tuto-03-animated-triangle.html" />
+    
+    
+    <link rel="prev" href="./tuto-01-getting-started.html" />
+    
+
+        
+    </head>
+    <body>
+        
+        
+    <div class="book"
+        data-level="1.2"
+        data-chapter-title="Drawing a triangle"
+        data-filepath="tuto-02-triangle.md"
+        data-basepath="."
+        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-innerlanguage="">
+    
+
+<div class="book-summary">
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="./index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" >
+            
+            <span><b>1.</b> Tutorial</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="tuto-01-getting-started.html">
+            
+                
+                    <a href="./tuto-01-getting-started.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Opening a window
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2" data-path="tuto-02-triangle.html">
+            
+                
+                    <a href="./tuto-02-triangle.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        Drawing a triangle
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="tuto-03-animated-triangle.html">
+            
+                
+                    <a href="./tuto-03-animated-triangle.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        Uniforms
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="tuto-04-matrices.html">
+            
+                
+                    <a href="./tuto-04-matrices.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        Matrices
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="tuto-05-colors.html">
+            
+                
+                    <a href="./tuto-05-colors.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        Adding colors
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="tuto-06-texture.html">
+            
+                
+                    <a href="./tuto-06-texture.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.6.</b>
+                        
+                        Adding a texture
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="tuto-07-shape.html">
+            
+                
+                    <a href="./tuto-07-shape.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.7.</b>
+                        
+                        A more complex shape
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="tuto-08-gouraud.html">
+            
+                
+                    <a href="./tuto-08-gouraud.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.8.</b>
+                        
+                        Gouraud shading
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="tuto-09-depth.html">
+            
+                
+                    <a href="./tuto-09-depth.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.9.</b>
+                        
+                        Depth testing
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="tuto-10-perspective.html">
+            
+                
+                    <a href="./tuto-10-perspective.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.10.</b>
+                        
+                        Adjusting the perspective
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="tuto-11-backface-culling.html">
+            
+                
+                    <a href="./tuto-11-backface-culling.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.11.</b>
+                        
+                        Backface culling
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.12" data-path="tuto-12-camera.html">
+            
+                
+                    <a href="./tuto-12-camera.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.12.</b>
+                        
+                        The camera and summary of the vertex processing stages
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13" data-path="tuto-13-phong.html">
+            
+                
+                    <a href="./tuto-13-phong.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.13.</b>
+                        
+                        Blinn-phong shading
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.14" data-path="tuto-14-wall.html">
+            
+                
+                    <a href="./tuto-14-wall.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.14.</b>
+                        
+                        Normal mapping
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.15" >
+            
+            <span><b>1.15.</b> Parallax mapping</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.16" >
+            
+            <span><b>1.16.</b> Deferred shading</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.17" >
+            
+            <span><b>1.17.</b> Shadow mapping</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.18" >
+            
+            <span><b>1.18.</b> Antialiasing</span>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.19" >
+            
+            <span><b>1.19.</b> Drawing lots of objects with instancing</span>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="perf-intro.html">
+            
+                
+                    <a href="./perf-intro.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Performances
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="perf-sync.html">
+            
+                
+                    <a href="./perf-sync.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        Synchronization
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="./" >Introduction</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <h1 id="drawing-a-triangle">Drawing a triangle</h1>
+<p>With some exceptions (like the clearing operation that was used above), OpenGL doesn&apos;t provide any function to easily draw shapes. There is no <code>draw_rectangle</code>, <code>draw_cube</code> or <code>draw_text</code> function for example. Instead everything is handled the same way: through the graphics pipeline. It doesn&apos;t matter whether you draw a simple triangle or a 3D model with thousands of polygons and advanced shadowing techniques, everything uses the same mechanics.</p>
+<p>This is the point where the learning curve becomes very steep, as you need to learn how the graphics pipeline works even if you just want to draw a single triangle. However once you have passed that step, it will become easier to understand the rest.</p>
+<p>Before we can draw a triangle, we need to prepare two things during the initialization:</p>
+<ul>
+<li>A shape that describes our triangle.</li>
+<li>A program that will be executed by the GPU.</li>
+</ul>
+<h2 id="shape">Shape</h2>
+<p>A shape represents the geometry of an object. When you think &quot;geometry&quot;, you may think of squares, circles, etc., but in graphics programming the only shapes that we are going to manipulate are triangles (note: tessellation unlocks the possibility to use other polygons, but this is an advanced topic).</p>
+<p>Here is an example of an object&apos;s shape. As you can see, it is made of hundreds of triangles and only triangles.</p>
+<p><img src="tuto-02-teapot.png" alt="The famous Utah Teapot"></p>
+<p>Each triangle is made of three vertices, which means that a shape is just a collection of vertices linked together to form triangles. The first step to describe a shape like this with glium is to create a struct named <code>Vertex</code> (the actual name doesn&apos;t matter) whose purpose is to describe each individual vertex. Our collection of vertices can later be represented by a <code>Vec&lt;Vertex&gt;</code>.</p>
+<pre><code class="lang-rust"><span class="hljs-preprocessor">#[derive(Copy, Clone)]</span>
+<span class="hljs-keyword">struct</span> Vertex {
+    position: [<span class="hljs-keyword">f32</span>; <span class="hljs-number">2</span>],
+}
+
+implement_vertex!(Vertex, position);
+</code></pre>
+<p>Our struct contains a <code>position</code> field which we will use to store the position of each vertex on the window. Being a true vectorial renderer, OpenGL doesn&apos;t use coordinates in pixels. Instead it considers that the window has a width and a height of 2 units, and that the origin is at the center of the window.</p>
+<p><img src="tuto-02-window-coords.svg" alt="The windows coordinates system"></p>
+<p>When we give positions to OpenGL, we need to use this coordinate system. Let&apos;s pick a shape for our triangle, for example this one:</p>
+<p><img src="tuto-02-triangle-coords.svg" alt="Finding the coordinates of our triangle"></p>
+<p>Which translates into this code:</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> vertex1 = Vertex { position: [-<span class="hljs-number">0.5</span>, -<span class="hljs-number">0.5</span>] };
+<span class="hljs-keyword">let</span> vertex2 = Vertex { position: [ <span class="hljs-number">0.0</span>,  <span class="hljs-number">0.5</span>] };
+<span class="hljs-keyword">let</span> vertex3 = Vertex { position: [ <span class="hljs-number">0.5</span>, -<span class="hljs-number">0.25</span>] };
+<span class="hljs-keyword">let</span> shape = <span class="hljs-built_in">vec!</span>[vertex1, vertex2, vertex3];
+</code></pre>
+<p>We now have our shape! There is a last step which consists in uploading this shape to the memory of our video card in what is called a <em>vertex buffer</em>, for faster access. Even though that is not strictly necessary, it is very easy to do so and it will make our draw operation considerably faster.</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
+</code></pre>
+<p>More complex shapes consist of hundred or thousands of vertices. We not only need to have a list of vertices, but also a way to tell OpenGL how to link these vertices together to obtain triangles. Since we only have one triangle, this isn&apos;t really relevant for us, so we just create a dummy marker that we will pass to glium later on.</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+</code></pre>
+<h2 id="program">Program</h2>
+<p>When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lightning direction, fog distance, etc. But these parameters quickly became too limiting for game creators, and when OpenGL 2 was released a more flexible system was added with what are called <em>shaders</em>. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.</p>
+<p>In order to draw a triangle, you will need some basic understanding about how the drawing process (also called the <em>pipeline</em>) works.</p>
+<p><img src="tuto-02-pipeline.svg" alt="The graphics pipeline"></p>
+<p>The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we will ask the GPU to draw this shape, it will first execute what is called a <em>vertex shader</em>, once for each vertex (that means three times here). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex is. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a <em>fragment shader</em> once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what the color of each pixel needs to be.</p>
+<p>The tricky part is that <em>we</em> need to write the vertex and fragment shaders. To do so, we have to write it using a programming language named <em>GLSL</em>, which is very similar to the C programming language. Teaching you GLSL would be a bit too complicated for now, so I will just give you the source codes. Here is the source code that we will use for the vertex shader:</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> vertex_shader_src = r#<span class="hljs-string">&quot;
+    #version 140
+
+    in vec2 position;
+
+    void main() {
+        gl_Position = vec4(position, 0.0, 1.0);
+    }
+&quot;</span>#;
+</code></pre>
+<p>First of all, the <code>#version 140</code> line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware don&apos;t support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.</p>
+<p>When we defined the <code>Vertex</code> struct in our shape, we created a field named <code>position</code> which contains the position of our vertex. But contrary to what I let you think, this struct doesn&apos;t contain the actual position of the vertex but only a attribute whose value is passed to the vertex shader. OpenGL doesn&apos;t care about the name of the attribute, all it does is passing its value to the vertex shader. The <code>in vec2 position;</code> line of our shader is here to declare that we are expected to be passed an attribute named <code>position</code> whose type is <code>vec2</code> (which corresponds to <code>[f32; 2]</code> in Rust).</p>
+<p>The <code>main</code> function of our shader is called once per vertex, which means three times for our triangle. The first time, the value of <code>position</code> will be <code>[-0.5, -0.5]</code>, the second time it will be <code>[0, 0.5]</code>, and the third time <code>[0.5, -0.25]</code>. It is in this function that we actually tell OpenGL what the position of our vertex is, thanks to the <code>gl_Position = vec4(position, 0.0, 1.0);</code> line. We need to do a small conversion because OpenGL doesn&apos;t expect two-dimensional coordinates, but <em>four</em>-dimensional coordinates (the reason for this will be covered in a later tutorial).</p>
+<p>The second shader is called the fragment shader (sometimes also named <em>pixel shader</em>).</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> fragment_shader_src = r#<span class="hljs-string">&quot;
+    #version 140
+
+    out vec4 color;
+
+    void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+&quot;</span>#;
+</code></pre>
+<p>This source code is very similar to our vertex shader above. This time the <code>main</code> function is executed once per pixel and has to return the color of this pixel, which we do with the <code>color = vec4(1.0, 0.0, 0.0, 1.0);</code> line. Just like with <code>clear_color</code> earlier, we need to pass the red, green, blue and alpha components of the pixel. Here we are returning an opaque red color. It is possible to return different values depending on the pixel, but this will be covered in the next tutorials.</p>
+<p>Now that we have written our shaders&apos; source codes, let&apos;s send them to the glium library:</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> program = glium::Program::from_source(&amp;display, vertex_shader_src, fragment_shader_src, <span class="hljs-built_in">None</span>).unwrap();
+</code></pre>
+<h2 id="drawing">Drawing</h2>
+<p>Now that we have prepared our shape and program, we can finally draw this triangle!</p>
+<p>Remember the <code>target</code> object? We will need to use it to start a draw operation.</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> target = display.draw();
+target.clear_color(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>);
+<span class="hljs-comment">// draw the triangle here</span>
+target.finish().unwrap();
+</code></pre>
+<p>Starting a draw operation needs several things: a source of vertices (here we use our <code>vertex_buffer</code>), a source of indices (we use our <code>indices</code> variable), a program, the program&apos;s uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing a <code>EmptyUniforms</code> marker and by building the default draw parameters.</p>
+<pre><code class="lang-rust">target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+            &amp;Default::default()).unwrap();
+</code></pre>
+<p>The &quot;draw command&quot; designation could make you think that drawing is a heavy operation that takes a lot of time. In reality drawing a triangle takes less than a few microseconds, and if everything goes well you should see a nice little triangle:</p>
+<p><img src="tuto-02-triangle.png" alt="Our final result"></p>
+<p><strong><a href="https://github.com/tomaka/glium/blob/master/examples/tutorial-02.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
+
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="./tuto-01-getting-started.html" class="navigation navigation-prev " aria-label="Previous page: Opening a window"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="./tuto-03-animated-triangle.html" class="navigation navigation-next " aria-label="Next page: Uniforms"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="gitbook/app.js"></script>
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>

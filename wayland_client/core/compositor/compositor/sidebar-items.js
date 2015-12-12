@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Compositor","A wayland compositor."]]});

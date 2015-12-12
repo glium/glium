@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SrgbCubemap","A cube texture  containing sRGB floating-point data."],["SrgbCubemapImage","Represents a single image of a mipmap level of a layer of `SrgbCubemap`."],["SrgbCubemapMipmap","Represents a single mipmap level of a `SrgbCubemap`."]]});

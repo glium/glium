@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Inserter","Allows inserting a fence in the list."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DebugCallbackBehavior","Describes the behavior that the debug output should have."],["ReleaseBehavior","Defines what happens when you change the current context."]],"struct":[["Context","Stores the state and information required for glium to execute commands. Most public glium functions require passing a `Rc<Context>`."]]});

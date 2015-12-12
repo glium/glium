@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `osmesa_sys` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, osmesa_sys">
+
+    <title>osmesa_sys - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'osmesa_sys', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>osmesa_sys</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/osmesa_sys/lib.rs.html#5-79' title='goto source code'>[src]</a></span></h1>
+<h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.OsMesa.html'
+                               title='osmesa_sys::OsMesa'>OsMesa</a></td>
+                        <td class='docblock short'>
+                             <p>Symbols loaded from a shared library.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.osmesa_context.html'
+                               title='osmesa_sys::osmesa_context'>osmesa_context</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='constants' class='section-header'><a href="#constants">Constants</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_ARGB.html'
+                               title='osmesa_sys::OSMESA_ARGB'>OSMESA_ARGB</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_BGR.html'
+                               title='osmesa_sys::OSMESA_BGR'>OSMESA_BGR</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_BGRA.html'
+                               title='osmesa_sys::OSMESA_BGRA'>OSMESA_BGRA</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_COLOR_INDEX.html'
+                               title='osmesa_sys::OSMESA_COLOR_INDEX'>OSMESA_COLOR_INDEX</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_FORMAT.html'
+                               title='osmesa_sys::OSMESA_FORMAT'>OSMESA_FORMAT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_HEIGHT.html'
+                               title='osmesa_sys::OSMESA_HEIGHT'>OSMESA_HEIGHT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_MAX_HEIGHT.html'
+                               title='osmesa_sys::OSMESA_MAX_HEIGHT'>OSMESA_MAX_HEIGHT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_MAX_WIDTH.html'
+                               title='osmesa_sys::OSMESA_MAX_WIDTH'>OSMESA_MAX_WIDTH</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_RGB.html'
+                               title='osmesa_sys::OSMESA_RGB'>OSMESA_RGB</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_RGBA.html'
+                               title='osmesa_sys::OSMESA_RGBA'>OSMESA_RGBA</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_RGB_565.html'
+                               title='osmesa_sys::OSMESA_RGB_565'>OSMESA_RGB_565</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_ROW_LENGTH.html'
+                               title='osmesa_sys::OSMESA_ROW_LENGTH'>OSMESA_ROW_LENGTH</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_TYPE.html'
+                               title='osmesa_sys::OSMESA_TYPE'>OSMESA_TYPE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_WIDTH.html'
+                               title='osmesa_sys::OSMESA_WIDTH'>OSMESA_WIDTH</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.OSMESA_Y_UP.html'
+                               title='osmesa_sys::OSMESA_Y_UP'>OSMESA_Y_UP</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaColorClamp.html'
+                               title='osmesa_sys::OSMesaColorClamp'>OSMesaColorClamp</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaCreateContext.html'
+                               title='osmesa_sys::OSMesaCreateContext'>OSMesaCreateContext</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaCreateContextExt.html'
+                               title='osmesa_sys::OSMesaCreateContextExt'>OSMesaCreateContextExt</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaDestroyContext.html'
+                               title='osmesa_sys::OSMesaDestroyContext'>OSMesaDestroyContext</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaGetColorBuffer.html'
+                               title='osmesa_sys::OSMesaGetColorBuffer'>OSMesaGetColorBuffer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaGetCurrentContext.html'
+                               title='osmesa_sys::OSMesaGetCurrentContext'>OSMesaGetCurrentContext</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaGetDepthBuffer.html'
+                               title='osmesa_sys::OSMesaGetDepthBuffer'>OSMesaGetDepthBuffer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaGetIntegerv.html'
+                               title='osmesa_sys::OSMesaGetIntegerv'>OSMesaGetIntegerv</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaGetProcAddress.html'
+                               title='osmesa_sys::OSMesaGetProcAddress'>OSMesaGetProcAddress</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaMakeCurrent.html'
+                               title='osmesa_sys::OSMesaMakeCurrent'>OSMesaMakeCurrent</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.OSMesaPixelStore.html'
+                               title='osmesa_sys::OSMesaPixelStore'>OSMesaPixelStore</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.OSMESAproc.html'
+                               title='osmesa_sys::OSMESAproc'>OSMESAproc</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.OSMesaContext.html'
+                               title='osmesa_sys::OSMesaContext'>OSMesaContext</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "osmesa_sys";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

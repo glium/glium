@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["keysyms",""]],"struct":[["KbState",""],["MappedKeyboard","A wayland keyboard mapped to its keymap"]]});

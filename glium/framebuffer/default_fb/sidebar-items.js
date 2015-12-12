@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DefaultFramebufferAttachment","One of the color attachments on the default framebuffer."]],"struct":[["DefaultFramebuffer","A framebuffer which has only one color attachment."]]});

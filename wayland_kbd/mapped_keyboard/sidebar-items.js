@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["KbState",""],["MappedKeyboard","A wayland keyboard mapped to its keymap"]]});

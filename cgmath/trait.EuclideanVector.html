@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `EuclideanVector` trait in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, EuclideanVector">
+
+    <title>cgmath::EuclideanVector - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cgmath</a></p><script>window.sidebarCurrent = {name: 'EuclideanVector', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>cgmath</a>::<wbr><a class='trait' href=''>EuclideanVector</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2950' class='srclink' href='../src/cgmath/vector.rs.html#620-689' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait EuclideanVector&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt;: <a class='trait' href='../cgmath/trait.Vector.html' title='cgmath::Vector'>Vector</a>&lt;S&gt; + <a class='trait' href='../cgmath/trait.ApproxEq.html' title='cgmath::ApproxEq'>ApproxEq</a>&lt;S&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
+    fn <a href='#tymethod.angle' class='fnname'>angle</a>(&amp;self, other: &amp;Self) -&gt; <a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;;
+
+    fn <a href='#method.is_perpendicular' class='fnname'>is_perpendicular</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.length2' class='fnname'>length2</a>(&amp;self) -&gt; S { ... }
+    fn <a href='#method.length' class='fnname'>length</a>(&amp;self) -&gt; S { ... }
+    fn <a href='#method.normalize' class='fnname'>normalize</a>(&amp;self) -&gt; Self { ... }
+    fn <a href='#method.normalize_to' class='fnname'>normalize_to</a>(&amp;self, length: S) -&gt; Self { ... }
+    fn <a href='#method.lerp' class='fnname'>lerp</a>(&amp;self, other: &amp;Self, amount: S) -&gt; Self { ... }
+    fn <a href='#method.normalize_self' class='fnname'>normalize_self</a>(&amp;mut self) { ... }
+    fn <a href='#method.normalize_self_to' class='fnname'>normalize_self_to</a>(&amp;mut self, length: S) { ... }
+    fn <a href='#method.lerp_self' class='fnname'>lerp_self</a>(&amp;mut self, other: &amp;Self, amount: S) { ... }
+}</pre><div class='docblock'><p>Specifies geometric operations for vectors. This is only implemented for
+2-dimensional and 3-dimensional vectors.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.angle' class='method stab '><code>fn <a href='#tymethod.angle' class='fnname'>angle</a>(&amp;self, other: &amp;Self) -&gt; <a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;</code></h3><div class='docblock'><p>The angle between the vector and <code>other</code>, in radians.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.is_perpendicular' class='method stab '><code>fn <a href='#method.is_perpendicular' class='fnname'>is_perpendicular</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> if the vector is perpendicular (at right angles) to the
+other vector.</p>
+</div><h3 id='method.length2' class='method stab '><code>fn <a href='#method.length2' class='fnname'>length2</a>(&amp;self) -&gt; S</code></h3><div class='docblock'><p>Returns the squared length of the vector. This does not perform an
+expensive square root operation like in the <code>length</code> method and can
+therefore be more efficient for comparing the lengths of two vectors.</p>
+</div><h3 id='method.length' class='method stab '><code>fn <a href='#method.length' class='fnname'>length</a>(&amp;self) -&gt; S</code></h3><div class='docblock'><p>The norm of the vector.</p>
+</div><h3 id='method.normalize' class='method stab '><code>fn <a href='#method.normalize' class='fnname'>normalize</a>(&amp;self) -&gt; Self</code></h3><div class='docblock'><p>Returns a vector with the same direction, but with a <code>length</code> (or
+<code>norm</code>) of <code>1</code>.</p>
+</div><h3 id='method.normalize_to' class='method stab '><code>fn <a href='#method.normalize_to' class='fnname'>normalize_to</a>(&amp;self, length: S) -&gt; Self</code></h3><div class='docblock'><p>Returns a vector with the same direction and a given <code>length</code>.</p>
+</div><h3 id='method.lerp' class='method stab '><code>fn <a href='#method.lerp' class='fnname'>lerp</a>(&amp;self, other: &amp;Self, amount: S) -&gt; Self</code></h3><div class='docblock'><p>Returns the result of linarly interpolating the length of the vector
+towards the length of <code>other</code> by the specified amount.</p>
+</div><h3 id='method.normalize_self' class='method stab '><code>fn <a href='#method.normalize_self' class='fnname'>normalize_self</a>(&amp;mut self)</code></h3><div class='docblock'><p>Normalises the vector to a length of <code>1</code>.</p>
+</div><h3 id='method.normalize_self_to' class='method stab '><code>fn <a href='#method.normalize_self_to' class='fnname'>normalize_self_to</a>(&amp;mut self, length: S)</code></h3><div class='docblock'><p>Normalizes the vector to <code>length</code>.</p>
+</div><h3 id='method.lerp_self' class='method stab '><code>fn <a href='#method.lerp_self' class='fnname'>lerp_self</a>(&amp;mut self, other: &amp;Self, amount: S)</code></h3><div class='docblock'><p>Linearly interpolates the length of the vector towards the length of
+<code>other</code> by the specified amount.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.EuclideanVector.html' title='cgmath::EuclideanVector'>EuclideanVector</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Vector2.html' title='cgmath::Vector2'>Vector2</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.EuclideanVector.html' title='cgmath::EuclideanVector'>EuclideanVector</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Vector3.html' title='cgmath::Vector3'>Vector3</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.EuclideanVector.html' title='cgmath::EuclideanVector'>EuclideanVector</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Vector4.html' title='cgmath::Vector4'>Vector4</a>&lt;S&gt;</code></li>
+</ul><script type="text/javascript" async
+                              src="../implementors/cgmath/trait.EuclideanVector.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

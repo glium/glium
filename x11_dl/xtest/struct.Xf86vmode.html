@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Xf86vmode` struct in crate `x11_dl`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Xf86vmode">
+
+    <title>x11_dl::xtest::Xf86vmode - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xtest</a></p><script>window.sidebarCurrent = {name: 'Xf86vmode', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xtest</a>::<wbr><a class='struct' href=''>Xf86vmode</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-20101' class='srclink' href='../../src/x11_dl/link.rs.html#28-34' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Xf86vmode {
+    pub XTestCompareCurrentCursorWithWindow: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestCompareCursorWithWindow: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestDiscard: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeButtonEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_uint.html' title='libc::types::os::arch::c95::c_uint'>c_uint</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeDeviceButtonEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xinput/struct.XDevice.html' title='x11_dl::xinput::XDevice'>XDevice</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_uint.html' title='libc::types::os::arch::c95::c_uint'>c_uint</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeDeviceKeyEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xinput/struct.XDevice.html' title='x11_dl::xinput::XDevice'>XDevice</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_uint.html' title='libc::types::os::arch::c95::c_uint'>c_uint</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeDeviceMotionEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xinput/struct.XDevice.html' title='x11_dl::xinput::XDevice'>XDevice</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeKeyEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_uint.html' title='libc::types::os::arch::c95::c_uint'>c_uint</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeMotionEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeProximityEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xinput/struct.XDevice.html' title='x11_dl::xinput::XDevice'>XDevice</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestFakeRelativeMotionEvent: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestGrabControl: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestQueryExtension: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../x11_dl/xlib/type.Display.html' title='x11_dl::xlib::Display'>Display</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a></a>) -&gt; <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
+    pub XTestSetGContextOfGC: unsafe  extern "C" fn(<a class='type' href='../../x11_dl/xlib/type.GC.html' title='x11_dl::xlib::GC'>GC</a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    pub XTestSetVisualIDOfVisual: unsafe  extern "C" fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.Visual.html' title='x11_dl::xlib::Visual'>Visual</a></a>, <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>),
+    // some fields omitted
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.XTestCompareCurrentCursorWithWindow'><code>XTestCompareCurrentCursorWithWindow</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestCompareCursorWithWindow'><code>XTestCompareCursorWithWindow</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestDiscard'><code>XTestDiscard</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeButtonEvent'><code>XTestFakeButtonEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeDeviceButtonEvent'><code>XTestFakeDeviceButtonEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeDeviceKeyEvent'><code>XTestFakeDeviceKeyEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeDeviceMotionEvent'><code>XTestFakeDeviceMotionEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeKeyEvent'><code>XTestFakeKeyEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeMotionEvent'><code>XTestFakeMotionEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeProximityEvent'><code>XTestFakeProximityEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestFakeRelativeMotionEvent'><code>XTestFakeRelativeMotionEvent</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestGrabControl'><code>XTestGrabControl</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestQueryExtension'><code>XTestQueryExtension</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestSetGContextOfGC'><code>XTestSetGContextOfGC</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.XTestSetVisualIDOfVisual'><code>XTestSetVisualIDOfVisual</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../x11_dl/xtest/struct.Xf86vmode.html' title='x11_dl::xtest::Xf86vmode'>Xf86vmode</a></code></h3><div class='impl-items'><h4 id='method.open' class='method'><code>fn <a href='#method.open' class='fnname'>open</a>() -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../x11_dl/xtest/struct.Xf86vmode.html' title='x11_dl::xtest::Xf86vmode'>Xf86vmode</a>, <a class='struct' href='../../x11_dl/error/struct.OpenError.html' title='x11_dl::error::OpenError'>OpenError</a>&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "x11_dl";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

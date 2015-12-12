@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Transform` trait in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Transform">
+
+    <title>cgmath::Transform - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cgmath</a></p><script>window.sidebarCurrent = {name: 'Transform', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>cgmath</a>::<wbr><a class='trait' href=''>Transform</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-4783' class='srclink' href='../src/cgmath/transform.rs.html#31-77' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Transform&lt;S: <a class='trait' href='../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>, V: <a class='trait' href='../cgmath/trait.Vector.html' title='cgmath::Vector'>Vector</a>&lt;S&gt;, P: <a class='trait' href='../cgmath/trait.Point.html' title='cgmath::Point'>Point</a>&lt;S, V&gt;&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
+    fn <a href='#tymethod.one' class='fnname'>one</a>() -&gt; Self;
+    fn <a href='#tymethod.look_at' class='fnname'>look_at</a>(eye: &amp;P, center: &amp;P, up: &amp;V) -&gt; Self;
+    fn <a href='#tymethod.transform_vector' class='fnname'>transform_vector</a>(&amp;self, vec: &amp;V) -&gt; V;
+    fn <a href='#tymethod.transform_point' class='fnname'>transform_point</a>(&amp;self, point: &amp;P) -&gt; P;
+    fn <a href='#tymethod.concat' class='fnname'>concat</a>(&amp;self, other: &amp;Self) -&gt; Self;
+    fn <a href='#tymethod.invert' class='fnname'>invert</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;;
+
+    fn <a href='#method.transform_ray' class='fnname'>transform_ray</a>(&amp;self, ray: &amp;<a class='struct' href='../cgmath/struct.Ray.html' title='cgmath::Ray'>Ray</a>&lt;S, P, V&gt;) -&gt; <a class='struct' href='../cgmath/struct.Ray.html' title='cgmath::Ray'>Ray</a>&lt;S, P, V&gt; { ... }
+    fn <a href='#method.transform_as_point' class='fnname'>transform_as_point</a>(&amp;self, vec: &amp;V) -&gt; V { ... }
+    fn <a href='#method.concat_self' class='fnname'>concat_self</a>(&amp;mut self, other: &amp;Self) { ... }
+    fn <a href='#method.invert_self' class='fnname'>invert_self</a>(&amp;mut self) { ... }
+}</pre><div class='docblock'><p>A trait representing an <a href="https://en.wikipedia.org/wiki/Affine_transformation">affine
+transformation</a> that
+can be applied to points or vectors. An affine transformation is one which</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.one' class='method stab '><code>fn <a href='#tymethod.one' class='fnname'>one</a>() -&gt; Self</code></h3><div class='docblock'><p>Create an identity transformation. That is, a transformation which
+does nothing.</p>
+</div><h3 id='tymethod.look_at' class='method stab '><code>fn <a href='#tymethod.look_at' class='fnname'>look_at</a>(eye: &amp;P, center: &amp;P, up: &amp;V) -&gt; Self</code></h3><div class='docblock'><p>Create a transformation that rotates a vector to look at <code>center</code> from
+<code>eye</code>, using <code>up</code> for orientation.</p>
+</div><h3 id='tymethod.transform_vector' class='method stab '><code>fn <a href='#tymethod.transform_vector' class='fnname'>transform_vector</a>(&amp;self, vec: &amp;V) -&gt; V</code></h3><div class='docblock'><p>Transform a vector using this transform.</p>
+</div><h3 id='tymethod.transform_point' class='method stab '><code>fn <a href='#tymethod.transform_point' class='fnname'>transform_point</a>(&amp;self, point: &amp;P) -&gt; P</code></h3><div class='docblock'><p>Transform a point using this transform.</p>
+</div><h3 id='tymethod.concat' class='method stab '><code>fn <a href='#tymethod.concat' class='fnname'>concat</a>(&amp;self, other: &amp;Self) -&gt; Self</code></h3><div class='docblock'><p>Combine this transform with another, yielding a new transformation
+which has the effects of both.</p>
+</div><h3 id='tymethod.invert' class='method stab '><code>fn <a href='#tymethod.invert' class='fnname'>invert</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></h3><div class='docblock'><p>Create a transform that &quot;un-does&quot; this one.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.transform_ray' class='method stab '><code>fn <a href='#method.transform_ray' class='fnname'>transform_ray</a>(&amp;self, ray: &amp;<a class='struct' href='../cgmath/struct.Ray.html' title='cgmath::Ray'>Ray</a>&lt;S, P, V&gt;) -&gt; <a class='struct' href='../cgmath/struct.Ray.html' title='cgmath::Ray'>Ray</a>&lt;S, P, V&gt;</code></h3><div class='docblock'><p>Transform a ray using this transform.</p>
+</div><h3 id='method.transform_as_point' class='method stab '><code>fn <a href='#method.transform_as_point' class='fnname'>transform_as_point</a>(&amp;self, vec: &amp;V) -&gt; V</code></h3><div class='docblock'><p>Transform a vector as a point using this transform.</p>
+</div><h3 id='method.concat_self' class='method stab '><code>fn <a href='#method.concat_self' class='fnname'>concat_self</a>(&amp;mut self, other: &amp;Self)</code></h3><div class='docblock'><p>Combine this transform with another, in-place.</p>
+</div><h3 id='method.invert_self' class='method stab '><code>fn <a href='#method.invert_self' class='fnname'>invert_self</a>(&amp;mut self)</code></h3><div class='docblock'><p>Invert this transform in-place, failing if the transformation is not
+invertible.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>, V: <a class='trait' href='../cgmath/trait.Vector.html' title='cgmath::Vector'>Vector</a>&lt;S&gt;, P: <a class='trait' href='../cgmath/trait.Point.html' title='cgmath::Point'>Point</a>&lt;S, V&gt;, R: <a class='trait' href='../cgmath/trait.Rotation.html' title='cgmath::Rotation'>Rotation</a>&lt;S, V, P&gt;&gt; <a class='trait' href='../cgmath/trait.Transform.html' title='cgmath::Transform'>Transform</a>&lt;S, V, P&gt; for <a class='struct' href='../cgmath/struct.Decomposed.html' title='cgmath::Decomposed'>Decomposed</a>&lt;S, V, R&gt;</code></li>
+<li><code>impl&lt;S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + 'static&gt; <a class='trait' href='../cgmath/trait.Transform.html' title='cgmath::Transform'>Transform</a>&lt;S, <a class='struct' href='../cgmath/struct.Vector3.html' title='cgmath::Vector3'>Vector3</a>&lt;S&gt;, <a class='struct' href='../cgmath/struct.Point3.html' title='cgmath::Point3'>Point3</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.AffineMatrix3.html' title='cgmath::AffineMatrix3'>AffineMatrix3</a>&lt;S&gt;</code></li>
+</ul><script type="text/javascript" async
+                              src="../implementors/cgmath/trait.Transform.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

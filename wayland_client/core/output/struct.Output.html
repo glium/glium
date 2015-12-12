@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Output` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Output">
+
+    <title>wayland_client::core::output::Output - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>output</a></p><script>window.sidebarCurrent = {name: 'Output', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>output</a>::<wbr><a class='struct' href=''>Output</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2480' class='srclink' href='../../../src/wayland_client/core/output/output.rs.html#141-145' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Output {
+    // some fields omitted
+}</pre><div class='docblock'><p>A physical output</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h3><div class='impl-items'><h4 id='method.get_id' class='method'><code>fn <a href='#method.get_id' class='fnname'>get_id</a>(&amp;self) -&gt; <a class='struct' href='../../../wayland_client/core/output/struct.OutputId.html' title='wayland_client::core::output::OutputId'>OutputId</a></code></h4>
+<div class='docblock'><p>The unique Id representing this output</p>
+</div><h4 id='method.position' class='method'><code>fn <a href='#method.position' class='fnname'>position</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</a></code></h4>
+<div class='docblock'><p>The location of the top-left corner of this output in the
+compositor space.</p>
+</div><h4 id='method.dimensions' class='method'><code>fn <a href='#method.dimensions' class='fnname'>dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</a></code></h4>
+<div class='docblock'><p>The dimensions (width, height) of this output, in milimeters</p>
+</div><h4 id='method.subpixel' class='method'><code>fn <a href='#method.subpixel' class='fnname'>subpixel</a>(&amp;self) -&gt; <a class='enum' href='../../../wayland_client/core/output/enum.OutputSubpixel.html' title='wayland_client::core::output::OutputSubpixel'>OutputSubpixel</a></code></h4>
+<div class='docblock'><p>The subpixel orientation of this output</p>
+</div><h4 id='method.transform' class='method'><code>fn <a href='#method.transform' class='fnname'>transform</a>(&amp;self) -&gt; <a class='enum' href='../../../wayland_client/core/output/enum.OutputTransform.html' title='wayland_client::core::output::OutputTransform'>OutputTransform</a></code></h4>
+<div class='docblock'><p>The current transform of this output</p>
+</div><h4 id='method.manufacturer' class='method'><code>fn <a href='#method.manufacturer' class='fnname'>manufacturer</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></code></h4>
+<div class='docblock'><p>The manufacturer of this output</p>
+</div><h4 id='method.model' class='method'><code>fn <a href='#method.model' class='fnname'>model</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></code></h4>
+<div class='docblock'><p>The model of this output</p>
+</div><h4 id='method.scale' class='method'><code>fn <a href='#method.scale' class='fnname'>scale</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
+<div class='docblock'><p>The current scaling factor of this output</p>
+</div><h4 id='method.modes' class='method'><code>fn <a href='#method.modes' class='fnname'>modes</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../../wayland_client/core/output/struct.OutputMode.html' title='wayland_client::core::output::OutputMode'>OutputMode</a>&gt;</code></h4>
+<div class='docblock'><p>The modes of this output</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='../../../wayland_client/internals/trait.Bind.html' title='wayland_client::internals::Bind'>Bind</a>&lt;<a class='struct' href='../../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a>&gt; for <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h3><div class='impl-items'><h4 id='method.interface' class='method'><code>fn <a href='../../../wayland_client/internals/trait.Bind.html#method.interface' class='fnname'>interface</a>() -&gt; &amp;'static <a class='struct' href='../../../wayland_client/internals/struct.wl_interface.html' title='wayland_client::internals::wl_interface'>wl_interface</a></code></h4>
+<h4 id='method.wrap' class='method'><code>unsafe fn <a href='../../../wayland_client/internals/trait.Bind.html#method.wrap' class='fnname'>wrap</a>(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_output</a>, registry: <a class='struct' href='../../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a>) -&gt; <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#method.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../../../wayland_client/internals/trait.FFI.html' title='wayland_client::internals::FFI'>FFI</a> for <a class='struct' href='../../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a></code></h3><div class='impl-items'><h4 id='assoc_type.Ptr' class='type'><code>type Ptr = wl_output</code></h4>
+<h4 id='method.ptr' class='method'><code>fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const wl_output</a></code></h4>
+<h4 id='method.ptr_mut' class='method'><code>unsafe fn <a href='../../../wayland_client/internals/trait.FFI.html#method.ptr_mut' class='fnname'>ptr_mut</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_output</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

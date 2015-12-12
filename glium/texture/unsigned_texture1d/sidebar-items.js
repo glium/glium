@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["UnsignedTexture1d","A one-dimensional texture  containing unsigned integral data."],["UnsignedTexture1dMipmap","Represents a single mipmap level of a `UnsignedTexture1d`."]]});

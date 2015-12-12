@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Registry` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Registry">
+
+    <title>wayland_client::core::Registry - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Registry', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='struct' href=''>Registry</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-2137' class='srclink' href='../../src/wayland_client/core/registry.rs.html#102-104' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Registry {
+    // some fields omitted
+}</pre><div class='docblock'><p>A Registry, giving access to the global wayland objects.</p>
+
+<p>This wraps a <code>wl_registry</code>, used by the wayland to propagate
+to the clients the global objects, such as the output or input 
+devices, or the compositor.</p>
+
+<p>This object is cloneable, allowing to create several handles to the global
+registry. The registry will only be destroyed once all copies are destroyed.</p>
+
+<p>All global objects created by the registry keep a hangle to it, and maintain
+it alive.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a></code></h3><div class='impl-items'><h4 id='method.get_display' class='method'><code>fn <a href='#method.get_display' class='fnname'>get_display</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/core/struct.Display.html' title='wayland_client::core::Display'>Display</a></code></h4>
+<div class='docblock'><p>Returns a handle to the Display associated with this registry.</p>
+</div><h4 id='method.get_global_objects' class='method'><code>fn <a href='#method.get_global_objects' class='fnname'>get_global_objects</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a <code>Vec</code> of all global objects and their interface.</p>
+
+<p>Each entry is a tuple <code>(id, interface, version)</code>.</p>
+</div><h4 id='method.get_objects_with_interface' class='method'><code>fn <a href='#method.get_objects_with_interface' class='fnname'>get_objects_with_interface</a>(&amp;self, interface: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a <code>Vec</code> of all global objects implementing given interface.</p>
+
+<p>Each entry is a tuple <code>(id, version)</code>.</p>
+</div><h4 id='method.get_compositor' class='method'><code>fn <a href='#method.get_compositor' class='fnname'>get_compositor</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../wayland_client/core/compositor/struct.Compositor.html' title='wayland_client::core::compositor::Compositor'>Compositor</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieves a handle to the global compositor</p>
+</div><h4 id='method.get_outputs' class='method'><code>fn <a href='#method.get_outputs' class='fnname'>get_outputs</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../wayland_client/core/output/struct.Output.html' title='wayland_client::core::output::Output'>Output</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve handles to all available outputs</p>
+</div><h4 id='method.get_seats' class='method'><code>fn <a href='#method.get_seats' class='fnname'>get_seats</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../wayland_client/core/seat/struct.Seat.html' title='wayland_client::core::seat::Seat'>Seat</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieve handles to all available seats</p>
+
+<p>A classic configuration is likely to have a single seat, but it is
+not garanteed.</p>
+</div><h4 id='method.get_shell' class='method'><code>fn <a href='#method.get_shell' class='fnname'>get_shell</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../wayland_client/core/shell/struct.Shell.html' title='wayland_client::core::shell::Shell'>Shell</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieves a handle to the global shell</p>
+</div><h4 id='method.get_shm' class='method'><code>fn <a href='#method.get_shm' class='fnname'>get_shm</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../wayland_client/core/shm/struct.Shm.html' title='wayland_client::core::shm::Shm'>Shm</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieves a handle to the global shm</p>
+</div><h4 id='method.get_subcompositor' class='method'><code>fn <a href='#method.get_subcompositor' class='fnname'>get_subcompositor</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../wayland_client/core/subcompositor/struct.SubCompositor.html' title='wayland_client::core::subcompositor::SubCompositor'>SubCompositor</a>&gt;</code></h4>
+<div class='docblock'><p>Retrieves a handle to the global subcompositor</p>
+</div><h4 id='method.bind' class='method'><code>unsafe fn <a href='#method.bind' class='fnname'>bind</a>&lt;T&gt;(&amp;self, id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, version: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; T <span class='where'>where T: <a class='trait' href='../../wayland_client/internals/trait.Bind.html' title='wayland_client::internals::Bind'>Bind</a>&lt;<a class='struct' href='../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a>&gt;</span></code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../../wayland_client/internals/trait.FFI.html' title='wayland_client::internals::FFI'>FFI</a> for <a class='struct' href='../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a></code></h3><div class='impl-items'><h4 id='assoc_type.Ptr' class='type'><code>type Ptr = wl_registry</code></h4>
+<h4 id='method.ptr' class='method'><code>fn <a href='../../wayland_client/internals/trait.FFI.html#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const wl_registry</a></code></h4>
+<h4 id='method.ptr_mut' class='method'><code>unsafe fn <a href='../../wayland_client/internals/trait.FFI.html#method.ptr_mut' class='fnname'>ptr_mut</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut wl_registry</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/core/struct.Registry.html' title='wayland_client::core::Registry'>Registry</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `wayland_client` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, wayland_client">
+
+    <title>wayland_client - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'wayland_client', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>wayland_client</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/wayland_client/lib.rs.html#1-51' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>This library provides a Rust interface on the Wayland client library.</p>
+
+<p>The module <code>core</code> provides support for the core features of the wayland protocol.
+Some protocol extentions are available, each as their own module. Some of them require
+a system library which they will try to load at first use.</p>
+
+<ul>
+<li>module <code>egl</code>: it provides a mean to build EGL surfaces in a wayland context. It requires
+the presence of <code>libwayland-egl.so</code>. This module is activated by the <code>egl</code> feature.</li>
+</ul>
+
+<p>Additionnaly, the feature <code>dlopen</code> prevents the crate to be linked to the various
+wayland libraries. In this case, it will instead try to load them dynamically at runtime.
+In this case, each module will provide a function allowing you to gracefully check if
+the load was successful. There is also the function <code>is_wayland_lib_available()</code> at the
+root of this crate, providing the same function for the core <code>libwayland-client.so</code>.</p>
+
+<p>The entry point of your wayland application will be <code>core::default_display()</code>, which will
+provide you with a <code>Display</code> object representing the connexion to the wayland server.
+This display will give you access to the <code>Registry</code>, which will then give you access to the
+various Wayland global objects.</p>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='core/index.html'
+                               title='wayland_client::core'>core</a></td>
+                        <td class='docblock short'>
+                             <p>The core wayland protocol.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='egl/index.html'
+                               title='wayland_client::egl'>egl</a></td>
+                        <td class='docblock short'>
+                             <p>The EGL wayland protocol.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='internals/index.html'
+                               title='wayland_client::internals'>internals</a></td>
+                        <td class='docblock short'>
+                             <p>Internal types and traits provided for custom protocol extensions.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.is_wayland_lib_available.html'
+                               title='wayland_client::is_wayland_lib_available'>is_wayland_lib_available</a></td>
+                        <td class='docblock short'>
+                             <p>Returns whether the library <code>libwayland-client.so</code> has been found and could be loaded.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

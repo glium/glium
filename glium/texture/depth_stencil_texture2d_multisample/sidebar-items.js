@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DepthStencilTexture2dMultisample","A two-dimensional texture  containing both depth and stencil data."],["DepthStencilTexture2dMultisampleMipmap","Represents a single mipmap level of a `DepthStencilTexture2dMultisample`."]]});

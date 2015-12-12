@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Registry","A Registry, giving access to the global wayland objects."]]});

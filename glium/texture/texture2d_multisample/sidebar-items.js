@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Texture2dMultisample","A two-dimensional texture  containing floating-point data."],["Texture2dMultisampleMipmap","Represents a single mipmap level of a `Texture2dMultisample`."]]});

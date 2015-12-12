@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `PrimitiveType` enum in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, PrimitiveType">
+
+    <title>glium::index::PrimitiveType - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>index</a></p><script>window.sidebarCurrent = {name: 'PrimitiveType', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>index</a>::<wbr><a class='enum' href=''>PrimitiveType</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-4536' class='srclink' href='../../src/glium/index/mod.rs.html#109-193' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum PrimitiveType {
+    Points,
+    LinesList,
+    LinesListAdjacency,
+    LineStrip,
+    LineStripAdjacency,
+    LineLoop,
+    TrianglesList,
+    TrianglesListAdjacency,
+    TriangleStrip,
+    TriangleStripAdjacency,
+    TriangleFan,
+    Patches {
+        vertices_per_patch: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
+    },
+}</pre><div class='docblock'><p>List of available primitives.</p>
+
+<p>See <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/bb205124%28v=vs.85%29.aspx">this page for a visual representation of each primitive
+type</a>.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.Points'><code>Points</code></td><td><div class='docblock'><p>Each vertex is an invidiual point.</p>
+</div></td></tr><tr><td id='variant.LinesList'><code>LinesList</code></td><td><div class='docblock'><p>Vertices are grouped by chunks of two vertices. Each chunk represents a line.</p>
+</div></td></tr><tr><td id='variant.LinesListAdjacency'><code>LinesListAdjacency</code></td><td><div class='docblock'><p>Vertices are grouped by chunks of four vertices. The second and third vertices of each
+chunk represents the line.</p>
+
+<p>Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if
+there is any.
+The first vertex represents the vertex adjacent to the second vertex. The fourth vertex
+represents the vertex adjacent to the third vertex.</p>
+</div></td></tr><tr><td id='variant.LineStrip'><code>LineStrip</code></td><td><div class='docblock'><p>Each vertex (except the last one) forms a line with the next vertex.</p>
+
+<p>For example vertices 0 and 1 form a line, vertices 1 and 2 form a line, vertices 2 and 3
+form a line, etc.</p>
+</div></td></tr><tr><td id='variant.LineStripAdjacency'><code>LineStripAdjacency</code></td><td><div class='docblock'><p>Similar to <code>LineStrip</code>, but with an additional vertex at the beginning and at the end
+that represent the vertices adjacent to the first and last ones.</p>
+
+<p>Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if
+there is any.</p>
+</div></td></tr><tr><td id='variant.LineLoop'><code>LineLoop</code></td><td><div class='docblock'><p>Each vertex forms a line with the next vertex. The last vertex form a line with the first
+one.</p>
+</div></td></tr><tr><td id='variant.TrianglesList'><code>TrianglesList</code></td><td><div class='docblock'><p>Vertices are grouped by chunks of three vertices. Each chunk represents a triangle.</p>
+
+<p>The order of the vertices is important, as it determines whether the triangle will be
+clockwise or counter-clockwise. See <code>BackfaceCulling</code> for more infos.</p>
+</div></td></tr><tr><td id='variant.TrianglesListAdjacency'><code>TrianglesListAdjacency</code></td><td><div class='docblock'><p>Vertices are grouped by chunks of six vertices. The first, third and fifth vertices
+represent a triangle.</p>
+
+<p>The order of the vertices is important, as it determines whether the triangle will be
+clockwise or counter-clockwise. See <code>BackfaceCulling</code> for more infos.</p>
+
+<p>Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if
+there is any.
+The second vertex represents the vertex adjacent to the first and third vertices. The
+fourth vertex represents the vertex adjacent to the third and fifth vertices. The sixth
+vertex represents the vertex adjacent to the first and fifth vertices.</p>
+</div></td></tr><tr><td id='variant.TriangleStrip'><code>TriangleStrip</code></td><td><div class='docblock'><p>Each vertex (except the first one and the last one) forms a triangle with the previous
+and the next vertices.</p>
+
+<p>For example vertices <code>0, 1, 2</code> form a triangle, <code>1, 2, 3</code> form a triangle, <code>2, 3, 4</code> form a
+triangle, <code>3, 4, 5</code> form a triangle, etc.</p>
+
+<p>Each uneven triangle is reversed so that all triangles are facing the same
+direction.</p>
+</div></td></tr><tr><td id='variant.TriangleStripAdjacency'><code>TriangleStripAdjacency</code></td><td><div class='docblock'><p>Each even vertex forms a triangle with vertices <code>n+2</code> and <code>n+4</code>.</p>
+
+<p>Each uneven vertex is adjacent to the previous and next ones.
+Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if
+there is any.</p>
+</div></td></tr><tr><td id='variant.TriangleFan'><code>TriangleFan</code></td><td><div class='docblock'><p>Starting at the second vertex, each vertex forms a triangle with the next and the first
+vertices.</p>
+
+<p>For example vertices <code>0, 1, 2</code> form a triangle, <code>0, 2, 3</code> form a triangle, <code>0, 3, 4</code> form a
+triangle, <code>0, 4, 5</code> form a triangle, etc.</p>
+</div></td></tr><tr><td id='variant.Patches'><code>Patches</code></td><td><div class='docblock'><p>Vertices are grouped by chunks of <code>vertices_per_patch</code> vertices.</p>
+
+<p>This primitives type can only be used in conjunction with a tessellation shader. The
+tessellation shader will indicate how each patch will be divided into lines or triangles.</p>
+</div><h3 class='fields'>Fields</h3>
+
+                                              <table><tr><td id='variant.Patches.field.vertices_per_patch'><code>vertices_per_patch</code></td><td><div class='docblock'><p>Number of vertices per patch.</p>
+</div></td></tr></table></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h3><div class='impl-items'><h4 id='method.is_supported' class='method'><code>fn <a href='#method.is_supported' class='fnname'>is_supported</a>&lt;C&gt;(&amp;self, caps: &amp;C) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where'>where C: <a class='trait' href='../../glium/trait.CapabilitiesSource.html' title='glium::CapabilitiesSource'>CapabilitiesSource</a></span></code></h4>
+<div class='docblock'><p>Returns true if the backend supports this type of primitives.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
