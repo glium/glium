@@ -288,7 +288,15 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
            alpha_factor_src == LinearBlendingFactor::ConstantColor ||
            alpha_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
            alpha_factor_dst == LinearBlendingFactor::ConstantColor ||
-           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor
+           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor ||
+           color_factor_src == LinearBlendingFactor::ConstantAlpha ||
+           color_factor_src == LinearBlendingFactor::OneMinusConstantAlpha ||
+           color_factor_dst == LinearBlendingFactor::ConstantAlpha ||
+           color_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha ||
+           alpha_factor_src == LinearBlendingFactor::ConstantAlpha ||
+           alpha_factor_src == LinearBlendingFactor::OneMinusConstantAlpha ||
+           alpha_factor_dst == LinearBlendingFactor::ConstantAlpha ||
+           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha
         {
             if ctxt.state.blend_color != blend.constant_value {
                 let (r, g, b, a) = blend.constant_value;
