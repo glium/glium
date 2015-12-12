@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 0.13.0 (2015-12-12)
+
+ - Removed native support for cgmath and nalgebra in avoid to avoid dependency hell.
+ - Reworked the layer-related, level-related functions and `into_image` from texture types where they are not relevant.
+ - The `Backend::get_proc_address` function now takes a `*const std::os::raw::c_void` instead of a `*const ()`.
+
 ## Version 0.12.4 (2015-12-12)
 
  - Added small hack to make glium work with WebGL.
