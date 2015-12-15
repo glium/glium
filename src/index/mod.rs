@@ -41,7 +41,7 @@ use buffer::BufferAnySlice;
 
 pub use ops::IndicesSource;
 
-pub use self::buffer::{IndexBuffer, IndexBufferSlice, IndexBufferAny};
+pub use self::buffer::{IndexStorage, IndexBuffer, IndexBufferSlice};
 pub use self::buffer::CreationError as BufferCreationError;
 pub use self::multidraw::{DrawCommandsNoIndicesBuffer, DrawCommandNoIndices};
 pub use self::multidraw::{DrawCommandsIndicesBuffer, DrawCommandIndices};

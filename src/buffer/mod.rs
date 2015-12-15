@@ -70,6 +70,8 @@ use std::fmt;
 use std::mem;
 use std::slice;
 
+use backend::Facade;
+
 mod alloc;
 mod fences;
 mod view;
@@ -197,6 +199,22 @@ impl Error for BufferCreationError {
             &BufferCreationError::BufferTypeNotSupported => "This type of buffer is not supported",
         }
     }
+}
+
+pub trait Storage {
+    type Content: ?Sized + Content;
+}
+
+pub trait BufferCreate: Storage {
+    fn new<F>(facade: &F, data: &Self::Content, ty: BufferType)
+              -> Result<Self, BufferCreationError>
+        where F: Facade, Self: Sized;
+}
+
+pub trait EmptyArray: Storage {
+    fn empty_array<F>(facade: &F, len: usize, ty: BufferType)
+                      -> Result<Self, BufferCreationError>
+        where F: Facade, Self: Sized;
 }
 
 /// How the buffer is created.

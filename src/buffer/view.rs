@@ -21,6 +21,9 @@ use buffer::BufferType;
 use buffer::BufferMode;
 use buffer::BufferCreationError;
 use buffer::Content;
+use buffer::Storage;
+use buffer::BufferCreate;
+use buffer::EmptyArray;
 use buffer::fences::Fences;
 use buffer::fences::Inserter;
 use buffer::alloc::Alloc;
@@ -335,6 +338,44 @@ macro_rules! impl_buffer_base {
                     elements_size: <T as Content>::get_elements_size(),
                     fence: self.fence.as_ref().unwrap(),
                 }
+            }
+        }
+
+        impl<T: ?Sized> Storage for $ty<T> where T: Content {
+            type Content = T;
+        }
+
+        impl<T: ?Sized> BufferCreate for $ty<T> where T: Content {
+            #[inline]
+            fn new<F>(facade: &F, data: &Self::Content, ty: BufferType)
+                      -> Result<Self, BufferCreationError>
+                where F: Facade
+            {
+                $ty::new(facade, data, ty, BufferMode::Default)     // TODO: remove buffer mode
+            }
+        }
+
+        impl<T> EmptyArray for $ty<[T]> where [T]: Content, T: Copy {
+            #[inline]
+            fn empty_array<F>(facade: &F, len: usize, ty: BufferType)
+                              -> Result<Self, BufferCreationError>
+                where F: Facade
+            {
+                $ty::empty_array(facade, ty, len, BufferMode::Default)     // TODO: remove buffer mode
+            }
+        }
+
+        impl<'a, T: ?Sized> From<&'a $ty<T>> for BufferAnySlice<'a> where T: Content {
+            #[inline]
+            fn from(buf: &'a $ty<T>) -> BufferAnySlice<'a> {
+                buf.as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> From<$slice_ty<'a, T>> for BufferAnySlice<'a> where T: Content {
+            #[inline]
+            fn from(buf: $slice_ty<'a, T>) -> BufferAnySlice<'a> {
+                buf.as_slice_any()
             }
         }
 
