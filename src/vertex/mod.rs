@@ -135,6 +135,8 @@ with, or else you will get an error.
 use std::iter::Chain;
 use std::option::IntoIter;
 
+pub use ops::VerticesSource;
+
 pub use self::buffer::{VertexBuffer, VertexBufferAny};
 pub use self::buffer::VertexBufferSlice;
 pub use self::buffer::CreationError as BufferCreationError;
@@ -147,27 +149,6 @@ use CapabilitiesSource;
 mod buffer;
 mod format;
 mod transform_feedback;
-
-/// Describes the source to use for the vertices when drawing.
-#[derive(Clone)]
-pub enum VerticesSource<'a> {
-    /// A buffer uploaded in the video memory.
-    ///
-    /// The second parameter is the number of vertices in the buffer.
-    ///
-    /// The third parameter tells whether or not this buffer is "per instance" (true) or
-    /// "per vertex" (false).
-    VertexBuffer(BufferAnySlice<'a>, &'a VertexFormat, bool),
-
-    /// A marker indicating a "phantom list of attributes".
-    Marker {
-        /// Number of attributes.
-        len: usize,
-
-        /// Whether or not this buffer is "per instance" (true) or "per vertex" (false).
-        per_instance: bool,
-    },
-}
 
 /// Objects that can be used as vertex sources.
 pub trait IntoVerticesSource<'a> {
@@ -191,7 +172,7 @@ pub struct EmptyVertexAttributes {
 impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: self.len, per_instance: false }
+        VerticesSource::marker(self.len, false)
     }
 }
 
@@ -204,7 +185,7 @@ pub struct EmptyInstanceAttributes {
 impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: self.len, per_instance: true }
+        VerticesSource::marker(self.len, true)
     }
 }
 
@@ -214,7 +195,7 @@ pub struct PerInstance<'a>(BufferAnySlice<'a>, &'a VertexFormat);
 impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self.0, self.1, true)
+        unsafe { VerticesSource::from_buffer(self.0, self.1, true) }
     }
 }
 

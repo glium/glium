@@ -15,14 +15,65 @@ use fbo::{self, ValidatedAttachments};
 use uniforms::Uniforms;
 use {Program, ToGlEnum};
 use index::{self, IndicesSource};
-use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
+use vertex::{MultiVerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
+
+use buffer::BufferAnySlice;
+use vertex::VertexFormat;
 
 use draw_parameters::DrawParameters;
 
 use {gl, context, draw_parameters};
 use version::Version;
 use version::Api;
+
+/// Describes the source to use for the vertices when drawing.
+#[derive(Clone)]
+pub struct VerticesSource<'a> {
+    inner: VerticesSourceInner<'a>
+}
+
+impl<'a> VerticesSource<'a> {
+    #[inline]
+    pub unsafe fn from_buffer(buffer: BufferAnySlice<'a>, format: &'a VertexFormat,
+                              per_instance: bool) -> VerticesSource<'a>
+    {
+        VerticesSource {
+            inner: VerticesSourceInner::VertexBuffer(buffer, format, per_instance)
+        }
+    }
+
+    /// Creates a marker for a number of vertices.
+    #[inline]
+    pub fn marker(len: usize, per_instance: bool) -> VerticesSource<'a> {
+        VerticesSource {
+            inner: VerticesSourceInner::Marker {
+                len: len,
+                per_instance: per_instance,
+            }
+        }
+    }
+}
+
+#[derive(Clone)]
+enum VerticesSourceInner<'a> {
+    /// A buffer uploaded in the video memory.
+    ///
+    /// The second parameter is the number of vertices in the buffer.
+    ///
+    /// The third parameter tells whether or not this buffer is "per instance" (true) or
+    /// "per vertex" (false).
+    VertexBuffer(BufferAnySlice<'a>, &'a VertexFormat, bool),
+
+    /// A marker indicating a "phantom list of attributes".
+    Marker {
+        /// Number of attributes.
+        len: usize,
+
+        /// Whether or not this buffer is "per instance" (true) or "per vertex" (false).
+        per_instance: bool,
+    },
+}
 
 /// Draws everything.
 pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments>,
@@ -97,8 +148,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         let mut instances_count: Option<usize> = None;
 
         for src in vertex_buffers.iter() {
-            match src {
-                VerticesSource::VertexBuffer(buffer, format, per_instance) => {
+            match src.inner {
+                VerticesSourceInner::VertexBuffer(buffer, format, per_instance) => {
                     // TODO: assert!(buffer.get_elements_size() == total_size(format));
 
                     if let Some(fence) = buffer.add_fence() {
@@ -110,8 +161,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 _ => {}
             }
 
-            match src {
-                VerticesSource::VertexBuffer(ref buffer, _, false) => {
+            match src.inner {
+                VerticesSourceInner::VertexBuffer(ref buffer, _, false) => {
                     if let Some(curr) = vertices_count {
                         if curr != buffer.get_elements_count() {
                             vertices_count = None;
@@ -121,7 +172,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         vertices_count = Some(buffer.get_elements_count());
                     }
                 },
-                VerticesSource::VertexBuffer(ref buffer, _, true) => {
+                VerticesSourceInner::VertexBuffer(ref buffer, _, true) => {
                     if let Some(curr) = instances_count {
                         if curr != buffer.get_elements_count() {
                             return Err(DrawError::InstancesCountMismatch);
@@ -130,7 +181,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         instances_count = Some(buffer.get_elements_count());
                     }
                 },
-                VerticesSource::Marker { len, per_instance } if !per_instance => {
+                VerticesSourceInner::Marker { len, per_instance } if !per_instance => {
                     if let Some(curr) = vertices_count {
                         if curr != len {
                             vertices_count = None;
@@ -140,7 +191,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                         vertices_count = Some(len);
                     }
                 },
-                VerticesSource::Marker { len, per_instance } if per_instance => {
+                VerticesSourceInner::Marker { len, per_instance } if per_instance => {
                     if let Some(curr) = instances_count {
                         if curr != len {
                             return Err(DrawError::InstancesCountMismatch);
