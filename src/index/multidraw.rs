@@ -107,10 +107,7 @@ impl DrawCommandsNoIndicesBuffer {
     /// be passed to the `draw()` function.
     #[inline]
     pub fn with_primitive_type(&self, primitives: PrimitiveType) -> IndicesSource {
-        IndicesSource::MultidrawArray {
-            buffer: self.buffer.as_slice_any(),
-            primitives: primitives,
-        }
+        unsafe { IndicesSource::from_multidraw_array(self.buffer.as_slice_any(), primitives) }
     }
 }
 
@@ -210,11 +207,11 @@ impl DrawCommandsIndicesBuffer {
     pub fn with_index_buffer<'a, T>(&'a self, index_buffer: &'a IndexBuffer<T>)
                                     -> IndicesSource<'a> where T: Index
     {
-        IndicesSource::MultidrawElement {
-            commands: self.buffer.as_slice_any(),
-            indices: index_buffer.as_slice_any(),
-            data_type: index_buffer.get_indices_type(),
-            primitives: index_buffer.get_primitives_type(),
+        unsafe {
+            IndicesSource::from_multidraw_element(self.buffer.as_slice_any(),
+                                                  index_buffer.as_slice_any(),
+                                                  index_buffer.get_indices_type(),
+                                                  index_buffer.get_primitives_type())
         }
     }
 }

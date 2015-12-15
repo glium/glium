@@ -39,6 +39,8 @@ use std::mem;
 
 use buffer::BufferAnySlice;
 
+pub use ops::IndicesSource;
+
 pub use self::buffer::{IndexBuffer, IndexBufferSlice, IndexBufferAny};
 pub use self::buffer::CreationError as BufferCreationError;
 pub use self::multidraw::{DrawCommandsNoIndicesBuffer, DrawCommandNoIndices};
@@ -46,60 +48,6 @@ pub use self::multidraw::{DrawCommandsIndicesBuffer, DrawCommandIndices};
 
 mod buffer;
 mod multidraw;
-
-/// Describes a source of indices used for drawing.
-#[derive(Clone)]
-pub enum IndicesSource<'a> {
-    /// A buffer uploaded in video memory.
-    IndexBuffer {
-        /// The buffer.
-        buffer: BufferAnySlice<'a>,
-        /// Type of indices in the buffer.
-        data_type: IndexType,
-        /// Type of primitives contained in the vertex source.
-        primitives: PrimitiveType,
-    },
-
-    /// Use a multidraw indirect buffer without indices.
-    MultidrawArray {
-        /// The buffer.
-        buffer: BufferAnySlice<'a>,
-        /// Type of primitives contained in the vertex source.
-        primitives: PrimitiveType,
-    },
-
-    /// Use a multidraw indirect buffer with indices.
-    MultidrawElement {
-        /// The buffer of the commands.
-        commands: BufferAnySlice<'a>,
-        /// The buffer of the indices.
-        indices: BufferAnySlice<'a>,
-        /// Type of indices in the buffer.
-        data_type: IndexType,
-        /// Type of primitives contained in the vertex source.
-        primitives: PrimitiveType,
-    },
-
-    /// Don't use indices. Assemble primitives by using the order in which the vertices are in
-    /// the vertices source.
-    NoIndices {
-        /// Type of primitives contained in the vertex source.
-        primitives: PrimitiveType,
-    },
-}
-
-impl<'a> IndicesSource<'a> {
-    /// Returns the type of the primitives.
-    #[inline]
-    pub fn get_primitives_type(&self) -> PrimitiveType {
-        match self {
-            &IndicesSource::IndexBuffer { primitives, .. } => primitives,
-            &IndicesSource::MultidrawArray { primitives, .. } => primitives,
-            &IndicesSource::MultidrawElement { primitives, .. } => primitives,
-            &IndicesSource::NoIndices { primitives } => primitives,
-        }
-    }
-}
 
 /// List of available primitives.
 ///
@@ -246,18 +194,14 @@ pub struct NoIndices(pub PrimitiveType);
 impl<'a> From<NoIndices> for IndicesSource<'a> {
     #[inline]
     fn from(marker: NoIndices) -> IndicesSource<'a> {
-        IndicesSource::NoIndices {
-            primitives: marker.0
-        }
+        IndicesSource::no_indices(marker.0)
     }
 }
 
 impl<'a, 'b> From<&'b NoIndices> for IndicesSource<'a> {
     #[inline]
     fn from(marker: &'b NoIndices) -> IndicesSource<'a> {
-        IndicesSource::NoIndices {
-            primitives: marker.0
-        }
+        IndicesSource::no_indices(marker.0)
     }
 }
 

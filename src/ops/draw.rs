@@ -14,7 +14,7 @@ use fbo::{self, ValidatedAttachments};
 
 use uniforms::Uniforms;
 use {Program, ToGlEnum};
-use index::{self, IndicesSource};
+use index::{self, PrimitiveType, IndexType};
 use vertex::{MultiVerticesSource, TransformFeedbackSession};
 use vertex_array_object::VertexAttributesSystem;
 
@@ -75,6 +75,116 @@ enum VerticesSourceInner<'a> {
     },
 }
 
+/// Describes a source of indices used for drawing.
+#[derive(Clone)]
+pub struct IndicesSource<'a> {
+    inner: IndicesSourceInner<'a>,
+}
+
+#[derive(Clone)]
+pub enum IndicesSourceInner<'a> {
+    /// A buffer uploaded in video memory.
+    IndexBuffer {
+        /// The buffer.
+        buffer: BufferAnySlice<'a>,
+        /// Type of indices in the buffer.
+        data_type: IndexType,
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
+
+    /// Use a multidraw indirect buffer without indices.
+    MultidrawArray {
+        /// The buffer.
+        buffer: BufferAnySlice<'a>,
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
+
+    /// Use a multidraw indirect buffer with indices.
+    MultidrawElement {
+        /// The buffer of the commands.
+        commands: BufferAnySlice<'a>,
+        /// The buffer of the indices.
+        indices: BufferAnySlice<'a>,
+        /// Type of indices in the buffer.
+        data_type: IndexType,
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
+
+    /// Don't use indices. Assemble primitives by using the order in which the vertices are in
+    /// the vertices source.
+    NoIndices {
+        /// Type of primitives contained in the vertex source.
+        primitives: PrimitiveType,
+    },
+}
+
+impl<'a> IndicesSource<'a> {
+    /// Builds a marker.
+    #[inline]
+    pub unsafe fn from_index_buffer(buffer: BufferAnySlice<'a>, data_type: IndexType,
+                                    primitives: PrimitiveType) -> IndicesSource<'a>
+    {
+        IndicesSource {
+            inner: IndicesSourceInner::IndexBuffer {
+                buffer: buffer,
+                data_type: data_type,
+                primitives: primitives,
+            }
+        }
+    }
+
+    /// Builds a marker.
+    #[inline]
+    pub unsafe fn from_multidraw_array(buffer: BufferAnySlice<'a>, primitives: PrimitiveType)
+                                       -> IndicesSource<'a>
+    {
+        IndicesSource {
+            inner: IndicesSourceInner::MultidrawArray {
+                buffer: buffer,
+                primitives: primitives,
+            }
+        }
+    }
+
+    /// Builds a marker.
+    #[inline]
+    pub unsafe fn from_multidraw_element(commands: BufferAnySlice<'a>, indices: BufferAnySlice<'a>,
+                                         data_type: IndexType, primitives: PrimitiveType)
+                                         -> IndicesSource<'a>
+    {
+        IndicesSource {
+            inner: IndicesSourceInner::MultidrawElement {
+                commands: commands,
+                indices: indices,
+                data_type: data_type,
+                primitives: primitives,
+            }
+        }
+    }
+
+    /// Builds a marker.
+    #[inline]
+    pub fn no_indices(primitives: PrimitiveType) -> IndicesSource<'a> {
+        IndicesSource {
+            inner: IndicesSourceInner::NoIndices { primitives: primitives }
+        }
+    }
+
+    /// Returns the type of the primitives.
+    #[inline]
+    pub fn get_primitives_type(&self) -> PrimitiveType {
+        match self.inner {
+            IndicesSourceInner::IndexBuffer { primitives, .. } => primitives,
+            IndicesSourceInner::MultidrawArray { primitives, .. } => primitives,
+            IndicesSourceInner::MultidrawElement { primitives, .. } => primitives,
+            IndicesSourceInner::NoIndices { primitives } => primitives,
+        }
+    }
+}
+
 /// Draws everything.
 pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments>,
                       vertex_buffers: V, indices: IndicesSource,
@@ -121,18 +231,18 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // handling vertices source
     let (vertices_count, instances_count, base_vertex) = {
-        let index_buffer = match indices {
-            IndicesSource::IndexBuffer { buffer, .. } => Some(buffer),
-            IndicesSource::MultidrawArray { .. } => None,
-            IndicesSource::MultidrawElement { indices, .. } => Some(indices),
-            IndicesSource::NoIndices { .. } => None,
+        let index_buffer = match indices.inner {
+            IndicesSourceInner::IndexBuffer { buffer, .. } => Some(buffer),
+            IndicesSourceInner::MultidrawArray { .. } => None,
+            IndicesSourceInner::MultidrawElement { indices, .. } => Some(indices),
+            IndicesSourceInner::NoIndices { .. } => None,
         };
 
         // determining whether we can use the `base_vertex` variants for drawing
-        let use_base_vertex = match indices {
-            IndicesSource::MultidrawArray { .. } => false,
-            IndicesSource::MultidrawElement { .. } => false,
-            IndicesSource::NoIndices { .. } => true,
+        let use_base_vertex = match indices.inner {
+            IndicesSourceInner::MultidrawArray { .. } => false,
+            IndicesSourceInner::MultidrawElement { .. } => false,
+            IndicesSourceInner::NoIndices { .. } => true,
             _ => ctxt.version >= &Version(Api::Gl, 3, 2) ||
                  ctxt.version >= &Version(Api::GlEs, 3, 2) ||
                  ctxt.extensions.gl_arb_draw_elements_base_vertex ||
@@ -234,8 +344,8 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     // drawing
     // TODO: make this code more readable
     {
-        match &indices {
-            &IndicesSource::IndexBuffer { ref buffer, data_type, primitives } => {
+        match indices.inner {
+            IndicesSourceInner::IndexBuffer { ref buffer, data_type, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
 
@@ -315,7 +425,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
             },
 
-            &IndicesSource::MultidrawArray { ref buffer, primitives } => {
+            IndicesSourceInner::MultidrawArray { ref buffer, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
 
@@ -333,7 +443,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
             },
 
-            &IndicesSource::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
+            IndicesSourceInner::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
                 let cmd_ptr: *const u8 = ptr::null_mut();
                 let cmd_ptr = unsafe { cmd_ptr.offset(commands.get_offset_bytes() as isize) };
 
@@ -355,7 +465,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
             },
 
-            &IndicesSource::NoIndices { primitives } => {
+            IndicesSourceInner::NoIndices { primitives } => {
                 let vertices_count = match vertices_count {
                     Some(c) => c,
                     None => return Err(DrawError::VerticesSourcesLengthMismatch)

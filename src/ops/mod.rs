@@ -1,6 +1,6 @@
 pub use self::blit::blit;
 pub use self::clear::clear;
-pub use self::draw::{draw, VerticesSource};
+pub use self::draw::{draw, VerticesSource, IndicesSource};
 pub use self::read::{read, ReadError, Source, Destination};
 
 mod blit;
