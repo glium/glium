@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.13.1 (2015-12-15)
+
+ - `raw_read_to_pixel_buffer` now accepts all pixel types.
+
 ## Version 0.13.0 (2015-12-12)
 
  - Removed native support for cgmath and nalgebra in avoid to avoid dependency hell.

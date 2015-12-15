@@ -1379,7 +1379,9 @@ impl<'a> TextureAnyImage<'a> {
     /// - Panicks if the rect is out of range.
     /// - Panicks if the buffer is not large enough.
     ///
-    pub fn raw_read_to_pixel_buffer(&self, rect: &Rect, dest: &PixelBuffer<(u8, u8, u8, u8)>) {
+    pub fn raw_read_to_pixel_buffer<P>(&self, rect: &Rect, dest: &PixelBuffer<P>)
+        where P: PixelValue
+    {
         assert!(rect.left + rect.width <= self.width);
         assert!(rect.bottom + rect.height <= self.height.unwrap_or(1));
         assert!(dest.len() >= rect.width as usize * rect.height as usize);
