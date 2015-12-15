@@ -44,8 +44,11 @@
 //! # }
 //! ```
 //!
-pub use self::view::{Buffer, BufferAny, BufferMutSlice};
-pub use self::view::{BufferSlice, BufferAnySlice};
+pub use self::view::{Buffer, BufferSlice, BufferMutSlice};
+pub use self::view::{DynamicBuffer, DynamicBufferSlice, DynamicBufferMutSlice};
+pub use self::view::{ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice};
+pub use self::view::{PersistentBuffer, PersistentBufferSlice, PersistentBufferMutSlice};
+pub use self::view::{BufferAny, BufferAnySlice};
 pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
 pub use self::alloc::{is_buffer_read_supported};
 pub use self::fences::Inserter;
