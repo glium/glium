@@ -213,13 +213,13 @@ unsafe fn get_extensions_strings(gl: &gl::Gl, version: &Version) -> Vec<String> 
 
         (0 .. num_extensions).map(|num| {
             let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
-            String::from_utf8(CStr::from_ptr(ext as *const i8).to_bytes().to_vec()).unwrap()
+            String::from_utf8(CStr::from_ptr(ext as *const _).to_bytes().to_vec()).unwrap()
         }).collect()
 
     } else {
         let list = gl.GetString(gl::EXTENSIONS);
         assert!(!list.is_null());
-        let list = String::from_utf8(CStr::from_ptr(list as *const i8).to_bytes().to_vec())
+        let list = String::from_utf8(CStr::from_ptr(list as *const _).to_bytes().to_vec())
                                      .unwrap();
         list.split(' ').map(|e| e.to_owned()).collect()
     }

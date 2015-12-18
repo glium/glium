@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - Fixed compilation on ARM platform.
  - Added a hack to make screenshots and video taken with the FRAPS software work.
 
 ## Version 0.13.1 (2015-12-15)

@@ -40,8 +40,8 @@ impl PartialOrd for Version {
 /// You must ensure that the functions belong to the current context, otherwise you will get
 /// an undefined behavior.
 pub unsafe fn get_gl_version(gl: &gl::Gl) -> Version {
-    let version = gl.GetString(gl::VERSION) as *const i8;
-    let version = String::from_utf8(CStr::from_ptr(version).to_bytes().to_vec()).unwrap();
+    let version = gl.GetString(gl::VERSION);
+    let version = String::from_utf8(CStr::from_ptr(version as *const _).to_bytes().to_vec()).unwrap();
 
     // for the moment we mock WebGL as OpenGL ES 2.0
     // TODO: handle the differences between WebGL and OpenGL ES
