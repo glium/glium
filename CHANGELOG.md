@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.13.2 (2015-12-21)
 
  - Fixed compilation on ARM platform.
  - Added a hack to make screenshots and video taken with the FRAPS software work.
