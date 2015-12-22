@@ -44,6 +44,13 @@
 //! # }
 //! ```
 //!
+use std::borrow::Borrow;
+use std::borrow::Cow;
+use utils::range::RangeArgument;
+
+use texture::PixelValue;
+use texture::Texture1dDataSink;
+
 pub use self::view::{Buffer, BufferSlice, BufferMutSlice};
 pub use self::view::{DynamicBuffer, DynamicBufferSlice, DynamicBufferMutSlice};
 pub use self::view::{ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice};
@@ -176,6 +183,20 @@ unsafe impl<T> Content for [T] where T: Copy {
     }
 }
 
+pub unsafe trait ArrayContent: Content {
+    type Element: Copy;
+
+    /// Returns the size of each element.
+    #[inline]
+    fn element_size() -> usize {
+        mem::size_of::<Self::Element>()
+    }
+}
+
+unsafe impl<T> ArrayContent for [T] where T: Copy {
+    type Element = T;
+}
+
 /// Error that can happen when creating a buffer.
 #[derive(Debug, Copy, Clone)]
 pub enum BufferCreationError {
@@ -202,19 +223,167 @@ impl Error for BufferCreationError {
 }
 
 pub trait Storage {
+    /// The data type that is contained in the buffer.
+    ///
+    /// Can be unsized. For example it can be `[u8]`.
     type Content: ?Sized + Content;
+
+    /// Returns the size in bytes of the buffer.
+    fn size(&self) -> usize;
+
+    /// Number of elements if the content is an array.
+    #[inline]
+    fn len(&self) -> usize
+        where Self::Content: ArrayContent
+    {
+        self.size() / mem::size_of::<<Self::Content as ArrayContent>::Element>()
+    }
 }
 
-pub trait BufferCreate: Storage {
+/// Trait for types whose content can be invalidated.
+///
+/// Invalidating the content of a buffer means that its content becomes undefined. This is used
+/// as an optimization, as it informs OpenGL that the content of the buffer doesn't need to be
+/// loaded.
+pub trait Invalidate {
+    /// Invalidates the content.
+    fn invalidate(&self);
+}
+
+pub trait Read: Storage {
+    /// Reads the content of the buffer.
+    fn read(&self) -> Result<<Self::Content as Content>::Owned, ReadError>;
+
+    /// Reads the content of the buffer.
+    #[inline]
+    fn read_as_texture_1d<S>(&self) -> Result<S, ReadError>
+        where Self::Content: ArrayContent,
+              S: Texture1dDataSink<<Self::Content as ArrayContent>::Element>,
+              <Self::Content as ArrayContent>::Element: PixelValue,
+              [<Self::Content as ArrayContent>::Element]: ToOwned<Owned = <Self::Content as Content>::Owned>
+    {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
+    }
+}
+
+pub trait Write: Storage {
+    /// Uploads some data in this buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the length of `data` is different from the length of this buffer. This is only
+    /// relevant for unsized content.
+    ///
+    /// For example if you try pass a `&[u8]` with 512 elements, but the buffer contains 256
+    /// elements, you will get a panic.
+    fn write(&self, data: &Self::Content);
+}
+
+pub trait Slice<'a, R: ?Sized>: Storage where R: Content {
+    type Slice;
+    type SliceMut;
+
+    /// Builds a slice that contains an element from inside the buffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// #[derive(Copy, Clone)]
+    /// struct BufferContent {
+    ///     value1: u16,
+    ///     value2: u16,
+    /// }
+    /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
+    /// #                                                   unsafe { std::mem::uninitialized() };
+    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+    /// ```
+    ///
+    /// # Safety
+    ///
+    /// The object whose reference is passed to the closure is uninitialized. Therefore you
+    /// **must not** access the content of the object.
+    ///
+    /// You **must** return a reference to an element from the parameter. The closure **must not**
+    /// panic.
+    #[inline]
+    unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
+        where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized;
+
+    /// Same as `slice_custom` but returns a mutable slice.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
+    #[inline]
+    unsafe fn slice_custom_mut<F>(self, f: F) -> Self::SliceMut
+        where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized;
+
+    /// Builds a slice containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
+    #[inline]
+    fn as_slice(self) -> Self::Slice where Self: Storage<Content = R>;
+
+    /// Builds a slice containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
+    #[inline]
+    fn as_mut_slice(self) -> Self::SliceMut where Self: Storage<Content = R>;
+
+    /// Builds a slice-any containing the whole subbuffer.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
+    fn as_slice_any(self) -> BufferAnySlice<'a>;
+}
+
+pub trait Create: Storage {
     fn new<F>(facade: &F, data: &Self::Content, ty: BufferType)
               -> Result<Self, BufferCreationError>
         where F: Facade, Self: Sized;
-}
 
-pub trait EmptyArray: Storage {
+    /// Builds a new buffer of the given size.
+    fn empty<F>(facade: &F, ty: BufferType)
+                -> Result<Self, BufferCreationError>
+        where F: Facade, Self: Sized, Self::Content: Copy;
+
+    /// Builds a new buffer of the given size.
     fn empty_array<F>(facade: &F, len: usize, ty: BufferType)
                       -> Result<Self, BufferCreationError>
-        where F: Facade, Self: Sized;
+        where F: Facade, Self: Sized, Self::Content: ArrayContent;
+
+    /// Builds a new buffer of the given size.
+    ///
+    /// # Panic
+    ///
+    /// Panicks if the size passed as parameter isn't suitable for the content.
+    ///
+    fn empty_unsized<F>(facade: &F, size: usize, ty: BufferType)
+                        -> Result<Self, BufferCreationError>
+        where F: Facade, Self: Sized, Self::Content: Copy;
+}
+
+/*pub trait CopyTo: Storage {
+    /// Copies the content of the buffer to another buffer.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the content is unsized and the other buffer is too small.
+    ///
+    fn copy_to<'a, S>(&self, target: S) -> Result<(), CopyError>
+                      where S: Into<BufferAnySlice<'a, Self::Content>>, Self::Content: 'a;
+}*/
+
+// TODO: chance this trait once HKTs are released
+pub trait Map: Storage {
+    type Mapping;
+
+    fn map(self) -> Self::Mapping;
 }
 
 /// How the buffer is created.

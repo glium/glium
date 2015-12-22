@@ -2,10 +2,10 @@ use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType};
 use buffer::{BufferMode, BufferCreationError};
 
 use buffer::BufferAnySlice;
-use buffer::BufferCreate;
-use buffer::EmptyArray;
+use buffer::Create as BufferCreate;
 use buffer::Storage as BufferStorage;
 use buffer::Content as BufferContent;
+use buffer::Invalidate as BufferInvalidate;
 use buffer::ImmutableBuffer;
 use buffer::ImmutableBufferSlice;
 use buffer::ImmutableBufferMutSlice;
@@ -116,9 +116,7 @@ impl<T, I> IndexStorage<T> where T: BufferCreate<Content = [I]>, I: Index + Buff
             primitives: prim,
         })
     }
-}
 
-impl<T, I> IndexStorage<T> where T: EmptyArray<Content = [I]>, I: Index + BufferContent + Copy {
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
     pub fn empty<F>(facade: &F, prim: PrimitiveType, len: usize)
@@ -133,7 +131,7 @@ impl<T, I> IndexStorage<T> where T: EmptyArray<Content = [I]>, I: Index + Buffer
             return Err(CreationError::IndexTypeNotSupported);
         }
 
-        let buffer = try!(EmptyArray::empty_array(facade, len, BufferType::ElementArrayBuffer));
+        let buffer = try!(BufferCreate::empty_array(facade, len, BufferType::ElementArrayBuffer));
 
         Ok(IndexStorage {
             buffer: buffer,
@@ -142,7 +140,7 @@ impl<T, I> IndexStorage<T> where T: EmptyArray<Content = [I]>, I: Index + Buffer
     }
 }
 
-impl<T, I> IndexStorage<T> where T: BufferStorage<Content = [I]> {
+impl<T, I> IndexStorage<T> where T: BufferStorage<Content = [I]>, [I]: BufferContent {
     #[inline]
     pub fn from_buffer(buffer: T, prim: PrimitiveType) -> IndexStorage<T> {
         IndexStorage {
@@ -167,6 +165,13 @@ impl<T, I> IndexStorage<T>
     #[inline]
     pub fn get_indices_type(&self) -> IndexType {
         <I as Index>::get_type()
+    }
+}
+
+impl<T> BufferInvalidate for IndexStorage<T> where T: BufferInvalidate {
+    #[inline]
+    fn invalidate(&self) {
+        self.buffer.invalidate()
     }
 }
 

@@ -20,10 +20,16 @@ use ContextExt;
 use buffer::BufferType;
 use buffer::BufferMode;
 use buffer::BufferCreationError;
+//use buffer::CopyTo;
 use buffer::Content;
+use buffer::ArrayContent;
 use buffer::Storage;
-use buffer::BufferCreate;
-use buffer::EmptyArray;
+use buffer::Create;
+use buffer::Invalidate;
+use buffer::Read;
+use buffer::Write;
+use buffer::Slice;
+use buffer::Map;
 use buffer::fences::Fences;
 use buffer::fences::Inserter;
 use buffer::alloc::Alloc;
@@ -343,9 +349,32 @@ macro_rules! impl_buffer_base {
 
         impl<T: ?Sized> Storage for $ty<T> where T: Content {
             type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.get_size()
+            }
         }
 
-        impl<T: ?Sized> BufferCreate for $ty<T> where T: Content {
+        impl<'a, T: ?Sized> Storage for &'a $ty<T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.get_size()
+            }
+        }
+
+        impl<'a, T: ?Sized> Storage for &'a mut $ty<T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.get_size()
+            }
+        }
+
+        impl<T: ?Sized> Create for $ty<T> where T: Content {
             #[inline]
             fn new<F>(facade: &F, data: &Self::Content, ty: BufferType)
                       -> Result<Self, BufferCreationError>
@@ -353,17 +382,108 @@ macro_rules! impl_buffer_base {
             {
                 $ty::new(facade, data, ty, BufferMode::Default)     // TODO: remove buffer mode
             }
-        }
 
-        impl<T> EmptyArray for $ty<[T]> where [T]: Content, T: Copy {
-            #[inline]
+            fn empty<F>(facade: &F, ty: BufferType)
+                        -> Result<Self, BufferCreationError>
+                where F: Facade, Self: Sized, Self::Content: Copy
+            {
+                $ty::empty(facade, ty, BufferMode::Default)     // TODO: remove buffer mode
+            }
+
             fn empty_array<F>(facade: &F, len: usize, ty: BufferType)
                               -> Result<Self, BufferCreationError>
-                where F: Facade
+                where F: Facade, Self: Sized, Self::Content: ArrayContent
             {
-                $ty::empty_array(facade, ty, len, BufferMode::Default)     // TODO: remove buffer mode
+                Alloc::empty(facade, ty, len * <Self::Content as ArrayContent>::element_size(), BufferMode::Default)
+                    .map(|buffer| {
+                        $ty {
+                            alloc: Some(buffer),
+                            fence: Some(Fences::new()),
+                            marker: PhantomData,
+                        }
+                    })
+            }
+
+            fn empty_unsized<F>(facade: &F, size: usize, ty: BufferType)
+                                -> Result<Self, BufferCreationError>
+                where F: Facade, Self: Sized, Self::Content: Copy
+            {
+                $ty::empty_unsized(facade, ty, size, BufferMode::Default)     // TODO: remove buffer mode
             }
         }
+
+        impl<T> Invalidate for $ty<T> where T: Content {
+            #[inline]
+            fn invalidate(&self) {
+                self.invalidate()
+            }
+        }
+
+        impl<T> Read for $ty<T> where T: Content {
+            #[inline]
+            fn read(&self) -> Result<T::Owned, ReadError> {
+                self.read()
+            }
+        }
+
+        impl<T> Write for $ty<T> where T: Content {
+            #[inline]
+            fn write(&self, data: &T) {
+                self.write(data)
+            }
+        }
+
+        impl<'a, T> Map for &'a mut $ty<T> where T: Content {
+            type Mapping = Mapping<'a, T>;
+
+            fn map(self) -> Mapping<'a, T> {
+                self.map()
+            }
+        }
+
+        /*impl<T> CopyTo for $ty<T> where T: Content {
+            fn copy_to<'a, S>(&self, target: S) -> Result<(), CopyError>
+                              where S: Into<BufferAnySlice<'a, Self::Content>>, Self::Content: 'a
+            {
+                unimplemented!()
+            }
+        }*/
+
+        /*impl<'a, T, R: ?Sized> Slice<'a, R> for &'a $ty<T>
+            where T: Content, R: Content
+        {
+            type Slice = $slice_ty<'a, R>;
+            type SliceMut = $slice_mut_ty<'a, R>;
+
+            #[inline]
+            unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
+                where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized
+            {
+                self.slice_custom(f)
+            }
+
+            #[inline]
+            unsafe fn slice_custom_mut<F>(self, f: F) -> Self::SliceMut
+                where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized
+            {
+                self.slice_custom_mut(f)
+            }
+
+            #[inline]
+            fn as_slice(self) -> Self::Slice where Self: Storage<Content = R> {
+                self.as_slice()
+            }
+
+            #[inline]
+            fn as_mut_slice(self) -> Self::SliceMut where Self: Storage<Content = R> {
+                self.as_mut_slice()
+            }
+
+            #[inline]
+            fn as_slice_any(self) -> BufferAnySlice<'a> {
+                self.as_slice_any()
+            }
+        }*/
 
         impl<'a, T: ?Sized> From<&'a $ty<T>> for BufferAnySlice<'a> where T: Content {
             #[inline]
