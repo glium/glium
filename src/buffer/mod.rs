@@ -228,6 +228,13 @@ pub trait Storage {
     /// Can be unsized. For example it can be `[u8]`.
     type Content: ?Sized + Content;
 
+    /// Builds a slice-any containing the whole subbuffer. Intended to be used for operations
+    /// internal to glium.
+    ///
+    /// This method builds an object that represents a slice of the buffer. No actual operation
+    /// OpenGL is performed.
+    fn as_slice_any(&self) -> BufferAnySlice;
+
     /// Returns the size in bytes of the buffer.
     fn size(&self) -> usize;
 
@@ -280,7 +287,7 @@ pub trait Write: Storage {
     fn write(&self, data: &Self::Content);
 }
 
-pub trait Slice<'a, R: ?Sized>: Storage where R: Content {
+pub trait Slice<R: ?Sized>: Storage where R: Content {
     type Slice;
     type SliceMut;
 
@@ -334,12 +341,6 @@ pub trait Slice<'a, R: ?Sized>: Storage where R: Content {
     /// OpenGL is performed.
     #[inline]
     fn as_mut_slice(self) -> Self::SliceMut where Self: Storage<Content = R>;
-
-    /// Builds a slice-any containing the whole subbuffer.
-    ///
-    /// This method builds an object that represents a slice of the buffer. No actual operation
-    /// OpenGL is performed.
-    fn as_slice_any(self) -> BufferAnySlice<'a>;
 }
 
 pub trait Create: Storage {
@@ -516,14 +517,24 @@ macro_rules! impl_buffer_wrapper {
             fn size(&self) -> usize {
                 self.$inner.size()
             }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.$inner.as_slice_any()
+            }
         }
 
-        impl<'a, T> ::buffer::Storage for &'a $ty<T> where &'a T: ::buffer::Storage {
-            type Content = <&'a T as ::buffer::Storage>::Content;
+        impl<'a, T> ::buffer::Storage for &'a $ty<T> where T: ::buffer::Storage {
+            type Content = <T as ::buffer::Storage>::Content;
 
             #[inline]
             fn size(&self) -> usize {
-                (&self.$inner).size()
+                self.$inner.size()
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.$inner.as_slice_any()
             }
         }
 
@@ -534,9 +545,14 @@ macro_rules! impl_buffer_wrapper {
             fn size(&self) -> usize {
                 self.$inner.size()
             }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.$inner.as_slice_any()
+            }
         }
 
-        impl<'a, T> ::buffer::Map for &'a $ty<T> where &'a T: ::buffer::Map {
+        impl<'a, T> ::buffer::Map for &'a $ty<T> where &'a T: ::buffer::Map, T: ::buffer::Storage {
             type Mapping = <&'a T as ::buffer::Map>::Mapping;
 
             #[inline]

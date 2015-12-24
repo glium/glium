@@ -7,6 +7,7 @@ use std::os::raw;
 use backend::Facade;
 use buffer::{BufferCreationError, BufferType, BufferMode, Buffer};
 use buffer::{BufferSlice, BufferMutSlice};
+use buffer::Storage;
 use index::{IndicesSource, PrimitiveType, IndexBuffer, Index};
 
 /// Represents an element in a list of draw commands.

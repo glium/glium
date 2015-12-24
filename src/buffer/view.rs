@@ -354,6 +354,11 @@ macro_rules! impl_buffer_base {
             fn size(&self) -> usize {
                 self.get_size()
             }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
+            }
         }
 
         impl<'a, T: ?Sized> Storage for &'a $ty<T> where T: Content {
@@ -363,6 +368,11 @@ macro_rules! impl_buffer_base {
             fn size(&self) -> usize {
                 self.get_size()
             }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
+            }
         }
 
         impl<'a, T: ?Sized> Storage for &'a mut $ty<T> where T: Content {
@@ -371,6 +381,11 @@ macro_rules! impl_buffer_base {
             #[inline]
             fn size(&self) -> usize {
                 self.get_size()
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
             }
         }
 
@@ -477,11 +492,6 @@ macro_rules! impl_buffer_base {
             #[inline]
             fn as_mut_slice(self) -> Self::SliceMut where Self: Storage<Content = R> {
                 self.as_mut_slice()
-            }
-
-            #[inline]
-            fn as_slice_any(self) -> BufferAnySlice<'a> {
-                self.as_slice_any()
             }
         }*/
 
