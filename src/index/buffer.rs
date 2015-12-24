@@ -150,6 +150,8 @@ impl<T, I> IndexStorage<T> where T: BufferStorage<Content = [I]>, [I]: BufferCon
     }
 }
 
+impl_buffer_wrapper!(IndexStorage, buffer);
+
 impl<T> IndexStorage<T> {
     /// Returns the type of primitives associated with this index buffer.
     #[inline]
@@ -165,29 +167,6 @@ impl<T, I> IndexStorage<T>
     #[inline]
     pub fn get_indices_type(&self) -> IndexType {
         <I as Index>::get_type()
-    }
-}
-
-impl<T> BufferInvalidate for IndexStorage<T> where T: BufferInvalidate {
-    #[inline]
-    fn invalidate(&self) {
-        self.buffer.invalidate()
-    }
-}
-
-impl<T> Deref for IndexStorage<T> {
-    type Target = T;
-
-    #[inline]
-    fn deref(&self) -> &T {
-        &self.buffer
-    }
-}
-
-impl<T> DerefMut for IndexStorage<T> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut T {
-        &mut self.buffer
     }
 }
 
