@@ -552,6 +552,20 @@ macro_rules! impl_buffer_wrapper {
             }
         }
 
+        impl<T> $ty<T> where T: ::buffer::Storage {
+            #[inline]
+            pub fn size(&self) -> usize {
+                self.$inner.size()
+            }
+
+            #[inline]
+            pub fn len(&self) -> usize
+                where T::Content: ::buffer::ArrayContent
+            {
+                self.$inner.len()
+            }
+        }
+
         impl<'a, T> ::buffer::Map for &'a $ty<T> where &'a T: ::buffer::Map, T: ::buffer::Storage {
             type Mapping = <&'a T as ::buffer::Map>::Mapping;
 

@@ -10,6 +10,7 @@ use image_format::{TextureFormatRequest, TextureFormat};
 use fbo;
 use fbo::FramebuffersContainer;
 
+use buffer::Storage;
 use buffer::BufferAny;
 use BufferExt;
 use Rect;
@@ -247,7 +248,7 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
             Destination::PixelBuffer(pixel_buffer) => {
                 assert!(pixel_buffer.len() >= pixels_to_read as usize);
 
-                pixel_buffer.prepare_and_bind_for_pixel_pack(&mut ctxt);
+                pixel_buffer.as_slice_any().prepare_and_bind_for_pixel_pack(&mut ctxt);
                 ctxt.gl.ReadPixels(rect.left as gl::types::GLint, rect.bottom as gl::types::GLint,
                                    rect.width as gl::types::GLsizei,
                                    rect.height as gl::types::GLsizei, format, gltype,
