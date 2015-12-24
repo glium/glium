@@ -983,6 +983,22 @@ pub enum SwapBuffersError {
     AlreadySwapped,
 }
 
+impl std::error::Error for SwapBuffersError {
+    fn description(&self) -> &str {
+        match self {
+            &SwapBuffersError::ContextLost => "the OpenGL context has been lost and \
+                                               needs to be recreated",
+            &SwapBuffersError::AlreadySwapped => "the buffers have already been swapped",
+        }
+    }
+}
+
+impl std::fmt::Display for SwapBuffersError {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        fmt.write_str(std::error::Error::description(self))
+    }
+}
+
 /// Implementation of `Surface`, targeting the default framebuffer.
 ///
 /// The back- and front-buffers are swapped when you call `finish`.
