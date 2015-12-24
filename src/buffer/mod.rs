@@ -570,7 +570,7 @@ macro_rules! impl_buffer_wrapper {
             }
 
             #[inline]
-            fn as_slice_any(&self) -> BufferAnySlice {
+            fn as_slice_any(&self) -> ::buffer::BufferAnySlice {
                 self.$inner.as_slice_any()
             }
         }
@@ -584,7 +584,7 @@ macro_rules! impl_buffer_wrapper {
             }
 
             #[inline]
-            fn as_slice_any(&self) -> BufferAnySlice {
+            fn as_slice_any(&self) -> ::buffer::BufferAnySlice {
                 self.$inner.as_slice_any()
             }
         }
@@ -598,7 +598,7 @@ macro_rules! impl_buffer_wrapper {
             }
 
             #[inline]
-            fn as_slice_any(&self) -> BufferAnySlice {
+            fn as_slice_any(&self) -> ::buffer::BufferAnySlice {
                 self.$inner.as_slice_any()
             }
         }
