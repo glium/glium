@@ -510,6 +510,50 @@ impl BufferType {
 
 macro_rules! impl_buffer_wrapper {
     ($ty:ident, $inner:ident) => (
+        impl<T> $ty<T> where T: ::buffer::Storage {
+            #[inline]
+            pub fn size(&self) -> usize {
+                self.$inner.size()
+            }
+
+            #[inline]
+            pub fn len(&self) -> usize
+                where T::Content: ::buffer::ArrayContent
+            {
+                self.$inner.len()
+            }
+
+            #[inline]
+            pub fn map<'a>(&'a self) -> <&'a T as ::buffer::Map>::Mapping
+                where &'a T: ::buffer::Map, T: ::buffer::Storage
+            {
+                ::buffer::Map::map(&self.$inner)
+            }
+
+            #[inline]
+            pub fn invalidate(&self)
+                where T: ::buffer::Invalidate
+            {
+                self.$inner.invalidate()
+            }
+
+            #[inline]
+            pub fn read(&self) -> Result<<T::Content as ::buffer::Content>::Owned,
+                                         ::buffer::ReadError>
+                where T: ::buffer::Read {
+                self.$inner.read()
+            }
+
+            // TODO: Add `read_as_texture_1d`
+
+            #[inline]
+            pub fn write(&self, data: &T::Content)
+                where T: ::buffer::Write
+            {
+                self.$inner.write(data)
+            }
+        }
+
         impl<T> ::buffer::Storage for $ty<T> where T: ::buffer::Storage {
             type Content = T::Content;
 
@@ -552,20 +596,6 @@ macro_rules! impl_buffer_wrapper {
             }
         }
 
-        impl<T> $ty<T> where T: ::buffer::Storage {
-            #[inline]
-            pub fn size(&self) -> usize {
-                self.$inner.size()
-            }
-
-            #[inline]
-            pub fn len(&self) -> usize
-                where T::Content: ::buffer::ArrayContent
-            {
-                self.$inner.len()
-            }
-        }
-
         impl<'a, T> ::buffer::Map for &'a $ty<T> where &'a T: ::buffer::Map, T: ::buffer::Storage {
             type Mapping = <&'a T as ::buffer::Map>::Mapping;
 
@@ -586,22 +616,9 @@ macro_rules! impl_buffer_wrapper {
             }
         }
 
-        impl<'a, T> $ty<T> where &'a T: ::buffer::Map, T: ::buffer::Storage {
-            pub fn map(&'a self) -> <&'a T as ::buffer::Map>::Mapping {
-                ::buffer::Map::map(&self.$inner)
-            }
-        }
-
         impl<T> ::buffer::Invalidate for $ty<T> where T: ::buffer::Invalidate {
             #[inline]
             fn invalidate(&self) {
-                self.$inner.invalidate()
-            }
-        }
-
-        impl<T> $ty<T> where T: ::buffer::Invalidate {
-            #[inline]
-            pub fn invalidate(&self) {
                 self.$inner.invalidate()
             }
         }
@@ -613,15 +630,6 @@ macro_rules! impl_buffer_wrapper {
             }
         }
 
-        impl<T> $ty<T> where T: ::buffer::Read {
-            #[inline]
-            pub fn read(&self) -> Result<<T::Content as ::buffer::Content>::Owned, ::buffer::ReadError> {
-                self.$inner.read()
-            }
-
-            // TODO: Add `read_as_texture_1d`
-        }
-
         impl<T> ::buffer::Write for $ty<T> where T: ::buffer::Write {
             #[inline]
             fn write(&self, data: &T::Content) {
@@ -629,11 +637,5 @@ macro_rules! impl_buffer_wrapper {
             }
         }
 
-        impl<T> $ty<T> where T: ::buffer::Write {
-            #[inline]
-            pub fn write(&self, data: &T::Content) {
-                self.$inner.write(data)
-            }
-        }
     );
 }
