@@ -369,16 +369,16 @@ pub trait Create: Storage {
         where F: Facade, Self: Sized, Self::Content: Copy;
 }
 
-/*pub trait CopyTo: Storage {
+pub trait CopyTo: Storage {
     /// Copies the content of the buffer to another buffer.
     ///
     /// # Panic
     ///
     /// Panics if the content is unsized and the other buffer is too small.
     ///
-    fn copy_to<'a, S>(&self, target: S) -> Result<(), CopyError>
-                      where S: Into<BufferAnySlice<'a, Self::Content>>, Self::Content: 'a;
-}*/
+    fn copy_to<S>(&self, target: &S) -> Result<(), CopyError>
+        where S: Storage;
+}
 
 // TODO: chance this trait once HKTs are released
 pub trait Map: Storage {
@@ -552,6 +552,13 @@ macro_rules! impl_buffer_wrapper {
             {
                 self.$inner.write(data)
             }
+
+            #[inline]
+            pub fn copy_to<S>(&self, target: &S) -> Result<(), ::buffer::CopyError>
+                where T: ::buffer::CopyTo, S: ::buffer::Storage
+            {
+                self.$inner.copy_to(target)
+            }
         }
 
         impl<T> ::buffer::Storage for $ty<T> where T: ::buffer::Storage {
@@ -637,5 +644,13 @@ macro_rules! impl_buffer_wrapper {
             }
         }
 
+        impl<T> ::buffer::CopyTo for $ty<T> where T: ::buffer::CopyTo {
+            #[inline]
+            fn copy_to<S>(&self, target: &S) -> Result<(), ::buffer::CopyError>
+                where T: ::buffer::CopyTo, S: ::buffer::Storage
+            {
+                self.$inner.copy_to(target)
+            }
+        }
     );
 }

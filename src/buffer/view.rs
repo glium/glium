@@ -20,7 +20,7 @@ use ContextExt;
 use buffer::BufferType;
 use buffer::BufferMode;
 use buffer::BufferCreationError;
-//use buffer::CopyTo;
+use buffer::CopyTo;
 use buffer::Content;
 use buffer::ArrayContent;
 use buffer::Storage;
@@ -456,13 +456,28 @@ macro_rules! impl_buffer_base {
             }
         }
 
-        /*impl<T> CopyTo for $ty<T> where T: Content {
-            fn copy_to<'a, S>(&self, target: S) -> Result<(), CopyError>
-                              where S: Into<BufferAnySlice<'a, Self::Content>>, Self::Content: 'a
+        impl<T> CopyTo for $ty<T> where T: Content {
+            fn copy_to<S>(&self, target: &S) -> Result<(), CopyError>
+                where S: Storage
             {
-                unimplemented!()
+                let target = target.as_slice_any();
+                let alloc = self.alloc.as_ref().unwrap();
+
+                try!(alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes()));
+
+                if let Some(inserter) = self.as_slice().add_fence() {
+                    let mut ctxt = alloc.get_context().make_current();
+                    inserter.insert(&mut ctxt);
+                }
+
+                if let Some(inserter) = target.add_fence() {
+                    let mut ctxt = alloc.get_context().make_current();
+                    inserter.insert(&mut ctxt);
+                }
+
+                Ok(())
             }
-        }*/
+        }
 
         /*impl<'a, T, R: ?Sized> Slice<'a, R> for &'a $ty<T>
             where T: Content, R: Content
