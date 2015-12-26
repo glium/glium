@@ -31,29 +31,6 @@ fn buffer_immutable_creation() {
 }
 
 #[test]
-fn buffer_dynamic_creation() {
-    let display = support::build_display();
-
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        field1: [f32; 3],
-        field2: [f32; 3],
-    }
-
-    implement_vertex!(Vertex, field1, field2);
-
-    glium::VertexBuffer::dynamic(&display,
-        &[
-            Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
-            Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
-            Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
-        ]
-    ).unwrap();
-
-    display.assert_no_error(None);
-}
-
-#[test]
 fn buffer_immutable_empty_creation() {
     let display = support::build_display();
 
@@ -102,32 +79,6 @@ fn buffer_immutable_mapping_read() {
     implement_vertex!(Vertex, field1, field2);
 
     let mut vb = glium::VertexBuffer::new(&display,
-        &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
-
-    let mapping = vb.map();
-    assert_eq!(mapping[0].field1, [2, 3]);
-    assert_eq!(mapping[1].field2, [15, 17]);
-
-    display.assert_no_error(None);
-}
-
-#[test]
-fn buffer_dynamic_mapping_read() {
-    let display = support::build_display();
-
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        field1: [u8; 2],
-        field2: [u8; 2],
-    }
-
-    implement_vertex!(Vertex, field1, field2);
-
-    let mut vb = glium::VertexBuffer::dynamic(&display,
         &[
             Vertex { field1: [ 2,  3], field2: [ 5,  7] },
             Vertex { field1: [12, 13], field2: [15, 17] },
