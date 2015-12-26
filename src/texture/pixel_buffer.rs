@@ -85,7 +85,7 @@ impl<T, P> PixelStorage<T> where T: BufferRead<Content = [P]>, P: PixelValue {
     }
 }
 
-impl_buffer_wrapper!(PixelStorage, buffer);
+impl_buffer_wrapper!(PixelStorage, buffer, [dimensions]);
 
 // TODO: remove this hack
 #[doc(hidden)]

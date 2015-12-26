@@ -28,7 +28,10 @@ use buffer::Create;
 use buffer::Invalidate;
 use buffer::Read;
 use buffer::Write;
+use buffer::SliceMut;
 use buffer::Slice;
+use buffer::SliceCustomMut;
+use buffer::SliceCustom;
 use buffer::Map;
 use buffer::fences::Fences;
 use buffer::fences::Inserter;
@@ -389,6 +392,34 @@ macro_rules! impl_buffer_base {
             }
         }
 
+        impl<'a, T: ?Sized> Storage for $slice_ty<'a, T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.get_size()
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> Storage for $slice_mut_ty<'a, T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.get_size()
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
+            }
+        }
+
         impl<T: ?Sized> Create for $ty<T> where T: Content {
             #[inline]
             fn new<F>(facade: &F, data: &Self::Content, ty: BufferType)
@@ -479,11 +510,52 @@ macro_rules! impl_buffer_base {
             }
         }
 
-        /*impl<'a, T, R: ?Sized> Slice<'a, R> for &'a $ty<T>
+        impl<'a, T> Slice for &'a $ty<T> where T: Content {
+            type Slice = $slice_ty<'a, T>;
+
+            fn as_slice(self) -> $slice_ty<'a, T> {
+                self.as_slice()
+            }
+
+            fn slice<R: RangeArgument<usize>>(self, range: R) -> Option<$slice_ty<'a, T>>
+                where T: ArrayContent
+            {
+                self.slice(range)
+            }
+        }
+
+        impl<'a, T> Slice for &'a mut $ty<T> where T: Content {
+            type Slice = $slice_ty<'a, T>;
+
+            fn as_slice(self) -> $slice_ty<'a, T> {
+                self.as_slice()
+            }
+
+            fn slice<R: RangeArgument<usize>>(self, range: R) -> Option<$slice_ty<'a, T>>
+                where T: ArrayContent
+            {
+                self.slice(range)
+            }
+        }
+
+        impl<'a, T> SliceMut for &'a mut $ty<T> where T: Content {
+            type SliceMut = $slice_mut_ty<'a, T>;
+
+            fn as_mut_slice(self) -> $slice_mut_ty<'a, T> {
+                self.as_mut_slice()
+            }
+
+            fn slice_mut<R: RangeArgument<usize>>(self, range: R) -> Option<$slice_mut_ty<'a, T>>
+                where T: ArrayContent
+            {
+                self.slice_mut(range)
+            }
+        }
+
+        impl<'a, T, R: ?Sized> SliceCustom<R> for &'a $ty<T>
             where T: Content, R: Content
         {
             type Slice = $slice_ty<'a, R>;
-            type SliceMut = $slice_mut_ty<'a, R>;
 
             #[inline]
             unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
@@ -491,6 +563,25 @@ macro_rules! impl_buffer_base {
             {
                 self.slice_custom(f)
             }
+        }
+
+        impl<'a, T, R: ?Sized> SliceCustom<R> for &'a mut $ty<T>
+            where T: Content, R: Content
+        {
+            type Slice = $slice_ty<'a, R>;
+
+            #[inline]
+            unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
+                where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized
+            {
+                self.slice_custom(f)
+            }
+        }
+
+        impl<'a, T, R: ?Sized> SliceCustomMut<R> for &'a mut $ty<T>
+            where T: Content, R: Content
+        {
+            type SliceMut = $slice_mut_ty<'a, R>;
 
             #[inline]
             unsafe fn slice_custom_mut<F>(self, f: F) -> Self::SliceMut
@@ -498,17 +589,7 @@ macro_rules! impl_buffer_base {
             {
                 self.slice_custom_mut(f)
             }
-
-            #[inline]
-            fn as_slice(self) -> Self::Slice where Self: Storage<Content = R> {
-                self.as_slice()
-            }
-
-            #[inline]
-            fn as_mut_slice(self) -> Self::SliceMut where Self: Storage<Content = R> {
-                self.as_mut_slice()
-            }
-        }*/
+        }
 
         impl<'a, T: ?Sized> From<&'a $ty<T>> for BufferAnySlice<'a> where T: Content {
             #[inline]

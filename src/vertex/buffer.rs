@@ -143,7 +143,7 @@ impl<T, V> VertexStorage<T> where T: BufferCreate<Content = [V]>, V: Vertex {
     }
 }
 
-impl_buffer_wrapper!(VertexStorage, buffer);
+impl_buffer_wrapper!(VertexStorage, buffer, [bindings]);
 /*
 impl<T> VertexStorage<T> where T: Copy {
     /// Builds a new vertex buffer from an indeterminate data type and bindings.

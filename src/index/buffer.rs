@@ -150,7 +150,7 @@ impl<T, I> IndexStorage<T> where T: BufferStorage<Content = [I]>, [I]: BufferCon
     }
 }
 
-impl_buffer_wrapper!(IndexStorage, buffer);
+impl_buffer_wrapper!(IndexStorage, buffer, [primitives]);
 
 impl<T> IndexStorage<T> {
     /// Returns the type of primitives associated with this index buffer.

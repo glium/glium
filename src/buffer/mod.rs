@@ -287,9 +287,26 @@ pub trait Write: Storage {
     fn write(&self, data: &Self::Content);
 }
 
-pub trait Slice<R: ?Sized>: Storage where R: Content {
-    type Slice;
-    type SliceMut;
+pub trait Slice: Storage {
+    type Slice: Storage;
+
+    fn as_slice(self) -> Self::Slice;
+
+    fn slice<R: RangeArgument<usize>>(self, range: R) -> Option<Self::Slice>
+        where Self::Content: ArrayContent;
+}
+
+pub trait SliceMut: Slice {
+    type SliceMut: Storage;
+
+    fn as_mut_slice(self) -> Self::SliceMut;
+
+    fn slice_mut<R: RangeArgument<usize>>(self, range: R) -> Option<Self::SliceMut>
+        where Self::Content: ArrayContent;
+}
+
+pub trait SliceCustom<R: ?Sized>: Storage where R: Content {
+    type Slice: Storage;
 
     /// Builds a slice that contains an element from inside the buffer.
     ///
@@ -319,6 +336,10 @@ pub trait Slice<R: ?Sized>: Storage where R: Content {
     #[inline]
     unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
         where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized;
+}
+
+pub trait SliceCustomMut<R: ?Sized>: SliceCustom<R> where R: Content {
+    type SliceMut: Storage;
 
     /// Same as `slice_custom` but returns a mutable slice.
     ///
@@ -327,20 +348,6 @@ pub trait Slice<R: ?Sized>: Storage where R: Content {
     #[inline]
     unsafe fn slice_custom_mut<F>(self, f: F) -> Self::SliceMut
         where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized;
-
-    /// Builds a slice containing the whole subbuffer.
-    ///
-    /// This method builds an object that represents a slice of the buffer. No actual operation
-    /// OpenGL is performed.
-    #[inline]
-    fn as_slice(self) -> Self::Slice where Self: Storage<Content = R>;
-
-    /// Builds a slice containing the whole subbuffer.
-    ///
-    /// This method builds an object that represents a slice of the buffer. No actual operation
-    /// OpenGL is performed.
-    #[inline]
-    fn as_mut_slice(self) -> Self::SliceMut where Self: Storage<Content = R>;
 }
 
 pub trait Create: Storage {
@@ -509,7 +516,7 @@ impl BufferType {
 }
 
 macro_rules! impl_buffer_wrapper {
-    ($ty:ident, $inner:ident) => (
+    ($ty:ident, $inner:ident, [$($other_field:ident),+]) => (
         impl<T> $ty<T> where T: ::buffer::Storage {
             #[inline]
             pub fn size(&self) -> usize {
@@ -558,6 +565,87 @@ macro_rules! impl_buffer_wrapper {
                 where T: ::buffer::CopyTo, S: ::buffer::Storage
             {
                 self.$inner.copy_to(target)
+            }
+
+            #[inline]
+            pub fn as_slice<'a>(&'a self) -> $ty<<&'a T as ::buffer::Slice>::Slice>
+                where &'a T: ::buffer::Slice
+            {
+                $ty {
+                    $inner: ::buffer::Slice::as_slice(&self.$inner),
+                    $(
+                        $other_field: self.$other_field.clone()
+                    ),+
+                }
+            }
+
+            #[inline]
+            pub fn slice<'a, R>(&'a self, range: R) -> Option<$ty<<&'a T as ::buffer::Slice>::Slice>>
+                where <&'a T as ::buffer::Storage>::Content: ::buffer::ArrayContent,
+                      &'a T: ::buffer::Slice, R: ::utils::range::RangeArgument<usize>
+            {
+                ::buffer::Slice::slice(&self.$inner, range).map(|slice| {
+                    $ty {
+                        $inner: slice,
+                        $(
+                            $other_field: self.$other_field.clone()
+                        ),+
+                    }
+                })
+            }
+
+            #[inline]
+            pub fn as_mut_slice<'a>(&'a mut self) -> $ty<<&'a mut T as ::buffer::SliceMut>::SliceMut>
+                where &'a mut T: ::buffer::SliceMut
+            {
+                $ty {
+                    $inner: ::buffer::SliceMut::as_mut_slice(&mut self.$inner),
+                    $(
+                        $other_field: self.$other_field.clone()
+                    ),+
+                }
+            }
+
+            #[inline]
+            pub fn slice_mut<'a, R>(&'a mut self, range: R) -> Option<$ty<<&'a mut T as ::buffer::SliceMut>::SliceMut>>
+                where <&'a mut T as ::buffer::Storage>::Content: ::buffer::ArrayContent,
+                      &'a mut T: ::buffer::SliceMut, R: ::utils::range::RangeArgument<usize>
+            {
+                Some($ty {
+                    $inner: match ::buffer::SliceMut::slice_mut(&mut self.$inner, range) {
+                        Some(s) => s,
+                        None => return None
+                    },
+                    $(
+                        $other_field: self.$other_field.clone()
+                    ),+
+                })
+            }
+
+            #[inline]
+            pub unsafe fn slice_custom<'a, F, R: ?Sized>(&'a self, f: F) -> $ty<<&'a T as ::buffer::SliceCustom<R>>::Slice>
+                where &'a T: ::buffer::SliceCustom<R>, R: ::buffer::Content,
+                      F: for<'r> FnOnce(&'r <&'a T as ::buffer::Storage>::Content) -> &'r R
+            {
+                $ty {
+                    $inner: ::buffer::SliceCustom::slice_custom(&self.$inner, f),
+                    $(
+                        $other_field: self.$other_field.clone()
+                    ),+
+                }
+            }
+
+            #[inline]
+            pub unsafe fn slice_custom_mut<'a, F, R: ?Sized>(&'a mut self, f: F) -> $ty<<&'a mut T as ::buffer::SliceCustomMut<R>>::SliceMut>
+                where &'a mut T: ::buffer::SliceCustomMut<R>, R: ::buffer::Content,
+                      F: for<'r> FnOnce(&'r <&'a mut T as ::buffer::Storage>::Content) -> &'r R
+            {
+                $ty {
+                    $inner: ::buffer::SliceCustomMut::slice_custom_mut(&mut self.$inner, f),
+                    $(
+                        $other_field: self.$other_field.clone()
+                    ),+
+                }
             }
         }
 
