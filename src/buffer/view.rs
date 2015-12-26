@@ -120,115 +120,6 @@ macro_rules! impl_buffer_base {
                 self.alloc.as_ref().unwrap().get_size()
             }
 
-            /// Returns true if this buffer uses persistent mapping.
-            #[inline]
-            pub fn is_persistent(&self) -> bool {
-                self.alloc.as_ref().unwrap().uses_persistent_mapping()
-            }
-
-            /// Uploads some data in this buffer.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
-            ///   memcpies the data to the mapping.
-            /// - For immutable buffers, creates a temporary buffer that contains the data then calls
-            ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
-            /// - For other types, calls `glBufferSubData`.
-            ///
-            /// # Panic
-            ///
-            /// Panics if the length of `data` is different from the length of this buffer.
-            pub fn write(&self, data: &T) {
-                assert!(mem::size_of_val(data) == self.get_size());
-
-                self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                                  0 .. self.get_size());
-                unsafe { self.alloc.as_ref().unwrap().upload(0, data); }
-            }
-
-            /// Invalidates the content of the buffer. The data becomes undefined.
-            ///
-            /// You should call this if you only use parts of a buffer. For example if you want to use
-            /// the first half of the buffer, you invalidate the whole buffer then write the first half.
-            ///
-            /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
-            /// buffers.
-            ///
-            /// # Implementation
-            ///
-            /// Calls `glInvalidateBufferData` if supported. Otherwise, calls `glBufferData` with a null
-            /// pointer for data. If `glBufferStorage` has been used to create the buffer and
-            /// `glInvalidateBufferData` is not supported, does nothing.
-            ///
-            #[inline]
-            pub fn invalidate(&self) {
-                self.alloc.as_ref().unwrap().invalidate(0, self.get_size());
-            }
-
-            /// Reads the content of the buffer.
-            pub fn read(&self) -> Result<T::Owned, ReadError> {
-                self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                                  0 .. self.get_size());
-
-                unsafe {
-                    self.alloc.as_ref().unwrap().read::<T>(0 .. self.get_size())
-                }
-            }
-
-            /// Maps the buffer in memory for both reading and writing.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
-            ///   returns a pointer to the existing mapping.
-            /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
-            ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
-            ///   to the real buffer.
-            /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
-            ///
-            pub fn map(&mut self) -> Mapping<T> {
-                self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                                  0 .. self.get_size());
-                let size = self.get_size();
-                unsafe { self.alloc.as_mut().unwrap().map(0 .. size) }
-            }
-
-            /// Maps the buffer in memory for reading.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
-            ///   returns a pointer to the existing mapping.
-            /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
-            ///   maps it.
-            /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
-            ///
-            pub fn map_read(&mut self) -> ReadMapping<T> {
-                self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                                  0 .. self.get_size());
-                let size = self.get_size();
-                unsafe { self.alloc.as_mut().unwrap().map_read(0 .. size) }
-            }
-
-            /// Maps the buffer in memory for writing only.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
-            ///   returns a pointer to the existing mapping.
-            /// - For immutable buffers, creates a temporary buffer and
-            ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
-            ///   to the real buffer.
-            /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
-            ///
-            pub fn map_write(&mut self) -> WriteMapping<T> {
-                self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                                  0 .. self.get_size());
-                let size = self.get_size();
-                unsafe { self.alloc.as_mut().unwrap().map_write(0 .. size) }
-            }
-
             /// Copies the content of the buffer to another buffer.
             ///
             /// # Panic
@@ -458,35 +349,6 @@ macro_rules! impl_buffer_base {
             }
         }
 
-        impl<T> Invalidate for $ty<T> where T: Content {
-            #[inline]
-            fn invalidate(&self) {
-                self.invalidate()
-            }
-        }
-
-        impl<T> Read for $ty<T> where T: Content {
-            #[inline]
-            fn read(&self) -> Result<T::Owned, ReadError> {
-                self.read()
-            }
-        }
-
-        impl<T> Write for $ty<T> where T: Content {
-            #[inline]
-            fn write(&self, data: &T) {
-                self.write(data)
-            }
-        }
-
-        impl<'a, T> Map for &'a mut $ty<T> where T: Content {
-            type Mapping = Mapping<'a, T>;
-
-            fn map(self) -> Mapping<'a, T> {
-                self.map()
-            }
-        }
-
         impl<T> CopyTo for $ty<T> where T: Content {
             fn copy_to<S>(&self, target: &S) -> Result<(), CopyError>
                 where S: Storage
@@ -661,15 +523,6 @@ macro_rules! impl_buffer_base {
             }
         }
 
-        impl<T> $ty<[T]> where T: PixelValue {
-            /// Reads the content of the buffer.
-            #[inline]
-            pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-                let data = try!(self.read());
-                Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
-            }
-        }
-
         impl<T: ?Sized> fmt::Debug for $ty<T> where T: Content {
             #[inline]
             fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
@@ -803,51 +656,6 @@ macro_rules! impl_buffer_base {
                 self.alloc.get_context()
             }
 
-            /// Uploads some data in this buffer.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
-            ///   memcpies the data to the mapping.
-            /// - For immutable buffers, creates a temporary buffer that contains the data then calls
-            ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
-            /// - For other types, calls `glBufferSubData`.
-            ///
-            /// # Panic
-            ///
-            /// Panics if the length of `data` is different from the length of this buffer.
-            pub fn write(&self, data: &T) {
-                assert_eq!(mem::size_of_val(data), self.get_size());
-
-                self.fence.wait(&mut self.alloc.get_context().make_current(),
-                                self.bytes_start .. self.bytes_end);
-                unsafe { self.alloc.upload(self.bytes_start, data); }
-            }
-
-            /// Invalidates the content of the slice. The data becomes undefined.
-            ///
-            /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
-            /// buffers.
-            ///
-            /// # Implementation
-            ///
-            /// Calls `glInvalidateBufferSubData` if supported.
-            ///
-            #[inline]
-            pub fn invalidate(&self) {
-                self.alloc.invalidate(self.bytes_start, self.get_size());
-            }
-
-            /// Reads the content of the buffer.
-            pub fn read(&self) -> Result<T::Owned, ReadError> {
-                self.fence.wait(&mut self.alloc.get_context().make_current(),
-                                self.bytes_start .. self.bytes_end);
-
-                unsafe {
-                    self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
-                }
-            }
-
             /// Copies the content of this slice to another slice.
             ///
             /// # Panic
@@ -961,15 +769,6 @@ macro_rules! impl_buffer_base {
                     fence: self.fence,
                     marker: PhantomData,
                 })
-            }
-        }
-
-        impl<'a, T> $slice_ty<'a, [T]> where T: PixelValue + 'a {
-            /// Reads the content of the buffer.
-            #[inline]
-            pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-                let data = try!(self.read());
-                Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
             }
         }
 
@@ -1116,100 +915,6 @@ macro_rules! impl_buffer_base {
                 self.bytes_end - self.bytes_start
             }
 
-            /// Maps the buffer in memory for both reading and writing.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
-            ///   returns a pointer to the existing mapping.
-            /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
-            ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
-            ///   to the real buffer.
-            /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
-            ///
-            #[inline]
-            pub fn map(self) -> Mapping<'a, T> {
-                self.fence.wait(&mut self.alloc.get_context().make_current(),
-                                self.bytes_start .. self.bytes_end);
-                unsafe { self.alloc.map(self.bytes_start .. self.bytes_end) }
-            }
-
-            /// Maps the buffer in memory for reading.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
-            ///   returns a pointer to the existing mapping.
-            /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
-            ///   maps it.
-            /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
-            ///
-            #[inline]
-            pub fn map_read(self) -> ReadMapping<'a, T> {
-                self.fence.wait(&mut self.alloc.get_context().make_current(),
-                                self.bytes_start .. self.bytes_end);
-                unsafe { self.alloc.map_read(self.bytes_start .. self.bytes_end) }
-            }
-
-            /// Maps the buffer in memory for writing only.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
-            ///   returns a pointer to the existing mapping.
-            /// - For immutable buffers, creates a temporary buffer and maps it. When the mapping object
-            ///   is destroyed, copies the content of the temporary buffer to the real buffer.
-            /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
-            ///
-            #[inline]
-            pub fn map_write(self) -> WriteMapping<'a, T> {
-                self.fence.wait(&mut self.alloc.get_context().make_current(),
-                                self.bytes_start .. self.bytes_end);
-                unsafe { self.alloc.map_write(self.bytes_start .. self.bytes_end) }
-            }
-
-            /// Uploads some data in this buffer.
-            ///
-            /// # Implementation
-            ///
-            /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
-            ///   memcpies the data to the mapping.
-            /// - For immutable buffers, creates a temporary buffer that contains the data then calls
-            ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
-            /// - For other types, calls `glBufferSubData`.
-            ///
-            /// # Panic
-            ///
-            /// Panics if the length of `data` is different from the length of this buffer.
-            #[inline]
-            pub fn write(&self, data: &T) {
-                self.fence.wait(&mut self.alloc.get_context().make_current(),
-                                self.bytes_start .. self.bytes_end);
-                unsafe { self.alloc.upload(self.bytes_start, data); }
-            }
-
-            /// Invalidates the content of the slice. The data becomes undefined.
-            ///
-            /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
-            /// buffers.
-            ///
-            /// # Implementation
-            ///
-            /// Calls `glInvalidateBufferSubData` if supported.
-            ///
-            #[inline]
-            pub fn invalidate(&self) {
-                self.alloc.invalidate(self.bytes_start, self.get_size());
-            }
-
-            /// Reads the content of the buffer.
-            #[inline]
-            pub fn read(&self) -> Result<T::Owned, ReadError> {
-                unsafe {
-                    self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
-                }
-            }
-
             /// Copies the content of this slice to another slice.
             ///
             /// # Panic
@@ -1327,15 +1032,6 @@ macro_rules! impl_buffer_base {
             }
         }
 
-        impl<'a, T> $slice_mut_ty<'a, [T]> where T: PixelValue + 'a {
-            /// Reads the content of the buffer.
-            #[inline]
-            pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-                let data = try!(self.read());
-                Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
-            }
-        }
-
         impl<'a, T: ?Sized> BufferSliceExt<'a> for $slice_mut_ty<'a, T> where T: Content {
             #[inline]
             fn add_fence(&self) -> Option<Inserter<'a>> {
@@ -1366,6 +1062,271 @@ macro_rules! impl_buffer_base {
 impl_buffer_base!(DynamicBuffer, DynamicBufferSlice, DynamicBufferMutSlice);
 impl_buffer_base!(ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice);
 impl_buffer_base!(PersistentBuffer, PersistentBufferSlice, PersistentBufferMutSlice);
+
+impl<T: ?Sized> DynamicBuffer<T> where T: Content {
+    /// Uploads some data in this buffer.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+    ///   memcpies the data to the mapping.
+    /// - For immutable buffers, creates a temporary buffer that contains the data then calls
+    ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
+    /// - For other types, calls `glBufferSubData`.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the length of `data` is different from the length of this buffer.
+    pub fn write(&self, data: &T) {
+        assert_eq!(mem::size_of_val(data), self.get_size());
+        unsafe { self.alloc.as_ref().unwrap().upload(0, data); }
+    }
+
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
+    ///
+    /// # Implementation
+    ///
+    /// Calls `glInvalidateBufferSubData` if supported.
+    ///
+    #[inline]
+    pub fn invalidate(&self) {
+        self.alloc.as_ref().unwrap().invalidate(0, self.get_size());
+    }
+
+    /// Reads the content of the buffer.
+    pub fn read(&self) -> Result<T::Owned, ReadError> {
+        unsafe {
+            self.alloc.as_ref().unwrap().read::<T>(0 .. self.get_size())
+        }
+    }
+
+    /// Maps the buffer in memory for both reading and writing.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
+    ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
+    ///   to the real buffer.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
+    pub fn map(&mut self) -> Mapping<T> {
+        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
+                                          0 .. self.get_size());
+        let size = self.get_size();
+        unsafe { self.alloc.as_mut().unwrap().map(0 .. size) }
+    }
+}
+
+impl<T: ?Sized> DynamicBuffer<[T]> where T: Content + PixelValue {
+    /// Reads the content of the buffer.
+    #[inline]
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
+    }
+}
+
+impl<T: ?Sized> Invalidate for DynamicBuffer<T> where T: Content {
+    #[inline]
+    fn invalidate(&self) {
+        self.invalidate()
+    }
+}
+
+impl<T: ?Sized> Read for DynamicBuffer<T> where T: Content {
+    #[inline]
+    fn read(&self) -> Result<T::Owned, ReadError> {
+        self.read()
+    }
+}
+
+impl<T: ?Sized> Write for DynamicBuffer<T> where T: Content {
+    #[inline]
+    fn write(&self, data: &T) {
+        self.write(data)
+    }
+}
+
+impl<'a, T> Map for &'a mut DynamicBuffer<T> where T: Content {
+    type Mapping = Mapping<'a, T>;
+
+    fn map(self) -> Mapping<'a, T> {
+        self.map()
+    }
+}
+
+impl<'a, T: ?Sized> DynamicBufferSlice<'a, T> where T: Content {
+    /// Uploads some data in this buffer.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+    ///   memcpies the data to the mapping.
+    /// - For immutable buffers, creates a temporary buffer that contains the data then calls
+    ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
+    /// - For other types, calls `glBufferSubData`.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the length of `data` is different from the length of this buffer.
+    pub fn write(&self, data: &T) {
+        assert_eq!(mem::size_of_val(data), self.get_size());
+        unsafe { self.alloc.upload(self.bytes_start, data); }
+    }
+
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
+    ///
+    /// # Implementation
+    ///
+    /// Calls `glInvalidateBufferSubData` if supported.
+    ///
+    #[inline]
+    pub fn invalidate(&self) {
+        self.alloc.invalidate(self.bytes_start, self.get_size());
+    }
+
+    /// Reads the content of the buffer.
+    pub fn read(&self) -> Result<T::Owned, ReadError> {
+        unsafe {
+            self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
+        }
+    }
+}
+
+impl<'a, T> DynamicBufferSlice<'a, [T]> where T: Content + PixelValue + 'a {
+    /// Reads the content of the buffer.
+    #[inline]
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
+    }
+}
+
+impl<'a, T: ?Sized> Invalidate for DynamicBufferSlice<'a, T> where T: Content {
+    #[inline]
+    fn invalidate(&self) {
+        self.invalidate()
+    }
+}
+
+impl<'a, T: ?Sized> Read for DynamicBufferSlice<'a, T> where T: Content {
+    #[inline]
+    fn read(&self) -> Result<T::Owned, ReadError> {
+        self.read()
+    }
+}
+
+impl<'a, T: ?Sized> Write for DynamicBufferSlice<'a, T> where T: Content {
+    #[inline]
+    fn write(&self, data: &T) {
+        self.write(data)
+    }
+}
+
+impl<'a, T: ?Sized> DynamicBufferMutSlice<'a, T> where T: Content {
+    /// Uploads some data in this buffer.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits untils the data is no longer used by the GPU then
+    ///   memcpies the data to the mapping.
+    /// - For immutable buffers, creates a temporary buffer that contains the data then calls
+    ///   `glCopyBufferSubData` to copy from the temporary buffer to the real one.
+    /// - For other types, calls `glBufferSubData`.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the length of `data` is different from the length of this buffer.
+    pub fn write(&self, data: &T) {
+        assert_eq!(mem::size_of_val(data), self.get_size());
+        unsafe { self.alloc.upload(self.bytes_start, data); }
+    }
+
+    /// Invalidates the content of the slice. The data becomes undefined.
+    ///
+    /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
+    /// buffers.
+    ///
+    /// # Implementation
+    ///
+    /// Calls `glInvalidateBufferSubData` if supported.
+    ///
+    #[inline]
+    pub fn invalidate(&self) {
+        self.alloc.invalidate(self.bytes_start, self.get_size());
+    }
+
+    /// Reads the content of the buffer.
+    pub fn read(&self) -> Result<T::Owned, ReadError> {
+        unsafe {
+            self.alloc.read::<T>(self.bytes_start .. self.bytes_end)
+        }
+    }
+
+    /// Maps the buffer in memory for both reading and writing.
+    ///
+    /// # Implementation
+    ///
+    /// - For persistent-mapped buffers, waits until the data is no longer accessed by the GPU then
+    ///   returns a pointer to the existing mapping.
+    /// - For immutable buffers, creates a temporary buffer containing the data of the buffer and
+    ///   maps it. When the mapping object is destroyed, copies the content of the temporary buffer
+    ///   to the real buffer.
+    /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
+    ///
+    pub fn map(&mut self) -> Mapping<T> {
+        self.fence.wait(&mut self.alloc.get_context().make_current(),
+                        self.bytes_start .. self.bytes_end);
+        unsafe { self.alloc.map(self.bytes_start .. self.bytes_end) }
+    }
+}
+
+impl<'a, T> DynamicBufferMutSlice<'a, [T]> where T: Content + PixelValue + 'a {
+    /// Reads the content of the buffer.
+    #[inline]
+    pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
+        let data = try!(self.read());
+        Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
+    }
+}
+
+impl<'a, T: ?Sized> Invalidate for DynamicBufferMutSlice<'a, T> where T: Content {
+    #[inline]
+    fn invalidate(&self) {
+        self.invalidate()
+    }
+}
+
+impl<'a, T: ?Sized> Read for DynamicBufferMutSlice<'a, T> where T: Content {
+    #[inline]
+    fn read(&self) -> Result<T::Owned, ReadError> {
+        self.read()
+    }
+}
+
+impl<'a, T: ?Sized> Write for DynamicBufferMutSlice<'a, T> where T: Content {
+    #[inline]
+    fn write(&self, data: &T) {
+        self.write(data)
+    }
+}
+
+impl<'a, T> Map for DynamicBufferMutSlice<'a, T> where T: Content {
+    type Mapping = Mapping<'a, T>;
+
+    #[inline]
+    fn map(self) -> Mapping<'a, T> {
+        self.map()
+    }
+}
 
 /// Represents a sub-part of a buffer.
 ///
