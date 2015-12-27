@@ -1524,6 +1524,12 @@ pub struct BufferAnySlice<'a> {
 }
 
 impl<'a> BufferAnySlice<'a> {
+    /// Returns the number of bytes between the start of the buffer and the start of this slice.
+    #[inline]
+    pub fn get_offset_bytes(&self) -> usize {
+        self.bytes_start
+    }
+
     /// Returns the number of bytes in this slice.
     #[inline]
     pub fn get_size(&self) -> usize {

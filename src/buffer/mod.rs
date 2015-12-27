@@ -238,6 +238,13 @@ pub trait Storage {
     /// Returns the size in bytes of the buffer.
     fn size(&self) -> usize;
 
+    /// Returns the offset, in bytes, between the start of the underlying buffer and the data
+    /// described by this object.
+    #[inline]
+    fn offset_bytes(&self) -> usize {
+        self.as_slice_any().get_offset_bytes()
+    }
+
     /// Number of elements if the content is an array.
     #[inline]
     fn len(&self) -> usize
