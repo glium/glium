@@ -43,8 +43,8 @@ khronos_api = "0.0.8"
 
 [dev-dependencies]
 clock_ticks = "0.1.0"
-cgmath = "0.4"
-genmesh = "0.2.1"
+cgmath = "0.7"
+genmesh = "0.4"
 image = "0.4.0"
-obj = "0.2.1"
+obj = { version = "0.5", features = ["usegenmesh"] }
 rand = "0.3"
