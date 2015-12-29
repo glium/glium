@@ -82,9 +82,9 @@ impl CameraState {
 
         // note: remember that this is column-major, so the lines of code are actually columns
         [
-            [s.0, u.0, -f.0, 0.0],
-            [s.1, u.1, -f.1, 0.0],
-            [s.2, u.2, -f.2, 0.0],
+            [s_norm.0, u.0, -f.0, 0.0],
+            [s_norm.1, u.1, -f.1, 0.0],
+            [s_norm.2, u.2, -f.2, 0.0],
             [p.0, p.1,  p.2, 1.0],
         ]
     }
