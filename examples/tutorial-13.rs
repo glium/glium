@@ -149,9 +149,9 @@ fn view_matrix(position: &[f32; 3], direction: &[f32; 3], up: &[f32; 3]) -> [[f3
              -position[0] * f[0] - position[1] * f[1] - position[2] * f[2]];
 
     [
-        [s[0], u[0], f[0], 0.0],
-        [s[1], u[1], f[1], 0.0],
-        [s[2], u[2], f[2], 0.0],
+        [s_norm[0], u[0], f[0], 0.0],
+        [s_norm[1], u[1], f[1], 0.0],
+        [s_norm[2], u[2], f[2], 0.0],
         [p[0], p[1], p[2], 1.0],
     ]
 }
