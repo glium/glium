@@ -169,28 +169,15 @@ pub enum VerticesSource<'a> {
     },
 }
 
-/// Objects that can be used as vertex sources.
-pub trait IntoVerticesSource<'a> {
-    /// Builds the `VerticesSource`.
-    fn into_vertices_source(self) -> VerticesSource<'a>;
-}
-
-impl<'a> IntoVerticesSource<'a> for VerticesSource<'a> {
-    #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
-        self
-    }
-}
-
 /// Marker that can be passed instead of a buffer to indicate an empty list of buffers.
 pub struct EmptyVertexAttributes {
     /// Number of phantom vertices.
     pub len: usize,
 }
 
-impl<'a> IntoVerticesSource<'a> for EmptyVertexAttributes {
+impl<'a> Into<VerticesSource<'a>> for EmptyVertexAttributes {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::Marker { len: self.len, per_instance: false }
     }
 }
@@ -201,9 +188,9 @@ pub struct EmptyInstanceAttributes {
     pub len: usize,
 }
 
-impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
+impl<'a> Into<VerticesSource<'a>> for EmptyInstanceAttributes {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::Marker { len: self.len, per_instance: true }
     }
 }
@@ -211,9 +198,9 @@ impl<'a> IntoVerticesSource<'a> for EmptyInstanceAttributes {
 /// Marker that instructs glium that the buffer is to be used per instance.
 pub struct PerInstance<'a>(BufferAnySlice<'a>, &'a VertexFormat);
 
-impl<'a> IntoVerticesSource<'a> for PerInstance<'a> {
+impl<'a> Into<VerticesSource<'a>> for PerInstance<'a> {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.0, self.1, true)
     }
 }
@@ -228,26 +215,26 @@ pub trait MultiVerticesSource<'a> {
 }
 
 impl<'a, T> MultiVerticesSource<'a> for T
-    where T: IntoVerticesSource<'a>
+    where T: Into<VerticesSource<'a>>
 {
     type Iterator = IntoIter<VerticesSource<'a>>;
 
     #[inline]
     fn iter(self) -> IntoIter<VerticesSource<'a>> {
-        Some(self.into_vertices_source()).into_iter()
+        Some(self.into()).into_iter()
     }
 }
 
 macro_rules! impl_for_tuple {
     ($t:ident) => (
         impl<'a, $t> MultiVerticesSource<'a> for ($t,)
-            where $t: IntoVerticesSource<'a>
+            where $t: Into<VerticesSource<'a>>
         {
             type Iterator = IntoIter<VerticesSource<'a>>;
 
             #[inline]
             fn iter(self) -> IntoIter<VerticesSource<'a>> {
-                Some(self.0.into_vertices_source()).into_iter()
+                Some(self.0.into()).into_iter()
             }
         }
     );
@@ -255,7 +242,7 @@ macro_rules! impl_for_tuple {
     ($t1:ident, $t2:ident) => (
         #[allow(non_snake_case)]
         impl<'a, $t1, $t2> MultiVerticesSource<'a> for ($t1, $t2)
-            where $t1: IntoVerticesSource<'a>, $t2: IntoVerticesSource<'a>
+            where $t1: Into<VerticesSource<'a>>, $t2: Into<VerticesSource<'a>>
         {
             type Iterator = Chain<<($t1,) as MultiVerticesSource<'a>>::Iterator,
                                   <($t2,) as MultiVerticesSource<'a>>::Iterator>;
@@ -265,7 +252,7 @@ macro_rules! impl_for_tuple {
                                    <($t2,) as MultiVerticesSource<'a>>::Iterator>
             {
                 let ($t1, $t2) = self;
-                Some($t1.into_vertices_source()).into_iter().chain(($t2,).iter())
+                Some($t1.into()).into_iter().chain(($t2,).iter())
             }
         }
 
@@ -275,7 +262,7 @@ macro_rules! impl_for_tuple {
     ($t1:ident, $($t2:ident),+) => (
         #[allow(non_snake_case)]
         impl<'a, $t1, $($t2),+> MultiVerticesSource<'a> for ($t1, $($t2),+)
-            where $t1: IntoVerticesSource<'a>, $($t2: IntoVerticesSource<'a>),+
+            where $t1: Into<VerticesSource<'a>>, $($t2: Into<VerticesSource<'a>>),+
         {
             type Iterator = Chain<<($t1,) as MultiVerticesSource<'a>>::Iterator,
                                   <($($t2),+) as MultiVerticesSource<'a>>::Iterator>;
@@ -285,7 +272,7 @@ macro_rules! impl_for_tuple {
                                   <($($t2),+) as MultiVerticesSource<'a>>::Iterator>
             {
                 let ($t1, $($t2),+) = self;
-                Some($t1.into_vertices_source()).into_iter().chain(($($t2),+).iter())
+                Some($t1.into()).into_iter().chain(($($t2),+).iter())
             }
         }
 

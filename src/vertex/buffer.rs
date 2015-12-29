@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 use utils::range::RangeArgument;
 
 use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
-use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
+use vertex::{Vertex, VerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
 use backend::Facade;
@@ -73,10 +73,10 @@ pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
 impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     /// Creates a marker that instructs glium to use multiple instances.
     ///
-    /// Instead of calling `surface.draw(&vertex_buffer.slice(...).unwrap(), ...)` 
-    /// you can call `surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)`. 
-    /// This will draw one instance of the geometry for each element in this buffer slice. 
-    /// The attributes are still passed to the vertex shader, but each entry is passed 
+    /// Instead of calling `surface.draw(&vertex_buffer.slice(...).unwrap(), ...)`
+    /// you can call `surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)`.
+    /// This will draw one instance of the geometry for each element in this buffer slice.
+    /// The attributes are still passed to the vertex shader, but each entry is passed
     /// for each different instance.
     #[inline]
     pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
@@ -383,9 +383,9 @@ impl<'a, T> From<&'a mut VertexBuffer<T>> for BufferMutSlice<'a, [T]> where T: C
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Copy {
+impl<'a, T> Into<VerticesSource<'a>> for &'a VertexBuffer<T> where T: Copy {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
@@ -413,9 +413,9 @@ impl<'a, T> From<VertexBufferSlice<'a, T>> for BufferSlice<'a, [T]> where T: Cop
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy {
+impl<'a, T> Into<VerticesSource<'a>> for VertexBufferSlice<'a, T> where T: Copy {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
@@ -492,9 +492,9 @@ impl<T> From<Buffer<[T]>> for VertexBufferAny where T: Vertex + Copy + Send + 's
     }
 }
 
-impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
+impl<'a> Into<VerticesSource<'a>> for &'a VertexBufferAny {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
