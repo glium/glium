@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+ - Added constructors to `SimpleFrameBuffer` for depth-only, depth-stencil-only, stencil-only and depth & stencil framebuffers.
+
 ## Version 0.13.2 (2015-12-21)
 
  - Fixed compilation on ARM platform.
