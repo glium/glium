@@ -112,6 +112,7 @@ pub use version::{Api, Version, get_supported_glsl_version};
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::thread;
+use std::error::Error;
 
 use context::Context;
 use context::CommandContext;
@@ -897,67 +898,103 @@ pub enum DrawError {
     BlendingParameterNotSupported,
 }
 
+impl Error for DrawError {
+    fn description(&self) -> &str {
+        use self::DrawError::*;
+        match *self {
+            NoDepthBuffer =>
+                "A depth function has been requested but no depth buffer is available",
+            AttributeTypeMismatch =>
+                "The type of a vertex attribute in the vertices source doesn't match what the program requires",
+            AttributeMissing =>
+                "One of the attributes required by the program is missing from the vertex format",
+            ViewportTooLarge =>
+                "The viewport's dimensions are not supported by the backend",
+            InvalidDepthRange =>
+                "The depth range is outside of the `(0, 1)` range",
+            UniformTypeMismatch { .. } =>
+                    "The type of a uniform doesn't match what the program requires",
+            UniformBufferToValue { .. } =>
+                "Tried to bind a uniform buffer to a single uniform value",
+            UniformValueToBlock { .. } =>
+                "Tried to bind a single uniform value to a uniform block",
+            UniformBlockLayoutMismatch { .. } =>
+                "The layout of the content of the uniform buffer does not match the layout of the block",
+            UnsupportedVerticesPerPatch =>
+                "The number of vertices per patch that has been requested is not supported",
+            TessellationNotSupported =>
+                "Trying to use tessellation, but this is not supported by the underlying hardware",
+            TessellationWithoutPatches =>
+                "Using a program which contains tessellation shaders, but without submitting patches",
+            SamplersNotSupported => "
+                Trying to use a sampler, but they are not supported by the backend",
+            InstancesCountMismatch =>
+                "When you use instancing, all vertices sources must have the same size",
+            VerticesSourcesLengthMismatch =>
+                "If you don't use indices, then all vertices sources must have the same size",
+            TransformFeedbackNotSupported =>
+                "Requested not to draw primitves, but this is not supported by the backend",
+            WrongQueryOperation =>
+                "Wrong query operation",
+            SmoothingNotSupported =>
+                "Trying to use smoothing, but this is not supported by the backend",
+            ProvokingVertexNotSupported =>
+                "Trying to set the provoking vertex, but this is not supported by the backend",
+            RasterizerDiscardNotSupported =>
+                "Discarding rasterizer output is not supported by the backend",
+            DepthClampNotSupported =>
+                "The depth clamp mode is not supported by the backend",
+            BlendingParameterNotSupported =>
+                "One the blending parameters is not supported by the backend",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        use self::DrawError::*;
+        match *self {
+            UniformBlockLayoutMismatch { ref err, .. } => Some(err),
+            _ => None,
+        }
+    }
+}
+
+
 impl std::fmt::Display for DrawError {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        match self {
-            &DrawError::NoDepthBuffer => write!(fmt, "A depth function has been requested but no \
-                                                      depth buffer is available."),
-            &DrawError::AttributeTypeMismatch => write!(fmt, "The type of a vertex attribute in \
-                                                              the vertices source doesn't match \
-                                                              what the program requires."),
-            &DrawError::AttributeMissing => write!(fmt, "One of the attributes required by the \
-                                                         program is missing from the vertex \
-                                                         format."),
-            &DrawError::ViewportTooLarge => write!(fmt, "The viewport's dimensions are not \
-                                                         supported by the backend."),
-            &DrawError::InvalidDepthRange => write!(fmt, "The depth range is outside of the \
-                                                          `(0, 1)` range."),
-            &DrawError::UniformTypeMismatch { ref name, ref expected } => {
-                write!(fmt, "The type of a uniform doesn't match what the program requires.")
-            },
-            &DrawError::UniformBufferToValue { ref name } => write!(fmt, "Tried to bind a uniform \
-                                                                          buffer to a single \
-                                                                          uniform value."),
-            &DrawError::UniformValueToBlock { ref name } => {
-                write!(fmt, "Tried to bind a single uniform value to a uniform block.")
-            },
-            &DrawError::UniformBlockLayoutMismatch { ref name, .. } => {
-                write!(fmt, "The layout of the content of the uniform buffer does not match \
-                             the layout of the block.")
-            },
-            &DrawError::UnsupportedVerticesPerPatch => write!(fmt, "The number of vertices per \
-                                                                    patch that has been requested \
-                                                                    is not supported."),
-            &DrawError::TessellationNotSupported => write!(fmt, "Trying to use tessellation, but \
-                                                                 this is not supported by the \
-                                                                 underlying hardware."),
-            &DrawError::TessellationWithoutPatches => write!(fmt, "Using a program which contains \
-                                                                   tessellation shaders, but \
-                                                                   without submitting patches."),
-            &DrawError::SamplersNotSupported => write!(fmt, "Trying to use a sampler, but they are \
-                                                             not supported by the backend."),
-            &DrawError::InstancesCountMismatch => write!(fmt, "When you use instancing, all \
-                                                               vertices sources must have the \
-                                                               same size"),
-            &DrawError::VerticesSourcesLengthMismatch => write!(fmt, "If you don't use indices, \
-                                                                      then all vertices sources \
-                                                                      must have the same size."),
-            &DrawError::TransformFeedbackNotSupported => write!(fmt, "Requested not to draw \
-                                                                      primitves, but this is not \
-                                                                      supported by the backend."),
-            &DrawError::WrongQueryOperation => write!(fmt, "Wrong query operation."),
-            &DrawError::SmoothingNotSupported => write!(fmt, "Trying to use smoothing, but this is \
-                                                              not supported by the backend."),
-            &DrawError::ProvokingVertexNotSupported => write!(fmt, "Trying to set the provoking \
-                                                                    vertex, but this is not \
-                                                                    supported by the backend."),
-            &DrawError::RasterizerDiscardNotSupported => write!(fmt, "Discarding rasterizer \
-                                                                      output is not supported by
-                                                                      the backend."),
-            &DrawError::DepthClampNotSupported => write!(fmt, "The depth clamp mode is not \
-                                                               supported by the backend."),
-            &DrawError::BlendingParameterNotSupported => write!(fmt, "One the blending parameters is not \
-                                                                      supported by the backend."),
+        use self::DrawError::*;
+        match *self {
+            UniformTypeMismatch { ref name, ref expected } =>
+                write!(
+                    fmt,
+                    "{}, got: {:?}, expected: {:?}",
+                    self.description(),
+                    name,
+                    expected,
+                ),
+            UniformBufferToValue { ref name } =>
+                write!(
+                    fmt,
+                    "{}: {}",
+                    self.description(),
+                    name,
+                ),
+            UniformValueToBlock { ref name } =>
+                write!(
+                    fmt,
+                    "{}: {}",
+                    self.description(),
+                    name,
+                ),
+            UniformBlockLayoutMismatch { ref name, ref err } =>
+                write!(
+                    fmt,
+                    "{}: {}, caused by {}",
+                    self.description(),
+                    name,
+                    err,
+                ),
+            _ =>
+                write!(fmt, "{}", self.description()),
         }
     }
 }
@@ -983,19 +1020,21 @@ pub enum SwapBuffersError {
     AlreadySwapped,
 }
 
-impl std::error::Error for SwapBuffersError {
+impl Error for SwapBuffersError {
     fn description(&self) -> &str {
-        match self {
-            &SwapBuffersError::ContextLost => "the OpenGL context has been lost and \
-                                               needs to be recreated",
-            &SwapBuffersError::AlreadySwapped => "the buffers have already been swapped",
+        use self::SwapBuffersError::*;
+        match *self {
+            ContextLost =>
+                "the OpenGL context has been lost and needs to be recreated",
+            AlreadySwapped =>
+                "the buffers have already been swapped",
         }
     }
 }
 
 impl std::fmt::Display for SwapBuffersError {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        fmt.write_str(std::error::Error::description(self))
+        write!(fmt, "{}", self.description())
     }
 }
 
@@ -1196,13 +1235,12 @@ pub enum GliumCreationError<T> {
 }
 
 impl<T> std::fmt::Display for GliumCreationError<T> where T: std::error::Error {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        let self_error = self as &std::error::Error;
-        formatter.write_str(self_error.description())
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        write!(fmt, "{}", self.description())
     }
 }
 
-impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
+impl<T> Error for GliumCreationError<T> where T: std::error::Error {
     #[inline]
     fn description(&self) -> &str {
         match self {
@@ -1212,9 +1250,9 @@ impl<T> std::error::Error for GliumCreationError<T> where T: std::error::Error {
     }
 
     #[inline]
-    fn cause(&self) -> Option<&std::error::Error> {
+    fn cause(&self) -> Option<&Error> {
         match self {
-            &GliumCreationError::BackendCreationError(ref err) => Some(err as &std::error::Error),
+            &GliumCreationError::BackendCreationError(ref err) => Some(err),
             &GliumCreationError::IncompatibleOpenGl(_) => None,
         }
     }
