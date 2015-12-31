@@ -113,6 +113,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::thread;
 use std::error::Error;
+use std::fmt;
 
 use context::Context;
 use context::CommandContext;
@@ -959,8 +960,8 @@ impl Error for DrawError {
 }
 
 
-impl std::fmt::Display for DrawError {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+impl fmt::Display for DrawError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         use self::DrawError::*;
         match *self {
             UniformTypeMismatch { ref name, ref expected } =>
@@ -1032,8 +1033,8 @@ impl Error for SwapBuffersError {
     }
 }
 
-impl std::fmt::Display for SwapBuffersError {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+impl fmt::Display for SwapBuffersError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{}", self.description())
     }
 }
@@ -1234,31 +1235,33 @@ pub enum GliumCreationError<T> {
     IncompatibleOpenGl(String),
 }
 
-impl<T> std::fmt::Display for GliumCreationError<T> where T: std::error::Error {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+impl<T: Error> fmt::Display for GliumCreationError<T> {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(fmt, "{}", self.description())
     }
 }
 
-impl<T> Error for GliumCreationError<T> where T: std::error::Error {
+impl<T: Error> Error for GliumCreationError<T> {
     #[inline]
     fn description(&self) -> &str {
-        match self {
-            &GliumCreationError::BackendCreationError(_) => "Error while creating the backend",
-            &GliumCreationError::IncompatibleOpenGl(_) => "The OpenGL implementation is too old to work with glium",
+        match *self {
+            GliumCreationError::BackendCreationError(..) =>
+                "Error while creating the backend",
+            GliumCreationError::IncompatibleOpenGl(..) =>
+                "The OpenGL implementation is too old to work with glium",
         }
     }
 
     #[inline]
     fn cause(&self) -> Option<&Error> {
-        match self {
-            &GliumCreationError::BackendCreationError(ref err) => Some(err),
-            &GliumCreationError::IncompatibleOpenGl(_) => None,
+        match *self {
+            GliumCreationError::BackendCreationError(ref err) => Some(err),
+            GliumCreationError::IncompatibleOpenGl(..) => None,
         }
     }
 }
 
-impl<T> std::convert::From<T> for GliumCreationError<T> {
+impl<T: Error> std::convert::From<T> for GliumCreationError<T> {
     #[inline]
     fn from(err: T) -> GliumCreationError<T> {
         GliumCreationError::BackendCreationError(err)
