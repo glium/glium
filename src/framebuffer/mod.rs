@@ -115,7 +115,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     pub fn new<F, C>(facade: &F, color: C) -> Result<SimpleFrameBuffer<'a>, ValidationError>
                      where C: ToColorAttachment<'a>, F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None, None)
+        SimpleFrameBuffer::new_impl(facade, Some(color.to_color_attachment()), None, None, None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth
@@ -126,8 +126,18 @@ impl<'a> SimpleFrameBuffer<'a> {
                                       where C: ToColorAttachment<'a>,
                                             D: ToDepthAttachment<'a>, F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
+        SimpleFrameBuffer::new_impl(facade, Some(color.to_color_attachment()),
                                     Some(depth.to_depth_attachment()), None, None)
+    }
+
+    /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
+    /// nor stencil buffer.
+    #[inline]
+    pub fn depth_only<F, D>(facade: &F, depth: D)
+                            -> Result<SimpleFrameBuffer<'a>, ValidationError>
+        where D: ToDepthAttachment<'a>, F: Facade
+    {
+        SimpleFrameBuffer::new_impl(facade, None, Some(depth.to_depth_attachment()), None, None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment, a depth
@@ -141,8 +151,20 @@ impl<'a> SimpleFrameBuffer<'a> {
                                                            D: ToDepthAttachment<'a>,
                                                            S: ToStencilAttachment<'a>, F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(),
+        SimpleFrameBuffer::new_impl(facade, Some(color.to_color_attachment()),
                                     Some(depth.to_depth_attachment()),
+                                    Some(stencil.to_stencil_attachment()), None)
+    }
+
+    /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
+    /// nor stencil buffer.
+    #[inline]
+    pub fn depth_and_stencil_only<F, D, S>(facade: &F, depth: D, stencil: S)
+                                           -> Result<SimpleFrameBuffer<'a>, ValidationError>
+        where D: ToDepthAttachment<'a>,
+              S: ToStencilAttachment<'a>, F: Facade
+    {
+        SimpleFrameBuffer::new_impl(facade, None, Some(depth.to_depth_attachment()),
                                     Some(stencil.to_stencil_attachment()), None)
     }
 
@@ -154,8 +176,19 @@ impl<'a> SimpleFrameBuffer<'a> {
                                         where C: ToColorAttachment<'a>, S: ToStencilAttachment<'a>,
                                               F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None,
+        SimpleFrameBuffer::new_impl(facade, Some(color.to_color_attachment()), None,
                                     Some(stencil.to_stencil_attachment()), None)
+    }
+
+    /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
+    /// buffer, but no depth buffer.
+    #[inline]
+    pub fn stencil_only<F, S>(facade: &F, stencil: S)
+                              -> Result<SimpleFrameBuffer<'a>, ValidationError>
+        where S: ToStencilAttachment<'a>, F: Facade
+    {
+        SimpleFrameBuffer::new_impl(facade, None, None, Some(stencil.to_stencil_attachment()),
+                                    None)
     }
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
@@ -165,20 +198,30 @@ impl<'a> SimpleFrameBuffer<'a> {
                                               where C: ToColorAttachment<'a>,
                                                     D: ToDepthStencilAttachment<'a>, F: Facade
     {
-        SimpleFrameBuffer::new_impl(facade, color.to_color_attachment(), None, None,
+        SimpleFrameBuffer::new_impl(facade, Some(color.to_color_attachment()), None, None,
+                                    Some(depthstencil.to_depth_stencil_attachment()))
+    }
+
+    /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
+    #[inline]
+    pub fn depth_stencil_only<F, D>(facade: &F, depthstencil: D)
+                                    -> Result<SimpleFrameBuffer<'a>, ValidationError>
+        where D: ToDepthStencilAttachment<'a>, F: Facade
+    {
+        SimpleFrameBuffer::new_impl(facade, None, None, None,
                                     Some(depthstencil.to_depth_stencil_attachment()))
     }
 
 
-    fn new_impl<F>(facade: &F, color: ColorAttachment<'a>, depth: Option<DepthAttachment<'a>>,
-                   stencil: Option<StencilAttachment<'a>>,
+    fn new_impl<F>(facade: &F, color: Option<ColorAttachment<'a>>,
+                   depth: Option<DepthAttachment<'a>>, stencil: Option<StencilAttachment<'a>>,
                    depthstencil: Option<DepthStencilAttachment<'a>>)
                    -> Result<SimpleFrameBuffer<'a>, ValidationError> where F: Facade
     {
-        let color = match color {
+        let color = color.map(|color| match color {
             ColorAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
             ColorAttachment::RenderBuffer(buffer) => fbo::RegularAttachment::RenderBuffer(buffer),
-        };
+        });
 
         let depth = depth.map(|depth| match depth {
             DepthAttachment::Texture(tex) => fbo::RegularAttachment::Texture(tex),
@@ -196,7 +239,11 @@ impl<'a> SimpleFrameBuffer<'a> {
         });
 
         let attachments = fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
-            colors: { let mut v = SmallVec::new(); v.push((0, color)); v },
+            colors: if let Some(color) = color {
+                let mut v = SmallVec::new(); v.push((0, color)); v 
+            } else {
+                SmallVec::new()
+            },
             depth_stencil: if let (Some(depth), Some(stencil)) = (depth, stencil) {
                 fbo::DepthStencilAttachments::DepthAndStencilAttachments(depth, stencil)
             } else if let Some(depth) = depth {
