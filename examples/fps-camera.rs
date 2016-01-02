@@ -316,7 +316,9 @@ fn main() {
                     }
                 },
                 MouseMoved((w, h)) => {
+                    //screen coordinates increase to the right, just like phi
                     camera.phi += (w - width as i32) as f32 * 0.005;
+                    //screen coordinates decrease to the top, unlike theta
                     camera.theta -= (h - height as i32) as f32 * 0.005;
                     camera.norm_phi();
                     camera.norm_theta();
