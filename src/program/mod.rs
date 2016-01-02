@@ -72,47 +72,36 @@ pub enum ProgramCreationError {
 }
 
 impl fmt::Display for ProgramCreationError {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        match self {
-            &ProgramCreationError::CompilationError(ref s) =>
-                formatter.write_fmt(format_args!("Compilation error in one of the shaders: {}", s)),
-            &ProgramCreationError::LinkingError(ref s) =>
-                formatter.write_fmt(format_args!("Error while linking shaders together: {}", s)),
-            &ProgramCreationError::ShaderTypeNotSupported =>
-                formatter.write_str("One of the request shader type is \
-                                    not supported by the backend"),
-            &ProgramCreationError::CompilationNotSupported =>
-                formatter.write_str("The backend doesn't support shaders compilation"),
-            &ProgramCreationError::TransformFeedbackNotSupported => 
-                formatter.write_str("You requested transform feedback, but this feature is not \
-                                     supported by the backend"),
-            &ProgramCreationError::PointSizeNotSupported =>
-                formatter.write_str("You requested point size setting, but it's not \
-                                     supported by the backend"),
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        use self::ProgramCreationError::*;
+        match *self {
+            CompilationError(ref s) =>
+                write!(fmt, "{}: {}", self.description(), s),
+            LinkingError(ref s) =>
+                write!(fmt, "{}: {}", self.description(), s),
+            _ =>
+                write!(fmt, "{}", self.description()),
         }
     }
 }
 
 impl Error for ProgramCreationError {
     fn description(&self) -> &str {
-        match self {
-            &ProgramCreationError::CompilationError(_) => "Compilation error in one of the \
-                                                           shaders",
-            &ProgramCreationError::LinkingError(_) => "Error while linking shaders together",
-            &ProgramCreationError::ShaderTypeNotSupported => "One of the request shader type is \
-                                                              not supported by the backend",
-            &ProgramCreationError::CompilationNotSupported => "The backend doesn't support \
-                                                               shaders compilation",
-            &ProgramCreationError::TransformFeedbackNotSupported => "Transform feedback is not \
-                                                                     supported by the backend.",
-            &ProgramCreationError::PointSizeNotSupported => "Point size is not supported by \
-                                                             the backend.",
+        use self::ProgramCreationError::*;
+        match *self {
+            CompilationError(_) =>
+                "Compilation error in one of the shaders",
+            LinkingError(_) =>
+                "Error while linking shaders together",
+            ShaderTypeNotSupported =>
+                "One of the request shader type is not supported by the backend",
+            CompilationNotSupported =>
+                "The backend doesn't support shaders compilation",
+            TransformFeedbackNotSupported =>
+                "Transform feedback is not supported by the backend.",
+            PointSizeNotSupported =>
+                "Point size is not supported by the backend.",
         }
-    }
-
-    #[inline]
-    fn cause(&self) -> Option<&Error> {
-        None
     }
 }
 
@@ -128,26 +117,27 @@ pub enum ProgramChooserCreationError {
 
 impl fmt::Display for ProgramChooserCreationError {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(formatter, "{}", self.description())
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{}", self.description())
     }
 }
 
 impl Error for ProgramChooserCreationError {
     #[inline]
     fn description(&self) -> &str {
-        match self {
-            &ProgramChooserCreationError::NoVersion => "No version of the program has been found \
-                                                        for the current OpenGL version.",
-            &ProgramChooserCreationError::ProgramCreationError(ref err) => err.description(),
+        use self::ProgramChooserCreationError::*;
+        match *self {
+            ProgramCreationError(ref err) => err.description(),
+            NoVersion => "No version of the program has been found for the current OpenGL version.",
         }
     }
 
     #[inline]
     fn cause(&self) -> Option<&Error> {
-        match self {
-            &ProgramChooserCreationError::NoVersion => None,
-            &ProgramChooserCreationError::ProgramCreationError(ref err) => Some(err),
+        use self::ProgramChooserCreationError::*;
+        match *self {
+            ProgramCreationError(ref err) => Some(err),
+            _ => None,
         }
     }
 }
@@ -163,6 +153,21 @@ impl From<ProgramCreationError> for ProgramChooserCreationError {
 pub enum GetBinaryError {
     /// The backend doesn't support binary.
     NotSupported,
+}
+
+impl fmt::Display for GetBinaryError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for GetBinaryError {
+    fn description(&self) -> &str {
+        use self::GetBinaryError::*;
+        match *self {
+            NotSupported => "The backend doesn't support binary",
+        }
+    }
 }
 
 /// Input when creating a program.
