@@ -86,12 +86,12 @@ impl Error for ReadError {
     fn description(&self) -> &str {
         use self::ReadError::*;
         match *self {
-            OutputFormatNotSupported
-                => "The implementation doesn't support converting to the requested output format",
-            AttachmentTypeNotSupported
-                => "The implementation doesn't support reading a depth, depth-stencil or stencil attachment",
-            ClampingNotSupported
-                => "Clamping the values is not supported by the implementation",
+            OutputFormatNotSupported =>
+                "The implementation doesn't support converting to the requested output format",
+            AttachmentTypeNotSupported =>
+                "The implementation doesn't support reading a depth, depth-stencil or stencil attachment",
+            ClampingNotSupported =>
+                "Clamping the values is not supported by the implementation",
         }
     }
 }

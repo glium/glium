@@ -39,12 +39,12 @@ impl Error for CreationError {
     fn description(&self) -> &str {
         use self::CreationError::*;
         match *self {
-            IndexTypeNotSupported
-                => "The type of index is not supported by the backend",
-            PrimitiveTypeNotSupported
-                => "The type of primitives is not supported by the backend",
-            BufferCreationError(_)
-                => "An error happened while creating the buffer",
+            IndexTypeNotSupported =>
+                "The type of index is not supported by the backend",
+            PrimitiveTypeNotSupported =>
+                "The type of primitives is not supported by the backend",
+            BufferCreationError(_) =>
+                "An error happened while creating the buffer",
         }
     }
 

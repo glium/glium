@@ -101,12 +101,12 @@ impl Error for TextureCreationError {
     fn description(&self) -> &str {
         use self::TextureCreationError::*;
         match *self {
-            NotSupported
-                => "Buffer textures are not supported at all",
-            FormatNotSupported
-                => "The requested format is not supported in combination with the given texture buffer type",
-            TooLarge
-                => "The size of the buffer that you are trying to bind exceeds `GL_MAX_TEXTURE_BUFFER_SIZE`",
+            NotSupported =>
+                "Buffer textures are not supported at all",
+            FormatNotSupported =>
+                "The requested format is not supported in combination with the given texture buffer type",
+            TooLarge =>
+                "The size of the buffer that you are trying to bind exceeds `GL_MAX_TEXTURE_BUFFER_SIZE`",
         }
     }
 }
@@ -131,10 +131,10 @@ impl Error for CreationError {
     fn description(&self) -> &str {
         use self::CreationError::*;
         match *self {
-            BufferCreationError(_)
-                => "Failed to create the buffer",
-            TextureCreationError(_)
-                => "Failed to create the texture",
+            BufferCreationError(_) =>
+                "Failed to create the buffer",
+            TextureCreationError(_) =>
+                "Failed to create the texture",
         }
     }
 
