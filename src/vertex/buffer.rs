@@ -31,28 +31,25 @@ impl From<BufferCreationError> for CreationError {
 }
 
 impl fmt::Display for CreationError {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &CreationError::FormatNotSupported => "The vertex format is not supported by the \
-                                                   backend".fmt(formatter),
-            &CreationError::BufferCreationError(error) => error.fmt(formatter),
-        }
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
     }
 }
 
 impl Error for CreationError {
     fn description(&self) -> &str {
-        match self {
-            &CreationError::FormatNotSupported => "The vertex format is not supported by the \
-                                                   backend",
-            &CreationError::BufferCreationError(..) => "Error while creating the vertex buffer",
+        use self::CreationError::*;
+        match *self {
+            FormatNotSupported => "The vertex format is not supported by the backend",
+            BufferCreationError(_) => "Error while creating the vertex buffer",
         }
     }
 
     fn cause(&self) -> Option<&Error> {
-        match self {
-            &CreationError::FormatNotSupported => None,
-            &CreationError::BufferCreationError(ref error) => Some(error),
+        use self::CreationError::*;
+        match *self {
+            BufferCreationError(ref error) => Some(error),
+            FormatNotSupported => None,
         }
     }
 }
@@ -73,10 +70,10 @@ pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
 impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     /// Creates a marker that instructs glium to use multiple instances.
     ///
-    /// Instead of calling `surface.draw(&vertex_buffer.slice(...).unwrap(), ...)` 
-    /// you can call `surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)`. 
-    /// This will draw one instance of the geometry for each element in this buffer slice. 
-    /// The attributes are still passed to the vertex shader, but each entry is passed 
+    /// Instead of calling `surface.draw(&vertex_buffer.slice(...).unwrap(), ...)`
+    /// you can call `surface.draw(vertex_buffer.slice(...).unwrap().per_instance(), ...)`.
+    /// This will draw one instance of the geometry for each element in this buffer slice.
+    /// The attributes are still passed to the vertex shader, but each entry is passed
     /// for each different instance.
     #[inline]
     pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
