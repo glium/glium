@@ -11,6 +11,7 @@ use std::cell::Cell;
 use std::fmt;
 use std::mem;
 use std::rc::Rc;
+use std::error::Error;
 
 use buffer::Buffer;
 use buffer::BufferSlice;
@@ -65,11 +66,41 @@ pub enum QueryCreationError {
     NotSupported,
 }
 
+impl fmt::Display for QueryCreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for QueryCreationError {
+    fn description(&self) -> &str {
+        use self::QueryCreationError::*;
+        match *self {
+            NotSupported => "The given query type is not supported",
+        }
+    }
+}
+
 /// Error that can happen when writing the value of a query to a buffer.
 #[derive(Copy, Clone, Debug)]
 pub enum ToBufferError {
     /// Writing the result to a buffer is not supported.
     NotSupported,
+}
+
+impl fmt::Display for ToBufferError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for ToBufferError {
+    fn description(&self) -> &str {
+        use self::ToBufferError::*;
+        match *self {
+            NotSupported => "Writing the result to a buffer is not supported",
+        }
+    }
 }
 
 impl RawQuery {

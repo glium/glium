@@ -182,8 +182,8 @@ pub enum BufferCreationError {
 }
 
 impl fmt::Display for BufferCreationError {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        self.description().fmt(formatter)
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
     }
 }
 
