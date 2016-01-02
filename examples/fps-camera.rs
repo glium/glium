@@ -10,8 +10,8 @@ const UP: [f32; 3] = [0.0, 1.0, 0.0];
 
 struct Camera {
     pub position: [f32; 3],
-    pub phi: f32, // horizontal angle relative to -z
-    pub theta: f32, // inclination relative to the xz-plane
+    pub phi: f32, // horizontal angle relative to -z, increasing to the right
+    pub theta: f32, // inclination, relative to the xz-plane, increasing to the top
 
     pub moving_up: bool,
     pub moving_left: bool,
