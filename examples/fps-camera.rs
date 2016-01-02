@@ -4,7 +4,7 @@ extern crate glium;
 #[path = "../book/tuto-07-teapot.rs"]
 mod teapot;
 
-use ::std::f32::consts::PI;
+use std::f32::consts::PI;
 
 const UP: [f32; 3] = [0.0, 1.0, 0.0];
 
@@ -138,35 +138,35 @@ impl Camera {
 
     pub fn update(&mut self) {
         if self.moving_up {
-            self.position[1] += 0.01;
+            self.position[1] += 0.05;
         }
 
         if self.moving_left {
             let a = self.phi + PI * 1.5;
-            self.position[0] += a.sin() * 0.01;
-            self.position[2] -= a.cos() * 0.01;
+            self.position[0] += a.sin() * 0.05;
+            self.position[2] -= a.cos() * 0.05;
         }
 
         if self.moving_down {
-            self.position[1] -= 0.01;
+            self.position[1] -= 0.05;
         }
 
         if self.moving_right {
             let a = self.phi + PI * 0.5;
-            self.position[0] += a.sin() * 0.01;
-            self.position[2] -= a.cos() * 0.01;
+            self.position[0] += a.sin() * 0.05;
+            self.position[2] -= a.cos() * 0.05;
         }
 
         if self.moving_forward {
             let a = self.phi + PI * 0.0;
-            self.position[0] += a.sin() * 0.01;
-            self.position[2] -= a.cos() * 0.01;
+            self.position[0] += a.sin() * 0.05;
+            self.position[2] -= a.cos() * 0.05;
         }
 
         if self.moving_backward {
             let a = self.phi + PI * 1.0;
-            self.position[0] += a.sin() * 0.01;
-            self.position[2] -= a.cos() * 0.01;
+            self.position[0] += a.sin() * 0.05;
+            self.position[2] -= a.cos() * 0.05;
         }
         if self.turning_up {
             self.theta += PI / 360.0;
@@ -193,11 +193,11 @@ fn main() {
 
     let window = display.get_window().unwrap();
 
-    //window.set_cursor(glium::glutin::MouseCursor::Crosshair);
-    //window.set_cursor_state(glium::glutin::CursorState::Grab).unwrap();
+    window.set_cursor(glium::glutin::MouseCursor::Crosshair);
 
-    let (height, width) = window.get_inner_size_points().unwrap();
-    //window.set_cursor_position(height as i32 / 2 , width as i32 / 2).unwrap();
+    let (width, height) = window.get_inner_size_points().unwrap();
+    let (width, height) = (width as i32 / 2, height as i32 / 2);
+    window.set_cursor_position(width, height).unwrap();
 
     let positions = glium::VertexBuffer::new(&display, &teapot::VERTICES).unwrap();
     let normals = glium::VertexBuffer::new(&display, &teapot::NORMALS).unwrap();
@@ -290,7 +290,8 @@ fn main() {
                     &params).unwrap();
         target.finish().unwrap();
 
-        let (height, width) = window.get_inner_size_points().unwrap();
+        let (width, height) = window.get_inner_size_points().unwrap();
+        let (width, height) = (width as i32 / 2, height as i32 / 2);
         for ev in display.poll_events() {
             use glium::glutin::Event::{ Closed, KeyboardInput, MouseMoved };
             use glium::glutin::ElementState::Pressed;
@@ -314,21 +315,17 @@ fn main() {
                         _      => (),
                     }
                 },
-                a @ MouseMoved(_) => {
-                    println!("{:?}", a);
+                MouseMoved((w, h)) => {
+                    camera.phi += (w - width as i32) as f32 * 0.005;
+                    camera.theta -= (h - height as i32) as f32 * 0.005;
+                    camera.norm_phi();
+                    camera.norm_theta();
                 },
-                //MouseMoved((h, w)) => {
-                //    println!("dh: {}, dw: {}", (width as i32 - w), (height as i32 - h));
-                //    camera.phi += (width as i32 - w) as f32;
-                //    camera.theta += (height as i32 - h) as f32;
-                //    camera.norm_phi();
-                //    camera.norm_theta();
-                //},
                 _ => (),
             }
         }
 
-        //window.set_cursor_position(height as i32 / 2 , width as i32 / 2).unwrap();
+        window.set_cursor_position(width, height).unwrap();
         camera.update();
     }
 }
