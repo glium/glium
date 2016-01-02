@@ -50,8 +50,8 @@ If a layered image is attached to one attachment, then all attachments must be l
 
 */
 use std::collections::HashMap;
-use std::cmp;
-use std::mem;
+use std::{ cmp, mem, fmt };
+use std::error::Error;
 use std::cell::RefCell;
 use std::marker::PhantomData;
 
@@ -590,6 +590,36 @@ pub enum ValidationError {
     },
 }
 
+impl fmt::Display for ValidationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        use self::ValidationError::*;
+        match *self {
+            TooManyColorAttachments{ ref maximum, ref obtained } =>
+                write!(fmt, "{}: found {}, maximum: {}", self.description(), obtained, maximum),
+            _ =>
+                write!(fmt, "{}", self.description()),
+        }
+    }
+}
+
+impl Error for ValidationError {
+    fn description(&self) -> &str {
+        use self::ValidationError::*;
+        match *self {
+            EmptyFramebufferObjectsNotSupported =>
+                "You requested an empty framebuffer object, but they are not supported",
+            EmptyFramebufferUnsupportedDimensions =>
+                "The requested characteristics of an empty framebuffer object are out of range",
+            DimensionsMismatchNotSupported =>
+                "The backend doesn't support attachments with various dimensions",
+            SamplesCountMismatch =>
+                "All attachments must have the same number of samples",
+            TooManyColorAttachments {..} =>
+                "Backends only support a certain number of color attachments",
+        }
+    }
+}
+
 /// Data structure stored in the hashmap.
 ///
 /// These attachments are guaranteed to be valid.
@@ -701,7 +731,7 @@ impl FramebuffersContainer {
         FramebuffersContainer::purge_if(ctxt, |a| {
             match a {
                 &RawAttachment::Texture { texture: id, .. } if id == texture => true,
-                _ => false 
+                _ => false
             }
         });
     }
@@ -1115,7 +1145,7 @@ impl FrameBufferObject {
 
 impl GlObject for FrameBufferObject {
     type Id = gl::types::GLuint;
-    
+
     #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
