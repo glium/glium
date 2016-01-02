@@ -914,7 +914,7 @@ impl Error for DrawError {
             InvalidDepthRange =>
                 "The depth range is outside of the `(0, 1)` range",
             UniformTypeMismatch { .. } =>
-                    "The type of a uniform doesn't match what the program requires",
+                "The type of a uniform doesn't match what the program requires",
             UniformBufferToValue { .. } =>
                 "Tried to bind a uniform buffer to a single uniform value",
             UniformValueToBlock { .. } =>

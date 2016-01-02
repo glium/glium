@@ -620,12 +620,12 @@ impl Error for TextureCreationError {
     fn description(&self) -> &str {
         use self::TextureCreationError::*;
         match *self {
-            FormatNotSupported
-                => "The requested format is not supported by the backend",
-            DimensionsNotSupported
-                => "The requested texture dimensions are not supported",
-            TypeNotSupported
-                => "The texture format is not supported by the backend",
+            FormatNotSupported =>
+                "The requested format is not supported by the backend",
+            DimensionsNotSupported =>
+                "The requested texture dimensions are not supported",
+            TypeNotSupported =>
+                "The texture format is not supported by the backend",
         }
     }
 }
