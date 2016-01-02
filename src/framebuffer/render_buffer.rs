@@ -9,7 +9,8 @@ the data of the render buffer.
 */
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut};
-use std::mem;
+use std::{ mem, fmt };
+use std::error::Error;
 
 use framebuffer::{ColorAttachment, ToColorAttachment};
 use framebuffer::{DepthAttachment, ToDepthAttachment};
@@ -33,6 +34,21 @@ use version::Api;
 pub enum CreationError {
     /// The requested format is not supported.
     FormatNotSupported,
+}
+
+impl fmt::Display for CreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for CreationError {
+    fn description(&self) -> &str {
+        use self::CreationError::*;
+        match *self {
+            FormatNotSupported => "The requested format is not supported",
+        }
+    }
 }
 
 impl From<image_format::FormatNotSupportedError> for CreationError {
@@ -303,7 +319,7 @@ impl RenderBufferAny {
                 if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                    ctxt.version >= &Version(Api::GlEs, 3, 0)
                 {
-                    ctxt.gl.RenderbufferStorageMultisample(gl::RENDERBUFFER, 
+                    ctxt.gl.RenderbufferStorageMultisample(gl::RENDERBUFFER,
                                                            samples as gl::types::GLsizei,
                                                            format,
                                                            width as gl::types::GLsizei,
@@ -447,7 +463,7 @@ impl Drop for RenderBufferAny {
 
 impl GlObject for RenderBufferAny {
     type Id = gl::types::GLuint;
-    
+
     #[inline]
     fn get_id(&self) -> gl::types::GLuint {
         self.id
