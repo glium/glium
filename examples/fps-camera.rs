@@ -193,11 +193,11 @@ fn main() {
 
     let window = display.get_window().unwrap();
 
-    window.set_cursor(glium::glutin::MouseCursor::Crosshair);
-    window.set_cursor_state(glium::glutin::CursorState::Grab).unwrap();
+    //window.set_cursor(glium::glutin::MouseCursor::Crosshair);
+    //window.set_cursor_state(glium::glutin::CursorState::Grab).unwrap();
 
     let (height, width) = window.get_inner_size_points().unwrap();
-    window.set_cursor_position(height as i32 / 2 , width as i32 / 2).unwrap();
+    //window.set_cursor_position(height as i32 / 2 , width as i32 / 2).unwrap();
 
     let positions = glium::VertexBuffer::new(&display, &teapot::VERTICES).unwrap();
     let normals = glium::VertexBuffer::new(&display, &teapot::NORMALS).unwrap();
@@ -291,11 +291,8 @@ fn main() {
         target.finish().unwrap();
 
         let (height, width) = window.get_inner_size_points().unwrap();
-        window.set_cursor_position(height as i32 / 2 , width as i32 / 2).unwrap();
-
-
         for ev in display.poll_events() {
-            use glium::glutin::Event::{ Closed, KeyboardInput };
+            use glium::glutin::Event::{ Closed, KeyboardInput, MouseMoved };
             use glium::glutin::ElementState::Pressed;
             use glium::glutin::VirtualKeyCode::*;
             match ev {
@@ -317,10 +314,21 @@ fn main() {
                         _      => (),
                     }
                 },
+                a @ MouseMoved(_) => {
+                    println!("{:?}", a);
+                },
+                //MouseMoved((h, w)) => {
+                //    println!("dh: {}, dw: {}", (width as i32 - w), (height as i32 - h));
+                //    camera.phi += (width as i32 - w) as f32;
+                //    camera.theta += (height as i32 - h) as f32;
+                //    camera.norm_phi();
+                //    camera.norm_theta();
+                //},
                 _ => (),
             }
         }
 
+        //window.set_cursor_position(height as i32 / 2 , width as i32 / 2).unwrap();
         camera.update();
     }
 }
