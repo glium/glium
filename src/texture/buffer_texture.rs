@@ -52,10 +52,11 @@ to sample from a buffer texture of type `Unsigned` you need to use a `usamplerBu
 wrong type will result in an error.
 
 */
-use std::mem;
+use std::{ mem, fmt };
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
+use std::error::Error;
 
 use gl;
 use version::Version;
@@ -90,6 +91,26 @@ pub enum TextureCreationError {
     TooLarge,
 }
 
+impl fmt::Display for TextureCreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for TextureCreationError {
+    fn description(&self) -> &str {
+        use self::TextureCreationError::*;
+        match *self {
+            NotSupported
+                => "Buffer textures are not supported at all",
+            FormatNotSupported
+                => "The requested format is not supported in combination with the given texture buffer type",
+            TooLarge
+                => "The size of the buffer that you are trying to bind exceeds `GL_MAX_TEXTURE_BUFFER_SIZE`",
+        }
+    }
+}
+
 /// Error that can happen while building a buffer texture.
 #[derive(Copy, Clone, Debug)]
 pub enum CreationError {
@@ -98,6 +119,32 @@ pub enum CreationError {
 
     /// Failed to create the texture.
     TextureCreationError(TextureCreationError),
+}
+
+impl fmt::Display for CreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for CreationError {
+    fn description(&self) -> &str {
+        use self::CreationError::*;
+        match *self {
+            BufferCreationError(_)
+                => "Failed to create the buffer",
+            TextureCreationError(_)
+                => "Failed to create the texture",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        use self::CreationError::*;
+        match *self {
+            BufferCreationError(ref err) => Some(err),
+            TextureCreationError(ref err) => Some(err),
+        }
+    }
 }
 
 impl From<BufferCreationError> for CreationError {
@@ -274,13 +321,13 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                 (TextureBufferContentType::U8U8U8U8, BufferTextureType::Unsigned) => gl::RGBA8UI,
                 (TextureBufferContentType::I8I8I8I8, BufferTextureType::Integral) => gl::RGBA8I,
                 (TextureBufferContentType::U16U16U16U16, BufferTextureType::Float) => gl::RGBA16,
-                (TextureBufferContentType::U16U16U16U16, BufferTextureType::Unsigned) => 
+                (TextureBufferContentType::U16U16U16U16, BufferTextureType::Unsigned) =>
                                                                                       gl::RGBA16UI,
-                (TextureBufferContentType::I16I16I16I16, BufferTextureType::Integral) => 
+                (TextureBufferContentType::I16I16I16I16, BufferTextureType::Integral) =>
                                                                                        gl::RGBA16I,
-                (TextureBufferContentType::U32U32U32U32, BufferTextureType::Unsigned) => 
+                (TextureBufferContentType::U32U32U32U32, BufferTextureType::Unsigned) =>
                                                                                       gl::RGBA32UI,
-                (TextureBufferContentType::I32I32I32I32, BufferTextureType::Integral) => 
+                (TextureBufferContentType::I32I32I32I32, BufferTextureType::Integral) =>
                                                                                        gl::RGBA32I,
                 (TextureBufferContentType::F16, BufferTextureType::Float) => gl::R16F,
                 (TextureBufferContentType::F32, BufferTextureType::Float) => gl::R32F,
