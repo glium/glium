@@ -12,6 +12,7 @@ use std::io::Cursor;
 mod support;
 
 fn main() {
+    use cgmath::SquareMatrix;
     use glium::DisplayBuild;
 
     // building the display, ie. the main object
@@ -277,7 +278,7 @@ fn main() {
     let view_center: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 0.0, 0.0);
     let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
     let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at(view_eye, view_center, view_up);
-    let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::from_scale(1.0);
+    let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::identity();
 
     let lights = [
         Light {
