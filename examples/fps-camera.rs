@@ -292,6 +292,8 @@ fn main() {
 
         let (width, height) = window.get_inner_size_points().unwrap();
         let (width, height) = (width as i32 / 2, height as i32 / 2);
+        window.set_cursor_position(width, height).unwrap();
+        camera.update();
         for ev in display.poll_events() {
             use glium::glutin::Event::{ Closed, KeyboardInput, MouseMoved };
             use glium::glutin::ElementState::Pressed;
@@ -326,8 +328,5 @@ fn main() {
                 _ => (),
             }
         }
-
-        window.set_cursor_position(width, height).unwrap();
-        camera.update();
     }
 }
