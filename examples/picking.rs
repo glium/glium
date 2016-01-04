@@ -107,15 +107,19 @@ fn main() {
     camera.set_position((0.0, 0.0, 1.5));
     camera.set_direction((0.0, 0.0, 1.0));
 
+    //id's must be unique and != 0
     let mut per_instance = vec![
         PerInstance { id: 1, w_position: (-1.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
         PerInstance { id: 2, w_position: ( 0.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
         PerInstance { id: 3, w_position: ( 1.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
     ];
+    per_instance.sort_by(|a, b| a.id.cmp(&b.id));
+    let original = per_instance.clone();
 
-    let mut picking_texture: Option<glium::texture::UnsignedTexture2d> = None;
-    let mut picking_pbo: glium::texture::pixel_buffer::PixelBuffer<u32>
+    let mut picking_attachments: Option<(glium::texture::UnsignedTexture2d, glium::framebuffer::DepthRenderBuffer)> = None;
+    let picking_pbo: glium::texture::pixel_buffer::PixelBuffer<u32>
         = glium::texture::pixel_buffer::PixelBuffer::new_empty(&display, 1);
+
 
     let mut cursor_position: Option<(i32, i32)> = None;
 
@@ -128,20 +132,20 @@ fn main() {
         let picked_object = {
             let data = picking_pbo.read().map(|d| d[0]).unwrap_or(0);
             if data != 0 {
-                Some(data - 1)//for this to work the id of a PerInstance has to be the index of it +1
+                per_instance.binary_search_by(|x| x.id.cmp(&data)).ok()
             } else {
                 None
             }
         };
 
         if let Some(index) = picked_object {
-            per_instance[index as usize] = PerInstance { id: index + 1, w_position: per_instance[index as usize].w_position, color: (0.0, 1.0, 0.0) };
+            per_instance[index as usize] = PerInstance {
+                id: per_instance[index as usize].id,
+                w_position: per_instance[index as usize].w_position,
+                color: (0.0, 1.0, 0.0)
+            };
         } else {
-            per_instance = vec![
-                PerInstance { id: 1, w_position: (-1.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
-                PerInstance { id: 2, w_position: ( 0.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
-                PerInstance { id: 3, w_position: ( 1.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
-            ];
+            per_instance = original.clone();
         }
 
         // building the uniforms
@@ -167,26 +171,29 @@ fn main() {
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
 
         //update picking texture
-        if picking_texture.is_none()
-        || (picking_texture.as_ref().unwrap().get_width(), picking_texture.as_ref().unwrap().get_height().unwrap()) != target.get_dimensions() {
-            println!("new pick_tex: {:?}", target.get_dimensions());
-            picking_texture = Some(glium::texture::UnsignedTexture2d::empty_with_format(
-                &display,
-                glium::texture::UncompressedUintFormat::U32,
-                glium::texture::MipmapsOption::NoMipmap,
-                target.get_dimensions().0, target.get_dimensions().1
-            ).unwrap())
+        if picking_attachments.is_none() || (
+            picking_attachments.as_ref().unwrap().0.get_width(),
+            picking_attachments.as_ref().unwrap().0.get_height().unwrap()
+        ) != target.get_dimensions() {
+            let (width, height) = target.get_dimensions();
+            picking_attachments = Some((
+                glium::texture::UnsignedTexture2d::empty_with_format(
+                    &display,
+                    glium::texture::UncompressedUintFormat::U32,
+                    glium::texture::MipmapsOption::NoMipmap,
+                    width, height,
+                ).unwrap(),
+                glium::framebuffer::DepthRenderBuffer::new(
+                    &display,
+                    glium::texture::DepthFormat::F32,
+                    width, height,
+                ).unwrap()
+            ))
         }
 
         // drawing the models and pass the picking texture
-        if let Some(picking_tex) = picking_texture.as_ref() {
-            let depth_buffer = glium::framebuffer::DepthRenderBuffer::new(
-                &display,
-                glium::texture::DepthFormat::F32,
-                picking_texture.as_ref().unwrap().get_width(),
-                picking_texture.as_ref().unwrap().get_height().unwrap()
-            ).unwrap();
-            let mut picking_target = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, picking_tex, &depth_buffer).unwrap();
+        if let Some((ref picking_tex, ref depth_buffer)) = picking_attachments {
+            let mut picking_target = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, picking_tex, depth_buffer).unwrap();
             picking_target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
             picking_target.draw((&vertex_buffer, per_instance_buffer.per_instance().unwrap()),
                         &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
@@ -199,7 +206,7 @@ fn main() {
 
 
         // committing into the picking pbo
-        if let (Some(cursor), Some(ref picking_texture)) = (cursor_position, picking_texture.as_ref()) {
+        if let (Some(cursor), Some(&(ref picking_texture, _))) = (cursor_position, picking_attachments.as_ref()) {
             let read_target = glium::Rect {
                 //left: ((cursor.0 as f32 + 1.0) * 0.5 * picking_texture.get_width() as f32) as u32,
                 //bottom: ((cursor.1 as f32 + 1.0) * 0.5 * picking_texture.get_height().unwrap() as f32) as u32,
@@ -209,8 +216,8 @@ fn main() {
                 height: 1,
             };
 
-            if read_target.left >= 0 && read_target.left < picking_texture.get_width() &&
-               read_target.bottom >= 0 && read_target.bottom < picking_texture.get_height().unwrap() {
+            if read_target.left < picking_texture.get_width()
+            && read_target.bottom < picking_texture.get_height().unwrap() {
                 //println!("writing to pixel_buffer");
                 picking_texture.main_level()
                     .first_layer()
@@ -222,8 +229,6 @@ fn main() {
         } else {
             picking_pbo.write(&[0]);
         }
-
-
 
         // polling and handling the events received by the window
         for event in display.poll_events() {
