@@ -138,14 +138,13 @@ fn main() {
             }
         };
 
+        per_instance = original.clone();
         if let Some(index) = picked_object {
             per_instance[index as usize] = PerInstance {
                 id: per_instance[index as usize].id,
                 w_position: per_instance[index as usize].w_position,
                 color: (0.0, 1.0, 0.0)
             };
-        } else {
-            per_instance = original.clone();
         }
 
         // building the uniforms
