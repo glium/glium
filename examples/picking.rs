@@ -68,6 +68,7 @@ fn main() {
         },
     ).unwrap();
 
+    // the picking program
     let picking_program = program!(&display,
         140 => {
             vertex: "
@@ -102,7 +103,6 @@ fn main() {
         },
     ).unwrap();
 
-    //
     let mut camera = support::camera::CameraState::new();
     camera.set_position((0.0, 0.0, 1.5));
     camera.set_direction((0.0, 0.0, 1.0));
@@ -211,8 +211,6 @@ fn main() {
         // committing into the picking pbo
         if let (Some(cursor), Some(&(ref picking_texture, _))) = (cursor_position, picking_attachments.as_ref()) {
             let read_target = glium::Rect {
-                //left: ((cursor.0 as f32 + 1.0) * 0.5 * picking_texture.get_width() as f32) as u32,
-                //bottom: ((cursor.1 as f32 + 1.0) * 0.5 * picking_texture.get_height().unwrap() as f32) as u32,
                 left: cursor.0 as u32,
                 bottom: picking_texture.get_height().unwrap() - cursor.1 as u32,
                 width: 1,
@@ -221,7 +219,6 @@ fn main() {
 
             if read_target.left < picking_texture.get_width()
             && read_target.bottom < picking_texture.get_height().unwrap() {
-                //println!("writing to pixel_buffer");
                 picking_texture.main_level()
                     .first_layer()
                     .into_image(None).unwrap()
