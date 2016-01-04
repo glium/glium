@@ -192,9 +192,12 @@ fn main() {
         }
 
         // drawing the models and pass the picking texture
-        if let Some((ref picking_tex, ref depth_buffer)) = picking_attachments {
-            let mut picking_target = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, picking_tex, depth_buffer).unwrap();
-            picking_target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+        if let Some((ref picking_texture, ref depth_buffer)) = picking_attachments {
+            //clearing the picking texture
+            picking_texture.main_level().first_layer().into_image(None).unwrap().raw_clear_buffer([0u32, 0, 0, 0]);
+
+            let mut picking_target = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, picking_texture, depth_buffer).unwrap();
+            picking_target.clear_depth(1.0);
             picking_target.draw((&vertex_buffer, per_instance_buffer.per_instance().unwrap()),
                         &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
                         &picking_program, &uniforms, &params).unwrap();
