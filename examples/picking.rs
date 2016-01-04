@@ -144,7 +144,6 @@ fn main() {
             ];
         }
 
-        // drawing the models and pass the picking texture
         // building the uniforms
         let uniforms = uniform! {
             persp_matrix: camera.get_perspective(),
@@ -179,6 +178,7 @@ fn main() {
             ).unwrap())
         }
 
+        // drawing the models and pass the picking texture
         if let Some(picking_tex) = picking_texture.as_ref() {
             let depth_buffer = glium::framebuffer::DepthRenderBuffer::new(
                 &display,
@@ -204,7 +204,7 @@ fn main() {
                 //left: ((cursor.0 as f32 + 1.0) * 0.5 * picking_texture.get_width() as f32) as u32,
                 //bottom: ((cursor.1 as f32 + 1.0) * 0.5 * picking_texture.get_height().unwrap() as f32) as u32,
                 left: cursor.0 as u32,
-                bottom: cursor.1 as u32,
+                bottom: picking_texture.get_height().unwrap() - cursor.1 as u32,
                 width: 1,
                 height: 1,
             };
