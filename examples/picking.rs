@@ -210,7 +210,7 @@ fn main() {
         // committing into the picking pbo
         if let (Some(cursor), Some(&(ref picking_texture, _))) = (cursor_position, picking_attachments.as_ref()) {
             let read_target = glium::Rect {
-                left: cursor.0 as u32,
+                left: cursor.0 as u32 - 1,
                 bottom: picking_texture.get_height().unwrap() - cursor.1 as u32,
                 width: 1,
                 height: 1,
