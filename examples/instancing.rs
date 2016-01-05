@@ -90,7 +90,7 @@ fn main() {
         .unwrap();
 
     let camera = support::camera::CameraState::new();
-    
+
     // the main loop
     support::start_loop(|| {
         // updating the teapots
@@ -116,9 +116,10 @@ fn main() {
         };
 
         let mut target = display.draw();
+        let frame_dimensions = target.get_dimensions();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
         target.draw((&vertex_buffer, per_instance.per_instance().unwrap()),
-                    &indices, &program, &uniform! { matrix: camera.get_perspective() },
+                    &indices, &program, &uniform! { matrix: camera.get_perspective(frame_dimensions) },
                     &params).unwrap();
         target.finish().unwrap();
 

@@ -32,7 +32,7 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-0.5,  0.5, 3.0], tex_coords: [1.0, 1.0] },
                 Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
@@ -119,7 +119,7 @@ fn main() {
                     vec3 normal = normalize(gl_TessCoord.x * tc_normal[0] +
                                             gl_TessCoord.y * tc_normal[1] +
                                             gl_TessCoord.z * tc_normal[2]);
- 
+
                     vec2 tex_coords = gl_TessCoord.x * tc_tex_coords[0] +
                                       gl_TessCoord.y * tc_tex_coords[1] +
                                       gl_TessCoord.z * tc_tex_coords[2];
@@ -191,11 +191,12 @@ fn main() {
 
     // the main loop
     support::start_loop(|| {
+        let mut target = display.draw();
         // building the uniforms
         let uniforms = uniform! {
             inner_level: 64.0f32,
             outer_level: 64.0f32,
-            projection_matrix: camera.get_perspective(),
+            projection_matrix: camera.get_perspective(target.get_dimensions()),
             view_matrix: [
                 [1.0, 0.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0],
@@ -208,7 +209,6 @@ fn main() {
         };
 
         // drawing a frame
-        let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.draw(&vertex_buffer,
                     &glium::index::NoIndices(glium::index::PrimitiveType::Patches {

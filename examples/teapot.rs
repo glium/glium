@@ -126,14 +126,16 @@ fn main() {
 
     //
     let mut camera = support::camera::CameraState::new();
-    
+
     // the main loop
     support::start_loop(|| {
-        camera.update();
+        camera.update(&display);
 
+        let mut target = display.draw();
+        let frame_dimensions = target.get_dimensions();
         // building the uniforms
         let uniforms = uniform! {
-            persp_matrix: camera.get_perspective(),
+            persp_matrix: camera.get_perspective(frame_dimensions),
             view_matrix: camera.get_view(),
         };
 
@@ -148,7 +150,6 @@ fn main() {
         };
 
         // drawing a frame
-        let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
         target.draw(&vertex_buffer,
                     &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
@@ -159,7 +160,7 @@ fn main() {
         for event in display.poll_events() {
             match event {
                 glutin::Event::Closed => return support::Action::Stop,
-                ev => camera.process_input(&ev),
+                ev => camera.process_input(&ev, frame_dimensions),
             }
         }
 
