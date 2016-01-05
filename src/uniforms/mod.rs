@@ -95,6 +95,9 @@ pub use self::sampler::{Sampler, SamplerBehavior};
 pub use self::uniforms::{EmptyUniforms, UniformsStorage};
 pub use self::value::{UniformValue, UniformType};
 
+use std::error::Error;
+use std::fmt;
+
 use buffer::Content as BufferContent;
 use buffer::Buffer;
 use program;
@@ -156,6 +159,80 @@ pub enum LayoutMismatchError {
         /// Name of the field.
         name: String,
     },
+}
+
+impl Error for LayoutMismatchError {
+    fn description(&self) -> &str {
+        use self::LayoutMismatchError::*;
+        match *self {
+            TypeMismatch { .. } =>
+                "There is a mismatch in the type of one element",
+            LayoutMismatch { .. } =>
+                "The expected layout is totally different from what we have",
+            OffsetMismatch { .. } =>
+                "The type of data is good, but there is a misalignment",
+            MemberMismatch { .. } =>
+                "There is a mismatch in a submember of this layout",
+            MissingField { .. } =>
+                "A field is missing in either the expected of the input data layout",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        use self::LayoutMismatchError::*;
+        match *self {
+            MemberMismatch{ ref err, .. } => Some(err.as_ref()),
+            _ => None,
+        }
+    }
+}
+
+impl fmt::Display for LayoutMismatchError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        use self::LayoutMismatchError::*;
+        match *self {
+            //duplicate Patternmatching, different Types can't be condensed
+            TypeMismatch { ref expected, ref obtained } =>
+                write!(
+                    fmt,
+                    "{}, got: {:?}, expected: {:?}",
+                    self.description(),
+                    obtained,
+                    expected,
+                ),
+            LayoutMismatch { ref expected, ref obtained } =>
+                write!(
+                    fmt,
+                    "{}, got: {:?}, expected: {:?}",
+                    self.description(),
+                    obtained,
+                    expected,
+                ),
+            OffsetMismatch { ref expected, ref obtained } =>
+                write!(
+                    fmt,
+                    "{}, got: {}, expected: {}",
+                    self.description(),
+                    obtained,
+                    expected,
+                ),
+            MemberMismatch { ref member, ref err } =>
+                write!(
+                    fmt,
+                    "{}, {}: {}",
+                    self.description(),
+                    member,
+                    err,
+                ),
+            MissingField { ref name } =>
+                write!(
+                    fmt,
+                    "{}: {}",
+                    self.description(),
+                    name,
+                ),
+        }
+    }
 }
 
 /// Value that can be used as the value of a uniform.

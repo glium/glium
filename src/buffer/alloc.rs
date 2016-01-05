@@ -6,6 +6,7 @@ use CapabilitiesSource;
 use ContextExt;
 use gl;
 use std::os::raw;
+use std::error::Error;
 use std::{fmt, mem, ptr};
 use std::cell::Cell;
 use std::rc::Rc;
@@ -29,11 +30,42 @@ pub enum ReadError {
     ContextLost,
 }
 
+impl fmt::Display for ReadError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for ReadError {
+    fn description(&self) -> &str {
+        use self::ReadError::*;
+        match *self {
+            NotSupported => "The backend doesn't support reading from a buffer",
+            ContextLost => "The context has been lost. Reading from the buffer would return garbage data",
+        }
+    }
+}
+
 /// Error that can happen when copying data between buffers.
 #[derive(Debug, Copy, Clone)]
 pub enum CopyError {
     /// The backend doesn't support copying between buffers.
     NotSupported,
+}
+
+impl fmt::Display for CopyError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for CopyError {
+    fn description(&self) -> &str {
+        use self::CopyError::*;
+        match *self {
+            NotSupported => "The backend doesn't support copying between buffers",
+        }
+    }
 }
 
 /// A buffer in the graphics card's memory.

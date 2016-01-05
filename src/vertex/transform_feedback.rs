@@ -1,4 +1,5 @@
-use std::mem;
+use std::{ mem, fmt };
+use std::error::Error;
 
 use version::Api;
 use version::Version;
@@ -99,9 +100,27 @@ pub struct TransformFeedbackSession<'a> {
 pub enum TransformFeedbackSessionCreationError {
     /// Transform feedback is not supported by the OpenGL implementation.
     NotSupported,
-    
+
     /// The format of the output doesn't match what the program is expected to output.
     WrongVertexFormat,
+}
+
+impl fmt::Display for TransformFeedbackSessionCreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for TransformFeedbackSessionCreationError {
+    fn description(&self) -> &str {
+        use self::TransformFeedbackSessionCreationError::*;
+        match *self {
+            NotSupported =>
+                "Transform feedback is not supported by the OpenGL implementation",
+            WrongVertexFormat =>
+                "The format of the output doesn't match what the program is expected to output",
+        }
+    }
 }
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
@@ -127,10 +146,10 @@ impl<'a> TransformFeedbackSession<'a> {
             return Err(TransformFeedbackSessionCreationError::NotSupported);
         }
 
-        if !program.transform_feedback_matches(&<V as Vertex>::build_bindings(), 
+        if !program.transform_feedback_matches(&<V as Vertex>::build_bindings(),
                                                mem::size_of::<V>())
         {
-            return Err(TransformFeedbackSessionCreationError::WrongVertexFormat); 
+            return Err(TransformFeedbackSessionCreationError::WrongVertexFormat);
         }
 
         Ok(TransformFeedbackSession {

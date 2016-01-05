@@ -1,4 +1,6 @@
 use std::ptr;
+use std::fmt;
+use std::error::Error;
 
 use pixel_buffer::PixelBuffer;
 use texture::ClientFormat;
@@ -72,6 +74,26 @@ pub enum ReadError {
     ClampingNotSupported,
 
     // TODO: context lost
+}
+
+impl fmt::Display for ReadError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for ReadError {
+    fn description(&self) -> &str {
+        use self::ReadError::*;
+        match *self {
+            OutputFormatNotSupported =>
+                "The implementation doesn't support converting to the requested output format",
+            AttachmentTypeNotSupported =>
+                "The implementation doesn't support reading a depth, depth-stencil or stencil attachment",
+            ClampingNotSupported =>
+                "Clamping the values is not supported by the implementation",
+        }
+    }
 }
 
 /// Reads pixels from the source into the destination.
@@ -179,13 +201,13 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
             client_format_to_gl_enum(&output_pixel_format, integer)
         },
         ReadSourceType::Depth => {
-            unimplemented!()        // TODO: 
+            unimplemented!()        // TODO:
             // TODO: NV_depth_buffer_float2
             //(gl::DEPTH_COMPONENT, )
         },
         ReadSourceType::DepthStencil => unimplemented!(),        // FIXME: only 24_8 is possible and there's no client format in the enum that corresponds to 24_8
         ReadSourceType::Stencil => {
-            unimplemented!()        // TODO: 
+            unimplemented!()        // TODO:
             //(gl::STENCIL_INDEX, )
         },
     };

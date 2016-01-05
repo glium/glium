@@ -3,7 +3,8 @@ use version::Version;
 use version::Api;
 use gl;
 
-use std::mem;
+use std::{ mem, fmt };
+use std::error::Error;
 
 use texture::any::TextureAny;
 use TextureExt;
@@ -14,6 +15,22 @@ use GlObject;
 pub enum GetFormatError {
     /// The backend doesn't support retrieving the internal format.
     NotSupported,
+}
+
+impl fmt::Display for GetFormatError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for GetFormatError {
+    fn description(&self) -> &str {
+        use self::GetFormatError::*;
+        match *self {
+            NotSupported =>
+                "The backend doesn't support retrieving the internal format",
+        }
+    }
 }
 
 /// Internal format of a texture.
@@ -252,7 +269,7 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
         })
 
     } else {
-        // FIXME: GL2 
+        // FIXME: GL2
         Err(GetFormatError::NotSupported)
     }
 }

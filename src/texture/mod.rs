@@ -113,6 +113,8 @@ You can use thousands of textures if you want.
 #![allow(unreachable_code)]     // TODO: remove
 
 use std::borrow::Cow;
+use std::fmt;
+use std::error::Error;
 
 use image_format::FormatNotSupportedError;
 
@@ -606,6 +608,26 @@ pub enum TextureCreationError {
 
     /// The texture format is not supported by the backend.
     TypeNotSupported,
+}
+
+impl fmt::Display for TextureCreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for TextureCreationError {
+    fn description(&self) -> &str {
+        use self::TextureCreationError::*;
+        match *self {
+            FormatNotSupported =>
+                "The requested format is not supported by the backend",
+            DimensionsNotSupported =>
+                "The requested texture dimensions are not supported",
+            TypeNotSupported =>
+                "The texture format is not supported by the backend",
+        }
+    }
 }
 
 impl From<FormatNotSupportedError> for TextureCreationError {

@@ -2,6 +2,9 @@
 This private module handles the various image formats in OpenGL.
 
 */
+use std::fmt;
+use std::error::Error;
+
 use gl;
 use context::Context;
 
@@ -12,6 +15,18 @@ use version::{Api, Version};
 /// Error that is returned if the format is not supported by OpenGL.
 #[derive(Copy, Clone, Debug)]
 pub struct FormatNotSupportedError;
+
+impl fmt::Display for FormatNotSupportedError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for FormatNotSupportedError {
+    fn description(&self) -> &str {
+        "Format is not supported by OpenGL"
+    }
+}
 
 /// Texture format request.
 #[derive(Copy, Clone, Debug)]
@@ -815,7 +830,7 @@ impl UncompressedIntFormat {
             &UncompressedIntFormat::I32I32I32I32 => version >= &Version(Api::GlEs, 3, 0),
         }
     }
-            
+
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
             &UncompressedIntFormat::I8 => gl::R8I,
@@ -1501,7 +1516,7 @@ impl ClientFormatAny {
         }
     }
 
-    /// Gets the size in bytes of the buffer required to store a uncompressed image 
+    /// Gets the size in bytes of the buffer required to store a uncompressed image
     /// of the specified dimensions on this format.
     ///
     /// ## Panic

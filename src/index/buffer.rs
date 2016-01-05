@@ -12,6 +12,8 @@ use index::IndexType;
 use index::PrimitiveType;
 
 use std::ops::{Deref, DerefMut};
+use std::fmt;
+use std::error::Error;
 use utils::range::RangeArgument;
 
 /// Error that can happen while creating an index buffer.
@@ -25,6 +27,34 @@ pub enum CreationError {
 
     /// An error happened while creating the buffer.
     BufferCreationError(BufferCreationError),
+}
+
+impl fmt::Display for CreationError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for CreationError {
+    fn description(&self) -> &str {
+        use self::CreationError::*;
+        match *self {
+            IndexTypeNotSupported =>
+                "The type of index is not supported by the backend",
+            PrimitiveTypeNotSupported =>
+                "The type of primitives is not supported by the backend",
+            BufferCreationError(_) =>
+                "An error happened while creating the buffer",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        use self::CreationError::*;
+        match *self {
+            BufferCreationError(ref err) => Some(err),
+            _ => None,
+        }
+    }
 }
 
 impl From<BufferCreationError> for CreationError {
