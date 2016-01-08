@@ -2,7 +2,7 @@
 extern crate glium;
 
 fn main() {
-    use glium::{Api, CapabilitiesSource, DisplayBuild, Profile, Version};
+    use glium::{Api, DisplayBuild, Profile, Version};
     use glium::backend::Facade;
     use glium::glutin;
 
