@@ -18,25 +18,23 @@ fn main() {
         Version(Api::GlEs, _, _) => "OpenGL ES"
     };
 
-    let caps = display.get_context().get_capabilities();
-
-    println!("{} context verson: {}", api, caps.version);
+    println!("{} context verson: {}", api, display.get_opengl_vendor_string());
 
     print!("{} context flags:", api);
-    if caps.forward_compatible {
+    if display.is_forward_compatible() {
         print!(" forward-compatible");
     }
-    if caps.debug {
+    if display.is_debug() {
         print!(" debug");
     }
-    if caps.robustness {
+    if display.is_robust() {
         print!(" robustness");
     }
     print!("\n");
 
     if version >= Version(Api::Gl, 3, 2) {
         println!("{} profile mask: {}", api,
-                 match caps.profile {
+                 match display.get_opengl_profile() {
                      Some(Profile::Core) => "core",
                      Some(Profile::Compatibility) => "compatibility",
                      None => "unknown"
@@ -44,12 +42,12 @@ fn main() {
     }
 
     println!("{} robustness strategy: {}", api,
-             if caps.can_lose_context {
+             if display.is_context_loss_possible() {
                  "lose"
              } else {
                  "none"
              });
     
-    println!("{} context renderer: {}", api, caps.renderer);
-    println!("{} context vendor: {}", api, caps.vendor);
+    println!("{} context renderer: {}", api, display.get_opengl_renderer_string());
+    println!("{} context vendor: {}", api, display.get_opengl_vendor_string());
 }
