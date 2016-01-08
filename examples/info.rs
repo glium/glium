@@ -3,7 +3,6 @@ extern crate glium;
 
 fn main() {
     use glium::{Api, DisplayBuild, Profile, Version};
-    use glium::backend::Facade;
     use glium::glutin;
 
     // building the display, ie. the main object
@@ -18,7 +17,7 @@ fn main() {
         Version(Api::GlEs, _, _) => "OpenGL ES"
     };
 
-    println!("{} context verson: {}", api, display.get_opengl_vendor_string());
+    println!("{} context verson: {}", api, display.get_opengl_version_string());
 
     print!("{} context flags:", api);
     if display.is_forward_compatible() {
