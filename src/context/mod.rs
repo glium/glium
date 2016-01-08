@@ -30,7 +30,7 @@ use texture;
 use uniforms;
 use vertex_array_object;
 
-pub use self::capabilities::{ReleaseBehavior, Capabilities};
+pub use self::capabilities::{ReleaseBehavior, Capabilities, Profile};
 pub use self::extensions::ExtensionsList;
 pub use self::state::GlState;
 

@@ -13,6 +13,15 @@ use ToGlEnum;
 use CapabilitiesSource;
 use image_format::TextureFormat;
 
+/// Describes the OpenGL context profile.
+#[derive(Debug)]
+pub enum Profile {
+    /// The context uses only future-compatible functions and definitions.
+    Core,
+    /// The context includes all immediate mode functions and definitions.
+    Compatibility
+}
+
 /// Represents the capabilities of the context.
 ///
 /// Contrary to the state, these values never change.
@@ -22,6 +31,30 @@ pub struct Capabilities {
     ///
     /// An empty list means that the backend doesn't have a compiler.
     pub supported_glsl_versions: Vec<Version>,
+
+    /// Returns a version or release number. Vendor-specific information may follow the version
+    /// number.
+    pub version: String,
+
+    /// The company responsible for this GL implementation.
+    pub vendor: String,
+
+    /// The name of the renderer. This name is typically specific to a particular
+    /// configuration of a hardware platform.
+    pub renderer: String,
+
+    /// The OpenGL context profile if available.
+    ///
+    /// The context profile is available from OpenGL 3.2 onwards. `None` if not supported.
+    pub profile: Option<Profile>,
+
+    /// The context is in debug mode, which may have additional error and performance issue
+    /// reporting functionality.
+    pub debug: bool,
+
+    /// The context is in "forward-compatible" mode, which means that no deprecated functionality
+    /// will be supported.
+    pub forward_compatible: bool,
 
     /// True if out-of-bound access on the GPU side can't result in crashes.
     pub robustness: bool,
@@ -132,6 +165,17 @@ pub enum ReleaseBehavior {
 pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
                                -> Capabilities
 {
+    // GL_CONTEXT_FLAGS are only avaialble from GL 3.0 onwards
+    let (debug, forward_compatible) = if version >= &Version(Api::Gl, 3, 0) {
+        let mut val = mem::uninitialized();
+        gl.GetIntegerv(gl::CONTEXT_FLAGS, &mut val);
+        let val = val as gl::types::GLenum;
+        ((val & gl::CONTEXT_FLAG_DEBUG_BIT) != 0,
+         (val & gl::CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) != 0)
+    } else {
+        (false, false)
+    };
+
     // getting the value of `GL_RENDERER`
     let renderer = {
         let s = gl.GetString(gl::RENDERER);
@@ -144,6 +188,41 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         supported_glsl_versions: {
             get_supported_glsl(gl, version, extensions)
         },
+
+        version: {
+            let s = gl.GetString(gl::VERSION);
+            assert!(!s.is_null());
+            String::from_utf8(CStr::from_ptr(s as *const _).to_bytes().to_vec()).ok()
+                                        .expect("glGetString(GL_VERSION) returned a non-UTF8 string")
+        },
+
+        vendor: {
+            let s = gl.GetString(gl::VENDOR);
+            assert!(!s.is_null());
+            String::from_utf8(CStr::from_ptr(s as *const _).to_bytes().to_vec()).ok()
+                                        .expect("glGetString(GL_VENDOR) returned a non-UTF8 string")
+        },
+
+        profile: {
+            if version >= &Version(Api::Gl, 3, 2) {
+                let mut val = mem::uninitialized();
+                gl.GetIntegerv(gl::CONTEXT_PROFILE_MASK, &mut val);
+                let val = val as gl::types::GLenum;
+                if (val & gl::CONTEXT_COMPATIBILITY_PROFILE_BIT) != 0 {
+                    Some(Profile::Compatibility)
+                } else if (val & gl::CONTEXT_CORE_PROFILE_BIT) != 0 {
+                    Some(Profile::Core)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        },
+
+        debug: debug,
+
+        forward_compatible: forward_compatible,
 
         robustness: if version >= &Version(Api::Gl, 4, 5) || version >= &Version(Api::GlEs, 3, 2) ||
                        (version >= &Version(Api::Gl, 3, 0) && extensions.gl_arb_robustness)
@@ -496,6 +575,8 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                 None
             }
         },
+
+        renderer: renderer,
     }
 }
 
