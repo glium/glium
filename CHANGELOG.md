@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.13.3 (2015-01-08)
 
  - Added constructors to `SimpleFrameBuffer` for depth-only, depth-stencil-only, stencil-only and depth & stencil framebuffers.
 
