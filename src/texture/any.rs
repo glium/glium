@@ -877,6 +877,12 @@ impl<'a> TextureAnyMipmap<'a> {
         })
     }
 
+    /// Returns the array size of the texture.
+    #[inline]
+    pub fn get_array_size(&self) -> Option<u32> {
+        self.texture.get_array_size()
+    }
+
     /// Uploads data to the texture from a buffer.
     ///
     /// # Panic

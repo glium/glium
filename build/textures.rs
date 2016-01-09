@@ -1,6 +1,6 @@
 use std::io::Write;
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum TextureType {
     Regular,
     Compressed,
@@ -13,7 +13,7 @@ enum TextureType {
     DepthStencil,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum TextureDimensions {
     Texture1d,
     Texture2d,
@@ -797,6 +797,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 }}
         ", format = relevant_format, name = name)).unwrap();
 
+    // dimensions getters
+    write_dimensions_getters(dest, dimensions, "self.0", true);
+
     // writing the `as_surface` function
     if (dimensions == TextureDimensions::Texture2d ||
         dimensions == TextureDimensions::Texture2dMultisample) && ty == TextureType::Regular
@@ -1017,6 +1020,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // opening `impl Layer` block
         (writeln!(dest, "impl<'t> {}Layer<'t> {{", name)).unwrap();
 
+        // dimensions getters
+        write_dimensions_getters(dest, dimensions, "(self.1).0", false);
+
         // writing the `get_layer` and `get_texture` functions
         (write!(dest, "
                 /// Returns the corresponding texture.
@@ -1085,6 +1091,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         // opening `impl Mipmap` block
         (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
+
+        // dimensions getters
+        write_dimensions_getters(dest, dimensions, "self.0", true);
 
         // writing the `write` function for mipmaps.
         // TODO: implement for other types too
@@ -1252,6 +1261,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         // opening `impl LayerMipmap` block
         (writeln!(dest, "impl<'t> {}LayerMipmap<'t> {{", name)).unwrap();
 
+        // dimensions getters
+        write_dimensions_getters(dest, dimensions, "self.0", false);
+
         // to the image struct
         if dimensions.is_cube() {
             writeln!(dest,
@@ -1286,6 +1298,9 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         // opening `impl Image` block
         (writeln!(dest, "impl<'t> {}Image<'t> {{", name)).unwrap();
+
+        // dimensions getters
+        write_dimensions_getters(dest, dimensions, "self.0", false);
 
         // closing `impl Image` block
         (writeln!(dest, "}}")).unwrap();
@@ -1355,4 +1370,74 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
     // closing `mod module {`
     writeln!(dest, "}}").unwrap();
+}
+
+fn write_dimensions_getters<W: Write>(mut dest: &mut W, dimensions: TextureDimensions,
+                                      accessor: &str, write_array_size: bool)
+{
+    writeln!(dest, r#"
+        /// Returns the width of that image.
+        #[inline]
+        pub fn width(&self) -> u32 {{
+            {}.get_width()
+        }}
+    "#, accessor).unwrap();
+
+    match dimensions {
+        TextureDimensions::Texture2d | TextureDimensions::Texture2dMultisample |
+        TextureDimensions::Texture3d | TextureDimensions::Texture2dArray |
+        TextureDimensions::Texture2dMultisampleArray | TextureDimensions::Cubemap |
+        TextureDimensions::CubemapArray => {
+            writeln!(dest, r#"
+                /// Returns the height of that image.
+                #[inline]
+                pub fn height(&self) -> u32 {{
+                    {}.get_height().unwrap()
+                }}
+            "#, accessor).unwrap();
+        },
+        _ => ()
+    };
+
+    match dimensions {
+        TextureDimensions::Texture3d => {
+            writeln!(dest, r#"
+                /// Returns the depth of that image.
+                #[inline]
+                pub fn depth(&self) -> u32 {{
+                    {}.get_depth().unwrap()
+                }}
+            "#, accessor).unwrap();
+        },
+        _ => ()
+    };
+
+    if write_array_size {
+        match dimensions {
+            TextureDimensions::Texture2dArray | TextureDimensions::Texture2dMultisampleArray |
+            TextureDimensions::CubemapArray => {
+                writeln!(dest, r#"
+                    /// Returns the number of array layers.
+                    #[inline]
+                    pub fn array_size(&self) -> u32 {{
+                        {}.get_array_size().unwrap()
+                    }}
+                "#, accessor).unwrap();
+            },
+            _ => ()
+        }
+    };
+
+    match dimensions {
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
+            writeln!(dest, r#"
+                /// Returns the number of samples of that image.
+                #[inline]
+                pub fn samples(&self) -> u32 {{
+                    {}.get_samples().unwrap()
+                }}
+            "#, accessor).unwrap();
+        },
+        _ => ()
+    };
 }
