@@ -1440,4 +1440,36 @@ fn write_dimensions_getters<W: Write>(mut dest: &mut W, dimensions: TextureDimen
         },
         _ => ()
     };
+
+    match dimensions {
+        TextureDimensions::Texture2d | TextureDimensions::Texture2dMultisample |
+        TextureDimensions::Texture2dArray | TextureDimensions::Texture2dMultisampleArray => {
+            writeln!(dest, r#"
+                /// Returns the width and height of that image.
+                #[inline]
+                pub fn dimensions(&self) -> (u32, u32) {{
+                    (self.width(), self.height())
+                }}
+            "#).unwrap();
+        },
+        TextureDimensions::Texture3d => {
+            writeln!(dest, r#"
+                /// Returns the width, height and depth of that image.
+                #[inline]
+                pub fn dimensions(&self) -> (u32, u32, u32) {{
+                    (self.width(), self.height(), self.depth())
+                }}
+            "#).unwrap();
+        },
+        TextureDimensions::Cubemap | TextureDimensions::CubemapArray => {
+            writeln!(dest, r#"
+                /// Returns the dimension of that image.
+                #[inline]
+                pub fn dimensions(&self) -> u32 {{
+                    self.width()
+                }}
+            "#).unwrap();
+        },
+        _ => ()
+    };
 }
