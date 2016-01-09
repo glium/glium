@@ -552,6 +552,12 @@ impl TextureAny {
         }
     }
 
+    /// Returns the dimensions of the texture.
+    #[inline]
+    pub fn dimensions(&self) -> Dimensions {
+        self.ty.clone()
+    }
+
     /// Returns the array size of the texture.
     #[inline]
     pub fn get_array_size(&self) -> Option<u32> {
