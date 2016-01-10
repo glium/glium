@@ -22,7 +22,7 @@ use texture::pixel_buffer::PixelBuffer;
 
 use fbo::ClearBufferData;
 
-use buffer::BufferSlice;
+use buffer::Storage as BufferStorage;
 use buffer::BufferAny;
 use BufferExt;
 use BufferSliceExt;
@@ -890,9 +890,9 @@ impl<'a> TextureAnyMipmap<'a> {
     /// Panics if the offsets and dimensions are outside the boundaries of the texture. Panics
     /// if the buffer is not big enough to hold the data.
     #[inline]
-    pub fn raw_upload_from_pixel_buffer<P>(&self, source: BufferSlice<[P]>, x: Range<u32>,
-                                           y: Range<u32>, z: Range<u32>)
-                                           where P: PixelValue
+    pub fn raw_upload_from_pixel_buffer<P, B>(&self, source: B, x: Range<u32>, y: Range<u32>,
+                                              z: Range<u32>)
+        where P: PixelValue, B: BufferStorage<Content = [P]>
     {
         self.raw_upload_from_pixel_buffer_impl(source, x, y, z, false);
     }
@@ -904,16 +904,16 @@ impl<'a> TextureAnyMipmap<'a> {
     /// Panics if the offsets and dimensions are outside the boundaries of the texture. Panics
     /// if the buffer is not big enough to hold the data.
     #[inline]
-    pub fn raw_upload_from_pixel_buffer_inverted<P>(&self, source: BufferSlice<[P]>,
-                                                    x: Range<u32>, y: Range<u32>, z: Range<u32>)
-                                                    where P: PixelValue
+    pub fn raw_upload_from_pixel_buffer_inverted<P, B>(&self, source: B, x: Range<u32>,
+                                                       y: Range<u32>, z: Range<u32>)
+        where P: PixelValue, B: BufferStorage<Content = [P]>
     {
         self.raw_upload_from_pixel_buffer_impl(source, x, y, z, true);
     }
 
-    fn raw_upload_from_pixel_buffer_impl<P>(&self, source: BufferSlice<[P]>, x: Range<u32>,
-                                            y: Range<u32>, z: Range<u32>, inverted: bool)
-                                            where P: PixelValue
+    fn raw_upload_from_pixel_buffer_impl<P, B>(&self, source: B, x: Range<u32>,
+                                               y: Range<u32>, z: Range<u32>, inverted: bool)
+        where P: PixelValue, B: BufferStorage<Content = [P]>
     {
         assert!(x.start <= self.width);
         assert!(y.start <= self.height.unwrap_or(0));
@@ -929,6 +929,9 @@ impl<'a> TextureAnyMipmap<'a> {
         if source.len() < (width * height * depth) as usize {
             panic!("Buffer is too small");
         }
+
+        let buffer_fence = source.gpu_access(true, false);
+        let source = source.as_slice_any();
 
         let (client_format, client_type) =
             image_format::client_format_to_glenum(&self.texture.context,
@@ -1075,7 +1078,7 @@ impl<'a> TextureAnyMipmap<'a> {
         }
 
         // handling synchronization for the buffer
-        if let Some(fence) = source.add_fence() {
+        if let Some(fence) = buffer_fence {
             fence.insert(&mut ctxt);
         }
     }

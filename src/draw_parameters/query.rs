@@ -14,9 +14,8 @@ use std::rc::Rc;
 use std::error::Error;
 
 use buffer::Buffer;
-use buffer::BufferSlice;
+use buffer::Storage as BufferStorage;
 use BufferExt;
-use BufferSliceExt;
 
 use gl;
 use version::Api;
@@ -255,8 +254,13 @@ impl RawQuery {
     }
 
     /// Writes the value of the query to a buffer.
-    pub fn write_u32_to_buffer(&self, target: BufferSlice<u32>) -> Result<(), ToBufferError> {
+    pub fn write_u32_to_buffer<B>(&self, target: B) -> Result<(), ToBufferError>
+        where B: BufferStorage<Content = u32>
+    {
         let mut ctxt = self.context.make_current();
+
+        let fence = target.gpu_access(false, true);
+        let target = target.as_slice_any();
 
         if !(ctxt.version >= &Version(Api::Gl, 4, 4) || ctxt.extensions.gl_arb_query_buffer_object ||
              ctxt.extensions.gl_amd_query_buffer_object)
@@ -275,7 +279,7 @@ impl RawQuery {
         target.prepare_and_bind_for_query(&mut ctxt);
         unsafe { self.raw_get_u32(&mut ctxt, target.get_offset_bytes() as *mut _); }
 
-        if let Some(fence) = target.add_fence() {
+        if let Some(fence) = fence {
             fence.insert(&mut ctxt);
         }
 
@@ -751,8 +755,8 @@ macro_rules! impl_helper {
             ///
             /// This operation is not necessarly supported everywhere.
             #[inline]
-            pub fn to_buffer_u32(&self, target: BufferSlice<u32>)
-                                 -> Result<(), ToBufferError>
+            pub fn to_buffer_u32<B>(&self, target: B) -> Result<(), ToBufferError>
+                where B: BufferStorage<Content = u32>
             {
                 self.query.write_u32_to_buffer(target)
             }

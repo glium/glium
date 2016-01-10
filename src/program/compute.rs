@@ -21,7 +21,7 @@ use program::shader::{build_shader, check_shader_type_compatibility};
 
 use program::raw::RawProgram;
 
-use buffer::BufferSlice;
+use buffer::Storage as BufferStorage;
 use uniforms::Uniforms;
 
 /// A combination of compute shaders linked together.
@@ -76,8 +76,8 @@ impl ComputeShader {
     ///
     /// This is similar to `execute`, except that the parameters are stored in a buffer.
     #[inline]
-    pub fn execute_indirect<U>(&self, uniforms: U, buffer: BufferSlice<ComputeCommand>)
-                               where U: Uniforms
+    pub fn execute_indirect<U, B>(&self, uniforms: U, buffer: B)
+        where U: Uniforms, B: BufferStorage<Content = ComputeCommand>
     {
         unsafe { self.raw.dispatch_compute_indirect(uniforms, buffer) }.unwrap();       // FIXME: return error
     }

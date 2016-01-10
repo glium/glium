@@ -255,15 +255,12 @@ pub trait Storage {
 
     /// This function is called whenever the GPU needs to access this buffer.
     ///
-    /// It indicates which range of the buffer is going to be accessed by the GPU, and which kind
-    /// of access is being done.
+    /// It indicates which kind of access is being done.
     ///
     /// If necessary the implementation can return an `Inserter` which will be used by the caller
     /// to indicate when the GPU is over with its operation.
     #[inline]
-    fn gpu_access<R>(&self, range: R, read: bool, write: bool) -> Option<Inserter>
-        where R: RangeArgument<usize>
-    {
+    fn gpu_access(&self, read: bool, write: bool) -> Option<Inserter> {
         None
     }
 }

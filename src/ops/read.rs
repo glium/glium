@@ -255,6 +255,10 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
                                    ptr::null_mut());
 
                 ::pixel_buffer::store_infos(pixel_buffer, (rect.width, rect.height));
+
+                if let Some(fence) = pixel_buffer.gpu_access(false, true) {
+                    fence.insert(&mut ctxt);
+                }
             }
         }
     };
