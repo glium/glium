@@ -18,7 +18,7 @@ impl CameraState {
         CameraState {
             aspect_ratio: 1024.0 / 768.0,
             position: (0.1, 0.1, 1.0),
-            direction: (0.0, 0.0, 1.0),
+            direction: (0.0, 0.0, -1.0),
             moving_up: false,
             moving_left: false,
             moving_down: false,
@@ -47,8 +47,8 @@ impl CameraState {
         [
             [f / self.aspect_ratio,    0.0,              0.0              ,   0.0],
             [         0.0         ,     f ,              0.0              ,   0.0],
-            [         0.0         ,    0.0,  (zfar+znear)/(znear-zfar)    ,  -1.0],
-            [         0.0         ,    0.0,  (2.0*zfar*znear)/(znear-zfar),   0.0],
+            [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
+            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
         ]
     }
 
@@ -82,9 +82,9 @@ impl CameraState {
 
         // note: remember that this is column-major, so the lines of code are actually columns
         [
-            [s_norm.0, u.0, -f.0, 0.0],
-            [s_norm.1, u.1, -f.1, 0.0],
-            [s_norm.2, u.2, -f.2, 0.0],
+            [s_norm.0, u.0, f.0, 0.0],
+            [s_norm.1, u.1, f.1, 0.0],
+            [s_norm.2, u.2, f.2, 0.0],
             [p.0, p.1,  p.2, 1.0],
         ]
     }
@@ -138,17 +138,15 @@ impl CameraState {
         }
 
         if self.moving_forward {
-            // TODO: to be honest, I don't understand why this is the wrong way
-            self.position.0 -= f.0 * 0.01;
-            self.position.1 -= f.1 * 0.01;
-            self.position.2 -= f.2 * 0.01;
-        }
-
-        if self.moving_backward {
-            // TODO: to be honest, I don't understand why this is the wrong way
             self.position.0 += f.0 * 0.01;
             self.position.1 += f.1 * 0.01;
             self.position.2 += f.2 * 0.01;
+        }
+
+        if self.moving_backward {
+            self.position.0 -= f.0 * 0.01;
+            self.position.1 -= f.1 * 0.01;
+            self.position.2 -= f.2 * 0.01;
         }
     }
 
