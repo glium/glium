@@ -14,7 +14,7 @@ use CapabilitiesSource;
 use image_format::TextureFormat;
 
 /// Describes the OpenGL context profile.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Profile {
     /// The context uses only future-compatible functions and definitions.
     Core,

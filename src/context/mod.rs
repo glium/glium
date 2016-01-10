@@ -335,6 +335,51 @@ impl Context {
         self.capabilities().supported_glsl_versions.iter().find(|&v| v == version).is_some()
     }
 
+    /// Returns a string containing this GL version or release number used by this context.
+    ///
+    /// Vendor-specific information may follow the version number.
+    #[inline]
+    pub fn get_opengl_version_string(&self) -> &str {
+        &self.capabilities().version
+    }
+
+    /// Returns a string containing the company responsible for this GL implementation.
+    #[inline]
+    pub fn get_opengl_vendor_string(&self) -> &str {
+        &self.capabilities().vendor
+    }
+
+    /// Returns a string containing the name of the GL renderer used by this context.
+    ///
+    /// This name is typically specific to a particular configuration of a hardware platform.
+    #[inline]
+    pub fn get_opengl_renderer_string(&self) -> &str {
+        &self.capabilities().renderer
+    }
+
+    /// Returns true if the context is in debug mode.
+    ///
+    /// Debug mode may provide additional error and performance issue reporting functionality.
+    #[inline]
+    pub fn is_debug(&self) -> bool {
+        self.capabilities().debug
+    }
+
+    /// Returns true if the context is in "forward-compatible" mode.
+    ///
+    /// Forward-compatible mode means that no deprecated functionality will be supported.
+    #[inline]
+    pub fn is_forward_compatible(&self) -> bool {
+        self.capabilities().forward_compatible
+    }
+
+    /// Returns this context's OpenGL profile if available.
+    ///
+    /// The context profile is available from OpenGL 3.2 onwards. Returns `None` if not supported.
+    pub fn get_opengl_profile(&self) -> Option<Profile> {
+        self.capabilities().profile
+    }
+
     /// Returns true if out-of-bound buffer access from the GPU side (inside a program) cannot
     /// result in a crash.
     ///
