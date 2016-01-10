@@ -20,6 +20,7 @@ use ContextExt;
 use buffer::BufferType;
 use buffer::BufferMode;
 use buffer::BufferCreationError;
+use buffer::CopyError;
 use buffer::CopyTo;
 use buffer::Content;
 use buffer::ArrayContent;
@@ -40,7 +41,6 @@ use buffer::alloc::Mapping;
 use buffer::alloc::ReadMapping;
 use buffer::alloc::WriteMapping;
 use buffer::alloc::ReadError;
-use buffer::alloc::CopyError;
 
 pub use self::DynamicBuffer as Buffer;
 pub use self::DynamicBufferSlice as BufferSlice;

@@ -56,7 +56,7 @@ pub use self::view::{DynamicBuffer, DynamicBufferSlice, DynamicBufferMutSlice};
 pub use self::view::{ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice};
 pub use self::view::{PersistentBuffer, PersistentBufferSlice, PersistentBufferMutSlice};
 pub use self::view::{BufferAny, BufferAnySlice};
-pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
+pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError};
 pub use self::alloc::{is_buffer_read_supported};
 pub use self::fences::Inserter;
 
@@ -81,6 +81,7 @@ use backend::Facade;
 
 mod alloc;
 mod fences;
+mod raw;
 mod view;
 
 /// Trait for types of data that can be put inside buffers.
@@ -218,6 +219,28 @@ impl Error for BufferCreationError {
         match self {
             &BufferCreationError::OutOfMemory => "Not enough memory to create the buffer",
             &BufferCreationError::BufferTypeNotSupported => "This type of buffer is not supported",
+        }
+    }
+}
+
+/// Error that can happen when copying data between buffers.
+#[derive(Debug, Copy, Clone)]
+pub enum CopyError {
+    /// The backend doesn't support copying between buffers.
+    NotSupported,
+}
+
+impl fmt::Display for CopyError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for CopyError {
+    fn description(&self) -> &str {
+        use self::CopyError::*;
+        match *self {
+            NotSupported => "The backend doesn't support copying between buffers",
         }
     }
 }
