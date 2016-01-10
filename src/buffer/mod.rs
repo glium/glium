@@ -5,24 +5,26 @@
 //!
 //! # Buffers management in glium
 //!
-//! There are three levels of abstraction in glium:
-//!
-//!  - An `Alloc` corresponds to an OpenGL buffer object and is unsafe to use.
-//!    This type is not public.
-//!  - A `Buffer` wraps around an `Alloc` and provides safety by handling the data type and fences.
-//!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, etc. types are
-//!    abstractions over a `Buffer` indicating their specific purpose. They implement `Deref`
-//!    for the `Buffer`. These types are in the `vertex`, `index`, etc. modules.
+//! There are three types of buffers in glium:
+//! 
+//! - Dynamic buffers, which are the buffers that you usually use by default. All OpenGL tutorials
+//!   that you find on the web use these kinds of buffers.
+//! - Immutable buffers, whose content is inaccessible from the CPU. They usually offer slightly
+//!   better performances when the buffer's content never needs to be modified.
+//! - Persistent buffers (short for "persistent-mapped buffers"). They are more difficult to use
+//!   but offer the best control over what's happening and are ideal when you are often modifying
+//!   the content of the buffer.
 //!
 //! # Unsized types
 //!
 //! In order to put some data in a buffer, it must implement the `Content` trait. This trait is
 //! automatically implemented on all `Sized` types and on slices (like `[u8]`). This means that
-//! you can create a `Buffer<Foo>` (if `Foo` is sized) or a `Buffer<[u8]>` for example without
-//! worrying about it.
+//! you can for example create a `Buffer<Foo>` (if `Foo` is sized) or a `Buffer<[u8]>` without
+//! having to worry about this.
 //!
-//! However unsized structs don't automatically implement this trait and you must call the
-//! `implement_buffer_content!` macro on them. You must then use the `empty_unsized` constructor.
+//! However if you create an unsized struct, it doesn't automatically implement this trait. You can
+//! solve this by manually calling the `implement_buffer_content!` macro on them. You must then
+//! use the `empty_unsized` constructor on buffers in order to store their content.
 //!
 //! ```no_run
 //! # #[macro_use] extern crate glium; fn main() {
@@ -37,7 +39,7 @@
 //!
 //! // creates a buffer of 64 bytes, which thus holds 8 f32s
 //! let mut buffer = glium::buffer::Buffer::<Data>::empty_unsized(&display, BufferType::UniformBuffer,
-//!                                                               64, BufferMode::Default).unwrap();
+//!                                                               64).unwrap();
 //!
 //! // you can then write to it like you normally would
 //! buffer.map().data[4] = 2.1;
@@ -53,8 +55,8 @@ use texture::Texture1dDataSink;
 
 pub use self::view::{Buffer, BufferSlice, BufferMutSlice};
 pub use self::view::{DynamicBuffer, DynamicBufferSlice, DynamicBufferMutSlice};
-pub use self::view::{ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice};
-pub use self::view::{PersistentBuffer, PersistentBufferSlice, PersistentBufferMutSlice};
+pub use self::immutable::{ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice};
+pub use self::persistent::{PersistentBuffer, PersistentBufferSlice, PersistentBufferMutSlice};
 pub use self::view::{BufferAny, BufferAnySlice};
 pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError};
 pub use self::alloc::{is_buffer_read_supported};
@@ -79,8 +81,537 @@ use std::slice;
 
 use backend::Facade;
 
+macro_rules! buffers_base {
+    ($buffer:ident, $slice:ident, $mut_slice:ident) => (
+        impl<T: ?Sized> $buffer<T> where T: Content {
+            /// Returns the size in bytes of the buffer.
+            #[inline]
+            pub fn size(&self) -> usize {
+                ::buffer::Storage::size(self)
+            }
+
+            /// Returns the number of elements in this buffer.
+            ///
+            /// This method is only available if the content is an array.
+            #[inline]
+            pub fn len(&self) -> usize where T: ArrayContent {
+                self.size() / <T as ArrayContent>::element_size()
+            }
+
+            /// Builds a subslice of this slice. Returns `None` if out of range.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            ///
+            /// # Example
+            ///
+            /// ```no_run
+            /// # let buffer: glium::buffer::ImmutableBuffer<[u8]> = unsafe { ::std::mem::uninitialized() };
+            /// // let buffer: glium::buffer::ImmutableBuffer<[u8]>;
+            /// let slice = buffer.slice(0 .. 8).unwrap();
+            /// slice.invalidate();     // invalidates only elements 0 to 8
+            /// ```
+            #[inline]
+            pub fn slice<R>(&self, range: R) -> Option<$slice<T>>
+                where T: ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                self.as_slice().slice(range)
+            }
+
+            /// Builds a subslice of this slice. Returns `None` if out of range.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn slice_mut<R>(&mut self, range: R) -> Option<$mut_slice<T>>
+                where T: ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                self.as_mut_slice().slice(range)
+            }
+
+            /// Builds a slice that contains an element from inside the buffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            ///
+            /// # Example
+            ///
+            /// ```no_run
+            /// #[derive(Copy, Clone)]
+            /// struct BufferContent {
+            ///     value1: u16,
+            ///     value2: u16,
+            /// }
+            /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
+            /// #                                                   unsafe { std::mem::uninitialized() };
+            /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+            /// ```
+            ///
+            /// # Safety
+            ///
+            /// The object whose reference is passed to the closure is uninitialized. Therefore you
+            /// **must not** access the content of the object.
+            ///
+            /// You **must** return a reference to an element from the parameter. The closure **must not**
+            /// panic.
+            #[inline]
+            pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> $slice<R>
+                                                     where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                            R: Content
+            {
+                self.as_slice().slice_custom(f)
+            }
+
+            /// Same as `slice_custom` but returns a mutable slice.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> $mut_slice<R>
+                                                         where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                                R: Content
+            {
+                self.as_mut_slice().slice_custom(f)
+            }
+
+            /// Builds a slice representing the whole buffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn as_slice(&self) -> $slice<T> {
+                $slice {
+                    context: &self.context,
+                    buffer: self.id,
+                    bytes_start: 0,
+                    bytes_end: self.size(),
+                    marker: ::std::marker::PhantomData,
+                }
+            }
+
+            /// Builds a slice representing the whole buffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn as_mut_slice(&mut self) -> $mut_slice<T> {
+                let size = self.size();
+
+                $mut_slice {
+                    context: &mut self.context,
+                    buffer: self.id,
+                    bytes_start: 0,
+                    bytes_end: size,
+                    marker: ::std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<T: ?Sized> ::std::fmt::Debug for $buffer<T> where T: Content {
+            #[inline]
+            fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+                write!(fmt, "OpenGL buffer (len: {} bytes)", self.size())
+            }
+        }
+
+        #[derive(Copy, Clone)]
+        pub struct $slice<'a, T: ?Sized + 'a> where T: Content {
+            context: &'a Rc<Context>,
+            buffer: gl::types::GLuint,
+            bytes_start: usize,
+            bytes_end: usize,
+            marker: ::std::marker::PhantomData<T>,
+        }
+
+        // TODO: we need this because PhantomData<T> requires T: Sized
+        impl<'a, T: ?Sized> ::std::fmt::Debug for $slice<'a, T> where T: Content {
+            #[inline]
+            fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+                write!(fmt, "OpenGL buffer slice (len: {} bytes)", self.size())
+            }
+        }
+
+        impl<'a, T: ?Sized> $slice<'a, T> where T: Content + 'a {
+            /// Returns the size in bytes of this slice.
+            #[inline]
+            pub fn size(&self) -> usize {
+                self.bytes_end - self.bytes_start
+            }
+
+            /// Builds a slice that contains an element from inside the buffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            ///
+            /// # Example
+            ///
+            /// ```no_run
+            /// #[derive(Copy, Clone)]
+            /// struct BufferContent {
+            ///     value1: u16,
+            ///     value2: u16,
+            /// }
+            /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
+            /// #                                                   unsafe { std::mem::uninitialized() };
+            /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+            /// ```
+            ///
+            /// # Safety
+            ///
+            /// The object whose reference is passed to the closure is uninitialized. Therefore you
+            /// **must not** access the content of the object.
+            ///
+            /// You **must** return a reference to an element from the parameter. The closure **must not**
+            /// panic.
+            #[inline]
+            pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> $slice<'a, R>
+                                                     where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                           R: Content
+            {
+                let data: &T = mem::zeroed();
+                let result = f(data);
+                let size = mem::size_of_val(result);
+                let result = result as *const R as *const () as usize;
+
+                assert!(result <= self.size());
+                assert!(result + size <= self.size());
+
+                $slice {
+                    context: self.context,
+                    buffer: self.buffer,
+                    bytes_start: self.bytes_start + result,
+                    bytes_end: self.bytes_start + result + size,
+                    marker: ::std::marker::PhantomData,
+                }
+            }
+
+            /// Builds a slice-any containing the whole subbuffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn as_slice_any(&self) -> BufferAnySlice<'a> {
+                unimplemented!()
+                /*BufferAnySlice {
+                    alloc: self.alloc,
+                    bytes_start: self.bytes_start,
+                    bytes_end: self.bytes_end,
+                    elements_size: <T as Content>::get_elements_size(),
+                }*/
+            }
+
+            /// Returns the number of elements in this slice.
+            #[inline]
+            pub fn len(&self) -> usize where T: ArrayContent {
+                (self.bytes_end - self.bytes_start) / <T as ArrayContent>::element_size()
+            }
+
+            /// Builds a subslice of this slice. Returns `None` if out of range.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn slice<R>(&self, range: R) -> Option<$slice<'a, T>>
+                where T: ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                if range.start().map_or(0, |e| *e) > self.len() || range.end().map_or(0, |e| *e) > self.len() {
+                    return None;
+                }
+
+                unimplemented!()
+                /*Some($slice {
+                    buffer: self.buffer,
+                    bytes_start: self.bytes_start + range.start().map_or(0, |e| *e) * <T as ArrayContent>::element_size(),
+                    bytes_end: self.bytes_start + range.end().map_or(self.len(), |e| *e) * <T as ArrayContent>::element_size(),
+                })*/
+            }
+        }
+
+        pub struct $mut_slice<'a, T: ?Sized + 'a> where T: Content {
+            context: &'a mut Rc<Context>,
+            buffer: gl::types::GLuint,
+            bytes_start: usize,
+            bytes_end: usize,
+            marker: ::std::marker::PhantomData<T>,
+        }
+
+        // TODO: we need this because PhantomData<T> requires T: Sized
+        impl<'a, T: ?Sized> ::std::fmt::Debug for $mut_slice<'a, T> where T: Content {
+            #[inline]
+            fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+                write!(fmt, "OpenGL buffer slice (len: {} bytes)", self.size())
+            }
+        }
+
+        impl<'a, T: ?Sized> $mut_slice<'a, T> where T: Content + 'a {
+            /// Returns the size in bytes of this slice.
+            #[inline]
+            pub fn size(&self) -> usize {
+                self.bytes_end - self.bytes_start
+            }
+
+            /// Builds a slice that contains an element from inside the buffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            ///
+            /// # Example
+            ///
+            /// ```no_run
+            /// #[derive(Copy, Clone)]
+            /// struct BufferContent {
+            ///     value1: u16,
+            ///     value2: u16,
+            /// }
+            /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
+            /// #                                                   unsafe { std::mem::uninitialized() };
+            /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+            /// ```
+            ///
+            /// # Safety
+            ///
+            /// The object whose reference is passed to the closure is uninitialized. Therefore you
+            /// **must not** access the content of the object.
+            ///
+            /// You **must** return a reference to an element from the parameter. The closure **must not**
+            /// panic.
+            #[inline]
+            pub unsafe fn slice_custom<F, R: ?Sized>(self, f: F) -> $mut_slice<'a, R>
+                                                     where F: for<'r> FnOnce(&'r T) -> &'r R,
+                                                           R: Content
+            {
+                let data: &T = mem::zeroed();
+                let result = f(data);
+                let size = mem::size_of_val(result);
+                let result = result as *const R as *const () as usize;
+
+                assert!(result <= self.size());
+                assert!(result + size <= self.size());
+
+                unimplemented!()
+                /*$mut_slice {
+                    buffer: self.buffer,
+                    bytes_start: self.bytes_start + result,
+                    bytes_end: self.bytes_start + result + size,
+                }*/
+            }
+
+            /// Builds a slice-any containing the whole subbuffer.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn as_slice_any(self) -> BufferAnySlice<'a> {
+                unimplemented!()
+                /*BufferAnySlice {
+                    alloc: self.alloc,
+                    bytes_start: self.bytes_start,
+                    bytes_end: self.bytes_end,
+                    elements_size: <T as Content>::get_elements_size(),
+                }*/
+            }
+
+            /// Returns the number of elements in this slice.
+            #[inline]
+            pub fn len(&self) -> usize where T: ArrayContent {
+                (self.bytes_end - self.bytes_start) / <T as ArrayContent>::element_size()
+            }
+
+            /// Builds a subslice of this slice. Returns `None` if out of range.
+            ///
+            /// This method builds an object that represents a slice of the buffer. No actual operation
+            /// OpenGL is performed.
+            #[inline]
+            pub fn slice<R>(self, range: R) -> Option<$mut_slice<'a, T>>
+                where T: ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                if range.start().map_or(0, |e| *e) > self.len() || range.end().map_or(0, |e| *e) > self.len() {
+                    return None;
+                }
+
+                let new_start = self.bytes_start + range.start().map_or(0, |e| *e) * <T as ArrayContent>::element_size();
+                let new_end = self.bytes_start + range.end().map_or(self.len(), |e| *e) * <T as ArrayContent>::element_size();
+
+                Some($mut_slice {
+                    context: self.context,
+                    buffer: self.buffer,
+                    bytes_start: new_start,
+                    bytes_end: new_end,
+                    marker: ::std::marker::PhantomData,
+                })
+            }
+        }
+
+        impl<'a, T> ::buffer::Slice for &'a $buffer<T> where T: Content {
+            type Slice = $slice<'a, T>;
+
+            fn as_slice(self) -> $slice<'a, T> {
+                self.as_slice()
+            }
+
+            fn slice<R>(self, range: R) -> Option<$slice<'a, T>>
+                where T: ::buffer::ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                self.slice(range)
+            }
+        }
+
+        impl<'a, T> ::buffer::Slice for &'a mut $buffer<T> where T: Content {
+            type Slice = $slice<'a, T>;
+
+            fn as_slice(self) -> $slice<'a, T> {
+                self.as_slice()
+            }
+
+            fn slice<R>(self, range: R) -> Option<$slice<'a, T>>
+                where T: ::buffer::ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                self.slice(range)
+            }
+        }
+
+        impl<'a, T> ::buffer::SliceMut for &'a mut $buffer<T> where T: Content {
+            type SliceMut = $mut_slice<'a, T>;
+
+            fn as_mut_slice(self) -> $mut_slice<'a, T> {
+                self.as_mut_slice()
+            }
+
+            fn slice_mut<R>(self, range: R) -> Option<$mut_slice<'a, T>>
+                where T: ::buffer::ArrayContent,
+                      R: ::utils::range::RangeArgument<usize>
+            {
+                self.slice_mut(range)
+            }
+        }
+
+        impl<'a, T, R: ?Sized> ::buffer::SliceCustom<R> for &'a $buffer<T>
+            where T: Content, R: Content
+        {
+            type Slice = $slice<'a, R>;
+
+            #[inline]
+            unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
+                where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized
+            {
+                self.slice_custom(f)
+            }
+        }
+
+        impl<'a, T, R: ?Sized> ::buffer::SliceCustom<R> for &'a mut $buffer<T>
+            where T: Content, R: Content
+        {
+            type Slice = $slice<'a, R>;
+
+            #[inline]
+            unsafe fn slice_custom<F>(self, f: F) -> Self::Slice
+                where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized
+            {
+                self.slice_custom(f)
+            }
+        }
+
+        impl<'a, T, R: ?Sized> ::buffer::SliceCustomMut<R> for &'a mut $buffer<T>
+            where T: Content, R: Content
+        {
+            type SliceMut = $mut_slice<'a, R>;
+
+            #[inline]
+            unsafe fn slice_custom_mut<F>(self, f: F) -> Self::SliceMut
+                where F: for<'r> FnOnce(&'r Self::Content) -> &'r R, Self: Sized
+            {
+                self.slice_custom_mut(f)
+            }
+        }
+
+        impl<'a, T: ?Sized> From<&'a $buffer<T>> for ::buffer::BufferAnySlice<'a>
+            where T: ::buffer::Content
+        {
+            #[inline]
+            fn from(buf: &'a $buffer<T>) -> ::buffer::BufferAnySlice<'a> {
+                buf.as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> From<$slice<'a, T>> for ::buffer::BufferAnySlice<'a>
+            where T: ::buffer::Content
+        {
+            #[inline]
+            fn from(buf: $slice<'a, T>) -> ::buffer::BufferAnySlice<'a> {
+                buf.as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> Storage for &'a $buffer<T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                (*self).size()
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                (*self).as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> Storage for &'a mut $buffer<T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                (*self).size()
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                (*self).as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> Storage for $slice<'a, T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.bytes_end - self.bytes_start
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
+            }
+        }
+
+        impl<'a, T: ?Sized> Storage for $mut_slice<'a, T> where T: Content {
+            type Content = T;
+
+            #[inline]
+            fn size(&self) -> usize {
+                self.bytes_end - self.bytes_start
+            }
+
+            #[inline]
+            fn as_slice_any(&self) -> BufferAnySlice {
+                self.as_slice_any()
+            }
+        }
+    );
+}
+
 mod alloc;
+//mod dynamic;
 mod fences;
+mod immutable;
+//mod lock;
+mod persistent;
 mod raw;
 mod view;
 

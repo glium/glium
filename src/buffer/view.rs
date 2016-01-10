@@ -50,8 +50,6 @@ pub use self::DynamicBufferMutSlice as BufferMutSlice;
 pub struct DynamicBuffer<T: ?Sized> where T: Content {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     alloc: Option<Alloc>,
-    // TODO: this `Option` is here because we have a destructor and need to be able to move out
-    fence: Option<Fences>,
     marker: PhantomData<T>,
 }
 
@@ -59,8 +57,6 @@ pub struct DynamicBuffer<T: ?Sized> where T: Content {
 pub struct ImmutableBuffer<T: ?Sized> where T: Content {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     alloc: Option<Alloc>,
-    // TODO: this `Option` is here because we have a destructor and need to be able to move out
-    fence: Option<Fences>,
     marker: PhantomData<T>,
 }
 
@@ -68,8 +64,6 @@ pub struct ImmutableBuffer<T: ?Sized> where T: Content {
 pub struct PersistentBuffer<T: ?Sized> where T: Content {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
     alloc: Option<Alloc>,
-    // TODO: this `Option` is here because we have a destructor and need to be able to move out
-    fence: Option<Fences>,
     marker: PhantomData<T>,
 }
 
@@ -86,7 +80,6 @@ macro_rules! impl_buffer_base {
                     .map(|buffer| {
                         $ty {
                             alloc: Some(buffer),
-                            fence: Some(Fences::new()),
                             marker: PhantomData,
                         }
                     })
@@ -102,7 +95,6 @@ macro_rules! impl_buffer_base {
                     .map(|buffer| {
                         $ty {
                             alloc: Some(buffer),
-                            fence: Some(Fences::new()),
                             marker: PhantomData,
                         }
                     })
@@ -202,7 +194,6 @@ macro_rules! impl_buffer_base {
                     alloc: self.alloc.as_ref().unwrap(),
                     bytes_start: 0,
                     bytes_end: self.get_size(),
-                    fence: self.fence.as_ref().unwrap(),
                     marker: PhantomData,
                 }
             }
@@ -219,7 +210,6 @@ macro_rules! impl_buffer_base {
                     alloc: self.alloc.as_mut().unwrap(),
                     bytes_start: 0,
                     bytes_end: size,
-                    fence: self.fence.as_ref().unwrap(),
                     marker: PhantomData,
                 }
             }
@@ -236,7 +226,6 @@ macro_rules! impl_buffer_base {
                     bytes_start: 0,
                     bytes_end: self.get_size(),
                     elements_size: <T as Content>::get_elements_size(),
-                    fence: self.fence.as_ref().unwrap(),
                 }
             }
         }
@@ -335,7 +324,6 @@ macro_rules! impl_buffer_base {
                     .map(|buffer| {
                         $ty {
                             alloc: Some(buffer),
-                            fence: Some(Fences::new()),
                             marker: PhantomData,
                         }
                     })
@@ -476,7 +464,6 @@ macro_rules! impl_buffer_base {
                     .map(|buffer| {
                         $ty {
                             alloc: Some(buffer),
-                            fence: Some(Fences::new()),
                             marker: PhantomData,
                         }
                     })
@@ -492,7 +479,6 @@ macro_rules! impl_buffer_base {
                     .map(|buffer| {
                         $ty {
                             alloc: Some(buffer),
-                            fence: Some(Fences::new()),
                             marker: PhantomData,
                         }
                     })
@@ -527,15 +513,6 @@ macro_rules! impl_buffer_base {
             #[inline]
             fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
                 write!(fmt, "{:?}", self.alloc.as_ref().unwrap())
-            }
-        }
-
-        impl<T: ?Sized> Drop for $ty<T> where T: Content {
-            #[inline]
-            fn drop(&mut self) {
-                if let (Some(alloc), Some(mut fence)) = (self.alloc.take(), self.fence.take()) {
-                    fence.clean(&mut alloc.get_context().make_current());
-                }
             }
         }
 
@@ -639,7 +616,6 @@ macro_rules! impl_buffer_base {
             alloc: &'a Alloc,
             bytes_start: usize,
             bytes_end: usize,
-            fence: &'a Fences,
             marker: PhantomData<&'a T>,
         }
 
@@ -724,7 +700,6 @@ macro_rules! impl_buffer_base {
                     alloc: self.alloc,
                     bytes_start: self.bytes_start + result,
                     bytes_end: self.bytes_start + result + size,
-                    fence: self.fence,
                     marker: PhantomData,
                 }
             }
@@ -740,7 +715,6 @@ macro_rules! impl_buffer_base {
                     bytes_start: self.bytes_start,
                     bytes_end: self.bytes_end,
                     elements_size: <T as Content>::get_elements_size(),
-                    fence: self.fence,
                 }
             }
         }
@@ -766,7 +740,6 @@ macro_rules! impl_buffer_base {
                     alloc: self.alloc,
                     bytes_start: self.bytes_start + range.start().map_or(0, |e| *e) * mem::size_of::<T>(),
                     bytes_end: self.bytes_start + range.end().map_or(self.len(), |e| *e) * mem::size_of::<T>(),
-                    fence: self.fence,
                     marker: PhantomData,
                 })
             }
@@ -786,7 +759,6 @@ macro_rules! impl_buffer_base {
                     alloc: s.alloc,
                     bytes_start: s.bytes_start,
                     bytes_end: s.bytes_end,
-                    fence: s.fence,
                     marker: PhantomData,
                 }
             }
@@ -809,11 +781,7 @@ macro_rules! impl_buffer_base {
         impl<'a, T: ?Sized> BufferSliceExt<'a> for $slice_ty<'a, T> where T: Content {
             #[inline]
             fn add_fence(&self) -> Option<Inserter<'a>> {
-                if !self.alloc.uses_persistent_mapping() {
-                    return None;
-                }
-
-                Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
+                unimplemented!()
             }
         }
 
@@ -904,7 +872,6 @@ macro_rules! impl_buffer_base {
             alloc: &'a mut Alloc,
             bytes_start: usize,
             bytes_end: usize,
-            fence: &'a Fences,
             marker: PhantomData<T>,
         }
 
@@ -983,7 +950,6 @@ macro_rules! impl_buffer_base {
                     alloc: self.alloc,
                     bytes_start: self.bytes_start + result,
                     bytes_end: self.bytes_start + result + size,
-                    fence: self.fence,
                     marker: PhantomData,
                 }
             }
@@ -999,7 +965,6 @@ macro_rules! impl_buffer_base {
                     bytes_start: self.bytes_start,
                     bytes_end: self.bytes_end,
                     elements_size: <T as Content>::get_elements_size(),
-                    fence: self.fence,
                 }
             }
         }
@@ -1026,7 +991,6 @@ macro_rules! impl_buffer_base {
                     alloc: self.alloc,
                     bytes_start: self.bytes_start + range.start().map_or(0, |e| *e) * mem::size_of::<T>(),
                     bytes_end: self.bytes_start + range.end().map_or(len, |e| *e) * mem::size_of::<T>(),
-                    fence: self.fence,
                     marker: PhantomData,
                 })
             }
@@ -1035,11 +999,7 @@ macro_rules! impl_buffer_base {
         impl<'a, T: ?Sized> BufferSliceExt<'a> for $slice_mut_ty<'a, T> where T: Content {
             #[inline]
             fn add_fence(&self) -> Option<Inserter<'a>> {
-                if !self.alloc.uses_persistent_mapping() {
-                    return None;
-                }
-
-                Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
+                unimplemented!()
             }
         }
 
@@ -1115,8 +1075,6 @@ impl<T: ?Sized> DynamicBuffer<T> where T: Content {
     /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
     ///
     pub fn map(&mut self) -> Mapping<T> {
-        self.fence.as_ref().unwrap().wait(&mut self.alloc.as_ref().unwrap().get_context().make_current(),
-                                          0 .. self.get_size());
         let size = self.get_size();
         unsafe { self.alloc.as_mut().unwrap().map(0 .. size) }
     }
@@ -1283,8 +1241,6 @@ impl<'a, T: ?Sized> DynamicBufferMutSlice<'a, T> where T: Content {
     /// - For other types, calls `glMapBuffer` or `glMapSubBuffer`.
     ///
     pub fn map(&mut self) -> Mapping<T> {
-        self.fence.wait(&mut self.alloc.get_context().make_current(),
-                        self.bytes_start .. self.bytes_end);
         unsafe { self.alloc.map(self.bytes_start .. self.bytes_end) }
     }
 }
@@ -1335,7 +1291,6 @@ pub struct BufferAny {
     alloc: Alloc,
     size: usize,
     elements_size: usize,
-    fence: Fences,
 }
 
 impl BufferAny {
@@ -1347,7 +1302,6 @@ impl BufferAny {
             bytes_start: 0,
             bytes_end: self.size,
             elements_size: self.elements_size,
-            fence: &self.fence,
         }
     }
 
@@ -1398,7 +1352,6 @@ impl BufferAny {
     #[inline]
     pub unsafe fn read<T>(&self) -> Result<T::Owned, ReadError> where T: Content {
         // TODO: add check
-        self.fence.wait(&mut self.alloc.get_context().make_current(), 0 .. self.get_size());
         self.alloc.read::<T>(0 .. self.get_size())
     }
 }
@@ -1412,15 +1365,7 @@ impl<T: ?Sized> From<Buffer<T>> for BufferAny where T: Content + Send + 'static 
             alloc: buffer.alloc.take().unwrap(),
             size: size,
             elements_size: <T as Content>::get_elements_size(),
-            fence: buffer.fence.take().unwrap(),
         }
-    }
-}
-
-impl Drop for BufferAny {
-    #[inline]
-    fn drop(&mut self) {
-        self.fence.clean(&mut self.alloc.get_context().make_current());
     }
 }
 
@@ -1520,7 +1465,6 @@ pub struct BufferAnySlice<'a> {
     bytes_start: usize,
     bytes_end: usize,
     elements_size: usize,
-    fence: &'a Fences,
 }
 
 impl<'a> BufferAnySlice<'a> {
@@ -1576,11 +1520,7 @@ impl<'a> fmt::Debug for BufferAnySlice<'a> {
 impl<'a> BufferSliceExt<'a> for BufferAnySlice<'a> {
     #[inline]
     fn add_fence(&self) -> Option<Inserter<'a>> {
-        if !self.alloc.uses_persistent_mapping() {
-            return None;
-        }
-
-        Some(self.fence.inserter(self.bytes_start .. self.bytes_end))
+        unimplemented!()
     }
 }
 

@@ -76,6 +76,26 @@ pub fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bo
     }
 }
 
+/// Reserves a new identifier for a buffer.
+#[inline]
+pub unsafe fn create_buffer_name(ctxt: &mut CommandContext) -> gl::types::GLuint {
+    let mut id: gl::types::GLuint = mem::uninitialized();
+
+    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
+        ctxt.gl.CreateBuffers(1, &mut id);
+    } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+        ctxt.version >= &Version(Api::GlEs, 2, 0)
+    {
+        ctxt.gl.GenBuffers(1, &mut id);
+    } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+        ctxt.gl.GenBuffersARB(1, &mut id);
+    } else {
+        unreachable!();
+    }
+
+    id
+}
+
 /// Binds a buffer of the given type, and returns the GLenum of the bind point.
 /// `id` can be 0.
 ///
