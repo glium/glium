@@ -552,6 +552,12 @@ impl TextureAny {
         }
     }
 
+    /// Returns the dimensions of the texture.
+    #[inline]
+    pub fn dimensions(&self) -> Dimensions {
+        self.ty.clone()
+    }
+
     /// Returns the array size of the texture.
     #[inline]
     pub fn get_array_size(&self) -> Option<u32> {
@@ -869,6 +875,12 @@ impl<'a> TextureAnyMipmap<'a> {
             width: self.width,
             height: self.height,
         })
+    }
+
+    /// Returns the array size of the texture.
+    #[inline]
+    pub fn get_array_size(&self) -> Option<u32> {
+        self.texture.get_array_size()
     }
 
     /// Uploads data to the texture from a buffer.
