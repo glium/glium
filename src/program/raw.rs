@@ -35,9 +35,11 @@ use program::uniforms_storage::UniformsStorage;
 use program::compute::ComputeCommand;
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
+use program::reflection::{SubroutineData, ShaderStage};
 use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
 use program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
 use program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
+use program::reflection::{reflect_subroutine_data};
 use program::shader::Shader;
 
 use uniforms::Uniforms;
@@ -52,6 +54,7 @@ pub struct RawProgram {
     uniform_values: UniformsStorage,
     uniforms: HashMap<String, Uniform>,
     uniform_blocks: HashMap<String, UniformBlock>,
+    subroutine_data: Option<SubroutineData>,
     attributes: HashMap<String, Attribute>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
@@ -159,6 +162,7 @@ impl RawProgram {
         let blocks = unsafe { reflect_uniform_blocks(&mut ctxt, id) };
         let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
         let ssbos = unsafe { reflect_shader_storage_blocks(&mut ctxt, id) };
+        let subroutine_data = unsafe { reflect_subroutine_data(&mut ctxt, id) };
 
         let output_primitives = if has_geometry_shader {
             Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
@@ -174,6 +178,7 @@ impl RawProgram {
             uniforms: uniforms,
             uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
+            subroutine_data: subroutine_data,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
@@ -208,13 +213,14 @@ impl RawProgram {
             id
         };
 
-        let (uniforms, attributes, blocks, tf_buffers, ssbos) = unsafe {
+        let (uniforms, attributes, blocks, tf_buffers, ssbos, subroutine_data) = unsafe {
             (
                 reflect_uniforms(&mut ctxt, id),
                 reflect_attributes(&mut ctxt, id),
                 reflect_uniform_blocks(&mut ctxt, id),
                 reflect_transform_feedback(&mut ctxt, id),
                 reflect_shader_storage_blocks(&mut ctxt, id),
+                reflect_subroutine_data(&mut ctxt, id),
             )
         };
 
@@ -224,12 +230,13 @@ impl RawProgram {
             uniforms: uniforms,
             uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
+            subroutine_data: subroutine_data,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
-            output_primitives: None,            // FIXME: 
-            has_tessellation_shaders: true,     // FIXME: 
+            output_primitives: None,            // FIXME:
+            has_tessellation_shaders: true,     // FIXME:
         })
     }
 
@@ -319,7 +326,7 @@ impl RawProgram {
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
     }
-    
+
     /// Returns an iterator to the list of uniforms.
     ///
     /// ## Example
@@ -334,7 +341,7 @@ impl RawProgram {
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.uniforms.iter()
     }
-    
+
     /// Returns a list of uniform blocks.
     ///
     /// ## Example
@@ -420,7 +427,7 @@ impl RawProgram {
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.attributes.iter()
     }
-    
+
     /// Returns the list of shader storage blocks.
     ///
     /// ## Example
@@ -434,6 +441,11 @@ impl RawProgram {
     #[inline]
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
+    }
+
+    #[inline]
+    pub fn get_subroutine_data(&self) -> &Option<SubroutineData> {
+        &self.subroutine_data
     }
 
     /// Assumes that the program contains a compute shader and executes it.

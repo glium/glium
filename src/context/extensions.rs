@@ -94,6 +94,7 @@ extensions! {
     "GL_ARB_shader_image_load_store" => gl_arb_shader_image_load_store,
     "GL_ARB_shader_objects" => gl_arb_shader_objects,
     "GL_ARB_shader_storage_buffer_object" => gl_arb_shader_storage_buffer_object,
+    "GL_ARB_shader_subroutine" => gl_arb_shader_subroutine,
     "GL_ARB_sync" => gl_arb_sync,
     "GL_ARB_tessellation_shader" => gl_arb_tessellation_shader,
     "GL_ARB_texture_buffer_object" => gl_arb_texture_buffer_object,

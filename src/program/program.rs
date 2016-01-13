@@ -105,7 +105,7 @@ impl Program {
                 (try!(RawProgram::from_binary(facade, data)), outputs_srgb, uses_point_size)
             },
         };
-
+        println!("{:?}", raw.get_subroutine_data());
         Ok(Program {
             raw: raw,
             outputs_srgb: outputs_srgb,
@@ -179,7 +179,7 @@ impl Program {
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
-    
+
     /// Returns an iterator to the list of uniforms.
     ///
     /// ## Example
@@ -194,7 +194,7 @@ impl Program {
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.raw.uniforms()
     }
-    
+
     /// Returns a list of uniform blocks.
     ///
     /// ## Example
@@ -267,7 +267,7 @@ impl Program {
     pub fn has_srgb_output(&self) -> bool {
         self.outputs_srgb
     }
-    
+
     /// Returns the list of shader storage blocks.
     ///
     /// ## Example
