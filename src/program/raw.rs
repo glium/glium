@@ -443,6 +443,7 @@ impl RawProgram {
         &self.ssbos
     }
 
+    /// Returns data associated with the programs subroutines.
     #[inline]
     pub fn get_subroutine_data(&self) -> &Option<SubroutineData> {
         &self.subroutine_data

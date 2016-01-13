@@ -21,6 +21,7 @@ use program::GetBinaryError;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackBuffer};
+use program::reflection::{SubroutineData};
 use program::shader::build_shader;
 
 use program::raw::RawProgram;
@@ -105,7 +106,6 @@ impl Program {
                 (try!(RawProgram::from_binary(facade, data)), outputs_srgb, uses_point_size)
             },
         };
-        println!("{:?}", raw.get_subroutine_data());
         Ok(Program {
             raw: raw,
             outputs_srgb: outputs_srgb,
@@ -290,6 +290,12 @@ impl Program {
     #[inline]
     pub fn uses_point_size(&self) -> bool {
       self.uses_point_size
+    }
+
+    /// Returns data associated with the programs subroutines.
+    #[inline]
+    pub fn get_subroutine_data(&self) -> &Option<SubroutineData> {
+        &self.raw.get_subroutine_data()
     }
 }
 
