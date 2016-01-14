@@ -1124,14 +1124,13 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
         let mut location_count: gl::types::GLint = mem::uninitialized();
         ctxt.gl.GetProgramStageiv(program, stage.to_gl_enum(), gl::ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS, &mut location_count);
         location_counts.insert(*stage, location_count as usize);
-
         let mut subroutine_count: gl::types::GLint = mem::uninitialized();
         ctxt.gl.GetProgramStageiv(program, stage.to_gl_enum(), gl::ACTIVE_SUBROUTINE_UNIFORMS, &mut subroutine_count);
         for i in 0..subroutine_count {
             // Get the name of the uniform
             let mut uniform_name_tmp: Vec<u8> = vec![0; 64];
             let mut name_len: gl::types::GLsizei = mem::uninitialized();
-            ctxt.gl.GetActiveSubroutineUniformName(program, stage.to_gl_enum(), i as u32, uniform_name_tmp.len() as i32,
+            ctxt.gl.GetActiveSubroutineUniformName(program, stage.to_gl_enum(), i as gl::types::GLuint, uniform_name_tmp.len() as gl::types::GLint,
                                                    &mut name_len, uniform_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
             uniform_name_tmp.set_len(name_len as usize);
             // Get the location of the uniform
@@ -1146,7 +1145,7 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
 
             // Get the indices of compatible subroutines.
             let mut compatible_sr_indices: Vec<gl::types::GLuint> = Vec::with_capacity(compatible_count as usize);
-            ctxt.gl.GetActiveSubroutineUniformiv(program, stage.to_gl_enum(), i as u32, gl::COMPATIBLE_SUBROUTINES,
+            ctxt.gl.GetActiveSubroutineUniformiv(program, stage.to_gl_enum(), i as gl::types::GLuint, gl::COMPATIBLE_SUBROUTINES,
                                                  compatible_sr_indices.as_mut_ptr() as *mut gl::types::GLint);
             compatible_sr_indices.set_len(compatible_count as usize);
             let mut compatible_subroutines: Vec<Subroutine> = Vec::new();
@@ -1154,7 +1153,7 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
                 // Get the names of compatible subroutines.
                 let mut subroutine_name_tmp: Vec<u8> = vec![0; 64];;
                 let mut name_len: gl::types::GLsizei = mem::uninitialized();
-                ctxt.gl.GetActiveSubroutineName(program, stage.to_gl_enum(), compatible_sr_indices[j as usize], subroutine_name_tmp.len() as i32,
+                ctxt.gl.GetActiveSubroutineName(program, stage.to_gl_enum(), compatible_sr_indices[j as usize], subroutine_name_tmp.len() as gl::types::GLint,
                                                 &mut name_len, subroutine_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
                 subroutine_name_tmp.set_len(name_len as usize);
                 let subroutine_name = String::from_utf8(subroutine_name_tmp).unwrap();
