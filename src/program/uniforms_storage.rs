@@ -9,11 +9,13 @@ use Handle;
 use context::CommandContext;
 use version::Version;
 use version::Api;
+use program::reflection::ShaderStage;
 
 pub struct UniformsStorage {
     values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>>>,
     uniform_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
     shader_storage_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
+    subroutine_uniforms: RefCell<HashMap<ShaderStage, Vec<gl::types::GLuint>>>
 }
 
 impl UniformsStorage {
@@ -24,6 +26,7 @@ impl UniformsStorage {
             values: RefCell::new(HashMap::new()),
             uniform_blocks: RefCell::new(SmallVec::new()),
             shader_storage_blocks: RefCell::new(SmallVec::new()),
+            subroutine_uniforms: RefCell::new(HashMap::new()),
         }
     }
 
@@ -369,6 +372,27 @@ impl UniformsStorage {
                     _ => unreachable!()
                 }
             },
+        }
+    }
+
+    /// Compares `indices` to the value stored in this object. If the values differ,
+    /// updates the programs subroutine uniform bindings.
+    pub fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+                                         program: Handle,
+                                         stage: ShaderStage,
+                                         indices: &[gl::types::GLuint])
+    {
+        let mut subroutine_uniforms = self.subroutine_uniforms.borrow_mut();
+        if let Some(stored_indices) = subroutine_uniforms.get(&stage) {
+            if &stored_indices[..] == indices {
+                return
+            }
+        }
+        // TODO: don't assume that, instead use DSA if the program is not current
+        assert!(ctxt.state.program == program);
+        subroutine_uniforms.insert(stage, indices.iter().cloned().collect());
+        unsafe {
+            ctxt.gl.UniformSubroutinesuiv(stage.to_gl_enum(), indices.len() as gl::types::GLsizei, indices.as_ptr() as *const _);
         }
     }
 }

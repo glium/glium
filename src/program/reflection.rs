@@ -1031,7 +1031,7 @@ pub struct SubroutineData {
     pub subroutine_uniforms: HashMap<(String, ShaderStage), SubroutineUniform>,
 }
 
-/// Information about a Subroutine Uniform (except name and shaderstage)
+/// Information about a Subroutine Uniform (except name)
 #[derive(Debug, Clone)]
 pub struct SubroutineUniform {
 
@@ -1057,6 +1057,8 @@ pub struct Subroutine {
     pub name: String,
 }
 
+/// The different stages of the program pipeline.
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ShaderStage {
     Vertex,
@@ -1070,6 +1072,7 @@ pub enum ShaderStage {
 }
 
 impl ShaderStage {
+    /// Converts the `ShaderStage` to its GLenum equivalent
     pub fn to_gl_enum(&self) -> gl::types::GLenum {
         match *self {
             ShaderStage::Vertex => gl::VERTEX_SHADER,
@@ -1095,17 +1098,22 @@ fn get_supported_shader_stages(ctxt: &mut CommandContext) -> Vec<ShaderStage> {
 }
 
 /// Returns the data associated with a programs subroutines.
-/// Returns `None` if subroutines are not supported by the backend.
 pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle)
-                               -> Option<SubroutineData>
+                               -> SubroutineData
 {
     if !ctxt.extensions.gl_arb_shader_subroutine {
-        return None
+        return SubroutineData {
+            location_counts: HashMap::with_capacity(0),
+            subroutine_uniforms: HashMap::with_capacity(0),
+        }
     }
 
     let program = match program {
         // subroutines not supported.
-        Handle::Handle(_) => return None,
+        Handle::Handle(_) => return SubroutineData {
+            location_counts: HashMap::with_capacity(0),
+            subroutine_uniforms: HashMap::with_capacity(0),
+        },
         Handle::Id(id) => id
     };
 
@@ -1166,8 +1174,8 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
             subroutine_uniforms.insert((uniform_name, *stage), subroutine_uniform);
         }
     }
-    Some(SubroutineData {
+    SubroutineData {
         location_counts: location_counts,
         subroutine_uniforms: subroutine_uniforms
-    })
+    }
 }

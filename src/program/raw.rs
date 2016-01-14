@@ -54,7 +54,7 @@ pub struct RawProgram {
     uniform_values: UniformsStorage,
     uniforms: HashMap<String, Uniform>,
     uniform_blocks: HashMap<String, UniformBlock>,
-    subroutine_data: Option<SubroutineData>,
+    subroutine_data: SubroutineData,
     attributes: HashMap<String, Attribute>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
@@ -445,7 +445,7 @@ impl RawProgram {
 
     /// Returns data associated with the programs subroutines.
     #[inline]
-    pub fn get_subroutine_data(&self) -> &Option<SubroutineData> {
+    pub fn get_subroutine_data(&self) -> &SubroutineData {
         &self.subroutine_data
     }
 
@@ -583,6 +583,14 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+                                         stage: ShaderStage,
+                                         indices: &[gl::types::GLuint])
+    {
+        self.uniform_values.set_subroutine_uniforms_for_stage(ctxt, self.id, stage, indices);
+    }
+
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
     }
@@ -595,6 +603,11 @@ impl ProgramExt for RawProgram {
     #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
+    }
+
+    #[inline]
+    fn get_subroutine_data(&self) -> &SubroutineData {
+        &self.subroutine_data
     }
 }
 

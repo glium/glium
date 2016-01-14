@@ -293,11 +293,18 @@ trait ProgramExt {
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint);
 
+    /// Changes the subroutine uniform bindings of a program.
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut context::CommandContext,
+                                         stage: program::ShaderStage,
+                                         indices: &[gl::types::GLuint]);
+
     fn get_uniform(&self, name: &str) -> Option<&program::Uniform>;
 
     fn get_uniform_blocks(&self) -> &HashMap<String, program::UniformBlock>;
 
     fn get_shader_storage_blocks(&self) -> &HashMap<String, program::UniformBlock>;
+
+    fn get_subroutine_data(&self) -> &program::SubroutineData;
 }
 
 /// Internal trait for queries.
@@ -860,6 +867,31 @@ pub enum DrawError {
         err: uniforms::LayoutMismatchError,
     },
 
+    /// Tried to bind a subroutine uniform like a regular uniform value.
+    SubroutineUniformToValue {
+        /// Name of the uniform you are trying to bind.
+        name: String,
+    },
+
+    /// Not all subroutine uniforms of a shader stage were set.
+    SubroutineUniformMissing {
+        /// Shader stage with missing bindings.
+        stage: program::ShaderStage,
+        /// The expected number of bindings.
+        expected_count: usize,
+        /// The number of bindings defined by the user.
+        real_count: usize,
+
+    },
+
+    /// A non-existant subroutine was referenced.
+    SubroutineNotFound {
+        /// The stage the subroutine was searched for.
+        stage: program::ShaderStage,
+        /// The invalid name of the subroutine.
+        name: String
+    },
+
     /// The number of vertices per patch that has been requested is not supported.
     UnsupportedVerticesPerPatch,
 
@@ -922,6 +954,12 @@ impl Error for DrawError {
                 "Tried to bind a single uniform value to a uniform block",
             UniformBlockLayoutMismatch { .. } =>
                 "The layout of the content of the uniform buffer does not match the layout of the block",
+            SubroutineUniformToValue { .. } =>
+                "Tried to bind a subroutine uniform like a regular uniform value",
+            SubroutineUniformMissing { .. } =>
+                "Not all subroutine uniforms of a shader stage were set",
+            SubroutineNotFound { .. } =>
+                "A non-existant subroutine was referenced",
             UnsupportedVerticesPerPatch =>
                 "The number of vertices per patch that has been requested is not supported",
             TessellationNotSupported =>

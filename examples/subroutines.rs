@@ -6,6 +6,7 @@ mod support;
 use glium::Surface;
 use glium::glutin;
 use glium::index::PrimitiveType;
+use glium::program::ShaderStage;
 
 fn main() {
     use glium::DisplayBuild;
@@ -60,7 +61,7 @@ fn main() {
                 out vec4 fragColor;
                 subroutine vec4 color_t();
 
-                layout(location = 5) subroutine uniform color_t Color;
+                subroutine uniform color_t Color;
 
                 subroutine(color_t)
                 vec4 ColorRed()
@@ -88,9 +89,18 @@ fn main() {
         },
     ).unwrap();
 
-    println!("{:#?}", program.get_subroutine_data());
+    let mut i = 0;
     // the main loop
     support::start_loop(|| {
+
+        let subroutine = if i % 120 < 40 {
+            "ColorYellow"
+        } else if i % 120 < 80{
+            "ColorBlue"
+        } else {
+            "ColorRed"
+        };
+
         // building the uniforms
         let uniforms = uniform! {
             matrix: [
@@ -98,7 +108,8 @@ fn main() {
                 [0.0, 1.0, 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0f32]
-            ]
+            ],
+            Color: (subroutine, ShaderStage::Fragment)
         };
 
         // drawing a frame
@@ -114,7 +125,7 @@ fn main() {
                 _ => ()
             }
         }
-
+        i += 1;
         support::Action::Continue
     });
 }

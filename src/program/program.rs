@@ -21,7 +21,7 @@ use program::GetBinaryError;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackBuffer};
-use program::reflection::{SubroutineData};
+use program::reflection::{SubroutineData, ShaderStage};
 use program::shader::build_shader;
 
 use program::raw::RawProgram;
@@ -291,12 +291,6 @@ impl Program {
     pub fn uses_point_size(&self) -> bool {
       self.uses_point_size
     }
-
-    /// Returns data associated with the programs subroutines.
-    #[inline]
-    pub fn get_subroutine_data(&self) -> &Option<SubroutineData> {
-        &self.raw.get_subroutine_data()
-    }
 }
 
 impl fmt::Debug for Program {
@@ -364,6 +358,14 @@ impl ProgramExt for Program {
     }
 
     #[inline]
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+                                         stage: ShaderStage,
+                                         indices: &[gl::types::GLuint])
+    {
+        self.raw.set_subroutine_uniforms_for_stage(ctxt, stage, indices);
+    }
+
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
@@ -376,5 +378,10 @@ impl ProgramExt for Program {
     #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
+    }
+
+    #[inline]
+    fn get_subroutine_data(&self) -> &SubroutineData {
+        self.raw.get_subroutine_data()
     }
 }

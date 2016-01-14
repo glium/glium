@@ -11,6 +11,7 @@ pub use self::compute::{ComputeShader, ComputeCommand};
 pub use self::program::Program;
 pub use self::reflection::{Uniform, UniformBlock, BlockLayout, OutputPrimitives};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
+pub use self::reflection::{ShaderStage, SubroutineData, SubroutineUniform};
 
 mod compute;
 mod program;
