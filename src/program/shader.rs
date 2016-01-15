@@ -188,7 +188,7 @@ pub fn check_shader_type_compatibility<C>(ctxt: &C, shader_type: gl::types::GLen
     match shader_type {
         gl::VERTEX_SHADER | gl::FRAGMENT_SHADER => (),
         gl::GEOMETRY_SHADER => {
-            if !(ctxt.get_version() >= &Version(Api::Gl, 3, 0))
+            if !(ctxt.get_version() >= &Version(Api::Gl, 3, 2))
                 && !(ctxt.get_version() >= &Version(Api::GlEs, 3, 2))
                 && !ctxt.get_extensions().gl_arb_geometry_shader4
                 && !ctxt.get_extensions().gl_ext_geometry_shader4
