@@ -91,7 +91,7 @@ fn main() {
     let mut i = 0;
     // the main loop
     support::start_loop(|| {
-
+        if i == 120 { i = 0; }
         let subroutine = if i % 120 < 40 {
             "ColorYellow"
         } else if i % 120 < 80{
