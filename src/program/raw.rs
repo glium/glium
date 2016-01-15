@@ -35,10 +35,13 @@ use program::uniforms_storage::UniformsStorage;
 use program::compute::ComputeCommand;
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
+use program::reflection::{SubroutineData, ShaderStage};
 use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
 use program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
 use program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
+use program::reflection::{reflect_subroutine_data};
 use program::shader::Shader;
+use program::binary_header::{attach_glium_header, process_glium_header};
 
 use uniforms::Uniforms;
 
@@ -52,19 +55,23 @@ pub struct RawProgram {
     uniform_values: UniformsStorage,
     uniforms: HashMap<String, Uniform>,
     uniform_blocks: HashMap<String, UniformBlock>,
+    subroutine_data: SubroutineData,
     attributes: HashMap<String, Attribute>,
     frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
     ssbos: HashMap<String, UniformBlock>,
     output_primitives: Option<OutputPrimitives>,
-    has_tessellation_shaders: bool,
+    has_geometry_shader: bool,
+    has_tessellation_control_shader: bool,
+    has_tessellation_evaluation_shader: bool,
 }
 
 impl RawProgram {
     /// Builds a new program from a list of shaders.
     // TODO: the "has_*" parameters are bad
     pub fn from_shaders<'a, F, I>(facade: &'a F, shaders: I, has_geometry_shader: bool,
-                                  has_tessellation_shaders: bool,
+                                  has_tessellation_control_shader: bool,
+                                  has_tessellation_evaluation_shader: bool,
                                   transform_feedback: Option<(Vec<String>, TransformFeedbackMode)>)
                                   -> Result<RawProgram, ProgramCreationError>
                                   where F: Facade, I: IntoIterator<Item = &'a Shader>
@@ -159,10 +166,15 @@ impl RawProgram {
         let blocks = unsafe { reflect_uniform_blocks(&mut ctxt, id) };
         let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
         let ssbos = unsafe { reflect_shader_storage_blocks(&mut ctxt, id) };
+        let subroutine_data = unsafe {
+            reflect_subroutine_data(&mut ctxt, id, has_geometry_shader,
+                                    has_tessellation_control_shader,
+                                    has_tessellation_evaluation_shader)
+            };
 
         let output_primitives = if has_geometry_shader {
             Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
-        } else if has_tessellation_shaders {
+        } else if has_tessellation_evaluation_shader {
             Some(unsafe { reflect_tess_eval_output_type(&mut ctxt, id) })
         } else {
             None
@@ -174,12 +186,15 @@ impl RawProgram {
             uniforms: uniforms,
             uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
+            subroutine_data: subroutine_data,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
             output_primitives: output_primitives,
-            has_tessellation_shaders: has_tessellation_shaders,
+            has_geometry_shader: has_geometry_shader,
+            has_tessellation_control_shader: has_tessellation_control_shader,
+            has_tessellation_evaluation_shader: has_tessellation_evaluation_shader,
         })
     }
 
@@ -187,6 +202,13 @@ impl RawProgram {
     pub fn from_binary<F>(facade: &F, binary: Binary)
                           -> Result<RawProgram, ProgramCreationError> where F: Facade
     {
+        let (has_geometry_shader, has_tessellation_control_shader, has_tessellation_evaluation_shader) = {
+            match process_glium_header(&binary.content) {
+                Some(flags) => flags,
+                None => return Err(ProgramCreationError::BinaryHeaderError)
+            }
+        };
+
         let mut ctxt = facade.get_context().make_current();
 
         let id = unsafe {
@@ -196,8 +218,8 @@ impl RawProgram {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                     ctxt.gl.ProgramBinary(id, binary.format,
-                                          binary.content.as_ptr() as *const _,
-                                          binary.content.len() as gl::types::GLsizei);
+                                          binary.content[1..].as_ptr() as *const _,
+                                          (binary.content.len() - 1) as gl::types::GLsizei);
                 },
                 Handle::Handle(id) => unreachable!()
             };
@@ -208,14 +230,25 @@ impl RawProgram {
             id
         };
 
-        let (uniforms, attributes, blocks, tf_buffers, ssbos) = unsafe {
+        let (uniforms, attributes, blocks, tf_buffers, ssbos, subroutine_data) = unsafe {
             (
                 reflect_uniforms(&mut ctxt, id),
                 reflect_attributes(&mut ctxt, id),
                 reflect_uniform_blocks(&mut ctxt, id),
                 reflect_transform_feedback(&mut ctxt, id),
                 reflect_shader_storage_blocks(&mut ctxt, id),
+                reflect_subroutine_data(&mut ctxt, id, has_geometry_shader,
+                                        has_tessellation_control_shader,
+                                        has_tessellation_evaluation_shader),
             )
+        };
+
+        let output_primitives = if has_geometry_shader {
+            Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
+        } else if has_tessellation_evaluation_shader {
+            Some(unsafe { reflect_tess_eval_output_type(&mut ctxt, id) })
+        } else {
+            None
         };
 
         Ok(RawProgram {
@@ -224,12 +257,15 @@ impl RawProgram {
             uniforms: uniforms,
             uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
+            subroutine_data: subroutine_data,
             attributes: attributes,
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
-            output_primitives: None,            // FIXME: 
-            has_tessellation_shaders: true,     // FIXME: 
+            output_primitives: output_primitives,
+            has_geometry_shader: has_geometry_shader,
+            has_tessellation_control_shader: has_tessellation_control_shader,
+            has_tessellation_evaluation_shader: has_tessellation_evaluation_shader,
         })
     }
 
@@ -249,6 +285,12 @@ impl RawProgram {
                     Handle::Handle(_) => unreachable!()
                 };
 
+                let mut num_supported_formats = mem::uninitialized();
+                ctxt.gl.GetIntegerv(gl::NUM_PROGRAM_BINARY_FORMATS, &mut num_supported_formats);
+                if num_supported_formats == 0 {
+                    return Err(GetBinaryError::NoFormats)
+                }
+
                 let mut buf_len = mem::uninitialized();
                 ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
@@ -257,7 +299,7 @@ impl RawProgram {
                 ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
                                          storage.as_mut_ptr() as *mut _);
                 storage.set_len(buf_len as usize);
-
+                attach_glium_header(&self, &mut storage);
                 Ok(Binary {
                     format: format,
                     content: storage,
@@ -319,7 +361,7 @@ impl RawProgram {
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
     }
-    
+
     /// Returns an iterator to the list of uniforms.
     ///
     /// ## Example
@@ -334,7 +376,7 @@ impl RawProgram {
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.uniforms.iter()
     }
-    
+
     /// Returns a list of uniform blocks.
     ///
     /// ## Example
@@ -397,7 +439,25 @@ impl RawProgram {
     /// Returns true if the program contains a tessellation stage.
     #[inline]
     pub fn has_tessellation_shaders(&self) -> bool {
-        self.has_tessellation_shaders
+        self.has_tessellation_control_shader() | self.has_tessellation_evaluation_shader()
+    }
+
+    /// Returns true if the program contains a tessellation control stage.
+    #[inline]
+    pub fn has_tessellation_control_shader(&self) -> bool {
+        self.has_tessellation_control_shader
+    }
+
+    /// Returns true if the program contains a tessellation evaluation stage.
+    #[inline]
+    pub fn has_tessellation_evaluation_shader(&self) -> bool {
+        self.has_tessellation_evaluation_shader
+    }
+
+    /// Returns true if the program contains a geometry shader.
+    #[inline]
+    pub fn has_geometry_shader(&self) -> bool {
+        self.has_geometry_shader
     }
 
     /// Returns informations about an attribute, if it exists.
@@ -420,7 +480,7 @@ impl RawProgram {
     pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
         self.attributes.iter()
     }
-    
+
     /// Returns the list of shader storage blocks.
     ///
     /// ## Example
@@ -434,6 +494,12 @@ impl RawProgram {
     #[inline]
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
+    }
+
+    /// Returns data associated with the programs subroutines.
+    #[inline]
+    pub fn get_subroutine_data(&self) -> &SubroutineData {
+        &self.subroutine_data
     }
 
     /// Assumes that the program contains a compute shader and executes it.
@@ -570,6 +636,14 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+                                         stage: ShaderStage,
+                                         indices: &[gl::types::GLuint])
+    {
+        self.uniform_values.set_subroutine_uniforms_for_stage(ctxt, self.id, stage, indices);
+    }
+
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.uniforms.get(name)
     }
@@ -582,6 +656,11 @@ impl ProgramExt for RawProgram {
     #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         &self.ssbos
+    }
+
+    #[inline]
+    fn get_subroutine_data(&self) -> &SubroutineData {
+        &self.subroutine_data
     }
 }
 

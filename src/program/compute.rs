@@ -17,6 +17,7 @@ use RawUniformValue;
 use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, GetBinaryError};
 
 use program::reflection::{Uniform, UniformBlock};
+use program::reflection::{ShaderStage, SubroutineData};
 use program::shader::{build_shader, check_shader_type_compatibility};
 
 use program::raw::RawProgram;
@@ -46,7 +47,7 @@ impl ComputeShader {
         let shader = try!(build_shader(facade, gl::COMPUTE_SHADER, src));
 
         Ok(ComputeShader {
-            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, None))
+            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, false, None))
         })
     }
 
@@ -96,7 +97,7 @@ impl ComputeShader {
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
-    
+
     /// Returns an iterator to the list of uniforms.
     ///
     /// ## Example
@@ -111,7 +112,7 @@ impl ComputeShader {
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.raw.uniforms()
     }
-    
+
     /// Returns a list of uniform blocks.
     ///
     /// ## Example
@@ -188,6 +189,14 @@ impl ProgramExt for ComputeShader {
     }
 
     #[inline]
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+                                         stage: ShaderStage,
+                                         indices: &[gl::types::GLuint])
+    {
+        self.raw.set_subroutine_uniforms_for_stage(ctxt, stage, indices);
+    }
+
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
@@ -200,6 +209,11 @@ impl ProgramExt for ComputeShader {
     #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
+    }
+
+    #[inline]
+    fn get_subroutine_data(&self) -> &SubroutineData {
+        self.raw.get_subroutine_data()
     }
 }
 

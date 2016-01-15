@@ -88,6 +88,8 @@ let uniforms = uniform! {
 # }
 ```
 
+## Subroutines
+TODO
 */
 pub use self::buffer::UniformBuffer;
 pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter};

@@ -21,6 +21,7 @@ use program::GetBinaryError;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackBuffer};
+use program::reflection::{SubroutineData, ShaderStage};
 use program::shader::build_shader;
 
 use program::raw::RawProgram;
@@ -48,7 +49,8 @@ impl Program {
                                                outputs_srgb, uses_point_size } =>
             {
                 let mut has_geometry_shader = false;
-                let mut has_tessellation_shaders = false;
+                let mut has_tessellation_control_shader = false;
+                let mut has_tessellation_evaluation_shader = false;
 
                 let mut shaders = vec![
                     (vertex_shader, gl::VERTEX_SHADER),
@@ -62,12 +64,12 @@ impl Program {
 
                 if let Some(ts) = tessellation_control_shader {
                     shaders.push((ts, gl::TESS_CONTROL_SHADER));
-                    has_tessellation_shaders = true;
+                    has_tessellation_control_shader = true;
                 }
 
                 if let Some(ts) = tessellation_evaluation_shader {
                     shaders.push((ts, gl::TESS_EVALUATION_SHADER));
-                    has_tessellation_shaders = true;
+                    has_tessellation_evaluation_shader = true;
                 }
 
                 // TODO: move somewhere else
@@ -93,7 +95,8 @@ impl Program {
                 };
 
                 (try!(RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
-                                               has_tessellation_shaders, transform_feedback_varyings)),
+                                               has_tessellation_control_shader, has_tessellation_evaluation_shader,
+                                               transform_feedback_varyings)),
                  outputs_srgb, uses_point_size)
             },
 
@@ -105,7 +108,6 @@ impl Program {
                 (try!(RawProgram::from_binary(facade, data)), outputs_srgb, uses_point_size)
             },
         };
-
         Ok(Program {
             raw: raw,
             outputs_srgb: outputs_srgb,
@@ -179,7 +181,7 @@ impl Program {
     pub fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
-    
+
     /// Returns an iterator to the list of uniforms.
     ///
     /// ## Example
@@ -194,7 +196,7 @@ impl Program {
     pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
         self.raw.uniforms()
     }
-    
+
     /// Returns a list of uniform blocks.
     ///
     /// ## Example
@@ -241,6 +243,24 @@ impl Program {
         self.raw.has_tessellation_shaders()
     }
 
+    /// Returns true if the program contains a tessellation control stage.
+    #[inline]
+    pub fn has_tessellation_control_shader(&self) -> bool {
+        self.raw.has_tessellation_control_shader()
+    }
+
+    /// Returns true if the program contains a tessellation evaluation stage.
+    #[inline]
+    pub fn has_tessellation_evaluation_shader(&self) -> bool {
+        self.raw.has_tessellation_evaluation_shader()
+    }
+
+    /// Returns true if the program contains a geometry shader.
+    #[inline]
+    pub fn has_geometry_shader(&self) -> bool {
+        self.raw.has_geometry_shader()
+    }
+
     /// Returns informations about an attribute, if it exists.
     #[inline]
     pub fn get_attribute(&self, name: &str) -> Option<&Attribute> {
@@ -267,7 +287,7 @@ impl Program {
     pub fn has_srgb_output(&self) -> bool {
         self.outputs_srgb
     }
-    
+
     /// Returns the list of shader storage blocks.
     ///
     /// ## Example
@@ -358,6 +378,14 @@ impl ProgramExt for Program {
     }
 
     #[inline]
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+                                         stage: ShaderStage,
+                                         indices: &[gl::types::GLuint])
+    {
+        self.raw.set_subroutine_uniforms_for_stage(ctxt, stage, indices);
+    }
+
+    #[inline]
     fn get_uniform(&self, name: &str) -> Option<&Uniform> {
         self.raw.get_uniform(name)
     }
@@ -370,5 +398,10 @@ impl ProgramExt for Program {
     #[inline]
     fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
+    }
+
+    #[inline]
+    fn get_subroutine_data(&self) -> &SubroutineData {
+        self.raw.get_subroutine_data()
     }
 }

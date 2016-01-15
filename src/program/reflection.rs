@@ -12,6 +12,7 @@ use version::Api;
 
 use uniforms::UniformType;
 use vertex::AttributeType;
+use program;
 
 use Handle;
 
@@ -1015,5 +1016,188 @@ fn glenum_to_transform_feedback_mode(value: gl::types::GLenum) -> TransformFeedb
             TransformFeedbackMode::Separate
         },
         v => panic!("Unknown value returned by OpenGL varying mode: {}", v)
+    }
+}
+
+/// Contains all subroutine data of a program.
+#[derive(Debug, Clone)]
+pub struct SubroutineData {
+    /// Number of subroutine uniform locations per shader stage.
+    /// This is *not* equal to the number of subroutine uniforms per stage,
+    /// because users can use `#layout(location=...)`.
+    pub location_counts: HashMap<ShaderStage, usize>,
+
+    /// The list of all subroutine uniforms of the program stored in a structured way to enable fast lookups.
+    /// A subroutine uniform is uniquely defined by a name and a shader stage.
+    pub subroutine_uniforms: HashMap<(String, ShaderStage), SubroutineUniform>,
+}
+
+/// Information about a Subroutine Uniform (except name)
+#[derive(Debug, Clone)]
+pub struct SubroutineUniform {
+
+    /// The index of the subroutine uniform.
+    /// Needed to query information from the OpenGL backend.
+    pub index: u32,
+
+    /// The location of the uniform.
+    /// This is used to bind subroutines to this subroutine uniform.
+    pub location: i32,
+
+    /// A list of subroutines that can potentially be used with this uniform.
+    pub compatible_subroutines: Vec<Subroutine>,
+}
+
+/// Information about a subroutine.
+#[derive(Debug, Clone)]
+pub struct Subroutine {
+    /// The index of the subroutine, needed to bind this to a subroutine uniform.
+    pub index: u32,
+
+    /// The name of the subroutine.
+    pub name: String,
+}
+
+/// The different stages of the program pipeline.
+#[allow(missing_docs)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ShaderStage {
+    Vertex,
+    Fragment,
+    TessellationControl,
+    TessellationEvaluation,
+    Geometry,
+    // FIXME? According to https://www.opengl.org/sdk/docs/man/html/glUniformSubroutines.xhtml ,
+    // compute shaders are not supported.
+    // Compute,
+}
+
+impl ShaderStage {
+    /// Converts the `ShaderStage` to its GLenum equivalent
+    pub fn to_gl_enum(&self) -> gl::types::GLenum {
+        match *self {
+            ShaderStage::Vertex => gl::VERTEX_SHADER,
+            ShaderStage::Fragment => gl::FRAGMENT_SHADER,
+            ShaderStage::TessellationControl => gl::TESS_CONTROL_SHADER,
+            ShaderStage::TessellationEvaluation => gl::TESS_EVALUATION_SHADER,
+            ShaderStage::Geometry => gl::GEOMETRY_SHADER,
+            // Compute => gl::COMPUTE_SHADER,
+        }
+    }
+}
+
+fn get_shader_stages(has_geometry_shader: bool,
+                     has_tessellation_control_shader: bool,
+                     has_tessellation_evaluation_shader: bool)
+                     -> Vec<ShaderStage> {
+    let mut stages = vec![ShaderStage::Vertex, ShaderStage::Fragment];
+    if has_tessellation_evaluation_shader {
+        stages.push(ShaderStage::TessellationEvaluation);
+    }
+    if has_tessellation_control_shader {
+        stages.push(ShaderStage::TessellationControl);
+    }
+    if has_geometry_shader {
+        stages.push(ShaderStage::Geometry);
+    }
+    stages
+}
+
+/// Returns the data associated with a programs subroutines.
+pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle,
+                                      has_geometry_shader: bool,
+                                      has_tessellation_control_shader: bool,
+                                      has_tessellation_evaluation_shader: bool)
+                                      -> SubroutineData
+{
+    if !program::is_subroutine_supported(ctxt) {
+        return SubroutineData {
+            location_counts: HashMap::with_capacity(0),
+            subroutine_uniforms: HashMap::with_capacity(0),
+        }
+    }
+
+    let program = match program {
+        // subroutines not supported.
+        Handle::Handle(_) => return SubroutineData {
+            location_counts: HashMap::with_capacity(0),
+            subroutine_uniforms: HashMap::with_capacity(0),
+        },
+        Handle::Id(id) => id
+    };
+
+    let shader_stages = get_shader_stages(has_geometry_shader,
+                                          has_tessellation_control_shader,
+                                          has_tessellation_evaluation_shader);
+    let mut subroutine_uniforms = HashMap::new();
+    let mut location_counts = HashMap::new();
+    for stage in shader_stages.iter() {
+        let mut location_count: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetProgramStageiv(program, stage.to_gl_enum(),
+                                  gl::ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS,
+                                  &mut location_count);
+        location_counts.insert(*stage, location_count as usize);
+        let mut subroutine_count: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetProgramStageiv(program, stage.to_gl_enum(),
+                                  gl::ACTIVE_SUBROUTINE_UNIFORMS,
+                                  &mut subroutine_count);
+        for i in 0..subroutine_count {
+            // Get the name of the uniform
+            let mut uniform_name_tmp: Vec<u8> = vec![0; 64];
+            let mut name_len: gl::types::GLsizei = mem::uninitialized();
+            ctxt.gl.GetActiveSubroutineUniformName(program, stage.to_gl_enum(),
+                                                   i as gl::types::GLuint,
+                                                   (uniform_name_tmp.len() - 1) as gl::types::GLint,
+                                                   &mut name_len,
+                                                   uniform_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
+
+            let location = ctxt.gl.GetSubroutineUniformLocation(program, stage.to_gl_enum(),
+                                                                uniform_name_tmp.as_ptr() as *const gl::types::GLchar);
+
+            uniform_name_tmp.set_len(name_len as usize);
+            let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
+
+            // Get the number of compatible subroutines.
+            let mut compatible_count: gl::types::GLint = mem::uninitialized();
+            ctxt.gl.GetActiveSubroutineUniformiv(program, stage.to_gl_enum(), i as u32,
+                                                 gl::NUM_COMPATIBLE_SUBROUTINES, &mut compatible_count);
+
+            // Get the indices of compatible subroutines.
+            let mut compatible_sr_indices: Vec<gl::types::GLuint> = Vec::with_capacity(compatible_count as usize);
+            ctxt.gl.GetActiveSubroutineUniformiv(program, stage.to_gl_enum(),
+                                                 i as gl::types::GLuint, gl::COMPATIBLE_SUBROUTINES,
+                                                 compatible_sr_indices.as_mut_ptr() as *mut gl::types::GLint);
+            compatible_sr_indices.set_len(compatible_count as usize);
+            let mut compatible_subroutines: Vec<Subroutine> = Vec::new();
+            for j in 0..compatible_count {
+                // Get the names of compatible subroutines.
+                let mut subroutine_name_tmp: Vec<u8> = vec![0; 64];;
+                let mut name_len: gl::types::GLsizei = mem::uninitialized();
+                ctxt.gl.GetActiveSubroutineName(program, stage.to_gl_enum(), compatible_sr_indices[j as usize],
+                                                subroutine_name_tmp.len() as gl::types::GLint,
+                                                &mut name_len,
+                                                subroutine_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
+
+                subroutine_name_tmp.set_len(name_len as usize);
+                let subroutine_name = String::from_utf8(subroutine_name_tmp).unwrap();
+                compatible_subroutines.push(
+                    Subroutine {
+                        index: compatible_sr_indices[j as usize],
+                        name: subroutine_name,
+                    }
+                );
+            }
+
+            let subroutine_uniform = SubroutineUniform {
+                index: i as u32,
+                location: location,
+                compatible_subroutines: compatible_subroutines,
+            };
+            subroutine_uniforms.insert((uniform_name, *stage), subroutine_uniform);
+        }
+    }
+    SubroutineData {
+        location_counts: location_counts,
+        subroutine_uniforms: subroutine_uniforms
     }
 }

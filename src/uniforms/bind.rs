@@ -3,6 +3,7 @@
 Handles binding uniforms to the OpenGL state machine.
 
 */
+use std::collections::HashMap;
 use gl;
 
 use BufferExt;
@@ -39,6 +40,10 @@ impl<U> UniformsExt for U where U: Uniforms {
         let mut texture_bind_points = Bitsfield::new();
         let mut uniform_buffer_bind_points = Bitsfield::new();
         let mut shared_storage_buffer_bind_points = Bitsfield::new();
+
+        // Subroutine uniforms must be binded all at once, so we collect them first and process them at the end.
+        // The vec contains the uniform we want to set and the value we want to set it to.
+        let mut subroutine_bindings: HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>> = HashMap::with_capacity(0);
 
         let mut visiting_result = Ok(());
         self.visit_values(|name, value| {
@@ -95,11 +100,68 @@ impl<U> UniformsExt for U where U: Uniforms {
                 if let Some(fence) = fence {
                     fences.push(fence);
                 }
+            } else if let UniformValue::Subroutine(stage, sr_name) = value {
+                if let Some(subroutine_uniform) = program.get_subroutine_data().subroutine_uniforms.get(&(name.into(), stage)) {
+                    subroutine_bindings.entry(stage).or_insert(Vec::new());
+                    let vec = subroutine_bindings.get_mut(&stage).unwrap();
+                    vec.push((subroutine_uniform, sr_name));
+                }
             }
         });
 
+        // Process all subroutine uniforms in one batch.
+        if !subroutine_bindings.is_empty() {
+            match bind_subroutine_uniforms(&mut ctxt, program, &subroutine_bindings) {
+                Ok(_) => (),
+                Err(e) => {
+                    visiting_result = Err(e);
+                }
+            }
+        }
+
         visiting_result
     }
+}
+
+fn bind_subroutine_uniforms<P>(ctxt: &mut context::CommandContext, program: &P,
+                            subroutine_bindings: &HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>>)
+                            -> Result<(), DrawError>
+                            where P: ProgramExt
+{
+    let subroutine_data = program.get_subroutine_data();
+    for (stage, bindings) in subroutine_bindings {
+        // Validate that all subroutine uniforms of this stage are set, otherwise OpenGL will throw an error.
+        let set_cnt = bindings.len();
+        let expected_cnt = subroutine_data.subroutine_uniforms.iter()
+                                  .filter(|&(&(_, uni_stage), _)| *stage == uni_stage)
+                                  .count();
+        if set_cnt != expected_cnt {
+            return Err(DrawError::SubroutineUniformMissing {
+                stage: *stage,
+                real_count: set_cnt,
+                expected_count: expected_cnt,
+            })
+        }
+
+        // Build the indices array
+        let mut indices = vec![0 as gl::types::GLuint; *subroutine_data.location_counts.get(stage).unwrap()];
+        for binding in bindings {
+            let uniform = binding.0;
+            let subroutine_str = binding.1;
+            let subroutine = match uniform.compatible_subroutines.iter()
+                                   .find(|subroutine| subroutine.name == subroutine_str) {
+                Some(subroutine) => subroutine,
+                None => return Err(DrawError::SubroutineNotFound {
+                                    stage: *stage,
+                                    name: subroutine_str.into(),
+                                })
+            };
+
+            indices[uniform.location as usize] = subroutine.index;
+        }
+        program.set_subroutine_uniforms_for_stage(ctxt, *stage, &indices);
+    }
+    Ok(())
 }
 
 fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
@@ -184,6 +246,11 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
     match *value {
         UniformValue::Block(_, _) => {
             Err(DrawError::UniformBufferToValue {
+                name: name.to_owned(),
+            })
+        },
+        UniformValue::Subroutine(_, _) => {
+            Err(DrawError::SubroutineUniformToValue {
                 name: name.to_owned(),
             })
         },

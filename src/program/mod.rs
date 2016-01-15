@@ -11,6 +11,7 @@ pub use self::compute::{ComputeShader, ComputeCommand};
 pub use self::program::Program;
 pub use self::reflection::{Uniform, UniformBlock, BlockLayout, OutputPrimitives};
 pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
+pub use self::reflection::{ShaderStage, SubroutineData, SubroutineUniform};
 
 mod compute;
 mod program;
@@ -18,6 +19,7 @@ mod raw;
 mod reflection;
 mod shader;
 mod uniforms_storage;
+mod binary_header;
 
 /// Returns true if the backend supports geometry shaders.
 #[inline]
@@ -36,6 +38,12 @@ pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool where C: Capabiliti
 pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
     ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
         || ctxt.get_extensions().gl_arb_get_programy_binary
+}
+
+/// Returns true if the backend supports shader subroutines.
+#[inline]
+pub fn is_subroutine_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    ctxt.get_version() >= &Version(Api::Gl, 4, 0) || ctxt.get_extensions().gl_arb_shader_subroutine
 }
 
 /// Some shader compilers have race-condition issues, so we lock this mutex
@@ -69,6 +77,9 @@ pub enum ProgramCreationError {
     /// You have requested point size setting from the shader, but it's not
     /// supported by the backend.
     PointSizeNotSupported,
+
+    /// The glium-specific binary header was not found or is corrupt.
+    BinaryHeaderError,
 }
 
 impl fmt::Display for ProgramCreationError {
@@ -101,6 +112,8 @@ impl Error for ProgramCreationError {
                 "Transform feedback is not supported by the backend.",
             PointSizeNotSupported =>
                 "Point size is not supported by the backend.",
+            BinaryHeaderError =>
+                "The glium-specific binary header was not found or is corrupt.",
         }
     }
 }
@@ -153,6 +166,8 @@ impl From<ProgramCreationError> for ProgramChooserCreationError {
 pub enum GetBinaryError {
     /// The backend doesn't support binary.
     NotSupported,
+    /// The backend does not supply any binary formats.
+    NoFormats,
 }
 
 impl fmt::Display for GetBinaryError {
@@ -166,6 +181,7 @@ impl Error for GetBinaryError {
         use self::GetBinaryError::*;
         match *self {
             NotSupported => "The backend doesn't support binary",
+            NoFormats => "The backend does not supply any binary formats.",
         }
     }
 }
