@@ -47,7 +47,7 @@ impl ComputeShader {
         let shader = try!(build_shader(facade, gl::COMPUTE_SHADER, src));
 
         Ok(ComputeShader {
-            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, None))
+            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, false, None))
         })
     }
 

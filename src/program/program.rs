@@ -49,7 +49,8 @@ impl Program {
                                                outputs_srgb, uses_point_size } =>
             {
                 let mut has_geometry_shader = false;
-                let mut has_tessellation_shaders = false;
+                let mut has_tessellation_control_shader = false;
+                let mut has_tessellation_evaluation_shader = false;
 
                 let mut shaders = vec![
                     (vertex_shader, gl::VERTEX_SHADER),
@@ -63,12 +64,12 @@ impl Program {
 
                 if let Some(ts) = tessellation_control_shader {
                     shaders.push((ts, gl::TESS_CONTROL_SHADER));
-                    has_tessellation_shaders = true;
+                    has_tessellation_control_shader = true;
                 }
 
                 if let Some(ts) = tessellation_evaluation_shader {
                     shaders.push((ts, gl::TESS_EVALUATION_SHADER));
-                    has_tessellation_shaders = true;
+                    has_tessellation_evaluation_shader = true;
                 }
 
                 // TODO: move somewhere else
@@ -94,7 +95,8 @@ impl Program {
                 };
 
                 (try!(RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
-                                               has_tessellation_shaders, transform_feedback_varyings)),
+                                               has_tessellation_control_shader, has_tessellation_evaluation_shader,
+                                               transform_feedback_varyings)),
                  outputs_srgb, uses_point_size)
             },
 
@@ -239,6 +241,24 @@ impl Program {
     #[inline]
     pub fn has_tessellation_shaders(&self) -> bool {
         self.raw.has_tessellation_shaders()
+    }
+
+    /// Returns true if the program contains a tessellation control stage.
+    #[inline]
+    pub fn has_tessellation_control_shader(&self) -> bool {
+        self.raw.has_tessellation_control_shader()
+    }
+
+    /// Returns true if the program contains a tessellation evaluation stage.
+    #[inline]
+    pub fn has_tessellation_evaluation_shader(&self) -> bool {
+        self.raw.has_tessellation_evaluation_shader()
+    }
+
+    /// Returns true if the program contains a geometry shader.
+    #[inline]
+    pub fn has_geometry_shader(&self) -> bool {
+        self.raw.has_geometry_shader()
     }
 
     /// Returns informations about an attribute, if it exists.

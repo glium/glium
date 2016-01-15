@@ -60,14 +60,17 @@ pub struct RawProgram {
     tf_buffers: Vec<TransformFeedbackBuffer>,
     ssbos: HashMap<String, UniformBlock>,
     output_primitives: Option<OutputPrimitives>,
-    has_tessellation_shaders: bool,
+    has_geometry_shader: bool,
+    has_tessellation_control_shader: bool,
+    has_tessellation_evaluation_shader: bool,
 }
 
 impl RawProgram {
     /// Builds a new program from a list of shaders.
     // TODO: the "has_*" parameters are bad
     pub fn from_shaders<'a, F, I>(facade: &'a F, shaders: I, has_geometry_shader: bool,
-                                  has_tessellation_shaders: bool,
+                                  has_tessellation_control_shader: bool,
+                                  has_tessellation_evaluation_shader: bool,
                                   transform_feedback: Option<(Vec<String>, TransformFeedbackMode)>)
                                   -> Result<RawProgram, ProgramCreationError>
                                   where F: Facade, I: IntoIterator<Item = &'a Shader>
@@ -162,11 +165,15 @@ impl RawProgram {
         let blocks = unsafe { reflect_uniform_blocks(&mut ctxt, id) };
         let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
         let ssbos = unsafe { reflect_shader_storage_blocks(&mut ctxt, id) };
-        let subroutine_data = unsafe { reflect_subroutine_data(&mut ctxt, id) };
+        let subroutine_data = unsafe {
+            reflect_subroutine_data(&mut ctxt, id, has_geometry_shader,
+                                    has_tessellation_control_shader,
+                                    has_tessellation_evaluation_shader)
+            };
 
         let output_primitives = if has_geometry_shader {
             Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
-        } else if has_tessellation_shaders {
+        } else if has_tessellation_evaluation_shader {
             Some(unsafe { reflect_tess_eval_output_type(&mut ctxt, id) })
         } else {
             None
@@ -184,7 +191,9 @@ impl RawProgram {
             tf_buffers: tf_buffers,
             ssbos: ssbos,
             output_primitives: output_primitives,
-            has_tessellation_shaders: has_tessellation_shaders,
+            has_geometry_shader: has_geometry_shader,
+            has_tessellation_control_shader: has_tessellation_control_shader,
+            has_tessellation_evaluation_shader: has_tessellation_evaluation_shader,
         })
     }
 
@@ -220,7 +229,7 @@ impl RawProgram {
                 reflect_uniform_blocks(&mut ctxt, id),
                 reflect_transform_feedback(&mut ctxt, id),
                 reflect_shader_storage_blocks(&mut ctxt, id),
-                reflect_subroutine_data(&mut ctxt, id),
+                reflect_subroutine_data(&mut ctxt, id, false, false, false), // FIXME:
             )
         };
 
@@ -235,8 +244,10 @@ impl RawProgram {
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
-            output_primitives: None,            // FIXME:
-            has_tessellation_shaders: true,     // FIXME:
+            output_primitives: None,                    // FIXME:
+            has_geometry_shader: false,                 // FIXME:
+            has_tessellation_control_shader: false,     // FIXME:
+            has_tessellation_evaluation_shader: false,  // FIXME:
         })
     }
 
@@ -404,7 +415,25 @@ impl RawProgram {
     /// Returns true if the program contains a tessellation stage.
     #[inline]
     pub fn has_tessellation_shaders(&self) -> bool {
-        self.has_tessellation_shaders
+        self.has_tessellation_control_shader() | self.has_tessellation_evaluation_shader()
+    }
+
+    /// Returns true if the program contains a tessellation control stage.
+    #[inline]
+    pub fn has_tessellation_control_shader(&self) -> bool {
+        self.has_tessellation_control_shader
+    }
+
+    /// Returns true if the program contains a tessellation evaluation stage.
+    #[inline]
+    pub fn has_tessellation_evaluation_shader(&self) -> bool {
+        self.has_tessellation_evaluation_shader
+    }
+
+    /// Returns true if the program contains a geometry shader.
+    #[inline]
+    pub fn has_geometry_shader(&self) -> bool {
+        self.has_geometry_shader
     }
 
     /// Returns informations about an attribute, if it exists.

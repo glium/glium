@@ -965,13 +965,7 @@ impl AsUniformValue for (u64, u64, u64, u64) {
 
 impl_uniform_block_basic!((u64, u64, u64, u64), UniformType::UnsignedInt64Vec4);
 
-impl<'a> AsUniformValue for (ShaderStage, &'a str) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Subroutine(self.0, self.1)
-    }
-}
-
+// Subroutines
 impl<'a> AsUniformValue for (&'a str, ShaderStage) {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {

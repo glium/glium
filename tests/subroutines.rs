@@ -1,11 +1,10 @@
 #[macro_use]
 extern crate glium;
 
-use glium::{index, Surface};
+use glium::{Surface};
 use glium::index::PrimitiveType;
-use glium::program::ShaderStage;
+use glium::program::{ ShaderStage, is_subroutine_supported };
 use glium::backend::Facade;
-use glium::CapabilitiesSource;
 use glium::DrawError;
 
 mod support;
@@ -20,7 +19,7 @@ implement_vertex!(Vertex, position);
 #[test]
 fn subroutine_bindings_simple() {
     let display = support::build_display();
-    if !display.get_context().get_extensions().gl_arb_shader_subroutine {
+    if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
         return
     };
@@ -108,7 +107,7 @@ fn subroutine_bindings_simple() {
 #[ignore] // This seems to be buggy in almost every implementation, so ignore.
 fn subroutine_bindings_explicit_location() {
     let display = support::build_display();
-    if !display.get_context().get_extensions().gl_arb_shader_subroutine {
+    if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
         return
     };
@@ -261,7 +260,7 @@ fn build_program_complex(display: &glium::Display) -> glium::Program {
 #[ignore]
 fn subroutine_bindings_multi() {
     let display = support::build_display();
-    if !display.get_context().get_extensions().gl_arb_shader_subroutine {
+    if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
         return
     };
@@ -312,7 +311,7 @@ fn subroutine_bindings_multi() {
 #[ignore]
 fn not_all_uniforms_set() {
     let display = support::build_display();
-    if !display.get_context().get_extensions().gl_arb_shader_subroutine {
+    if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
         return
     };
@@ -346,7 +345,7 @@ fn not_all_uniforms_set() {
 #[ignore]
 fn mismatched_subroutines() {
     let display = support::build_display();
-    if !display.get_context().get_extensions().gl_arb_shader_subroutine {
+    if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
         return
     };

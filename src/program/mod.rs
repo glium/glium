@@ -39,6 +39,12 @@ pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
         || ctxt.get_extensions().gl_arb_get_programy_binary
 }
 
+/// Returns true if the backend supports shader subroutines.
+#[inline]
+pub fn is_subroutine_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    ctxt.get_version() >= &Version(Api::Gl, 4, 0) || ctxt.get_extensions().gl_arb_shader_subroutine
+}
+
 /// Some shader compilers have race-condition issues, so we lock this mutex
 /// in the GL thread every time we compile a shader or link a program.
 // TODO: replace by a StaticMutex
