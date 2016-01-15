@@ -41,6 +41,7 @@ use program::reflection::{reflect_transform_feedback, reflect_geometry_output_ty
 use program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
 use program::reflection::{reflect_subroutine_data};
 use program::shader::Shader;
+use program::binary_header::{attach_glium_header, process_glium_header};
 
 use uniforms::Uniforms;
 
@@ -201,6 +202,13 @@ impl RawProgram {
     pub fn from_binary<F>(facade: &F, binary: Binary)
                           -> Result<RawProgram, ProgramCreationError> where F: Facade
     {
+        let (has_geometry_shader, has_tessellation_control_shader, has_tessellation_evaluation_shader) = {
+            match process_glium_header(&binary.content) {
+                Some(flags) => flags,
+                None => return Err(ProgramCreationError::BinaryHeaderError)
+            }
+        };
+
         let mut ctxt = facade.get_context().make_current();
 
         let id = unsafe {
@@ -210,8 +218,8 @@ impl RawProgram {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
                     ctxt.gl.ProgramBinary(id, binary.format,
-                                          binary.content.as_ptr() as *const _,
-                                          binary.content.len() as gl::types::GLsizei);
+                                          binary.content[1..].as_ptr() as *const _,
+                                          (binary.content.len() - 1) as gl::types::GLsizei);
                 },
                 Handle::Handle(id) => unreachable!()
             };
@@ -229,8 +237,18 @@ impl RawProgram {
                 reflect_uniform_blocks(&mut ctxt, id),
                 reflect_transform_feedback(&mut ctxt, id),
                 reflect_shader_storage_blocks(&mut ctxt, id),
-                reflect_subroutine_data(&mut ctxt, id, false, false, false), // FIXME:
+                reflect_subroutine_data(&mut ctxt, id, has_geometry_shader,
+                                        has_tessellation_control_shader,
+                                        has_tessellation_evaluation_shader),
             )
+        };
+
+        let output_primitives = if has_geometry_shader {
+            Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
+        } else if has_tessellation_evaluation_shader {
+            Some(unsafe { reflect_tess_eval_output_type(&mut ctxt, id) })
+        } else {
+            None
         };
 
         Ok(RawProgram {
@@ -244,10 +262,10 @@ impl RawProgram {
             frag_data_locations: RefCell::new(HashMap::new()),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
-            output_primitives: None,                    // FIXME:
-            has_geometry_shader: false,                 // FIXME:
-            has_tessellation_control_shader: false,     // FIXME:
-            has_tessellation_evaluation_shader: false,  // FIXME:
+            output_primitives: output_primitives,
+            has_geometry_shader: has_geometry_shader,
+            has_tessellation_control_shader: has_tessellation_control_shader,
+            has_tessellation_evaluation_shader: has_tessellation_evaluation_shader,
         })
     }
 
@@ -267,6 +285,12 @@ impl RawProgram {
                     Handle::Handle(_) => unreachable!()
                 };
 
+                let mut num_supported_formats = mem::uninitialized();
+                ctxt.gl.GetIntegerv(gl::NUM_PROGRAM_BINARY_FORMATS, &mut num_supported_formats);
+                if num_supported_formats == 0 {
+                    return Err(GetBinaryError::NoFormats)
+                }
+
                 let mut buf_len = mem::uninitialized();
                 ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
@@ -275,7 +299,7 @@ impl RawProgram {
                 ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
                                          storage.as_mut_ptr() as *mut _);
                 storage.set_len(buf_len as usize);
-
+                attach_glium_header(&self, &mut storage);
                 Ok(Binary {
                     format: format,
                     content: storage,

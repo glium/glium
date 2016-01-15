@@ -19,6 +19,7 @@ mod raw;
 mod reflection;
 mod shader;
 mod uniforms_storage;
+mod binary_header;
 
 /// Returns true if the backend supports geometry shaders.
 #[inline]
@@ -76,6 +77,9 @@ pub enum ProgramCreationError {
     /// You have requested point size setting from the shader, but it's not
     /// supported by the backend.
     PointSizeNotSupported,
+
+    /// The glium-specific binary header was not found or is corrupt.
+    BinaryHeaderError,
 }
 
 impl fmt::Display for ProgramCreationError {
@@ -108,6 +112,8 @@ impl Error for ProgramCreationError {
                 "Transform feedback is not supported by the backend.",
             PointSizeNotSupported =>
                 "Point size is not supported by the backend.",
+            BinaryHeaderError =>
+                "The glium-specific binary header was not found or is corrupt.",
         }
     }
 }
@@ -160,6 +166,8 @@ impl From<ProgramCreationError> for ProgramChooserCreationError {
 pub enum GetBinaryError {
     /// The backend doesn't support binary.
     NotSupported,
+    /// The backend does not supply any binary formats.
+    NoFormats,
 }
 
 impl fmt::Display for GetBinaryError {
@@ -173,6 +181,7 @@ impl Error for GetBinaryError {
         use self::GetBinaryError::*;
         match *self {
             NotSupported => "The backend doesn't support binary",
+            NoFormats => "The backend does not supply any binary formats.",
         }
     }
 }
