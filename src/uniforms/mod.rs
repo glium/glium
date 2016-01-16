@@ -89,7 +89,56 @@ let uniforms = uniform! {
 ```
 
 ## Subroutines
-TODO
+OpenGL allows the use of subroutines, which are like function pointers. Subroutines can be used
+to change the functionality of a shader program at runtime. This method is usually a lot faster
+than using multiple programs that are switched during execution.
+
+A subroutine uniform is unique per shader stage, and not per program.
+
+```no_run
+#[macro_use]
+extern crate glium;
+# fn main() {
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
+
+let program = glium::Program::from_source(&display,
+    "
+        #version 150
+        in vec2 position;
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    ",
+    "
+        #version 150
+        #extension GL_ARB_shader_subroutine : require
+        out vec4 fragColor;
+        subroutine vec4 modify_t(vec4 color);
+        subroutine uniform modify_t modify_color;
+
+        subroutine(modify_t) vec4 delete_r(vec4 color)
+        {
+          return vec4(0, color.g, color.b, color.a);
+        }
+
+        subroutine(modify_t) vec4 delete_b(vec4 color)
+        {
+          return vec4(color.r, color.g, 0, color.a);
+        }
+
+        void main()
+        {
+            vec4 white= vec4(1, 1, 1, 1);
+            fragColor = modify_color(white);
+        }
+    ", None);
+
+    let uniforms = uniform! {
+        modify_color: ("delete_b", glium::program::ShaderStage::Fragment)
+    };
+# }
+```
 */
 pub use self::buffer::UniformBuffer;
 pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter};
