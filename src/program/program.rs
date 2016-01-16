@@ -21,7 +21,7 @@ use program::GetBinaryError;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use program::reflection::{Attribute, TransformFeedbackBuffer};
-use program::reflection::{SubroutineData, ShaderStage};
+use program::reflection::{SubroutineData, ShaderStage, SubroutineUniform};
 use program::shader::build_shader;
 
 use program::raw::RawProgram;
@@ -301,6 +301,23 @@ impl Program {
     #[inline]
     pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
         self.raw.get_shader_storage_blocks()
+    }
+
+    /// Returns the subroutine uniforms of this program.
+    ///
+    /// Since subroutine uniforms are unique per shader and *not* per program,
+    /// the keys of the `HashMap` are in the format `("subroutine_name", ShaderStage)`.
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (&(ref name, shader), uniform) in program.get_subroutine_uniforms() {
+    ///     println!("Name: {}", name);
+    /// }
+    /// ```
+    #[inline]
+    pub fn get_subroutine_uniforms(&self) -> &HashMap<(String, ShaderStage), SubroutineUniform> {
+        &self.raw.get_subroutine_data().subroutine_uniforms
     }
 
     /// Returns true if the program has been configured to use the `gl_PointSize` variable.
