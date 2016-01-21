@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 0.13.4 (2015-01-21)
+
+ - Added support for shader subroutines.
+ - Added various functions to `Context` to retreive information (like the content of `GL_VENDOR` or `GL_RENDERER` for example).
+ - Added additional dimensions getters to the various texture types.
+
 ## Version 0.13.3 (2015-01-08)
 
  - Added constructors to `SimpleFrameBuffer` for depth-only, depth-stencil-only, stencil-only and depth & stencil framebuffers.
