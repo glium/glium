@@ -40,9 +40,9 @@ fn main() {
 
     // compiling shaders and linking them together
     let program = program!(&display,
-        330 => {
+        150 => {
             vertex: "
-                #version 330
+                #version 150
 
                 uniform mat4 matrix;
 
@@ -54,7 +54,7 @@ fn main() {
             ",
 
             fragment: "
-                #version 330
+                #version 150
                 #extension GL_ARB_shader_subroutine : require
 
                 out vec4 fragColor;

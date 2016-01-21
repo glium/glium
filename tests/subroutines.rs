@@ -25,9 +25,9 @@ fn subroutine_bindings_simple() {
     };
 
     let program = program!(&display,
-        330 => {
+        150 => {
             vertex: "
-                #version 330
+                #version 150
 
                 in vec2 position;
 
@@ -37,7 +37,7 @@ fn subroutine_bindings_simple() {
             ",
 
             fragment: "
-                #version 330
+                #version 150
                 #extension GL_ARB_shader_subroutine : require
 
                 out vec4 fragColor;
@@ -113,9 +113,9 @@ fn subroutine_bindings_explicit_location() {
     };
 
     let program = program!(&display,
-        330 => {
+        150 => {
             vertex: "
-                #version 330
+                #version 150
 
                 in vec2 position;
 
@@ -125,7 +125,7 @@ fn subroutine_bindings_explicit_location() {
             ",
 
             fragment: "
-                #version 330
+                #version 150
                 #extension GL_ARB_shader_subroutine : require
                 #extension GL_ARB_explicit_uniform_location : require
 
@@ -199,9 +199,9 @@ fn subroutine_bindings_explicit_location() {
 
 fn build_program_complex(display: &glium::Display) -> glium::Program {
     let program = program!(display,
-        330 => {
+        150 => {
             vertex: "
-                #version 330
+                #version 150
 
                 in vec2 position;
 
@@ -211,7 +211,7 @@ fn build_program_complex(display: &glium::Display) -> glium::Program {
             ",
 
             fragment: "
-                #version 330
+                #version 150
                 #extension GL_ARB_shader_subroutine : require
 
                 out vec4 fragColor;

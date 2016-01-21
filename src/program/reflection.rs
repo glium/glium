@@ -1044,6 +1044,9 @@ pub struct SubroutineUniform {
     /// This is used to bind subroutines to this subroutine uniform.
     pub location: i32,
 
+    /// If the uniform is an array, the size of the array.
+    pub size: Option<usize>,
+
     /// A list of subroutines that can potentially be used with this uniform.
     pub compatible_subroutines: Vec<Subroutine>,
 }
@@ -1157,6 +1160,15 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
             uniform_name_tmp.set_len(name_len as usize);
             let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
 
+            let mut size: gl::types::GLint = mem::uninitialized();
+            ctxt.gl.GetActiveSubroutineUniformiv(program, stage.to_gl_enum(), i as u32,
+                                         gl::UNIFORM_SIZE, &mut size);
+            let size = if size == 1 {
+                None
+            } else {
+                Some(size as usize)
+            };
+
             // Get the number of compatible subroutines.
             let mut compatible_count: gl::types::GLint = mem::uninitialized();
             ctxt.gl.GetActiveSubroutineUniformiv(program, stage.to_gl_enum(), i as u32,
@@ -1191,6 +1203,7 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
             let subroutine_uniform = SubroutineUniform {
                 index: i as u32,
                 location: location,
+                size: size,
                 compatible_subroutines: compatible_subroutines,
             };
             subroutine_uniforms.insert((uniform_name, *stage), subroutine_uniform);
