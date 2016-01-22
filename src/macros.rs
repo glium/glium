@@ -548,13 +548,13 @@ macro_rules! program {
             $crate::Version($crate::Api::GlEs, 1, 0)
         } else {
             let num: u32 = $num;
-            $crate::Version($crate::Api::Gl, ($num / 100) as u8, ((num % 100) / 10) as u8)
+            $crate::Version($crate::Api::Gl, (num / 100) as u8, ((num % 100) / 10) as u8)
         }
     );
 
     (_parse_num_gles $num:expr) => ({
         let num: u32 = $num;
-        $crate::Version($crate::Api::GlEs, ($num / 100) as u8, (($num % 100) / 10) as u8)
+        $crate::Version($crate::Api::GlEs, (num / 100) as u8, ((num % 100) / 10) as u8)
     });
 }
 
