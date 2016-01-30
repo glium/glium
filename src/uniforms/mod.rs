@@ -377,17 +377,17 @@ macro_rules! impl_uniform_block_array {
                 }
 
                 if let &BlockLayout::Array { ref content, length } = layout {
-                    if let Err(_) = T::matches(content, base_offset) {
-                        return Err(LayoutMismatchError::LayoutMismatch {
-                            expected: (**content).clone(),
-                            obtained: T::build_layout(base_offset),
+                    if let Err(err) = T::matches(content, base_offset) {
+                        return Err(LayoutMismatchError::MemberMismatch {
+                            member: "<array content>".to_owned(),
+                            err: Box::new(err),
                         });
                     }
 
                     if length != $len {
                         return Err(LayoutMismatchError::LayoutMismatch {
-                            expected: (**content).clone(),
-                            obtained: T::build_layout(base_offset),
+                            expected: layout.clone(),
+                            obtained: Self::build_layout(base_offset),
                         });
                     }
 
