@@ -181,6 +181,16 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         (&None, _) => (gl::RGBA, gl::UNSIGNED_BYTE),
     };
 
+    let (filtering, mipmap_filtering) = match format {
+        TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormatRequest::Specific(TextureFormat::StencilFormat(_)) => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormatRequest::AnyIntegral => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormatRequest::AnyUnsigned => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormatRequest::AnyStencil => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        _ => (gl::LINEAR, gl::LINEAR_MIPMAP_LINEAR),
+    };
+
     let mut ctxt = facade.get_context().make_current();
 
     let id = unsafe {
@@ -209,7 +219,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
         }
 
         ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-        ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+        ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
 
         match ty {
             Dimensions::Texture1d { .. } => (),
@@ -229,10 +239,10 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
 
         if has_mipmaps {
             ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
-                                  gl::LINEAR_MIPMAP_LINEAR as i32);
+                                  mipmap_filtering as i32);
         } else {
             ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
-                                  gl::LINEAR as i32);
+                                  filtering as i32);
         }
 
         if !has_mipmaps && (ctxt.version >= &Version(Api::Gl, 1, 2) ||
