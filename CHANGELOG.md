@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 0.13.5 (2016-02-04)
+
+ - Fixed integer textures using a forbidden filtering by default.
+ - Better error report in case of a uniform block layout mismatch.
+
 ## Version 0.13.4 (2016-01-21)
 
  - Added support for shader subroutines.
