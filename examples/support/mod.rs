@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 extern crate genmesh;
-extern crate clock_ticks;
 extern crate obj;
+extern crate time;
 
 use std::thread;
 use std::time::Duration;
@@ -18,7 +18,7 @@ pub enum Action {
 
 pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
     let mut accumulator = 0;
-    let mut previous_clock = clock_ticks::precise_time_ns();
+    let mut previous_clock = time::precise_time_ns();
 
     loop {
         match callback() {
@@ -26,7 +26,7 @@ pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
             Action::Continue => ()
         };
 
-        let now = clock_ticks::precise_time_ns();
+        let now = time::precise_time_ns();
         accumulator += now - previous_clock;
         previous_clock = now;
 
