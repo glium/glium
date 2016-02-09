@@ -131,11 +131,3 @@ Limitations:
 
  - Rust plugins are not stable, so you will have to use macros such as
    `implement_vertex!(MyStruct)` instead of `#[derive(GliumVertex)]`.
-
-## Features
-
-Glium has four Cargo features:
-
- - `image` allows support for the `image` library, which allows easy creation of textures from different image formats.
- - `cgmath` and `nalgebra` add support for these libraries' matrices and vectors.
- - `headless`, which enables headless building and testing.
