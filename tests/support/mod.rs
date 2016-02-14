@@ -87,21 +87,14 @@ pub fn build_unicolor_texture2d<F>(facade: &F, red: f32, green: f32, blue: f32)
 }
 
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
-pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBufferAny,
-    glium::index::IndexBufferAny, glium::Program) where F: Facade
+pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuffer<Vertex>,
+    glium::index::IndexBuffer<u8>, glium::Program) where F: Facade
 {
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-    }
-
-    implement_vertex!(Vertex, position);
-
     (
         glium::VertexBuffer::new(facade, &[
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-        ]).unwrap().into_vertex_buffer_any(),
+        ]).unwrap(),
 
         glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, &[0u8, 1, 2, 3]).unwrap().into(),
 
@@ -146,24 +139,24 @@ pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuf
     )
 }
 
+#[derive(Copy, Clone)]
+pub struct Vertex {
+    position: [f32; 2],
+}
+
+implement_vertex!(Vertex, position);
+
 /// Builds a vertex buffer and an index buffer corresponding to a rectangle.
 ///
 /// The vertex buffer has the "position" attribute of type "vec2".
 pub fn build_rectangle_vb_ib<F>(facade: &F)
-    -> (glium::vertex::VertexBufferAny, glium::index::IndexBufferAny) where F: Facade
+    -> (glium::vertex::VertexBuffer<Vertex>, glium::index::IndexBuffer<u8>) where F: Facade
 {
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-    }
-
-    implement_vertex!(Vertex, position);
-
     (
         glium::VertexBuffer::new(facade, &[
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-        ]).unwrap().into_vertex_buffer_any(),
+        ]).unwrap(),
 
         glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, &[0u8, 1, 2, 3]).unwrap().into(),
     )

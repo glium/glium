@@ -73,10 +73,28 @@ use buffer::BufferMode;
 use buffer::BufferType;
 use buffer::Buffer;
 use buffer::BufferCreationError;
+use buffer::BufferAnySlice;
+use buffer::Create as BufferCreate;
+use buffer::Storage as BufferStorage;
 use buffer::Content as BufferContent;
+use buffer::Invalidate as BufferInvalidate;
 
 use uniforms::AsUniformValue;
 use uniforms::UniformValue;
+
+use buffer::{DynamicBuffer, DynamicBufferSlice, DynamicBufferMutSlice};
+use buffer::{ImmutableBuffer, ImmutableBufferSlice, ImmutableBufferMutSlice};
+use buffer::{PersistentBuffer, PersistentBufferSlice, PersistentBufferMutSlice};
+
+pub type BufferTexture<T> = BufferTextureStorage<DynamicBuffer<[T]>>;
+pub type BufferTextureSlice<'a, T> = BufferTextureStorage<DynamicBufferSlice<'a, [T]>>;
+pub type BufferTextureMutSlice<'a, T> = BufferTextureStorage<DynamicBufferMutSlice<'a, [T]>>;
+pub type ImmutableBufferTexture<T> = BufferTextureStorage<ImmutableBuffer<[T]>>;
+pub type ImmutableBufferTextureSlice<'a, T> = BufferTextureStorage<ImmutableBufferSlice<'a, [T]>>;
+pub type ImmutableBufferTextureMutSlice<'a, T> = BufferTextureStorage<ImmutableBufferMutSlice<'a, [T]>>;
+pub type PersistentBufferTexture<T> = BufferTextureStorage<PersistentBuffer<[T]>>;
+pub type PersistentBufferTextureSlice<'a, T> = BufferTextureStorage<PersistentBufferSlice<'a, [T]>>;
+pub type PersistentBufferTextureMutSlice<'a, T> = BufferTextureStorage<PersistentBufferMutSlice<'a, [T]>>;
 
 /// Error that can happen while building the texture part of a buffer texture.
 #[derive(Copy, Clone, Debug)]
@@ -182,114 +200,50 @@ pub enum BufferTextureType {
 }
 
 /// A one-dimensional texture that gets its data from a buffer.
-pub struct BufferTexture<T> where [T]: BufferContent {
-    buffer: Buffer<[T]>,
+pub struct BufferTextureStorage<T> where T: BufferStorage {
+    buffer: T,
     texture: gl::types::GLuint,
     ty: BufferTextureType,
 }
 
-impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Copy {
+impl<T, E> BufferTextureStorage<T>
+    where T: BufferCreate<Content = [E]>, E: TextureBufferContent + Copy
+{
     /// Builds a new texture buffer from data.
     #[inline]
-    pub fn new<F>(facade: &F, data: &[T], ty: BufferTextureType)
-                  -> Result<BufferTexture<T>, CreationError>
+    pub fn new<F>(facade: &F, data: &[E], ty: BufferTextureType)
+                  -> Result<BufferTextureStorage<T>, CreationError>
                   where F: Facade
     {
-        BufferTexture::new_impl(facade, data, BufferMode::Default, ty)
-    }
-
-    /// Builds a new texture buffer from data.
-    #[inline]
-    pub fn dynamic<F>(facade: &F, data: &[T], ty: BufferTextureType)
-                  -> Result<BufferTexture<T>, CreationError>
-                      where F: Facade
-    {
-        BufferTexture::new_impl(facade, data, BufferMode::Dynamic, ty)
-    }
-
-    /// Builds a new texture buffer from data.
-    #[inline]
-    pub fn persistent<F>(facade: &F, data: &[T], ty: BufferTextureType)
-                  -> Result<BufferTexture<T>, CreationError>
-                         where F: Facade
-    {
-        BufferTexture::new_impl(facade, data, BufferMode::Persistent, ty)
-    }
-
-    /// Builds a new texture buffer from data.
-    #[inline]
-    pub fn immutable<F>(facade: &F, data: &[T], ty: BufferTextureType)
-                        -> Result<BufferTexture<T>, CreationError>
-                        where F: Facade
-    {
-        BufferTexture::new_impl(facade, data, BufferMode::Immutable, ty)
-    }
-
-    #[inline]
-    fn new_impl<F>(facade: &F, data: &[T], mode: BufferMode, ty: BufferTextureType)
-                   -> Result<BufferTexture<T>, CreationError>
-                   where F: Facade
-    {
-        let buffer = try!(Buffer::new(facade, data, BufferType::TextureBuffer, mode));
-        BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
+        let buffer = try!(BufferCreate::new(facade, data, BufferType::TextureBuffer));
+        BufferTextureStorage::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }
 
     /// Builds a new empty buffer buffer.
     #[inline]
     pub fn empty<F>(facade: &F, len: usize, ty: BufferTextureType)
-                    -> Result<BufferTexture<T>, CreationError>
+                    -> Result<BufferTextureStorage<T>, CreationError>
                     where F: Facade
     {
-        BufferTexture::empty_impl(facade, len, ty, BufferMode::Default)
+        let buffer = try!(BufferCreate::empty_array(facade, len, BufferType::TextureBuffer));
+        BufferTextureStorage::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }
+}
 
-    /// Builds a new empty buffer buffer.
-    #[inline]
-    pub fn empty_dynamic<F>(facade: &F, len: usize, ty: BufferTextureType)
-                            -> Result<BufferTexture<T>, CreationError>
-                            where F: Facade
-    {
-        BufferTexture::empty_impl(facade, len, ty, BufferMode::Dynamic)
-    }
-
-    /// Builds a new empty buffer buffer.
-    #[inline]
-    pub fn empty_persistent<F>(facade: &F, len: usize, ty: BufferTextureType)
-                               -> Result<BufferTexture<T>, CreationError>
-                               where F: Facade
-    {
-        BufferTexture::empty_impl(facade, len, ty, BufferMode::Persistent)
-    }
-
-    /// Builds a new empty buffer buffer.
-    #[inline]
-    pub fn empty_immutable<F>(facade: &F, len: usize, ty: BufferTextureType)
-                              -> Result<BufferTexture<T>, CreationError>
-                              where F: Facade
-    {
-        BufferTexture::empty_impl(facade, len, ty, BufferMode::Immutable)
-    }
-
-    #[inline]
-    fn empty_impl<F>(facade: &F, len: usize, ty: BufferTextureType, mode: BufferMode)
-                     -> Result<BufferTexture<T>, CreationError>
-                     where F: Facade
-    {
-        let buffer = try!(Buffer::empty_array(facade, BufferType::TextureBuffer, len, mode));
-        BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
-    }
-
+impl<T, E> BufferTextureStorage<T>
+    where T: BufferStorage<Content = [E]>, E: TextureBufferContent + Copy
+{
     /// Builds a new buffer texture by taking ownership of a buffer.
-    pub fn from_buffer<F>(context: &F, buffer: Buffer<[T]>, ty: BufferTextureType)
-                          -> Result<BufferTexture<T>, (TextureCreationError, Buffer<[T]>)>
+    pub fn from_buffer<F>(context: &F, buffer: T, ty: BufferTextureType)
+                          -> Result<BufferTextureStorage<T>, (TextureCreationError, T)>
                           where F: Facade
     {
         let context = context.get_context();
         let mut ctxt = context.make_current();
 
         // checking capabilities
-        if buffer.get_size() / mem::size_of::<T>() > ctxt.capabilities
-                                                         .max_texture_buffer_size.unwrap() as usize
+        if buffer.size() / mem::size_of::<E>() > ctxt.capabilities
+                                                     .max_texture_buffer_size.unwrap() as usize
         {
             return Err((TextureCreationError::TooLarge, buffer));
         }
@@ -300,7 +254,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                                  ctxt.extensions.gl_oes_texture_buffer ||
                                  ctxt.extensions.gl_ext_texture_buffer
         {
-            match (T::get_type(), ty) {
+            match (E::get_type(), ty) {
                 (TextureBufferContentType::U8, BufferTextureType::Float) => gl::R8,
                 (TextureBufferContentType::U8, BufferTextureType::Unsigned) => gl::R8UI,
                 (TextureBufferContentType::I8, BufferTextureType::Integral) => gl::R8I,
@@ -355,7 +309,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         } else if ctxt.extensions.gl_arb_texture_buffer_object ||
                   ctxt.extensions.gl_ext_texture_buffer_object
         {
-            match (T::get_type(), ty) {
+            match (E::get_type(), ty) {
                 (TextureBufferContentType::U8U8U8U8, BufferTextureType::Float) => gl::RGBA8,
                 (TextureBufferContentType::U16U16U16U16, BufferTextureType::Float) => gl::RGBA16,
                 (TextureBufferContentType::F16F16F16F16, BufferTextureType::Float) => gl::RGBA16F,
@@ -391,14 +345,14 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         };
 
         // now the texture creation
-        debug_assert_eq!(buffer.get_offset_bytes(), 0);
+        debug_assert_eq!(buffer.offset_bytes(), 0);
         let id = if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                     ctxt.extensions.gl_arb_direct_state_access
         {
             unsafe {
                 let mut id = mem::uninitialized();
                 ctxt.gl.CreateTextures(gl::TEXTURE_BUFFER, 1, &mut id);
-                ctxt.gl.TextureBuffer(id, internal_format, buffer.get_buffer_id());
+                ctxt.gl.TextureBuffer(id, internal_format, buffer.as_slice_any().get_buffer_id());
                 id
             }
 
@@ -422,24 +376,25 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                ctxt.version >= &Version(Api::GlEs, 3, 2)
             {
                 unsafe {
-                    ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
+                    ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format,
+                                      buffer.as_slice_any().get_buffer_id());
                 }
             } else if ctxt.extensions.gl_arb_texture_buffer_object {
                 unsafe {
                     ctxt.gl.TexBufferARB(gl::TEXTURE_BUFFER, internal_format,
-                                         buffer.get_buffer_id());
+                                         buffer.as_slice_any().get_buffer_id());
                 }
             } else if ctxt.extensions.gl_ext_texture_buffer_object ||
                       ctxt.extensions.gl_ext_texture_buffer
             {
                 unsafe {
                     ctxt.gl.TexBufferEXT(gl::TEXTURE_BUFFER, internal_format,
-                                         buffer.get_buffer_id());
+                                         buffer.as_slice_any().get_buffer_id());
                 }
             } else if ctxt.extensions.gl_oes_texture_buffer {
                 unsafe {
                     ctxt.gl.TexBufferOES(gl::TEXTURE_BUFFER, internal_format,
-                                         buffer.get_buffer_id());
+                                         buffer.as_slice_any().get_buffer_id());
                 }
 
             } else {
@@ -451,7 +406,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
             id
         };
 
-        Ok(BufferTexture {
+        Ok(BufferTextureStorage {
             buffer: buffer,
             ty: ty,
             texture: id,
@@ -459,25 +414,10 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 }
 
-impl<T> Deref for BufferTexture<T> where [T]: BufferContent {
-    type Target = Buffer<[T]>;
-
-    #[inline]
-    fn deref(&self) -> &Buffer<[T]> {
-        &self.buffer
-    }
-}
-
-impl<T> DerefMut for BufferTexture<T> where [T]: BufferContent {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Buffer<[T]> {
-        &mut self.buffer
-    }
-}
-
-impl<T> Drop for BufferTexture<T> where [T]: BufferContent {
+impl<T> Drop for BufferTextureStorage<T> where T: BufferStorage {
     fn drop(&mut self) {
-        let mut ctxt = self.buffer.get_context().make_current();
+        let buffer = self.buffer.as_slice_any();
+        let mut ctxt = buffer.get_context().make_current();
 
         // resetting the bindings
         for tex_unit in ctxt.state.texture_units.iter_mut() {
@@ -490,7 +430,9 @@ impl<T> Drop for BufferTexture<T> where [T]: BufferContent {
     }
 }
 
-impl<T> BufferTexture<T> where [T]: BufferContent {
+impl_buffer_wrapper!(BufferTextureStorage, buffer, [texture, ty]);
+
+impl<T> BufferTextureStorage<T> where T: BufferStorage {
     /// Builds a `BufferTextureRef`.
     #[inline]
     pub fn as_buffer_texture_ref(&self) -> BufferTextureRef {
@@ -502,7 +444,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent {
     }
 }
 
-impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
+impl<T> AsUniformValue for BufferTextureStorage<T> where T: BufferStorage {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         // FIXME: handle `glMemoryBarrier` for the buffer
@@ -510,7 +452,7 @@ impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
     }
 }
 
-impl<'a, T: 'a> AsUniformValue for &'a BufferTexture<T> where [T]: BufferContent {
+impl<'a, T: 'a> AsUniformValue for &'a BufferTextureStorage<T> where T: BufferStorage {
     #[inline]
     fn as_uniform_value(&self) -> UniformValue {
         // FIXME: handle `glMemoryBarrier` for the buffer

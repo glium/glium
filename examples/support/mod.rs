@@ -7,7 +7,7 @@ extern crate obj;
 use std::thread;
 use std::time::Duration;
 use glium::{self, Display};
-use glium::vertex::VertexBufferAny;
+use glium::vertex::VertexBuffer;
 
 pub mod camera;
 
@@ -42,16 +42,7 @@ pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
 }
 
 /// Returns a vertex buffer that should be rendered as `TrianglesList`.
-pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 3],
-        normal: [f32; 3],
-        texture: [f32; 2],
-    }
-
-    implement_vertex!(Vertex, position, normal, texture);
-
+pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBuffer<Vertex> {
     let mut data = ::std::io::BufReader::new(data);
     let data = obj::Obj::load(&mut data);
 
@@ -81,5 +72,14 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
         }
     }
 
-    glium::vertex::VertexBuffer::new(display, &vertex_data).unwrap().into_vertex_buffer_any()
+    glium::vertex::VertexBuffer::new(display, &vertex_data).unwrap()
 }
+
+#[derive(Copy, Clone)]
+pub struct Vertex {
+    position: [f32; 3],
+    normal: [f32; 3],
+    texture: [f32; 2],
+}
+
+implement_vertex!(Vertex, position, normal, texture);

@@ -25,7 +25,7 @@ use RawUniformValue;
 use QueryExt;
 use draw_parameters::TimeElapsedQuery;
 
-use buffer::BufferSlice;
+use buffer::Storage as BufferStorage;
 use BufferExt;
 use BufferSliceExt;
 
@@ -544,12 +544,14 @@ impl RawProgram {
     ///
     /// The program *must* contain a compute shader.
     /// TODO: check inside the program if it has a compute shader instead of being unsafe
-    pub unsafe fn dispatch_compute_indirect<U>(&self, uniforms: U,
-                                               buffer: BufferSlice<ComputeCommand>)
-                                               -> Result<(), DrawError>      // TODO: other error?
-                                               where U: Uniforms
+    pub unsafe fn dispatch_compute_indirect<U, B>(&self, uniforms: U, buffer: B)
+                                                  -> Result<(), DrawError>      // TODO: other error?
+        where U: Uniforms, B: BufferStorage<Content = ComputeCommand>
     {
         let mut ctxt = self.context.make_current();
+
+        let buffer_fence = buffer.gpu_access(true, false);
+        let buffer = buffer.as_slice_any();
 
         assert!(ctxt.version >= &Version(Api::Gl, 4, 3) ||
                 ctxt.version >= &Version(Api::GlEs, 3, 1) ||
@@ -563,7 +565,7 @@ impl RawProgram {
         // an error is generated if the offset is not a multiple of 4
         assert!(offset % 4 == 0);
 
-        if let Some(fence) = buffer.add_fence() {
+        if let Some(fence) = buffer_fence {
             fence.insert(&mut ctxt);
         }
 
