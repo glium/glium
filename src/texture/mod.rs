@@ -396,6 +396,9 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
 }
 
 impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
+    /// Builds a raw image from a vector of interleaved RGB values.
+    ///
+    /// The first pixel is at (0, 0), the last pixel is at (1, 1).
     pub fn from_raw_rgb(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
         RawImage2d {
             data: Cow::Owned(data),
@@ -405,6 +408,9 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
         }
     }
 
+    /// Builds a raw image from a vector of interleaved RGBA values.
+    ///
+    /// The first pixel is at (0, 0), the last pixel is at (1, 1).
     pub fn from_raw_rgba(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
         RawImage2d {
             data: Cow::Owned(data),
@@ -414,6 +420,9 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
         }
     }
 
+    /// Builds a raw image from a vector of interleaved RGB values, flipping it vertically.
+    ///
+    /// The first pixel is at (0, 1), the last pixel is at (1, 0).
     pub fn from_raw_rgb_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
         let data = data
             .chunks(dimensions.0 as usize * 3)
@@ -425,6 +434,9 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
         RawImage2d::from_raw_rgb(data, dimensions)
     }
 
+    /// Builds a raw image from a vector of interleaved RGBA values, flipping it vertically.
+    ///
+    /// The first pixel is at (0, 1), the last pixel is at (1, 0).
     pub fn from_raw_rgba_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
         let data = data
             .chunks(dimensions.0 as usize * 4)
