@@ -414,6 +414,17 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
         }
     }
 
+    pub fn from_raw_rgb_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+        let data = data
+            .chunks(dimensions.0 as usize * 3)
+            .rev()
+            .flat_map(|row| row.iter())
+            .map(|p| p.clone())
+            .collect();
+
+        RawImage2d::from_raw_rgb(data, dimensions)
+    }
+
     pub fn from_raw_rgba_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
         let data = data
             .chunks(dimensions.0 as usize * 4)
