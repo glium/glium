@@ -396,6 +396,15 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
 }
 
 impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
+    pub fn from_raw_rgb(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+        RawImage2d {
+            data: Cow::Owned(data),
+            width: dimensions.0,
+            height: dimensions.1,
+            format: ClientFormat::U8U8U8,
+        }
+    }
+
     pub fn from_raw_rgba(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
         RawImage2d {
             data: Cow::Owned(data),
