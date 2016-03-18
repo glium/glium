@@ -58,7 +58,7 @@ impl Error for CreationError {
     }
 }
 
-impl<T: Index> GlObject for VertexBuffer<T> {
+impl<T: Copy> GlObject for VertexBuffer<T> {
     type Id = gl::types::GLuint;
 
     #[inline]
