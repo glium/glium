@@ -22,7 +22,7 @@ pub struct TypelessUniformBuffer {
     buffer: BufferAny,
 }
 
-impl<T: Copy> GlObject for UniformBuffer<T> {
+impl<T: ?Sized + Content> GlObject for UniformBuffer<T> {
     type Id = gl::types::GLuint;
 
     #[inline]
