@@ -6,6 +6,7 @@ use version::Version;
 use context::CommandContext;
 use backend::Facade;
 use BufferExt;
+use GlObject;
 use ContextExt;
 use CapabilitiesSource;
 use TransformFeedbackSessionExt;
@@ -234,6 +235,6 @@ impl<'a> Drop for TransformFeedbackSession<'a> {
         // buffer isn't used by transform feedback.
         // However we end the session now anyway.
         let mut ctxt = self.buffer.get_context().make_current();
-        Self::ensure_buffer_out_of_transform_feedback(&mut ctxt, self.buffer.get_buffer_id());
+        Self::ensure_buffer_out_of_transform_feedback(&mut ctxt, self.buffer.get_id());
     }
 }

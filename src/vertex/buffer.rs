@@ -7,6 +7,10 @@ use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferM
 use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
+use gl;
+use GlObject;
+use index::Index;
+
 use backend::Facade;
 use version::{Api, Version};
 use CapabilitiesSource;
@@ -51,6 +55,15 @@ impl Error for CreationError {
             BufferCreationError(ref error) => Some(error),
             FormatNotSupported => None,
         }
+    }
+}
+
+impl<T: Copy> GlObject for VertexBuffer<T> {
+    type Id = gl::types::GLuint;
+
+    #[inline]
+    fn get_id(&self) -> gl::types::GLuint {
+        self.buffer.get_id()
     }
 }
 

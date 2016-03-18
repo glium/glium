@@ -149,7 +149,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
 
         buffer.prepare_for_vertex_attrib_array(self.context);
 
-        let (buffer, format, stride) = (buffer.get_buffer_id(), bindings.clone(),
+        let (buffer, format, stride) = (buffer.get_id(), bindings.clone(),
                                         buffer.get_elements_size());
 
         self.vertex_buffers.push((buffer, format, offset, stride, divisor));
@@ -188,7 +188,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
             let mut buffers_list: Vec<_> = self.vertex_buffers.iter()
                                                               .map(|&(v, _, o, s, _)| (v, o))
                                                               .collect();
-            buffers_list.push((self.element_array_buffer.map(|b| b.get_buffer_id()).unwrap_or(0), 0));
+            buffers_list.push((self.element_array_buffer.map(|b| b.get_id()).unwrap_or(0), 0));
             buffers_list.sort();
 
             let program_id = self.program.get_id();
@@ -324,7 +324,7 @@ impl VertexArrayObject {
         VertexArrayObject {
             id: id,
             destroyed: false,
-            element_array_buffer: index_buffer.map(|b| b.get_buffer_id()).unwrap_or(0),
+            element_array_buffer: index_buffer.map(|b| b.get_id()).unwrap_or(0),
             element_array_buffer_hijacked: Cell::new(false),
         }
     }

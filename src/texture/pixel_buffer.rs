@@ -68,7 +68,7 @@ impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
 
     #[inline]
     fn get_id(&self) -> gl::types::GLuint {
-        self.buffer.get_buffer_id()
+        self.buffer.get_id()
     }
 }
 

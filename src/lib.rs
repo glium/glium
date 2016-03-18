@@ -200,9 +200,6 @@ trait BufferExt {
     /// Returns the number of bytes from the start of the buffer to this subbuffer.
     fn get_offset_bytes(&self) -> usize;
 
-    /// Returns the raw identifier of the buffer.
-    fn get_buffer_id(&self) -> gl::types::GLuint;
-
     /// Calls `glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT)` if necessary.
     fn prepare_for_vertex_attrib_array(&self, &mut CommandContext);
 
