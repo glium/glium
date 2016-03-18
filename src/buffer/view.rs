@@ -39,6 +39,15 @@ pub struct Buffer<T: ?Sized> where T: Content {
     marker: PhantomData<T>,
 }
 
+impl<T: ?Sized> GlObject for Buffer<T> where T: Content {
+    type Id = gl::types::GLuint;
+
+    #[inline]
+    fn get_id(&self) -> gl::types::GLuint {
+        self.alloc.as_ref().unwrap().get_id()
+    }
+}
+
 impl<T: ?Sized> Buffer<T> where T: Content {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
@@ -402,12 +411,6 @@ impl<T: ?Sized> BufferExt for Buffer<T> where T: Content {
     }
 
     #[inline]
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        let alloc = self.alloc.as_ref().unwrap();
-        alloc.get_id()
-    }
-
-    #[inline]
     fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
         let alloc = self.alloc.as_ref().unwrap();
         alloc.prepare_for_vertex_attrib_array(ctxt);
@@ -731,11 +734,6 @@ impl<'a, T: ?Sized> BufferExt for BufferSlice<'a, T> where T: Content {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         self.bytes_start
-    }
-
-    #[inline]
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.alloc.get_id()
     }
 
     #[inline]
@@ -1106,7 +1104,7 @@ impl BufferAny {
     pub fn get_elements_count(&self) -> usize {
         self.size / self.elements_size
     }
-    
+
     /// Returns the context corresponding to this buffer.
     #[inline]
     pub fn get_context(&self) -> &Rc<Context> {
@@ -1177,11 +1175,6 @@ impl BufferExt for BufferAny {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         0
-    }
-
-    #[inline]
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.alloc.get_id()
     }
 
     #[inline]
@@ -1265,6 +1258,15 @@ pub struct BufferAnySlice<'a> {
     fence: &'a Fences,
 }
 
+impl<'a> GlObject for BufferAnySlice<'a> {
+    type Id = gl::types::GLuint;
+
+    #[inline]
+    fn get_id(&self) -> gl::types::GLuint {
+        self.alloc.get_id()
+    }
+}
+
 impl<'a> BufferAnySlice<'a> {
     /// Returns the number of bytes in this slice.
     #[inline]
@@ -1324,11 +1326,6 @@ impl<'a> BufferExt for BufferAnySlice<'a> {
     #[inline]
     fn get_offset_bytes(&self) -> usize {
         self.bytes_start
-    }
-
-    #[inline]
-    fn get_buffer_id(&self) -> gl::types::GLuint {
-        self.alloc.get_id()
     }
 
     #[inline]

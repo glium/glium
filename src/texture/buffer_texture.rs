@@ -65,6 +65,7 @@ use backend::Facade;
 use context::Context;
 use context::CommandContext;
 use ContextExt;
+use GlObject;
 
 use TextureExt;
 
@@ -398,7 +399,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
             unsafe {
                 let mut id = mem::uninitialized();
                 ctxt.gl.CreateTextures(gl::TEXTURE_BUFFER, 1, &mut id);
-                ctxt.gl.TextureBuffer(id, internal_format, buffer.get_buffer_id());
+                ctxt.gl.TextureBuffer(id, internal_format, buffer.get_id());
                 id
             }
 
@@ -422,24 +423,24 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                ctxt.version >= &Version(Api::GlEs, 3, 2)
             {
                 unsafe {
-                    ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format, buffer.get_buffer_id());
+                    ctxt.gl.TexBuffer(gl::TEXTURE_BUFFER, internal_format, buffer.get_id());
                 }
             } else if ctxt.extensions.gl_arb_texture_buffer_object {
                 unsafe {
                     ctxt.gl.TexBufferARB(gl::TEXTURE_BUFFER, internal_format,
-                                         buffer.get_buffer_id());
+                                         buffer.get_id());
                 }
             } else if ctxt.extensions.gl_ext_texture_buffer_object ||
                       ctxt.extensions.gl_ext_texture_buffer
             {
                 unsafe {
                     ctxt.gl.TexBufferEXT(gl::TEXTURE_BUFFER, internal_format,
-                                         buffer.get_buffer_id());
+                                         buffer.get_id());
                 }
             } else if ctxt.extensions.gl_oes_texture_buffer {
                 unsafe {
                     ctxt.gl.TexBufferOES(gl::TEXTURE_BUFFER, internal_format,
-                                         buffer.get_buffer_id());
+                                         buffer.get_id());
                 }
 
             } else {
