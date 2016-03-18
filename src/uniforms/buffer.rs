@@ -3,6 +3,9 @@ use buffer::{BufferSlice, BufferMutSlice};
 use uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
 use program;
 
+use gl;
+use GlObject;
+
 use std::ops::{Deref, DerefMut};
 
 use backend::Facade;
@@ -17,6 +20,15 @@ pub struct UniformBuffer<T: ?Sized> where T: Content {
 #[derive(Debug)]
 pub struct TypelessUniformBuffer {
     buffer: BufferAny,
+}
+
+impl<T: Copy> GlObject for UniformBuffer<T> {
+    type Id = gl::types::GLuint;
+
+    #[inline]
+    fn get_id(&self) -> gl::types::GLuint {
+        self.buffer.get_id()
+    }
 }
 
 impl<T> UniformBuffer<T> where T: Copy {
