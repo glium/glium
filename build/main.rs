@@ -1,12 +1,10 @@
 extern crate gl_generator;
-extern crate khronos_api;
 
+use gl_generator::{Registry, Api, Profile, Fallbacks};
 use std::env;
 use std::fs::File;
-use std::io::BufReader;
 use std::io::Write;
 use std::path::Path;
-use gl_generator::generators::Generator;
 
 mod textures;
 
@@ -31,119 +29,106 @@ fn main() {
 }
 
 fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
-    let gl_registry = {
-        let reader = BufReader::new(khronos_api::GL_XML);
-        let ns = gl_generator::registry::Ns::Gl;
+    let gl_registry = Registry::new(
+        Api::Gl,
+        (4, 5),
+        Profile::Compatibility,
+        Fallbacks::None,
+        vec![
+            "GL_AMD_depth_clamp_separate",
+            "GL_APPLE_vertex_array_object",
+            "GL_ARB_bindless_texture",
+            "GL_ARB_buffer_storage",
+            "GL_ARB_compute_shader",
+            "GL_ARB_copy_buffer",
+            "GL_ARB_debug_output",
+            "GL_ARB_depth_texture",
+            "GL_ARB_direct_state_access",
+            "GL_ARB_draw_buffers",
+            "GL_ARB_ES2_compatibility",
+            "GL_ARB_ES3_compatibility",
+            "GL_ARB_ES3_1_compatibility",
+            "GL_ARB_ES3_2_compatibility",
+            "GL_ARB_framebuffer_sRGB",
+            "GL_ARB_geometry_shader4",
+            "GL_ARB_gpu_shader_fp64",
+            "GL_ARB_gpu_shader_int64",
+            "GL_ARB_invalidate_subdata",
+            "GL_ARB_multi_draw_indirect",
+            "GL_ARB_occlusion_query",
+            "GL_ARB_pixel_buffer_object",
+            "GL_ARB_robustness",
+            "GL_ARB_shader_image_load_store",
+            "GL_ARB_shader_objects",
+            "GL_ARB_texture_buffer_object",
+            "GL_ARB_texture_float",
+            "GL_ARB_texture_multisample",
+            "GL_ARB_texture_rg",
+            "GL_ARB_texture_rgb10_a2ui",
+            "GL_ARB_transform_feedback3",
+            "GL_ARB_vertex_buffer_object",
+            "GL_ARB_vertex_shader",
+            "GL_ATI_draw_buffers",
+            "GL_ATI_meminfo",
+            "GL_EXT_debug_marker",
+            "GL_EXT_direct_state_access",
+            "GL_EXT_framebuffer_blit",
+            "GL_EXT_framebuffer_multisample",
+            "GL_EXT_framebuffer_object",
+            "GL_EXT_framebuffer_sRGB",
+            "GL_EXT_gpu_shader4",
+            "GL_EXT_packed_depth_stencil",
+            "GL_EXT_provoking_vertex",
+            "GL_EXT_texture_array",
+            "GL_EXT_texture_buffer_object",
+            "GL_EXT_texture_compression_s3tc",
+            "GL_EXT_texture_filter_anisotropic",
+            "GL_EXT_texture_integer",
+            "GL_EXT_texture_sRGB",
+            "GL_EXT_transform_feedback",
+            "GL_GREMEDY_string_marker",
+            "GL_KHR_robustness",
+            "GL_NVX_gpu_memory_info",
+            "GL_NV_conditional_render",
+            "GL_NV_vertex_attrib_integer_64bit",
+        ],
+    );
 
-        let filter = gl_generator::registry::Filter {
-            fallbacks: gl_generator::Fallbacks::None,
-            api: gl_generator::registry::Ns::Gl.to_string(),
-            extensions: vec![
-                "GL_AMD_depth_clamp_separate".to_string(),
-                "GL_APPLE_vertex_array_object".to_string(),
-                "GL_ARB_bindless_texture".to_string(),
-                "GL_ARB_buffer_storage".to_string(),
-                "GL_ARB_compute_shader".to_string(),
-                "GL_ARB_copy_buffer".to_string(),
-                "GL_ARB_debug_output".to_string(),
-                "GL_ARB_depth_texture".to_string(),
-                "GL_ARB_direct_state_access".to_string(),
-                "GL_ARB_draw_buffers".to_string(),
-                "GL_ARB_ES2_compatibility".to_string(),
-                "GL_ARB_ES3_compatibility".to_string(),
-                "GL_ARB_ES3_1_compatibility".to_string(),
-                "GL_ARB_ES3_2_compatibility".to_string(),
-                "GL_ARB_framebuffer_sRGB".to_string(),
-                "GL_ARB_geometry_shader4".to_string(),
-                "GL_ARB_gpu_shader_fp64".to_string(),
-                "GL_ARB_gpu_shader_int64".to_string(),
-                "GL_ARB_invalidate_subdata".to_string(),
-                "GL_ARB_multi_draw_indirect".to_string(),
-                "GL_ARB_occlusion_query".to_string(),
-                "GL_ARB_pixel_buffer_object".to_string(),
-                "GL_ARB_robustness".to_string(),
-                "GL_ARB_shader_image_load_store".to_string(),
-                "GL_ARB_shader_objects".to_string(),
-                "GL_ARB_texture_buffer_object".to_string(),
-                "GL_ARB_texture_float".to_string(),
-                "GL_ARB_texture_multisample".to_string(),
-                "GL_ARB_texture_rg".to_string(),
-                "GL_ARB_texture_rgb10_a2ui".to_string(),
-                "GL_ARB_transform_feedback3".to_string(),
-                "GL_ARB_vertex_buffer_object".to_string(),
-                "GL_ARB_vertex_shader".to_string(),
-                "GL_ATI_draw_buffers".to_string(),
-                "GL_ATI_meminfo".to_string(),
-                "GL_EXT_debug_marker".to_string(),
-                "GL_EXT_direct_state_access".to_string(),
-                "GL_EXT_framebuffer_blit".to_string(),
-                "GL_EXT_framebuffer_multisample".to_string(),
-                "GL_EXT_framebuffer_object".to_string(),
-                "GL_EXT_framebuffer_sRGB".to_string(),
-                "GL_EXT_gpu_shader4".to_string(),
-                "GL_EXT_packed_depth_stencil".to_string(),
-                "GL_EXT_provoking_vertex".to_string(),
-                "GL_EXT_texture_array".to_string(),
-                "GL_EXT_texture_buffer_object".to_string(),
-                "GL_EXT_texture_compression_s3tc".to_string(),
-                "GL_EXT_texture_filter_anisotropic".to_string(),
-                "GL_EXT_texture_integer".to_string(),
-                "GL_EXT_texture_sRGB".to_string(),
-                "GL_EXT_transform_feedback".to_string(),
-                "GL_GREMEDY_string_marker".to_string(),
-                "GL_KHR_robustness".to_string(),
-                "GL_NVX_gpu_memory_info".to_string(),
-                "GL_NV_conditional_render".to_string(),
-                "GL_NV_vertex_attrib_integer_64bit".to_string(),
-            ],
-            version: "4.5".to_string(),
-            profile: "compatibility".to_string(),
-        };
+    let gles_registry = Registry::new(
+        Api::Gles2,
+        (3, 2),
+        Profile::Compatibility,
+        Fallbacks::None,
+        vec![
+            "GL_ANGLE_framebuffer_multisample",
+            "GL_APPLE_framebuffer_multisample",
+            "GL_APPLE_sync",
+            "GL_ARM_rgba8",
+            "GL_EXT_buffer_storage",
+            "GL_EXT_disjoint_timer_query",
+            "GL_EXT_multi_draw_indirect",
+            "GL_EXT_multisampled_render_to_texture",
+            "GL_EXT_occlusion_query_boolean",
+            "GL_EXT_primitive_bounding_box",
+            "GL_EXT_robustness",
+            "GL_KHR_debug",
+            "GL_NV_copy_buffer",
+            "GL_NV_framebuffer_multisample",
+            "GL_NV_internalformat_sample_query",
+            "GL_NV_pixel_buffer_object",
+            "GL_OES_depth_texture",
+            "GL_OES_draw_elements_base_vertex",
+            "GL_OES_packed_depth_stencil",
+            "GL_OES_primitive_bounding_box",
+            "GL_OES_rgb8_rgba8",
+            "GL_OES_texture_buffer",
+            "GL_OES_texture_npot",
+            "GL_OES_vertex_array_object",
+            "GL_OES_vertex_type_10_10_10_2",
+        ],
+    );
 
-        gl_generator::registry::Registry::from_xml(reader, ns, Some(filter))
-    };
-
-    let gles_registry = {
-        let reader = BufReader::new(khronos_api::GL_XML);
-        let ns = gl_generator::registry::Ns::Gles2;
-
-        let filter = gl_generator::registry::Filter {
-            fallbacks: gl_generator::Fallbacks::None,
-            api: gl_generator::registry::Ns::Gles2.to_string(),
-            extensions: vec![
-                "GL_ANGLE_framebuffer_multisample".to_string(),
-                "GL_APPLE_framebuffer_multisample".to_string(),
-                "GL_APPLE_sync".to_string(),
-                "GL_ARM_rgba8".to_string(),
-                "GL_EXT_buffer_storage".to_string(),
-                "GL_EXT_disjoint_timer_query".to_string(),
-                "GL_EXT_multi_draw_indirect".to_string(),
-                "GL_EXT_multisampled_render_to_texture".to_string(),
-                "GL_EXT_occlusion_query_boolean".to_string(),
-                "GL_EXT_primitive_bounding_box".to_string(),
-                "GL_EXT_robustness".to_string(),
-                "GL_KHR_debug".to_string(),
-                "GL_NV_copy_buffer".to_string(),
-                "GL_NV_framebuffer_multisample".to_string(),
-                "GL_NV_internalformat_sample_query".to_string(),
-                "GL_NV_pixel_buffer_object".to_string(),
-                "GL_OES_depth_texture".to_string(),
-                "GL_OES_draw_elements_base_vertex".to_string(),
-                "GL_OES_packed_depth_stencil".to_string(),
-                "GL_OES_primitive_bounding_box".to_string(),
-                "GL_OES_rgb8_rgba8".to_string(),
-                "GL_OES_texture_buffer".to_string(),
-                "GL_OES_texture_npot".to_string(),
-                "GL_OES_vertex_array_object".to_string(),
-                "GL_OES_vertex_type_10_10_10_2".to_string(),
-            ],
-            version: "3.2".to_string(),
-            profile: "compatibility".to_string(),
-        };
-
-        gl_generator::registry::Registry::from_xml(reader, ns, Some(filter))
-    };
-
-    gl_generator::StructGenerator.write(&(gl_registry + gles_registry),
-                                        gl_generator::registry::Ns::Gl, dest).unwrap();
+    (gl_registry + gles_registry)
+        .write_bindings(gl_generator::StructGenerator, dest)
+        .unwrap();
 }
