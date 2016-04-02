@@ -11,7 +11,6 @@ use std::ops::{Deref, DerefMut};
 use backend::Facade;
 
 use GlObject;
-use BufferExt;
 use buffer::{ReadError, Buffer, BufferType, BufferMode};
 use gl;
 

@@ -69,7 +69,6 @@ Not yet supported
 use std::rc::Rc;
 use smallvec::SmallVec;
 
-use texture::Texture2d;
 use texture::TextureAnyImage;
 use TextureExt;
 

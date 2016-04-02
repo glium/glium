@@ -1,7 +1,6 @@
 use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType};
 use buffer::{BufferMode, BufferCreationError};
 use gl;
-use BufferExt;
 use GlObject;
 
 use backend::Facade;
