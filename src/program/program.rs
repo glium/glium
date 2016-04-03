@@ -8,7 +8,6 @@ use backend::Facade;
 use CapabilitiesSource;
 
 use std::fmt;
-use std::error::Error;
 use std::collections::hash_map::{self, HashMap};
 
 use GlObject;

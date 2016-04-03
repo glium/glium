@@ -4,7 +4,6 @@ use context::CommandContext;
 use backend::Facade;
 
 use std::fmt;
-use std::error::Error;
 use std::collections::hash_map::{self, HashMap};
 use std::os::raw;
 

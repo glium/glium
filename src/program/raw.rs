@@ -10,7 +10,6 @@ use ContextExt;
 use UniformsExt;
 
 use std::{ffi, fmt, mem};
-use std::error::Error;
 use std::collections::hash_map::{self, HashMap};
 use std::rc::Rc;
 use std::cell::RefCell;

@@ -35,7 +35,6 @@ use std::borrow::Cow;
 use std::cell::Cell;
 use std::rc::Rc;
 use std::ops::Range;
-use std::os::raw;
 
 use ops;
 use fbo;
@@ -474,7 +473,7 @@ pub unsafe fn from_id<F: Facade>(facade: &F,
     let should_generate_mipmaps = mipmaps.should_generate();
     if should_generate_mipmaps {
         let ctxt = facade.get_context().make_current();
-        unsafe { generate_mipmaps(&ctxt, get_bind_point(ty)); }
+        generate_mipmaps(&ctxt, get_bind_point(ty));
     }
     TextureAny {
         context: facade.get_context().clone(),
