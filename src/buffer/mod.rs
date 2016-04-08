@@ -277,7 +277,6 @@ impl Default for BufferMode {
 }
 
 /// Type of a buffer.
-#[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum BufferType {
     ArrayBuffer,
