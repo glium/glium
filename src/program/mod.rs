@@ -43,6 +43,13 @@ pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
 /// Returns true if the backend supports shader subroutines.
 #[inline]
 pub fn is_subroutine_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    // WORKAROUND: Windows only; NVIDIA doesn't actually return a valid function pointer for
+    //              GetProgramStageiv despite supporting ARB_shader_subroutine; see #1439
+    if cfg!(target_os = "windows")
+        && ctxt.get_version() <= &Version(Api::Gl, 4, 0)
+        && ctxt.get_capabilities().vendor == "NVIDIA Corporation" {
+        return false;
+    }
     ctxt.get_version() >= &Version(Api::Gl, 4, 0) || ctxt.get_extensions().gl_arb_shader_subroutine
 }
 
