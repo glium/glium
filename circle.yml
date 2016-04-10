@@ -9,7 +9,8 @@ machine:
 
 test:
   override:
-    - cargo build --verbose -j 2
+    # temporary workaround until cargo#2078 is ready
+    - eval `ssh-agent` && ssh-add /home/ubuntu/.ssh/id_circleci_github && cargo build --verbose -j 2
     - cargo test --features "glutin" --verbose -j 2
     - cargo test --no-default-features --features "glutin" --verbose -j 2
     - cargo build --features "glutin" --verbose -j 2
