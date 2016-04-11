@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 0.14.0 (2016-04-11)
+
+ - Updated glutin to version 0.5.
+ - Various bufixes.
+
 ## Version 0.13.5 (2016-02-04)
 
  - Fixed integer textures using a forbidden filtering by default.

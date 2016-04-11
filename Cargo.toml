@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.13.5"
+version = "0.14.0"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
@@ -28,7 +28,7 @@ default = ["glutin"]
 unstable = []       # used for benchmarks
 
 [dependencies.glutin]
-version = "0.4"
+version = "0.5"
 features = []
 optional = true
 
