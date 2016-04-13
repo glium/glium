@@ -261,12 +261,15 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         // We've got an array, first get the base of the name
         let name_base = uniform.0.split_at(uniform.0.len()-3).0;
         let uniform_base = uniform.1;
+        assert!(uniform_base.size.is_some());
 
         // Go over all the elements in the array
         for i in 0..uniform_base.size.unwrap() {
-            let mut uniform = uniform_base.clone();
-            uniform.size = None;
-            uniform.location = uniform.location + (i as i32);
+            let uniform = Uniform {
+                size: None,
+                location: uniform_base.location + (i as i32),
+                .. uniform_base
+            };
             uniforms_flattened.insert(format!("{}[{}]", name_base, i), uniform);
         }
     }

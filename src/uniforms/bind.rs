@@ -50,6 +50,9 @@ impl<U> UniformsExt for U where U: Uniforms {
             if visiting_result.is_err() { return; }
 
             if let Some(uniform) = program.get_uniform(name) {
+                // TODO: remove the size member
+                debug_assert!(uniform.size.is_none());
+
                 if !value.is_usable_with(&uniform.ty) {
                     visiting_result = Err(DrawError::UniformTypeMismatch {
                         name: name.to_owned(),
