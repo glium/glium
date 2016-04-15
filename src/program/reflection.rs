@@ -254,6 +254,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
     for uniform in uniforms {
         // If this is a normal non-array element, just move it over
         if !uniform.0.ends_with("[0]") {
+            assert!(uniform.1.size.is_none());
             uniforms_flattened.insert(uniform.0, uniform.1);
             continue;
         }
@@ -261,7 +262,6 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         // We've got an array, first get the base of the name
         let name_base = uniform.0.split_at(uniform.0.len()-3).0;
         let uniform_base = uniform.1;
-        assert!(uniform_base.size.is_some());
 
         // Go over all the elements in the array
         for i in 0..uniform_base.size.unwrap() {
