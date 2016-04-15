@@ -249,7 +249,32 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         });
     }
 
-    uniforms
+    // Flatten arrays
+    let mut uniforms_flattened = HashMap::new();
+    for uniform in uniforms {
+        // If this is a normal non-array element, just move it over
+        if !uniform.0.ends_with("[0]") {
+            assert!(uniform.1.size.is_none());
+            uniforms_flattened.insert(uniform.0, uniform.1);
+            continue;
+        }
+
+        // We've got an array, first get the base of the name
+        let name_base = uniform.0.split_at(uniform.0.len()-3).0;
+        let uniform_base = uniform.1;
+
+        // Go over all the elements in the array
+        for i in 0..uniform_base.size.unwrap() {
+            let uniform = Uniform {
+                size: None,
+                location: uniform_base.location + (i as i32),
+                .. uniform_base
+            };
+            uniforms_flattened.insert(format!("{}[{}]", name_base, i), uniform);
+        }
+    }
+
+    uniforms_flattened
 }
 
 pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
