@@ -8,7 +8,9 @@ Backend implementation for the glutin library
 Only available if the 'glutin' feature is enabled.
 
 */
-pub extern crate glutin;
+extern crate glutin;
+
+pub use glutin;
 
 use DisplayBuild;
 use Frame;
