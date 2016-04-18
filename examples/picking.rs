@@ -233,7 +233,7 @@ fn main() {
         for event in display.poll_events() {
             match event {
                 glutin::Event::Closed => return support::Action::Stop,
-                glutin::Event::MouseMoved(m) => cursor_position = Some(m),
+                glutin::Event::MouseMoved(x,y) => cursor_position = Some((x,y)),
                 ev => camera.process_input(&ev),
             }
         }
