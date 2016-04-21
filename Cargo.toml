@@ -41,9 +41,9 @@ smallvec = "0.1.5"
 gl_generator = "0.5.1"
 
 [dev-dependencies]
-clock_ticks = "0.1.0"
 cgmath = "0.7"
 genmesh = "0.4"
 image = "0.7.0"
 obj = { version = "0.5", features = ["usegenmesh"] }
 rand = "0.3"
+time = "0.1.34"
