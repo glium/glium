@@ -5,6 +5,7 @@ use backtrace;
 
 use std::mem;
 use std::ptr;
+use std::str;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::cell::{Cell, RefCell, RefMut};
@@ -840,19 +841,17 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
                 message);
 
         let mut frame_id = 1;
-        backtrace::trace(&mut |frame| {
+        backtrace::trace(|frame| {
             let ip = frame.ip();
             print!("\n{:>#4} - {:p}", frame_id, ip);
 
-            backtrace::resolve(ip, &mut |symbol| {
-                let name = String::from_utf8(symbol.name()
-                                                   .unwrap_or(&b"<unknown>"[..])
-                                                   .to_owned())
-                                .unwrap_or_else(|_| "<not-utf8>".to_owned());
-                let filename = String::from_utf8(symbol.filename()
-                                                       .unwrap_or(&b"<unknown>"[..])
-                                                       .to_owned())
-                                    .unwrap_or_else(|_| "<not-utf8>".to_owned());
+            backtrace::resolve(ip, |symbol| {
+                let name = symbol.name()
+                                 .map(|n| n.as_str().unwrap_or("<not-utf8>"))
+                                 .unwrap_or("<unknown>");
+                let filename = symbol.filename()
+                                     .map(|p| p.to_str().unwrap_or("<not-utf8>"))
+                                     .unwrap_or("<unknown>");
                 let line = symbol.lineno().map(|l| l.to_string())
                                           .unwrap_or_else(|| "??".to_owned());
 
