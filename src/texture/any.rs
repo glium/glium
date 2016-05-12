@@ -668,6 +668,14 @@ impl TextureAny {
             depth: self.get_depth().map(|depth| cmp::max(1, depth / pow)),
         })
     }
+
+    /// Binds this texture and generates mipmaps.
+    #[inline]
+    pub unsafe fn generate_mipmaps(&self) {
+        let mut ctxt = self.context.make_current();
+        self.bind_to_current(&mut ctxt);
+        generate_mipmaps(&ctxt, self.get_bind_point());
+    }
 }
 
 impl TextureExt for TextureAny {
