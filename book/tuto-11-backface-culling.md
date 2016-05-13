@@ -16,7 +16,7 @@ counter-clockwise, then you're seeing face B.
 
 When you draw a 3D models, there are faces that you don't need to draw: the faces that are inside
 of the model. Models are usually seen from the outside, so it's not a problem if the inside
-doesn't actually exists.
+doesn't actually exist.
 
 If you make sure that all triangles of your model are in counter-clockwise order when the outside
 is facing the camera (which is the case for the teapot used in these tutorials), you can ask the
