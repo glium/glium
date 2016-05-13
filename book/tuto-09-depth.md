@@ -68,9 +68,9 @@ Into this one:
 target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 ```
 
-This asks the backend to fill the depth buffer will the value `1.0`. Note that this is a *logical*
-value, and only the range from `0.0` to `1.0` is valid. The actual content of the buffer is the
-maximal representable number. For a 24 bits depth buffer, this is `16777215`.
+This asks the backend to fill the depth buffer with the value of `1.0`. Note that this is a
+*logical* value, and only the range from `0.0` to `1.0` is valid. The actual content of the buffer
+is the maximal representable number. For a 24 bits depth buffer, this is `16777215`.
 
 The third step consists in passing an additional parameter when drawing. The depth test and depth
 buffer handling is done directly by the hardware and not by our shader. Therefore we need to
