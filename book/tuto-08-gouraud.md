@@ -22,7 +22,7 @@ to the surface, then the surface should be dark.
 We are going to do this calculation one per fragment, in our fragment shader. The brightness of
 each pixel will need to be equal to `sin(angle(surface, light))`. If the light is perpendicular,
 the angle is `pi/2` radians and the brightness is `1`. If the light is parallel, the angle is `0`
-and the brightness is `0`. 
+and the brightness is `0`.
 
 The question is: how do we know the angle between the surface and the light? This is where
 normals come into play.
@@ -42,10 +42,12 @@ If the light is *parallel* to the normal, then the surface should be bright. And
 ## In practice
 
 The main part of the calculation will be done in the fragment shader. However we need to modify
-the vertex shader first, in order to pass the normal's data to the fragment shader.
+the vertex shader first, in order to pass the normal's data to the fragment shader. In addition to
+this, we need to specify a newer version of GLSL, since v140 doesn't support the functions we're
+going to use. To make the vertex shader work, we need at least GLSL v150.
 
 ```glsl
-#version 140
+#version 150      // updated
 
 in vec3 position;
 in vec3 normal;
