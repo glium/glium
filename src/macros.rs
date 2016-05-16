@@ -478,29 +478,29 @@ macro_rules! program {
 
     (_inner, $context:ident, $vers:ident, {$($ty:ident:$src:expr),+}$($rest:tt)*) => (
         if $context.is_glsl_version_supported(&$vers) {
-            let _vertex_shader: &str = "";
-            let _tessellation_control_shader: Option<&str> = None;
-            let _tessellation_evaluation_shader: Option<&str> = None;
-            let _geometry_shader: Option<&str> = None;
-            let _fragment_shader: &str = "";
-            let _outputs_srgb: bool = false;
-            let _uses_point_size: bool = false;
+            let __vertex_shader: &str = "";
+            let __tessellation_control_shader: Option<&str> = None;
+            let __tessellation_evaluation_shader: Option<&str> = None;
+            let __geometry_shader: Option<&str> = None;
+            let __fragment_shader: &str = "";
+            let __outputs_srgb: bool = false;
+            let __uses_point_size: bool = false;
 
             $(
-                program!(_program_ty $ty, $src, _vertex_shader, _tessellation_control_shader,
-                         _tessellation_evaluation_shader, _geometry_shader, _fragment_shader,
-                         _outputs_srgb, _uses_point_size);
+                program!(_program_ty $ty, $src, __vertex_shader, __tessellation_control_shader,
+                         __tessellation_evaluation_shader, __geometry_shader, __fragment_shader,
+                         __outputs_srgb, __uses_point_size);
             )+
 
             let input = $crate::program::ProgramCreationInput::SourceCode {
-                vertex_shader: _vertex_shader,
-                tessellation_control_shader: _tessellation_control_shader,
-                tessellation_evaluation_shader: _tessellation_evaluation_shader,
-                geometry_shader: _geometry_shader,
-                fragment_shader: _fragment_shader,
+                vertex_shader: __vertex_shader,
+                tessellation_control_shader: __tessellation_control_shader,
+                tessellation_evaluation_shader: __tessellation_evaluation_shader,
+                geometry_shader: __geometry_shader,
+                fragment_shader: __fragment_shader,
                 transform_feedback_varyings: None,
-                outputs_srgb: _outputs_srgb,
-                uses_point_size: _uses_point_size,
+                outputs_srgb: __outputs_srgb,
+                uses_point_size: __uses_point_size,
             };
 
             $crate::program::Program::new($context, input)
