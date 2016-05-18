@@ -780,7 +780,6 @@ fn persistent_mapping_forget_then_remap() {
 }
 
 #[test]
-#[ignore]       // TODO: mystic rust-related bug
 fn persistent_mapping_forget_then_read() {
     let display = support::build_display();
 
