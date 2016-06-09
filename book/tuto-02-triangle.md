@@ -122,7 +122,7 @@ target.clear_color(0.0, 0.0, 1.0, 1.0);
 target.finish().unwrap();
 ```
 
-Starting a draw operation needs several things: a source of vertices (here we use our `vertex_buffer`), a source of indices (we use our `indices` variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing a `EmptyUniforms` marker and by building the default draw parameters.
+Starting a draw operation needs several things: a source of vertices (here we use our `vertex_buffer`), a source of indices (we use our `indices` variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing an `EmptyUniforms` marker and by building the default draw parameters.
 
 ```rust
 target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
