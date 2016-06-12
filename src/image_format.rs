@@ -905,8 +905,10 @@ impl UncompressedUintFormat {
 
         match self {
             &UncompressedUintFormat::U8 => {
-                version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
-                                                       extensions.gl_arb_texture_rg)
+                version >= &Version(Api::Gl, 3, 0) ||
+                    version >= &Version(Api::GlEs, 3, 0) ||
+                    (extensions.gl_ext_texture_integer &&
+                     extensions.gl_arb_texture_rg)
             },
 
             &UncompressedUintFormat::U16 => {
@@ -915,8 +917,10 @@ impl UncompressedUintFormat {
             },
 
             &UncompressedUintFormat::U32 => {
-                version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
-                                                       extensions.gl_arb_texture_rg)
+                version >= &Version(Api::Gl, 3, 0) ||
+                    version >= &Version(Api::GlEs, 3, 0) ||
+                    (extensions.gl_ext_texture_integer &&
+                     extensions.gl_arb_texture_rg)
             },
 
             &UncompressedUintFormat::U8U8 => {
@@ -1234,11 +1238,15 @@ impl DepthFormat {
 
         match self {
             &DepthFormat::I16 => {
-                version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_depth_texture
+                version >= &Version(Api::Gl, 3, 0) ||
+                    version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_depth_texture
             },
 
             &DepthFormat::I24 => {
-                version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_depth_texture
+                version >= &Version(Api::Gl, 3, 0) ||
+                    version >= &Version(Api::GlEs, 3, 0) ||
+                    extensions.gl_arb_depth_texture
             },
 
             &DepthFormat::I32 => {
@@ -1246,7 +1254,8 @@ impl DepthFormat {
             },
 
             &DepthFormat::F32 => {
-                version >= &Version(Api::Gl, 3, 0)
+                version >= &Version(Api::Gl, 3, 0) ||
+                    version >= &Version(Api::GlEs, 3, 0)
             },
         }
     }

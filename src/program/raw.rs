@@ -335,7 +335,8 @@ impl RawProgram {
         let value = unsafe {
             match self.id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                            ctxt.version >= &Version(Api::GlEs, 2, 0));
                     ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
                                                 as *const raw::c_char)
                 },
