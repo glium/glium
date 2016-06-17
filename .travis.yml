@@ -62,5 +62,5 @@ after_success:
         wget https://github.com/SimonKagstrom/kcov/archive/master.zip &&
         unzip master.zip && mv kcov-master kcov && mkdir kcov/build && cd kcov/build &&
         cmake .. && make && make install DESTDIR=../built && cd ../.. &&
-        for file in ./target/debug/*; do ./kcov/built/usr/local/bin/kcov --exclude-pattern=/.cargo ./target/kcov ${file}; done &&
+        for file in ./target/debug/*; do ./kcov/built/usr/local/bin/kcov --verify --exclude-pattern=/.cargo,$PWD/target/debug/build,$PWD/tests ./target/kcov ${file}; done &&
         ./kcov/built/usr/local/bin/kcov --coveralls-id=${TRAVIS_JOB_ID} --merge ./target/kcov-merge ./target/kcov
