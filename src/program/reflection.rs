@@ -260,7 +260,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         }
 
         // We've got an array, first get the base of the name
-        let name_base = uniform.0.split_at(uniform.0.len()-3).0;
+        let name_base = uniform.0.split('[').next().unwrap();
         let uniform_base = uniform.1;
 
         // Go over all the elements in the array
