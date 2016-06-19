@@ -33,8 +33,8 @@ features = []
 optional = true
 
 [dependencies]
-backtrace = "0.1.5"
-lazy_static = "0.1"
+backtrace = "0.2.1"
+lazy_static = "0.2"
 smallvec = "0.1.5"
 
 [build-dependencies]
@@ -42,8 +42,8 @@ gl_generator = "0.5.1"
 
 [dev-dependencies]
 clock_ticks = "0.1.0"
-cgmath = "0.7"
+cgmath = "0.9.1"
 genmesh = "0.4"
-image = "0.7.0"
+image = "0.9"
 obj = { version = "0.5", features = ["usegenmesh"] }
 rand = "0.3"

@@ -668,6 +668,14 @@ impl TextureAny {
             depth: self.get_depth().map(|depth| cmp::max(1, depth / pow)),
         })
     }
+
+    /// Binds this texture and generates mipmaps.
+    #[inline]
+    pub unsafe fn generate_mipmaps(&self) {
+        let mut ctxt = self.context.make_current();
+        self.bind_to_current(&mut ctxt);
+        generate_mipmaps(&ctxt, self.get_bind_point());
+    }
 }
 
 impl TextureExt for TextureAny {
@@ -828,6 +836,24 @@ impl<'a> TextureAnyMipmap<'a> {
         self.depth
     }
 
+    /// Computes a tuple (width, height, depth) of mipmap dimensions,
+    /// using 1 for unused dimensions.
+    ///
+    /// In the case of 1D texture arrays, use array size as width.
+    /// In the case of 2D texture arrays, use array size as depth.
+    #[inline]
+    fn get_mipmap_dimensions(&self) -> (u32, u32, u32) {
+        let tex_depth = match self.texture.ty {
+            Dimensions::Texture2dArray { array_size, .. } => array_size,
+            _ => self.depth.unwrap_or(1),
+        };
+        let tex_height = match self.texture.ty {
+            Dimensions::Texture1dArray { array_size, .. } => array_size,
+            _ => self.height.unwrap_or(1),
+        };
+        return (self.width, tex_height, tex_depth);
+    }
+
     /// Returns the number of samples of the texture.
     #[inline]
     pub fn get_samples(&self) -> Option<u32> {
@@ -924,12 +950,13 @@ impl<'a> TextureAnyMipmap<'a> {
                                             y: Range<u32>, z: Range<u32>, inverted: bool)
                                             where P: PixelValue
     {
-        assert!(x.start <= self.width);
-        assert!(y.start <= self.height.unwrap_or(0));
-        assert!(z.start <= self.depth.unwrap_or(0));
-        assert!(x.end <= self.width);
-        assert!(y.end <= self.height.unwrap_or(1));
-        assert!(z.end <= self.depth.unwrap_or(1));
+        let tex_dim = self.get_mipmap_dimensions();
+        assert!(x.start < tex_dim.0);
+        assert!(y.start < tex_dim.1);
+        assert!(z.start < tex_dim.2);
+        assert!(x.end <= tex_dim.0);
+        assert!(y.end <= tex_dim.1);
+        assert!(z.end <= tex_dim.2);
 
         let width = x.end - x.start;
         let height = y.end - y.start;

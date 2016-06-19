@@ -72,7 +72,7 @@ This is represented in glium by the `Frame` object. When you want to start drawi
 let mut target = display.draw();
 ```
 
-We can then use this `target` as a drawing surface. One of the operation that OpenGL and glium provide is filling the surface with a given color. This is what we are going to do.
+We can then use this `target` as a drawing surface. One of the operations that OpenGL and glium provide is filling the surface with a given color. This is what we are going to do.
 
 ```rust
 target.clear_color(0.0, 0.0, 1.0, 1.0);
