@@ -55,7 +55,7 @@ dimensions they get back to their original aspect.
 
 ## Introducing the perspective matrix
 
-The reason why these two problems are in the same tutorial is because graphics engine usually
+The reason why these two problems are in the same tutorial is because graphics engines usually
 solve both with one matrix: the **perspective matrix**.
 
 ```rust

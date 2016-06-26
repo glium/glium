@@ -32,7 +32,7 @@ It is now time to start filling the `main` function!
 
 The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the **glutin** library shines.
 
-Initializing a window with glutin can be done by calling `glium::glutin::WindowBuilder()::new().build().unwrap()`. However we don't just want to create a *glutin* window, but a window with an OpenGL context handled by glium. Instead of calling `build()` we going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
+Initializing a window with glutin can be done by calling `glium::glutin::WindowBuilder()::new().build().unwrap()`. However we don't just want to create a *glutin* window, but a window with an OpenGL context handled by glium. Instead of calling `build()` we are going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
 
 ```rust
 fn main() {
@@ -55,7 +55,7 @@ loop {
 }
 ```
 
-Right now this code will consume 100% of our CPU, but that will do for now. In a real application you should either use vertical synchronization or sleep for a few milliseconds at the end of the loop, but this is a more advanced topic.
+Right now this code will consume 100% of our CPU, but that will do for now. In a real application you should either use vertical synchronization or sleep for a few milliseconds at the end of the loop, but that is a more advanced topic.
 
 You can now execute `cargo run`. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.
 
@@ -63,7 +63,7 @@ You can now execute `cargo run`. After a few minutes during which Cargo download
 
 The content of the window, however, is not not very appealing. Depending on your system, it can appear black, show a random image, or just some snow. We are expected to draw on the window, so the system doesn't bother initializing its color to a specific value.
 
-Glium and the OpenGL API work similarly to a drawing software like Window's Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to a drawing software, you don't want your users to see the intermediate steps. Only the final result should be shown.
+Glium and the OpenGL API work similarly to drawing software like Windows' Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to drawing software, you don't want your users to see the intermediate steps. Only the final result should be shown.
 
 To handle this, OpenGL uses what is called *double buffering*. Instead of drawing directly to the window, we are drawing to an image stored in memory. Once we have finished drawing, this image is copied to the window.
 This is represented in glium by the `Frame` object. When you want to start drawing something on your window, you must first call `display.draw()` in order to produce a `Frame`:

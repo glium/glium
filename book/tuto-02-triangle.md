@@ -81,7 +81,7 @@ let vertex_shader_src = r#"
 "#;
 ```
 
-First of all, the `#version 140` line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware don't support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.
+First of all, the `#version 140` line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware doesn't support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.
 
 When we defined the `Vertex` struct in our shape, we created a field named `position` which contains the position of our vertex. But contrary to what I let you think, this struct doesn't contain the actual position of the vertex but only a attribute whose value is passed to the vertex shader. OpenGL doesn't care about the name of the attribute, all it does is passing its value to the vertex shader. The `in vec2 position;` line of our shader is here to declare that we are expected to be passed an attribute named `position` whose type is `vec2` (which corresponds to `[f32; 2]` in Rust).
 
