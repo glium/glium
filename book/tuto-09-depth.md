@@ -5,7 +5,7 @@ What's wrong with the teapot of the previous section?
 ![The teapot](tuto-08-result.png)
 
 The problem is that faces that are in the back of the model are displayed *above* faces that are
-in the back of the model.
+in the front of the model.
 
 ![The problem](tuto-09-problem.png)
 

@@ -29,7 +29,7 @@ let vertex_shader_src = r#"
 "#;
 ```
 
-Note that it is important to write `matrix * vertex` and not `vertex * matrix`. Matrix operations produce different result depending on the order.
+Note that it is important to write `matrix * vertex` and not `vertex * matrix`. Matrix operations produce different results depending on the order.
 
 We also need to pass the matrix when calling the `draw` function:
 
