@@ -73,8 +73,8 @@ impl Program {
 
                 // TODO: move somewhere else
                 if transform_feedback_varyings.is_some() &&
-                    (facade.get_context().get_version() >= &Version(Api::Gl, 3, 0) ||
-                        !facade.get_context().get_extensions().gl_ext_transform_feedback)
+                    !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) &&
+                    !facade.get_context().get_extensions().gl_ext_transform_feedback
                 {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
