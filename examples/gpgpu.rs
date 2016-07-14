@@ -13,10 +13,9 @@ fn main() {
     let program = glium::program::ComputeShader::from_source(&display, r#"\
 
             #version 430
-            buffer layout(std140);
             layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-            buffer MyBlock {
+            layout(std140) buffer MyBlock {
                 float power;
                 float values[256];
             };
