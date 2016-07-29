@@ -36,6 +36,7 @@ optional = true
 backtrace = "0.2.1"
 lazy_static = "0.2"
 smallvec = "0.1.5"
+fnv = "1.0.3"
 
 [build-dependencies]
 gl_generator = "0.5.1"

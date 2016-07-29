@@ -1,8 +1,10 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
 use RawUniformValue;
 
 use smallvec::SmallVec;
+use fnv::FnvHasher;
 
 use gl;
 use Handle;
@@ -12,7 +14,7 @@ use version::Api;
 use program::reflection::ShaderStage;
 
 pub struct UniformsStorage {
-    values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>>>,
+    values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>, BuildHasherDefault<FnvHasher>>>,
     uniform_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
     shader_storage_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
     subroutine_uniforms: RefCell<HashMap<ShaderStage, Vec<gl::types::GLuint>>>
@@ -23,7 +25,7 @@ impl UniformsStorage {
     #[inline]
     pub fn new() -> UniformsStorage {
         UniformsStorage {
-            values: RefCell::new(HashMap::new()),
+            values: RefCell::new(HashMap::with_hasher(Default::default())),
             uniform_blocks: RefCell::new(SmallVec::new()),
             shader_storage_blocks: RefCell::new(SmallVec::new()),
             subroutine_uniforms: RefCell::new(HashMap::new()),

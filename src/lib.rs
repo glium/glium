@@ -95,6 +95,7 @@ extern crate lazy_static;
 
 extern crate backtrace;
 extern crate smallvec;
+extern crate fnv;
 
 #[cfg(feature = "glutin")]
 pub use backend::glutin_backend::glutin;
