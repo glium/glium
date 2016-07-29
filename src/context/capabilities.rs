@@ -3,9 +3,12 @@ use version::Version;
 use version::Api;
 
 use std::cmp;
-use std::ffi::CStr;
-use std::mem;
 use std::collections::HashMap;
+use std::ffi::CStr;
+use std::hash::BuildHasherDefault;
+use std::mem;
+
+use fnv::FnvHasher;
 
 use gl;
 use ToGlEnum;
@@ -78,10 +81,10 @@ pub struct Capabilities {
     pub stencil_bits: Option<u16>,
 
     /// Informations about formats when used to create textures.
-    pub internal_formats_textures: HashMap<TextureFormat, FormatInfos>,
+    pub internal_formats_textures: HashMap<TextureFormat, FormatInfos, BuildHasherDefault<FnvHasher>>,
 
     /// Informations about formats when used to create renderbuffers.
-    pub internal_formats_renderbuffers: HashMap<TextureFormat, FormatInfos>,
+    pub internal_formats_renderbuffers: HashMap<TextureFormat, FormatInfos, BuildHasherDefault<FnvHasher>>,
 
     /// Maximum number of textures that can be bound to a program.
     ///
@@ -669,7 +672,7 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
 
 /// Returns all informations about all supported internal formats.
 pub fn get_internal_formats(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList,
-                            renderbuffer: bool) -> HashMap<TextureFormat, FormatInfos>
+                            renderbuffer: bool) -> HashMap<TextureFormat, FormatInfos, BuildHasherDefault<FnvHasher>>
 {
     // We create a dummy object to implement the `CapabilitiesSource` trait.
     let dummy = {

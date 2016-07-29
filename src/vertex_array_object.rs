@@ -39,7 +39,7 @@ impl VertexAttributesSystem {
     #[inline]
     pub fn new() -> VertexAttributesSystem {
         VertexAttributesSystem {
-            vaos: RefCell::new(HashMap::new()),
+            vaos: RefCell::new(HashMap::with_hasher(Default::default())),
         }
     }
 
@@ -84,7 +84,7 @@ impl VertexAttributesSystem {
     /// Purges the VAOs cache.
     pub fn purge_all(ctxt: &mut CommandContext) {
         let vaos = mem::replace(&mut *ctxt.vertex_array_objects.vaos.borrow_mut(),
-                                HashMap::new());
+                                HashMap::with_hasher(Default::default()));
 
         for (_, vao) in vaos {
             vao.destroy(ctxt);
@@ -95,7 +95,7 @@ impl VertexAttributesSystem {
     /// destroyed soon.
     pub fn cleanup(ctxt: &mut CommandContext) {
         let vaos = mem::replace(&mut *ctxt.vertex_array_objects.vaos.borrow_mut(),
-                                HashMap::with_capacity(0));
+                                HashMap::with_hasher(Default::default()));
 
         for (_, vao) in vaos {
             vao.destroy(ctxt);

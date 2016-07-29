@@ -111,11 +111,14 @@ pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::Texture2d;
 pub use version::{Api, Version, get_supported_glsl_version};
 
-use std::collections::HashMap;
 use std::rc::Rc;
 use std::thread;
 use std::error::Error;
 use std::fmt;
+use std::hash::BuildHasherDefault;
+use std::collections::HashMap;
+
+use fnv::FnvHasher;
 
 use context::Context;
 use context::CommandContext;
@@ -298,9 +301,9 @@ trait ProgramExt {
 
     fn get_uniform(&self, name: &str) -> Option<&program::Uniform>;
 
-    fn get_uniform_blocks(&self) -> &HashMap<String, program::UniformBlock>;
+    fn get_uniform_blocks(&self) -> &HashMap<String, program::UniformBlock, BuildHasherDefault<FnvHasher>>;
 
-    fn get_shader_storage_blocks(&self) -> &HashMap<String, program::UniformBlock>;
+    fn get_shader_storage_blocks(&self) -> &HashMap<String, program::UniformBlock, BuildHasherDefault<FnvHasher>>;
 
     fn get_subroutine_data(&self) -> &program::SubroutineData;
 }

@@ -14,6 +14,9 @@ use std::collections::hash_map::{self, HashMap};
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::os::raw;
+use std::hash::BuildHasherDefault;
+
+use fnv::FnvHasher;
 
 use DrawError;
 use GlObject;
@@ -52,13 +55,13 @@ pub struct RawProgram {
     context: Rc<Context>,
     id: Handle,
     uniform_values: UniformsStorage,
-    uniforms: HashMap<String, Uniform>,
-    uniform_blocks: HashMap<String, UniformBlock>,
+    uniforms: HashMap<String, Uniform, BuildHasherDefault<FnvHasher>>,
+    uniform_blocks: HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>,
     subroutine_data: SubroutineData,
-    attributes: HashMap<String, Attribute>,
-    frag_data_locations: RefCell<HashMap<String, Option<u32>>>,
+    attributes: HashMap<String, Attribute, BuildHasherDefault<FnvHasher>>,
+    frag_data_locations: RefCell<HashMap<String, Option<u32>, BuildHasherDefault<FnvHasher>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
-    ssbos: HashMap<String, UniformBlock>,
+    ssbos: HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>,
     output_primitives: Option<OutputPrimitives>,
     has_geometry_shader: bool,
     has_tessellation_control_shader: bool,
@@ -187,7 +190,7 @@ impl RawProgram {
             uniform_blocks: blocks,
             subroutine_data: subroutine_data,
             attributes: attributes,
-            frag_data_locations: RefCell::new(HashMap::new()),
+            frag_data_locations: RefCell::new(HashMap::with_hasher(Default::default())),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
             output_primitives: output_primitives,
@@ -258,7 +261,7 @@ impl RawProgram {
             uniform_blocks: blocks,
             subroutine_data: subroutine_data,
             attributes: attributes,
-            frag_data_locations: RefCell::new(HashMap::new()),
+            frag_data_locations: RefCell::new(HashMap::with_hasher(Default::default())),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
             output_primitives: output_primitives,
@@ -387,7 +390,8 @@ impl RawProgram {
     /// }
     /// ```
     #[inline]
-    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_uniform_blocks(&self)
+                              -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.uniform_blocks
     }
 
@@ -491,7 +495,8 @@ impl RawProgram {
     /// }
     /// ```
     #[inline]
-    pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_shader_storage_blocks(&self)
+            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.ssbos
     }
 
@@ -648,12 +653,13 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
-    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.uniform_blocks
     }
 
     #[inline]
-    fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+    fn get_shader_storage_blocks(&self)
+                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.ssbos
     }
 

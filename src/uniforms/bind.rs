@@ -3,8 +3,12 @@
 Handles binding uniforms to the OpenGL state machine.
 
 */
-use std::collections::HashMap;
 use gl;
+
+use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
+
+use fnv::FnvHasher;
 
 use BufferExt;
 use BufferSliceExt;
@@ -43,7 +47,8 @@ impl<U> UniformsExt for U where U: Uniforms {
 
         // Subroutine uniforms must be binded all at once, so we collect them first and process them at the end.
         // The vec contains the uniform we want to set and the value we want to set it to.
-        let mut subroutine_bindings: HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>> = HashMap::with_capacity(0);
+        let mut subroutine_bindings: HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>, _>
+            = HashMap::with_hasher(Default::default());
 
         let mut visiting_result = Ok(());
         self.visit_values(|name, value| {
@@ -125,7 +130,7 @@ impl<U> UniformsExt for U where U: Uniforms {
 }
 
 fn bind_subroutine_uniforms<P>(ctxt: &mut context::CommandContext, program: &P,
-                            subroutine_bindings: &HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>>)
+                            subroutine_bindings: &HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>, BuildHasherDefault<FnvHasher>>)
                             -> Result<(), DrawError>
                             where P: ProgramExt
 {

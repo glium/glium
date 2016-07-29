@@ -6,6 +6,9 @@ use backend::Facade;
 use std::fmt;
 use std::collections::hash_map::{self, HashMap};
 use std::os::raw;
+use std::hash::BuildHasherDefault;
+
+use fnv::FnvHasher;
 
 use CapabilitiesSource;
 use GlObject;
@@ -123,7 +126,8 @@ impl ComputeShader {
     /// }
     /// ```
     #[inline]
-    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_uniform_blocks(&self)
+                              -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_uniform_blocks()
     }
 
@@ -138,7 +142,8 @@ impl ComputeShader {
     /// }
     /// ```
     #[inline]
-    pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_shader_storage_blocks(&self)
+            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
     }
 }
@@ -201,12 +206,13 @@ impl ProgramExt for ComputeShader {
     }
 
     #[inline]
-    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_uniform_blocks()
     }
 
     #[inline]
-    fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+    fn get_shader_storage_blocks(&self)
+                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
     }
 

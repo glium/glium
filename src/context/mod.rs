@@ -3,16 +3,19 @@
 use gl;
 use backtrace;
 
+use std::collections::HashMap;
 use std::mem;
 use std::ptr;
 use std::str;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::cell::{Cell, RefCell, RefMut};
 use std::marker::PhantomData;
 use std::ffi::CStr;
 use std::rc::Rc;
 use std::os::raw;
+use std::hash::BuildHasherDefault;
+
+use fnv::FnvHasher;
 
 use GliumCreationError;
 use SwapBuffersError;
@@ -84,7 +87,7 @@ pub struct Context {
     vertex_array_objects: vertex_array_object::VertexAttributesSystem,
 
     /// We maintain a list of samplers for each possible behavior.
-    samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
+    samplers: RefCell<HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, BuildHasherDefault<FnvHasher>>>,
 
     /// List of texture handles that are resident. We need to call `MakeTextureHandleResidentARB`
     /// when rebuilding the context.
@@ -124,7 +127,7 @@ pub struct CommandContext<'a> {
     pub framebuffer_objects: &'a fbo::FramebuffersContainer,
 
     /// The list of samplers.
-    pub samplers: RefMut<'a, HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject>>,
+    pub samplers: RefMut<'a, HashMap<uniforms::SamplerBehavior, sampler_object::SamplerObject, BuildHasherDefault<FnvHasher>>>,
 
     /// List of texture handles that need to be made resident.
     pub resident_texture_handles: RefMut<'a, Vec<gl::types::GLuint64>>,
@@ -170,7 +173,11 @@ impl Context {
 
         let vertex_array_objects = vertex_array_object::VertexAttributesSystem::new();
         let framebuffer_objects = fbo::FramebuffersContainer::new();
-        let samplers = RefCell::new(HashMap::with_capacity(16));
+        let samplers = RefCell::new({
+            let mut map = HashMap::with_hasher(Default::default());
+            map.reserve(16);
+            map
+        });
         let resident_texture_handles = RefCell::new(Vec::new());
         let resident_image_handles = RefCell::new(Vec::new());
 
@@ -707,7 +714,7 @@ impl Drop for Context {
             fbo::FramebuffersContainer::cleanup(&mut ctxt);
             vertex_array_object::VertexAttributesSystem::cleanup(&mut ctxt);
 
-            for (_, s) in mem::replace(&mut *ctxt.samplers, HashMap::with_capacity(0)) {
+            for (_, s) in mem::replace(&mut *ctxt.samplers, HashMap::with_hasher(Default::default())) {
                 s.destroy(&mut ctxt);
             }
 
