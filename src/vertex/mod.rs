@@ -305,7 +305,7 @@ pub trait Vertex: Copy + Sized {
     fn build_bindings() -> VertexFormat;
 
     /// Returns true if the backend supports this vertex format.
-    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C: ?Sized>(caps: &C) -> bool where C: CapabilitiesSource {
         let format = Self::build_bindings();
 
         for &(_, _, ref ty) in format.iter() {
@@ -325,7 +325,7 @@ pub unsafe trait Attribute: Sized {
 
     /// Returns true if the backend supports this type of attribute.
     #[inline]
-    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C: ?Sized>(caps: &C) -> bool where C: CapabilitiesSource {
         Self::get_type().is_supported(caps)
     }
 }

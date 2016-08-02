@@ -66,7 +66,7 @@ pub struct RenderBuffer {
 
 impl RenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F>(facade: &F, format: UncompressedFloatFormat, width: u32, height: u32)
+    pub fn new<F: ?Sized>(facade: &F, format: UncompressedFloatFormat, width: u32, height: u32)
                   -> Result<RenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::UncompressedFloat(format));
@@ -119,7 +119,7 @@ pub struct DepthRenderBuffer {
 
 impl DepthRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F>(facade: &F, format: DepthFormat, width: u32, height: u32)
+    pub fn new<F: ?Sized>(facade: &F, format: DepthFormat, width: u32, height: u32)
                   -> Result<DepthRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthFormat(format));
@@ -171,7 +171,7 @@ pub struct StencilRenderBuffer {
 
 impl StencilRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F>(facade: &F, format: StencilFormat, width: u32, height: u32)
+    pub fn new<F: ?Sized>(facade: &F, format: StencilFormat, width: u32, height: u32)
                   -> Result<StencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::StencilFormat(format));
@@ -224,7 +224,7 @@ pub struct DepthStencilRenderBuffer {
 
 impl DepthStencilRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F>(facade: &F, format: DepthStencilFormat, width: u32, height: u32)
+    pub fn new<F: ?Sized>(facade: &F, format: DepthStencilFormat, width: u32, height: u32)
                   -> Result<DepthStencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthStencilFormat(format));
@@ -280,7 +280,7 @@ pub struct RenderBufferAny {
 
 impl RenderBufferAny {
     /// Builds a new render buffer.
-    fn new<F>(facade: &F, format: gl::types::GLenum, kind: TextureKind, width: u32, height: u32,
+    fn new<F: ?Sized>(facade: &F, format: gl::types::GLenum, kind: TextureKind, width: u32, height: u32,
               samples: Option<u32>) -> RenderBufferAny
         where F: Facade
     {

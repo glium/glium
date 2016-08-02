@@ -73,7 +73,7 @@ pub struct IndexBuffer<T> where T: Index {
 impl<T> IndexBuffer<T> where T: Index {
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn new<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn new<F: ?Sized>(facade: &F, prim: PrimitiveType, data: &[T])
                   -> Result<IndexBuffer<T>, CreationError>
                   where F: Facade
     {
@@ -82,7 +82,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn dynamic<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn dynamic<F: ?Sized>(facade: &F, prim: PrimitiveType, data: &[T])
                       -> Result<IndexBuffer<T>, CreationError>
                       where F: Facade
     {
@@ -91,7 +91,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn persistent<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn persistent<F: ?Sized>(facade: &F, prim: PrimitiveType, data: &[T])
                          -> Result<IndexBuffer<T>, CreationError>
                          where F: Facade
     {
@@ -100,7 +100,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new index buffer from a list of indices and a primitive type.
     #[inline]
-    pub fn immutable<F>(facade: &F, prim: PrimitiveType, data: &[T])
+    pub fn immutable<F: ?Sized>(facade: &F, prim: PrimitiveType, data: &[T])
                         -> Result<IndexBuffer<T>, CreationError>
                         where F: Facade
     {
@@ -108,7 +108,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     #[inline]
-    fn new_impl<F>(facade: &F, prim: PrimitiveType, data: &[T], mode: BufferMode)
+    fn new_impl<F: ?Sized>(facade: &F, prim: PrimitiveType, data: &[T], mode: BufferMode)
                    -> Result<IndexBuffer<T>, CreationError>
                    where F: Facade
     {
@@ -128,7 +128,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty<F: ?Sized>(facade: &F, prim: PrimitiveType, len: usize)
                     -> Result<IndexBuffer<T>, CreationError>
                     where F: Facade
     {
@@ -137,7 +137,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty_dynamic<F: ?Sized>(facade: &F, prim: PrimitiveType, len: usize)
                             -> Result<IndexBuffer<T>, CreationError>
                             where F: Facade
     {
@@ -146,7 +146,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty_persistent<F: ?Sized>(facade: &F, prim: PrimitiveType, len: usize)
                                -> Result<IndexBuffer<T>, CreationError>
                                where F: Facade
     {
@@ -155,7 +155,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Builds a new empty index buffer.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, prim: PrimitiveType, len: usize)
+    pub fn empty_immutable<F: ?Sized>(facade: &F, prim: PrimitiveType, len: usize)
                               -> Result<IndexBuffer<T>, CreationError>
                               where F: Facade
     {
@@ -163,7 +163,7 @@ impl<T> IndexBuffer<T> where T: Index {
     }
 
     #[inline]
-    fn empty_impl<F>(facade: &F, prim: PrimitiveType, len: usize, mode: BufferMode)
+    fn empty_impl<F: ?Sized>(facade: &F, prim: PrimitiveType, len: usize, mode: BufferMode)
                      -> Result<IndexBuffer<T>, CreationError>
                      where F: Facade
     {

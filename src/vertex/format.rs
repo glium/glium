@@ -151,7 +151,7 @@ pub enum AttributeType {
 
 impl AttributeType {
     /// Returns true if the backend supports this type of attribute.
-    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool where C: CapabilitiesSource {
         match self {    
             &AttributeType::I8 | &AttributeType::I8I8 | &AttributeType::I8I8I8 |
             &AttributeType::I8I8I8I8 | &AttributeType::U8 | &AttributeType::U8U8 |

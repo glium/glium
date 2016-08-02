@@ -51,7 +51,7 @@ impl Drop for Shader {
 }
 
 /// Builds an individual shader.
-pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: &str)
+pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, source_code: &str)
                        -> Result<Shader, ProgramCreationError> where F: Facade
 {
     unsafe {
@@ -182,7 +182,7 @@ pub fn build_shader<F>(facade: &F, shader_type: gl::types::GLenum, source_code: 
     }
 }
 
-pub fn check_shader_type_compatibility<C>(ctxt: &C, shader_type: gl::types::GLenum)
+pub fn check_shader_type_compatibility<C: ?Sized>(ctxt: &C, shader_type: gl::types::GLenum)
                                           -> bool where C: CapabilitiesSource
 {
     match shader_type {

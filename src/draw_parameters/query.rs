@@ -105,7 +105,7 @@ impl Error for ToBufferError {
 
 impl RawQuery {
     /// Builds a new query. Returns `None` if the backend doesn't support this type.
-    pub fn new<F>(facade: &F, ty: QueryType) -> Result<RawQuery, QueryCreationError>
+    pub fn new<F: ?Sized>(facade: &F, ty: QueryType) -> Result<RawQuery, QueryCreationError>
                   where F: Facade
     {
         let context = facade.get_context().clone();
@@ -824,7 +824,7 @@ pub struct SamplesPassedQuery {
 impl SamplesPassedQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F>(facade: &F) -> Result<SamplesPassedQuery, QueryCreationError> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Result<SamplesPassedQuery, QueryCreationError> where F: Facade {
         RawQuery::new(facade, QueryType::SamplesPassed).map(|q| SamplesPassedQuery { query: q })
     }
 }
@@ -843,7 +843,7 @@ pub struct TimeElapsedQuery {
 impl TimeElapsedQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F>(facade: &F) -> Result<TimeElapsedQuery, QueryCreationError> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Result<TimeElapsedQuery, QueryCreationError> where F: Facade {
         RawQuery::new(facade, QueryType::TimeElapsed).map(|q| TimeElapsedQuery { query: q })
     }
 }
@@ -871,7 +871,7 @@ impl AnySamplesPassedQuery {
     ///
     /// If you pass `true` for `conservative`, then OpenGL may use a less accurate algorithm,
     /// leading to a faster result but with more false positives.
-    pub fn new<F>(facade: &F, conservative: bool)
+    pub fn new<F: ?Sized>(facade: &F, conservative: bool)
                   -> Result<AnySamplesPassedQuery, QueryCreationError>
                   where F: Facade
     {
@@ -903,7 +903,7 @@ pub struct PrimitivesGeneratedQuery {
 impl PrimitivesGeneratedQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F>(facade: &F) -> Result<PrimitivesGeneratedQuery, QueryCreationError>
+    pub fn new<F: ?Sized>(facade: &F) -> Result<PrimitivesGeneratedQuery, QueryCreationError>
                   where F: Facade
     {
         RawQuery::new(facade, QueryType::PrimitivesGenerated)
@@ -922,7 +922,7 @@ pub struct TransformFeedbackPrimitivesWrittenQuery {
 impl TransformFeedbackPrimitivesWrittenQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F>(facade: &F) -> Result<TransformFeedbackPrimitivesWrittenQuery, QueryCreationError>
+    pub fn new<F: ?Sized>(facade: &F) -> Result<TransformFeedbackPrimitivesWrittenQuery, QueryCreationError>
                   where F: Facade
     {
         RawQuery::new(facade, QueryType::TransformFeedbackPrimitivesWritten)

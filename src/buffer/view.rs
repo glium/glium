@@ -51,7 +51,7 @@ impl<T: ?Sized> GlObject for Buffer<T> where T: Content {
 impl<T: ?Sized> Buffer<T> where T: Content {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
-    pub fn new<F>(facade: &F, data: &T, ty: BufferType, mode: BufferMode)
+    pub fn new<F: ?Sized>(facade: &F, data: &T, ty: BufferType, mode: BufferMode)
                   -> Result<Buffer<T>, BufferCreationError>
                   where F: Facade
     {
@@ -66,7 +66,7 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     }
 
     /// Builds a new buffer of the given size.
-    pub fn empty_unsized<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
+    pub fn empty_unsized<F: ?Sized>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
                             -> Result<Buffer<T>, BufferCreationError> where F: Facade
     {
         assert!(<T as Content>::is_size_suitable(size));
@@ -325,7 +325,7 @@ impl<T: ?Sized> Buffer<T> where T: Content {
 
 impl<T> Buffer<T> where T: Content + Copy {
     /// Builds a new buffer of the given size.
-    pub fn empty<F>(facade: &F, ty: BufferType, mode: BufferMode)
+    pub fn empty<F: ?Sized>(facade: &F, ty: BufferType, mode: BufferMode)
                     -> Result<Buffer<T>, BufferCreationError> where F: Facade
     {
         Alloc::empty(facade, ty, mem::size_of::<T>(), mode)
@@ -341,7 +341,7 @@ impl<T> Buffer<T> where T: Content + Copy {
 
 impl<T> Buffer<[T]> where [T]: Content, T: Copy {
     /// Builds a new buffer of the given size.
-    pub fn empty_array<F>(facade: &F, ty: BufferType, len: usize, mode: BufferMode)
+    pub fn empty_array<F: ?Sized>(facade: &F, ty: BufferType, len: usize, mode: BufferMode)
                           -> Result<Buffer<[T]>, BufferCreationError> where F: Facade
     {
         Alloc::empty(facade, ty, len * mem::size_of::<T>(), mode)

@@ -123,7 +123,7 @@ pub struct TimestampQuery {
 
 impl TimestampQuery {
     /// Creates a new `TimestampQuery`. Returns `None` if the backend doesn't support it.
-    pub fn new<F>(facade: &F) -> Option<TimestampQuery> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Option<TimestampQuery> where F: Facade {
         let ctxt = facade.get_context().make_current();
 
         let id = if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension

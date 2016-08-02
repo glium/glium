@@ -126,7 +126,7 @@ impl Error for TransformFeedbackSessionCreationError {
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
 #[inline]
-pub fn is_transform_feedback_supported<F>(facade: &F) -> bool where F: Facade {
+pub fn is_transform_feedback_supported<F: ?Sized>(facade: &F) -> bool where F: Facade {
     let context = facade.get_context();
 
     context.get_version() >= &Version(Api::Gl, 3, 0) ||
@@ -139,7 +139,7 @@ impl<'a> TransformFeedbackSession<'a> {
     ///
     /// TODO: this constructor should ultimately support passing multiple buffers of different
     ///       types
-    pub fn new<F, V>(facade: &F, program: &'a Program, buffer: &'a mut Buffer<[V]>)
+    pub fn new<F: ?Sized, V>(facade: &F, program: &'a Program, buffer: &'a mut Buffer<[V]>)
                      -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
                      where F: Facade, V: Vertex + Copy + Send + 'static
     {

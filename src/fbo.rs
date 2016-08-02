@@ -78,7 +78,7 @@ use version::Api;
 /// If this function returns `true` and you pass attachments with different dimensions, the
 /// intersection between all the attachments will be used. If this function returns `false`, you'll
 /// get an error instead.
-pub fn is_dimensions_mismatch_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_dimensions_mismatch_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 3, 0) ||
     context.get_version() >= &Version(Api::GlEs, 2, 0) ||
     context.get_extensions().gl_arb_framebuffer_object
@@ -161,7 +161,7 @@ impl<'a> FramebufferAttachments<'a> {
     /// After building a `FramebufferAttachments` struct, you must use this function
     /// to "compile" the attachments and make sure that they are valid together.
     #[inline]
-    pub fn validate<C>(self, context: &C) -> Result<ValidatedAttachments<'a>, ValidationError>
+    pub fn validate<C: ?Sized>(self, context: &C) -> Result<ValidatedAttachments<'a>, ValidationError>
                        where C: CapabilitiesSource
     {
         match self {
@@ -214,7 +214,7 @@ impl<'a> FramebufferAttachments<'a> {
         }
     }
 
-    fn validate_layered<C>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
+    fn validate_layered<C: ?Sized>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
                            FramebufferSpecificAttachments<LayeredAttachment<'a>>)
                            -> Result<ValidatedAttachments<'a>, ValidationError>
                            where C: CapabilitiesSource
@@ -344,7 +344,7 @@ impl<'a> FramebufferAttachments<'a> {
         })
     }
 
-    fn validate_regular<C>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
+    fn validate_regular<C: ?Sized>(context: &C, FramebufferSpecificAttachments { colors, depth_stencil }:
                         FramebufferSpecificAttachments<RegularAttachment<'a>>)
                         -> Result<ValidatedAttachments<'a>, ValidationError>
                         where C: CapabilitiesSource

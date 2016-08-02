@@ -194,7 +194,7 @@ pub enum PrimitiveType {
 
 impl PrimitiveType {
     /// Returns true if the backend supports this type of primitives.
-    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool where C: CapabilitiesSource {
         match self {
             &PrimitiveType::Points | &PrimitiveType::LinesList | &PrimitiveType::LineStrip |
             &PrimitiveType::LineLoop | &PrimitiveType::TrianglesList |
@@ -286,7 +286,7 @@ impl IndexType {
 
     /// Returns true if the backend supports this type of index.
     #[inline]
-    pub fn is_supported<C>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool where C: CapabilitiesSource {
         match self {
             &IndexType::U8 => true,
             &IndexType::U16 => true,
@@ -312,7 +312,7 @@ pub unsafe trait Index: Copy + Send + 'static {
     fn get_type() -> IndexType;
 
     /// Returns true if this type of index is supported by the backend.
-    fn is_supported<C>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C: ?Sized>(caps: &C) -> bool where C: CapabilitiesSource {
         Self::get_type().is_supported(caps)
     }
 }
