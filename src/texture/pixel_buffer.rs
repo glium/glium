@@ -28,7 +28,7 @@ pub struct PixelBuffer<T> where T: PixelValue {
 impl<T> PixelBuffer<T> where T: PixelValue {
     /// Builds a new buffer with an uninitialized content.
     #[inline]
-    pub fn new_empty<F>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
+    pub fn new_empty<F: ?Sized>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
         PixelBuffer {
             buffer: Buffer::empty_array(facade, BufferType::PixelPackBuffer, capacity,
                                             BufferMode::Default).unwrap(),

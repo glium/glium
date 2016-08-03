@@ -125,7 +125,7 @@ unsafe fn generate_mipmaps(ctxt: &CommandContext,
 /// # Panic
 ///
 /// Panicks if the size of the data doesn't match the texture dimensions.
-pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
+pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
                              data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
                              mipmaps: MipmapsOption, ty: Dimensions)
                              -> Result<TextureAny, TextureCreationError>
@@ -461,7 +461,7 @@ pub fn new_texture<'a, F, P>(facade: &F, format: TextureFormatRequest,
 /// If `owned` is true, this reference will take ownership of the texture and be responsible
 /// for cleaning it up. Otherwise, the texture must be cleaned up externally, but only
 /// after this reference's lifetime has ended.
-pub unsafe fn from_id<F: Facade>(facade: &F,
+pub unsafe fn from_id<F: Facade + ?Sized>(facade: &F,
                                  format: TextureFormatRequest,
                                  id: gl::types::GLuint,
                                  owned: bool,

@@ -36,7 +36,7 @@ pub struct Program {
 
 impl Program {
     /// Builds a new program.
-    pub fn new<'a, F, I>(facade: &F, input: I) -> Result<Program, ProgramCreationError>
+    pub fn new<'a, F: ?Sized, I>(facade: &F, input: I) -> Result<Program, ProgramCreationError>
                          where I: Into<ProgramCreationInput<'a>>, F: Facade
     {
         let input = input.into();
@@ -134,7 +134,7 @@ impl Program {
     /// ```
     ///
     #[inline]
-    pub fn from_source<'a, F>(facade: &F, vertex_shader: &'a str, fragment_shader: &'a str,
+    pub fn from_source<'a, F: ?Sized>(facade: &F, vertex_shader: &'a str, fragment_shader: &'a str,
                               geometry_shader: Option<&'a str>)
                               -> Result<Program, ProgramCreationError> where F: Facade
     {

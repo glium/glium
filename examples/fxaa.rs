@@ -33,7 +33,7 @@ mod fxaa {
     implement_vertex!(SpriteVertex, position, i_tex_coords);
 
     impl FxaaSystem {
-        pub fn new<F>(facade: &F) -> FxaaSystem where F: Facade + Clone {
+        pub fn new<F: ?Sized>(facade: &F) -> FxaaSystem where F: Facade + Clone {
             FxaaSystem {
                 context: facade.get_context().clone(),
 

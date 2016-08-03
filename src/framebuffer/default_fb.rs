@@ -46,7 +46,7 @@ pub struct DefaultFramebuffer {
 impl DefaultFramebuffer {
     /// Creates a `DefaultFramebuffer` with the back left buffer.
     #[inline]
-    pub fn back_left<F>(facade: &F) -> DefaultFramebuffer where F: Facade {
+    pub fn back_left<F: ?Sized>(facade: &F) -> DefaultFramebuffer where F: Facade {
         DefaultFramebuffer {
             context: facade.get_context().clone(),
             attachment: DefaultFramebufferAttachment::BackLeft,

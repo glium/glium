@@ -36,7 +36,7 @@ pub struct SyncFence {
 impl SyncFence {
     /// Builds a new `SyncFence` that is injected in the server.
     #[inline]
-    pub fn new<F>(facade: &F) -> Result<SyncFence, SyncNotSupportedError> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Result<SyncFence, SyncNotSupportedError> where F: Facade {
         let mut ctxt = facade.get_context().make_current();
         unsafe { new_linear_sync_fence(&mut ctxt) }.map(|f| f.into_sync_fence(facade))
     }
@@ -83,7 +83,7 @@ unsafe impl Send for LinearSyncFence {}
 impl LinearSyncFence {
     /// Turns the prototype into a real fence.
     #[inline]
-    pub fn into_sync_fence<F>(mut self, facade: &F) -> SyncFence where F: Facade {
+    pub fn into_sync_fence<F: ?Sized>(mut self, facade: &F) -> SyncFence where F: Facade {
         SyncFence {
             context: facade.get_context().clone(),
             id: self.id.take()

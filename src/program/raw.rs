@@ -68,7 +68,7 @@ pub struct RawProgram {
 impl RawProgram {
     /// Builds a new program from a list of shaders.
     // TODO: the "has_*" parameters are bad
-    pub fn from_shaders<'a, F, I>(facade: &'a F, shaders: I, has_geometry_shader: bool,
+    pub fn from_shaders<'a, F: ?Sized, I>(facade: &'a F, shaders: I, has_geometry_shader: bool,
                                   has_tessellation_control_shader: bool,
                                   has_tessellation_evaluation_shader: bool,
                                   transform_feedback: Option<(Vec<String>, TransformFeedbackMode)>)
@@ -198,7 +198,7 @@ impl RawProgram {
     }
 
     /// Creates a program from binary.
-    pub fn from_binary<F>(facade: &F, binary: Binary)
+    pub fn from_binary<F: ?Sized>(facade: &F, binary: Binary)
                           -> Result<RawProgram, ProgramCreationError> where F: Facade
     {
         let (has_geometry_shader, has_tessellation_control_shader, has_tessellation_evaluation_shader) = {

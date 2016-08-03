@@ -75,7 +75,7 @@ fn parse_version() -> glutin::GlRequest {
 }
 
 /// Builds a 2x2 unicolor texture.
-pub fn build_unicolor_texture2d<F>(facade: &F, red: f32, green: f32, blue: f32)
+pub fn build_unicolor_texture2d<F: ?Sized>(facade: &F, red: f32, green: f32, blue: f32)
     -> glium::Texture2d where F: Facade
 {
     let color = ((red * 255.0) as u8, (green * 255.0) as u8, (blue * 255.0) as u8);
@@ -87,7 +87,7 @@ pub fn build_unicolor_texture2d<F>(facade: &F, red: f32, green: f32, blue: f32)
 }
 
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
-pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBufferAny,
+pub fn build_fullscreen_red_pipeline<F: ?Sized>(facade: &F) -> (glium::vertex::VertexBufferAny,
     glium::index::IndexBufferAny, glium::Program) where F: Facade
 {
     #[derive(Copy, Clone)]
@@ -149,7 +149,7 @@ pub fn build_fullscreen_red_pipeline<F>(facade: &F) -> (glium::vertex::VertexBuf
 /// Builds a vertex buffer and an index buffer corresponding to a rectangle.
 ///
 /// The vertex buffer has the "position" attribute of type "vec2".
-pub fn build_rectangle_vb_ib<F>(facade: &F)
+pub fn build_rectangle_vb_ib<F: ?Sized>(facade: &F)
     -> (glium::vertex::VertexBufferAny, glium::index::IndexBufferAny) where F: Facade
 {
     #[derive(Copy, Clone)]
@@ -170,6 +170,6 @@ pub fn build_rectangle_vb_ib<F>(facade: &F)
 }
 
 /// Builds a texture suitable for rendering.
-pub fn build_renderable_texture<F>(facade: &F) -> glium::Texture2d where F: Facade {
+pub fn build_renderable_texture<F: ?Sized>(facade: &F) -> glium::Texture2d where F: Facade {
     glium::Texture2d::empty(facade, 1024, 1024).unwrap()
 }

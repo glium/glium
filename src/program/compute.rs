@@ -32,13 +32,13 @@ pub struct ComputeShader {
 impl ComputeShader {
     /// Returns true if the backend supports compute shaders.
     #[inline]
-    pub fn is_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
         check_shader_type_compatibility(ctxt, gl::COMPUTE_SHADER)
     }
 
     /// Builds a new compute shader from some source code.
     #[inline]
-    pub fn from_source<F>(facade: &F, src: &str) -> Result<ComputeShader, ProgramCreationError>
+    pub fn from_source<F: ?Sized>(facade: &F, src: &str) -> Result<ComputeShader, ProgramCreationError>
                           where F: Facade
     {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
@@ -52,7 +52,7 @@ impl ComputeShader {
 
     /// Builds a new compute shader from some binary.
     #[inline]
-    pub fn from_binary<F>(facade: &F, data: Binary) -> Result<ComputeShader, ProgramCreationError>
+    pub fn from_binary<F: ?Sized>(facade: &F, data: Binary) -> Result<ComputeShader, ProgramCreationError>
                           where F: Facade
     {
         let _lock = COMPILER_GLOBAL_LOCK.lock();

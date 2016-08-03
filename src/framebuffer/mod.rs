@@ -111,7 +111,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
     #[inline]
-    pub fn new<F, C>(facade: &F, color: C) -> Result<SimpleFrameBuffer<'a>, ValidationError>
+    pub fn new<F: ?Sized, C>(facade: &F, color: C) -> Result<SimpleFrameBuffer<'a>, ValidationError>
                      where C: ToColorAttachment<'a>, F: Facade
     {
         SimpleFrameBuffer::new_impl(facade, Some(color.to_color_attachment()), None, None, None)
@@ -120,7 +120,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth
     /// buffer, but no stencil buffer.
     #[inline]
-    pub fn with_depth_buffer<F, C, D>(facade: &F, color: C, depth: D)
+    pub fn with_depth_buffer<F: ?Sized, C, D>(facade: &F, color: C, depth: D)
                                       -> Result<SimpleFrameBuffer<'a>, ValidationError>
                                       where C: ToColorAttachment<'a>,
                                             D: ToDepthAttachment<'a>, F: Facade
@@ -132,7 +132,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
     #[inline]
-    pub fn depth_only<F, D>(facade: &F, depth: D)
+    pub fn depth_only<F: ?Sized, D>(facade: &F, depth: D)
                             -> Result<SimpleFrameBuffer<'a>, ValidationError>
         where D: ToDepthAttachment<'a>, F: Facade
     {
@@ -142,7 +142,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment, a depth
     /// buffer, and a stencil buffer.
     #[inline]
-    pub fn with_depth_and_stencil_buffer<F, C, D, S>(facade: &F, color: C, depth: D,
+    pub fn with_depth_and_stencil_buffer<F: ?Sized, C, D, S>(facade: &F, color: C, depth: D,
                                                      stencil: S)
                                                      -> Result<SimpleFrameBuffer<'a>,
                                                                ValidationError>
@@ -158,7 +158,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
     /// nor stencil buffer.
     #[inline]
-    pub fn depth_and_stencil_only<F, D, S>(facade: &F, depth: D, stencil: S)
+    pub fn depth_and_stencil_only<F: ?Sized, D, S>(facade: &F, depth: D, stencil: S)
                                            -> Result<SimpleFrameBuffer<'a>, ValidationError>
         where D: ToDepthAttachment<'a>,
               S: ToStencilAttachment<'a>, F: Facade
@@ -170,7 +170,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
     /// buffer, but no depth buffer.
     #[inline]
-    pub fn with_stencil_buffer<F, C, S>(facade: &F, color: C, stencil: S)
+    pub fn with_stencil_buffer<F: ?Sized, C, S>(facade: &F, color: C, stencil: S)
                                         -> Result<SimpleFrameBuffer<'a>, ValidationError>
                                         where C: ToColorAttachment<'a>, S: ToStencilAttachment<'a>,
                                               F: Facade
@@ -182,7 +182,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
     /// buffer, but no depth buffer.
     #[inline]
-    pub fn stencil_only<F, S>(facade: &F, stencil: S)
+    pub fn stencil_only<F: ?Sized, S>(facade: &F, stencil: S)
                               -> Result<SimpleFrameBuffer<'a>, ValidationError>
         where S: ToStencilAttachment<'a>, F: Facade
     {
@@ -192,7 +192,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
     #[inline]
-    pub fn with_depth_stencil_buffer<F, C, D>(facade: &F, color: C, depthstencil: D)
+    pub fn with_depth_stencil_buffer<F: ?Sized, C, D>(facade: &F, color: C, depthstencil: D)
                                               -> Result<SimpleFrameBuffer<'a>, ValidationError>
                                               where C: ToColorAttachment<'a>,
                                                     D: ToDepthStencilAttachment<'a>, F: Facade
@@ -203,7 +203,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
     /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
     #[inline]
-    pub fn depth_stencil_only<F, D>(facade: &F, depthstencil: D)
+    pub fn depth_stencil_only<F: ?Sized, D>(facade: &F, depthstencil: D)
                                     -> Result<SimpleFrameBuffer<'a>, ValidationError>
         where D: ToDepthStencilAttachment<'a>, F: Facade
     {
@@ -212,7 +212,7 @@ impl<'a> SimpleFrameBuffer<'a> {
     }
 
 
-    fn new_impl<F>(facade: &F, color: Option<ColorAttachment<'a>>,
+    fn new_impl<F: ?Sized>(facade: &F, color: Option<ColorAttachment<'a>>,
                    depth: Option<DepthAttachment<'a>>, stencil: Option<StencilAttachment<'a>>,
                    depthstencil: Option<DepthStencilAttachment<'a>>)
                    -> Result<SimpleFrameBuffer<'a>, ValidationError> where F: Facade
@@ -372,7 +372,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn new<F, I, A>(facade: &F, color_attachments: I)
+    pub fn new<F: ?Sized, I, A>(facade: &F, color_attachments: I)
                         -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
         where F: Facade,
               I: IntoIterator<Item = (&'a str, A)>,
@@ -387,7 +387,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn with_depth_buffer<F, D, I, A>(facade: &F, color_attachments: I, depth: D)
+    pub fn with_depth_buffer<F: ?Sized, D, I, A>(facade: &F, color_attachments: I, depth: D)
                                          -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
         where F: Facade,
               D: ToDepthAttachment<'a>, 
@@ -404,7 +404,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn with_depth_and_stencil_buffer<A, F, I, D, S>(facade: &F, color: I, depth: D, stencil: S)
+    pub fn with_depth_and_stencil_buffer<A, F: ?Sized, I, D, S>(facade: &F, color: I, depth: D, stencil: S)
                                                         -> Result<MultiOutputFrameBuffer<'a>,
                                                                   ValidationError>
         where D: ToDepthAttachment<'a>,
@@ -424,7 +424,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn with_stencil_buffer<A, F, I, S>(facade: &F, color: I, stencil: S)
+    pub fn with_stencil_buffer<A, F: ?Sized, I, S>(facade: &F, color: I, stencil: S)
                                            -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
         where S: ToStencilAttachment<'a>,
               F: Facade,
@@ -441,7 +441,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
     ///
     /// Panics if all attachments don't have the same dimensions.
     #[inline]
-    pub fn with_depth_stencil_buffer<A, F, I, D>(facade: &F, color: I, depthstencil: D)
+    pub fn with_depth_stencil_buffer<A, F: ?Sized, I, D>(facade: &F, color: I, depthstencil: D)
                                                  -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
         where D: ToDepthStencilAttachment<'a>, F: Facade,
               I: IntoIterator<Item = (&'a str, A)>,
@@ -451,7 +451,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
                                     Some(depthstencil.to_depth_stencil_attachment()))
     }
 
-    fn new_impl<F, I, A>(facade: &F, color: I, depth: Option<DepthAttachment<'a>>,
+    fn new_impl<F: ?Sized, I, A>(facade: &F, color: I, depth: Option<DepthAttachment<'a>>,
                          stencil: Option<StencilAttachment<'a>>,
                          depthstencil: Option<DepthStencilAttachment<'a>>)
                          -> Result<MultiOutputFrameBuffer<'a>, ValidationError>
@@ -635,14 +635,14 @@ pub struct EmptyFrameBuffer {
 
 impl<'a> EmptyFrameBuffer {
     /// Returns true if empty framebuffers are supported by the backend.
-    pub fn is_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
         context.get_version() >= &Version(Api::Gl, 4, 3) ||
         context.get_version() >= &Version(Api::GlEs, 3, 1) ||
         context.get_extensions().gl_arb_framebuffer_no_attachments
     }
 
     /// Returns true if layered empty framebuffers are supported by the backend.
-    pub fn is_layered_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_layered_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
         context.get_version() >= &Version(Api::Gl, 4, 3) ||
         context.get_version() >= &Version(Api::GlEs, 3, 2) ||
         context.get_extensions().gl_arb_framebuffer_no_attachments
@@ -650,25 +650,25 @@ impl<'a> EmptyFrameBuffer {
 
     /// Returns the maximum width of empty framebuffers that the backend supports, or `None` if
     /// empty framebuffers are not supported.
-    pub fn get_max_supported_width<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_width<C: ?Sized>(context: &C) -> Option<u32> where C: CapabilitiesSource {
         context.get_capabilities().max_framebuffer_width.map(|v| v as u32)
     }
 
     /// Returns the maximum height of empty framebuffers that the backend supports, or `None` if
     /// empty framebuffers are not supported.
-    pub fn get_max_supported_height<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_height<C: ?Sized>(context: &C) -> Option<u32> where C: CapabilitiesSource {
         context.get_capabilities().max_framebuffer_height.map(|v| v as u32)
     }
 
     /// Returns the maximum number of samples of empty framebuffers that the backend supports,
     /// or `None` if empty framebuffers are not supported.
-    pub fn get_max_supported_samples<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_samples<C: ?Sized>(context: &C) -> Option<u32> where C: CapabilitiesSource {
         context.get_capabilities().max_framebuffer_samples.map(|v| v as u32)
     }
 
     /// Returns the maximum number of layers of empty framebuffers that the backend supports,
     /// or `None` if layered empty framebuffers are not supported.
-    pub fn get_max_supported_layers<C>(context: &C) -> Option<u32> where C: CapabilitiesSource {
+    pub fn get_max_supported_layers<C: ?Sized>(context: &C) -> Option<u32> where C: CapabilitiesSource {
         context.get_capabilities().max_framebuffer_layers.map(|v| v as u32)
     }
 
@@ -679,7 +679,7 @@ impl<'a> EmptyFrameBuffer {
     /// Panicks if `layers` or `samples` is equal to `Some(0)`.
     ///
     #[inline]
-    pub fn new<F>(facade: &F, width: u32, height: u32, layers: Option<u32>,
+    pub fn new<F: ?Sized>(facade: &F, width: u32, height: u32, layers: Option<u32>,
                   samples: Option<u32>, fixed_samples: bool)
                   -> Result<EmptyFrameBuffer, ValidationError> where F: Facade
     {

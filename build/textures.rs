@@ -546,7 +546,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 {gen_doc}
                 #[inline]
-                pub fn new<'a, F, T>(facade: &F, data: {param})
+                pub fn new<'a, F: ?Sized, T>(facade: &F, data: {param})
                               -> Result<{name}, TextureCreationError>
                               where T: {data_source_trait}<'a>, F: Facade
                 {{
@@ -571,7 +571,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "
                 /// Builds a new texture by uploading data.
                 #[inline]
-                pub fn with_mipmaps<'a, F, T>(facade: &F, data: {param}, mipmaps: {mipmaps})
+                pub fn with_mipmaps<'a, F: ?Sized, T>(facade: &F, data: {param}, mipmaps: {mipmaps})
                                               -> Result<{name}, TextureCreationError>
                                               where T: {data_source_trait}<'a>, F: Facade
                 {{
@@ -597,7 +597,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// Builds a new texture with a specific format. The input data must also be of the
                 /// specified compressed format.
                 #[inline]
-                pub fn with_compressed_data<F>(facade: &F, data: {param}, {dim_params},
+                pub fn with_compressed_data<F: ?Sized>(facade: &F, data: {param}, {dim_params},
                                                       format: {format}, mipmaps: {mipmaps})
                                                       -> Result<{name}, TextureCreationError>
                                                        where F: Facade
@@ -628,7 +628,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
         (writeln!(dest, "
                 /// Builds a new texture with a specific format.
                 #[inline]
-                pub fn with_format<'a, F, T>(facade: &F, data: {param},
+                pub fn with_format<'a, F: ?Sized, T>(facade: &F, data: {param},
                                           format: {format}, mipmaps: {mipmaps})
                                           -> Result<{name}, TextureCreationError>
                                           where T: {data_source_trait}<'a>, F: Facade
@@ -654,7 +654,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
 
         (writeln!(dest, "
                 #[inline]
-                fn new_impl<'a, F, T>(facade: &F, data: {param},
+                fn new_impl<'a, F: ?Sized, T>(facade: &F, data: {param},
                                    format: Option<{relevant_format}>, mipmaps: {mipmaps})
                                    -> Result<{name}, TextureCreationError>
                                    where T: {data_source_trait}<'a>, F: Facade
@@ -718,7 +718,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture will contain undefined data.
                 #[inline]
-                pub fn empty<F>(facade: &F, {dim_params})
+                pub fn empty<F: ?Sized>(facade: &F, {dim_params})
                                 -> Result<{name}, TextureCreationError>
                                 where F: Facade
                 {{
@@ -742,7 +742,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture (and its mipmaps) will contain undefined data.
                 #[inline]
-                pub fn empty_with_format<F>(facade: &F, format: {format}, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
+                pub fn empty_with_format<F: ?Sized>(facade: &F, format: {format}, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = format.to_texture_format();
                     let format = TextureFormatRequest::Specific(format);
             ", format = relevant_format, dim_params = dimensions_parameters_input, name = name,
@@ -765,7 +765,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 ///
                 /// The texture (and its mipmaps) will contain undefined data.
                 #[inline]
-                pub fn empty_with_mipmaps<F>(facade: &F, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
+                pub fn empty_with_mipmaps<F: ?Sized>(facade: &F, mipmaps: {mipmaps}, {dim_params}) -> Result<{name}, TextureCreationError> where F: Facade {{
                     let format = {format};
             ", format = default_format, dim_params = dimensions_parameters_input, name = name,
                mipmaps = mipmaps_option_ty)).unwrap();
@@ -784,7 +784,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// If `owned` is true, this reference will take ownership of the texture and be responsible
                 /// for cleaning it up. Otherwise, the texture must be cleaned up externally, but only
                 /// after this reference's lifetime has ended.
-                pub unsafe fn from_id<F: Facade>(facade: &F,
+                pub unsafe fn from_id<F: Facade + ?Sized>(facade: &F,
                                                  format: {format},
                                                  id: gl::types::GLuint,
                                                  owned: bool,

@@ -80,7 +80,7 @@ pub trait Facade {
     fn get_context(&self) -> &Rc<Context>;
 }
 
-impl<T> CapabilitiesSource for T where T: Facade {
+impl<T: ?Sized> CapabilitiesSource for T where T: Facade {
     fn get_version(&self) -> &Version {
         self.get_context().deref().get_version()
     }

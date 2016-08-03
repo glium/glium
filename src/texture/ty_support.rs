@@ -6,7 +6,7 @@ use version::Version;
 
 /// Returns true is one-dimensional textures are supported.
 #[inline]
-pub fn is_texture_1d_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_texture_1d_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 1, 1)
 }
 
@@ -15,13 +15,13 @@ pub fn is_texture_1d_supported<C>(context: &C) -> bool where C: CapabilitiesSour
 /// This is a dummy function that always returns true, as 2d textures are always supported. This
 /// function is just here for completeness.
 #[inline]
-pub fn is_texture_2d_supported<C>(_: &C) -> bool where C: CapabilitiesSource {
+pub fn is_texture_2d_supported<C: ?Sized>(_: &C) -> bool where C: CapabilitiesSource {
     true
 }
 
 /// Returns true is three-dimensional textures are supported.
 #[inline]
-pub fn is_texture_3d_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_texture_3d_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 1, 2) ||
     context.get_version() >= &Version(Api::GlEs, 3, 0) ||
     context.get_extensions().gl_ext_texture3d ||        // FIXME: functions have an EXT suffix, this isn't handled by glium
@@ -30,14 +30,14 @@ pub fn is_texture_3d_supported<C>(context: &C) -> bool where C: CapabilitiesSour
 
 /// Returns true is one-dimensional texture arrays are supported.
 #[inline]
-pub fn is_texture_1d_array_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_texture_1d_array_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 3, 0) ||
     context.get_extensions().gl_ext_texture_array
 }
 
 /// Returns true is two-dimensional texture arrays are supported.
 #[inline]
-pub fn is_texture_2d_array_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_texture_2d_array_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 3, 0) ||
     context.get_version() >= &Version(Api::GlEs, 3, 0) ||
     context.get_extensions().gl_ext_texture_array ||
@@ -46,7 +46,7 @@ pub fn is_texture_2d_array_supported<C>(context: &C) -> bool where C: Capabiliti
 
 /// Returns true is two-dimensional multisample textures are supported.
 #[inline]
-pub fn is_texture_2d_multisample_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_texture_2d_multisample_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 3, 2) ||
     context.get_version() >= &Version(Api::GlEs, 3, 1) ||
     context.get_extensions().gl_arb_texture_multisample
@@ -55,7 +55,7 @@ pub fn is_texture_2d_multisample_supported<C>(context: &C) -> bool where C: Capa
 
 /// Returns true is two-dimensional multisample texture arrays are supported.
 #[inline]
-pub fn is_texture_2d_multisample_array_supported<C>(context: &C) -> bool
+pub fn is_texture_2d_multisample_array_supported<C: ?Sized>(context: &C) -> bool
                                                     where C: CapabilitiesSource
 {
     context.get_version() >= &Version(Api::Gl, 3, 2) ||
@@ -65,7 +65,7 @@ pub fn is_texture_2d_multisample_array_supported<C>(context: &C) -> bool
 
 /// Returns true is cubemaps are supported.
 #[inline]
-pub fn is_cubemaps_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_cubemaps_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 1, 3) ||
     context.get_version() >= &Version(Api::GlEs, 2, 0) ||
     context.get_extensions().gl_ext_texture_cube_map ||
@@ -74,7 +74,7 @@ pub fn is_cubemaps_supported<C>(context: &C) -> bool where C: CapabilitiesSource
 
 /// Returns true is cubemap arrays are supported.
 #[inline]
-pub fn is_cubemap_arrays_supported<C>(context: &C) -> bool where C: CapabilitiesSource {
+pub fn is_cubemap_arrays_supported<C: ?Sized>(context: &C) -> bool where C: CapabilitiesSource {
     context.get_version() >= &Version(Api::Gl, 4, 0) ||
     context.get_extensions().gl_arb_texture_cube_map_array ||
     context.get_extensions().gl_ext_texture_cube_map_array ||

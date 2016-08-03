@@ -55,7 +55,7 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty<F>(facade: &F, elements: usize)
+    pub fn empty<F: ?Sized>(facade: &F, elements: usize)
                     -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                     where F: Facade
     {
@@ -68,7 +68,7 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, elements: usize)
+    pub fn empty_dynamic<F: ?Sized>(facade: &F, elements: usize)
                             -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                             where F: Facade
     {
@@ -81,7 +81,7 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, elements: usize)
+    pub fn empty_persistent<F: ?Sized>(facade: &F, elements: usize)
                                -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                                where F: Facade
     {
@@ -94,7 +94,7 @@ impl DrawCommandsNoIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, elements: usize)
+    pub fn empty_immutable<F: ?Sized>(facade: &F, elements: usize)
                               -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                               where F: Facade
     {
@@ -156,7 +156,7 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty<F>(facade: &F, elements: usize)
+    pub fn empty<F: ?Sized>(facade: &F, elements: usize)
                     -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                     where F: Facade
     {
@@ -169,7 +169,7 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, elements: usize)
+    pub fn empty_dynamic<F: ?Sized>(facade: &F, elements: usize)
                             -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                             where F: Facade
     {
@@ -182,7 +182,7 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, elements: usize)
+    pub fn empty_persistent<F: ?Sized>(facade: &F, elements: usize)
                                -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                                where F: Facade
     {
@@ -195,7 +195,7 @@ impl DrawCommandsIndicesBuffer {
     ///
     /// The parameter indicates the number of elements.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, elements: usize)
+    pub fn empty_immutable<F: ?Sized>(facade: &F, elements: usize)
                               -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                               where F: Facade
     {

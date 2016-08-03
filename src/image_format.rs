@@ -390,7 +390,7 @@ impl UncompressedFloatFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -530,7 +530,7 @@ impl UncompressedFloatFormat {
 
     /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
     /// attachment.
-    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_color_renderable<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         // this is the only format that is never renderable
         if let &UncompressedFloatFormat::F9F9F9 = self {
             return false;
@@ -647,7 +647,7 @@ impl SrgbFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -666,7 +666,7 @@ impl SrgbFormat {
 
     /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
     /// attachment.
-    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_color_renderable<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         // checking whether it's supported, so that we don't return `true` by accident
         if !self.is_supported(context) {
             return false;
@@ -738,7 +738,7 @@ impl UncompressedIntFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -801,7 +801,7 @@ impl UncompressedIntFormat {
 
     /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
     /// attachment.
-    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_color_renderable<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         // checking whether it's supported, so that we don't return `true` by accident
         if !self.is_supported(context) {
             return false;
@@ -899,7 +899,7 @@ impl UncompressedUintFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -966,7 +966,7 @@ impl UncompressedUintFormat {
 
     /// Returns true if a texture or renderbuffer with this format can be used as a framebuffer
     /// attachment.
-    pub fn is_color_renderable<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_color_renderable<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         // checking whether it's supported, so that we don't return `true` by accident
         if !self.is_supported(context) {
             return false;
@@ -1071,7 +1071,7 @@ impl CompressedFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -1161,7 +1161,7 @@ impl CompressedSrgbFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -1228,7 +1228,7 @@ impl DepthFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -1288,7 +1288,7 @@ impl DepthStencilFormat {
     }
 
     /// Returns true if this format is supported by the backend.
-    pub fn is_supported<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -1346,7 +1346,7 @@ impl StencilFormat {
     }
 
     /// Returns true if this format is supported by the backend for textures.
-    pub fn is_supported_for_textures<C>(&self, context: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported_for_textures<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         let version = context.get_version();
         let extensions = context.get_extensions();
 
@@ -1361,7 +1361,7 @@ impl StencilFormat {
     }
 
     /// Returns true if this format is supported by the backend for renderbuffers.
-    pub fn is_supported_for_renderbuffers<C>(&self, context: &C) -> bool
+    pub fn is_supported_for_renderbuffers<C: ?Sized>(&self, context: &C) -> bool
                                              where C: CapabilitiesSource
     {
         let version = context.get_version();
@@ -1434,7 +1434,7 @@ impl TextureFormat {
 
     /// Returns true if this format is supported by the backend for textures.
     #[inline]
-    pub fn is_supported_for_textures<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported_for_textures<C: ?Sized>(&self, c: &C) -> bool where C: CapabilitiesSource {
         match self {
             &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
             &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
@@ -1450,7 +1450,7 @@ impl TextureFormat {
 
     /// Returns true if this format is supported by the backend for renderbuffers.
     #[inline]
-    pub fn is_supported_for_renderbuffers<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported_for_renderbuffers<C: ?Sized>(&self, c: &C) -> bool where C: CapabilitiesSource {
         match self {
             &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
             &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
@@ -1467,7 +1467,7 @@ impl TextureFormat {
     /// Returns true if the format is color-renderable, depth-renderable, depth-stencil-renderable
     /// or stencil-renderable.
     #[inline]
-    pub fn is_renderable<C>(&self, c: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_renderable<C: ?Sized>(&self, c: &C) -> bool where C: CapabilitiesSource {
         match self {
             &TextureFormat::UncompressedFloat(format) => format.is_color_renderable(c),
             &TextureFormat::UncompressedIntegral(format) => format.is_color_renderable(c),

@@ -192,7 +192,7 @@ pub struct BufferTexture<T> where [T]: BufferContent {
 impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Copy {
     /// Builds a new texture buffer from data.
     #[inline]
-    pub fn new<F>(facade: &F, data: &[T], ty: BufferTextureType)
+    pub fn new<F: ?Sized>(facade: &F, data: &[T], ty: BufferTextureType)
                   -> Result<BufferTexture<T>, CreationError>
                   where F: Facade
     {
@@ -201,7 +201,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new texture buffer from data.
     #[inline]
-    pub fn dynamic<F>(facade: &F, data: &[T], ty: BufferTextureType)
+    pub fn dynamic<F: ?Sized>(facade: &F, data: &[T], ty: BufferTextureType)
                   -> Result<BufferTexture<T>, CreationError>
                       where F: Facade
     {
@@ -210,7 +210,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new texture buffer from data.
     #[inline]
-    pub fn persistent<F>(facade: &F, data: &[T], ty: BufferTextureType)
+    pub fn persistent<F: ?Sized>(facade: &F, data: &[T], ty: BufferTextureType)
                   -> Result<BufferTexture<T>, CreationError>
                          where F: Facade
     {
@@ -219,7 +219,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new texture buffer from data.
     #[inline]
-    pub fn immutable<F>(facade: &F, data: &[T], ty: BufferTextureType)
+    pub fn immutable<F: ?Sized>(facade: &F, data: &[T], ty: BufferTextureType)
                         -> Result<BufferTexture<T>, CreationError>
                         where F: Facade
     {
@@ -227,7 +227,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     #[inline]
-    fn new_impl<F>(facade: &F, data: &[T], mode: BufferMode, ty: BufferTextureType)
+    fn new_impl<F: ?Sized>(facade: &F, data: &[T], mode: BufferMode, ty: BufferTextureType)
                    -> Result<BufferTexture<T>, CreationError>
                    where F: Facade
     {
@@ -237,7 +237,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new empty buffer buffer.
     #[inline]
-    pub fn empty<F>(facade: &F, len: usize, ty: BufferTextureType)
+    pub fn empty<F: ?Sized>(facade: &F, len: usize, ty: BufferTextureType)
                     -> Result<BufferTexture<T>, CreationError>
                     where F: Facade
     {
@@ -246,7 +246,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new empty buffer buffer.
     #[inline]
-    pub fn empty_dynamic<F>(facade: &F, len: usize, ty: BufferTextureType)
+    pub fn empty_dynamic<F: ?Sized>(facade: &F, len: usize, ty: BufferTextureType)
                             -> Result<BufferTexture<T>, CreationError>
                             where F: Facade
     {
@@ -255,7 +255,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new empty buffer buffer.
     #[inline]
-    pub fn empty_persistent<F>(facade: &F, len: usize, ty: BufferTextureType)
+    pub fn empty_persistent<F: ?Sized>(facade: &F, len: usize, ty: BufferTextureType)
                                -> Result<BufferTexture<T>, CreationError>
                                where F: Facade
     {
@@ -264,7 +264,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
 
     /// Builds a new empty buffer buffer.
     #[inline]
-    pub fn empty_immutable<F>(facade: &F, len: usize, ty: BufferTextureType)
+    pub fn empty_immutable<F: ?Sized>(facade: &F, len: usize, ty: BufferTextureType)
                               -> Result<BufferTexture<T>, CreationError>
                               where F: Facade
     {
@@ -272,7 +272,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     #[inline]
-    fn empty_impl<F>(facade: &F, len: usize, ty: BufferTextureType, mode: BufferMode)
+    fn empty_impl<F: ?Sized>(facade: &F, len: usize, ty: BufferTextureType, mode: BufferMode)
                      -> Result<BufferTexture<T>, CreationError>
                      where F: Facade
     {
@@ -281,7 +281,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
     }
 
     /// Builds a new buffer texture by taking ownership of a buffer.
-    pub fn from_buffer<F>(context: &F, buffer: Buffer<[T]>, ty: BufferTextureType)
+    pub fn from_buffer<F: ?Sized>(context: &F, buffer: Buffer<[T]>, ty: BufferTextureType)
                           -> Result<BufferTexture<T>, (TextureCreationError, Buffer<[T]>)>
                           where F: Facade
     {

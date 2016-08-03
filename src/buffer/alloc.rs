@@ -106,7 +106,7 @@ pub struct Alloc {
 impl Alloc {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the
     /// size of the data.
-    pub fn new<D: ?Sized, F>(facade: &F, data: &D, ty: BufferType, mode: BufferMode)
+    pub fn new<D: ?Sized, F: ?Sized>(facade: &F, data: &D, ty: BufferType, mode: BufferMode)
                              -> Result<Alloc, BufferCreationError>
                              where D: Content, F: Facade
     {
@@ -133,7 +133,7 @@ impl Alloc {
     }
 
     /// Builds a new empty buffer of the given size.
-    pub fn empty<F>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
+    pub fn empty<F: ?Sized>(facade: &F, ty: BufferType, size: usize, mode: BufferMode)
                     -> Result<Alloc, BufferCreationError> where F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
@@ -1085,7 +1085,7 @@ impl<'b, D> WriteMapping<'b, [D]> where [D]: Content, D: Copy {
 }
 
 /// Returns true if reading from a buffer is supported by the backend.
-pub fn is_buffer_read_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_buffer_read_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
     if ctxt.get_version() >= &Version(Api::Gl, 4, 5) {
         true
 

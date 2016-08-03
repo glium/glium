@@ -23,26 +23,26 @@ mod binary_header;
 
 /// Returns true if the backend supports geometry shaders.
 #[inline]
-pub fn is_geometry_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_geometry_shader_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
     shader::check_shader_type_compatibility(ctxt, gl::GEOMETRY_SHADER)
 }
 
 /// Returns true if the backend supports tessellation shaders.
 #[inline]
-pub fn is_tessellation_shader_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_tessellation_shader_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
     shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
 }
 
 /// Returns true if the backend supports creating and retreiving binary format.
 #[inline]
-pub fn is_binary_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_binary_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
     ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
         || ctxt.get_extensions().gl_arb_get_programy_binary
 }
 
 /// Returns true if the backend supports shader subroutines.
 #[inline]
-pub fn is_subroutine_supported<C>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_subroutine_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
     // WORKAROUND: Windows only; NVIDIA doesn't actually return a valid function pointer for
     //              GetProgramStageiv despite supporting ARB_shader_subroutine; see #1439
     if cfg!(target_os = "windows")
