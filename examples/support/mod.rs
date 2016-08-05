@@ -16,7 +16,7 @@ pub enum Action {
 }
 
 pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
-    let mut accumulator = 0;
+    let mut accumulator = Duration::new(0, 0);
     let mut previous_clock = Instant::now();
 
     loop {
