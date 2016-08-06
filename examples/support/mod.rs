@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
 extern crate genmesh;
-extern crate clock_ticks;
 extern crate obj;
 
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use glium::{self, Display};
 use glium::vertex::VertexBufferAny;
 
@@ -17,8 +16,8 @@ pub enum Action {
 }
 
 pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
-    let mut accumulator = 0;
-    let mut previous_clock = clock_ticks::precise_time_ns();
+    let mut accumulator = Duration::new(0, 0);
+    let mut previous_clock = Instant::now();
 
     loop {
         match callback() {
@@ -26,18 +25,18 @@ pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
             Action::Continue => ()
         };
 
-        let now = clock_ticks::precise_time_ns();
+        let now = Instant::now();
         accumulator += now - previous_clock;
         previous_clock = now;
 
-        const FIXED_TIME_STAMP: u64 = 16666667;
-        while accumulator >= FIXED_TIME_STAMP {
-            accumulator -= FIXED_TIME_STAMP;
+        let fixed_time_stamp = Duration::new(0, 16666667);
+        while accumulator >= fixed_time_stamp {
+            accumulator -= fixed_time_stamp;
 
             // if you have a game, update the state here
         }
 
-        thread::sleep(Duration::from_millis(((FIXED_TIME_STAMP - accumulator) / 1000000) as u64));
+        thread::sleep(fixed_time_stamp - accumulator);
     }
 }
 

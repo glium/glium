@@ -41,7 +41,6 @@ smallvec = "0.1.5"
 gl_generator = "0.5.1"
 
 [dev-dependencies]
-clock_ticks = "0.1.0"
 cgmath = "0.9.1"
 genmesh = "0.4"
 image = "0.10.1"
