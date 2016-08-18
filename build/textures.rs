@@ -316,6 +316,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             use texture::{{TextureCreationError, Texture1dDataSource, Texture2dDataSource}};
             use texture::{{Texture3dDataSource, Texture2dDataSink, MipmapsOption, CompressedMipmapsOption}};
             use texture::{{RawImage1d, RawImage2d, RawImage3d, CubeLayer}};
+            use texture::pixel::PixelValue;
 
             use image_format::{{ClientFormatAny, TextureFormatRequest}};
             use image_format::{{UncompressedFloatFormat, UncompressedIntFormat}};
@@ -846,7 +847,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
                 #[inline]
-                pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
+                pub fn read<T, P>(&self) -> T where T: Texture2dDataSink<P>, P: PixelValue {{
                     let rect = Rect {{ left: 0, bottom: 0, width: self.get_width(),
                                        height: self.get_height().unwrap_or(1) }};
                     self.0.main_level().first_layer().into_image(None).unwrap().raw_read(&rect)
@@ -860,7 +861,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
                 #[inline]
-                pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
+                pub fn read_to_pixel_buffer<P>(&self) -> PixelBuffer<P> where P: PixelValue {{
                     let rect = Rect {{ left: 0, bottom: 0, width: self.get_width(),
                                        height: self.get_height().unwrap_or(1) }};
                     let pb = PixelBuffer::new_empty(self.0.get_context(),
