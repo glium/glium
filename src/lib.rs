@@ -382,7 +382,7 @@ trait UniformsExt {
 ///
 /// Blocks and subroutines are not included.
 #[derive(Copy, Clone, Debug)]
-enum RawUniformValue {
+pub enum RawUniformValue {
     SignedInt(gl::types::GLint),
     UnsignedInt(gl::types::GLuint),
     Float(gl::types::GLfloat),
