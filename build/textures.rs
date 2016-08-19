@@ -316,6 +316,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             use texture::{{TextureCreationError, Texture1dDataSource, Texture2dDataSource}};
             use texture::{{Texture3dDataSource, Texture2dDataSink, MipmapsOption, CompressedMipmapsOption}};
             use texture::{{RawImage1d, RawImage2d, RawImage3d, CubeLayer}};
+            use texture::pixel::PixelValue;
 
             use image_format::{{ClientFormatAny, TextureFormatRequest}};
             use image_format::{{UncompressedFloatFormat, UncompressedIntFormat}};
@@ -840,13 +841,43 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
        (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
     {
         (write!(dest, r#"
-                /// Reads the content of the texture to RAM.
+                /// Reads the content of the texture to RAM. This method may only read `U8U8U8U8`
+                /// data, as it is the only format guaranteed to be supported across all OpenGL
+                /// versions.
                 ///
                 /// You should avoid doing this at all cost during performance-critical
                 /// operations (for example, while you're drawing).
                 /// Use `read_to_pixel_buffer` instead.
                 #[inline]
                 pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
+                    unsafe {{ self.unchecked_read() }}
+                }}
+            "#)).unwrap();
+
+        (write!(dest, r#"
+                /// Reads the content of the texture into a buffer in video memory. This method may
+                /// only read `U8U8U8U8` data, as it is the only format guaranteed to be supported
+                /// across all OpenGL versions.
+                ///
+                /// This operation copies the texture's data into a buffer in video memory
+                /// (a pixel buffer). Contrary to the `read` function, this operation is
+                /// done asynchronously and doesn't need a synchronization.
+                #[inline]
+                pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
+                    unsafe {{ self.unchecked_read_to_pixel_buffer() }}
+                }}
+            "#)).unwrap();
+
+        (write!(dest, r#"
+                /// Unsafely reads the content of the texture to RAM in the specified pixel format.
+                /// It is possible that the current OpenGL context does not support the given
+                /// format, in which case the returned data will be invalid.
+                ///
+                /// You should avoid doing this at all cost during performance-critical
+                /// operations (for example, while you're drawing).
+                /// Use `read_to_pixel_buffer` instead.
+                #[inline]
+                pub unsafe fn unchecked_read<T, P>(&self) -> T where T: Texture2dDataSink<P>, P: PixelValue {{
                     let rect = Rect {{ left: 0, bottom: 0, width: self.get_width(),
                                        height: self.get_height().unwrap_or(1) }};
                     self.0.main_level().first_layer().into_image(None).unwrap().raw_read(&rect)
@@ -854,13 +885,15 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
             "#)).unwrap();
 
         (write!(dest, r#"
-                /// Reads the content of the texture into a buffer in video memory.
+                /// Unsafely reads the content of the texture into a buffer in video memory. It is
+                /// possible that the current OpenGL context does not support the given format, in
+                /// which case the returned data will be invalid.
                 ///
                 /// This operation copies the texture's data into a buffer in video memory
                 /// (a pixel buffer). Contrary to the `read` function, this operation is
                 /// done asynchronously and doesn't need a synchronization.
                 #[inline]
-                pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
+                pub unsafe fn unchecked_read_to_pixel_buffer<P>(&self) -> PixelBuffer<P> where P: PixelValue {{
                     let rect = Rect {{ left: 0, bottom: 0, width: self.get_width(),
                                        height: self.get_height().unwrap_or(1) }};
                     let pb = PixelBuffer::new_empty(self.0.get_context(),
