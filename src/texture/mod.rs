@@ -507,14 +507,19 @@ impl<P> Texture2dDataSink<P> for Vec<Vec<P>> where P: Copy + Clone {
     }
 }
 
-// TODO: hacky
 impl<'a> Texture2dDataSink<(u8, u8, u8, u8)> for RawImage2d<'a, u8> {
     fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, width: u32, height: u32) -> Self {
         RawImage2d {
-            data: Cow::Owned(data.into_owned().into_iter().flat_map(|(a, b, c, d)| {
-                // ultra shitty handling of fixed sized arrays means that we need to create a Vec
-                (vec![a, b, c, d]).into_iter()
-            }).collect()),
+            data: Cow::Owned({
+                let mut v = Vec::with_capacity(data.len() * 4);
+                for (a, b, c, d) in data.into_owned() {
+                    v.push(a);
+                    v.push(b);
+                    v.push(c);
+                    v.push(d);
+                }
+                v
+            } ),
             width: width,
             height: height,
             format: ClientFormat::U8U8U8U8,
