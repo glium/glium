@@ -507,25 +507,109 @@ impl<P> Texture2dDataSink<P> for Vec<Vec<P>> where P: Copy + Clone {
     }
 }
 
-impl<'a> Texture2dDataSink<(u8, u8, u8, u8)> for RawImage2d<'a, u8> {
-    fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, width: u32, height: u32) -> Self {
-        RawImage2d {
-            data: Cow::Owned({
-                let mut v = Vec::with_capacity(data.len() * 4);
-                for (a, b, c, d) in data.into_owned() {
-                    v.push(a);
-                    v.push(b);
-                    v.push(c);
-                    v.push(d);
+macro_rules! impl_2d_sink_for_raw_image {
+    (($t1:ty, $t2:ty, $t3:ty, $t4:ty)) => (
+        impl<'a> Texture2dDataSink<($t1, $t2, $t3, $t4)> for RawImage2d<'a, $t1> {
+            fn from_raw(data: Cow<[($t1, $t2, $t3, $t4)]>, width: u32, height: u32) -> Self {
+                RawImage2d {
+                    data: Cow::Owned( {
+                        let mut v = Vec::with_capacity(data.len() * 4);
+                        for (a, b, c, d) in data.into_owned() {
+                            v.push(a);
+                            v.push(b);
+                            v.push(c);
+                            v.push(d);
+                        }
+                        v
+                    } ),
+                    width: width,
+                    height: height,
+                    format: <($t1, $t2, $t3, $t4) as PixelValue>::get_format(),
                 }
-                v
-            } ),
-            width: width,
-            height: height,
-            format: ClientFormat::U8U8U8U8,
+            }
         }
-    }
+    );
+    (($t1:ty, $t2:ty, $t3:ty)) => (
+        impl<'a> Texture2dDataSink<($t1, $t2, $t3)> for RawImage2d<'a, $t1> {
+            fn from_raw(data: Cow<[($t1, $t2, $t3)]>, width: u32, height: u32) -> Self {
+                RawImage2d {
+                    data: Cow::Owned( {
+                        let mut v = Vec::with_capacity(data.len() * 3);
+                        for (a, b, c) in data.into_owned() {
+                            v.push(a);
+                            v.push(b);
+                            v.push(c);
+                        }
+                        v
+                    } ),
+                    width: width,
+                    height: height,
+                    format: <($t1, $t2, $t3) as PixelValue>::get_format(),
+                }
+            }
+        }
+    );
+    (($t1:ty, $t2:ty)) => (
+        impl<'a> Texture2dDataSink<($t1, $t2)> for RawImage2d<'a, $t1> {
+            fn from_raw(data: Cow<[($t1, $t2)]>, width: u32, height: u32) -> Self {
+                RawImage2d {
+                    data: Cow::Owned( {
+                        let mut v = Vec::with_capacity(data.len() * 2);
+                        for (a, b) in data.into_owned() {
+                            v.push(a);
+                            v.push(b);
+                        }
+                        v
+                    } ),
+                    width: width,
+                    height: height,
+                    format: <($t1, $t2) as PixelValue>::get_format(),
+                }
+            }
+        }
+    );
+    ($t1:ty) => (
+        impl<'a> Texture2dDataSink<$t1> for RawImage2d<'a, $t1> {
+            fn from_raw(data: Cow<[$t1]>, width: u32, height: u32) -> Self {
+                RawImage2d {
+                    data: Cow::Owned(data.into_owned()),
+                    width: width,
+                    height: height,
+                    format: <$t1 as PixelValue>::get_format(),
+                }
+            }
+        }
+    );
 }
+
+impl_2d_sink_for_raw_image!(i8);
+impl_2d_sink_for_raw_image!((i8, i8));
+impl_2d_sink_for_raw_image!((i8, i8, i8));
+impl_2d_sink_for_raw_image!((i8, i8, i8, i8));
+impl_2d_sink_for_raw_image!(u8);
+impl_2d_sink_for_raw_image!((u8, u8));
+impl_2d_sink_for_raw_image!((u8, u8, u8));
+impl_2d_sink_for_raw_image!((u8, u8, u8, u8));
+impl_2d_sink_for_raw_image!(i16);
+impl_2d_sink_for_raw_image!((i16, i16));
+impl_2d_sink_for_raw_image!((i16, i16, i16));
+impl_2d_sink_for_raw_image!((i16, i16, i16, i16));
+impl_2d_sink_for_raw_image!(u16);
+impl_2d_sink_for_raw_image!((u16, u16));
+impl_2d_sink_for_raw_image!((u16, u16, u16));
+impl_2d_sink_for_raw_image!((u16, u16, u16, u16));
+impl_2d_sink_for_raw_image!(i32);
+impl_2d_sink_for_raw_image!((i32, i32));
+impl_2d_sink_for_raw_image!((i32, i32, i32));
+impl_2d_sink_for_raw_image!((i32, i32, i32, i32));
+impl_2d_sink_for_raw_image!(u32);
+impl_2d_sink_for_raw_image!((u32, u32));
+impl_2d_sink_for_raw_image!((u32, u32, u32));
+impl_2d_sink_for_raw_image!((u32, u32, u32, u32));
+impl_2d_sink_for_raw_image!(f32);
+impl_2d_sink_for_raw_image!((f32, f32));
+impl_2d_sink_for_raw_image!((f32, f32, f32));
+impl_2d_sink_for_raw_image!((f32, f32, f32, f32));
 
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture3dDataSource<'a> {
