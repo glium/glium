@@ -497,7 +497,7 @@ impl Context {
     ///
     /// You will only see the data that has finished being drawn.
     ///
-    /// This function can return any type that implements `Texture2dData`.
+    /// This function can return any type that implements `Texture2dDataSink<(u8, u8, u8, u8)>`.
     ///
     /// ## Example
     ///
