@@ -258,6 +258,9 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                 //              by interpreting it as `false`.
                 0x31BE => false,
 
+                // WORK-AROUND: Adreno 430/506 drivers return NO_ERROR.
+                gl::NO_ERROR => false,
+
                 _ => unreachable!()
             }
 
