@@ -118,7 +118,7 @@ fn main() {
     // reading the front buffer into an image
     let image: glium::texture::RawImage2d<u8> = display.read_front_buffer();
     let image = image::ImageBuffer::from_raw(image.width, image.height, image.data.into_owned()).unwrap();
-    let image = image::DynamicImage::ImageRgba8(image);
+    let image = image::DynamicImage::ImageRgba8(image).flipv();
     let mut output = std::fs::File::create(&Path::new("glium-example-screenshot.png")).unwrap();
     image.save(&mut output, image::ImageFormat::PNG).unwrap();
 }
