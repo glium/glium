@@ -56,7 +56,7 @@ impl DefaultFramebuffer {
 
 impl Surface for DefaultFramebuffer {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<[f32; 4]>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
         // TODO: wrong attachment
