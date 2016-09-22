@@ -1125,7 +1125,7 @@ impl Surface for Frame {
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, None, None, color, color_srgb, depth, stencil);
+        ops::clear(&self.context, None, rect, color, color_srgb, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
