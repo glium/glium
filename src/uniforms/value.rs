@@ -337,6 +337,11 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::BufferTexture(tex), UniformType::USamplerBuffer) => {
                 tex.get_texture_type() == texture::buffer_texture::BufferTextureType::Unsigned
             },
+            (&UniformValue::Texture2dMultisample(..), UniformType::Sampler2dMultisample) => true,
+            (&UniformValue::SrgbTexture2dMultisample(..), UniformType::Sampler2dMultisample) => true,
+            (&UniformValue::IntegralTexture2dMultisample(..), UniformType::ISampler2dMultisample) => true,
+            (&UniformValue::UnsignedTexture2dMultisample(..), UniformType::USampler2dMultisample) => true,
+            (&UniformValue::DepthTexture2dMultisample(..), UniformType::Sampler2dMultisample) => true,
             _ => false,
         }
     }
