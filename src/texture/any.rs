@@ -190,6 +190,12 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         _ => (gl::LINEAR, gl::LINEAR_MIPMAP_LINEAR),
     };
 
+    let is_multisampled = match ty {
+        Dimensions::Texture2dMultisample {..}
+        | Dimensions::Texture2dMultisampleArray {..} => true,
+        _ => false,
+    };
+
     let mut ctxt = facade.get_context().make_current();
 
     let id = unsafe {
@@ -217,11 +223,15 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
             ctxt.state.texture_units[act].texture = id;
         }
 
-        ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-        ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
+        if !is_multisampled {
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
+        }
 
         match ty {
             Dimensions::Texture1d { .. } => (),
+            Dimensions::Texture2dMultisample { .. } => (),
+            Dimensions::Texture2dMultisampleArray { .. } => (),
             _ => {
                 ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
             },
@@ -239,7 +249,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         if has_mipmaps {
             ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
                                   mipmap_filtering as i32);
-        } else {
+        } else if !is_multisampled {
             ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
                                   filtering as i32);
         }
