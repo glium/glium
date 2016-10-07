@@ -16,7 +16,7 @@ glium = "*"
 
 Its objectives:
  - Be safe to use. Many aspects of OpenGL that can trigger a crash if misused are automatically handled by glium.
- - Provide an API that enforces good pratices such as RAII or stateless function calls.
+ - Provide an API that enforces good practices such as RAII or stateless function calls.
  - Be compatible with all OpenGL versions that support shaders, providing a unified API when things diverge.
  - Avoid all OpenGL errors beforehand.
  - Produce optimized OpenGL function calls, and allow the user to easily use modern OpenGL techniques.
@@ -46,7 +46,7 @@ Easy to use:
    bindings with the same vertex buffer. This reduces the overall complexity of OpenGL.
 
  - Glium handles framebuffer objects, samplers, and vertex array objects for you. You no longer
-   need to create them explicitely as they are automatically created when needed and destroyed
+   need to create them explicitly as they are automatically created when needed and destroyed
    when their corresponding object is destroyed.
 
  - Glium is stateless. There are no `set_something()` functions in the entire library, and
