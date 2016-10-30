@@ -1,10 +1,13 @@
 use gl;
 
+use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
 use std::ffi;
 use std::mem;
 use std::ptr;
-use std::collections::HashMap;
 use std::os::raw;
+
+use fnv::FnvHasher;
 
 use context::CommandContext;
 use version::Version;
@@ -174,7 +177,7 @@ pub enum OutputPrimitives {
 }
 
 pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
-                               -> HashMap<String, Uniform>
+                               -> HashMap<String, Uniform, BuildHasherDefault<FnvHasher>>
 {
     // number of active uniforms
     let active_uniforms = {
@@ -195,7 +198,8 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
     };
 
     // the result of this function
-    let mut uniforms = HashMap::with_capacity(active_uniforms as usize);
+    let mut uniforms = HashMap::with_hasher(BuildHasherDefault::<FnvHasher>::default());
+    uniforms.reserve(active_uniforms as usize);
 
     for uniform_id in 0 .. active_uniforms {
         let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -250,7 +254,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
     }
 
     // Flatten arrays
-    let mut uniforms_flattened = HashMap::new();
+    let mut uniforms_flattened = HashMap::with_hasher(Default::default());
     for uniform in uniforms {
         // If this is a normal non-array element, just move it over
         if !uniform.0.ends_with("[0]") {
@@ -278,7 +282,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
 }
 
 pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
-                                 -> HashMap<String, Attribute>
+                                 -> HashMap<String, Attribute, BuildHasherDefault<FnvHasher>>
 {
     // number of active attributes
     let active_attributes = {
@@ -299,7 +303,8 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
     };
 
     // the result of this function
-    let mut attributes = HashMap::with_capacity(active_attributes as usize);
+    let mut attributes = HashMap::with_hasher(Default::default());
+    attributes.reserve(active_attributes as usize);
 
     for attribute_id in 0 .. active_attributes {
         let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -360,11 +365,11 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
 }
 
 pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
-                                     -> HashMap<String, UniformBlock>
+                                     -> HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>
 {
     // uniform blocks are not supported, so there's none
     if !(ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0)) {
-        return HashMap::new();
+        return HashMap::with_hasher(Default::default());
     }
 
     let program = match program {
@@ -379,14 +384,15 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
     //              even though they report OpenGL ES 3.1. So we return early on if possible.
     // TODO: find a better work-around ^
     if active_blocks == 0 {
-        return HashMap::new();
+        return HashMap::with_hasher(Default::default());
     }
 
     let mut active_blocks_max_name_len: gl::types::GLint = mem::uninitialized();
     ctxt.gl.GetProgramiv(program, gl::ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH,
                          &mut active_blocks_max_name_len);
 
-    let mut blocks = HashMap::with_capacity(active_blocks as usize);
+    let mut blocks = HashMap::with_hasher(Default::default());
+    blocks.reserve(active_blocks as usize);
 
     for block_id in 0 .. active_blocks {
         // getting the name of the block
@@ -674,18 +680,18 @@ pub unsafe fn reflect_tess_eval_output_type(ctxt: &mut CommandContext, program: 
 
 /// Returns the list of shader storage blocks of a program.
 pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: Handle)
-                                            -> HashMap<String, UniformBlock>
+    -> HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>
 {
     if !(ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
          (ctxt.extensions.gl_arb_program_interface_query && ctxt.extensions.gl_arb_shader_storage_buffer_object))
     {
         // not supported
-        return HashMap::with_capacity(0);
+        return HashMap::with_hasher(Default::default());
     }
 
     let program = match program {
         Handle::Id(program) => program,
-        Handle::Handle(program) => return HashMap::with_capacity(0)
+        Handle::Handle(program) => return HashMap::with_hasher(Default::default())
     };
 
     // number of active SSBOs
@@ -697,7 +703,8 @@ pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: 
     };
 
     // the result of this function
-    let mut blocks = HashMap::with_capacity(active_blocks as usize);
+    let mut blocks = HashMap::with_hasher(Default::default());
+    blocks.reserve(active_blocks as usize);
 
     for block_id in 0 .. active_blocks {
         // getting basic infos
@@ -1050,11 +1057,12 @@ pub struct SubroutineData {
     /// Number of subroutine uniform locations per shader stage.
     /// This is *not* equal to the number of subroutine uniforms per stage,
     /// because users can use `#layout(location=...)`.
-    pub location_counts: HashMap<ShaderStage, usize>,
+    pub location_counts: HashMap<ShaderStage, usize, BuildHasherDefault<FnvHasher>>,
 
     /// The list of all subroutine uniforms of the program stored in a structured way to enable fast lookups.
     /// A subroutine uniform is uniquely defined by a name and a shader stage.
-    pub subroutine_uniforms: HashMap<(String, ShaderStage), SubroutineUniform>,
+    pub subroutine_uniforms: HashMap<(String, ShaderStage), SubroutineUniform,
+                                     BuildHasherDefault<FnvHasher>>,
 }
 
 /// Information about a Subroutine Uniform (except name)
@@ -1140,16 +1148,16 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
 {
     if !program::is_subroutine_supported(ctxt) {
         return SubroutineData {
-            location_counts: HashMap::with_capacity(0),
-            subroutine_uniforms: HashMap::with_capacity(0),
+            location_counts: HashMap::with_hasher(Default::default()),
+            subroutine_uniforms: HashMap::with_hasher(Default::default()),
         }
     }
 
     let program = match program {
         // subroutines not supported.
         Handle::Handle(_) => return SubroutineData {
-            location_counts: HashMap::with_capacity(0),
-            subroutine_uniforms: HashMap::with_capacity(0),
+            location_counts: HashMap::with_hasher(Default::default()),
+            subroutine_uniforms: HashMap::with_hasher(Default::default()),
         },
         Handle::Id(id) => id
     };
@@ -1157,8 +1165,8 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
     let shader_stages = get_shader_stages(has_geometry_shader,
                                           has_tessellation_control_shader,
                                           has_tessellation_evaluation_shader);
-    let mut subroutine_uniforms = HashMap::new();
-    let mut location_counts = HashMap::new();
+    let mut subroutine_uniforms = HashMap::with_hasher(Default::default());
+    let mut location_counts = HashMap::with_hasher(Default::default());
     for stage in shader_stages.iter() {
         let mut location_count: gl::types::GLint = mem::uninitialized();
         ctxt.gl.GetProgramStageiv(program, stage.to_gl_enum(),

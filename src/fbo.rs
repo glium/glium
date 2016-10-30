@@ -49,12 +49,14 @@ If a layered image is attached to one attachment, then all attachments must be l
   with an array depth texture) (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS when false).
 
 */
-use std::collections::HashMap;
 use std::{ cmp, mem, fmt };
 use std::error::Error;
 use std::cell::RefCell;
 use std::marker::PhantomData;
+use std::hash::BuildHasherDefault;
+use std::collections::HashMap;
 
+use fnv::FnvHasher;
 use smallvec::SmallVec;
 
 use CapabilitiesSource;
@@ -703,7 +705,7 @@ impl From<[u32; 4]> for ClearBufferData {
 ///
 /// `cleanup` **must** be called when destroying the container, otherwise `Drop` will panic.
 pub struct FramebuffersContainer {
-    framebuffers: RefCell<HashMap<RawAttachments, FrameBufferObject>>,
+    framebuffers: RefCell<HashMap<RawAttachments, FrameBufferObject, BuildHasherDefault<FnvHasher>>>,
 }
 
 impl FramebuffersContainer {
@@ -711,13 +713,13 @@ impl FramebuffersContainer {
     #[inline]
     pub fn new() -> FramebuffersContainer {
         FramebuffersContainer {
-            framebuffers: RefCell::new(HashMap::new()),
+            framebuffers: RefCell::new(HashMap::with_hasher(Default::default())),
         }
     }
 
     /// Destroys all framebuffer objects. This is used when using a new context for example.
     pub fn purge_all(ctxt: &mut CommandContext) {
-        let mut other = HashMap::new();
+        let mut other = HashMap::with_hasher(Default::default());
         mem::swap(&mut *ctxt.framebuffer_objects.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {
@@ -787,7 +789,7 @@ impl FramebuffersContainer {
     /// This is very similar to `purge_all`, but optimized for when the container will soon
     /// be destroyed.
     pub fn cleanup(ctxt: &mut CommandContext) {
-        let mut other = HashMap::with_capacity(0);
+        let mut other = HashMap::with_hasher(Default::default());
         mem::swap(&mut *ctxt.framebuffer_objects.framebuffers.borrow_mut(), &mut other);
 
         for (_, obj) in other.into_iter() {

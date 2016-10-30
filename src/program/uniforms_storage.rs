@@ -1,8 +1,10 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
 use RawUniformValue;
 
 use smallvec::SmallVec;
+use fnv::FnvHasher;
 
 use gl;
 use Handle;
@@ -12,10 +14,12 @@ use version::Api;
 use program::reflection::ShaderStage;
 
 pub struct UniformsStorage {
-    values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>>>,
+    values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>,
+                            BuildHasherDefault<FnvHasher>>>,
     uniform_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
     shader_storage_blocks: RefCell<SmallVec<[Option<gl::types::GLuint>; 4]>>,
-    subroutine_uniforms: RefCell<HashMap<ShaderStage, Vec<gl::types::GLuint>>>
+    subroutine_uniforms: RefCell<HashMap<ShaderStage, Vec<gl::types::GLuint>,
+                                         BuildHasherDefault<FnvHasher>>>,
 }
 
 impl UniformsStorage {
@@ -23,10 +27,10 @@ impl UniformsStorage {
     #[inline]
     pub fn new() -> UniformsStorage {
         UniformsStorage {
-            values: RefCell::new(HashMap::new()),
+            values: RefCell::new(HashMap::with_hasher(Default::default())),
             uniform_blocks: RefCell::new(SmallVec::new()),
             shader_storage_blocks: RefCell::new(SmallVec::new()),
-            subroutine_uniforms: RefCell::new(HashMap::new()),
+            subroutine_uniforms: RefCell::new(HashMap::with_hasher(Default::default())),
         }
     }
 
@@ -39,11 +43,6 @@ impl UniformsStorage {
 
         // TODO: don't assume that, instead use DSA if the program is not current
         assert!(ctxt.state.program == program);
-
-        // TODO: more optimized
-        if values.get(&location).is_none() {
-            values.insert(location, None);
-        }
 
         macro_rules! uniform(
             ($ctxt:expr, $uniform:ident, $uniform_arb:ident, $($params:expr),+) => (
@@ -84,7 +83,7 @@ impl UniformsStorage {
             )
         );
 
-        match (value, values.get_mut(&location).unwrap()) {
+        match (value, values.entry(location).or_insert(None)) {
             (&RawUniformValue::SignedInt(a), &mut Some(RawUniformValue::SignedInt(b))) if a == b => (),
             (&RawUniformValue::UnsignedInt(a), &mut Some(RawUniformValue::UnsignedInt(b))) if a == b => (),
             (&RawUniformValue::Float(a), &mut Some(RawUniformValue::Float(b))) if a == b => (),

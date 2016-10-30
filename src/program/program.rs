@@ -9,6 +9,9 @@ use CapabilitiesSource;
 
 use std::fmt;
 use std::collections::hash_map::{self, HashMap};
+use std::hash::BuildHasherDefault;
+
+use fnv::FnvHasher;
 
 use GlObject;
 use ProgramExt;
@@ -207,7 +210,8 @@ impl Program {
     /// }
     /// ```
     #[inline]
-    pub fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_uniform_blocks(&self)
+                              -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_uniform_blocks()
     }
 
@@ -298,7 +302,8 @@ impl Program {
     /// }
     /// ```
     #[inline]
-    pub fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+    pub fn get_shader_storage_blocks(&self)
+            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
     }
 
@@ -315,7 +320,8 @@ impl Program {
     /// }
     /// ```
     #[inline]
-    pub fn get_subroutine_uniforms(&self) -> &HashMap<(String, ShaderStage), SubroutineUniform> {
+    pub fn get_subroutine_uniforms(&self)
+            -> &HashMap<(String, ShaderStage), SubroutineUniform, BuildHasherDefault<FnvHasher>> {
         &self.raw.get_subroutine_data().subroutine_uniforms
     }
 
@@ -407,12 +413,13 @@ impl ProgramExt for Program {
     }
 
     #[inline]
-    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock> {
+    fn get_uniform_blocks(&self) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_uniform_blocks()
     }
 
     #[inline]
-    fn get_shader_storage_blocks(&self) -> &HashMap<String, UniformBlock> {
+    fn get_shader_storage_blocks(&self)
+                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
     }
 
