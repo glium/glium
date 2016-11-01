@@ -2,7 +2,7 @@
 
 In our programming pipeline, the color of each pixel inside the triangle corresponds to the output of our fragment shader. Since our fragment shader returns `(1.0, 0.0, 0.0, 1.0)`, each pixel is an opaque red (the four values correspond to: red, green, blue, alpha/opacity).
 
-In order to output the correct color, we need to have some information about the pixel we are trying to draw. Fortunately, it is possible to pass informations between the vertex and the fragment shader.
+In order to output the correct color, we need to have some information about the pixel we are trying to draw. Fortunately, it is possible to pass information between the vertex and the fragment shader.
 
 To do so, we simply add an `out` variable in the vertex shader...
 
