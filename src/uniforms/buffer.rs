@@ -12,7 +12,7 @@ use backend::Facade;
 
 /// Buffer that contains a uniform block.
 ///
-/// For example, to use a `UniformBuffer<[u32; 8]`, you must declare it as
+/// For example, to use a `UniformBuffer<[u32; 8]>`, you must declare it as
 ///
 ///     uniform MyBlock {
 ///         uint array[8];
