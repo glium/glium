@@ -9,6 +9,7 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+    - env: FEATURES='glutin' TEST=1 COVERAGE=1
 
 env: 
   global:
