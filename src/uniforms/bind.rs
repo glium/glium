@@ -647,6 +647,7 @@ fn bind_texture_uniform<P, T>(mut ctxt: &mut context::CommandContext,
 
         if ctxt.state.texture_units[texture_unit as usize].sampler != sampler {
             assert!(ctxt.version >= &Version(Api::Gl, 3, 3) ||
+                    ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                     ctxt.extensions.gl_arb_sampler_objects);
 
             unsafe { ctxt.gl.BindSampler(texture_unit as gl::types::GLenum, sampler); }
