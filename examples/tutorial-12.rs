@@ -16,7 +16,7 @@ fn main() {
                                           &teapot::INDICES).unwrap();
 
     let vertex_shader_src = r#"
-        #version 140
+        #version 150
 
         in vec3 position;
         in vec3 normal;
@@ -35,7 +35,7 @@ fn main() {
     "#;
 
     let fragment_shader_src = r#"
-        #version 140
+        #version 150
 
         in vec3 v_normal;
         out vec4 color;

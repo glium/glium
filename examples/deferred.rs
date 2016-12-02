@@ -6,14 +6,12 @@ extern crate image;
 use glium::glutin;
 use glium::index::PrimitiveType;
 use glium::Surface;
-use glium::DisplayBuild;
 use std::io::Cursor;
 
 mod support;
 
 fn main() {
     use cgmath::SquareMatrix;
-    use glium::DisplayBuild;
 
     // building the display, ie. the main object
     let display = glutin::WindowBuilder::new()
