@@ -42,7 +42,7 @@ fn main() {
 
 
     let vertex_shader_src = r#"
-        #version 140
+        #version 150
 
         in vec3 position;
         in vec3 normal;
