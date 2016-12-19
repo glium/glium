@@ -11,6 +11,7 @@ use std::io::Cursor;
 mod support;
 
 fn main() {
+    use glium::DisplayBuild;
     use cgmath::SquareMatrix;
 
     // building the display, ie. the main object
