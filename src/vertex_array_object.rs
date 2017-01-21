@@ -259,7 +259,7 @@ impl VertexArrayObject {
     {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {
-            for &(ref name, _, ty) in bindings.iter() {
+            for &(ref name, _, ty, _) in bindings.iter() {
                 let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
                     Some(a) => a,
                     None => continue
@@ -278,7 +278,7 @@ impl VertexArrayObject {
         for (&ref name, _) in program.attributes() {
             let mut found = false;
             for &(_, ref bindings, _, _, _) in vertex_buffers {
-                if bindings.iter().find(|&&(ref n, _, _)| n == name).is_some() {
+                if bindings.iter().find(|&&(ref n, _, _, _)| n == name).is_some() {
                     found = true;
                     break;
                 }
@@ -520,7 +520,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
     }
 
     // binding attributes
-    for &(ref name, offset, ty) in bindings.iter() {
+    for &(ref name, offset, ty, normalize) in bindings.iter() {
         let (data_type, elements_count, instances_count) = vertex_binding_type_to_gl(ty);
 
         let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
@@ -530,33 +530,42 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
 
         if attribute.location != -1 {
             let (attribute_ty, _, _) = vertex_binding_type_to_gl(attribute.ty);
-            match attribute_ty {
-                gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
-                gl::INT | gl::UNSIGNED_INT =>
-                    ctxt.gl.VertexAttribIPointer(attribute.location as u32,
-                                                 elements_count as gl::types::GLint, data_type,
-                                                 stride as i32,
-                                                 (buffer_offset + offset) as *const _),
-
-                gl::FLOAT => {
-                    for i in 0..instances_count {
-                        ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
-                                                    elements_count as gl::types::GLint, data_type, 0,
-                                                    stride as i32,
-                                                    (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
-                    }
-                },
-
-                gl::DOUBLE | gl::INT64_NV | gl::UNSIGNED_INT64_NV => {
-                    for i in 0..instances_count {
-                        ctxt.gl.VertexAttribLPointer((attribute.location + i) as u32,
+            if normalize {
+                for i in 0..instances_count {
+                    ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
+                                                elements_count as gl::types::GLint, data_type, 1,
+                                                stride as i32,
+                                                (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
+                }
+            } else {
+                match attribute_ty {
+                    gl::BYTE | gl::UNSIGNED_BYTE | gl::SHORT | gl::UNSIGNED_SHORT |
+                    gl::INT | gl::UNSIGNED_INT =>
+                        ctxt.gl.VertexAttribIPointer(attribute.location as u32,
                                                      elements_count as gl::types::GLint, data_type,
                                                      stride as i32,
-                                                     (buffer_offset + offset + (i * elements_count * 8) as usize) as *const _)
-                    }
-                },
+                                                     (buffer_offset + offset) as *const _),
 
-                _ => unreachable!()
+                    gl::FLOAT => {
+                        for i in 0..instances_count {
+                            ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
+                                                        elements_count as gl::types::GLint, data_type, 0,
+                                                        stride as i32,
+                                                        (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
+                        }
+                    },
+
+                    gl::DOUBLE | gl::INT64_NV | gl::UNSIGNED_INT64_NV => {
+                        for i in 0..instances_count {
+                            ctxt.gl.VertexAttribLPointer((attribute.location + i) as u32,
+                                                         elements_count as gl::types::GLint, data_type,
+                                                         stride as i32,
+                                                         (buffer_offset + offset + (i * elements_count * 8) as usize) as *const _)
+                        }
+                    },
+
+                    _ => unreachable!()
+                }
             }
 
             for i in 0..instances_count {

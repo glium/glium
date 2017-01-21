@@ -308,7 +308,7 @@ pub trait Vertex: Copy + Sized {
     fn is_supported<C: ?Sized>(caps: &C) -> bool where C: CapabilitiesSource {
         let format = Self::build_bindings();
 
-        for &(_, _, ref ty) in format.iter() {
+        for &(_, _, ref ty, _) in format.iter() {
             if !ty.is_supported(caps) {
                 return false;
             }
