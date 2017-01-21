@@ -659,3 +659,106 @@ fn per_instance_length_mismatch() {
     frame.finish().unwrap();
     display.assert_no_error(None);
 }
+
+#[test]
+fn normalized_vertex() {
+        let display = support::build_display();
+
+    let buffer1 = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            position: [f32; 2],
+        }
+
+        implement_vertex!(Vertex, position);
+
+        glium::VertexBuffer::new(&display,
+            &[
+                Vertex { position: [-1.0,  1.0] },
+                Vertex { position: [ 1.0,  1.0] },
+                Vertex { position: [-1.0, -1.0] },
+                Vertex { position: [ 1.0, -1.0] },
+            ]
+        ).unwrap()
+    };
+
+    let buffer2 = {
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            color: [u8; 3],
+        }
+
+        implement_vertex!(Vertex, color normalize(true));
+
+        glium::VertexBuffer::new(&display,
+            &[
+                Vertex { color: [0, 0, 0] },
+                Vertex { color: [128, 0, 0] },
+                Vertex { color: [0, 128, 0] },
+                Vertex { color: [0, 0, 128] },
+            ]
+        ).unwrap()
+    };
+
+    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
+                                               &[0u16, 1, 2, 3]).unwrap();
+
+    let program = program!(&display,
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec2 position;
+                attribute vec3 color;
+
+                varying vec3 v_color;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                    v_color = color;
+                }
+            ",
+            fragment: "
+                #version 110
+                varying vec3 v_color;
+
+                void main() {
+                    gl_FragColor = vec4(v_color, 1.0);
+                }
+            ",
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec2 position;
+                attribute lowp vec3 color;
+
+                varying lowp vec3 v_color;
+
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                    v_color = color;
+                }
+            ",
+            fragment: "
+                #version 100
+                varying lowp vec3 v_color;
+
+                void main() {
+                    gl_FragColor = vec4(v_color, 1.0);
+                }
+            ",
+        }).unwrap();
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
+                              &Default::default()).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    // If the data wasn't normalized, the 128 would be 255 instead
+    assert_eq!(data[0][0], (0, 128, 0, 255));
+
+    display.assert_no_error(None);
+}

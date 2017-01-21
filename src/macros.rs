@@ -122,12 +122,50 @@ macro_rules! implement_vertex {
                                 let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
                                 attr_type_of_val(&dummy.$field_name)
                             },
+                            false
                         )
                     ),+
                 ])
             }
         }
     );
+
+    ($struct_name:ident, $($field_name:ident normalize($should_normalize:expr)),+) => {
+        impl $crate::vertex::Vertex for $struct_name {
+            #[inline]
+            fn build_bindings() -> $crate::vertex::VertexFormat {
+                use std::borrow::Cow;
+
+                // TODO: use a &'static [] if possible
+
+                Cow::Owned(vec![
+                    $(
+                        (
+                            Cow::Borrowed(stringify!($field_name)),
+                            {
+                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
+                                let dummy_field = &dummy.$field_name;
+                                let dummy_field: usize = unsafe { ::std::mem::transmute(dummy_field) };
+                                dummy_field
+                            },
+                            {
+                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: &T)
+                                    -> $crate::vertex::AttributeType
+                                {
+                                    <T as $crate::vertex::Attribute>::get_type()
+                                }
+                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
+                                attr_type_of_val(&dummy.$field_name)
+                            },
+                            {
+                                $should_normalize
+                            }
+                        )
+                    ),+
+                ])
+            }
+        }
+    };
 
     ($struct_name:ident, $($field_name:ident),+,) => (
         implement_vertex!($struct_name, $($field_name),+);

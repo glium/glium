@@ -405,9 +405,12 @@ impl AttributeType {
 
 /// Describes the layout of each vertex in a vertex buffer.
 ///
-/// The first element is the name of the binding, the second element is the offset
-/// from the start of each vertex to this element, and the third element is the type.
-pub type VertexFormat = Cow<'static, [(Cow<'static, str>, usize, AttributeType)]>;
+/// The first element is the name of the binding, the second element
+/// is the offset from the start of each vertex to this element, the
+/// third element is the type and the fourth element indicates whether
+/// or not the element should use fixed-point normalization when
+/// binding in a VAO.
+pub type VertexFormat = Cow<'static, [(Cow<'static, str>, usize, AttributeType, bool)]>;
 
 unsafe impl Attribute for i8 {
     #[inline]
