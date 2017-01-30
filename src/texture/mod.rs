@@ -395,35 +395,78 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
     pub format: ClientFormat,
 }
 
+pub trait ToClientFormat {
+  fn rgb_format() -> ClientFormat;
+  fn rgba_format() -> ClientFormat;
+}
+
+impl ToClientFormat for u8 {
+    fn rgb_format() -> ClientFormat { ClientFormat::U8U8U8 }
+    fn rgba_format() -> ClientFormat { ClientFormat::U8U8U8U8 }
+}
+
+impl ToClientFormat for i8 {
+    fn rgb_format() -> ClientFormat { ClientFormat::I8I8I8 }
+    fn rgba_format() -> ClientFormat { ClientFormat::I8I8I8I8 }
+}
+
+impl ToClientFormat for u16 {
+    fn rgb_format() -> ClientFormat { ClientFormat::U16U16U16 }
+    fn rgba_format() -> ClientFormat { ClientFormat::U16U16U16U16 }
+}
+
+impl ToClientFormat for i16 {
+    fn rgb_format() -> ClientFormat { ClientFormat::I16I16I16 }
+    fn rgba_format() -> ClientFormat { ClientFormat::I16I16I16I16 }
+}
+
+impl ToClientFormat for u32 {
+    fn rgb_format() -> ClientFormat { ClientFormat::U32U32U32 }
+    fn rgba_format() -> ClientFormat { ClientFormat::U32U32U32U32 }
+}
+
+impl ToClientFormat for i32 {
+    fn rgb_format() -> ClientFormat { ClientFormat::I32I32I32 }
+    fn rgba_format() -> ClientFormat { ClientFormat::I32I32I32I32 }
+}
+
+impl ToClientFormat for f32 {
+    fn rgb_format() -> ClientFormat { ClientFormat::F32F32F32 }
+    fn rgba_format() -> ClientFormat { ClientFormat::F32F32F32F32 }
+}
+
 impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
     /// Builds a raw image from a vector of interleaved RGB values.
     ///
     /// The first pixel is at (0, 0), the last pixel is at (1, 1).
-    pub fn from_raw_rgb(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+    pub fn from_raw_rgb(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T>
+        where T: ToClientFormat {
         RawImage2d {
             data: Cow::Owned(data),
             width: dimensions.0,
             height: dimensions.1,
-            format: ClientFormat::U8U8U8,
+            format: T::rgb_format(),
         }
     }
 
     /// Builds a raw image from a vector of interleaved RGBA values.
     ///
     /// The first pixel is at (0, 0), the last pixel is at (1, 1).
-    pub fn from_raw_rgba(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+    pub fn from_raw_rgba(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T>
+        where T: ToClientFormat {
         RawImage2d {
             data: Cow::Owned(data),
             width: dimensions.0,
             height: dimensions.1,
-            format: ClientFormat::U8U8U8U8,
+            format: T::rgba_format(),
         }
     }
 
     /// Builds a raw image from a vector of interleaved RGB values, flipping it vertically.
     ///
     /// The first pixel is at (0, 1), the last pixel is at (1, 0).
-    pub fn from_raw_rgb_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+    pub fn from_raw_rgb_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T>
+        where T: ToClientFormat {
         let data = data
             .chunks(dimensions.0 as usize * 3)
             .rev()
@@ -437,7 +480,8 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
     /// Builds a raw image from a vector of interleaved RGBA values, flipping it vertically.
     ///
     /// The first pixel is at (0, 1), the last pixel is at (1, 0).
-    pub fn from_raw_rgba_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T> {
+    pub fn from_raw_rgba_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T>
+        where T: ToClientFormat {
         let data = data
             .chunks(dimensions.0 as usize * 4)
             .rev()
