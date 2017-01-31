@@ -17,6 +17,7 @@ Its objectives:
  - Produce optimized OpenGL function calls, and allow the user to easily use modern OpenGL techniques.
 """
 keywords = ["opengl", "gamedev"]
+categories = ["API bindings", "GUI"]
 documentation = "http://tomaka.github.io/glium/glium/index.html"
 repository = "https://github.com/tomaka/glium"
 license = "Apache-2.0"
