@@ -307,7 +307,7 @@
  - Deprecated `.into_vertex_buffer_any()` in favor of `.into()`.
  - Added `.get_total_bits()` to `texture::InternalFormat`.
  - Fixed values in uniform blocks being required to implement the `Default` trait.
- - Fixed buffer sometimes not always correctly unbinded.
+ - Fixed buffer sometimes not always correctly unbound.
 
 ## Version 0.5.1 (2015-05-30)
 

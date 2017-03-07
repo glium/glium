@@ -240,7 +240,7 @@ impl Alloc {
         }
     }
 
-    /// Makes sure that the buffer is binded to the `GL_PIXEL_PACK_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_PIXEL_PACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_pixel_pack(&self, mut ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
@@ -254,13 +254,13 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, BufferType::PixelPackBuffer); }
     }
 
-    /// Makes sure that nothing is binded to `GL_PIXEL_PACK_BUFFER`.
+    /// Makes sure that nothing is bound to `GL_PIXEL_PACK_BUFFER`.
     #[inline]
     pub fn unbind_pixel_pack(ctxt: &mut CommandContext) {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelPackBuffer); }
     }
 
-    /// Makes sure that the buffer is binded to the `GL_PIXEL_UNPACK_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_PIXEL_UNPACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_pixel_unpack(&self, mut ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
@@ -274,13 +274,13 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, BufferType::PixelUnpackBuffer); }
     }
 
-    /// Makes sure that nothing is binded to `GL_PIXEL_UNPACK_BUFFER`.
+    /// Makes sure that nothing is bound to `GL_PIXEL_UNPACK_BUFFER`.
     #[inline]
     pub fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelUnpackBuffer); }
     }
 
-    /// Makes sure that the buffer is binded to the `GL_QUERY_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_QUERY_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_query(&self, mut ctxt: &mut CommandContext) {
         assert!(ctxt.version >= &Version(Api::Gl, 4, 4) ||
@@ -298,13 +298,13 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, BufferType::QueryBuffer); }
     }
 
-    /// Makes sure that nothing is binded to `GL_QUERY_BUFFER`.
+    /// Makes sure that nothing is bound to `GL_QUERY_BUFFER`.
     #[inline]
     pub fn unbind_query(ctxt: &mut CommandContext) {
         unsafe { bind_buffer(ctxt, 0, BufferType::QueryBuffer); }
     }
 
-    /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_draw_indirect(&self, mut ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
@@ -318,7 +318,7 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, BufferType::DrawIndirectBuffer); }
     }
 
-    /// Makes sure that the buffer is binded to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_dispatch_indirect(&self, mut ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
@@ -332,7 +332,7 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, BufferType::DispatchIndirectBuffer); }
     }
 
-    /// Makes sure that the buffer is binded to the indexed `GL_UNIFORM_BUFFER` point and calls
+    /// Makes sure that the buffer is bound to the indexed `GL_UNIFORM_BUFFER` point and calls
     /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
                                         range: Range<usize>)
@@ -348,7 +348,7 @@ impl Alloc {
         self.indexed_bind(ctxt, BufferType::UniformBuffer, index, range);
     }
 
-    /// Makes sure that the buffer is binded to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
+    /// Makes sure that the buffer is bound to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
     /// `glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)` if necessary.
     pub fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
                                                range: Range<usize>)
@@ -375,7 +375,7 @@ impl Alloc {
         self.indexed_bind(ctxt, BufferType::TransformFeedbackBuffer, index, range);
     }
 
-    /// Makes sure that the buffer is binded to a specific bind point.
+    /// Makes sure that the buffer is bound to a specific bind point.
     ///
     /// The bind point is the value passed to `ty`.
     ///
@@ -388,7 +388,7 @@ impl Alloc {
         unsafe { bind_buffer(ctxt, self.id, ty); }
     }
 
-    /// Makes sure that the buffer is binded to a specific indexed bind point.
+    /// Makes sure that the buffer is bound to a specific indexed bind point.
     ///
     /// The bind point is the value passed to `ty`.
     ///
@@ -1553,7 +1553,7 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
         let source_bind_point = match find_bind_point(ctxt, source) {
             Some(p) => p,
             None => {
-                // if the source is not binded and the destination is binded to COPY_READ,
+                // if the source is not bound and the destination is bound to COPY_READ,
                 // we bind the source to COPY_WRITE instead, to avoid a state change
                 if ctxt.state.copy_read_buffer_binding == dest {
                     bind_buffer(ctxt, source, BufferType::CopyWriteBuffer)

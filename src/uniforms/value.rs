@@ -138,7 +138,7 @@ pub enum UniformType {
 #[derive(Copy)]
 pub enum UniformValue<'a> {
     /// Contains a handle to the buffer, and a function that indicates whether this buffer
-    /// can be binded on a block with the given layout.
+    /// can be bound on a block with the given layout.
     /// The last parameter is a sender which must be used to send a `SyncFence` that expires when
     /// the buffer has finished being used.
     Block(BufferAnySlice<'a>, fn(&program::UniformBlock) -> Result<(), LayoutMismatchError>),
