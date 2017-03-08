@@ -124,6 +124,14 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     ///
     /// You should call this if you only use parts of a buffer. For example if you want to use
     /// the first half of the buffer, you invalidate the whole buffer then write the first half.
+    /// Note that this does not mean you can subsequently call `write` on the buffer with data
+    /// which is a different size than the buffer. If you want to write to a portion of the
+    /// buffer, you should do this: 
+    ///
+    /// ```buffer.slice(0 .. num_vertices).unwrap().write(...)```.
+    ///
+    /// If you wish to render only a portion of the buffer, you will need to use an 
+    /// [IndexBuffer](IndexBuffer.t.html).
     ///
     /// This operation is a no-op if the backend doesn't support it and for persistent-mapped
     /// buffers.
