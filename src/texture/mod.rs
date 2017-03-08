@@ -157,7 +157,7 @@ pub enum CubeLayer {
 }
 
 impl CubeLayer {
-    /// In some situations whole cubemaps can be binded at once. If this is the case, each layer
+    /// In some situations whole cubemaps can be bound at once. If this is the case, each layer
     /// of the cubemap has a specific index.
     ///
     /// For example, if you bind a whole cubemap array, then the index `8` will correspond to the

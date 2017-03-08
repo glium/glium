@@ -45,7 +45,7 @@ impl<U> UniformsExt for U where U: Uniforms {
         let mut uniform_buffer_bind_points = Bitsfield::new();
         let mut shared_storage_buffer_bind_points = Bitsfield::new();
 
-        // Subroutine uniforms must be binded all at once, so we collect them first and process them at the end.
+        // Subroutine uniforms must be bound all at once, so we collect them first and process them at the end.
         // The vec contains the uniform we want to set and the value we want to set it to.
         let mut subroutine_bindings: HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>, _>
             = HashMap::with_hasher(Default::default());

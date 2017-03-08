@@ -213,40 +213,40 @@ trait BufferExt {
     /// Binds the buffer to `GL_ELEMENT_ARRAY_BUFFER` regardless of the current vertex array object.
     fn bind_to_element_array(&self, &mut CommandContext);
 
-    /// Makes sure that the buffer is binded to the `GL_PIXEL_PACK_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_PIXEL_PACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_pixel_pack(&self, &mut CommandContext);
 
-    /// Makes sure that nothing is binded to `GL_PIXEL_PACK_BUFFER`.
+    /// Makes sure that nothing is bound to `GL_PIXEL_PACK_BUFFER`.
     fn unbind_pixel_pack(&mut CommandContext);
 
-    /// Makes sure that the buffer is binded to the `GL_PIXEL_UNPACK_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_PIXEL_UNPACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_pixel_unpack(&self, &mut CommandContext);
 
-    /// Makes sure that nothing is binded to `GL_PIXEL_UNPACK_BUFFER`.
+    /// Makes sure that nothing is bound to `GL_PIXEL_UNPACK_BUFFER`.
     fn unbind_pixel_unpack(&mut CommandContext);
 
-    /// Makes sure that the buffer is binded to the `GL_QUERY_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_QUERY_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_query(&self, &mut CommandContext);
 
-    /// Makes sure that nothing is binded to `GL_QUERY_BUFFER`.
+    /// Makes sure that nothing is bound to `GL_QUERY_BUFFER`.
     fn unbind_query(&mut CommandContext);
 
-    /// Makes sure that the buffer is binded to the `GL_DRAW_INDIRECT_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_draw_indirect(&self, &mut CommandContext);
 
-    /// Makes sure that the buffer is binded to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
+    /// Makes sure that the buffer is bound to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_dispatch_indirect(&self, &mut CommandContext);
 
-    /// Makes sure that the buffer is binded to the indexed `GL_UNIFORM_BUFFER` point and calls
+    /// Makes sure that the buffer is bound to the indexed `GL_UNIFORM_BUFFER` point and calls
     /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_uniform(&self, &mut CommandContext, index: gl::types::GLuint);
 
-    /// Makes sure that the buffer is binded to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
+    /// Makes sure that the buffer is bound to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
     /// `glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_shared_storage(&self, &mut CommandContext, index: gl::types::GLuint);
 
@@ -339,7 +339,7 @@ trait TextureExt {
     /// Returns the bind point of the texture.
     fn get_bind_point(&self) -> gl::types::GLenum;
 
-    /// Makes sure that the texture is binded to the current texture unit and returns the
+    /// Makes sure that the texture is bound to the current texture unit and returns the
     /// bind point to use to access the texture (eg. `GL_TEXTURE_2D`, `GL_TEXTURE_3D`, etc.).
     fn bind_to_current(&self, &mut CommandContext) -> gl::types::GLenum;
 }

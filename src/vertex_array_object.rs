@@ -102,7 +102,7 @@ impl VertexAttributesSystem {
         }
     }
 
-    /// Tells the VAOs system that the currently binded element array buffer will change.
+    /// Tells the VAOs system that the currently bound element array buffer will change.
     pub fn hijack_current_element_array_buffer(ctxt: &mut CommandContext) {
         let vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
 

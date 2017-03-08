@@ -48,7 +48,7 @@ pub struct Context {
     /// Contains the pointers to OpenGL functions.
     gl: gl::Gl,
 
-    /// The current state of the OpenGL state machine. Contains for example which buffer is binded
+    /// The current state of the OpenGL state machine. Contains for example which buffer is bound
     /// to which bind point, whether depth testing is activated, etc.
     state: RefCell<GlState>,
 
