@@ -15,13 +15,10 @@ struct PerInstance {
 implement_vertex!(PerInstance, id, w_position, color);
 
 fn main() {
-    use glium::DisplayBuild;
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .with_depth_buffer(24)
-        .build_glium()
-        .unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().with_depth_buffer(24).build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
@@ -229,15 +226,19 @@ fn main() {
             picking_pbo.write(&[0]);
         }
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                glutin::Event::MouseMoved(x,y) => cursor_position = Some((x,y)),
-                ev => camera.process_input(&ev),
-            }
-        }
+        let mut action = support::Action::Continue;
 
-        support::Action::Continue
+        // polling and handling the events received by the window
+        events_loop.poll_events(|event| {
+            match event {
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::MouseMoved(x,y) => cursor_position = Some((x,y)),
+                    ev => camera.process_input(&ev),
+                },
+            }
+        });
+
+        action
     });
 }

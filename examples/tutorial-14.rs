@@ -5,10 +5,13 @@ extern crate image;
 use std::io::Cursor;
 
 fn main() {
-    use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new()
-                        .with_depth_buffer(24)
-                        .build_glium().unwrap();
+    use glium::Surface;
+    let events_loop = glium::glutin::EventsLoop::new();
+    let window = glium::glutin::WindowBuilder::new()
+        .with_depth_buffer(24)
+        .build(&events_loop)
+        .unwrap();
+    let display = glium::build(window).unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -164,12 +167,17 @@ fn main() {
                     &params).unwrap();
         target.finish().unwrap();
 
-        for ev in display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return,
-                _ => ()
+        let mut closed = false;
+        events_loop.poll_events(|event| {
+            match event {
+                glium::glutin::Event::WindowEvent { event, .. } => match event {
+                    glium::glutin::WindowEvent::Closed => closed = true,
+                    _ => ()
+                },
             }
-        }
+        });
+
+        if closed { break; }
     }
 }
 

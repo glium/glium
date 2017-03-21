@@ -5,18 +5,15 @@ extern crate glium;
 extern crate image;
 
 use std::io::Cursor;
-use glium::{DisplayBuild, Surface};
-
-use glium::glutin;
+use glium::{glutin, Surface};
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .with_vsync()
-        .build_glium()
-        .unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().with_vsync().build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -53,14 +50,17 @@ fn main() {
         dest_texture.as_surface().fill(&target, glium::uniforms::MagnifySamplerFilter::Linear);
         target.finish().unwrap();
 
+        let mut action = support::Action::Continue;
+
         // polling and handling the events received by the window
-        for event in display.poll_events() {
+        events_loop.poll_events(|event| {
             match event {
-                glutin::Event::Closed => return support::Action::Stop,
+                glutin::Event::WindowEvent { event: glutin::WindowEvent::Closed, .. } =>
+                    action = support::Action::Stop,
                 _ => ()
             }
-        }
+        });
 
-        support::Action::Continue
+        action
     });
 }

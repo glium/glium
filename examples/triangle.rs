@@ -8,12 +8,9 @@ use glium::glutin;
 use glium::index::PrimitiveType;
 
 fn main() {
-    use glium::DisplayBuild;
-
-    // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .build_glium()
-        .unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -123,8 +120,12 @@ fn main() {
         },
     ).unwrap();
 
-    // the main loop
-    support::start_loop(|| {
+    // Here we draw the black background and triangle to the screen using the previously
+    // initialised resources.
+    //
+    // In this case we use a closure for simplicity, however keep in mind that most serious
+    // applications should probably use a function that takes the resources as an argument.
+    let draw = || {
         // building the uniforms
         let uniforms = uniform! {
             matrix: [
@@ -140,15 +141,19 @@ fn main() {
         target.clear_color(0.0, 0.0, 0.0, 0.0);
         target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
         target.finish().unwrap();
+    };
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                _ => ()
-            }
-        }
+    // Draw the triangle to the screen.
+    draw();
 
-        support::Action::Continue
+    // the main loop
+    events_loop.run_forever(|event| match event {
+        glutin::Event::WindowEvent { event, .. } => match event {
+            // Break from the main loop when the window is closed.
+            glutin::WindowEvent::Closed => events_loop.interrupt(),
+            // Redraw the triangle when the window is resized.
+            glutin::WindowEvent::Resized(..) => draw(),
+            _ => (),
+        },
     });
 }

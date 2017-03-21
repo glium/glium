@@ -5,7 +5,7 @@ extern crate image;
 
 use std::io::Cursor;
 
-use glium::{DisplayBuild, Surface};
+use glium::Surface;
 use glium::glutin;
 use glium::index::PrimitiveType;
 
@@ -13,7 +13,9 @@ mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new().build_glium().unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -92,27 +94,33 @@ fn main() {
             }, &Default::default()).unwrap();
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                glutin::Event::KeyboardInput(glutin::ElementState::Pressed, _,
-                                             Some(glutin::VirtualKeyCode::Return)) =>
-                {
-                    if fullscreen {
-                        glutin::WindowBuilder::new().rebuild_glium(&display).unwrap();
-                        fullscreen = false;
+        let mut action = support::Action::Continue;
 
+        // polling and handling the events received by the window
+        events_loop.poll_events(|event| match event {
+            glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::WindowEvent::Closed => action = support::Action::Stop,
+                glutin::WindowEvent::KeyboardInput(glutin::ElementState::Pressed, _,
+                                             Some(glutin::VirtualKeyCode::Return), _) => {
+                    if fullscreen {
+                        let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
+                        glium::rebuild(window, &display).unwrap();
+                        fullscreen = false;
                     } else {
-                        glutin::WindowBuilder::new().with_fullscreen(glutin::get_primary_monitor())
-                                                    .rebuild_glium(&display).unwrap();
+                        let window = glutin::WindowBuilder::new()
+                            .with_fullscreen(glutin::get_primary_monitor())
+                            .with_shared_lists(&display.get_window().unwrap())
+                            .build(&events_loop)
+                            .unwrap();
+                        glium::rebuild(window, &display).unwrap();
                         fullscreen = true;
                     }
                 },
-                _ => ()
-            }
-        }
 
-        support::Action::Continue
+                _ => ()
+            },
+        });
+
+        action
     });
 }
