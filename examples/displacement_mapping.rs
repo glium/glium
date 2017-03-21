@@ -9,12 +9,10 @@ use glium::Surface;
 mod support;
 
 fn main() {
-    use glium::DisplayBuild;
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .build_glium()
-        .unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
@@ -218,14 +216,17 @@ fn main() {
                     &Default::default()).unwrap();
         target.finish().unwrap();
 
+        let mut action = support::Action::Continue;
+
         // polling and handling the events received by the window
-        for event in display.poll_events() {
+        events_loop.poll_events(|event| {
             match event {
-                glutin::Event::Closed => return support::Action::Stop,
+                glutin::Event::WindowEvent { event: glutin::WindowEvent::Closed, .. } =>
+                    action = support::Action::Stop,
                 _ => ()
             }
-        }
+        });
 
-        support::Action::Continue
+        action
     });
 }

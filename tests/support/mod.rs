@@ -20,8 +20,14 @@ pub fn build_display() -> glium::Display {
                                                        .with_gl(version)
                                                        .build_glium().unwrap()
     } else {
-        glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
-                                    .with_gl(version).build_glium().unwrap()
+        let events_loop = glutin::EventsLoop::new();
+        let window = glutin::WindowBuilder::new()
+            .with_gl_debug_flag(true)
+            .with_visibility(false)
+            .with_gl(version)
+            .build(&events_loop)
+            .unwrap();
+        glium::build(window).unwrap()
     };
 
     display
@@ -39,8 +45,14 @@ pub fn rebuild_display(display: &glium::Display) {
                                                        .with_gl(version)
                                                        .rebuild_glium(display).unwrap();
     } else {
-        glutin::WindowBuilder::new().with_gl_debug_flag(true).with_visibility(false)
-                                    .with_gl(version).rebuild_glium(display).unwrap();
+        let events_loop = glutin::EventsLoop::new();
+        let window = glutin::WindowBuilder::new()
+            .with_gl_debug_flag(true)
+            .with_visibility(false)
+            .with_gl(version)
+            .build(&events_loop)
+            .unwrap();
+        glium::rebuild(window, display).unwrap()
     }
 }
 

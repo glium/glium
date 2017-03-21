@@ -9,12 +9,10 @@ use glium::index::PrimitiveType;
 use glium::program::ShaderStage;
 
 fn main() {
-    use glium::DisplayBuild;
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .build_glium()
-        .unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -117,14 +115,18 @@ fn main() {
         target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
+        let mut action = support::Action::Continue;
+
+        events_loop.poll_events(|event| {
             match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                _ => ()
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    _ => ()
+                },
             }
-        }
+        });
         i += 1;
-        support::Action::Continue
+
+        action
     });
 }

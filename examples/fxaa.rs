@@ -215,18 +215,19 @@ mod fxaa {
 }
 
 fn main() {
-    use glium::DisplayBuild;
-
     println!("This example demonstrates FXAA. Is is an anti-aliasing technique done at the \
               post-processing stage. This example draws the teapot to a framebuffer and then \
               copies from the texture to the main framebuffer by applying a filter to it.\n\
               You can use the space bar to switch fxaa on and off.");
 
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new()
         .with_depth_buffer(24)
-        .build_glium()
+        .with_vsync()
+        .build(&events_loop)
         .unwrap();
+    let display = glium::build(window).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
@@ -372,18 +373,27 @@ fn main() {
         });
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                glutin::Event::KeyboardInput(glutin::ElementState::Pressed, _, Some(glutin::VirtualKeyCode::Space)) => {
-                    fxaa_enabled = !fxaa_enabled;
-                    println!("FXAA is now {}", if fxaa_enabled { "enabled" } else { "disabled" });
-                },
-                ev => camera.process_input(&ev),
-            }
-        }
+        let mut action = support::Action::Continue;
 
-        support::Action::Continue
+        // polling and handling the events received by the window
+        events_loop.poll_events(|event| match event {
+            glutin::Event::WindowEvent { event, .. } => {
+                camera.process_input(&event);
+                match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::KeyboardInput(glutin::ElementState::Pressed, _, Some(key), _) => match key {
+                        glutin::VirtualKeyCode::Escape => action = support::Action::Stop,
+                        glutin::VirtualKeyCode::Space => {
+                            fxaa_enabled = !fxaa_enabled;
+                            println!("FXAA is now {}", if fxaa_enabled { "enabled" } else { "disabled" });
+                        },
+                        _ => (),
+                    },
+                    _ => (),
+                }
+            },
+        });
+
+        action
     });
 }
