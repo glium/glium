@@ -1270,6 +1270,36 @@ pub trait DisplayBuild {
     fn rebuild_glium(self, &Self::Facade) -> Result<(), Self::Err>;
 }
 
+
+/// Build a context and a facade to draw on it.
+///
+/// Performs a compatibility check to make sure that all core elements of glium
+/// are supported by the implementation.
+pub fn build<T>(build: T) -> Result<T::Facade, T::Err>
+    where T: DisplayBuild,
+{
+    build.build_glium()
+}
+
+/// Build a context and a facade to draw on it.
+///
+/// Performs a compatibility check to make sure that all core elements of glium
+/// are supported by the implementation.
+pub fn build_debug<T>(build: T, debug: debug::DebugCallbackBehavior)
+    -> Result<T::Facade, T::Err>
+    where T: DisplayBuild,
+{
+    build.build_glium_debug(debug)
+}
+
+/// Changes the settings of an existing facade.
+pub fn rebuild<T>(build: T, facade: &T::Facade) -> Result<(), T::Err>
+    where T: DisplayBuild,
+{
+    build.rebuild_glium(facade)
+}
+
+
 /// Error that can happen while creating a glium display.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GliumCreationError<T> {
