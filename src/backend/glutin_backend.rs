@@ -43,45 +43,6 @@ impl backend::Facade for GlutinFacade {
     }
 }
 
-/// Iterator for all the events received by the window.
-pub struct PollEventsIter<'a> {
-    window: Option<&'a RefCell<Rc<GlutinWindowBackend>>>,
-}
-
-impl<'a> Iterator for PollEventsIter<'a> {
-    type Item = glutin::Event;
-
-    #[inline]
-    fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(window) = self.window.as_ref() {
-            window.borrow().poll_events().next()
-        } else {
-            None
-        }
-    }
-}
-
-/// Blocking iterator over all the events received by the window.
-///
-/// This iterator polls for events, until the window associated with its context
-/// is closed.
-pub struct WaitEventsIter<'a> {
-    window: Option<&'a RefCell<Rc<GlutinWindowBackend>>>,
-}
-
-impl<'a> Iterator for WaitEventsIter<'a> {
-    type Item = glutin::Event;
-
-    #[inline]
-    fn next(&mut self) -> Option<glutin::Event> {
-        if let Some(window) = self.window.as_ref() {
-            window.borrow().wait_events().next()
-        } else {
-            None
-        }
-    }
-}
-
 /// Borrow of the glutin window.
 pub struct WinRef<'a>(Ref<'a, Rc<GlutinWindowBackend>>);
 
@@ -95,24 +56,6 @@ impl<'a> Deref for WinRef<'a> {
 }
 
 impl GlutinFacade {
-    /// Reads all events received by the window.
-    ///
-    /// This iterator polls for events and can be exhausted.
-    #[inline]
-    pub fn poll_events(&self) -> PollEventsIter {
-        PollEventsIter {
-            window: Option::as_ref(&self.backend),
-        }
-    }
-
-    /// Reads all events received by the window.
-    #[inline]
-    pub fn wait_events(&self) -> WaitEventsIter {
-        WaitEventsIter {
-            window: Option::as_ref(&self.backend),
-        }
-    }
-
     /// Returns the underlying window, or `None` if glium uses a headless context.
     #[inline]
     pub fn get_window(&self) -> Option<WinRef> {
@@ -140,14 +83,14 @@ impl Deref for GlutinFacade {
     }
 }
 
-impl DisplayBuild for glutin::WindowBuilder<'static> {
+impl DisplayBuild for glutin::Window {
     type Facade = GlutinFacade;
     type Err = GliumCreationError<glutin::CreationError>;
 
     fn build_glium_debug(self, debug: debug::DebugCallbackBehavior)
                          -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>>
     {
-        let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
+        let backend = Rc::new(backend::glutin_backend::GlutinWindowBackend::new(self));
         let context = try!(unsafe { context::Context::new(backend.clone(), true, debug) });
 
         let display = GlutinFacade {
@@ -161,7 +104,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     unsafe fn build_glium_unchecked_debug(self, debug: debug::DebugCallbackBehavior)
                                           -> Result<GlutinFacade, GliumCreationError<glutin::CreationError>>
     {
-        let backend = Rc::new(try!(backend::glutin_backend::GlutinWindowBackend::new(self)));
+        let backend = Rc::new(backend::glutin_backend::GlutinWindowBackend::new(self));
         let context = try!(context::Context::new(backend.clone(), false, debug));
 
         let display = GlutinFacade {
@@ -175,7 +118,7 @@ impl DisplayBuild for glutin::WindowBuilder<'static> {
     fn rebuild_glium(self, display: &GlutinFacade) -> Result<(), GliumCreationError<glutin::CreationError>> {
         let mut existing_window = Option::as_ref(&display.backend)
                                          .expect("can't rebuild a headless display").borrow_mut();
-        let new_backend = Rc::new(try!(existing_window.rebuild(self)));
+        let new_backend = Rc::new(existing_window.rebuild(self));
         try!(unsafe { display.context.rebuild(new_backend.clone()) });
         *existing_window = new_backend;
         Ok(())
@@ -255,15 +198,11 @@ unsafe impl Backend for GlutinWindowBackend {
 
 #[allow(missing_docs)]
 impl GlutinWindowBackend {
-    /// Builds a new backend from the builder.
-    pub fn new(builder: glutin::WindowBuilder)
-               -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>>
-    {
-        let window = try!(builder.build());
-
-        Ok(GlutinWindowBackend {
+    /// Builds a new backend from the window.
+    pub fn new(window: glutin::Window) -> Self {
+        GlutinWindowBackend {
             window: window,
-        })
+        }
     }
 
     #[inline]
@@ -271,24 +210,11 @@ impl GlutinWindowBackend {
         &self.window
     }
 
-    #[inline]
-    pub fn poll_events(&self) -> glutin::PollEventsIterator {
-        self.window.poll_events()
-    }
-
-    #[inline]
-    pub fn wait_events(&self) -> glutin::WaitEventsIterator {
-        self.window.wait_events()
-    }
-
-    pub fn rebuild(&self, builder: glutin::WindowBuilder)
-                   -> Result<GlutinWindowBackend, GliumCreationError<glutin::CreationError>>
-    {
-        let window = try!(builder.with_shared_lists(&self.window).build());
-
-        Ok(GlutinWindowBackend {
+    pub fn rebuild(&self, window: glutin::Window) -> Self {
+        // TODO: How to do the equivalent of "shared lists" here?
+        GlutinWindowBackend {
             window: window,
-        })
+        }
     }
 }
 
