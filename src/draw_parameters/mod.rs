@@ -68,6 +68,7 @@ use version::Version;
 use version::Api;
 
 use index::PrimitiveType;
+use index::IndexType;
 
 use QueryExt;
 use CapabilitiesSource;
@@ -378,6 +379,12 @@ pub struct DrawParameters<'a> {
     /// Since this is purely an optimization, this parameter is ignored if the backend doesn't
     /// support it.
     pub primitive_bounding_box: (Range<f32>, Range<f32>, Range<f32>, Range<f32>),
+    
+    /// If enabled, will split the index buffer (if any is used in the draw call) 
+    /// at the MAX value of the IndexType (u8::MAX, u16::MAX or u32::MAX) start a new primitive
+    /// of the same type ("primitive restarting"). Supported on > OpenGL 3.1 or OpenGL ES 3.0 - 
+    /// otherwise, enabling this has no effect.
+    pub primitive_restart_index: bool,
 }
 
 /// Condition whether to render or not.
@@ -443,6 +450,7 @@ impl<'a> Default for DrawParameters<'a> {
             smooth: None,
             provoking_vertex: ProvokingVertex::LastVertex,
             primitive_bounding_box: (-1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0),
+            primitive_restart_index: false,
         }
     }
 }
@@ -881,4 +889,26 @@ fn sync_primitive_bounding_box(ctxt: &mut context::CommandContext,
                                                  value.4, value.5, value.6, value.7); }
         ctxt.state.primitive_bounding_box = value;
     }
+}
+
+fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
+                                enabled: bool)
+                                -> Result<(), DrawError>
+{
+    if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+       ctxt.extensions.gl_arb_es3_compatibility
+    {
+        if enabled {
+            unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+            ctxt.state.enabled_primitive_fixed_restart = true;
+        } else {
+            unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+            ctxt.state.enabled_primitive_fixed_restart = false;
+        }
+
+    } else {
+        return Err(DrawError::FixedIndexRestartingNotSupported);
+    }
+
+    Ok(())
 }

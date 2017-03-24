@@ -931,6 +931,9 @@ pub enum DrawError {
 
     /// One of the blending parameters is not supported by the backend.
     BlendingParameterNotSupported,
+
+    /// Restarting indices (multiple objects per draw call) is not supported by the backend.
+    FixedIndexRestartingNotSupported,
 }
 
 impl Error for DrawError {
@@ -987,6 +990,8 @@ impl Error for DrawError {
                 "The depth clamp mode is not supported by the backend",
             BlendingParameterNotSupported =>
                 "One the blending parameters is not supported by the backend",
+            FixedIndexRestartingNotSupported =>
+                "Restarting indices (multiple objects per draw call) is not supported by the backend",
         }
     }
 

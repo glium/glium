@@ -45,6 +45,9 @@ pub struct GlState {
     /// Whether GL_POLYGON_OFFSET_FILL is enabled
     pub enabled_polygon_offset_fill: bool,
 
+    /// Whether GL_PRIMITIVE_RESTART_FIXED_INDEX is enabled
+    pub enabled_primitive_fixed_restart: bool,
+
     /// Whether GL_RASTERIZER_DISCARD is enabled
     pub enabled_rasterizer_discard: bool,
 
@@ -380,8 +383,9 @@ impl Default for GlState {
             enabled_stencil_test: false,
             enabled_line_smooth: false,
             enabled_polygon_smooth: false,
+            enabled_primitive_fixed_restart: false,
             enabled_program_point_size: false,
-
+            
             program: Handle::Id(0),
             vertex_array: 0,
             clear_color: (0.0, 0.0, 0.0, 0.0),
