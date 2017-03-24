@@ -5,7 +5,7 @@ extern crate image;
 
 use glium::glutin;
 use glium::index::PrimitiveType;
-use glium::Surface;
+use glium::{DisplayBuild, Surface};
 use std::io::Cursor;
 
 mod support;

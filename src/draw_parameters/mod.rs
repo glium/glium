@@ -496,6 +496,7 @@ pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters
     try!(sync_smooth(ctxt, draw_parameters.smooth, primitives_types));
     try!(sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex));
     sync_primitive_bounding_box(ctxt, &draw_parameters.primitive_bounding_box);
+    try!(sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index));
 
     Ok(())
 }
