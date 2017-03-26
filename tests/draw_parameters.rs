@@ -1395,8 +1395,6 @@ fn primitive_restart_index() {
     let tex_w = texture.get_width() as usize;
     let tex_h = texture.get_height().unwrap() as usize;
 
-    println!("{:?} x {:?}", tex_w, tex_h);
-
     // midpoint of the texture should be white
     let mid_x = tex_w / 2;
     let mid_y = tex_h / 2;

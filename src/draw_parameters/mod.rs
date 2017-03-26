@@ -381,9 +381,10 @@ pub struct DrawParameters<'a> {
     pub primitive_bounding_box: (Range<f32>, Range<f32>, Range<f32>, Range<f32>),
     
     /// If enabled, will split the index buffer (if any is used in the draw call) 
-    /// at the MAX value of the IndexType (u8::MAX, u16::MAX or u32::MAX) start a new primitive
-    /// of the same type ("primitive restarting"). Supported on > OpenGL 3.1 or OpenGL ES 3.0 - 
-    /// otherwise, enabling this has no effect.
+    /// at the MAX value of the IndexType (u8::MAX, u16::MAX or u32::MAX) and start a new primitive
+    /// of the same type ("primitive restarting"). Supported on > OpenGL 3.1 or OpenGL ES 3.0. 
+    /// If the backend does not support GL_PRIMITIVE_RESTART_FIXED_INDEX, an Error 
+    /// of type `FixedIndexRestartingNotSupported` will be returned.
     pub primitive_restart_index: bool,
 }
 
@@ -896,6 +897,8 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
                                 enabled: bool)
                                 -> Result<(), DrawError>
 {
+    // TODO: use GL_PRIMITIVE_RESTART (if possible) if 
+    // GL_PRIMITIVE_RESTART_FIXED_INDEX is not supported
     if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
        ctxt.extensions.gl_arb_es3_compatibility
     {
