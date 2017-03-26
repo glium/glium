@@ -1279,3 +1279,132 @@ fn primitive_bounding_box() {
 
     display.assert_no_error(None);
 }
+
+#[test]
+fn primitive_restart_index() {
+
+    let display = support::build_display();
+
+    // make two horizontal lines
+    // on failure, they will connect like a z
+    // on success, they will connect like a =
+
+    let vertex_buffer = {
+
+        #[derive(Copy, Clone)]
+        struct Vertex {
+            position: (f32, f32, f32),
+        }
+
+        implement_vertex!(Vertex, position);
+
+        glium::VertexBuffer::new(&display, &[
+            // lower line
+            Vertex { position: (-0.5, -0.5, 0.0) },
+            Vertex { position: ( 0.5, -0.5, 0.0) },
+            // upper line
+            Vertex { position: (-0.5,  0.5, 0.0) },
+            Vertex { position: ( 0.5,  0.5, 0.0) },
+        ]).unwrap()
+    };
+
+    let index_buffer = glium::IndexBuffer::<u8>::new(&display, glium::index::PrimitiveType::LineStrip, 
+                                                     &[0, 1, 255, 2, 3]).unwrap();
+    let program = program!(&display,
+        140 => {
+            vertex: "
+                #version 140
+
+                in vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 140
+
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        110 => {
+            vertex: "
+                #version 110
+
+                attribute vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 110
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+        100 => {
+            vertex: "
+                #version 100
+
+                attribute lowp vec3 position;
+
+                void main() {
+                    gl_Position = vec4(position, 1.0);
+                }
+            ",
+            fragment: "
+                #version 100
+
+                void main() {
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                }
+            "
+        },
+    ).unwrap();
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(1.0, 1.0, 1.0, 1.0);
+
+    let options = glium::DrawParameters {
+           primitive_restart_index: true,
+        .. Default::default()
+    };
+
+    let res = texture.as_surface().draw(&vertex_buffer,
+        &index_buffer, &program,
+        &glium::uniforms::EmptyUniforms,
+        &options);
+
+    match res {
+        Ok(_) => (),
+        Err(glium::DrawError::DepthClampNotSupported) => {
+            display.assert_no_error(None);
+            return;
+        },
+        e => e.unwrap(),
+    }
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+
+    let tex_w = texture.get_width() as usize;
+    let tex_h = texture.get_height().unwrap() as usize;
+
+    // midpoint of the texture should be white
+    let mid_x = tex_w / 2;
+    let mid_y = tex_h / 2;
+
+    // sometimes the sampling can be a few pixels off
+    for row in (mid_y - 2)..(mid_y + 2) {
+        for pixel in (mid_x - 2)..(mid_x + 2){
+            assert_eq!(data[row][pixel], (255, 255, 255, 255));
+        }
+    }
+
+    display.assert_no_error(None);
+}
