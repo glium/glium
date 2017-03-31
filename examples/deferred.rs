@@ -170,6 +170,7 @@ fn main() {
                         (light_attenuation.z * light_distance * light_distance)
                     );
                     attenuation_factor *= (1.0 - pow((light_distance / light_radius), 2.0));
+		    attenuation_factor = max(attenuation_factor, 0.0);
                     diffuse *= attenuation_factor;
 
                 }
