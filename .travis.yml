@@ -30,6 +30,9 @@ addons:
     - libdw-dev                 # for kcov
     - cmake                     # for kcov
 
+before_script:
+  - glxinfo
+
 script:
     # We run everything with `-j 1` or travis runs out of memory
     - cargo build -v --no-default-features --features "$FEATURES"
