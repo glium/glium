@@ -45,8 +45,8 @@ fn uniforms_storage_single_value() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
-    assert_eq!(data[0][0], (255, 0, 0, 128));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+    assert_eq!(data[0][0], (255, 0, 0, 127));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 127));
 
     display.assert_no_error(None);
 }
@@ -127,8 +127,8 @@ fn uniforms_storage_ignore_inactive_uniforms() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
-    assert_eq!(data[0][0], (255, 0, 0, 128));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+    assert_eq!(data[0][0], (255, 0, 0, 127));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 127));
 
     display.assert_no_error(None);
 }
