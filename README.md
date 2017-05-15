@@ -8,6 +8,8 @@
 
 Glium is no longer maintained, for more information visit the [post-mortem](https://users.rust-lang.org/t/glium-post-mortem/7063).
 
+##
+
 Elegant and safe OpenGL wrapper.
 
 Glium is an intermediate layer between OpenGL and your application. You still need to manually handle
