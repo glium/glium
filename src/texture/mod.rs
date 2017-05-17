@@ -465,7 +465,7 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
     /// Builds a raw image from a vector of interleaved RGB values, flipping it vertically.
     ///
     /// The first pixel is at (0, 1), the last pixel is at (1, 0).
-    pub fn from_raw_rgb_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T>
+    pub fn from_raw_rgb_reversed(data: &[T], dimensions: (u32, u32)) -> RawImage2d<'a, T>
         where T: ToClientFormat {
         let data = data
             .chunks(dimensions.0 as usize * 3)
@@ -480,7 +480,7 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
     /// Builds a raw image from a vector of interleaved RGBA values, flipping it vertically.
     ///
     /// The first pixel is at (0, 1), the last pixel is at (1, 0).
-    pub fn from_raw_rgba_reversed(data: Vec<T>, dimensions: (u32, u32)) -> RawImage2d<'a, T>
+    pub fn from_raw_rgba_reversed(data: &[T], dimensions: (u32, u32)) -> RawImage2d<'a, T>
         where T: ToClientFormat {
         let data = data
             .chunks(dimensions.0 as usize * 4)
