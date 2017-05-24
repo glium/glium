@@ -720,7 +720,7 @@ pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &Extensio
         let target = if renderbuffer { gl::RENDERBUFFER } else { gl::TEXTURE_2D_MULTISAMPLE };
 
         let samples = if format.is_renderable(&dummy) &&
-                         (version >= &Version(Api::GlEs, 3, 0) ||
+                         ((version >= &Version(Api::GlEs, 3, 0) && renderbuffer) ||
                           version >= &Version(Api::Gl, 4, 2) ||
                           extensions.gl_arb_internalformat_query)
         {
