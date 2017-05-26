@@ -1654,6 +1654,8 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
         None => false,
     };
 
+    let is_es = version.0 == Api::GlEs;
+
     Ok(match format {
         /*******************************************************************/
         /*                           REGULAR                               */
@@ -1664,7 +1666,9 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
             if version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) {
 
                 match (rq_ty, size) {
+                    (RequestType::TexImage(_), Some(1)) if is_es => gl::R8,
                     (RequestType::TexImage(_), Some(1)) => gl::RED,
+                    (RequestType::TexImage(_), Some(2)) if is_es => gl::RG8,
                     (RequestType::TexImage(_), Some(2)) => gl::RG,
                     (RequestType::TexImage(_), Some(3)) => gl::RGB,
                     (RequestType::TexImage(_), Some(4)) => gl::RGBA,
