@@ -233,9 +233,10 @@ fn main() {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
                     glutin::WindowEvent::Closed => action = support::Action::Stop,
-                    glutin::WindowEvent::MouseMoved(x,y) => cursor_position = Some((x,y)),
+                    glutin::WindowEvent::MouseMoved { position: (x,y), .. } => cursor_position = Some((x as i32, y as i32)),
                     ev => camera.process_input(&ev),
                 },
+                _ => (),
             }
         });
 

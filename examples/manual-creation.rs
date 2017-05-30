@@ -97,6 +97,7 @@ fn main() {
                 glutin::WindowEvent::Closed => events_loop.interrupt(),
                 _ => (),
             },
+            _ => (),
         }
     });
 }

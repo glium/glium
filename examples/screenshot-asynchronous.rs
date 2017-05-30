@@ -264,11 +264,17 @@ fn main() {
             match event {
                 Event::WindowEvent { event, .. } => match event {
                     WindowEvent::Closed => closed = true,
-                    WindowEvent::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S), _) =>
-                        // Take screenshot and queue it's delivery
-                        screenshot_taker.take_screenshot(&display),
+                    WindowEvent::KeyboardInput { input, .. } => {
+                        if let ElementState::Pressed = input.state {
+                            if let Some(VirtualKeyCode::S) = input.virtual_keycode {
+                                // Take screenshot and queue it's delivery
+                                screenshot_taker.take_screenshot(&display);
+                            }
+                        }
+                    },
                     _ => (),
                 },
+                _ => (),
             }
         });
 

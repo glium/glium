@@ -155,5 +155,6 @@ fn main() {
             glutin::WindowEvent::Resized(..) => draw(),
             _ => (),
         },
+        _ => (),
     });
 }

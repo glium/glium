@@ -21,7 +21,7 @@ fn main() {
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -100,25 +100,28 @@ fn main() {
         events_loop.poll_events(|event| match event {
             glutin::Event::WindowEvent { event, .. } => match event {
                 glutin::WindowEvent::Closed => action = support::Action::Stop,
-                glutin::WindowEvent::KeyboardInput(glutin::ElementState::Pressed, _,
-                                             Some(glutin::VirtualKeyCode::Return), _) => {
-                    if fullscreen {
-                        let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
-                        glium::rebuild(window, &display).unwrap();
-                        fullscreen = false;
-                    } else {
-                        let window = glutin::WindowBuilder::new()
-                            .with_fullscreen(glutin::get_primary_monitor())
-                            .with_shared_lists(&display.get_window().unwrap())
-                            .build(&events_loop)
-                            .unwrap();
-                        glium::rebuild(window, &display).unwrap();
-                        fullscreen = true;
+                glutin::WindowEvent::KeyboardInput { input, .. } => {
+                    if let glutin::ElementState::Pressed = input.state {
+                        if let Some(glutin::VirtualKeyCode::Return) = input.virtual_keycode {
+                            if fullscreen {
+                                let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
+                                glium::rebuild(window, &display).unwrap();
+                                fullscreen = false;
+                            } else {
+                                let window = glutin::WindowBuilder::new()
+                                    .with_fullscreen(glutin::get_primary_monitor())
+                                    .with_shared_lists(&display.get_window().unwrap())
+                                    .build(&events_loop)
+                                    .unwrap();
+                                glium::rebuild(window, &display).unwrap();
+                                fullscreen = true;
+                            }
+                        }
                     }
                 },
-
                 _ => ()
             },
+            _ => (),
         });
 
         action

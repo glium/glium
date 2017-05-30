@@ -19,7 +19,7 @@ fn main() {
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::Texture2d::new(&display, image).unwrap();
 
     // building a 1024x1024 empty texture

@@ -78,6 +78,7 @@ fn main() {
                     glium::glutin::WindowEvent::Closed => closed = true,
                     _ => ()
                 },
+                _ => (),
             }
         });
 

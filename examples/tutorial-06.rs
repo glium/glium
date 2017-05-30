@@ -13,7 +13,7 @@ fn main() {
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
     #[derive(Copy, Clone)]
@@ -95,6 +95,7 @@ fn main() {
                     glium::glutin::WindowEvent::Closed => closed = true,
                     _ => ()
                 },
+                _ => (),
             }
         });
 

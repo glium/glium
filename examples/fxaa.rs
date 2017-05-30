@@ -381,17 +381,21 @@ fn main() {
                 camera.process_input(&event);
                 match event {
                     glutin::WindowEvent::Closed => action = support::Action::Stop,
-                    glutin::WindowEvent::KeyboardInput(glutin::ElementState::Pressed, _, Some(key), _) => match key {
-                        glutin::VirtualKeyCode::Escape => action = support::Action::Stop,
-                        glutin::VirtualKeyCode::Space => {
-                            fxaa_enabled = !fxaa_enabled;
-                            println!("FXAA is now {}", if fxaa_enabled { "enabled" } else { "disabled" });
+                    glutin::WindowEvent::KeyboardInput { input, .. } => match input.state {
+                        glutin::ElementState::Pressed => match input.virtual_keycode {
+                            Some(glutin::VirtualKeyCode::Escape) => action = support::Action::Stop,
+                            Some(glutin::VirtualKeyCode::Space) => {
+                                fxaa_enabled = !fxaa_enabled;
+                                println!("FXAA is now {}", if fxaa_enabled { "enabled" } else { "disabled" });
+                            },
+                            _ => (),
                         },
                         _ => (),
                     },
                     _ => (),
                 }
             },
+            _ => (),
         });
 
         action

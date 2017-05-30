@@ -128,6 +128,7 @@ fn main() {
                     glutin::WindowEvent::Closed => action = support::Action::Stop,
                     _ => (),
                 },
+                _ => (),
             }
         });
 

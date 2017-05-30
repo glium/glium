@@ -153,21 +153,25 @@ fn main() {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
                     glutin::WindowEvent::Closed => action = support::Action::Stop,
-                    glutin::WindowEvent::KeyboardInput(glutin::ElementState::Pressed, _, Some(key), _) => match key {
-                        glutin::VirtualKeyCode::Up => {
-                            tess_level += 1;
-                            println!("New tessellation level: {}", tess_level);
-                        },
-                        glutin::VirtualKeyCode::Down => {
-                            if tess_level >= 2 {
-                                tess_level -= 1;
+                    glutin::WindowEvent::KeyboardInput { input, .. } => match input.state {
+                        glutin::ElementState::Pressed => match input.virtual_keycode {
+                            Some(glutin::VirtualKeyCode::Up) => {
+                                tess_level += 1;
                                 println!("New tessellation level: {}", tess_level);
-                            }
+                            },
+                            Some(glutin::VirtualKeyCode::Down) => {
+                                if tess_level >= 2 {
+                                    tess_level -= 1;
+                                    println!("New tessellation level: {}", tess_level);
+                                }
+                            },
+                            _ => (),
                         },
                         _ => (),
                     },
-                    _ => ()
+                    _ => (),
                 },
+                _ => (),
             }
         });
 
