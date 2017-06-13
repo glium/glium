@@ -6,7 +6,12 @@
 
 ## Note to current and future Glium users: 
 
-Glium is no longer maintained, for more information visit the [post-mortem](https://users.rust-lang.org/t/glium-post-mortem/7063).
+Glium is [no longer actively developed by its original
+author](https://users.rust-lang.org/t/glium-post-mortem/7063). That said, PRs
+are still welcome and maintenance is continued by the surrounding community. If
+you use Glium and would be interested in seeing it moved to its own
+organisation, you can express your interest
+[here](https://github.com/tomaka/glium/issues/532).
 
 ##
 
