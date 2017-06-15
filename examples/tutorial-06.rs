@@ -8,11 +8,11 @@ fn main() {
     use glium::{DisplayBuild, Surface};
     let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
 
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
+    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/rust-logo-256x256.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
-    let texture = glium::texture::Texture2d::new(&display, image).unwrap();
+    let texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {
