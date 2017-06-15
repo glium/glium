@@ -1,6 +1,6 @@
 # glium
 
-[![Build Status](https://travis-ci.org/tomaka/glium.svg?branch=master)](https://travis-ci.org/tomaka/glium) [![Circle CI](https://circleci.com/gh/tomaka/glium/tree/master.svg?style=svg)](https://circleci.com/gh/tomaka/glium/tree/master) [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
+[![Build Status](https://travis-ci.org/glium/glium.svg?branch=master)](https://travis-ci.org/glium/glium) [![Circle CI](https://circleci.com/gh/tomaka/glium/tree/master.svg?style=svg)](https://circleci.com/gh/tomaka/glium/tree/master) [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
 
 [![](http://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
 
@@ -11,7 +11,7 @@ author](https://users.rust-lang.org/t/glium-post-mortem/7063). That said, PRs
 are still welcome and maintenance is continued by the surrounding community. If
 you use Glium and would be interested in seeing it moved to its own
 organisation, you can express your interest
-[here](https://github.com/tomaka/glium/issues/532).
+[here](https://github.com/glium/glium/issues/532).
 
 ##
 
@@ -32,11 +32,11 @@ Its objectives:
  - Avoid all OpenGL errors beforehand.
  - Produce optimized OpenGL function calls, and allow the user to easily use modern OpenGL techniques.
 
-## [Link to the documentation](http://tomaka.github.io/glium/glium/index.html)
+## [Link to the documentation](http://glium.github.io/glium/glium/index.html)
 
 If you have some knowledge of OpenGL, the documentation and the examples should get you easily started.
 
-## [Link to a work-in-progress tutorial](http://tomaka.github.io/glium/book)
+## [Link to a work-in-progress tutorial](http://glium.github.io/glium/book)
 
 ## Why should I use Glium instead of raw OpenGL calls?
 
