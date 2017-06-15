@@ -27,7 +27,8 @@ use std::os::raw::c_void;
 fn main() {
     // building the glutin window
     // note that it's just `build` and not `build_glium`
-    let window = glutin::WindowBuilder::new().build().unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
     let window = Rc::new(window);
 
     // in order to create our context, we will need to provide an object which implements
@@ -90,10 +91,12 @@ fn main() {
     target.finish().unwrap();
 
     // the window is still available
-    for event in window.wait_events() {
+    events_loop.run_forever(|event| {
         match event {
-            glutin::Event::Closed => return,
-            _ => ()
+            glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::WindowEvent::Closed => events_loop.interrupt(),
+                _ => (),
+            },
         }
-    }
+    });
 }

@@ -5,17 +5,17 @@ extern crate image;
 use std::path::Path;
 use std::thread;
 
-use glium::glutin;
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 
 mod screenshot {
+    use glium::Surface;
     use std::collections::VecDeque;
     use std::vec::Vec;
     use std::borrow::Cow;
 
     use glium;
-    use glium::Surface;
 
     // Container that holds image data as vector of (u8, u8, u8, u8).
     // This is used to take data from PixelBuffer and move it to another thread
@@ -126,13 +126,13 @@ mod screenshot {
 }
 
 fn main() {
-    use glium::{DisplayBuild, Surface};
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new()
         .with_title("Press S to take screenshot")
-        .build_glium()
+        .build(&events_loop)
         .unwrap();
+    let display = glium::build(window).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -255,20 +255,25 @@ fn main() {
                   &Default::default())
             .unwrap();
 
+        let mut closed = false;
+
         // React to events
-        for event in display.poll_events() {
-            use glium::glutin::Event::*;
-            use glium::glutin::ElementState::*;
-            use glium::glutin::VirtualKeyCode::*;
+        events_loop.poll_events(|event| {
+            use glium::glutin::{Event, WindowEvent, ElementState, VirtualKeyCode};
 
             match event {
-                Closed => return,
-
-                // Take screenshot and queue it's delivery
-                KeyboardInput(Pressed, _, Some(S)) => screenshot_taker.take_screenshot(&display),
-
-                _ => {}
+                Event::WindowEvent { event, .. } => match event {
+                    WindowEvent::Closed => closed = true,
+                    WindowEvent::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S), _) =>
+                        // Take screenshot and queue it's delivery
+                        screenshot_taker.take_screenshot(&display),
+                    _ => (),
+                },
             }
+        });
+
+        if closed {
+            return;
         }
 
         // Pick up screenshots that are ready this frame

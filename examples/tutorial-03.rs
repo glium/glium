@@ -2,8 +2,10 @@
 extern crate glium;
 
 fn main() {
-    use glium::{DisplayBuild, Surface};
-    let display =glium:: glutin::WindowBuilder::new().build_glium().unwrap();
+    use glium::Surface;
+    let events_loop = glium::glutin::EventsLoop::new();
+    let window = glium::glutin::WindowBuilder::new().build(&events_loop).unwrap();
+    let display = glium::build(window).unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -56,20 +58,21 @@ fn main() {
 
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
-
-        let uniforms = uniform! {
-            t:t
-                };
-
+        let uniforms = uniform! { t: t };
         target.draw(&vertex_buffer, &indices, &program, &uniforms,
                     &Default::default()).unwrap();
         target.finish().unwrap();
 
-        for ev in display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return,
-                _ => ()
+        let mut closed = false;
+        events_loop.poll_events(|event| {
+            match event {
+                glium::glutin::Event::WindowEvent { event, .. } => match event {
+                    glium::glutin::WindowEvent::Closed => closed = true,
+                    _ => ()
+                },
             }
-        }
+        });
+
+        if closed { break; }
     }
 }
