@@ -4,15 +4,16 @@ extern crate glium;
 mod support;
 
 use glium::Surface;
-use glium::glutin;
+use glium::glutin::{self, winit};
 use glium::index::PrimitiveType;
 use glium::program::ShaderStage;
 
 fn main() {
     // building the display, ie. the main object
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
-    let display = glium::build(window).unwrap();
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new().build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -119,8 +120,8 @@ fn main() {
 
         events_loop.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                winit::Event::WindowEvent { event, .. } => match event {
+                    winit::WindowEvent::Closed => action = support::Action::Stop,
                     _ => ()
                 },
                 _ => (),

@@ -6,9 +6,12 @@ use std::io::Cursor;
 
 fn main() {
     use glium::Surface;
-    let events_loop = glium::glutin::EventsLoop::new();
-    let window = glium::glutin::WindowBuilder::new().build(&events_loop).unwrap();
-    let display = glium::build(window).unwrap();
+    use glium::glutin::{self, winit};
+
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new().build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
@@ -91,8 +94,8 @@ fn main() {
         let mut closed = false;
         events_loop.poll_events(|event| {
             match event {
-                glium::glutin::Event::WindowEvent { event, .. } => match event {
-                    glium::glutin::WindowEvent::Closed => closed = true,
+                winit::Event::WindowEvent { event, .. } => match event {
+                    winit::WindowEvent::Closed => closed = true,
                     _ => ()
                 },
                 _ => (),

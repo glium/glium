@@ -5,32 +5,40 @@ Test supports module.
 
 #![allow(dead_code)]
 
-use glium::{self, glutin, DisplayBuild};
+use glium::{self, glutin};
+use glium::glutin::winit;
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
 
 use std::env;
 
-/// Builds a headless display for tests.
+/// Builds a display for tests.
+#[cfg(not(feature = "test_headless"))]
 pub fn build_display() -> glium::Display {
     let version = parse_version();
+    let events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new()
+        .with_visibility(false)
+        .build(&events_loop)
+        .unwrap();
+    let context = glutin::ContextBuilder::new()
+        .with_gl_debug_flag(true)
+        .with_gl(version)
+        .build(&window)
+        .unwrap();
+    glium::Display::new(window, context).unwrap()
+}
 
-    let display = if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
-        glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
-                                                       .with_gl(version)
-                                                       .build_glium().unwrap()
-    } else {
-        let events_loop = glutin::EventsLoop::new();
-        let window = glutin::WindowBuilder::new()
-            .with_gl_debug_flag(true)
-            .with_visibility(false)
-            .with_gl(version)
-            .build(&events_loop)
-            .unwrap();
-        glium::build(window).unwrap()
-    };
-
-    display
+/// Builds a headless display for tests.
+#[cfg(feature = "test_headless")]
+pub fn build_display() -> glium::HeadlessRenderer {
+    let version = parse_version();
+    let context = glutin::HeadlessRendererBuilder::new(1024, 768)
+        .with_gl_debug_flag(true)
+        .with_gl(version)
+        .build()
+        .unwrap();
+    glium::HeadlessRenderer::new(context).unwrap()
 }
 
 /// Rebuilds an existing display.
@@ -39,21 +47,15 @@ pub fn build_display() -> glium::Display {
 /// invalidated during a rebuild, and this has to be handled by glium.
 pub fn rebuild_display(display: &glium::Display) {
     let version = parse_version();
-
-    if env::var("GLIUM_HEADLESS_TESTS").is_ok() {
-        glutin::HeadlessRendererBuilder::new(1024, 768).with_gl_debug_flag(true)
-                                                       .with_gl(version)
-                                                       .rebuild_glium(display).unwrap();
-    } else {
-        let events_loop = glutin::EventsLoop::new();
-        let window = glutin::WindowBuilder::new()
-            .with_gl_debug_flag(true)
-            .with_visibility(false)
-            .with_gl(version)
-            .build(&events_loop)
-            .unwrap();
-        glium::rebuild(window, display).unwrap()
-    }
+    let events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new()
+        .with_visibility(false)
+        .build(&events_loop)
+        .unwrap();
+    let context = glutin::ContextBuilder::new()
+        .with_gl_debug_flag(true)
+        .with_gl(version);
+    display.rebuild_window(window, context).unwrap();
 }
 
 fn parse_version() -> glutin::GlRequest {

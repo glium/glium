@@ -1,5 +1,7 @@
 extern crate glutin;
 
+use glutin::winit;
+
 pub struct CameraState {
     aspect_ratio: f32,
     position: (f32, f32, f32),
@@ -150,23 +152,23 @@ impl CameraState {
         }
     }
 
-    pub fn process_input(&mut self, event: &glutin::WindowEvent) {
+    pub fn process_input(&mut self, event: &winit::WindowEvent) {
         let input = match *event {
-            glutin::WindowEvent::KeyboardInput { input, .. } => input,
+            winit::WindowEvent::KeyboardInput { input, .. } => input,
             _ => return,
         };
-        let pressed = input.state == glutin::ElementState::Pressed;
+        let pressed = input.state == winit::ElementState::Pressed;
         let key = match input.virtual_keycode {
             Some(key) => key,
             None => return,
         };
         match key {
-            glutin::VirtualKeyCode::Up => self.moving_up = pressed,
-            glutin::VirtualKeyCode::Down => self.moving_down = pressed,
-            glutin::VirtualKeyCode::A => self.moving_left = pressed,
-            glutin::VirtualKeyCode::D => self.moving_right = pressed,
-            glutin::VirtualKeyCode::W => self.moving_forward = pressed,
-            glutin::VirtualKeyCode::S => self.moving_backward = pressed,
+            winit::VirtualKeyCode::Up => self.moving_up = pressed,
+            winit::VirtualKeyCode::Down => self.moving_down = pressed,
+            winit::VirtualKeyCode::A => self.moving_left = pressed,
+            winit::VirtualKeyCode::D => self.moving_right = pressed,
+            winit::VirtualKeyCode::W => self.moving_forward = pressed,
+            winit::VirtualKeyCode::S => self.moving_backward = pressed,
             _ => (),
         };
     }

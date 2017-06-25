@@ -2,12 +2,13 @@ extern crate glium;
 
 fn main() {
     use glium::{Api, Profile, Version};
-    use glium::glutin;
+    use glium::glutin::{self, winit};
 
     // building the display, ie. the main object
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new().with_visibility(false).build(&events_loop).unwrap();
-    let display = glium::build(window).unwrap();
+    let events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().with_visibility(false).build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new().build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     let version = *display.get_opengl_version();
     let api = match version {

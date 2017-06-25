@@ -1,34 +1,48 @@
 /*!
 Easy-to-use, high-level, OpenGL3+ wrapper.
 
+Glium is based on two core cross-platform crates:
+
+- The **winit** crate for cross-platform events and windowing.
+- The **glutin** crate for cross-platform GL context.
+
+Glium provides a **Display**, offering an API around a combined **winit::Window** and
+ **glutin::Context**.
+
 # Initialization
 
-This library defines the `DisplayBuild` trait which is implemented on
-`glium::glutin::WindowBuilder`.
-
-Initialization is done by creating a `WindowBuilder` and calling `build_glium`.
+The initialisation of a glium display occurs in several steps.
 
 ```no_run
 extern crate glium;
 
 fn main() {
-    use glium::DisplayBuild;
+    // 1. The **winit::EventsLoop** for handling events.
+    let mut events_loop = glium::glutin::winit::EventsLoop::new();
 
-    let display = glium::glutin::WindowBuilder::new()
+    // 2. A **winit::Window** registered with the event loop.
+    let window = glium::glutin::winit::WindowBuilder::new()
         .with_dimensions(1024, 768)
-        .with_title(format!("Hello world"))
-        .build_glium()
+        .with_title("Hello world")
+        .build(&events_loop)
         .unwrap();
+
+    // 3. A **glutin::Context** associated with the window.
+    let context = glium::glutin::ContextBuilder::new().build(&window).unwrap();
+
+    // 4. Construct a display from the window and the associated context.
+    let display = glium::Display::new(window, context).unwrap();
 }
 ```
 
 The `display` object is the most important object of this library and is used when you build
 buffers, textures, etc. and when you draw.
+
 You can clone it and pass it around. However it doesn't implement the `Send` and `Sync` traits,
 meaning that you can't pass it to another thread.
 
-The display has ownership of the window, and also provides some methods related to domains such
-as events handling.
+The display has ownership of both the window and context, and also provides some methods related to
+domains such as events handling.
 
 # Overview
 
@@ -98,7 +112,7 @@ extern crate smallvec;
 extern crate fnv;
 
 #[cfg(feature = "glutin")]
-pub use backend::glutin_backend::glutin;
+pub use backend::glutin::glutin;
 pub use context::Profile;
 pub use draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
@@ -158,7 +172,8 @@ mod gl {
 /// Cloning the display allows you to easily share the `Display` object throughout
 /// your program.
 #[cfg(feature = "glutin")]
-pub use backend::glutin_backend::GlutinFacade as Display;
+pub use backend::glutin::Display;
+pub use backend::glutin::headless::Headless as HeadlessRenderer;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.
 pub trait CapabilitiesSource {
@@ -1228,77 +1243,6 @@ impl Drop for Frame {
         }
     }
 }
-
-/// Objects that can build a facade object.
-pub trait DisplayBuild {
-    /// The object that this `DisplayBuild` builds.
-    type Facade: backend::Facade;
-
-    /// The type of error that initialization can return.
-    type Err;
-
-    /// Build a context and a facade to draw on it.
-    ///
-    /// Performs a compatibility check to make sure that all core elements of glium
-    /// are supported by the implementation.
-    fn build_glium(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
-        self.build_glium_debug(Default::default())
-    }
-
-    /// Build a context and a facade to draw on it.
-    ///
-    /// Performs a compatibility check to make sure that all core elements of glium
-    /// are supported by the implementation.
-    fn build_glium_debug(self, debug::DebugCallbackBehavior) -> Result<Self::Facade, Self::Err>;
-
-    /// Build a context and a facade to draw on it
-    ///
-    /// This function does the same as `build_glium`, except that the resulting context
-    /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
-        self.build_glium_unchecked_debug(Default::default())
-    }
-
-    /// Build a context and a facade to draw on it
-    ///
-    /// This function does the same as `build_glium`, except that the resulting context
-    /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked_debug(self, debug::DebugCallbackBehavior)
-                                          -> Result<Self::Facade, Self::Err>;
-
-    /// Changes the settings of an existing facade.
-    fn rebuild_glium(self, &Self::Facade) -> Result<(), Self::Err>;
-}
-
-
-/// Build a context and a facade to draw on it.
-///
-/// Performs a compatibility check to make sure that all core elements of glium
-/// are supported by the implementation.
-pub fn build<T>(build: T) -> Result<T::Facade, T::Err>
-    where T: DisplayBuild,
-{
-    build.build_glium()
-}
-
-/// Build a context and a facade to draw on it.
-///
-/// Performs a compatibility check to make sure that all core elements of glium
-/// are supported by the implementation.
-pub fn build_debug<T>(build: T, debug: debug::DebugCallbackBehavior)
-    -> Result<T::Facade, T::Err>
-    where T: DisplayBuild,
-{
-    build.build_glium_debug(debug)
-}
-
-/// Changes the settings of an existing facade.
-pub fn rebuild<T>(build: T, facade: &T::Facade) -> Result<(), T::Err>
-    where T: DisplayBuild,
-{
-    build.rebuild_glium(facade)
-}
-
 
 /// Error that can happen while creating a glium display.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -4,7 +4,7 @@ extern crate rand;
 
 use glium::Surface;
 use glium::index::PrimitiveType;
-use glium::glutin;
+use glium::glutin::{self, winit};
 
 mod support;
 
@@ -19,9 +19,10 @@ fn main() {
     const SPRITES_COUNT: usize = 1024;
     println!("Number of sprites: {}", SPRITES_COUNT);
 
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
-    let display = glium::build(window).unwrap();
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new().build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     // generating a bunch of unicolor 2D images that will be used for a texture
     // we store all of them in a `Texture2dArray`
@@ -247,8 +248,8 @@ fn main() {
 
         events_loop.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                winit::Event::WindowEvent { event, .. } => match event {
+                    winit::WindowEvent::Closed => action = support::Action::Stop,
                     _ => ()
                 },
                 _ => (),

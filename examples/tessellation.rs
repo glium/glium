@@ -2,16 +2,17 @@
 extern crate glium;
 
 use glium::Surface;
-use glium::glutin;
+use glium::glutin::{self, winit};
 use glium::index::PrimitiveType;
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new().build(&events_loop).unwrap();
-    let display = glium::build(window).unwrap();
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new().build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -151,15 +152,15 @@ fn main() {
         // polling and handling the events received by the window
         events_loop.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
-                    glutin::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                        glutin::ElementState::Pressed => match input.virtual_keycode {
-                            Some(glutin::VirtualKeyCode::Up) => {
+                winit::Event::WindowEvent { event, .. } => match event {
+                    winit::WindowEvent::Closed => action = support::Action::Stop,
+                    winit::WindowEvent::KeyboardInput { input, .. } => match input.state {
+                        winit::ElementState::Pressed => match input.virtual_keycode {
+                            Some(winit::VirtualKeyCode::Up) => {
                                 tess_level += 1;
                                 println!("New tessellation level: {}", tess_level);
                             },
-                            Some(glutin::VirtualKeyCode::Down) => {
+                            Some(winit::VirtualKeyCode::Down) => {
                                 if tess_level >= 2 {
                                     tess_level -= 1;
                                     println!("New tessellation level: {}", tess_level);

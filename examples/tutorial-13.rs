@@ -6,12 +6,15 @@ mod teapot;
 
 fn main() {
     use glium::Surface;
-    let events_loop = glium::glutin::EventsLoop::new();
-    let window = glium::glutin::WindowBuilder::new()
+    use glium::glutin::{self, winit};
+
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new()
         .with_depth_buffer(24)
-        .build(&events_loop)
+        .build(&window)
         .unwrap();
-    let display = glium::build(window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     let positions = glium::VertexBuffer::new(&display, &teapot::VERTICES).unwrap();
     let normals = glium::VertexBuffer::new(&display, &teapot::NORMALS).unwrap();
@@ -118,8 +121,8 @@ fn main() {
         let mut closed = false;
         events_loop.poll_events(|event| {
             match event {
-                glium::glutin::Event::WindowEvent { event, .. } => match event {
-                    glium::glutin::WindowEvent::Closed => closed = true,
+                winit::Event::WindowEvent { event, .. } => match event {
+                    winit::WindowEvent::Closed => closed = true,
                     _ => ()
                 },
                 _ => (),

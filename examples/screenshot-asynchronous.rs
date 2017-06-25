@@ -5,7 +5,8 @@ extern crate image;
 use std::path::Path;
 use std::thread;
 
-use glium::{glutin, Surface};
+use glium::Surface;
+use glium::glutin::{self, winit};
 use glium::index::PrimitiveType;
 
 
@@ -127,12 +128,13 @@ mod screenshot {
 
 fn main() {
     // building the display, ie. the main object
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new()
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new()
         .with_title("Press S to take screenshot")
         .build(&events_loop)
         .unwrap();
-    let display = glium::build(window).unwrap();
+    let context = glutin::ContextBuilder::new().build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -242,6 +244,33 @@ fn main() {
     let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
 
     loop {
+        let mut closed = false;
+        let mut take_screenshot = false;
+
+        // React to events
+        events_loop.poll_events(|event| {
+            use glium::glutin::winit::{Event, WindowEvent, ElementState, VirtualKeyCode};
+
+            match event {
+                Event::WindowEvent { event, .. } => match event {
+                    WindowEvent::Closed => closed = true,
+                    WindowEvent::KeyboardInput { input, .. } => {
+                        if let ElementState::Pressed = input.state {
+                            if let Some(VirtualKeyCode::S) = input.virtual_keycode {
+                                take_screenshot = true;
+                            }
+                        }
+                    },
+                    _ => (),
+                },
+                _ => (),
+            }
+        });
+
+        if closed {
+            return;
+        }
+
         // Tell Screenshot Taker to count next frame
         screenshot_taker.next_frame();
 
@@ -254,32 +283,11 @@ fn main() {
                   &uniforms,
                   &Default::default())
             .unwrap();
+        target.finish().unwrap();
 
-        let mut closed = false;
-
-        // React to events
-        events_loop.poll_events(|event| {
-            use glium::glutin::{Event, WindowEvent, ElementState, VirtualKeyCode};
-
-            match event {
-                Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::Closed => closed = true,
-                    WindowEvent::KeyboardInput { input, .. } => {
-                        if let ElementState::Pressed = input.state {
-                            if let Some(VirtualKeyCode::S) = input.virtual_keycode {
-                                // Take screenshot and queue it's delivery
-                                screenshot_taker.take_screenshot(&display);
-                            }
-                        }
-                    },
-                    _ => (),
-                },
-                _ => (),
-            }
-        });
-
-        if closed {
-            return;
+        if take_screenshot {
+            // Take screenshot and queue it's delivery
+            screenshot_taker.take_screenshot(&display);
         }
 
         // Pick up screenshots that are ready this frame
@@ -311,7 +319,5 @@ fn main() {
                 image.save(&mut output, image::ImageFormat::PNG).unwrap();
             });
         }
-
-        target.finish().unwrap();
     }
 }

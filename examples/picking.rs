@@ -2,7 +2,7 @@
 extern crate glium;
 
 use glium::Surface;
-use glium::glutin;
+use glium::glutin::{self, winit};
 
 mod support;
 
@@ -16,9 +16,10 @@ implement_vertex!(PerInstance, id, w_position, color);
 
 fn main() {
     // building the display, ie. the main object
-    let events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new().with_depth_buffer(24).build(&events_loop).unwrap();
-    let display = glium::build(window).unwrap();
+    let mut events_loop = winit::EventsLoop::new();
+    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let context = glutin::ContextBuilder::new().with_depth_buffer(24).build(&window).unwrap();
+    let display = glium::Display::new(window, context).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
@@ -231,9 +232,9 @@ fn main() {
         // polling and handling the events received by the window
         events_loop.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
-                    glutin::WindowEvent::MouseMoved { position: (x,y), .. } => cursor_position = Some((x as i32, y as i32)),
+                winit::Event::WindowEvent { event, .. } => match event {
+                    winit::WindowEvent::Closed => action = support::Action::Stop,
+                    winit::WindowEvent::MouseMoved { position: (x,y), .. } => cursor_position = Some((x as i32, y as i32)),
                     ev => camera.process_input(&ev),
                 },
                 _ => (),

@@ -4,11 +4,8 @@ extern crate rand;
 use glium::glutin;
 
 fn main() {
-    use glium::DisplayBuild;
-
-    let display = glutin::HeadlessRendererBuilder::new(1024, 1024)
-        .build_glium()
-        .unwrap();
+    let context = glutin::HeadlessRendererBuilder::new(1024, 1024).build().unwrap();
+    let display = glium::HeadlessRenderer::new(context).unwrap();
 
     let program = glium::program::ComputeShader::from_source(&display, r#"\
 
