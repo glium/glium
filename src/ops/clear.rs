@@ -4,8 +4,6 @@ use context::Context;
 use ContextExt;
 use Rect;
 
-use Surface;
-
 use QueryExt;
 use draw_parameters::TimeElapsedQuery;
 

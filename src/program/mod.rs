@@ -1,3 +1,5 @@
+//! Items related to creating an OpenGL program.
+
 use std::fmt;
 use std::error::Error;
 use std::sync::Mutex;

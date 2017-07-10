@@ -1,7 +1,6 @@
 //! Contains everything related to the default framebuffer.
 
 use std::rc::Rc;
-use TextureExt;
 
 use backend::Facade;
 use context::Context;

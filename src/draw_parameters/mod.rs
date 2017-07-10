@@ -68,7 +68,6 @@ use version::Version;
 use version::Api;
 
 use index::PrimitiveType;
-use index::IndexType;
 
 use QueryExt;
 use CapabilitiesSource;

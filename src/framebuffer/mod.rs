@@ -70,7 +70,6 @@ use std::rc::Rc;
 use smallvec::SmallVec;
 
 use texture::TextureAnyImage;
-use TextureExt;
 
 use backend::Facade;
 use context::Context;

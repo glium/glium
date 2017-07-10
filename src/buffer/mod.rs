@@ -278,6 +278,7 @@ impl Default for BufferMode {
 
 /// Type of a buffer.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[allow(missing_docs)]
 pub enum BufferType {
     ArrayBuffer,
     PixelPackBuffer,

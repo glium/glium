@@ -24,11 +24,8 @@ use uniforms::SamplerBehavior;
 
 use context::CommandContext;
 use buffer::Inserter;
-use ContextExt;
 
 use utils::bitsfield::Bitsfield;
-
-use vertex::MultiVerticesSource;
 
 use program;
 use context;
