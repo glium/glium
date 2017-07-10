@@ -4,18 +4,17 @@ extern crate image;
 
 use std::io::Cursor;
 
-use glium::glutin::{self, winit};
-use glium::Surface;
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
-    let context = glutin::ContextBuilder::new().with_vsync().build(&window).unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new().with_vsync(true);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -159,8 +158,8 @@ fn main() {
         let mut action = support::Action::Continue;
         events_loop.poll_events(|event| {
             match event {
-                winit::Event::WindowEvent { event, .. } => match event {
-                    winit::WindowEvent::Closed => action = support::Action::Stop,
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
                     _ => ()
                 },
                 _ => (),

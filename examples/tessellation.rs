@@ -1,18 +1,17 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
-use glium::glutin::{self, winit};
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
-    let context = glutin::ContextBuilder::new().build(&window).unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -152,15 +151,15 @@ fn main() {
         // polling and handling the events received by the window
         events_loop.poll_events(|event| {
             match event {
-                winit::Event::WindowEvent { event, .. } => match event {
-                    winit::WindowEvent::Closed => action = support::Action::Stop,
-                    winit::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                        winit::ElementState::Pressed => match input.virtual_keycode {
-                            Some(winit::VirtualKeyCode::Up) => {
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::KeyboardInput { input, .. } => match input.state {
+                        glutin::ElementState::Pressed => match input.virtual_keycode {
+                            Some(glutin::VirtualKeyCode::Up) => {
                                 tess_level += 1;
                                 println!("New tessellation level: {}", tess_level);
                             },
-                            Some(winit::VirtualKeyCode::Down) => {
+                            Some(glutin::VirtualKeyCode::Down) => {
                                 if tess_level >= 2 {
                                     tess_level -= 1;
                                     println!("New tessellation level: {}", tess_level);

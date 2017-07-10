@@ -173,6 +173,7 @@ mod gl {
 /// your program.
 #[cfg(feature = "glutin")]
 pub use backend::glutin::Display;
+#[cfg(feature = "glutin")]
 pub use backend::glutin::headless::Headless as HeadlessRenderer;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.
@@ -1244,46 +1245,20 @@ impl Drop for Frame {
     }
 }
 
-/// Error that can happen while creating a glium display.
+/// Returned during Context creation if the OpenGL implementation is too old.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum GliumCreationError<T> {
-    /// An error has happened while creating the backend.
-    BackendCreationError(T),
+pub struct IncompatibleOpenGl(pub String);
 
-    /// The OpenGL implementation is too old.
-    IncompatibleOpenGl(String),
-}
-
-impl<T: Error> fmt::Display for GliumCreationError<T> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+impl fmt::Display for IncompatibleOpenGl {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.description())
     }
 }
 
-impl<T: Error> Error for GliumCreationError<T> {
+impl Error for IncompatibleOpenGl {
     #[inline]
     fn description(&self) -> &str {
-        match *self {
-            GliumCreationError::BackendCreationError(..) =>
-                "Error while creating the backend",
-            GliumCreationError::IncompatibleOpenGl(..) =>
-                "The OpenGL implementation is too old to work with glium",
-        }
-    }
-
-    #[inline]
-    fn cause(&self) -> Option<&Error> {
-        match *self {
-            GliumCreationError::BackendCreationError(ref err) => Some(err),
-            GliumCreationError::IncompatibleOpenGl(..) => None,
-        }
-    }
-}
-
-impl<T: Error> std::convert::From<T> for GliumCreationError<T> {
-    #[inline]
-    fn from(err: T) -> GliumCreationError<T> {
-        GliumCreationError::BackendCreationError(err)
+        "The OpenGL implementation is too old to work with glium"
     }
 }
 

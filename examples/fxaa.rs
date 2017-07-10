@@ -1,8 +1,7 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
-use glium::glutin::{self, winit};
+use glium::{glutin, Surface};
 
 mod support;
 
@@ -221,14 +220,12 @@ fn main() {
               You can use the space bar to switch fxaa on and off.");
 
     // building the display, ie. the main object
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
     let context = glutin::ContextBuilder::new()
         .with_depth_buffer(24)
-        .with_vsync()
-        .build(&window)
-        .unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+        .with_vsync(true);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
@@ -378,14 +375,14 @@ fn main() {
 
         // polling and handling the events received by the window
         events_loop.poll_events(|event| match event {
-            winit::Event::WindowEvent { event, .. } => {
+            glutin::Event::WindowEvent { event, .. } => {
                 camera.process_input(&event);
                 match event {
-                    winit::WindowEvent::Closed => action = support::Action::Stop,
-                    winit::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                        winit::ElementState::Pressed => match input.virtual_keycode {
-                            Some(winit::VirtualKeyCode::Escape) => action = support::Action::Stop,
-                            Some(winit::VirtualKeyCode::Space) => {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::KeyboardInput { input, .. } => match input.state {
+                        glutin::ElementState::Pressed => match input.virtual_keycode {
+                            Some(glutin::VirtualKeyCode::Escape) => action = support::Action::Stop,
+                            Some(glutin::VirtualKeyCode::Space) => {
                                 fxaa_enabled = !fxaa_enabled;
                                 println!("FXAA is now {}", if fxaa_enabled { "enabled" } else { "disabled" });
                             },

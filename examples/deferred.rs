@@ -3,9 +3,8 @@ extern crate glium;
 extern crate cgmath;
 extern crate image;
 
-use glium::glutin::{self, winit};
 use glium::index::PrimitiveType;
-use glium::Surface;
+use glium::{glutin, Surface};
 use std::io::Cursor;
 
 mod support;
@@ -13,16 +12,12 @@ mod support;
 fn main() {
     use cgmath::SquareMatrix;
 
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new()
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new()
         .with_dimensions(800, 500)
-        .with_title("Glium Deferred Example")
-        .build(&events_loop)
-        .unwrap();
-    let context = glutin::ContextBuilder::new()
-        .build(&window)
-        .unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+        .with_title("Glium Deferred Example");
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
@@ -368,8 +363,8 @@ fn main() {
         // polling and handling the events received by the window
         events_loop.poll_events(|event| {
             match event {
-                winit::Event::WindowEvent { event, .. } => match event {
-                    winit::WindowEvent::Closed => action = support::Action::Stop,
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
                     _ => (),
                 },
                 _ => (),

@@ -5,8 +5,7 @@ extern crate image;
 use std::path::Path;
 use std::thread;
 
-use glium::Surface;
-use glium::glutin::{self, winit};
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 
@@ -128,13 +127,10 @@ mod screenshot {
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new()
-        .with_title("Press S to take screenshot")
-        .build(&events_loop)
-        .unwrap();
-    let context = glutin::ContextBuilder::new().build(&window).unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().with_title("Press S to take screenshot");
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -249,7 +245,7 @@ fn main() {
 
         // React to events
         events_loop.poll_events(|event| {
-            use glium::glutin::winit::{Event, WindowEvent, ElementState, VirtualKeyCode};
+            use glium::glutin::{Event, WindowEvent, ElementState, VirtualKeyCode};
 
             match event {
                 Event::WindowEvent { event, .. } => match event {

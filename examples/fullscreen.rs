@@ -6,18 +6,17 @@ extern crate image;
 use std::io::Cursor;
 
 use glium::Surface;
-use glium::glutin::{self, winit};
 use glium::index::PrimitiveType;
-use glium::glutin::winit::{ElementState, VirtualKeyCode, Event, WindowEvent};
+use glium::glutin::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
-    let context = glutin::ContextBuilder::new().build(&window).unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -118,19 +117,15 @@ fn main() {
         // If enter was pressed toggle fullscreen.
         if enter_pressed {
             if fullscreen {
-                let window = winit::WindowBuilder::new()
-                    .build(&events_loop)
-                    .unwrap();
-                let context_builder = glutin::ContextBuilder::new();
-                display.rebuild_window(window, context_builder).unwrap();
+                let window = glutin::WindowBuilder::new();
+                let context = glutin::ContextBuilder::new();
+                display.rebuild(window, context, &events_loop).unwrap();
                 fullscreen = false;
             } else {
-                let window = winit::WindowBuilder::new()
-                    .with_fullscreen(winit::get_primary_monitor())
-                    .build(&events_loop)
-                    .unwrap();
-                let context_builder = glutin::ContextBuilder::new();
-                display.rebuild_window(window, context_builder).unwrap();
+                let window = glutin::WindowBuilder::new()
+                    .with_fullscreen(glutin::get_primary_monitor());
+                let context = glutin::ContextBuilder::new();
+                display.rebuild(window, context, &events_loop).unwrap();
                 fullscreen = true;
             }
         }

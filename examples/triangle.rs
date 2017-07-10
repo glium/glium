@@ -3,15 +3,14 @@ extern crate glium;
 
 mod support;
 
-use glium::Surface;
-use glium::glutin::{self, winit};
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 fn main() {
-    let mut events_loop = winit::EventsLoop::new();
-    let window = winit::WindowBuilder::new().build(&events_loop).unwrap();
-    let context = glutin::ContextBuilder::new().build(&window).unwrap();
-    let display = glium::Display::new(window, context).unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -150,15 +149,15 @@ fn main() {
     // the main loop
     events_loop.run_forever(|event| {
         match event {
-            winit::Event::WindowEvent { event, .. } => match event {
+            glutin::Event::WindowEvent { event, .. } => match event {
                 // Break from the main loop when the window is closed.
-                winit::WindowEvent::Closed => return winit::ControlFlow::Break,
+                glutin::WindowEvent::Closed => return glutin::ControlFlow::Break,
                 // Redraw the triangle when the window is resized.
-                winit::WindowEvent::Resized(..) => draw(),
+                glutin::WindowEvent::Resized(..) => draw(),
                 _ => (),
             },
             _ => (),
         }
-        winit::ControlFlow::Continue
+        glutin::ControlFlow::Continue
     });
 }

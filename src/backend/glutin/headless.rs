@@ -1,4 +1,6 @@
-use {Frame, GliumCreationError, SwapBuffersError};
+//! Backend implementation for a glutin headless renderer.
+
+use {Frame, IncompatibleOpenGl, SwapBuffersError};
 use debug;
 use context;
 use backend::{self, Backend};
@@ -6,6 +8,7 @@ use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
 use super::glutin;
+use super::glutin::GlContext;
 
 
 /// A headless glutin context.
@@ -66,14 +69,11 @@ impl backend::Facade for Headless {
 }
 
 impl Headless {
-
     /// Create a new glium `Headless` context.
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new(context: glutin::HeadlessContext)
-        -> Result<Self, GliumCreationError<glutin::CreationError>>
-    {
+    pub fn new(context: glutin::HeadlessContext) -> Result<Self, IncompatibleOpenGl> {
         Self::with_debug(context, Default::default())
     }
 
@@ -81,17 +81,13 @@ impl Headless {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked(context: glutin::HeadlessContext)
-        -> Result<Self, GliumCreationError<glutin::CreationError>>
-    {
+    pub unsafe fn unchecked(context: glutin::HeadlessContext) -> Result<Self, IncompatibleOpenGl> {
         Self::unchecked_with_debug(context, Default::default())
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug(
-        context: glutin::HeadlessContext,
-        debug: debug::DebugCallbackBehavior,
-    ) -> Result<Self, GliumCreationError<glutin::CreationError>>
+    pub fn with_debug(context: glutin::HeadlessContext, debug: debug::DebugCallbackBehavior)
+        -> Result<Self, IncompatibleOpenGl>
     {
         Self::new_inner(context, debug, true)
     }
@@ -100,7 +96,7 @@ impl Headless {
     pub unsafe fn unchecked_with_debug(
         context: glutin::HeadlessContext,
         debug: debug::DebugCallbackBehavior,
-    ) -> Result<Self, GliumCreationError<glutin::CreationError>>
+    ) -> Result<Self, IncompatibleOpenGl>
     {
         Self::new_inner(context, debug, false)
     }
@@ -109,7 +105,7 @@ impl Headless {
         context: glutin::HeadlessContext,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
-    ) -> Result<Self, GliumCreationError<glutin::CreationError>>
+    ) -> Result<Self, IncompatibleOpenGl>
     {
         let glutin_context = Rc::new(context);
         let glutin_backend = GlutinBackend(glutin_context.clone());

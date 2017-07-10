@@ -17,7 +17,7 @@ use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use GliumCreationError;
+use IncompatibleOpenGl;
 use SwapBuffersError;
 use CapabilitiesSource;
 use ContextExt;
@@ -154,10 +154,12 @@ impl Context {
     /// The OpenGL context must be newly-created. If you make modifications to the context before
     /// passing it to this function, glium's state cache may mismatch the actual one.
     ///
-    pub unsafe fn new<B, E>(backend: B, check_current_context: bool,
-                            callback_behavior: DebugCallbackBehavior)
-                            -> Result<Rc<Context>, GliumCreationError<E>>
-                            where B: Backend + 'static
+    pub unsafe fn new<B>(
+        backend: B,
+        check_current_context: bool,
+        callback_behavior: DebugCallbackBehavior,
+    ) -> Result<Rc<Context>, IncompatibleOpenGl>
+        where B: Backend + 'static
     {
         backend.make_current();
 
@@ -239,9 +241,8 @@ impl Context {
     /// Changes the OpenGL context associated with this context.
     ///
     /// The new context **must** have lists shared with the old one.
-    pub unsafe fn rebuild<B, E>(&self, new_backend: B)
-                                -> Result<(), GliumCreationError<E>>
-                                where B: Backend + 'static
+    pub unsafe fn rebuild<B>(&self, new_backend: B) -> Result<(), IncompatibleOpenGl>
+        where B: Backend + 'static
     {
         // framebuffer objects and vertex array objects aren't shared,
         // so we have to destroy them
@@ -752,8 +753,8 @@ impl<'a> CapabilitiesSource for CommandContext<'a> {
 }
 
 /// Checks whether the backend supports glium. Returns an `Err` if it doesn't.
-fn check_gl_compatibility<T>(version: &Version, extensions: &ExtensionsList)
-                             -> Result<(), GliumCreationError<T>>
+fn check_gl_compatibility(version: &Version, extensions: &ExtensionsList)
+    -> Result<(), IncompatibleOpenGl>
 {
     let mut result = Vec::with_capacity(0);
 
@@ -787,7 +788,7 @@ fn check_gl_compatibility<T>(version: &Version, extensions: &ExtensionsList)
     if result.len() == 0 {
         Ok(())
     } else {
-        Err(GliumCreationError::IncompatibleOpenGl(result.join("\n")))
+        Err(IncompatibleOpenGl(result.join("\n")))
     }
 }
 
