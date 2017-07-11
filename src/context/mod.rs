@@ -525,7 +525,7 @@ impl Context {
         let rect = ::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
 
         let mut data = Vec::with_capacity(0);
-        let _ = ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect,
+        ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect,
                           &mut data, false);
         T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
     }
