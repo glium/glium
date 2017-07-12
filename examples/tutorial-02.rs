@@ -46,14 +46,14 @@ fn main() {
 
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
-    loop {
+    let mut closed = false;
+    while !closed {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                     &Default::default()).unwrap();
         target.finish().unwrap();
 
-        let mut closed = false;
         events_loop.poll_events(|event| {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
@@ -63,7 +63,5 @@ fn main() {
                 _ => (),
             }
         });
-
-        if closed { break; }
     }
 }

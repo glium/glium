@@ -50,8 +50,8 @@ fn main() {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
     let mut t: f32 = -0.5;
-
-    loop {
+    let mut closed = false;
+    while !closed {
         // we update `t`
         t += 0.0002;
         if t > 0.5 {
@@ -65,7 +65,6 @@ fn main() {
                     &Default::default()).unwrap();
         target.finish().unwrap();
 
-        let mut closed = false;
         events_loop.poll_events(|event| {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
@@ -75,7 +74,5 @@ fn main() {
                 _ => (),
             }
         });
-
-        if closed { break; }
     }
 }

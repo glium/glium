@@ -44,12 +44,10 @@ We need to change three things:
    the maximal value). This is similar to when we reset the color to blue.
  - We have to pass additional parameters when drawing to ask the GPU to do this depth test.
 
-The first step consists in changing the window building code:
+The first step consists in changing the context building code:
 
 ```rust
-let display = glium::glutin::WindowBuilder::new()
-                    .with_depth_buffer(24)
-                    .build_glium().unwrap();
+let context = glutin::ContextBuilder::new().with_depth_buffer(24);
 ```
 
 We ask for the system to allocate a 24 bits depth buffer. 24 bits is a very common value that

@@ -32,26 +32,44 @@ It is now time to start filling the `main` function!
 
 The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the **glutin** library shines.
 
-Initializing a window with glutin can be done by calling `glium::glutin::WindowBuilder()::new().build().unwrap()`. However we don't just want to create a *glutin* window, but a window with an OpenGL context handled by glium. Instead of calling `build()` we are going to call `build_glium()`, which is defined in the `glium::DisplayBuild` trait.
+Initializing an OpenGL window with glutin can be done using the following steps:
+
+1. Creating an `EventsLoop` for handling window and device events.
+2. Specify Window parameters using `glium::glutin::WindowBuilder::new()`. These
+   are window-specific attributes that have nothing to do with OpenGL.
+3. Specify Context parameters using `glium::glutin::ContextBuilder::new()`.
+   Here we specify OpenGL-specific attributes like multisampling or vsync.
+4. Create the OpenGL window (in glium, this is the `Display`):
+   `glium::Display::new(window, context, &events_loop).unwrap()`.
+   This builds a Display using the given window and context attributes, and
+   registers the window with the given events_loop.
 
 ```rust
 fn main() {
-    use glium::DisplayBuild;
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    use glium::glutin;
+
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 }
 ```
 
 But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `Closed` event has been received:
 
 ```rust
-loop {
-    // listing the events produced by the window and waiting to be received
-    for ev in display.poll_events() {
+let mut closed = false;
+while !closed {
+    // listing the events produced by application and waiting to be received
+    events_loop.poll_events(|ev| {
         match ev {
-            glium::glutin::Event::Closed => return,   // the window has been closed by the user
-            _ => ()
+            glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::WindowEvent::Closed => closed = true,
+                _ => (),
+            },
+            _ => (),
         }
-    }
+    });
 }
 ```
 
@@ -98,20 +116,28 @@ Here is our full `main` function after this step:
 
 ```rust
 fn main() {
-    use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    use glium::{glutin, Surface};
 
-    loop {
+    let mut events_loop = glium::glutin::EventsLoop::new();
+    let window = glium::glutin::WindowBuilder::new();
+    let context = glium::glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
+
+    let mut closed = false;
+    while !closed {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.finish().unwrap();
 
-        for ev in display.poll_events() {
+        events_loop.poll_events(|ev| {
             match ev {
-                glium::glutin::Event::Closed => return,
-                _ => ()
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => closed = true,
+                    _ => (),
+                },
+                _ => (),
             }
-        }
+        });
     }
 }
 ```
