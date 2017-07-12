@@ -1,13 +1,10 @@
 /*!
 Easy-to-use, high-level, OpenGL3+ wrapper.
 
-Glium is based on two core cross-platform crates:
+Glium is based on glutin - a cross-platform crate for building an OpenGL window and handling
+application events.
 
-- The **winit** crate for cross-platform events and windowing.
-- The **glutin** crate for cross-platform GL context.
-
-Glium provides a **Display**, offering an API around a combined **winit::Window** and
- **glutin::Context**.
+Glium provides a **Display** which extends the **glutin::GlWindow** with a high-level, safe API.
 
 # Initialization
 
@@ -18,20 +15,16 @@ extern crate glium;
 
 fn main() {
     // 1. The **winit::EventsLoop** for handling events.
-    let mut events_loop = glium::glutin::winit::EventsLoop::new();
-
-    // 2. A **winit::Window** registered with the event loop.
-    let window = glium::glutin::winit::WindowBuilder::new()
+    let mut events_loop = glium::glutin::EventsLoop::new();
+    // 2. Parameters for building the Window.
+    let window = glium::glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
-        .with_title("Hello world")
-        .build(&events_loop)
-        .unwrap();
-
-    // 3. A **glutin::Context** associated with the window.
-    let context = glium::glutin::ContextBuilder::new().build(&window).unwrap();
-
-    // 4. Construct a display from the window and the associated context.
-    let display = glium::Display::new(window, context).unwrap();
+        .with_title("Hello world");
+    // 3. Parameters for building the OpenGL context.
+    let context = glium::glutin::ContextBuilder::new();
+    // 4. Build the Display with the given window and OpenGL context parameters and register the
+    //    window with the events_loop.
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 }
 ```
 
