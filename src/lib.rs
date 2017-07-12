@@ -766,7 +766,6 @@ pub trait Surface {
     /// documentation for example how to use it.
     ///
     /// See above for what happens exactly on the GPU when you draw.
-    ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
         V: vertex::MultiVerticesSource<'b>, I: Into<index::IndicesSource<'a>>,
