@@ -9,7 +9,6 @@ use vertex::format::VertexFormat;
 
 use gl;
 use GlObject;
-use index::Index;
 
 use backend::Facade;
 use version::{Api, Version};

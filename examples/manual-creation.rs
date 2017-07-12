@@ -19,7 +19,7 @@ There are three concepts in play:
 extern crate glium;
 
 use glium::Surface;
-use glium::glutin;
+use glium::glutin::{self, GlContext};
 
 use std::rc::Rc;
 use std::os::raw::c_void;
@@ -27,18 +27,20 @@ use std::os::raw::c_void;
 fn main() {
     // building the glutin window
     // note that it's just `build` and not `build_glium`
-    let window = glutin::WindowBuilder::new().build().unwrap();
-    let window = Rc::new(window);
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let gl_window = Rc::new(glutin::GlWindow::new(window, context, &events_loop).unwrap());
 
     // in order to create our context, we will need to provide an object which implements
     // the `Backend` trait
     struct Backend {
-        window: Rc<glutin::Window>,
+        gl_window: Rc<glutin::GlWindow>,
     }
 
     unsafe impl glium::backend::Backend for Backend {
         fn swap_buffers(&self) -> Result<(), glium::SwapBuffersError> {
-            match self.window.swap_buffers() {
+            match self.gl_window.swap_buffers() {
                 Ok(()) => Ok(()),
                 Err(glutin::ContextError::IoError(_)) => panic!(),
                 Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
@@ -47,25 +49,25 @@ fn main() {
 
         // this function is called only after the OpenGL context has been made current
         unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
-            self.window.get_proc_address(symbol) as *const _
+            self.gl_window.get_proc_address(symbol) as *const _
         }
 
         // this function is used to adjust the viewport when the user wants to draw or blit on
         // the whole window
         fn get_framebuffer_dimensions(&self) -> (u32, u32) {
             // we default to a dummy value is the window no longer exists
-            self.window.get_inner_size().unwrap_or((128, 128))
+            self.gl_window.get_inner_size().unwrap_or((128, 128))
         }
 
         fn is_current(&self) -> bool {
             // if you are using a library that doesn't provide an equivalent to `is_current`, you
             // can just put `unimplemented!` and pass `false` when you create
             // the `Context` (see below)
-            self.window.is_current()
+            self.gl_window.is_current()
         }
 
         unsafe fn make_current(&self) {
-            self.window.make_current().unwrap();
+            self.gl_window.make_current().unwrap();
         }
     }
 
@@ -78,8 +80,8 @@ fn main() {
         //
         // It is recommended to pass `true`, but you can pass `false` if you are sure that no
         // other OpenGL context will be made current in this thread.
-        glium::backend::Context::new::<_, ()>(Backend { window: window.clone() },
-                                              true, Default::default())
+        let backend = Backend { gl_window: gl_window.clone() };
+        glium::backend::Context::new(backend, true, Default::default())
     }.unwrap();
 
     // drawing a frame to prove that it works
@@ -90,10 +92,15 @@ fn main() {
     target.finish().unwrap();
 
     // the window is still available
-    for event in window.wait_events() {
+    events_loop.run_forever(|event| {
         match event {
-            glutin::Event::Closed => return,
-            _ => ()
+            glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::WindowEvent::Closed => return glutin::ControlFlow::Break,
+                _ => (),
+            },
+            _ => (),
         }
-    }
+
+        glutin::ControlFlow::Continue
+    });
 }

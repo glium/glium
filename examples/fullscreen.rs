@@ -5,21 +5,24 @@ extern crate image;
 
 use std::io::Cursor;
 
-use glium::{DisplayBuild, Surface};
-use glium::glutin;
+use glium::Surface;
 use glium::index::PrimitiveType;
+use glium::glutin::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new().build_glium().unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -92,27 +95,41 @@ fn main() {
             }, &Default::default()).unwrap();
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                glutin::Event::KeyboardInput(glutin::ElementState::Pressed, _,
-                                             Some(glutin::VirtualKeyCode::Return)) =>
-                {
-                    if fullscreen {
-                        glutin::WindowBuilder::new().rebuild_glium(&display).unwrap();
-                        fullscreen = false;
+        let mut action = support::Action::Continue;
 
-                    } else {
-                        glutin::WindowBuilder::new().with_fullscreen(glutin::get_primary_monitor())
-                                                    .rebuild_glium(&display).unwrap();
-                        fullscreen = true;
+        // polling and handling the events received by the window
+        let mut enter_pressed = false;
+        events_loop.poll_events(|event| match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::Closed => action = support::Action::Stop,
+                WindowEvent::KeyboardInput { input, .. } => {
+                    if let ElementState::Pressed = input.state {
+                        if let Some(VirtualKeyCode::Return) = input.virtual_keycode {
+                            enter_pressed = true;
+                        }
                     }
                 },
                 _ => ()
+            },
+            _ => (),
+        });
+
+        // If enter was pressed toggle fullscreen.
+        if enter_pressed {
+            if fullscreen {
+                let window = glutin::WindowBuilder::new();
+                let context = glutin::ContextBuilder::new();
+                display.rebuild(window, context, &events_loop).unwrap();
+                fullscreen = false;
+            } else {
+                let window = glutin::WindowBuilder::new()
+                    .with_fullscreen(glutin::get_primary_monitor());
+                let context = glutin::ContextBuilder::new();
+                display.rebuild(window, context, &events_loop).unwrap();
+                fullscreen = true;
             }
         }
 
-        support::Action::Continue
+        action
     });
 }

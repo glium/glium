@@ -60,7 +60,6 @@ use fnv::FnvHasher;
 use smallvec::SmallVec;
 
 use CapabilitiesSource;
-use ContextExt;
 use GlObject;
 use TextureExt;
 

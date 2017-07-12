@@ -2,19 +2,16 @@
 extern crate glium;
 extern crate image;
 
-use glium::Surface;
-use glium::glutin;
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 use std::path::Path;
 
 fn main() {
-    use glium::DisplayBuild;
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .with_visibility(false)
-        .build_glium()
-        .unwrap();
+    let events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().with_visibility(false);
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {

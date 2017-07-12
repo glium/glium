@@ -27,7 +27,7 @@ pub use context::Context;
 pub use context::ReleaseBehavior;
 
 #[cfg(feature = "glutin")]
-pub mod glutin_backend;
+pub mod glutin;
 
 /// Trait for types that can be used as a backend for a glium context.
 ///

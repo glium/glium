@@ -2,8 +2,12 @@
 extern crate glium;
 
 fn main() {
-    use glium::{DisplayBuild, Surface};
-    let display =glium:: glutin::WindowBuilder::new().build_glium().unwrap();
+    use glium::{glutin, Surface};
+
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -45,8 +49,8 @@ fn main() {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
     let mut t: f32 = -0.5;
-
-    loop {
+    let mut closed = false;
+    while !closed {
         // we update `t`
         t += 0.0002;
         if t > 0.5 {
@@ -69,11 +73,14 @@ fn main() {
                     &Default::default()).unwrap();
         target.finish().unwrap();
 
-        for ev in display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return,
-                _ => ()
+        events_loop.poll_events(|event| {
+            match event {
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => closed = true,
+                    _ => ()
+                },
+                _ => (),
             }
-        }
+        });
     }
 }

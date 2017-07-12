@@ -8,8 +8,8 @@ Our first approach will be to create a variable named `t` which represents the s
 
 ```rust
 let mut t: f32 = -0.5;
-
-loop {
+let mut closed = false;
+while !closed {
     // we update `t`
     t += 0.0002;
     if t > 0.5 {
@@ -30,12 +30,15 @@ loop {
                 &Default::default()).unwrap();
     target.finish().unwrap();
 
-    for ev in display.poll_events() {
-        match ev {
-            glium::glutin::Event::Closed => return,
-            _ => ()
+    events_loop.poll_events(|event| {
+        match event {
+            glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::WindowEvent::Closed => closed = true,
+                _ => ()
+            },
+            _ => (),
         }
-    }
+    });
 }
 ```
 
@@ -62,26 +65,30 @@ let shape = vec![vertex1, vertex2, vertex3];
 let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
 let mut t: f32 = -0.5;
-
-loop {
+let mut closed = false;
+while !closed {
     // we update `t`
     t += 0.0002;
     if t > 0.5 {
         t = -0.5;
     }
 
+    // drawing
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 1.0, 1.0);
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
                 &Default::default()).unwrap();
     target.finish().unwrap();
 
-    for ev in display.poll_events() {
-        match ev {
-            glium::glutin::Event::Closed => return,
-            _ => ()
+    events_loop.poll_events(|event| {
+        match event {
+            glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::WindowEvent::Closed => closed = true,
+                _ => ()
+            },
+            _ => (),
         }
-    }
+    });
 }
 ```
 

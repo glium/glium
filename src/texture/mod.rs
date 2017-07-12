@@ -395,6 +395,7 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
     pub format: ClientFormat,
 }
 
+#[allow(missing_docs)]
 pub trait ToClientFormat {
   fn rgb_format() -> ClientFormat;
   fn rgba_format() -> ClientFormat;

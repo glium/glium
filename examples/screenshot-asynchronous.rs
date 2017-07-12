@@ -5,17 +5,17 @@ extern crate image;
 use std::path::Path;
 use std::thread;
 
-use glium::glutin;
+use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 
 mod screenshot {
+    use glium::Surface;
     use std::collections::VecDeque;
     use std::vec::Vec;
     use std::borrow::Cow;
 
     use glium;
-    use glium::Surface;
 
     // Container that holds image data as vector of (u8, u8, u8, u8).
     // This is used to take data from PixelBuffer and move it to another thread
@@ -126,13 +126,11 @@ mod screenshot {
 }
 
 fn main() {
-    use glium::{DisplayBuild, Surface};
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .with_title("Press S to take screenshot")
-        .build_glium()
-        .unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new().with_title("Press S to take screenshot");
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -242,6 +240,33 @@ fn main() {
     let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
 
     loop {
+        let mut closed = false;
+        let mut take_screenshot = false;
+
+        // React to events
+        events_loop.poll_events(|event| {
+            use glium::glutin::{Event, WindowEvent, ElementState, VirtualKeyCode};
+
+            match event {
+                Event::WindowEvent { event, .. } => match event {
+                    WindowEvent::Closed => closed = true,
+                    WindowEvent::KeyboardInput { input, .. } => {
+                        if let ElementState::Pressed = input.state {
+                            if let Some(VirtualKeyCode::S) = input.virtual_keycode {
+                                take_screenshot = true;
+                            }
+                        }
+                    },
+                    _ => (),
+                },
+                _ => (),
+            }
+        });
+
+        if closed {
+            return;
+        }
+
         // Tell Screenshot Taker to count next frame
         screenshot_taker.next_frame();
 
@@ -254,21 +279,11 @@ fn main() {
                   &uniforms,
                   &Default::default())
             .unwrap();
+        target.finish().unwrap();
 
-        // React to events
-        for event in display.poll_events() {
-            use glium::glutin::Event::*;
-            use glium::glutin::ElementState::*;
-            use glium::glutin::VirtualKeyCode::*;
-
-            match event {
-                Closed => return,
-
-                // Take screenshot and queue it's delivery
-                KeyboardInput(Pressed, _, Some(S)) => screenshot_taker.take_screenshot(&display),
-
-                _ => {}
-            }
+        if take_screenshot {
+            // Take screenshot and queue it's delivery
+            screenshot_taker.take_screenshot(&display);
         }
 
         // Pick up screenshots that are ready this frame
@@ -300,7 +315,5 @@ fn main() {
                 image.save(&mut output, image::ImageFormat::PNG).unwrap();
             });
         }
-
-        target.finish().unwrap();
     }
 }

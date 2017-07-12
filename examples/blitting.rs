@@ -5,24 +5,22 @@ extern crate glium;
 extern crate image;
 
 use std::io::Cursor;
-use glium::{DisplayBuild, Surface};
-
-use glium::glutin;
+use glium::{glutin, Surface};
 
 mod support;
 
 fn main() {
-    // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .with_vsync()
-        .build_glium()
-        .unwrap();
+    // Building the display, ie. the main object
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new().with_vsync(true);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::Texture2d::new(&display, image).unwrap();
 
     // building a 1024x1024 empty texture
@@ -53,14 +51,19 @@ fn main() {
         dest_texture.as_surface().fill(&target, glium::uniforms::MagnifySamplerFilter::Linear);
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                _ => ()
-            }
-        }
+        let mut action = support::Action::Continue;
 
-        support::Action::Continue
+        // polling and handling the events received by the window
+        events_loop.poll_events(|event| {
+            match event {
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    _ => (),
+                },
+                _ => (),
+            }
+        });
+
+        action
     });
 }

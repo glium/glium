@@ -3,9 +3,8 @@ extern crate glium;
 extern crate cgmath;
 extern crate image;
 
-use glium::glutin;
 use glium::index::PrimitiveType;
-use glium::{DisplayBuild, Surface};
+use glium::{glutin, Surface};
 use std::io::Cursor;
 
 mod support;
@@ -13,16 +12,16 @@ mod support;
 fn main() {
     use cgmath::SquareMatrix;
 
-    // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new()
         .with_dimensions(800, 500)
-        .with_title(format!("Glium Deferred Example"))
-        .build_glium()
-        .unwrap();
+        .with_title("Glium Deferred Example");
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
     let floor_vertex_buffer = {
@@ -359,14 +358,19 @@ fn main() {
         target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &Default::default()).unwrap();
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                _ => ()
-            }
-        }
+        let mut action = support::Action::Continue;
 
-        support::Action::Continue
+        // polling and handling the events received by the window
+        events_loop.poll_events(|event| {
+            match event {
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    _ => (),
+                },
+                _ => (),
+            }
+        });
+
+        action
     });
 }

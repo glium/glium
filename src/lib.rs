@@ -1,34 +1,41 @@
 /*!
 Easy-to-use, high-level, OpenGL3+ wrapper.
 
+Glium is based on glutin - a cross-platform crate for building an OpenGL window and handling
+application events.
+
+Glium provides a **Display** which extends the **glutin::GlWindow** with a high-level, safe API.
+
 # Initialization
 
-This library defines the `DisplayBuild` trait which is implemented on
-`glium::glutin::WindowBuilder`.
-
-Initialization is done by creating a `WindowBuilder` and calling `build_glium`.
+The initialisation of a glium display occurs in several steps.
 
 ```no_run
 extern crate glium;
 
 fn main() {
-    use glium::DisplayBuild;
-
-    let display = glium::glutin::WindowBuilder::new()
+    // 1. The **winit::EventsLoop** for handling events.
+    let mut events_loop = glium::glutin::EventsLoop::new();
+    // 2. Parameters for building the Window.
+    let window = glium::glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
-        .with_title(format!("Hello world"))
-        .build_glium()
-        .unwrap();
+        .with_title("Hello world");
+    // 3. Parameters for building the OpenGL context.
+    let context = glium::glutin::ContextBuilder::new();
+    // 4. Build the Display with the given window and OpenGL context parameters and register the
+    //    window with the events_loop.
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 }
 ```
 
 The `display` object is the most important object of this library and is used when you build
 buffers, textures, etc. and when you draw.
+
 You can clone it and pass it around. However it doesn't implement the `Send` and `Sync` traits,
 meaning that you can't pass it to another thread.
 
-The display has ownership of the window, and also provides some methods related to domains such
-as events handling.
+The display has ownership of both the window and context, and also provides some methods related to
+domains such as events handling.
 
 # Overview
 
@@ -98,7 +105,7 @@ extern crate smallvec;
 extern crate fnv;
 
 #[cfg(feature = "glutin")]
-pub use backend::glutin_backend::glutin;
+pub use backend::glutin::glutin;
 pub use context::Profile;
 pub use draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
@@ -158,7 +165,9 @@ mod gl {
 /// Cloning the display allows you to easily share the `Display` object throughout
 /// your program.
 #[cfg(feature = "glutin")]
-pub use backend::glutin_backend::GlutinFacade as Display;
+pub use backend::glutin::Display;
+#[cfg(feature = "glutin")]
+pub use backend::glutin::headless::Headless as HeadlessRenderer;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.
 pub trait CapabilitiesSource {
@@ -386,6 +395,7 @@ trait UniformsExt {
 ///
 /// Blocks and subroutines are not included.
 #[derive(Copy, Clone, Debug)]
+#[allow(missing_docs)]
 pub enum RawUniformValue {
     SignedInt(gl::types::GLint),
     UnsignedInt(gl::types::GLuint),
@@ -756,7 +766,6 @@ pub trait Surface {
     /// documentation for example how to use it.
     ///
     /// See above for what happens exactly on the GPU when you draw.
-    ///
     fn draw<'a, 'b, V, I, U>(&mut self, V, I, program: &Program, uniforms: &U,
         draw_parameters: &DrawParameters) -> Result<(), DrawError> where
         V: vertex::MultiVerticesSource<'b>, I: Into<index::IndicesSource<'a>>,
@@ -1229,87 +1238,20 @@ impl Drop for Frame {
     }
 }
 
-/// Objects that can build a facade object.
-pub trait DisplayBuild {
-    /// The object that this `DisplayBuild` builds.
-    type Facade: backend::Facade;
-
-    /// The type of error that initialization can return.
-    type Err;
-
-    /// Build a context and a facade to draw on it.
-    ///
-    /// Performs a compatibility check to make sure that all core elements of glium
-    /// are supported by the implementation.
-    fn build_glium(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
-        self.build_glium_debug(Default::default())
-    }
-
-    /// Build a context and a facade to draw on it.
-    ///
-    /// Performs a compatibility check to make sure that all core elements of glium
-    /// are supported by the implementation.
-    fn build_glium_debug(self, debug::DebugCallbackBehavior) -> Result<Self::Facade, Self::Err>;
-
-    /// Build a context and a facade to draw on it
-    ///
-    /// This function does the same as `build_glium`, except that the resulting context
-    /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked(self) -> Result<Self::Facade, Self::Err> where Self: Sized {
-        self.build_glium_unchecked_debug(Default::default())
-    }
-
-    /// Build a context and a facade to draw on it
-    ///
-    /// This function does the same as `build_glium`, except that the resulting context
-    /// will assume that the current OpenGL context will never change.
-    unsafe fn build_glium_unchecked_debug(self, debug::DebugCallbackBehavior)
-                                          -> Result<Self::Facade, Self::Err>;
-
-    /// Changes the settings of an existing facade.
-    fn rebuild_glium(self, &Self::Facade) -> Result<(), Self::Err>;
-}
-
-/// Error that can happen while creating a glium display.
+/// Returned during Context creation if the OpenGL implementation is too old.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum GliumCreationError<T> {
-    /// An error has happened while creating the backend.
-    BackendCreationError(T),
+pub struct IncompatibleOpenGl(pub String);
 
-    /// The OpenGL implementation is too old.
-    IncompatibleOpenGl(String),
-}
-
-impl<T: Error> fmt::Display for GliumCreationError<T> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+impl fmt::Display for IncompatibleOpenGl {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.description())
     }
 }
 
-impl<T: Error> Error for GliumCreationError<T> {
+impl Error for IncompatibleOpenGl {
     #[inline]
     fn description(&self) -> &str {
-        match *self {
-            GliumCreationError::BackendCreationError(..) =>
-                "Error while creating the backend",
-            GliumCreationError::IncompatibleOpenGl(..) =>
-                "The OpenGL implementation is too old to work with glium",
-        }
-    }
-
-    #[inline]
-    fn cause(&self) -> Option<&Error> {
-        match *self {
-            GliumCreationError::BackendCreationError(ref err) => Some(err),
-            GliumCreationError::IncompatibleOpenGl(..) => None,
-        }
-    }
-}
-
-impl<T: Error> std::convert::From<T> for GliumCreationError<T> {
-    #[inline]
-    fn from(err: T) -> GliumCreationError<T> {
-        GliumCreationError::BackendCreationError(err)
+        "The OpenGL implementation is too old to work with glium"
     }
 }
 

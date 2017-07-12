@@ -2,23 +2,20 @@
 extern crate glium;
 extern crate rand;
 
-use glium::Surface;
-use glium::glutin;
+use glium::{glutin, Surface};
 
 mod support;
 
 fn main() {
-    use glium::DisplayBuild;
-
     println!("This example draws 10,000 instanced teapots. Each teapot gets a random position and \
               direction at initialization. Then the CPU updates and uploads the positions of each \
               teapot at each frame.");
 
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .with_depth_buffer(24)
-        .build_glium()
-        .unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new().with_depth_buffer(24);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
@@ -122,14 +119,19 @@ fn main() {
                     &params).unwrap();
         target.finish().unwrap();
 
-        // polling and handling the events received by the window
-        for event in display.poll_events() {
-            match event {
-                glutin::Event::Closed => return support::Action::Stop,
-                _ => ()
-            }
-        }
+        let mut action = support::Action::Continue;
 
-        support::Action::Continue
+        // polling and handling the events received by the window
+        events_loop.poll_events(|event| {
+            match event {
+                glutin::Event::WindowEvent { event, .. } => match event {
+                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    _ => (),
+                },
+                _ => (),
+            }
+        });
+
+        action
     });
 }

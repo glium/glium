@@ -2,24 +2,22 @@ extern crate image;
 #[macro_use]
 extern crate glium;
 
-use glium::glutin;
 use std::io::Cursor;
-use glium::Surface;
+use glium::{glutin, Surface};
 
 mod support;
 
 fn main() {
-    use glium::DisplayBuild;
-
     // building the display, ie. the main object
-    let display = glutin::WindowBuilder::new()
-        .build_glium()
-        .unwrap();
+    let mut events_loop = glutin::EventsLoop::new();
+    let window = glutin::WindowBuilder::new();
+    let context = glutin::ContextBuilder::new();
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -218,14 +216,17 @@ fn main() {
                     &Default::default()).unwrap();
         target.finish().unwrap();
 
+        let mut action = support::Action::Continue;
+
         // polling and handling the events received by the window
-        for event in display.poll_events() {
+        events_loop.poll_events(|event| {
             match event {
-                glutin::Event::Closed => return support::Action::Stop,
+                glutin::Event::WindowEvent { event: glutin::WindowEvent::Closed, .. } =>
+                    action = support::Action::Stop,
                 _ => ()
             }
-        }
+        });
 
-        support::Action::Continue
+        action
     });
 }
