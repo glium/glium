@@ -898,22 +898,23 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
 {
     // TODO: use GL_PRIMITIVE_RESTART (if possible) if 
     // GL_PRIMITIVE_RESTART_FIXED_INDEX is not supported
-    if enabled {
-        if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-        ctxt.extensions.gl_arb_es3_compatibility
-        {
-            if enabled {
-                unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
-                ctxt.state.enabled_primitive_fixed_restart = true;
-            } else {
-                unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
-                ctxt.state.enabled_primitive_fixed_restart = false;
-            }
-
+    if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
+    ctxt.extensions.gl_arb_es3_compatibility
+    {
+        if enabled {
+            unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+            ctxt.state.enabled_primitive_fixed_restart = true;
         } else {
+            unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+            ctxt.state.enabled_primitive_fixed_restart = false;
+        }
+
+    } else {
+        if enabled {
             return Err(DrawError::FixedIndexRestartingNotSupported);
         }
     }
+    
 
     Ok(())
 }
