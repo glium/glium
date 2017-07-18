@@ -32,7 +32,7 @@ Its objectives:
  - Avoid all OpenGL errors beforehand.
  - Produce optimized OpenGL function calls, and allow the user to easily use modern OpenGL techniques.
 
-## [Link to the documentation](http://glium.github.io/glium/glium/index.html)
+## [Link to the documentation](http://docs.rs/glium)
 
 If you have some knowledge of OpenGL, the documentation and the examples should get you easily started.
 
