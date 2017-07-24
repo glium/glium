@@ -18,8 +18,8 @@ Its objectives:
 """
 keywords = ["opengl", "gamedev"]
 categories = ["api-bindings", "rendering::graphics-api"]
-documentation = "http://tomaka.github.io/glium/glium/index.html"
-repository = "https://github.com/tomaka/glium"
+documentation = "http://glium.github.io/glium/glium/index.html"
+repository = "https://github.com/glium/glium"
 license = "Apache-2.0"
 build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
