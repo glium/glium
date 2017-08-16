@@ -98,7 +98,7 @@ impl Error for ReadError {
 
 /// Reads pixels from the source into the destination.
 ///
-/// Panicks if the destination is not large enough.
+/// Panics if the destination is not large enough.
 ///
 /// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
 // TODO: differentiate between GL_* and GL_*_INTEGER

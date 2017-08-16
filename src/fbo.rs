@@ -744,7 +744,7 @@ impl FramebuffersContainer {
     }
 
     /// Destroys all framebuffer objects that match a certain condition.
-    fn purge_if<F>(mut ctxt: &mut CommandContext, condition: F)
+    fn purge_if<F>(ctxt: &mut CommandContext, condition: F)
                    where F: Fn(&RawAttachment) -> bool
     {
         let mut framebuffers = ctxt.framebuffer_objects.framebuffers.borrow_mut();
@@ -855,7 +855,7 @@ impl FramebuffersContainer {
     ///
     /// # Panic
     ///
-    /// Panicks if `data` is incompatible with the kind of attachment.
+    /// Panics if `data` is incompatible with the kind of attachment.
     ///
     /// # Unsafety
     ///
@@ -946,7 +946,7 @@ impl FrameBufferObject {
     ///
     /// # Panic
     ///
-    /// Panicks if anything wrong or not supported is detected with the raw attachments.
+    /// Panics if anything wrong or not supported is detected with the raw attachments.
     ///
     fn new(mut ctxt: &mut CommandContext, attachments: &RawAttachments) -> FrameBufferObject {
         if attachments.color.len() > ctxt.capabilities.max_draw_buffers as usize {
@@ -1120,7 +1120,7 @@ impl FrameBufferObject {
     }
 
     /// Destroys the FBO. Must be called, or things will leak.
-    fn destroy(self, mut ctxt: &mut CommandContext) {
+    fn destroy(self, ctxt: &mut CommandContext) {
         // unbinding framebuffer
         if ctxt.state.draw_framebuffer == self.id {
             ctxt.state.draw_framebuffer = 0;
@@ -1228,9 +1228,9 @@ pub unsafe fn bind_framebuffer(ctxt: &mut CommandContext, fbo_id: gl::types::GLu
 ///
 /// # Panic
 ///
-/// - Panicks if `layer` is `None` and layered attachments are not supported.
-/// - Panicks if `layer` is `None` and the texture is not an array or a 3D texture.
-/// - Panicks if the texture is an array and attaching an array is not supported.
+/// - Panics if `layer` is `None` and layered attachments are not supported.
+/// - Panics if `layer` is `None` and the texture is not an array or a 3D texture.
+/// - Panics if the texture is an array and attaching an array is not supported.
 ///
 /// # Safety
 ///

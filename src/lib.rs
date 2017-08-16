@@ -66,7 +66,7 @@ result to the user.
  - **Buffers**: Buffers are strongly typed and can be used through `vertex::VertexBuffer`,
    `index::IndexBuffer` or `uniforms::UniformBuffer`.
  - **Debug output**: If you compile in debug mode, glium registers a debug output callback and
-   panicks if an OpenGL error happens.
+   panics if an OpenGL error happens.
  - **Framebuffer Objects**: FBOs are automatically managed by glium and are stored in the `Context`
    object. You can specify the attachments that you wish with the `framebuffer` module.
  - **Instancing**: Instancing is done either by passing a `vertex::EmptyInstanceAttributes` marker

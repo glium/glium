@@ -580,7 +580,7 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
     }
 }
 
-fn bind_texture_uniform<P, T>(mut ctxt: &mut context::CommandContext,
+fn bind_texture_uniform<P, T>(ctxt: &mut context::CommandContext,
                               texture: &T, sampler: Option<SamplerBehavior>,
                               location: gl::types::GLint, program: &P,
                               texture_bind_points: &mut Bitsfield)

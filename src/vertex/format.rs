@@ -2100,8 +2100,10 @@ unsafe impl Attribute for nalgebra::Mat4<f64> {
 
 #[cfg(test)]
 mod tests {
+    #[allow(unused_imports)]
     use std::mem;
 
+    #[cfg(feature="cgmath")]
     macro_rules! test_layout_val {
         ($from_val:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
             let arr: [$ety; $ncomps] = unsafe { mem::transmute($from_val($literal)) };
@@ -2109,6 +2111,7 @@ mod tests {
         }}
     }
 
+    #[cfg(feature = "nalgebra")]
     macro_rules! test_layout_ref {
         ($from_ref:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
             let arr: &[$ety; $ncomps] = unsafe { mem::transmute($from_ref(&$literal)) };

@@ -18,11 +18,14 @@ Its objectives:
 """
 keywords = ["opengl", "gamedev"]
 categories = ["api-bindings", "rendering::graphics-api"]
-documentation = "http://glium.github.io/glium/glium/index.html"
+documentation = "https://docs.rs/glium"
 repository = "https://github.com/glium/glium"
 license = "Apache-2.0"
 build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
+
+[badges]
+travis-ci = { repository = "glium/glium" }
 
 [features]
 default = ["glutin"]
@@ -35,17 +38,17 @@ features = []
 optional = true
 
 [dependencies]
-backtrace = "0.2.1"
+backtrace = "0.3.2"
 lazy_static = "0.2"
-smallvec = "0.1.5"
-fnv = "1.0.3"
+smallvec = "0.4.2"
+fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.5.1"
+gl_generator = "0.5.5"
 
 [dev-dependencies]
-cgmath = "0.9.1"
+cgmath = "0.15"
 genmesh = "0.4"
-image = "0.12.0"
+image = "0.15"
 obj = { version = "0.5", features = ["usegenmesh"] }
 rand = "0.3"

@@ -675,7 +675,7 @@ impl<'a> EmptyFrameBuffer {
     ///
     /// # Panic
     ///
-    /// Panicks if `layers` or `samples` is equal to `Some(0)`.
+    /// Panics if `layers` or `samples` is equal to `Some(0)`.
     ///
     #[inline]
     pub fn new<F: ?Sized>(facade: &F, width: u32, height: u32, layers: Option<u32>,
