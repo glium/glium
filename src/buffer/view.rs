@@ -1132,7 +1132,7 @@ impl BufferAny {
     ///
     /// # Panic
     ///
-    /// Panicks if the size of the buffer is not a multiple of the size of the data.
+    /// Panics if the size of the buffer is not a multiple of the size of the data.
     /// For example, trying to read some `(u8, u8, u8, u8)`s from a buffer of 7 bytes will panic.
     ///
     #[inline]

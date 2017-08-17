@@ -54,7 +54,7 @@ impl TextureDimensions {
     }
 }
 
-pub fn build_texture_file<W: Write>(mut dest: &mut W) {
+pub fn build_texture_file<W: Write>(dest: &mut W) {
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Srgb, TextureDimensions::Texture1d);
@@ -134,7 +134,7 @@ pub fn build_texture_file<W: Write>(mut dest: &mut W) {
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::CubemapArray);
 }
 
-fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
+fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
     // building the name of the module
     let module_name: String = {
         let prefix = match ty {
@@ -1408,7 +1408,7 @@ fn build_texture<W: Write>(mut dest: &mut W, ty: TextureType, dimensions: Textur
     writeln!(dest, "}}").unwrap();
 }
 
-fn write_dimensions_getters<W: Write>(mut dest: &mut W, dimensions: TextureDimensions,
+fn write_dimensions_getters<W: Write>(dest: &mut W, dimensions: TextureDimensions,
                                       accessor: &str, write_array_size: bool)
 {
     writeln!(dest, r#"

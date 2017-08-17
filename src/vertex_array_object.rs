@@ -353,7 +353,7 @@ impl VertexArrayObject {
 
     /// Must be called to destroy the VAO (otherwise its destructor will panic as a safety
     /// measure).
-    fn destroy(mut self, mut ctxt: &mut CommandContext) {
+    fn destroy(mut self, ctxt: &mut CommandContext) {
         self.destroyed = true;
 
         // unbinding

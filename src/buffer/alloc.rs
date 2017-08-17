@@ -242,7 +242,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_PIXEL_PACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_pixel_pack(&self, mut ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -262,7 +262,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_PIXEL_UNPACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_pixel_unpack(&self, mut ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -282,7 +282,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_QUERY_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_query(&self, mut ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext) {
         assert!(ctxt.version >= &Version(Api::Gl, 4, 4) ||
                 ctxt.extensions.gl_arb_query_buffer_object ||
                 ctxt.extensions.gl_amd_query_buffer_object);
@@ -306,7 +306,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_draw_indirect(&self, mut ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -320,7 +320,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_dispatch_indirect(&self, mut ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -381,9 +381,9 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if the backend doesn't allow binding this buffer to the specified point.
+    /// Panics if the backend doesn't allow binding this buffer to the specified point.
     #[inline]
-    fn bind(&self, mut ctxt: &mut CommandContext, ty: BufferType) {
+    fn bind(&self, ctxt: &mut CommandContext, ty: BufferType) {
         self.assert_unmapped(ctxt);
         unsafe { bind_buffer(ctxt, self.id, ty); }
     }
@@ -394,12 +394,12 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// - Panicks if `range` is out of range.
-    /// - Panicks if the backend doesn't allow binding this buffer to the specified point.
-    /// - Panicks if the bind point is not an indexed bind point.
-    /// - Panicks if the bind point is over the maximum value.
+    /// - Panics if `range` is out of range.
+    /// - Panics if the backend doesn't allow binding this buffer to the specified point.
+    /// - Panics if the bind point is not an indexed bind point.
+    /// - Panics if the bind point is over the maximum value.
     #[inline]
-    fn indexed_bind(&self, mut ctxt: &mut CommandContext, ty: BufferType,
+    fn indexed_bind(&self, ctxt: &mut CommandContext, ty: BufferType,
                     index: gl::types::GLuint, range: Range<usize>)
     {
         self.assert_unmapped(ctxt);
@@ -564,7 +564,7 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if the `bytes_range` is not aligned to a mappable slice.
+    /// Panics if the `bytes_range` is not aligned to a mappable slice.
     ///
     /// # Unsafety
     ///
@@ -652,7 +652,7 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if the `bytes_range` is not aligned to a mappable slice.
+    /// Panics if the `bytes_range` is not aligned to a mappable slice.
     ///
     /// # Unsafety
     ///
@@ -704,7 +704,7 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if the `bytes_range` is not aligned to a mappable slice.
+    /// Panics if the `bytes_range` is not aligned to a mappable slice.
     ///
     /// # Unsafety
     ///
@@ -724,7 +724,7 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if the `bytes_range` is not aligned to a mappable slice.
+    /// Panics if the `bytes_range` is not aligned to a mappable slice.
     ///
     /// # Unsafety
     ///
@@ -744,7 +744,7 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if the `bytes_range` is not aligned to a mappable slice.
+    /// Panics if the `bytes_range` is not aligned to a mappable slice.
     ///
     /// # Unsafety
     ///
@@ -764,7 +764,7 @@ impl Alloc {
     ///
     /// # Panic
     ///
-    /// Panicks if out of range.
+    /// Panics if out of range.
     ///
     /// # Unsafety
     ///
@@ -1359,7 +1359,7 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
 /// ## Unsafety
 ///
 /// Assumes that the type of buffer is supported by the backend.
-unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType)
+unsafe fn bind_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType)
                       -> gl::types::GLenum
 {
     macro_rules! check {
@@ -1445,12 +1445,12 @@ unsafe fn bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
 ///
 /// # Panic
 ///
-/// Panicks if the buffer type is not indexed.
+/// Panics if the buffer type is not indexed.
 ///
 /// # Unsafety
 ///
 /// Assumes that the type of buffer is supported by the backend.
-unsafe fn indexed_bind_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+unsafe fn indexed_bind_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
                               index: gl::types::GLuint, range: Range<usize>)
 {
     let offset = range.start as gl::types::GLintptr;
@@ -1592,7 +1592,7 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
 }
 
 /// Destroys a buffer.
-unsafe fn destroy_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint) {
+unsafe fn destroy_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint) {
     // FIXME: uncomment this and move it from Buffer's destructor
     //self.context.vertex_array_objects.purge_buffer(&mut ctxt, id);
 

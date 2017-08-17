@@ -135,7 +135,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// # Panic
     ///
-    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    /// Panics if the size passed as parameter is not suitable for the type of data.
     ///
     #[inline]
     pub fn empty_unsized<F: ?Sized>(facade: &F, size: usize)
@@ -149,7 +149,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// # Panic
     ///
-    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    /// Panics if the size passed as parameter is not suitable for the type of data.
     ///
     #[inline]
     pub fn empty_unsized_dynamic<F: ?Sized>(facade: &F, size: usize)
@@ -163,7 +163,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// # Panic
     ///
-    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    /// Panics if the size passed as parameter is not suitable for the type of data.
     ///
     #[inline]
     pub fn empty_unsized_persistent<F: ?Sized>(facade: &F, size: usize)
@@ -177,7 +177,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
     ///
     /// # Panic
     ///
-    /// Panicks if the size passed as parameter is not suitable for the type of data.
+    /// Panics if the size passed as parameter is not suitable for the type of data.
     ///
     #[inline]
     pub fn empty_unsized_immutable<F: ?Sized>(facade: &F, size: usize)

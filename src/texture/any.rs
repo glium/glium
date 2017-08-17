@@ -124,7 +124,7 @@ unsafe fn generate_mipmaps(ctxt: &CommandContext,
 ///
 /// # Panic
 ///
-/// Panicks if the size of the data doesn't match the texture dimensions.
+/// Panics if the size of the data doesn't match the texture dimensions.
 pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
                              data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
                              mipmaps: MipmapsOption, ty: Dimensions)
@@ -1417,7 +1417,8 @@ impl<'a> TextureAnyImage<'a> {
     ///
     /// # Panic
     ///
-    /// Panicks if the rect is out of range.
+    /// - Panics if the rect is out of range.
+    /// - Panics if it fails to read the texture.
     ///
     pub fn raw_read<T, P>(&self, rect: &Rect) -> T where T: Texture2dDataSink<P>, P: PixelValue {
         assert!(rect.left + rect.width <= self.width);
@@ -1426,7 +1427,9 @@ impl<'a> TextureAnyImage<'a> {
         let mut ctxt = self.texture.context.make_current();
 
         let mut data = Vec::new();
-        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, &mut data, false);
+        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, &mut data, false)
+            .unwrap();
+
         T::from_raw(Cow::Owned(data), self.width, self.height.unwrap_or(1))
     }
 
@@ -1434,8 +1437,9 @@ impl<'a> TextureAnyImage<'a> {
     ///
     /// # Panic
     ///
-    /// - Panicks if the rect is out of range.
-    /// - Panicks if the buffer is not large enough.
+    /// - Panics if the rect is out of range.
+    /// - Panics if the buffer is not large enough.
+    /// - Panics if it fails to read the texture.
     ///
     pub fn raw_read_to_pixel_buffer<P>(&self, rect: &Rect, dest: &PixelBuffer<P>)
         where P: PixelValue
@@ -1446,14 +1450,15 @@ impl<'a> TextureAnyImage<'a> {
 
         let size = rect.width as usize * rect.height as usize * 4;
         let mut ctxt = self.texture.context.make_current();
-        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest, false);
+        ops::read(&mut ctxt, &fbo::RegularAttachment::Texture(*self), &rect, dest, false)
+            .unwrap();
     }
 
     /// Clears the content of the texture to a specific value.
     ///
     /// # Panic
     ///
-    /// Panicks if `data` does not match the kind of texture. For example passing a `[i32; 4]` when
+    /// Panics if `data` does not match the kind of texture. For example passing a `[i32; 4]` when
     /// using a regular (float) texture.
     ///
     pub fn raw_clear_buffer<D>(&self, data: D)

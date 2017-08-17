@@ -161,7 +161,7 @@ impl<'a> TransformFeedbackSession<'a> {
 }
 
 impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
-    fn bind(&self, mut ctxt: &mut CommandContext, draw_primitives: PrimitiveType) {
+    fn bind(&self, ctxt: &mut CommandContext, draw_primitives: PrimitiveType) {
         // TODO: check that the state matches what is required
         if ctxt.state.transform_feedback_enabled.is_some() {
             unimplemented!();
@@ -197,7 +197,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
     }
 
     #[inline]
-    fn unbind(mut ctxt: &mut CommandContext) {
+    fn unbind(ctxt: &mut CommandContext) {
         if ctxt.state.transform_feedback_enabled.is_none() {
             return;
         }
@@ -209,7 +209,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
         }
     }
 
-    fn ensure_buffer_out_of_transform_feedback(mut ctxt: &mut CommandContext, buffer: gl::types::GLuint) {
+    fn ensure_buffer_out_of_transform_feedback(ctxt: &mut CommandContext, buffer: gl::types::GLuint) {
         if ctxt.state.transform_feedback_enabled.is_none() {
             return;
         }
