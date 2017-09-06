@@ -109,13 +109,14 @@ macro_rules! implement_vertex {
                             Cow::Borrowed(stringify!($field_name)),
                             {
                                 // calculate the offset of the struct fields
-                                let dummy: $struct_name = unsafe { ::std::mem::zeroed() };
+                                let dummy: $struct_name = unsafe { ::std::mem::uninitialized() };
                                 let offset: usize = {
                                     let dummy_ref = &dummy;
                                     let field_ref = &dummy.$field_name;
                                     (field_ref as *const _ as usize) - (dummy_ref as *const _ as usize)
                                 };
-                                ::std::mem::forget(dummy);
+                                // NOTE: `glium::vertex::Vertex` requires `$struct_name` to have `Copy` trait
+                                // `Copy` excludes `Drop`, so we don't have to `std::mem::forget(dummy)`
                                 offset
                             },
                             {
