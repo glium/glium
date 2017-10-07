@@ -1349,7 +1349,23 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
             ctxt.extensions.gl_amd_query_buffer_object
         },
 
-        _ => false,     // FIXME:
+        BufferType::ShaderStorageBuffer => {
+            ctxt.version >= &Version(Api::Gl, 4, 3) ||
+            ctxt.extensions.gl_arb_shader_storage_buffer_object ||
+            ctxt.extensions.gl_nv_shader_storage_buffer_object
+        },
+
+        BufferType::TransformFeedbackBuffer => {
+            ctxt.version >= &Version(Api::Gl, 3, 0) ||
+            ctxt.extensions.gl_ext_transform_feedback ||
+            ctxt.extensions.gl_nv_transform_feedback
+        },
+
+        BufferType::AtomicCounterBuffer => {
+            ctxt.version >= &Version(Api::Gl, 4, 2) ||
+            ctxt.extensions.gl_arb_shader_atomic_counters ||
+            ctxt.extensions.gl_nv_shader_atomic_counters
+        },
     }
 }
 
