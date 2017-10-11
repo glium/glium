@@ -123,7 +123,7 @@ fn main() {
                 fullscreen = false;
             } else {
                 let window = glutin::WindowBuilder::new()
-                    .with_fullscreen(glutin::get_primary_monitor());
+                    .with_fullscreen(Some(events_loop.get_primary_monitor()));
                 let context = glutin::ContextBuilder::new();
                 display.rebuild(window, context, &events_loop).unwrap();
                 fullscreen = true;
