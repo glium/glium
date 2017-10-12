@@ -36,7 +36,7 @@ target.draw(&shape, glium::index::NoIndices(glium::index::PrimitiveType::Triangl
 
 The rest of the code is mostly the same as before. You should know by now how to draw something!
 
-![What is looks like after step 1](tuto-14-step1.png)
+![What it looks like after step 1](tuto-14-step1.png)
 
 ## Applying a texture
 
@@ -53,7 +53,7 @@ Loading the texture is done like we have already done before:
 let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")[..]),
                         image::JPEG).unwrap().to_rgba();
 let image_dimensions = image.dimensions();
-let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
 ```
 
@@ -98,7 +98,7 @@ With this:
 
 ```glsl
 vec3 diffuse_color = texture(diffuse_tex, v_tex_coords).rgb;
-vec3 ambient_color = diffuse_color * 0.2;
+vec3 ambient_color = diffuse_color * 0.1;
 ```
 
 And we should get a textured wall!
@@ -135,7 +135,9 @@ Let's start with the beginning. We load the normal map into a texture:
 
 ```rust
 let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-normal.png")[..]),
-                        image::PNG).unwrap();
+                        image::PNG).unwrap().to_rgba();
+let image_dimensions = image.dimensions();
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 let normal_map = glium::texture::Texture2d::new(&display, image).unwrap();
 ```
 
