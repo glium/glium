@@ -168,6 +168,7 @@ impl Context {
 
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl, &version);
+
         try!(check_gl_compatibility(&version, &extensions));
 
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
@@ -213,6 +214,7 @@ impl Context {
             resident_image_handles: resident_image_handles,
         });
 
+        panic!("HERE");
         if context.debug_callback.is_some() {
             init_debug_callback(&context, synchronous);
         }
@@ -222,11 +224,11 @@ impl Context {
             let mut ctxt = context.make_current();
             if ::get_gl_error(&mut ctxt).is_some() {
                 println!("glium has triggered an OpenGL error during initialization. Please report \
-                          this error: https://github.com/tomaka/glium/issues");
+                          this error: https://github.com/glutin/glium/issues");
             }
             /*assert!(::get_gl_error(&mut ctxt).is_none(),
                     "glium has triggered an OpenGL error during initialization. Please report \
-                     this error: https://github.com/tomaka/glium/issues");*/
+                     this error: https://github.com/glutin/glium/issues");*/
         }
 
         Ok(context)
@@ -844,7 +846,7 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 
     if report_debug_output_errors {
         print!("Debug message with high or medium severity: `{}`.\n\
-                Please report this error: https://github.com/tomaka/glium/issues\n\
+                Please report this error: https://github.com/glutin/glium/issues\n\
                 Backtrace:",
                 message);
 

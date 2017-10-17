@@ -146,4 +146,4 @@ longer stretched.
 If you compare this to the previous screenshot, you can also see how the teapot now looks
 much better.
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-10.rs).**
+**[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-10.rs).**
