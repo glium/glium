@@ -146,4 +146,4 @@ And you should now get the correct result:
 
 This looks very primitive, but it is a good first step towards 3D rendering.
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-07.rs).**
+**[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-07.rs).**
