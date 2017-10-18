@@ -133,4 +133,4 @@ The "draw command" designation could make you think that drawing is a heavy oper
 
 ![Our final result](tuto-02-triangle.png)
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-02.rs).**
+**[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-02.rs).**

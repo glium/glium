@@ -60,4 +60,4 @@ let uniforms = uniform! {
 };
 ```
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-04.rs).**
+**[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-04.rs).**

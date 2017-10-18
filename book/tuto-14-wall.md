@@ -200,4 +200,4 @@ And here is the result:
 
 This is much more convincing!
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-14.rs).**
+**[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-14.rs).**

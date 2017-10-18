@@ -118,4 +118,4 @@ And here is the result:
 
 ![Result](tuto-12-result.png)
 
-**[You can find the entire source code here](https://github.com/tomaka/glium/blob/master/examples/tutorial-12.rs).**
+**[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-12.rs).**
