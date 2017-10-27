@@ -74,6 +74,7 @@ impl Drop for SyncFence {
 /// The fence must be consumed with either `into_sync_fence`, otherwise
 /// the destructor will panic.
 #[must_use]
+#[derive(Clone)]
 pub struct LinearSyncFence {
     id: Option<gl::types::GLsync>,
 }

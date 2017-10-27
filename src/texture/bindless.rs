@@ -68,7 +68,6 @@ use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use program::BlockLayout;
-use uniforms::AsUniformValue;
 use uniforms::LayoutMismatchError;
 use uniforms::UniformBlock;
 use uniforms::UniformValue;
@@ -175,10 +174,8 @@ impl<'a> TextureHandle<'a> {
     }
 }
 
-impl<'a> AsUniformValue for TextureHandle<'a> {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        // TODO: u64
+impl<'a> From<TextureHandle<'a>> for UniformValue<'a> {
+    fn from(v: TextureHandle<'a>) -> UniformValue<'a> {
         unimplemented!();
     }
 }

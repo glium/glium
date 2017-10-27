@@ -55,6 +55,7 @@ pub enum Dimensions {
 }
 
 /// A texture whose type isn't fixed at compile-time.
+#[derive(Clone)]
 pub struct TextureAny {
     context: Rc<Context>,
     id: gl::types::GLuint,

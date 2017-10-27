@@ -21,7 +21,7 @@ use buffer::BufferType;
 use buffer::BufferMode;
 use buffer::BufferCreationError;
 use buffer::Content;
-use buffer::fences::Fences;
+use buffer::fences::{ Fences };
 use buffer::fences::Inserter;
 use buffer::alloc::Alloc;
 use buffer::alloc::Mapping;
@@ -721,7 +721,7 @@ impl<'a, T: ?Sized> From<&'a mut Buffer<T>> for BufferSlice<'a, T> where T: Cont
 
 impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferSlice<'a, T> where T: Content {
     #[inline]
-    fn add_fence(&self) -> Option<Inserter<'a>> {
+    fn add_fence(&self) -> Option<Inserter> {
         if !self.alloc.uses_persistent_mapping() {
             return None;
         }
@@ -1045,7 +1045,7 @@ impl<'a, T> BufferMutSlice<'a, [T]> where T: PixelValue + 'a {
 
 impl<'a, T: ?Sized> BufferSliceExt<'a> for BufferMutSlice<'a, T> where T: Content {
     #[inline]
-    fn add_fence(&self) -> Option<Inserter<'a>> {
+    fn add_fence(&self) -> Option<Inserter> {
         if !self.alloc.uses_persistent_mapping() {
             return None;
         }
@@ -1313,7 +1313,7 @@ impl<'a> fmt::Debug for BufferAnySlice<'a> {
 
 impl<'a> BufferSliceExt<'a> for BufferAnySlice<'a> {
     #[inline]
-    fn add_fence(&self) -> Option<Inserter<'a>> {
+    fn add_fence(&self) -> Option<Inserter> {
         if !self.alloc.uses_persistent_mapping() {
             return None;
         }

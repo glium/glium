@@ -1,9 +1,11 @@
+use std::fmt::{self, Debug};
+use std::cmp;
+
 use program;
 use program::BlockLayout;
 use program::ShaderStage;
 use texture;
 
-use uniforms::AsUniformValue;
 use uniforms::LayoutMismatchError;
 use uniforms::UniformBlock;
 use uniforms::SamplerBehavior;
@@ -239,13 +241,158 @@ pub enum UniformValue<'a> {
     IntegralCubemapArray(&'a texture::IntegralCubemapArray, Option<SamplerBehavior>),
     UnsignedCubemapArray(&'a texture::UnsignedCubemapArray, Option<SamplerBehavior>),
     DepthCubemapArray(&'a texture::DepthCubemapArray, Option<SamplerBehavior>),
-    BufferTexture(texture::buffer_texture::BufferTextureRef<'a>),
+    BufferTexture(texture::buffer_texture::BufferTextureRef),
 }
 
 impl<'a> Clone for UniformValue<'a> {
     #[inline]
     fn clone(&self) -> UniformValue<'a> {
         *self
+    }
+}
+
+impl<'a> Debug for UniformValue<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            UniformValue::Block(ref i, _) => write!(f, "UniformValue::Block({:?}, fn(&program::UniformBlock) -> Result<(), LayoutMismatchError>)", i),
+            UniformValue::Subroutine(ref i, ref s) => write!(f, "UniformValue::Subroutine({:?}, {:?})", i, s),
+            UniformValue::Float(ref i) => write!(f, "UniformValue::Float({:?})", i),
+            UniformValue::Double(ref i) => write!(f, "UniformValue::Double({:?})", i),
+            UniformValue::Int64(ref i) => write!(f, "UniformValue::Int64({:?})", i),
+            UniformValue::UnsignedInt64(ref i) => write!(f, "UniformValue::UnsignedInt64({:?})", i),
+            UniformValue::SignedInt(ref i) => write!(f, "UniformValue::SignedInt({:?})", i),
+            UniformValue::UnsignedInt(ref i) => write!(f, "UniformValue::UnsignedInt({:?})", i),
+            UniformValue::IntVec2(ref i) => write!(f, "UniformValue::IntVec2({:?})", i),
+            UniformValue::IntVec3(ref i) => write!(f, "UniformValue::IntVec3({:?})", i),
+            UniformValue::IntVec4(ref i) => write!(f, "UniformValue::IntVec4({:?})", i),
+            UniformValue::UnsignedIntVec2(ref i) => write!(f, "UniformValue::UnsignedIntVec2({:?})", i),
+            UniformValue::UnsignedIntVec3(ref i) => write!(f, "UniformValue::UnsignedIntVec3({:?})", i),
+            UniformValue::UnsignedIntVec4(ref i) => write!(f, "UniformValue::UnsignedIntVec4({:?})", i),
+            UniformValue::Bool(ref i) => write!(f, "UniformValue::Bool({:?})", i),
+            UniformValue::BoolVec2(ref i) => write!(f, "UniformValue::BoolVec2({:?})", i),
+            UniformValue::BoolVec3(ref i) => write!(f, "UniformValue::BoolVec3({:?})", i),
+            UniformValue::BoolVec4(ref i) => write!(f, "UniformValue::BoolVec4({:?})", i),
+            UniformValue::Vec2(ref i) => write!(f, "UniformValue::Vec2({:?})", i),
+            UniformValue::Vec3(ref i) => write!(f, "UniformValue::Vec3({:?})", i),
+            UniformValue::Vec4(ref i) => write!(f, "UniformValue::Vec4({:?})", i),
+            UniformValue::DoubleVec2(ref i) => write!(f, "UniformValue::DoubleVec2({:?})", i),
+            UniformValue::DoubleVec3(ref i) => write!(f, "UniformValue::DoubleVec3({:?})", i),
+            UniformValue::DoubleVec4(ref i) => write!(f, "UniformValue::DoubleVec4({:?})", i),
+            UniformValue::Int64Vec2(ref i) => write!(f, "UniformValue::Int64Vec2({:?})", i),
+            UniformValue::Int64Vec3(ref i) => write!(f, "UniformValue::Int64Vec3({:?})", i),
+            UniformValue::Int64Vec4(ref i) => write!(f, "UniformValue::Int64Vec4({:?})", i),
+            UniformValue::UnsignedInt64Vec2(ref i) => write!(f, "UniformValue::UnsignedInt64Vec2({:?})", i),
+            UniformValue::UnsignedInt64Vec3(ref i) => write!(f, "UniformValue::UnsignedInt64Vec3({:?})", i),
+            UniformValue::UnsignedInt64Vec4(ref i) => write!(f, "UniformValue::UnsignedInt64Vec4({:?})", i),
+            UniformValue::Mat2(ref i) => write!(f, "UniformValue::Mat2({:?})", i),
+            UniformValue::Mat3(ref i) => write!(f, "UniformValue::Mat3({:?})", i),
+            UniformValue::Mat4(ref i) => write!(f, "UniformValue::Mat4({:?})", i),
+            UniformValue::DoubleMat2(ref i) => write!(f, "UniformValue::DoubleMat2({:?})", i),
+            UniformValue::DoubleMat3(ref i) => write!(f, "UniformValue::DoubleMat3({:?})", i),
+            UniformValue::DoubleMat4(ref i) => write!(f, "UniformValue::DoubleMat4({:?})", i),
+            UniformValue::Texture1d(ref i, ref o) => write!(f, "UniformValue::Texture1d({:?}, {:?})", i, o),
+            UniformValue::CompressedTexture1d(ref i, ref o) => write!(f, "UniformValue::CompressedTexture1d({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture1d(ref i, ref o) => write!(f, "UniformValue::SrgbTexture1d({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbTexture1d(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbTexture1d({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture1d(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture1d({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture1d(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture1d({:?}, {:?})", i, o),
+            UniformValue::DepthTexture1d(ref i, ref o) => write!(f, "UniformValue::DepthTexture1d({:?}, {:?})", i, o),
+            UniformValue::Texture2d(ref i, ref o) => write!(f, "UniformValue::Texture2d({:?}, {:?})", i, o),
+            UniformValue::CompressedTexture2d(ref i, ref o) => write!(f, "UniformValue::CompressedTexture2d({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture2d(ref i, ref o) => write!(f, "UniformValue::SrgbTexture2d({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbTexture2d(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbTexture2d({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture2d(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2d({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture2d(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2d({:?}, {:?})", i, o),
+            UniformValue::DepthTexture2d(ref i, ref o) => write!(f, "UniformValue::DepthTexture2d({:?}, {:?})", i, o),
+            UniformValue::Texture3d(ref i, ref o) => write!(f, "UniformValue::Texture3d({:?}, {:?})", i, o),
+            UniformValue::CompressedTexture3d(ref i, ref o) => write!(f, "UniformValue::CompressedTexture3d({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture3d(ref i, ref o) => write!(f, "UniformValue::SrgbTexture3d({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbTexture3d(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbTexture3d({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture3d(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture3d({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture3d(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture3d({:?}, {:?})", i, o),
+            UniformValue::DepthTexture3d(ref i, ref o) => write!(f, "UniformValue::DepthTexture3d({:?}, {:?})", i, o),
+            UniformValue::CompressedTexture1dArray(ref i, ref o) => write!(f, "UniformValue::CompressedTexture1dArray({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture1dArray(ref i, ref o) => write!(f, "UniformValue::SrgbTexture1dArray({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbTexture1dArray(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbTexture1dArray({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture1dArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture1dArray({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture1dArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture1dArray({:?}, {:?})", i, o),
+            UniformValue::DepthTexture1dArray(ref i, ref o) => write!(f, "UniformValue::DepthTexture1dArray({:?}, {:?})", i, o),
+            UniformValue::Texture2dArray(ref i, ref o) => write!(f, "UniformValue::Texture2dArray({:?}, {:?})", i, o),
+            UniformValue::CompressedTexture2dArray(ref i, ref o) => write!(f, "UniformValue::CompressedTexture2dArray({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture2dArray(ref i, ref o) => write!(f, "UniformValue::SrgbTexture2dArray({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbTexture2dArray(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbTexture2dArray({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture2dArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2dArray({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture2dArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2dArray({:?}, {:?})", i, o),
+            UniformValue::DepthTexture2dArray(ref i, ref o) => write!(f, "UniformValue::DepthTexture2dArray({:?}, {:?})", i, o),
+            UniformValue::Texture2dMultisampleArray(ref i, ref o) => write!(f, "UniformValue::Texture2dMultisampleArray({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture2dMultisampleArray(ref i, ref o) => write!(f, "UniformValue::SrgbTexture2dMultisampleArray({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture2dMultisampleArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2dMultisampleArray({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture2dMultisampleArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2dMultisampleArray({:?}, {:?})", i, o),
+            UniformValue::DepthTexture2dMultisampleArray(ref i, ref o) => write!(f, "UniformValue::DepthTexture2dMultisampleArray({:?}, {:?})", i, o),
+            UniformValue::Texture2dMultisample(ref i, ref o) => write!(f, "UniformValue::Texture2dMultisample({:?}, {:?})", i, o),
+            UniformValue::SrgbTexture2dMultisample(ref i, ref o) => write!(f, "UniformValue::SrgbTexture2dMultisample({:?}, {:?})", i, o),
+            UniformValue::IntegralTexture2dMultisample(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2dMultisample({:?}, {:?})", i, o),
+            UniformValue::UnsignedTexture2dMultisample(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedTexture2dMultisample({:?}, {:?})", i, o),
+            UniformValue::DepthTexture2dMultisample(ref i, ref o) => write!(f, "UniformValue::DepthTexture2dMultisample({:?}, {:?})", i, o),
+            UniformValue::Texture1dArray(ref i, ref o) => write!(f, "UniformValue::Texture1dArray({:?}, {:?})", i, o),
+            UniformValue::Cubemap(ref i, ref o) => write!(f, "UniformValue::Cubemap({:?}, {:?})", i, o),
+            UniformValue::CompressedCubemap(ref i, ref o) => write!(f, "UniformValue::CompressedCubemap({:?}, {:?})", i, o),
+            UniformValue::SrgbCubemap(ref i, ref o) => write!(f, "UniformValue::SrgbCubemap({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbCubemap(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbCubemap({:?}, {:?})", i, o),
+            UniformValue::IntegralCubemap(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedCubemap({:?}, {:?})", i, o),
+            UniformValue::UnsignedCubemap(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedCubemap({:?}, {:?})", i, o),
+            UniformValue::DepthCubemap(ref i, ref o) => write!(f, "UniformValue::DepthCubemap({:?}, {:?})", i, o),
+            UniformValue::CubemapArray(ref i, ref o) => write!(f, "UniformValue::CubemapArray({:?}, {:?})", i, o),
+            UniformValue::CompressedCubemapArray(ref i, ref o) => write!(f, "UniformValue::CompressedCubemapArray({:?}, {:?})", i, o),
+            UniformValue::SrgbCubemapArray(ref i, ref o) => write!(f, "UniformValue::SrgbCubemapArray({:?}, {:?})", i, o),
+            UniformValue::CompressedSrgbCubemapArray(ref i, ref o) => write!(f, "UniformValue::CompressedSrgbCubemapArray({:?}, {:?})", i, o),
+            UniformValue::IntegralCubemapArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedCubemapArray({:?}, {:?})", i, o),
+            UniformValue::UnsignedCubemapArray(ref i, ref o) => write!(f, "UniformValue::IntegralUnsignedCubemapArray({:?}, {:?})", i, o),
+            UniformValue::DepthCubemapArray(ref i, ref o) => write!(f, "UniformValue::DepthCubemapArray({:?}, {:?})", i, o),
+            UniformValue::BufferTexture(ref i) => write!(f, "UniformValue::BufferTexture({:?})", i),
+        }
+    }
+}
+
+impl<'a, 'b> cmp::PartialEq<UniformValue<'b>> for UniformValue<'a> {
+    fn eq(&self, other: &UniformValue<'b>) -> bool {
+        match (self, other) {
+            (&UniformValue::Float(i), &UniformValue::Float(j)) => i == j,
+            (&UniformValue::Double(i), &UniformValue::Double(j)) => i == j,
+            (&UniformValue::Int64(i), &UniformValue::Int64(j)) => i == j,
+            (&UniformValue::UnsignedInt64(i), &UniformValue::UnsignedInt64(j)) => i == j,
+            (&UniformValue::SignedInt(i), &UniformValue::SignedInt(j)) => i == j,
+            (&UniformValue::UnsignedInt(i), &UniformValue::UnsignedInt(j)) => i == j,
+            (&UniformValue::IntVec2(i), &UniformValue::IntVec2(j)) => i == j,
+            (&UniformValue::IntVec3(i), &UniformValue::IntVec3(j)) => i == j,
+            (&UniformValue::IntVec4(i), &UniformValue::IntVec4(j)) => i == j,
+            (&UniformValue::UnsignedIntVec2(i), &UniformValue::UnsignedIntVec2(j)) => i == j,
+            (&UniformValue::UnsignedIntVec3(i), &UniformValue::UnsignedIntVec3(j)) => i == j,
+            (&UniformValue::UnsignedIntVec4(i), &UniformValue::UnsignedIntVec4(j)) => i == j,
+            (&UniformValue::Bool(i), &UniformValue::Bool(j)) => i == j,
+            (&UniformValue::BoolVec2(i), &UniformValue::BoolVec2(j)) => i == j,
+            (&UniformValue::BoolVec3(i), &UniformValue::BoolVec3(j)) => i == j,
+            (&UniformValue::BoolVec4(i), &UniformValue::BoolVec4(j)) => i == j,
+            (&UniformValue::Vec2(i), &UniformValue::Vec2(j)) => i == j,
+            (&UniformValue::Vec3(i), &UniformValue::Vec3(j)) => i == j,
+            (&UniformValue::Vec4(i), &UniformValue::Vec4(j)) => i == j,
+            (&UniformValue::DoubleVec2(i), &UniformValue::DoubleVec2(j)) => i == j,
+            (&UniformValue::DoubleVec3(i), &UniformValue::DoubleVec3(j)) => i == j,
+            (&UniformValue::DoubleVec4(i), &UniformValue::DoubleVec4(j)) => i == j,
+            (&UniformValue::Int64Vec2(i), &UniformValue::Int64Vec2(j)) => i == j,
+            (&UniformValue::Int64Vec3(i), &UniformValue::Int64Vec3(j)) => i == j,
+            (&UniformValue::Int64Vec4(i), &UniformValue::Int64Vec4(j)) => i == j,
+            (&UniformValue::UnsignedInt64Vec2(i), &UniformValue::UnsignedInt64Vec2(j)) => i == j,
+            (&UniformValue::UnsignedInt64Vec3(i), &UniformValue::UnsignedInt64Vec3(j)) => i == j,
+            (&UniformValue::UnsignedInt64Vec4(i), &UniformValue::UnsignedInt64Vec4(j)) => i == j,
+            (&UniformValue::Mat2(i), &UniformValue::Mat2(j)) => i == j,
+            (&UniformValue::Mat3(i), &UniformValue::Mat3(j)) => i == j,
+            (&UniformValue::Mat4(i), &UniformValue::Mat4(j)) => i == j,
+            (&UniformValue::DoubleMat2(i), &UniformValue::DoubleMat2(j)) => i == j,
+            (&UniformValue::DoubleMat3(i), &UniformValue::DoubleMat3(j)) => i == j,
+            (&UniformValue::DoubleMat4(i), &UniformValue::DoubleMat4(j)) => i == j,
+            _ => false,
+        }
     }
 }
 
@@ -451,535 +598,488 @@ macro_rules! impl_uniform_block_basic {
     )
 }
 
-impl AsUniformValue for i8 {
+impl<'a> From<i8> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::SignedInt(*self as i32)
+    fn from(v: i8) -> UniformValue<'a> {
+        UniformValue::SignedInt(v as i32)
     }
 }
 
-impl AsUniformValue for u8 {
+impl<'a> From<u8> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt(*self as u32)
+    fn from(v: u8) -> UniformValue<'a> {
+        UniformValue::UnsignedInt(v as u32)
     }
 }
 
-impl AsUniformValue for i16 {
+impl<'a> From<i16> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::SignedInt(*self as i32)
+    fn from(v: i16) -> UniformValue<'a> {
+        UniformValue::SignedInt(v as i32)
     }
 }
 
-impl AsUniformValue for u16 {
+impl<'a> From<u16> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt(*self as u32)
+    fn from(v: u16) -> UniformValue<'a> {
+        UniformValue::UnsignedInt(v as u32)
     }
 }
 
-impl AsUniformValue for i32 {
+impl<'a> From<i32> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::SignedInt(*self as i32)
+    fn from(v: i32) -> UniformValue<'a> {
+        UniformValue::SignedInt(v as i32)
     }
 }
 
-impl_uniform_block_basic!(i32, UniformType::Int);
-
-impl AsUniformValue for [i32; 2] {
+impl<'a> From<u32> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::IntVec2(*self)
+    fn from(v: u32) -> UniformValue<'a> {
+        UniformValue::UnsignedInt(v as u32)
     }
 }
 
-impl_uniform_block_basic!([i32; 2], UniformType::IntVec2);
-
-impl AsUniformValue for (i32, i32) {
+impl<'a> From<[i32; 2]> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::IntVec2([self.0, self.1])
+    fn from(v: [i32; 2]) -> UniformValue<'a> {
+        UniformValue::IntVec2(v)
     }
 }
 
-impl_uniform_block_basic!((i32, i32), UniformType::IntVec2);
-
-impl AsUniformValue for [i32; 3] {
+impl<'a> From<[i32; 3]> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::IntVec3(*self)
+    fn from(v: [i32; 3]) -> UniformValue<'a> {
+        UniformValue::IntVec3(v)
     }
 }
 
-impl_uniform_block_basic!([i32; 3], UniformType::IntVec3);
-
-impl AsUniformValue for (i32, i32, i32) {
+impl<'a> From<[i32; 4]> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::IntVec3([self.0, self.1, self.2])
+    fn from(v: [i32; 4]) -> UniformValue<'a> {
+        UniformValue::IntVec4(v)
     }
 }
 
-impl_uniform_block_basic!((i32, i32, i32), UniformType::IntVec3);
-
-impl AsUniformValue for [i32; 4] {
+impl<'a> From<(i32, i32)> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::IntVec4(*self)
+    fn from(v: (i32, i32)) -> UniformValue<'a> {
+        [v.0, v.1].into()
     }
 }
 
-impl_uniform_block_basic!([i32; 4], UniformType::IntVec4);
-
-impl AsUniformValue for (i32, i32, i32, i32) {
+impl<'a> From<(i32, i32, i32)> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::IntVec4([self.0, self.1, self.2, self.3])
+    fn from(v: (i32, i32, i32)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
     }
 }
 
-impl_uniform_block_basic!((i32, i32, i32, i32), UniformType::IntVec4);
-
-impl AsUniformValue for u32 {
+impl<'a> From<(i32, i32, i32, i32)> for UniformValue<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt(*self as u32)
+    fn from(v: (i32, i32, i32, i32)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+impl<'a> From<[u32; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [u32; 2]) -> UniformValue<'a> {
+        UniformValue::UnsignedIntVec2(v)
+    }
+}
+
+impl<'a> From<[u32; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [u32; 3]) -> UniformValue<'a> {
+        UniformValue::UnsignedIntVec3(v)
+    }
+}
+
+impl<'a> From<[u32; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [u32; 4]) -> UniformValue<'a> {
+        UniformValue::UnsignedIntVec4(v)
+    }
+}
+
+impl<'a> From<(u32, u32)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (u32, u32)) -> UniformValue<'a> {
+        [v.0, v.1].into()
+    }
+}
+
+impl<'a> From<(u32, u32, u32)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (u32, u32, u32)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
+    }
+}
+
+impl<'a> From<(u32, u32, u32, u32)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (u32, u32, u32, u32)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+
+impl<'a> From<[bool; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [bool; 2]) -> UniformValue<'a> {
+        UniformValue::BoolVec2(v)
+    }
+}
+
+impl<'a> From<[bool; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [bool; 3]) -> UniformValue<'a> {
+        UniformValue::BoolVec3(v)
+    }
+}
+
+impl<'a> From<[bool; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [bool; 4]) -> UniformValue<'a> {
+        UniformValue::BoolVec4(v)
+    }
+}
+
+impl<'a> From<bool> for UniformValue<'a> {
+    #[inline]
+    fn from(v: bool) -> UniformValue<'a> {
+        UniformValue::Bool(v)
+    }
+}
+
+impl<'a> From<(bool, bool)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (bool, bool)) -> UniformValue<'a> {
+        [v.0, v.1].into()
+    }
+}
+
+impl<'a> From<(bool, bool, bool)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (bool, bool, bool)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
+    }
+}
+
+impl<'a> From<(bool, bool, bool, bool)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (bool, bool, bool, bool)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+impl<'a> From<f32> for UniformValue<'a> {
+    #[inline]
+    fn from(v: f32) -> UniformValue<'a> {
+        UniformValue::Float(v)
+    }
+}
+
+impl<'a> From<[f32; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [f32; 2]) -> UniformValue<'a> {
+        UniformValue::Vec2(v)
+    }
+}
+
+impl<'a> From<[f32; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [f32; 3]) -> UniformValue<'a> {
+        UniformValue::Vec3(v)
+    }
+}
+
+impl<'a> From<[f32; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [f32; 4]) -> UniformValue<'a> {
+        UniformValue::Vec4(v)
+    }
+}
+
+impl<'a> From<(f32, f32)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (f32, f32)) -> UniformValue<'a> {
+        [v.0, v.1].into()
+    }
+}
+
+impl<'a> From<(f32, f32, f32)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (f32, f32, f32)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
+    }
+}
+
+impl<'a> From<(f32, f32, f32, f32)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (f32, f32, f32, f32)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+impl<'a> From<f64> for UniformValue<'a> {
+    #[inline]
+    fn from(v: f64) -> UniformValue<'a> {
+        UniformValue::Double(v)
+    }
+}
+
+impl<'a> From<[f64; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [f64; 2]) -> UniformValue<'a> {
+        UniformValue::DoubleVec2(v)
+    }
+}
+
+impl<'a> From<[f64; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [f64; 3]) -> UniformValue<'a> {
+        UniformValue::DoubleVec3(v)
+    }
+}
+
+impl<'a> From<[f64; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [f64; 4]) -> UniformValue<'a> {
+        UniformValue::DoubleVec4(v)
+    }
+}
+
+impl<'a> From<(f64, f64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (f64, f64)) -> UniformValue<'a> {
+        [v.0, v.1].into()
+    }
+}
+
+impl<'a> From<(f64, f64, f64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (f64, f64, f64)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
+    }
+}
+
+impl<'a> From<(f64, f64, f64, f64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (f64, f64, f64, f64)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+impl<'a> From<i64> for UniformValue<'a> {
+    #[inline]
+    fn from(v: i64) -> UniformValue<'a> {
+        UniformValue::Int64(v)
+    }
+}
+
+impl<'a> From<[i64; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [i64; 2]) -> UniformValue<'a> {
+        UniformValue::Int64Vec2(v)
+    }
+}
+
+impl<'a> From<[i64; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [i64; 3]) -> UniformValue<'a> {
+        UniformValue::Int64Vec3(v)
+    }
+}
+
+impl<'a> From<[i64; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [i64; 4]) -> UniformValue<'a> {
+        UniformValue::Int64Vec4(v)
+    }
+}
+
+impl<'a> From<(i64, i64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (i64, i64)) -> UniformValue<'a> {
+        [v.0, v.1].into()
+    }
+}
+
+impl<'a> From<(i64, i64, i64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (i64, i64, i64)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
+    }
+}
+
+impl<'a> From<(i64, i64, i64, i64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (i64, i64, i64, i64)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+impl<'a> From<u64> for UniformValue<'a> {
+    #[inline]
+    fn from(v: u64) -> UniformValue<'a> {
+        UniformValue::UnsignedInt64(v)
+    }
+}
+
+impl<'a> From<[u64; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [u64; 2]) -> UniformValue<'a> {
+        UniformValue::UnsignedInt64Vec2(v)
+    }
+}
+
+impl<'a> From<[u64; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [u64; 3]) -> UniformValue<'a> {
+        UniformValue::UnsignedInt64Vec3(v)
+    }
+}
+
+impl<'a> From<[u64; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [u64; 4]) -> UniformValue<'a> {
+        UniformValue::UnsignedInt64Vec4(v)
+    }
+}
+
+impl<'a> From<(u64, u64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (u64, u64)) -> UniformValue<'a> {
+        [v.0, v.1].into()
+    }
+}
+
+impl<'a> From<(u64, u64, u64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (u64, u64, u64)) -> UniformValue<'a> {
+        [v.0, v.1, v.2].into()
+    }
+}
+
+impl<'a> From<(u64, u64, u64, u64)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (u64, u64, u64, u64)) -> UniformValue<'a> {
+        [v.0, v.1, v.2, v.3].into()
+    }
+}
+
+impl<'a> From<[[f32; 2]; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [[f32; 2]; 2]) -> UniformValue<'a> {
+        UniformValue::Mat2(v)
+    }
+}
+
+impl<'a> From<[[f32; 3]; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [[f32; 3]; 3]) -> UniformValue<'a> {
+        UniformValue::Mat3(v)
+    }
+}
+
+impl<'a> From<[[f32; 4]; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [[f32; 4]; 4]) -> UniformValue<'a> {
+        UniformValue::Mat4(v)
+    }
+}
+
+impl<'a> From<[[f64; 2]; 2]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [[f64; 2]; 2]) -> UniformValue<'a> {
+        UniformValue::DoubleMat2(v)
+    }
+}
+
+impl<'a> From<[[f64; 3]; 3]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [[f64; 3]; 3]) -> UniformValue<'a> {
+        UniformValue::DoubleMat3(v)
+    }
+}
+
+impl<'a> From<[[f64; 4]; 4]> for UniformValue<'a> {
+    #[inline]
+    fn from(v: [[f64; 4]; 4]) -> UniformValue<'a> {
+        UniformValue::DoubleMat4(v)
+    }
+}
+
+impl<'a> From<(&'a str, ShaderStage)> for UniformValue<'a> {
+    #[inline]
+    fn from(v: (&'a str, ShaderStage)) -> UniformValue<'a> {
+        UniformValue::Subroutine(v.1, v.0)
     }
 }
 
 impl_uniform_block_basic!(u32, UniformType::UnsignedInt);
-
-impl AsUniformValue for [u32; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedIntVec2(*self)
-    }
-}
-
-impl_uniform_block_basic!([u32; 2], UniformType::UnsignedIntVec2);
-
-impl AsUniformValue for (u32, u32) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedIntVec2([self.0, self.1])
-    }
-}
-
+impl_uniform_block_basic!(i32, UniformType::Int);
+impl_uniform_block_basic!((i32, i32), UniformType::IntVec2);
+impl_uniform_block_basic!((i32, i32, i32), UniformType::IntVec3);
+impl_uniform_block_basic!((i32, i32, i32, i32), UniformType::IntVec4);
+impl_uniform_block_basic!([i32; 2], UniformType::IntVec2);
+impl_uniform_block_basic!([i32; 3], UniformType::IntVec3);
+impl_uniform_block_basic!([i32; 4], UniformType::IntVec4);
 impl_uniform_block_basic!((u32, u32), UniformType::UnsignedIntVec2);
-
-impl AsUniformValue for [u32; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedIntVec3(*self)
-    }
-}
-
-impl_uniform_block_basic!([u32; 3], UniformType::UnsignedIntVec3);
-
-impl AsUniformValue for (u32, u32, u32) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedIntVec3([self.0, self.1, self.2])
-    }
-}
-
 impl_uniform_block_basic!((u32, u32, u32), UniformType::UnsignedIntVec3);
-
-impl AsUniformValue for [u32; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedIntVec4(*self)
-    }
-}
-
+impl_uniform_block_basic!((u32, u32, u32, u32), UniformType::UnsignedIntVec4);
+impl_uniform_block_basic!([u32; 2], UniformType::UnsignedIntVec2);
+impl_uniform_block_basic!([u32; 3], UniformType::UnsignedIntVec3);
 impl_uniform_block_basic!([u32; 4], UniformType::UnsignedIntVec4);
 
-impl AsUniformValue for (u32, u32, u32, u32) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedIntVec4([self.0, self.1, self.2, self.3])
-    }
-}
-
-impl_uniform_block_basic!((u32, u32, u32, u32), UniformType::UnsignedIntVec4);
-
-impl AsUniformValue for bool {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Bool(*self)
-    }
-}
-
 impl_uniform_block_basic!(bool, UniformType::Bool);
-
-impl AsUniformValue for [bool; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::BoolVec2(*self)
-    }
-}
-
-impl_uniform_block_basic!([bool; 2], UniformType::BoolVec2);
-
-impl AsUniformValue for (bool, bool) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::BoolVec2([self.0, self.1])
-    }
-}
-
 impl_uniform_block_basic!((bool, bool), UniformType::BoolVec2);
-
-impl AsUniformValue for [bool; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::BoolVec3(*self)
-    }
-}
-
-impl_uniform_block_basic!([bool; 3], UniformType::BoolVec3);
-
-impl AsUniformValue for (bool, bool, bool) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::BoolVec3([self.0, self.1, self.2])
-    }
-}
-
 impl_uniform_block_basic!((bool, bool, bool), UniformType::BoolVec3);
-
-impl AsUniformValue for [bool; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::BoolVec4(*self)
-    }
-}
-
+impl_uniform_block_basic!((bool, bool, bool, bool), UniformType::BoolVec4);
+impl_uniform_block_basic!([bool; 2], UniformType::BoolVec2);
+impl_uniform_block_basic!([bool; 3], UniformType::BoolVec3);
 impl_uniform_block_basic!([bool; 4], UniformType::BoolVec4);
 
-impl AsUniformValue for (bool, bool, bool, bool) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::BoolVec4([self.0, self.1, self.2, self.3])
-    }
-}
-
-impl_uniform_block_basic!((bool, bool, bool, bool), UniformType::BoolVec4);
-
-impl AsUniformValue for f32 {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Float(*self)
-    }
-}
-
 impl_uniform_block_basic!(f32, UniformType::Float);
-
-impl AsUniformValue for [[f32; 2]; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Mat2(*self)
-    }
-}
-
-impl_uniform_block_basic!([[f32; 2]; 2], UniformType::FloatMat2);
-
-impl AsUniformValue for [[f32; 3]; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Mat3(*self)
-    }
-}
-
-impl_uniform_block_basic!([[f32; 3]; 3], UniformType::FloatMat3);
-
-impl AsUniformValue for [[f32; 4]; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Mat4(*self)
-    }
-}
-
-impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
-
-impl AsUniformValue for (f32, f32) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Vec2([self.0, self.1])
-    }
-}
-
 impl_uniform_block_basic!((f32, f32), UniformType::FloatVec2);
-
-impl AsUniformValue for (f32, f32, f32) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Vec3([self.0, self.1, self.2])
-    }
-}
-
 impl_uniform_block_basic!((f32, f32, f32), UniformType::FloatVec3);
-
-impl AsUniformValue for (f32, f32, f32, f32) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Vec4([self.0, self.1, self.2, self.3])
-    }
-}
-
 impl_uniform_block_basic!((f32, f32, f32, f32), UniformType::FloatVec4);
-
-impl AsUniformValue for [f32; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Vec2(*self)
-    }
-}
-
 impl_uniform_block_basic!([f32; 2], UniformType::FloatVec2);
-
-impl AsUniformValue for [f32; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Vec3(*self)
-    }
-}
-
 impl_uniform_block_basic!([f32; 3], UniformType::FloatVec3);
-
-impl AsUniformValue for [f32; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Vec4(*self)
-    }
-}
-
 impl_uniform_block_basic!([f32; 4], UniformType::FloatVec4);
 
-//TODO bool, i32, u32 and f64 should also be implemented as cgmath and nalgebra variants (i.e. nalgebra::Vec3<f64>).
-// Start of double type variants
-impl AsUniformValue for f64 {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Double(*self)
-    }
-}
-
-impl_uniform_block_basic!(f64, UniformType::Double);
-
-impl AsUniformValue for [f64; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleVec2(*self)
-    }
-}
+impl_uniform_block_basic!([[f32; 2]; 2], UniformType::FloatMat2);
+impl_uniform_block_basic!([[f32; 3]; 3], UniformType::FloatMat3);
+impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
 
 impl_uniform_block_basic!([f64; 2], UniformType::DoubleVec2);
-
-impl AsUniformValue for (f64, f64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleVec2([self.0, self.1])
-    }
-}
-
-impl_uniform_block_basic!((f64, f64), UniformType::DoubleVec2);
-
-impl AsUniformValue for [f64; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleVec3(*self)
-    }
-}
-
 impl_uniform_block_basic!([f64; 3], UniformType::DoubleVec3);
-
-impl AsUniformValue for (f64, f64, f64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleVec3([self.0, self.1, self.2])
-    }
-}
-
-impl_uniform_block_basic!((f64, f64, f64), UniformType::DoubleVec3);
-
-impl AsUniformValue for [f64; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleVec4(*self)
-    }
-}
-
 impl_uniform_block_basic!([f64; 4], UniformType::DoubleVec4);
-
-impl AsUniformValue for (f64, f64, f64, f64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleVec4([self.0, self.1, self.2, self.3])
-    }
-}
-
+impl_uniform_block_basic!(f64, UniformType::Double);
+impl_uniform_block_basic!((f64, f64), UniformType::DoubleVec2);
+impl_uniform_block_basic!((f64, f64, f64), UniformType::DoubleVec3);
 impl_uniform_block_basic!((f64, f64, f64, f64), UniformType::DoubleVec4);
 
-impl AsUniformValue for [[f64; 2]; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleMat2(*self)
-    }
-}
-
-impl_uniform_block_basic!([[f64; 2]; 2], UniformType::DoubleMat2);
-
-impl AsUniformValue for [[f64; 3]; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleMat3(*self)
-    }
-}
-
-impl_uniform_block_basic!([[f64; 3]; 3], UniformType::DoubleMat3);
-
-impl AsUniformValue for [[f64; 4]; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::DoubleMat4(*self)
-    }
-}
-
-impl_uniform_block_basic!([[f64; 4]; 4], UniformType::DoubleMat4);
-
-impl AsUniformValue for i64 {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64(*self as i64)
-    }
-}
-
 impl_uniform_block_basic!(i64, UniformType::Int);
-
-impl AsUniformValue for [i64; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64Vec2(*self)
-    }
-}
-
-impl_uniform_block_basic!([i64; 2], UniformType::Int64Vec2);
-
-impl AsUniformValue for (i64, i64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64Vec2([self.0, self.1])
-    }
-}
-
 impl_uniform_block_basic!((i64, i64), UniformType::Int64Vec2);
-
-impl AsUniformValue for [i64; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64Vec3(*self)
-    }
-}
-
-impl_uniform_block_basic!([i64; 3], UniformType::Int64Vec3);
-
-impl AsUniformValue for (i64, i64, i64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64Vec3([self.0, self.1, self.2])
-    }
-}
-
 impl_uniform_block_basic!((i64, i64, i64), UniformType::Int64Vec3);
-
-impl AsUniformValue for [i64; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64Vec4(*self)
-    }
-}
-
-impl_uniform_block_basic!([i64; 4], UniformType::Int64Vec4);
-
-impl AsUniformValue for (i64, i64, i64, i64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Int64Vec4([self.0, self.1, self.2, self.3])
-    }
-}
-
 impl_uniform_block_basic!((i64, i64, i64, i64), UniformType::Int64Vec4);
 
-impl AsUniformValue for u64 {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64(*self as u64)
-    }
-}
+impl_uniform_block_basic!([i64; 2], UniformType::Int64Vec2);
+impl_uniform_block_basic!([i64; 3], UniformType::Int64Vec3);
+impl_uniform_block_basic!([i64; 4], UniformType::Int64Vec4);
 
 impl_uniform_block_basic!(u64, UniformType::UnsignedInt64);
-
-impl AsUniformValue for [u64; 2] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64Vec2(*self)
-    }
-}
-
-impl_uniform_block_basic!([u64; 2], UniformType::UnsignedInt64Vec2);
-
-impl AsUniformValue for (u64, u64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64Vec2([self.0, self.1])
-    }
-}
-
 impl_uniform_block_basic!((u64, u64), UniformType::UnsignedInt64Vec2);
-
-impl AsUniformValue for [u64; 3] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64Vec3(*self)
-    }
-}
-
-impl_uniform_block_basic!([u64; 3], UniformType::UnsignedInt64Vec3);
-
-impl AsUniformValue for (u64, u64, u64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64Vec3([self.0, self.1, self.2])
-    }
-}
-
 impl_uniform_block_basic!((u64, u64, u64), UniformType::UnsignedInt64Vec3);
-
-impl AsUniformValue for [u64; 4] {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64Vec4(*self)
-    }
-}
-
-impl_uniform_block_basic!([u64; 4], UniformType::UnsignedInt64Vec4);
-
-impl AsUniformValue for (u64, u64, u64, u64) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::UnsignedInt64Vec4([self.0, self.1, self.2, self.3])
-    }
-}
-
 impl_uniform_block_basic!((u64, u64, u64, u64), UniformType::UnsignedInt64Vec4);
 
-// Subroutines
-impl<'a> AsUniformValue for (&'a str, ShaderStage) {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        UniformValue::Subroutine(self.1, self.0)
-    }
-}
+impl_uniform_block_basic!([u64; 2], UniformType::UnsignedInt64Vec2);
+impl_uniform_block_basic!([u64; 3], UniformType::UnsignedInt64Vec3);
+impl_uniform_block_basic!([u64; 4], UniformType::UnsignedInt64Vec4);
+
+impl_uniform_block_basic!([[f64; 2]; 2], UniformType::DoubleMat2);
+impl_uniform_block_basic!([[f64; 3]; 3], UniformType::DoubleMat3);
+impl_uniform_block_basic!([[f64; 4]; 4], UniformType::DoubleMat4);

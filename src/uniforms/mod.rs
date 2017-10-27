@@ -165,7 +165,8 @@ mod value;
 /// Objects of this type can be passed to the `draw()` function.
 pub trait Uniforms {
     /// Calls the parameter once with the name and value of each uniform.
-    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, F);
+    fn visit_values<F>(&self, F)
+        where for<'a> F: FnMut(&str, &UniformValue<'a>) ;
 }
 
 /// Error about a block layout mismatch.
