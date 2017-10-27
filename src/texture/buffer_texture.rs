@@ -76,7 +76,6 @@ use buffer::Buffer;
 use buffer::BufferCreationError;
 use buffer::Content as BufferContent;
 
-use uniforms::AsUniformValue;
 use uniforms::UniformValue;
 
 /// Error that can happen while building the texture part of a buffer texture.
@@ -503,31 +502,23 @@ impl<T> BufferTexture<T> where [T]: BufferContent {
     }
 }
 
-impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
+impl<'a, T: 'a>  From<&'a BufferTexture<T>> for UniformValue<'a> where [T]: BufferContent {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn from(v: &'a BufferTexture<T>)-> UniformValue<'a> {
         // FIXME: handle `glMemoryBarrier` for the buffer
-        UniformValue::BufferTexture(self.as_buffer_texture_ref())
-    }
-}
-
-impl<'a, T: 'a> AsUniformValue for &'a BufferTexture<T> where [T]: BufferContent {
-    #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
-        // FIXME: handle `glMemoryBarrier` for the buffer
-        UniformValue::BufferTexture(self.as_buffer_texture_ref())
+        UniformValue::BufferTexture(v.as_buffer_texture_ref())
     }
 }
 
 /// Holds a reference to a `BufferTexture`.
-#[derive(Copy, Clone)]
-pub struct BufferTextureRef<'a> {
+#[derive(Copy, Clone, Debug)]
+pub struct BufferTextureRef {
     texture: gl::types::GLuint,
     ty: BufferTextureType,
-    marker: PhantomData<&'a ()>,
+    marker: PhantomData<()>,
 }
 
-impl<'a> BufferTextureRef<'a> {
+impl BufferTextureRef {
     /// Return the type of the texture.
     #[inline]
     pub fn get_texture_type(&self) -> BufferTextureType {
@@ -535,7 +526,7 @@ impl<'a> BufferTextureRef<'a> {
     }
 }
 
-impl<'a> TextureExt for BufferTextureRef<'a> {
+impl TextureExt for BufferTextureRef {
     #[inline]
     fn get_texture_id(&self) -> gl::types::GLuint {
         self.texture

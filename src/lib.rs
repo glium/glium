@@ -269,7 +269,7 @@ trait BufferSliceExt<'a> {
     /// Tries to get an object where to write a fence.
     ///
     /// If this function returns `None`, no fence will be created nor written.
-    fn add_fence(&self) -> Option<buffer::Inserter<'a>>;
+    fn add_fence(&self) -> Option<buffer::Inserter>;
 }
 
 /// Internal trait for contexts.
@@ -385,7 +385,7 @@ trait UniformsExt {
     /// Binds the uniforms to a given program.
     ///
     /// Will replace texture and buffer bind points.
-    fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P, &mut Vec<buffer::Inserter<'a>>)
+    fn bind_uniforms<'a, P>(&'a self, &mut CommandContext, &P, &mut Vec<buffer::Inserter>)
                             -> Result<(), DrawError> where P: ProgramExt;
 }
 

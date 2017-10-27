@@ -92,45 +92,37 @@ impl ToGlEnum for MinifySamplerFilter {
 }
 
 /// A sampler.
-#[derive(Debug, Hash, PartialEq, Eq)]
-pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
+#[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
+pub struct Sampler<T>(pub T, pub SamplerBehavior);
 
-impl<'t, T: 't> Sampler<'t, T> {
+impl<T> Sampler<T> {
     /// Builds a new `Sampler` with default parameters.
-    pub fn new(texture: &'t T) -> Sampler<'t, T> {
+    pub fn new(texture: T) -> Sampler<T> {
         Sampler(texture, Default::default())
     }
 
     /// Changes the wrap functions of all three coordinates.
-    pub fn wrap_function(mut self, function: SamplerWrapFunction) -> Sampler<'t, T> {
+    pub fn wrap_function(mut self, function: SamplerWrapFunction) -> Sampler<T> {
         self.1.wrap_function = (function, function, function);
         self
     }
 
     /// Changes the minifying filter of the sampler.
-    pub fn minify_filter(mut self, filter: MinifySamplerFilter) -> Sampler<'t, T> {
+    pub fn minify_filter(mut self, filter: MinifySamplerFilter) -> Sampler<T> {
         self.1.minify_filter = filter;
         self
     }
 
     /// Changes the magnifying filter of the sampler.
-    pub fn magnify_filter(mut self, filter: MagnifySamplerFilter) -> Sampler<'t, T> {
+    pub fn magnify_filter(mut self, filter: MagnifySamplerFilter) -> Sampler<T> {
         self.1.magnify_filter = filter;
         self
     }
 
     /// Changes the magnifying filter of the sampler.
-    pub fn anisotropy(mut self, level: u16) -> Sampler<'t, T> {
+    pub fn anisotropy(mut self, level: u16) -> Sampler<T> {
         self.1.max_anisotropy = level;
         self
-    }
-}
-
-impl<'t, T: 't> Copy for Sampler<'t, T> {}
-
-impl<'t, T: 't> Clone for Sampler<'t, T> {
-    fn clone(&self) -> Self {
-        *self
     }
 }
 
