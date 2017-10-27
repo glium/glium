@@ -11,9 +11,6 @@ use std::rc::Rc;
 use context::CommandContext;
 use sync::{self, LinearSyncFence};
 
-
-pub type RefFences = Rc<Fences>;
-
 /// Contains a list of fences.
 #[derive(Clone)]
 pub struct Fences {
