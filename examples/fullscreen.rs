@@ -100,17 +100,20 @@ fn main() {
         // polling and handling the events received by the window
         let mut enter_pressed = false;
         events_loop.poll_events(|event| match event {
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::Closed => action = support::Action::Stop,
-                WindowEvent::KeyboardInput { input, .. } => {
-                    if let ElementState::Pressed = input.state {
-                        if let Some(VirtualKeyCode::Return) = input.virtual_keycode {
-                            enter_pressed = true;
-                        }
+            Event::WindowEvent { event, window_id } =>
+                if window_id == display.gl_window().id() {
+                    match event {
+                        WindowEvent::Closed => action = support::Action::Stop,
+                        WindowEvent::KeyboardInput { input, .. } => {
+                            if let ElementState::Pressed = input.state {
+                                if let Some(VirtualKeyCode::Return) = input.virtual_keycode {
+                                    enter_pressed = true;
+                                }
+                            }
+                        },
+                        _ => ()
                     }
                 },
-                _ => ()
-            },
             _ => (),
         });
 
