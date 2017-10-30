@@ -307,6 +307,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             #![allow(unused_imports)]
 
             use std::borrow::Cow;
+            use std::rc::Rc;
 
             use texture::any::{{self, TextureAny, TextureAnyLayer, TextureAnyMipmap}};
             use texture::any::{{TextureAnyLayerMipmap, TextureAnyImage, Dimensions}};
@@ -322,6 +323,8 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             use image_format::{{UncompressedFloatFormat, UncompressedIntFormat}};
             use image_format::{{CompressedFormat, DepthFormat, DepthStencilFormat, StencilFormat}};
             use image_format::{{CompressedSrgbFormat, SrgbFormat, UncompressedUintFormat}};
+
+            use context::{{Context, CommandContext}};
 
             use backend::Facade;
             use uniforms::{{UniformValue, AsUniformValue, Sampler}};
@@ -375,7 +378,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         TextureType::DepthStencil => " containing both depth and stencil data",
     })).unwrap();
     (writeln!(dest, ".")).unwrap();
-    (writeln!(dest, "pub struct {}(TextureAny);", name)).unwrap();
+    (writeln!(dest, "
+                #[derive(Clone)]
+                pub struct {}(TextureAny);", name)).unwrap();
 
     // `GlObject` trait impl
     (writeln!(dest, "
@@ -388,6 +393,32 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                     }}
                 }}
             ", name)).unwrap();
+
+    // `TextureExt` trait impl
+    (writeln!(dest, "
+                impl TextureExt for {} {{
+                    #[inline]
+                    fn get_texture_id(&self) -> gl::types::GLuint {{
+                        self.0.get_texture_id()
+                    }}
+
+                    #[inline]
+                    fn get_context(&self) -> &Rc<Context> {{
+                        self.0.get_context()
+                    }}
+
+                    #[inline]
+                    fn get_bind_point(&self) -> gl::types::GLenum {{
+                        self.0.get_bind_point()
+                    }}
+
+                    fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {{
+                        self.0.bind_to_current(ctxt)
+                    }}
+                }}
+            ", name)).unwrap();
+
+
 
     // `Debug` trait impl
     (writeln!(dest, "
@@ -419,17 +450,18 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             TextureType::Srgb | TextureType::CompressedSrgb |
             TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
                 (writeln!(dest, "
-                            impl<'a> AsUniformValue for &'a {myname} {{
+                            impl<'a> From<&'a {myname}> for UniformValue<'a> {{
                                 #[inline]
-                                fn as_uniform_value(&self) -> UniformValue {{
-                                    UniformValue::{myname}(*self, None)
+                                fn from(v: &'a {myname}) -> UniformValue<'a> {{
+                                    UniformValue::{myname}(&v, None)
                                 }}
                             }}
 
-                            impl<'a> AsUniformValue for Sampler<'a, {myname}> {{
+
+                            impl<'a> From<Sampler<&'a {myname}>> for UniformValue<'a>  {{
                                 #[inline]
-                                fn as_uniform_value(&self) -> UniformValue {{
-                                    UniformValue::{myname}(self.0, Some(self.1))
+                                fn from(v: Sampler<&'a {myname}>) -> UniformValue<'a> {{
+                                    UniformValue::{myname}(&v.0, Some(v.1))
                                 }}
                             }}
 
@@ -450,7 +482,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                                 /// # }}
                                 /// ```
                                 #[inline]
-                                pub fn sampled(&self) -> Sampler<{myname}> {{
+                                pub fn sampled(self) -> Sampler<{myname}> {{
                                     Sampler(self, Default::default())
                                 }}
                             }}

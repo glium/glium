@@ -6,28 +6,28 @@ This module handles the fences of a buffer.
 use smallvec::SmallVec;
 use std::cell::RefCell;
 use std::ops::Range;
+use std::rc::Rc;
 
 use context::CommandContext;
 use sync::{self, LinearSyncFence};
 
 /// Contains a list of fences.
+#[derive(Clone)]
 pub struct Fences {
-    fences: RefCell<SmallVec<[(Range<usize>, LinearSyncFence); 16]>>,
+    fences: Rc<RefCell<SmallVec<[(Range<usize>, LinearSyncFence); 16]>>>,
 }
 
 impl Fences {
     /// Initialization.
     pub fn new() -> Fences {
-        Fences {
-            fences: RefCell::new(SmallVec::new()),
-        }
+        Fences { fences: Rc::new(RefCell::new(SmallVec::new())) }
     }
 
     /// Creates an `Inserter` that allows inserting a fence in the list for the given range.
     #[inline]
     pub fn inserter(&self, range: Range<usize>) -> Inserter {
         Inserter {
-            fences: self,
+            fences: self.clone(),
             range: range,
         }
     }
@@ -39,7 +39,7 @@ impl Fences {
 
         for existing in existing_fences.drain() {
             if (existing.0.start >= range.start && existing.0.start < range.end) ||
-               (existing.0.end > range.start && existing.0.end < range.end)
+                (existing.0.end > range.start && existing.0.end < range.end)
             {
                 unsafe { sync::wait_linear_sync_fence_and_drop(existing.1, ctxt) };
             } else {
@@ -60,12 +60,12 @@ impl Fences {
 }
 
 /// Allows inserting a fence in the list.
-pub struct Inserter<'a> {
-    fences: &'a Fences,
+pub struct Inserter {
+    fences: Fences,
     range: Range<usize>,
 }
 
-impl<'a> Inserter<'a> {
+impl Inserter {
     /// Inserts a new fence.
     pub fn insert(self, ctxt: &mut CommandContext) {
         let mut new_fences = SmallVec::new();
@@ -81,12 +81,12 @@ impl<'a> Inserter<'a> {
                 // we are stuck here, because we can't duplicate a fence
                 // so instead we just extend the new fence to the existing one
                 let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
-                new_fences.push((existing.0.start .. self.range.start, existing.1));
-                new_fences.push((self.range.start .. existing.0.end, new_fence));
+                new_fences.push((existing.0.start..self.range.start, existing.1));
+                new_fences.push((self.range.start..existing.0.end, new_fence));
                 written = true;
 
             } else if existing.0.start < self.range.start && existing.0.end >= self.range.start {
-                new_fences.push((existing.0.start .. self.range.start, existing.1));
+                new_fences.push((existing.0.start..self.range.start, existing.1));
                 if !written {
                     let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                     new_fences.push((self.range.clone(), new_fence));
@@ -117,7 +117,7 @@ impl<'a> Inserter<'a> {
                     written = true;
                 }
 
-                new_fences.push((self.range.end .. existing.0.end, existing.1));
+                new_fences.push((self.range.end..existing.0.end, existing.1));
             }
         }
 

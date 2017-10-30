@@ -165,7 +165,8 @@ mod value;
 /// Objects of this type can be passed to the `draw()` function.
 pub trait Uniforms {
     /// Calls the parameter once with the name and value of each uniform.
-    fn visit_values<'a, F: FnMut(&str, UniformValue<'a>)>(&'a self, F);
+    fn visit_values<F>(&self, F)
+        where for<'a> F: FnMut(&str, &UniformValue<'a>) ;
 }
 
 /// Error about a block layout mismatch.
@@ -289,15 +290,21 @@ impl fmt::Display for LayoutMismatchError {
 /// Value that can be used as the value of a uniform.
 ///
 /// This includes buffers and textures for example.
-pub trait AsUniformValue {
+pub trait AsUniformValue<'a> {
     /// Builds a `UniformValue`.
-    fn as_uniform_value(&self) -> UniformValue;
+    fn as_uniform_value(self) -> UniformValue<'a>;
+}
+
+impl<'a, T: 'a> From<T> for UniformValue<'a> where T: AsUniformValue<'a> {
+    fn from(v: T) -> UniformValue<'a> {
+        v.as_uniform_value()
+    }
 }
 
 // TODO: no way to bind a slice
-impl<'a, T: ?Sized> AsUniformValue for &'a Buffer<T> where T: UniformBlock + BufferContent {
+impl<'a, T: ?Sized> AsUniformValue<'a> for &'a Buffer<T> where T: UniformBlock + BufferContent {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(self) -> UniformValue<'a> {
         #[inline]
         fn f<T: ?Sized>(block: &program::UniformBlock)
                         -> Result<(), LayoutMismatchError> where T: UniformBlock + BufferContent
