@@ -23,7 +23,7 @@ use std::io::Cursor;
 let image = image::load(Cursor::new(&include_bytes!("/path/to/image.png")[..]),
                         image::PNG).unwrap().to_rgba();
 let image_dimensions = image.dimensions();
-let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 ```
 
 And in order to upload the image as a texture, it's as simple as:
