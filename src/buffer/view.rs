@@ -1091,6 +1091,32 @@ impl BufferAny {
         }
     }
 
+    /// Builds a mutable typed slice containing the whole subbuffer, without checking the type.
+    #[inline]
+    pub unsafe fn as_typed_slice_mut<T: ?Sized + Content>(&mut self) -> BufferMutSlice<T> {
+        assert_eq!(<T as Content>::get_elements_size(), self.elements_size);
+        BufferMutSlice {
+            alloc: &mut self.alloc,
+            bytes_start: 0,
+            bytes_end: self.size,
+            fence: &self.fence,
+            marker: PhantomData,
+        }
+    }
+
+    /// Builds a typed slice containing the whole subbuffer, without checking the type.
+    #[inline]
+    pub unsafe fn as_typed_slice<T: ?Sized + Content>(&self) -> BufferSlice<T> {
+        assert_eq!(<T as Content>::get_elements_size(), self.elements_size);
+        BufferSlice {
+            alloc: &self.alloc,
+            bytes_start: 0,
+            bytes_end: self.size,
+            fence: &self.fence,
+            marker: PhantomData,
+        }
+    }
+
     /// Returns the size in bytes of each element in the buffer.
     // TODO: clumbsy, remove this function
     #[inline]

@@ -501,6 +501,22 @@ impl<T> From<Buffer<[T]>> for VertexBufferAny where T: Vertex + Copy + Send + 's
     }
 }
 
+impl Deref for VertexBufferAny {
+    type Target = BufferAny;
+
+    #[inline]
+    fn deref(&self) -> &BufferAny {
+        &self.buffer
+    }
+}
+
+impl DerefMut for VertexBufferAny {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut BufferAny {
+        &mut self.buffer
+    }
+}
+
 impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
     #[inline]
     fn into_vertices_source(self) -> VerticesSource<'a> {
