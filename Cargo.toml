@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.18.0"
+version = "0.18.1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
@@ -44,7 +44,7 @@ smallvec = "0.4.2"
 fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.5.5"
+gl_generator = "0.6"
 
 [dev-dependencies]
 cgmath = "0.15"
