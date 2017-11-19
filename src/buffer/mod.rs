@@ -213,7 +213,7 @@ pub enum BufferMode {
     ///
     Default,
 
-    /// The mode to use when you modify a buffer multiple times per frame. Simiar to `Default` in
+    /// The mode to use when you modify a buffer multiple times per frame. Similar to `Default` in
     /// that it is suitable for most usages.
     ///
     /// Use this if you do a quick succession of modify the buffer, draw, modify, draw, etc. This

@@ -125,7 +125,7 @@ fn main() {
         camera.update();
 
 
-        // determing which object has been picked at the previous frame
+        // determine which object has been picked at the previous frame
         let picked_object = {
             let data = picking_pbo.read().map(|d| d[0]).unwrap_or(0);
             if data != 0 {

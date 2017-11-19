@@ -168,7 +168,7 @@ pub enum ReleaseBehavior {
 pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &ExtensionsList)
                                -> Capabilities
 {
-    // GL_CONTEXT_FLAGS are only avaialble from GL 3.0 onwards
+    // GL_CONTEXT_FLAGS are only available from GL 3.0 onwards
     let (debug, forward_compatible) = if version >= &Version(Api::Gl, 3, 0) {
         let mut val = mem::uninitialized();
         gl.GetIntegerv(gl::CONTEXT_FLAGS, &mut val);

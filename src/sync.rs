@@ -10,7 +10,7 @@ use std::rc::Rc;
 
 use std::thread;
 
-/// Error that happens when sync functionnalities are not supported.
+/// Error that happens when sync functionalities are not supported.
 #[derive(Copy, Clone, Debug)]
 pub struct SyncNotSupportedError;
 

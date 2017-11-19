@@ -1,6 +1,6 @@
 use std::ops::{Range, RangeTo, RangeFrom, RangeFull};
 
-/// Temporary re-implemenation of RangeArgument from stdlib while
+/// Temporary re-implementation of RangeArgument from stdlib while
 /// waiting for it to become stable
 pub trait RangeArgument<T> {
     /// Get the (possible) requested first element of a range.

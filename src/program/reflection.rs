@@ -37,7 +37,7 @@ pub struct Uniform {
 /// Information about a uniform block (except its name).
 #[derive(Debug, Clone)]
 pub struct UniformBlock {
-    /// Indentifier of the block.
+    /// Identifier of the block.
     ///
     /// This is internal information, you probably don't need to use it.
     pub id: i32,

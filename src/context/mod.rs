@@ -83,7 +83,7 @@ pub struct Context {
     /// is a normal situation.
     framebuffer_objects: Option<fbo::FramebuffersContainer>,
 
-    /// We maintain a list of vertex array objecs.
+    /// We maintain a list of vertex array objects.
     vertex_array_objects: vertex_array_object::VertexAttributesSystem,
 
     /// We maintain a list of samplers for each possible behavior.
@@ -409,7 +409,7 @@ impl Context {
     /// # Implementation
     ///
     /// If it has been determined that the context has been lost before, then the function
-    /// immediatly returns true. Otherwise, calls `glGetGraphicsResetStatus`. If this function
+    /// immediately returns true. Otherwise, calls `glGetGraphicsResetStatus`. If this function
     /// is not available, returns false.
     pub fn is_context_lost(&self) -> bool {
         if self.state.borrow().lost_context {
@@ -437,7 +437,7 @@ impl Context {
 
     /// Returns the behavior when the current OpenGL context is changed.
     ///
-    /// The most common value is `Flush`. In order to get `None` you must explicitely request it
+    /// The most common value is `Flush`. In order to get `None` you must explicitly request it
     /// during creation.
     #[inline]
     pub fn get_release_behavior(&self) -> ReleaseBehavior {
@@ -597,7 +597,7 @@ impl Context {
     ///
     /// This is helpful to understand where you are when you have big applications.
     ///
-    /// Returns `Err` if the backend doesn't support this functionnality. You can choose whether
+    /// Returns `Err` if the backend doesn't support this functionality. You can choose whether
     /// to call `.unwrap()` if you want to make sure that it works, or `.ok()` if you don't care.
     pub fn insert_debug_marker(&self, marker: &str) -> Result<(), ()> {
         let ctxt = self.make_current();

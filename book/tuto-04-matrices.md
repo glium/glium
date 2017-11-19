@@ -11,7 +11,7 @@ All the geometrical operations that we need can be done with some maths:
 
 But what if we want to do a rotation, then a translation, then a rescale? Or a skew and a rotation? Even though it's possible to do this with maths, things become very complex to handle.
 
-Instead, programers use **matrices**. A matrix is a two-dimensional table of numbers which *can represent a geometrical transformation*. In computer graphics, we use 4x4 matrices.
+Instead, programmers use **matrices**. A matrix is a two-dimensional table of numbers which *can represent a geometrical transformation*. In computer graphics, we use 4x4 matrices.
 
 Let's get back to our moving triangle. We are going to change the vertex shader to use a matrix. Instead of adding the value of `t` to the coordinates, we are going to apply the matrix to them by multiplying it. This applies the transformation described by our matrix to the vertex's coordinates.
 

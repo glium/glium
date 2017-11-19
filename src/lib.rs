@@ -194,7 +194,7 @@ pub trait GlObject {
 // TODO: Handle(null()) is equal to Id(0)
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Hash)]
 pub enum Handle {
-    /// A numberic identifier.
+    /// A numeric identifier.
     Id(gl::types::GLuint),
     /// A `GLhandleARB`.
     Handle(gl::types::GLhandleARB),
@@ -473,7 +473,7 @@ pub struct BlitTarget {
 /// # What does the GPU do when you draw?
 ///
 /// This is a summary of everything that happens when you call the `draw` function. Note that
-/// this is not necessarly *exactly* what happens. Backends are free to do whatever they want
+/// this is not necessarily *exactly* what happens. Backends are free to do whatever they want
 /// as long as it always matches the expected outcome.
 ///
 /// ## Step 1: Vertex shader
@@ -894,7 +894,7 @@ pub enum DrawError {
 
     },
 
-    /// A non-existant subroutine was referenced.
+    /// A non-existent subroutine was referenced.
     SubroutineNotFound {
         /// The stage the subroutine was searched for.
         stage: program::ShaderStage,
@@ -972,7 +972,7 @@ impl Error for DrawError {
             SubroutineUniformMissing { .. } =>
                 "Not all subroutine uniforms of a shader stage were set",
             SubroutineNotFound { .. } =>
-                "A non-existant subroutine was referenced",
+                "A non-existent subroutine was referenced",
             UnsupportedVerticesPerPatch =>
                 "The number of vertices per patch that has been requested is not supported",
             TessellationNotSupported =>
@@ -986,7 +986,7 @@ impl Error for DrawError {
             VerticesSourcesLengthMismatch =>
                 "If you don't use indices, then all vertices sources must have the same size",
             TransformFeedbackNotSupported =>
-                "Requested not to draw primitves, but this is not supported by the backend",
+                "Requested not to draw primitives, but this is not supported by the backend",
             WrongQueryOperation =>
                 "Wrong query operation",
             SmoothingNotSupported =>

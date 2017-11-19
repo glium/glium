@@ -160,7 +160,7 @@ fn time_elapsed() {
 }
 
 #[test]
-#[ignore]       // not sure about the interaction between pritmives_generated and no geometry shader
+#[ignore]       // not sure about the interaction between primitives_generated and no geometry shader
 fn primitives_generated() {
     let display = support::build_display();
 

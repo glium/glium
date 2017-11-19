@@ -35,7 +35,7 @@ pub fn is_tessellation_shader_supported<C: ?Sized>(ctxt: &C) -> bool where C: Ca
     shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
 }
 
-/// Returns true if the backend supports creating and retreiving binary format.
+/// Returns true if the backend supports creating and retrieving binary format.
 #[inline]
 pub fn is_binary_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
     ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
@@ -170,7 +170,7 @@ impl From<ProgramCreationError> for ProgramChooserCreationError {
     }
 }
 
-/// Error while retreiving the binary representation of a program.
+/// Error while retrieving the binary representation of a program.
 #[derive(Copy, Clone, Debug)]
 pub enum GetBinaryError {
     /// The backend doesn't support binary.
