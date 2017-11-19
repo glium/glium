@@ -3,7 +3,7 @@
 ## Version 0.14.0 (2016-04-11)
 
  - Updated glutin to version 0.5.
- - Various bufixes.
+ - Various bugfixes.
 
 ## Version 0.13.5 (2016-02-04)
 
@@ -13,7 +13,7 @@
 ## Version 0.13.4 (2016-01-21)
 
  - Added support for shader subroutines.
- - Added various functions to `Context` to retreive information (like the content of `GL_VENDOR` or `GL_RENDERER` for example).
+ - Added various functions to `Context` to retrieve information (like the content of `GL_VENDOR` or `GL_RENDERER` for example).
  - Added additional dimensions getters to the various texture types.
 
 ## Version 0.13.3 (2016-01-08)
@@ -159,7 +159,7 @@
 
  - Textures are now inside submodules (for example `Texture2d` is in `texture::texture2d::Texture2d`) and reexported from `texture`.
  - Added `Context::flush()` and `Context::finish()`. Deprecated `Context::synchronize`.
- - Removed `Sized` contraint for `Surface` that was preventing one from using `&Surface` or `&mut Surface`.
+ - Removed `Sized` constraint for `Surface` that was preventing one from using `&Surface` or `&mut Surface`.
  - Added `TextureAnyMipmap::raw_upload_from_pixel_buffer`.
  - Moved the `pixel_buffer` module to `texture::pixel_buffer` (the old module still exists for backward compatibility).
 

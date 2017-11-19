@@ -67,7 +67,7 @@ Each source can be:
  - A reference to a `VertexBuffer`.
  - A slice of a vertex buffer, by calling `vertex_buffer.slice(start .. end).unwrap()`.
  - A vertex buffer where each element corresponds to an instance, by
-   caling `vertex_buffer.per_instance()`.
+   calling `vertex_buffer.per_instance()`.
  - The same with a slice, by calling `vertex_buffer.slice(start .. end).unwrap().per_instance()`.
  - A marker indicating a number of vertex sources, with `glium::vertex::EmptyVertexAttributes`.
  - A marker indicating a number of instances, with `glium::vertex::EmptyInstanceAttributes`.
@@ -118,7 +118,7 @@ Note that if you use `index::EmptyIndices` as indices the length of all vertex s
 be the same, or a `DrawError::VerticesSourcesLengthMismatch` will be produced.
 
 In all situation, the length of all per-instance sources must match, or
-`DrawError::InstancesCountMismatch` will be retured.
+`DrawError::InstancesCountMismatch` will be returned.
 
 # Transform feedback
 

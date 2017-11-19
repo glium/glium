@@ -67,7 +67,7 @@ impl ComputeShader {
 
     /// Executes the compute shader.
     ///
-    /// `x * y * z` work groups will be started. The current work group can be retreived with
+    /// `x * y * z` work groups will be started. The current work group can be retrieved with
     /// `gl_WorkGroupID`. Inside each work group, additional local work groups can be started
     /// depending on the attributes of the compute shader itself.
     #[inline]

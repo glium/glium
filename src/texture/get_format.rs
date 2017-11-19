@@ -35,7 +35,7 @@ impl Error for GetFormatError {
 
 /// Internal format of a texture.
 ///
-/// The actual format of a texture is not necessarly one of the predefined ones, so we have
+/// The actual format of a texture is not necessarily one of the predefined ones, so we have
 /// to use a very generic description.
 // TODO: change bits to be u16 for consistency with the rest of the library
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

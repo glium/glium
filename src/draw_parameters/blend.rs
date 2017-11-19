@@ -89,7 +89,7 @@ pub enum BlendingFunction {
         destination: LinearBlendingFactor,
     },
 
-    /// For each individual component (red, green, blue, and alpha), a weighted substraction
+    /// For each individual component (red, green, blue, and alpha), a weighted subtraction
     /// of the source by the destination.
     ///
     /// The result is equal to `source_component * source_factor - dest_component * dest_factor`,
@@ -103,7 +103,7 @@ pub enum BlendingFunction {
         destination: LinearBlendingFactor,
     },
 
-    /// For each individual component (red, green, blue, and alpha), a weighted substraction
+    /// For each individual component (red, green, blue, and alpha), a weighted subtraction
     /// of the destination by the source.
     ///
     /// The result is equal to `-source_component * source_factor + dest_component * dest_factor`,
@@ -168,14 +168,14 @@ pub enum LinearBlendingFactor {
     /// in `Blend::const_value`.
     ConstantColor,
 
-    /// Multiply the source or destination compoent by `1.0` minus the corresponding
+    /// Multiply the source or destination component by `1.0` minus the corresponding
     /// value in `Blend::const_value`.
     OneMinusConstantColor,
 
     /// Multiply the source or destination component by the alpha value of `Blend::const_value`.
     ConstantAlpha,
 
-    /// Multiply the source or destination componet by `1.0` minus the alpha value of
+    /// Multiply the source or destination component by `1.0` minus the alpha value of
     /// `Blend::const_value`.
     OneMinusConstantAlpha,
 }

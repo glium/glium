@@ -107,7 +107,7 @@ impl<'a> IndicesSource<'a> {
 /// type](https://msdn.microsoft.com/en-us/library/windows/desktop/bb205124%28v=vs.85%29.aspx).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PrimitiveType {
-    /// Each vertex is an invidiual point.
+    /// Each vertex is an individual point.
     Points,
 
     /// Vertices are grouped by chunks of two vertices. Each chunk represents a line.

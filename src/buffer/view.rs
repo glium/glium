@@ -1118,14 +1118,14 @@ impl BufferAny {
     }
 
     /// Returns the size in bytes of each element in the buffer.
-    // TODO: clumbsy, remove this function
+    // TODO: clumsy, remove this function
     #[inline]
     pub fn get_elements_size(&self) -> usize {
         self.elements_size
     }
 
     /// Returns the number of elements in the buffer.
-    // TODO: clumbsy, remove this function
+    // TODO: clumsy, remove this function
     #[inline]
     pub fn get_elements_count(&self) -> usize {
         self.size / self.elements_size
@@ -1301,14 +1301,14 @@ impl<'a> BufferAnySlice<'a> {
     }
 
     /// Returns the size in bytes of each element in the buffer.
-    // TODO: clumbsy, remove this function
+    // TODO: clumsy, remove this function
     #[inline]
     pub fn get_elements_size(&self) -> usize {
         self.elements_size
     }
 
     /// Returns the number of elements in the buffer.
-    // TODO: clumbsy, remove this function
+    // TODO: clumsy, remove this function
     #[inline]
     pub fn get_elements_count(&self) -> usize {
         self.get_size() / self.elements_size

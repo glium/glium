@@ -235,7 +235,7 @@ fn main() {
 
     // The parameter sets the amount of frames between requesting the image
     // transfer and picking it up. If the value is too small, the main thread
-    // will block waiting for the image to finish transfering. Tune it based on
+    // will block waiting for the image to finish transferring. Tune it based on
     // your requirements.
     let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
 

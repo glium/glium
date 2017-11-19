@@ -15,7 +15,7 @@ fn main() {
         Version(Api::GlEs, _, _) => "OpenGL ES"
     };
 
-    println!("{} context verson: {}", api, display.get_opengl_version_string());
+    println!("{} context version: {}", api, display.get_opengl_version_string());
 
     print!("{} context flags:", api);
     if display.is_forward_compatible() {

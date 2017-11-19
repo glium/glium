@@ -618,7 +618,7 @@ impl QueryExt for RawQuery {
             }
         }
 
-        // de-activating the existing conditionnal render first
+        // de-activating the existing conditional render first
         if ctxt.state.conditional_render.is_some() {
             RawQuery::end_conditional_render(ctxt);
         }
@@ -749,7 +749,7 @@ macro_rules! impl_helper {
             /// This function doesn't block. Instead it submits a commands to the GPU's commands
             /// queue and orders the GPU to write the result of the query to a buffer.
             ///
-            /// This operation is not necessarly supported everywhere.
+            /// This operation is not necessarily supported everywhere.
             #[inline]
             pub fn to_buffer_u32(&self, target: BufferSlice<u32>)
                                  -> Result<(), ToBufferError>

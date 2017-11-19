@@ -2,7 +2,7 @@
 
 Instead of drawing a triangle, we are now going to draw a more complex shape: a teapot.
 The Utah teapot is a famous 3D model that is often considered as one of the "hello world"s of
-graphics programing.
+graphics programming.
 
 In a real application, complex models (by "complex" I mean anything more than a few vertices)
 are loaded from files at runtime. But for the purpose of this tutorial, we are going to use a Rust

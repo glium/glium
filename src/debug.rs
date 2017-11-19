@@ -158,7 +158,7 @@ impl TimestampQuery {
 
     /// Queries the counter to see if the timestamp is already available.
     ///
-    /// It takes some time to retreive the value, during which you can execute other
+    /// It takes some time to retrieve the value, during which you can execute other
     /// functions.
     pub fn is_ready(&self) -> bool {
         use std::mem;
