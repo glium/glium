@@ -353,16 +353,15 @@ macro_rules! implement_uniform_block {
                                     name: stringify!($field_name).to_owned(),
                                 })
                             };
-
+                            let dummy: *const $struct_name = unsafe { mem::zeroed() };
                             let input_offset = {
-                                let dummy: &$struct_name = unsafe { mem::zeroed() };
-                                let dummy_field: *const _ = &dummy.$field_name;
-                                dummy_field as *const () as usize
+                                let possibly_fat_pointer_to_field=unsafe{&(*dummy).$field_name};
+                                let pointer_to_possibly_fat_pointer_to_field:&u64=unsafe{mem::transmute( &possibly_fat_pointer_to_field )};
+                                let pointer_to_field=*pointer_to_possibly_fat_pointer_to_field;
+                                pointer_to_field as usize
                             };
 
-                            let dummy: &$struct_name = unsafe { mem::uninitialized() };
-
-                            match matches_from_ty(&dummy.$field_name, reflected_ty, input_offset) {
+                            match matches_from_ty(unsafe{&(*dummy).$field_name}, reflected_ty, input_offset) {
                                 Ok(_) => (),
                                 Err(e) => return Err(LayoutMismatchError::MemberMismatch {
                                     member: stringify!($field_name).to_owned(),
