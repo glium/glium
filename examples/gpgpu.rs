@@ -14,12 +14,13 @@ fn main() {
 
             layout(std140) buffer MyBlock {
                 float power;
-                float values[256];
+                vec4 values[4096/4];
             };
 
             void main() {
-                float val = values[gl_GlobalInvocationID.x];
-                values[gl_GlobalInvocationID.x] = pow(val, power);
+                vec4 val = values[gl_GlobalInvocationID.x];
+
+                values[gl_GlobalInvocationID.x] = pow(val, vec4(power,power,power,power));
             }
 
         "#).unwrap();
@@ -27,7 +28,7 @@ fn main() {
     struct Data {
         power: f32,
         _padding: [f32; 3],
-        values: [f32],
+        values: [[f32;4]],
     }
 
     implement_buffer_content!(Data);
@@ -36,13 +37,13 @@ fn main() {
     const NUM_VALUES: usize = 4096;
 
     let mut buffer: glium::uniforms::UniformBuffer<Data> =
-              glium::uniforms::UniformBuffer::empty_unsized(&display, 4 + 4 * NUM_VALUES).unwrap();
+              glium::uniforms::UniformBuffer::empty_unsized(&display, 4 + 4*3 + 4 * NUM_VALUES).unwrap();
 
     {
         let mut mapping = buffer.map();
         mapping.power = rand::random();
         for val in mapping.values.iter_mut() {
-            *val = rand::random();
+            *val = [rand::random::<f32>(),rand::random::<f32>(),rand::random::<f32>(),rand::random::<f32>()];
         }
     }
 
@@ -51,8 +52,11 @@ fn main() {
     {
         let mapping = buffer.map();
         println!("Power is: {:?}", mapping.power);
-        for val in mapping.values.iter().take(10) {
-            println!("{:?}", *val);
+        for val in mapping.values.iter().take(3) {
+            println!("{:?}", val[0]);
+            println!("{:?}", val[1]);
+            println!("{:?}", val[2]);
+            println!("{:?}", val[3]);
         }
         println!("...");
     }
