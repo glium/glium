@@ -1034,6 +1034,9 @@ fn glenum_to_attribute_type(value: gl::types::GLenum) -> AttributeType {
         gl::FLOAT_MAT3x4 => AttributeType::F32x3x4,
         gl::FLOAT_MAT4x2 => AttributeType::F32x4x2,
         gl::FLOAT_MAT4x3 => AttributeType::F32x4x3,
+        gl::DOUBLE => AttributeType::F64,
+        gl::DOUBLE_VEC2 => AttributeType::F64F64,
+        gl::DOUBLE_VEC3 => AttributeType::F64F64F64,
         gl::DOUBLE_VEC4 => AttributeType::F64F64F64F64,
         v => panic!("Unknown value returned by OpenGL attribute type: {}", v)
     }
