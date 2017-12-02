@@ -4,6 +4,7 @@ extern crate rand;
 use glium::glutin;
 
 fn main() {
+
     let context = glutin::HeadlessRendererBuilder::new(1024, 1024).build().unwrap();
     let display = glium::HeadlessRenderer::new(context).unwrap();
 
@@ -20,7 +21,7 @@ fn main() {
             void main() {
                 vec4 val = values[gl_GlobalInvocationID.x];
 
-                values[gl_GlobalInvocationID.x] = pow(val, vec4(power,power,power,power));
+                values[gl_GlobalInvocationID.x] = pow(val, vec4(power));
             }
 
         "#).unwrap();
