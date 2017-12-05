@@ -26,6 +26,7 @@ fn main() {
 
         "#).unwrap();
 
+    #[repr(C)]
     struct Data {
         power: f32,
         _padding: [f32; 3],
