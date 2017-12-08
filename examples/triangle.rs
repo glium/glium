@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate glium;
 
-mod support;
-
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
