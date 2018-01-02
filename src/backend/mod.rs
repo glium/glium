@@ -16,8 +16,7 @@ use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
 
-use CapabilitiesSource;
-use SwapBuffersError;
+use {Frame, CapabilitiesSource, SwapBuffersError};
 
 use context::Capabilities;
 use context::ExtensionsList;
@@ -78,6 +77,17 @@ unsafe impl<T> Backend for Rc<T> where T: Backend {
 pub trait Facade {
     /// Returns an opaque type that contains the OpenGL state, extensions, version, etc.
     fn get_context(&self) -> &Rc<Context>;
+
+    /// Start drawing on the backbuffer.
+    ///
+    /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
+    /// destroyed, the buffers are swapped.
+    ///
+    /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
+    ///
+    /// With `Display`, if the framebuffer dimensions have changed since the last call to `draw`,
+    /// the inner glutin context will be resized accordingly before returning the `Frame`.
+    fn draw(&self) -> Frame;
 }
 
 impl<T: ?Sized> CapabilitiesSource for T where T: Facade {
@@ -98,5 +108,10 @@ impl Facade for Rc<Context> {
     #[inline]
     fn get_context(&self) -> &Rc<Context> {
         self
+    }
+
+    #[inline]
+    fn draw(&self) -> Frame {
+        Frame::new(self.clone(), self.get_framebuffer_dimensions())
     }
 }

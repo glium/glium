@@ -2,6 +2,7 @@
 extern crate glium;
 
 use glium::{glutin, Surface};
+use glium::backend::Facade;
 
 mod support;
 
