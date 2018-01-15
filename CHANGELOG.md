@@ -1,5 +1,52 @@
 # Change Log
 
+## Unreleased
+
+ - Updated glutin to version 0.12.
+ - Updated smallvec from version 0.4 to 0.6.
+ - Updated misc internal dependencies and dev-dependencies (lazy_static, cgmath, rand, image, gl_generator).
+
+## Version 0.19.0 (2017-12-11)
+
+ - Updated glutin to version 0.11. Notably includes the [winit 0.9 update](https://github.com/tomaka/winit/blob/master/CHANGELOG.md#version-090-2017-12-01).
+ - Updated gl_generator to 0.7 (internal dependency).
+
+## Version 0.18.1 (2017-11-05)
+
+ - Fixed links pointing to tomaka/glium instead of glium/glium
+ - Various documentation updates, bugfixes, and dependency updates.
+
+## Version 0.18.0 (2017-10-15)
+
+ - Updated glutin to version 0.10.
+ - Added support for is_buffer_supported usage on all buffer types.
+ - Various documentation updates and bugfixes.
+
+## Version 0.17.1 (2017-08-27)
+
+ - Changed documentation to docs.rs.
+ - Various bugfixes and updates to internal dependencies.
+
+## Version 0.17.0 (2017-07-12)
+
+ - Updated glutin to version 0.9.
+ - Redesigned API around EventsLoop to match updated winit design.
+ - Added support for vector normalization.
+ - Various bugfixes.
+
+## Version 0.16.0 (2017-01-07)
+
+ - Added asynchronous screenshot example.
+ - Updated tutorials to compile on Mac OS X.
+ - Various tutorial documentation updates.
+ - Fix buffer reads which could fail being safe.
+ - Various bugfixes.
+
+## Version 0.15.0 (2016-07-03)
+
+ - Updated glutin to version 0.6.1
+ - Various internal dependency updates.
+
 ## Version 0.14.0 (2016-04-11)
 
  - Updated glutin to version 0.5.
