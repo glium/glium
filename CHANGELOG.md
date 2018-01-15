@@ -5,6 +5,7 @@
  - Updated glutin to version 0.12.
  - Updated smallvec from version 0.4 to 0.6.
  - Updated misc internal dependencies and dev-dependencies (lazy_static, cgmath, rand, image, gl_generator).
+ - Replaced the `IntoVerticesSource` trait with `Into<VerticesSource>`.
 
 ## Version 0.19.0 (2017-12-11)
 
