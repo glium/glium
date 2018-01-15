@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+ - Updated glutin to version 0.12.
+ - Updated smallvec from version 0.4 to 0.6.
+ - Updated misc internal dependencies and dev-dependencies (lazy_static, cgmath, rand, image, gl_generator).
+
 ## Version 0.14.0 (2016-04-11)
 
  - Updated glutin to version 0.5.
