@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 use utils::range::RangeArgument;
 
 use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
-use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
+use vertex::{Vertex, VerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
 use gl;
@@ -392,9 +392,9 @@ impl<'a, T> From<&'a mut VertexBuffer<T>> for BufferMutSlice<'a, [T]> where T: C
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Copy {
+impl<'a, T> Into<VerticesSource<'a>> for &'a VertexBuffer<T> where T: Copy {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
@@ -422,9 +422,9 @@ impl<'a, T> From<VertexBufferSlice<'a, T>> for BufferSlice<'a, [T]> where T: Cop
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy {
+impl<'a, T> Into<VerticesSource<'a>> for VertexBufferSlice<'a, T> where T: Copy {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
@@ -517,9 +517,9 @@ impl DerefMut for VertexBufferAny {
     }
 }
 
-impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
+impl<'a> Into<VerticesSource<'a>> for &'a VertexBufferAny {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
